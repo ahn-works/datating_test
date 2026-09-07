@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui'; // ImageFilter 를 위해 추가
 import '../data/dummy_data.dart';
 import 'profile_detail_screen.dart';
 import 'notification_screen.dart';
@@ -45,22 +46,30 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // 블러 처리된 프로필 사진 영역
                     Expanded(
-                      flex: 3,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.remove_red_eye_outlined, color: Colors.white70, size: 40),
-                              SizedBox(height: 8),
-                              Text('블러 처리된 사진 (클릭하여 엿보기)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                            ],
-                          )
+                      flex: 4,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(user['profileUrl'], fit: BoxFit.cover),
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                              child: Container(color: Colors.black.withOpacity(0.1)),
+                            ),
+                            const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.remove_red_eye_outlined, color: Colors.white, size: 40),
+                                  SizedBox(height: 8),
+                                  Text('터치하여 프로필 엿보기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                ],
+                              )
+                            ),
+                          ],
                         ),
                       ),
                     ),

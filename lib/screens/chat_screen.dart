@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/dummy_data.dart';
 import 'chat_room_screen.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -7,104 +8,51 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('진행 중인 시그널', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-        backgroundColor: Colors.transparent,
+        title: const Text('대화', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildSectionTitle('1:1 익명 대화'),
-          _buildChatTile(
-            context: context,
-            name: '익명의 누군가',
-            message: '안녕하세요! 취향 태그 보고 말 걸어봤어요. 😊',
-            isGroup: false,
-            trailingText: '05:23 남음',
-            trailingColor: Colors.redAccent,
-          ),
-          const SizedBox(height: 24),
-          _buildSectionTitle('시그널 하우스 단톡방'),
-          _buildChatTile(
-            context: context,
-            name: '시그널 하우스 3기 (4:4)',
-            message: '오늘의 미션: 가장 좋아하는 음악 공유 완료!',
-            isGroup: true,
-            trailingText: '미션 달성률 80%',
-            trailingColor: Colors.blueAccent,
-          ),
-        ],
-      ),
-    );
-  }
+      body: ListView.separated(
+        itemCount: DummyData.chats.length,
+        separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF5F5F5)),
+        itemBuilder: (context, index) {
+          final chat = DummyData.chats[index];
+          final hasProfile = chat['profileUrl'] != null;
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-      ),
-    );
-  }
-
-  Widget _buildChatTile({
-    required BuildContext context,
-    required String name,
-    required String message,
-    required bool isGroup,
-    required String trailingText,
-    required Color trailingColor,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))],
-      ),
-      child: ListTile(
-        onTap: () {
-          // 채팅 타일을 누르면 해당 채팅방 내부로 이동
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatRoomScreen(title: name, isGroup: isGroup),
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            leading: CircleAvatar(
+              radius: 28,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: hasProfile ? NetworkImage(chat['profileUrl']) : null,
+              child: !hasProfile ? const Icon(Icons.person_search, color: Colors.grey) : null,
             ),
+            title: Text(chat['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Text(chat['lastMessage'], style: const TextStyle(color: Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(chat['time'], style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                const SizedBox(height: 6),
+                if (chat['unread'] > 0)
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(color: Color(0xFFFF8A65), shape: BoxShape.circle),
+                    child: Text('${chat['unread']}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+              ],
+            ),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatRoomScreen(title: chat['name'])));
+            },
           );
         },
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: isGroup ? const Color(0xFFFFF0EC) : Colors.grey[300],
-          child: Icon(
-            isGroup ? Icons.home_rounded : Icons.person,
-            color: isGroup ? const Color(0xFFFF8A65) : Colors.white,
-          ),
-        ),
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(message, maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: trailingColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                trailingText,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: trailingColor),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
