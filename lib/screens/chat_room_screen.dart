@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
-import 'middle_spot_map_screen.dart'; // 새롭게 추가된 지도 화면 임포트
+import 'meet_proposal_screen.dart';
+import 'middle_spot_map_screen.dart';
 
-class ChatRoomScreen extends StatelessWidget {
+class ChatRoomScreen extends StatefulWidget {
   final String title;
   final bool isGroup;
 
   const ChatRoomScreen({super.key, required this.title, this.isGroup = false});
 
   @override
+  State<ChatRoomScreen> createState() => _ChatRoomScreenState();
+}
+
+class _ChatRoomScreenState extends State<ChatRoomScreen> {
+  final String _timeLeft = "05:23"; // dummy time
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F8),
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            if (!isGroup)
-              const Text('⏳ 05:23 남음', style: TextStyle(fontSize: 12, color: Colors.redAccent)),
-          ],
-        ),
+        title: Text(widget.title, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
+        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
-          if (!isGroup)
+          if (!widget.isGroup)
             Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: TextButton.icon(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+              child: ElevatedButton(
                 onPressed: () {
-                  // '중간지점 제안' 클릭 시 지도 및 보증금 결제 화면으로 이동
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MiddleSpotMapScreen()),
-                  );
+                  showDialog(context: context, builder: (context) => const MeetProposalScreen());
                 },
-                icon: const Icon(Icons.location_on, color: Color(0xFFFF8A65), size: 18),
-                label: const Text('중간지점 제안', style: TextStyle(color: Color(0xFFFF8A65), fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF8A65), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: const Text('만남 제안', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ),
+          if (!widget.isGroup)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Text(
+                  '$_timeLeft / 10:00',
+                  style: const TextStyle(color: Color(0xFFFF8A65), fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            )
         ],
       ),
       body: Column(
@@ -46,13 +54,13 @@ class ChatRoomScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _buildSystemMessage('10분 익명 대화가 시작되었습니다.\n취향과 모임을 주제로 편하게 대화해보세요!'),
+                _buildSystemMessage('10분 익명 대화가 시작되었습니다\n취향과 모임의 주제를 편하게 이야기해보세요.'),
                 const SizedBox(height: 16),
-                _buildChatBubble(isMe: false, message: '안녕하세요! 취향 태그 보고 말 걸어봤어요. 😊'),
+                _buildChatBubble(isMe: false, message: '안녕하세요! 취향 태그 보고 말걸어봤어요 ㅎㅎ'),
                 const SizedBox(height: 8),
-                _buildChatBubble(isMe: true, message: '안녕하세요! 반갑습니다 ㅎㅎ\n커피 좋아하시나봐요!'),
+                _buildChatBubble(isMe: true, message: '안녕하세요 반갑습니다!ㅎㅎ\n커피 좋아하시나봐요'),
                 const SizedBox(height: 8),
-                _buildChatBubble(isMe: false, message: '네 완전 좋아해요! 주말마다 카페 투어 다니거든요.'),
+                _buildChatBubble(isMe: false, message: '네 완전 좋아해요! 주말마다 카페 투어 다니거든요'),
               ],
             ),
           ),

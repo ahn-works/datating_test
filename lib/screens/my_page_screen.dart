@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'edit_profile_screen.dart';
+import 'wallet_history_screen.dart';
+import 'settings_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -57,10 +59,13 @@ class MyPageScreen extends StatelessWidget {
           _buildMenuTile(Icons.person_outline, '프로필 및 취향 수정', onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
           }),
-          _buildMenuTile(Icons.account_balance_wallet_outlined, '결제 내역 및 보증금 지갑', onTap: (){}),
+          _buildMenuTile(Icons.account_balance_wallet_outlined, '결제 내역 및 보증금 지갑', onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const WalletHistoryScreen()));
+          }),
           _buildMenuTile(Icons.verified_user_outlined, '인증 센터 (직장/학교)', onTap: (){}),
-          _buildMenuTile(Icons.notifications_none, '알림 설정', onTap: (){}),
-          _buildMenuTile(Icons.support_agent, '고객 센터', onTap: (){}),
+          _buildMenuTile(Icons.settings_outlined, '설정 및 고객 센터', onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+          }),
         ],
       ),
     );

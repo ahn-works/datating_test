@@ -31,7 +31,13 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: PageView.builder(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Simulate network delay
+          await Future.delayed(const Duration(seconds: 1));
+        },
+        color: const Color(0xFFFF8A65),
+        child: PageView.builder(
         itemCount: DummyData.users.length,
         itemBuilder: (context, index) {
           final user = DummyData.users[index];
@@ -118,6 +124,7 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         },
+      ),
       ),
     );
   }
