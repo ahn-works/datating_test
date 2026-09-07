@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; 
+import 'permission_screen.dart'; 
 
 class VoicePingScreen extends StatelessWidget {
   const VoicePingScreen({super.key});
@@ -36,12 +36,12 @@ class VoicePingScreen extends StatelessWidget {
             const Text('버튼을 누르고 말하세요', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
             const Spacer(),
             ElevatedButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainNavigation()), (route) => false),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PermissionScreen())),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.black87, minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-              child: const Text('녹음 완료하고 스팟10 시작하기', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              child: const Text('녹음 완료하고 다음으로', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             TextButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainNavigation()), (route) => false),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PermissionScreen())),
               child: const Text('나중에 할게요', style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline)),
             ),
             const SizedBox(height: 20),
