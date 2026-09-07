@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'auth_pass_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -28,17 +29,21 @@ class LoginScreen extends StatelessWidget {
               ),
               const Spacer(),
               _buildSocialButton(
-                text: '카카오로 시작하기',
+                context: context,
+                icon: Icons.chat_bubble,
+                label: '카카오로 시작하기',
                 color: const Color(0xFFFEE500),
                 textColor: Colors.black87,
-                icon: Icons.chat_bubble, // 카카오 아이콘 대체
+                targetScreen: const AuthPassScreen(),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               _buildSocialButton(
-                text: 'Apple로 시작하기',
+                context: context,
+                icon: Icons.apple,
+                label: 'Apple로 시작하기',
                 color: Colors.black,
                 textColor: Colors.white,
-                icon: Icons.apple,
+                targetScreen: const AuthPassScreen(),
               ),
               const SizedBox(height: 32),
               const Center(
@@ -52,21 +57,31 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialButton({required String text, required Color color, required Color textColor, required IconData icon}) {
+  Widget _buildSocialButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color textColor,
+    required Widget targetScreen,
+  }) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => targetScreen));
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        foregroundColor: textColor,
+        minimumSize: const Size(double.infinity, 56),
         elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: textColor, size: 20),
+          Icon(icon, color: textColor),
           const SizedBox(width: 12),
-          Text(text, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       ),
     );

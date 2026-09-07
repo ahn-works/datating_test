@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'voice_ping_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -38,13 +39,15 @@ class OnboardingScreen extends StatelessWidget {
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const VoicePingScreen()));
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF8A65),
                 minimumSize: const Size(double.infinity, 56),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('다음 단계로 (음성 등록)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: const Text('다음 단계로', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ],
         ),
