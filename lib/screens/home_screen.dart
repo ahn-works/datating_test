@@ -3,6 +3,7 @@ import 'dart:ui'; // ImageFilter 를 위해 추가
 import '../data/dummy_data.dart';
 import 'profile_detail_screen.dart';
 import 'notification_screen.dart';
+import 'filter_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,6 +17,12 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.tune, color: Colors.black87, size: 28),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const FilterScreen()));
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.black87, size: 28),
             onPressed: () {

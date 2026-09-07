@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'edit_profile_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -53,17 +54,19 @@ class MyPageScreen extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           // Menus
-          _buildMenuTile(Icons.person_outline, '프로필 및 취향 수정'),
-          _buildMenuTile(Icons.account_balance_wallet_outlined, '결제 내역 및 보증금 지갑'),
-          _buildMenuTile(Icons.verified_user_outlined, '인증 센터 (직장/학교)'),
-          _buildMenuTile(Icons.notifications_none, '알림 설정'),
-          _buildMenuTile(Icons.support_agent, '고객 센터'),
+          _buildMenuTile(Icons.person_outline, '프로필 및 취향 수정', onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+          }),
+          _buildMenuTile(Icons.account_balance_wallet_outlined, '결제 내역 및 보증금 지갑', onTap: (){}),
+          _buildMenuTile(Icons.verified_user_outlined, '인증 센터 (직장/학교)', onTap: (){}),
+          _buildMenuTile(Icons.notifications_none, '알림 설정', onTap: (){}),
+          _buildMenuTile(Icons.support_agent, '고객 센터', onTap: (){}),
         ],
       ),
     );
   }
 
-  Widget _buildMenuTile(IconData icon, String title) {
+  Widget _buildMenuTile(IconData icon, String title, {required VoidCallback onTap}) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
@@ -73,7 +76,7 @@ class MyPageScreen extends StatelessWidget {
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }
