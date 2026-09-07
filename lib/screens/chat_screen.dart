@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../data/dummy_data.dart';
-import 'chat_room_screen.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -10,47 +8,21 @@ class ChatScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('대화', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('채팅', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView.separated(
-        itemCount: DummyData.chats.length,
-        separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF5F5F5)),
-        itemBuilder: (context, index) {
-          final chat = DummyData.chats[index];
-          final hasProfile = chat['profileUrl'] != null;
-
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 5,
+        itemBuilder: (context, i) {
+          final names = ['지은', '민서', '유스', '하나', '언니'];
+          final msgs = ['오늘 여행 언제에요?', '냔일 끈 등산 가고 싶이!', '계획저 보내드릴게요', '좋아요!! 함께 가요', '다음 여행은 언제죣?'];
           return ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            leading: CircleAvatar(
-              radius: 28,
-              backgroundColor: Colors.grey[200],
-              backgroundImage: hasProfile ? NetworkImage(chat['profileUrl']) : null,
-              child: !hasProfile ? const Icon(Icons.person_search, color: Colors.grey) : null,
-            ),
-            title: Text(chat['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text(chat['lastMessage'], style: const TextStyle(color: Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(chat['time'], style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                const SizedBox(height: 6),
-                if (chat['unread'] > 0)
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(color: Color(0xFFFF8A65), shape: BoxShape.circle),
-                    child: Text('${chat['unread']}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                  ),
-              ],
-            ),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatRoomScreen(title: chat['name'])));
-            },
+            leading: CircleAvatar(backgroundColor: const Color(0xFFFF3B30).withOpacity(0.1 * (i + 1)), child: Text(names[i][0], style: const TextStyle(color: Color(0xFFFF3B30), fontWeight: FontWeight.bold))),
+            title: Text(names[i], style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(msgs[i], overflow: TextOverflow.ellipsis),
+            trailing: const Text('오전', style: TextStyle(color: Colors.grey, fontSize: 12)),
           );
         },
       ),

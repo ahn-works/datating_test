@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; // ImageFilter 를 위해 추가
-import '../data/dummy_data.dart';
-import 'profile_detail_screen.dart';
-import 'notification_screen.dart';
-import 'filter_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,129 +6,64 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Spot10', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF8A65), fontSize: 24)),
-        backgroundColor: Colors.transparent,
+        title: const Text('Travel Buddy', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)),
+        backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.tune, color: Colors.black87, size: 28),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const FilterScreen()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.black87, size: 28),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationScreen()));
-            },
-          ),
+          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black), onPressed: () {}),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // Simulate network delay
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        color: const Color(0xFFFF8A65),
-        child: PageView.builder(
-        itemCount: DummyData.users.length,
-        itemBuilder: (context, index) {
-          final user = DummyData.users[index];
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfileDetailScreen(userData: user)),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 블러 처리된 프로필 사진 영역
-                    Expanded(
-                      flex: 4,
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.network(user['profileUrl'], fit: BoxFit.cover),
-                            BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                              child: Container(color: Colors.black.withOpacity(0.1)),
-                            ),
-                            const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.remove_red_eye_outlined, color: Colors.white, size: 40),
-                                  SizedBox(height: 8),
-                                  Text('터치하여 프로필 엿보기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                                ],
-                              )
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${user['name']}, ${user['age']}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text('📍 ${user['location']} · ${user['temp']}°', style: const TextStyle(color: Colors.grey)),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              spacing: 8, runSpacing: 8,
-                              children: (user['tags'] as List<String>).map((tag) => _buildTag(tag)).toList(),
-                            ),
-                            const Spacer(),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileDetailScreen(userData: user)));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFF8A65),
-                                foregroundColor: Colors.white,
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                              child: const Text('⏱️ 10분 익명 대화 시작', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF3B30),
+              borderRadius: BorderRadius.circular(20),
             ),
-          );
-        },
-      ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('오늘의 여행 친구를 찾아보세요!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                Text('동네 친구들과 지역 여행을 함께!', style: TextStyle(color: Colors.white70, fontSize: 14)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text('타이미 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30)),
+          const SizedBox(height: 12),
+          _featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참가', Colors.blue),
+          const SizedBox(height: 12),
+          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션과 최종 선택', Colors.orange),
+        ],
       ),
     );
   }
 
-  Widget _buildTag(String label) {
+  static Widget _featureCard(IconData icon, String title, String sub, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: const TextStyle(fontSize: 12)),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Row(children: [
+        Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 24)),
+        const SizedBox(width: 16),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(sub, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+        ])),
+        Icon(Icons.chevron_right, color: Colors.grey.shade400),
+      ]),
     );
   }
 }

@@ -1,0 +1,31 @@
+import 'package:flutter/material.dart';
+import 'travel_room_screen.dart';
+
+class TravelGpsCheckinScreen extends StatelessWidget {
+  const TravelGpsCheckinScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: const Text('목포역 광장 미팅 포인트', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+      body: Column(children: [
+        Expanded(child: Container(margin: const EdgeInsets.all(24), decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.blue.shade200, width: 2)), child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.map, size: 64, color: Colors.blue), SizedBox(height: 16), Text('지도 UI', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)), SizedBox(height: 8), Text('목포역 반경 100m 이내', style: TextStyle(color: Colors.blue))])))),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))], borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
+          child: SafeArea(child: Column(children: [
+            const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.location_on, color: Color(0xFFFF3B30)), SizedBox(width: 8), Text('현재 내 위치: 목포역 광장 (정상)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))]),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const TravelRoomScreen())),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+              child: const Text('보증금 환불 출석체크 하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+            const SizedBox(height: 12),
+            const Text('* 15분 지각 시 보증금이 차감될 수 있습니다.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          ])),
+        )
+      ]),
+    );
+  }
+}
