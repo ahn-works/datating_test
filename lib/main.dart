@@ -1,28 +1,68 @@
 import 'package:flutter/material.dart';
-import 'core/app_router.dart';
-
-// 앱 구동 시 가장 먼저 실행되는 곳으로, UI가 아닌 "상태 모니터링"을 담당합니다.
+import 'home_screen.dart';
+import 'party_screen.dart';
+import 'chat_screen.dart';
+import 'my_page_screen.dart'; // 추가됨
 
 void main() {
-  runApp(const Spot10AppRoot());
+  runApp(const Spot10App());
 }
 
-class Spot10AppRoot extends StatelessWidget {
-  const Spot10AppRoot({super.key});
+class Spot10App extends StatelessWidget {
+  const Spot10App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 여기서는 AuthController의 상태를 감시(Listen)하고 있다가,
-    // 유저가 로그인 상태면 initialRoute를 '/main'으로,
-    // 비로그인 상태면 '/login'으로 알아서 길을 열어주는 뼈대 역할을 합니다.
-    
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Spot10 Core',
-      // 라우터 연결 (화면 이동 권한 위임)
-      onGenerateRoute: AppRouter.generateRoute,
-      // 앱이 켜질 때 상태에 따라 첫 진입점을 결정
-      initialRoute: '/', // 스플래시 화면에서 로그인 상태 체크 후 자동 이동함
+      title: 'Spot10',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFFF8A65),
+          primary: const Color(0xFFFF8A65),
+          background: const Color(0xFFFFF8F5),
+        ),
+        useMaterial3: true,
+      ),
+      home: const MainNavigation(),
+    );
+  }
+}
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _currentIndex = 0;
+  
+  // 마이페이지가 4번째 탭으로 추가됨
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const PartyScreen(),
+    const ChatScreen(),
+    const MyPageScreen(), 
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed, // 탭 4개 이상일 때 설정
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: '홈'),
+          BottomNavigationBarItem(icon: Icon(Icons.celebration), label: '모임'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_rounded), label: '대화'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이'),
+        ],
+      ),
     );
   }
 }
