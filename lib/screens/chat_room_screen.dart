@@ -1,0 +1,34 @@
+
+import 'package:flutter/material.dart';
+
+class ChatRoomScreen extends StatefulWidget {
+  final String roomName;
+  const ChatRoomScreen({super.key, required this.roomName});
+  @override State<ChatRoomScreen> createState() => _ChatRoomScreenState();
+}
+class _ChatRoomScreenState extends State<ChatRoomScreen> {
+  final _ctrl = TextEditingController();
+  final _msgs = [
+    {'이름': '지은', '내용': '안녕하세요! 기대돼요 ☺️', '나': false},
+    {'이름': '볤', '내용': '저도요!! 목포 낙지 맛있을것 같아요 하하', '나': true},
+    {'이름': '유스', '내용': '여러분 딕에 목포 낙지탕탕이 맛집 추천해드릴게요', '나': false},
+  ];
+  @override Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(title: Text(widget.roomName, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+    body: Column(children: [
+      Expanded(child: ListView.builder(padding: const EdgeInsets.all(16), itemCount: _msgs.length, itemBuilder: (_, i) {
+        final m = _msgs[i]; final isMe = m['나'] as bool;
+        return Align(alignment: isMe ? Alignment.centerRight : Alignment.centerLeft, child: Column(crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start, children: [
+          if (!isMe) Text(m['이름'] as String, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Container(margin: const EdgeInsets.symmetric(vertical: 4), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: isMe ? const Color(0xFFFF3B30) : Colors.grey.shade100, borderRadius: BorderRadius.circular(18)), child: Text(m['내용'] as String, style: TextStyle(color: isMe ? Colors.white : Colors.black))),
+        ]));
+      })),
+      SafeArea(child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade200))), child: Row(children: [
+        Expanded(child: TextField(controller: _ctrl, decoration: InputDecoration(hintText: '메시지를 입력하세요', filled: true, fillColor: Colors.grey.shade100, border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)))),
+        const SizedBox(width: 8),
+        CircleAvatar(backgroundColor: const Color(0xFFFF3B30), child: IconButton(icon: const Icon(Icons.send, color: Colors.white, size: 18), onPressed: () => setState(() { if (_ctrl.text.isNotEmpty) { _msgs.add({'이름': '나', '내용': _ctrl.text, '나': true}); _ctrl.clear(); } }))),
+      ]))),
+    ]),
+  );
+}
