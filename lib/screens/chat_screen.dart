@@ -1,31 +1,5 @@
 import 'package:flutter/material.dart';
-
-class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('채팅', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 5,
-        itemBuilder: (context, i) {
-          final names = ['지은', '민서', '유스', '하나', '언니'];
-          final msgs = ['오늘 여행 언제에요?', '냔일 끈 등산 가고 싶이!', '계획저 보내드릴게요', '좋아요!! 함께 가요', '다음 여행은 언제죣?'];
-          return ListTile(
-            leading: CircleAvatar(backgroundColor: const Color(0xFFFF3B30).withOpacity(0.1 * (i + 1)), child: Text(names[i][0], style: const TextStyle(color: Color(0xFFFF3B30), fontWeight: FontWeight.bold))),
-            title: Text(names[i], style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(msgs[i], overflow: TextOverflow.ellipsis),
-            trailing: const Text('오전', style: TextStyle(color: Colors.grey, fontSize: 12)),
-          );
-        },
-      ),
-    );
-  }
+import 'chat_room_screen.dart';
+class ChatScreen extends StatelessWidget { const ChatScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(backgroundColor: Colors.white, appBar: AppBar(title: const Text('채팅', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.white, elevation: 0), body: ListView(padding: const EdgeInsets.all(16), children: [_chat(context, '지은', '오늘 여행 너무 재밌었어요!', '14:20', 1), _chat(context, '목포 당일치기 단톡방', '사진 업로드 완료했습니다~', '어제', 0, isGroup: true)]) );
+  Widget _chat(BuildContext ctx, String name, String msg, String time, int unread, {bool isGroup = false}) => ListTile(contentPadding: const EdgeInsets.symmetric(vertical: 8), leading: CircleAvatar(radius: 28, backgroundColor: const Color(0xFFFF3B30).withOpacity(0.1), child: Icon(isGroup ? Icons.people : Icons.person, color: const Color(0xFFFF3B30))), title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Text(msg, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey)), trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Text(time, style: const TextStyle(color: Colors.grey, fontSize: 12)), if (unread > 0) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.all(6), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: Text(unread.toString(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))]), onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ChatRoomScreen(roomName: name))));
 }

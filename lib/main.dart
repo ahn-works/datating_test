@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/party_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/my_page_screen.dart';
@@ -23,7 +24,7 @@ class Spot10App extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Pretendard',
       ),
-      home: const MainNavigation(),
+      home: const SplashScreen(),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'party_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'travel_payment_screen.dart';
 
