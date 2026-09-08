@@ -75,7 +75,7 @@ class HomeScreen extends StatelessWidget {
   
   Widget _userCard(BuildContext ctx, String name, String sub, String img) {
     return GestureDetector(
-      onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: 24, region: '광주', imageUrl: '', intro: '반가워요!', mannerTemp: 36.5))),
+      onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: '24', region: '광주', imageUrl: '', intro: '반가워요!', mannerTemp: 36.5))),
       child: Container(
         width: 140,
         margin: const EdgeInsets.symmetric(horizontal: 4),
