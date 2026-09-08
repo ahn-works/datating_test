@@ -1,43 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'travel_payment_screen.dart';
-
 class PartyDetailScreen extends StatelessWidget {
   const PartyDetailScreen({super.key});
-  @override Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.white,
-    appBar: AppBar(title: const Text('모집 상세', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
-    body: ListView(padding: const EdgeInsets.all(24), children: [
-      const Text('[목포] 낙만포차와 근대역사관 당일치기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 16),
-      _row(Icons.calendar_today, '2026.10.15 (토) | 당일치기'),
-      const SizedBox(height: 8),
-      _row(Icons.location_on, '광주 유스쿨어 출발 → 목포'),
-      const SizedBox(height: 8),
-      _row(Icons.people, '남성 3/4, 여성 4/4 (여성 마감)'),
-      const SizedBox(height: 24),
-      const Text('코스 프리셋', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      const SizedBox(height: 8),
-      Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('투표로 결정 | 점심: 낙지탕탕이 vs 게살비빔밥'),
-        SizedBox(height: 4),
-        Text('커피: 목포 창가 토스트 or 목포 항구 카페'),
-        SizedBox(height: 4),
-        Text('도보: 근대역사관 → 유달산공원'),
-      ])),
-      const SizedBox(height: 24),
-      const Text('비용 안내', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      const SizedBox(height: 8),
-      _costRow('여행 참가비', '30,000원'),
-      _costRow('노쉬 보증금 (수령 시 환불)', '20,000원', red: true),
-      const SizedBox(height: 32),
-      ElevatedButton(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TravelPaymentScreen())),
-        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-        child: const Text('참가 신청하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-      ),
-    ]),
-  );
+  @override Widget build(BuildContext context) => Scaffold(backgroundColor: Colors.white, appBar: AppBar(title: const Text('모집 상세', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)), body: ListView(padding: const EdgeInsets.all(24), children: [const Text('[목포] 낭만포차 & 근대역사관 당일치기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), const SizedBox(height: 16), _row(Icons.calendar_today, '2026.10.15 (토) | 당일치기'), const SizedBox(height: 8), _row(Icons.location_on, '광주 유스퀘어 출발 ↔ 목포'), const SizedBox(height: 8), _row(Icons.people, '남성 3/4, 여성 4/4 (여성 마감)'), const SizedBox(height: 24), const Text('코스 브리핑', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(height: 8), Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('투표로 결정 | 점심: 연포탕 vs 게살비빔밥'), SizedBox(height: 4), Text('커피: 목포 창고형 에스프레소 or 목포 대형 카페'), SizedBox(height: 4), Text('도보: 근대역사관 및 노적봉 공원')])), const SizedBox(height: 24), const Text('비용 안내', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(height: 8), _costRow('여행 참가비', '30,000원'), _costRow('노쇼 보증금(수령 시 환불)', '20,000원', red: true), const SizedBox(height: 32), ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TravelPaymentScreen())), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('참가 신청하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)))]));
   static Widget _row(IconData icon, String text) => Row(children: [Icon(icon, size: 18, color: Colors.grey), const SizedBox(width: 8), Text(text, style: const TextStyle(color: Colors.black87))]);
   static Widget _costRow(String l, String p, {bool red = false}) => Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(l, style: const TextStyle(color: Colors.black87)), Text(p, style: TextStyle(fontWeight: FontWeight.bold, color: red ? const Color(0xFFFF3B30) : Colors.black))]));
 }
