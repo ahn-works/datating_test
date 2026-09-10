@@ -1,35 +1,20 @@
-
 import 'package:flutter/material.dart';
-
 class ProfileDetailScreen extends StatelessWidget {
-  final String name, age, region, imageUrl, intro;
-  final double mannerTemp;
+  final String name, age, region, imageUrl, intro; final double mannerTemp;
   const ProfileDetailScreen({super.key, required this.name, required this.age, required this.region, required this.imageUrl, required this.intro, required this.mannerTemp});
-  @override Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.white,
-    body: CustomScrollView(slivers: [
-      SliverAppBar(expandedHeight: 340, pinned: true, backgroundColor: Colors.white,
-        flexibleSpace: FlexibleSpaceBar(background: Container(color: Colors.grey.shade200, child: const Icon(Icons.person, size: 120, color: Colors.grey))),
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
-      ),
-      SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Text(name, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 8),
-          Text(age + '세', style: const TextStyle(fontSize: 20, color: Colors.grey)),
-          const Spacer(),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: const Color(0xFFFFF5F5), borderRadius: BorderRadius.circular(20)), child: Text('♥ ' + mannerTemp.toString() + '°', style: const TextStyle(color: Color(0xFFFF3B30), fontWeight: FontWeight.bold))),
-        ]),
-        Text('한주 사는 곳: ' + region, style: const TextStyle(color: Colors.grey)),
-        const SizedBox(height: 20),
-        const Divider(),
-        const SizedBox(height: 16),
-        const Text('자기소개', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
-        Text(intro, style: const TextStyle(color: Colors.black87, height: 1.6)),
-        const SizedBox(height: 40),
-        ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('여행 모임 함께하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))),
-      ]))),
-    ]),
-  );
+  @override Widget build(BuildContext context) => Scaffold(backgroundColor: Colors.white, body: CustomScrollView(slivers: [
+    SliverAppBar(expandedHeight: 380, pinned: true, backgroundColor: Colors.white, flexibleSpace: FlexibleSpaceBar(background: Stack(fit: StackFit.expand, children: [Container(color: Colors.grey.shade200, child: const Icon(Icons.person, size: 120, color: Colors.grey)), Positioned(bottom: 20, right: 20, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(20)), child: const Row(children: [Icon(Icons.mic, color: Colors.white, size: 16), SizedBox(width: 4), Text('목소리 듣기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))])))]))),
+    SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [Text(name, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)), const SizedBox(width: 8), Text('$age세', style: const TextStyle(fontSize: 22, color: Colors.grey)), const Spacer(), Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(20)), child: Row(children: [const Icon(Icons.favorite, color: Color(0xFFFF3B30), size: 14), const SizedBox(width: 4), Text('$mannerTemp°C', style: const TextStyle(color: Color(0xFFFF3B30), fontWeight: FontWeight.bold, fontSize: 14))]))]), const SizedBox(height: 8),
+      Row(children: [const Icon(Icons.location_on, color: Colors.grey, size: 16), const SizedBox(width: 4), Text('$region · 2km 이내', style: const TextStyle(color: Colors.grey, fontSize: 14))]), const SizedBox(height: 24),
+      const Text('신뢰도 인증 뱃지', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(height: 12),
+      Row(children: [_trustBadge(Icons.verified_user, 'PASS 인증', Colors.green), const SizedBox(width: 8), _trustBadge(Icons.work, '대기업', Colors.blue), const SizedBox(width: 8), _trustBadge(Icons.monetization_on, '1억+', Colors.amber.shade600)]), const SizedBox(height: 32),
+      const Text('MBTI & 취미', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(height: 12),
+      Wrap(spacing: 8, runSpacing: 8, children: [_tag('ENFP', color: const Color(0xFFFF3B30)), _tag('맛집탐방'), _tag('드라이브'), _tag('카페투어')]), const SizedBox(height: 32),
+      const Text('자기소개', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(height: 12),
+      Text(intro, style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.black87)), const SizedBox(height: 100),
+    ])))
+  ]), floatingActionButton: FloatingActionButton.extended(onPressed: () { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('호감을 보냈습니다!'))); }, backgroundColor: const Color(0xFFFF3B30), icon: const Icon(Icons.thumb_up, color: Colors.white), label: const Text('호감 보내기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))), floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat);
+  Widget _trustBadge(IconData icon, String text, Color color) => Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))), child: Row(children: [Icon(icon, size: 14, color: color), const SizedBox(width: 4), Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12))]));
+  Widget _tag(String text, {Color color = Colors.black54}) => Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)));
 }
