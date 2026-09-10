@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'profile_detail_screen.dart'; import 'signal_house_list_screen.dart'; import 'home_sub_screens.dart';
+import 'profile_detail_screen.dart'; import 'signal_house_intro_screen.dart'; import 'home_sub_screens.dart';
 class HomeScreen extends StatelessWidget { const HomeScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(backgroundColor: const Color(0xFFF8F9FA), appBar: AppBar(title: const Text('위피 버디', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 24, letterSpacing: -0.5)), backgroundColor: Colors.white, elevation: 0, actions: [IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black, size: 28), onPressed: () {})]), body: ListView(padding: const EdgeInsets.symmetric(vertical: 24), children: [
   Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFF3B30), Color(0xFFFF6B6B)], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: const Color(0xFFFF3B30).withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('오늘의 동네 친구를 찾아보세요!', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5)), SizedBox(height: 8), Text('나와 가까운 친구들과 잊지 못할 모임까지 한 번에!', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500, opacity: 0.9))]))), const SizedBox(height: 40),
   const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Text('오늘의 추천 친구', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5))), const SizedBox(height: 20),
@@ -7,7 +7,7 @@ class HomeScreen extends StatelessWidget { const HomeScreen({super.key}); @overr
   const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Text('서비스 둘러보기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5))), const SizedBox(height: 20),
   Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [
     _featureCard(context, Icons.people_rounded, '동네 커플', '남성/여성 성비 확인 후 안전하게 참여', const Color(0xFF4C6EF5), const LocalCoupleScreen()), const SizedBox(height: 16),
-    _featureCard(context, Icons.favorite_rounded, '미션 & 하트시그널', '현장 인증 미션과 두근거리는 최종 선택', const Color(0xFFFF922B), const SignalHouseListScreen()), const SizedBox(height: 16),
+    _featureCard(context, Icons.favorite_rounded, '미션 & 하트시그널', '현장 인증 미션과 두근거리는 최종 선택', const Color(0xFFFF922B), const SignalHouseIntroScreen()), const SizedBox(height: 16),
     _featureCard(context, Icons.forum_rounded, '동네 커뮤니티 & 미니게임', '동네 친구들과 소통하고 밸런스 게임 즐기기', const Color(0xFF20C997), const CommunityScreen()),
   ])), const SizedBox(height: 40),
 ]));
