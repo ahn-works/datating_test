@@ -37,7 +37,7 @@ class SignalHouseIntroScreen extends StatelessWidget {
                 child: const Text('수락하고 입장하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))
               ),
               const SizedBox(height: 16),
-              TextButton(onPressed: () => Navigator.pop(context), minimumSize: const Size(double.infinity, 60), child: const Text('다음에 할게요', style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 16)))
+              TextButton(onPressed: () => Navigator.pop(context), style: TextButton.styleFrom(minimumSize: const Size(double.infinity, 60)), child: const Text('다음에 할게요', style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 16)))
             ]
           )
         )
