@@ -1,16 +1,78 @@
 import 'package:flutter/material.dart';
-import 'profile_detail_screen.dart'; import 'signal_house_intro_screen.dart'; import 'home_sub_screens.dart';
-class HomeScreen extends StatelessWidget { const HomeScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(backgroundColor: const Color(0xFFF8F9FA), appBar: AppBar(title: const Text('위피 버디', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 24, letterSpacing: -0.5)), backgroundColor: Colors.white, elevation: 0, actions: [IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black, size: 28), onPressed: () {})]), body: ListView(padding: const EdgeInsets.symmetric(vertical: 24), children: [
-  Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFF3B30), Color(0xFFFF6B6B)], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: const Color(0xFFFF3B30).withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('오늘의 동네 친구를 찾아보세요!', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5)), SizedBox(height: 8), Text('나와 가까운 친구들과 잊지 못할 모임까지 한 번에!', style: TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w500))]))), const SizedBox(height: 40),
-  const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Text('오늘의 추천 친구', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5))), const SizedBox(height: 20),
-  SizedBox(height: 240, child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16), children: [ _userCard(context, '지은', '광주 · 24세', 'https://picsum.photos/400/600?random=1'), _userCard(context, '수현', '광주 · 27세', 'https://picsum.photos/400/600?random=2'), _userCard(context, '민호', '목포 · 26세', 'https://picsum.photos/400/600?random=3') ])), const SizedBox(height: 40),
-  const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Text('서비스 둘러보기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5))), const SizedBox(height: 20),
-  Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [
-    _featureCard(context, Icons.people_rounded, '동네 커플', '남성/여성 성비 확인 후 안전하게 참여', const Color(0xFF4C6EF5), const LocalCoupleScreen()), const SizedBox(height: 16),
-    _featureCard(context, Icons.favorite_rounded, '미션 & 하트시그널', '현장 인증 미션과 두근거리는 최종 선택', const Color(0xFFFF922B), const SignalHouseIntroScreen()), const SizedBox(height: 16),
-    _featureCard(context, Icons.forum_rounded, '동네 커뮤니티 & 미니게임', '동네 친구들과 소통하고 밸런스 게임 즐기기', const Color(0xFF20C997), const CommunityScreen()),
-  ])), const SizedBox(height: 40),
-]));
-  Widget _userCard(BuildContext ctx, String name, String sub, String img) => GestureDetector(onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: '24', region: '광주', imageUrl: '', intro: '반가워요!', mannerTemp: 36.5))), child: Container(width: 160, margin: const EdgeInsets.symmetric(horizontal: 6), decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))], image: DecorationImage(image: NetworkImage(img), fit: BoxFit.cover)), child: Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.9)], begin: Alignment.topCenter, end: Alignment.bottomCenter)), child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5)), const SizedBox(height: 4), Row(children: [const Icon(Icons.location_on, color: Colors.white70, size: 12), const SizedBox(width: 4), Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500))])]))));
-  Widget _featureCard(BuildContext ctx, IconData icon, String title, String sub, Color color, Widget page) => Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 5))]), child: Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => page)), child: Padding(padding: const EdgeInsets.all(20), child: Row(children: [Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(16)), child: Icon(icon, color: color, size: 28)), const SizedBox(width: 20), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.5)), const SizedBox(height: 6), Text(sub, style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500))])), Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400, size: 28)])))));
+import 'dart:async';
+import 'profile_detail_screen.dart';
+
+class HomeScreen extends StatefulWidget { const HomeScreen({super.key}); @override State<HomeScreen> createState() => _HomeScreenState(); }
+class _HomeScreenState extends State<HomeScreen> {
+  final PageController _pc = PageController();
+  int _p = 0;
+  Timer? _t;
+  final _banners = [
+    {'title': '오늘의 여행 친구를 찾아보세요', 'sub': '동네 친구들과 지역 여행을 함께!'},
+    {'title': '새로운 동네 커플의 탄생', 'sub': '나와 잘 맞는 동네 인연을 만나보세요'},
+    {'title': '심쿵 하트 시그널', 'sub': '마음에 드는 이성에게 마음을 표현하세요'}
+  ];
+
+  @override void initState() {
+    super.initState();
+    _t = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
+      setState(() { _p = (_p + 1) % _banners.length; });
+      _pc.animateToPage(_p, duration: const Duration(milliseconds: 600), curve: Curves.easeInOut);
+    });
+  }
+  @override void dispose() { _t?.cancel(); _pc.dispose(); super.dispose(); }
+
+  @override Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: const Text('위피 버디', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)), backgroundColor: Colors.white, elevation: 0, actions: [IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black), onPressed: () {})]),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          SizedBox(
+            height: 120,
+            child: PageView.builder(
+              controller: _pc,
+              onPageChanged: (i) => setState(() => _p = i),
+              itemCount: _banners.length,
+              itemBuilder: (ctx, i) => Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: const Color(0xFFFF3B30), borderRadius: BorderRadius.circular(20)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(_banners[i]['title']!, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text(_banners[i]['sub']!, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_banners.length, (i) => AnimatedContainer(duration: const Duration(milliseconds: 300), margin: const EdgeInsets.symmetric(horizontal: 4), width: _p == i ? 20 : 8, height: 8, decoration: BoxDecoration(color: _p == i ? const Color(0xFFFF3B30) : Colors.grey.shade300, borderRadius: BorderRadius.circular(4)))),
+          ),
+          const SizedBox(height: 24),
+          const Text('추천 사용자', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          SizedBox(height: 240, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 5, itemBuilder: (ctx, i) => _userCard(ctx, '위피멤버 ', '서울 강남구', 'https://picsum.photos/200/300?random='))),
+          const SizedBox(height: 32),
+          const Text('주요 기능', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30)), const SizedBox(height: 12),
+          _featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue), const SizedBox(height: 12),
+          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange)
+        ]
+      )
+    );
+  }
+
+  Widget _userCard(BuildContext ctx, String name, String sub, String img) => GestureDetector(onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: '24', region: '서울', imageUrl: '', intro: '안녕하세요!', mannerTemp: 36.5))), child: Container(width: 160, margin: const EdgeInsets.only(right: 16), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), image: DecorationImage(image: NetworkImage(img), fit: BoxFit.cover)), child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.8)], begin: Alignment.topCenter, end: Alignment.bottomCenter)), padding: const EdgeInsets.all(16), child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)), const SizedBox(height: 4), Row(children: [const Icon(Icons.location_on, color: Colors.white70, size: 12), const SizedBox(width: 4), Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500))])]))));
+
+  Widget _featureCard(IconData icon, String title, String sub, Color color) => Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]), child: Row(children: [Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 24)), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(sub, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))])), const Icon(Icons.chevron_right, color: Colors.grey)]));
 }
