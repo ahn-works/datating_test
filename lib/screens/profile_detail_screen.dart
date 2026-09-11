@@ -34,7 +34,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with SingleTi
         Wrap(spacing: 8, runSpacing: 8, children: [_tag('ENFP', color: const Color(0xFFFF3B30)), _tag('맛집탐방'), _tag('드라이브'), _tag('카페투어'), _tag('즉흥여행')]), const SizedBox(height: 32),
         const Text('자기소개', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5)), const SizedBox(height: 16),
         Container(padding: const EdgeInsets.all(20), width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(20)), child: Text(widget.intro, style: TextStyle(fontSize: 16, height: 1.6, color: Colors.grey.shade800, fontWeight: FontWeight.w500))), const SizedBox(height: 120),
-      ])))
+      ]))))
     ]),
     Positioned(bottom: 30, left: 24, right: 24, child: ElevatedButton.icon(onPressed: _sendLike, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 64), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)), elevation: 10, shadowColor: const Color(0xFFFF3B30).withOpacity(0.5)), icon: const Icon(Icons.favorite, color: Colors.white, size: 28), label: const Text('호감 보내기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: -0.5)))),
     if (_showHeart) Positioned.fill(child: IgnorePointer(child: Center(child: ScaleTransition(scale: CurvedAnimation(parent: _anim, curve: Curves.elasticOut), child: const Icon(Icons.favorite, color: Color(0xFFFF3B30), size: 150))))),
