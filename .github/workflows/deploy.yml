@@ -20,8 +20,21 @@ jobs:
       - name: Enable Web Platform
         run: flutter create . --platforms web
       - name: Build Web
-        run: flutter build web --base-href /datating_test/
+        id: build
+        run: |
+          flutter build web --base-href /datating_test/ > build_log.txt 2>&1 || echo "BUILD_FAILED=true" >> $GITHUB_ENV
+      - name: Push log on failure
+        if: env.BUILD_FAILED == 'true'
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add build_log.txt
+          git commit -m "upload build log"
+          git pull --rebase origin main
+          git push origin main
+          exit 1
       - name: Deploy to GitHub Pages
+        if: env.BUILD_FAILED != 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
