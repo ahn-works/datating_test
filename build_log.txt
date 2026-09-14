@@ -2,16 +2,16 @@ Compiling lib/main.dart for the Web...
 Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/profile_setup_screen.dart:40:247:
-Error: Not a constant expression.
-    ElevatedButton(onPressed: () { if(!_isPassVerified) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PASS 본인인증을 먼저 진행해주세요.'))); return; } Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainNavigation()), (_) => false); }, style: ElevatedButton.styleFrom(backgroundColor: _isPassVerified ? const Color(0xFFFF3B30) : Colors.grey, minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('위피 시작하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)))]));
-                                                                                          ^^^^^^^^^^^^^^
+lib/screens/natural_meeting_detail_screens.dart:39:320:
+Error: Member not found: 'dash'.
+                  Row(children: List.generate(4, (i) => Container(margin: const EdgeInsets.only(right: 12), width: 48, height: 48, decoration: BoxDecoration(color: i==0 ? Colors.transparent : Colors.grey.shade100, shape: BoxShape.circle, border: i==0 ? null : Border.all(color: Colors.grey.shade300, style: BorderStyle.dash), image: i==0 ? const DecorationImage(image: NetworkImage('https://picsum.photos/100?random=301')) : null), child: i==0 ? null : const Icon(Icons.person_outline, color: Colors.grey))))
+                                                                                          ^^^^
 Error: Compilation failed.
-  Command: /opt/hostedtoolcache/flutter/stable-3.47.3-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.3-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.3 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=e8113bf456 -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --enable-experiment=record-use --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/6299bd852e3f6e2f155c8ad5ed68c7d3/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/6299bd852e3f6e2f155c8ad5ed68c7d3/main.dart
+  Command: /opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=9584c6713b -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
 <asynchronous suspension>
-#2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:225:5)
+#2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:222:5)
 <asynchronous suspension>
 #3      _BuildInstance._invokeInternal (package:flutter_tools/src/build_system/build_system.dart:937:9)
 <asynchronous suspension>
@@ -54,5 +54,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             27.2s
+Compiling lib/main.dart for the Web...                             26.0s
 Error: Failed to compile application for the Web.
