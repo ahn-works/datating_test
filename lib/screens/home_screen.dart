@@ -65,39 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Text('추천 사용자', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           SizedBox(height: 240, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 5, itemBuilder: (ctx, i) => _userCard(ctx, '위피멤버 ', '서울 강남구', 'https://picsum.photos/200/300?random='))),
-          const SizedBox(height: 12),
-            // 소소카 (SosoCar) 바로가기 배너 추가
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHubScreen())),
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFF3A674F), Color(0xFF2D5A43)]),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: const Color(0xFF3A674F).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))]
-                ),
-                child: Row(
-                  children: [
-                    Container(padding: const EdgeInsets.all(12), decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle), child: const Icon(Icons.directions_car, color: Colors.white, size: 28)),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('동네 카풀 SosoCar 🚙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                          SizedBox(height: 4),
-                          Text('우리 동네 이웃과 함께하는 카풀 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                        ]
-                      )
-                    ),
-                    const Icon(Icons.chevron_right, color: Colors.white)
-                  ]
-                )
-              )
-            ),
-            const SizedBox(height: 12),
-const SizedBox(height: 24),
+          const SizedBox(height: 12),const SizedBox(height: 24),
           const Text('주요 기능', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyScreen()))), 
