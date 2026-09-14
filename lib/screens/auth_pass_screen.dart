@@ -1,3 +1,39 @@
 import 'package:flutter/material.dart';
 import 'permission_screen.dart';
-class AuthPassScreen extends StatelessWidget { const AuthPassScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(backgroundColor: Colors.white, appBar: AppBar(backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)), body: Padding(padding: const EdgeInsets.all(32), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('본인 인증을\n진행해주세요', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.4)), const SizedBox(height: 16), const Text('안전한 서비스 이용을 위해\n최초 1회 본인 인증이 필요합니다.', style: TextStyle(color: Colors.grey, fontSize: 16, height: 1.5)), const Spacer(), Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(16)), child: const Row(children: [Icon(Icons.security, color: Colors.blue), SizedBox(width: 16), Expanded(child: Text('PASS 앱으로 안전하고 간편하게 인증하세요', style: TextStyle(color: Colors.black87)))])), const SizedBox(height: 32), ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PermissionScreen())), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('PASS 본인인증', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)))]))); }
+
+class AuthPassScreen extends StatelessWidget { 
+  const AuthPassScreen({super.key}); 
+  @override Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.white, 
+    appBar: AppBar(backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)), 
+    body: Padding(
+      padding: const EdgeInsets.all(32), 
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, 
+        children: [
+          const Text('안전한 만남을 위한\n본인 인증', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.4)), 
+          const SizedBox(height: 16), 
+          const Text('서비스 이용을 위해\n최초 1회 본인 인증이 필요합니다.', style: TextStyle(color: Colors.grey, fontSize: 16, height: 1.5)), 
+          const Spacer(), 
+          Container(
+            padding: const EdgeInsets.all(24), 
+            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(16)), 
+            child: const Row(
+              children: [
+                Icon(Icons.security, color: Colors.blue), 
+                SizedBox(width: 16), 
+                Expanded(child: Text('PASS 인증 앱으로 간편하게', style: TextStyle(color: Colors.black87)))
+              ]
+            )
+          ), 
+          const SizedBox(height: 32), 
+          ElevatedButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PermissionScreen())), 
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), 
+            child: const Text('PASS 인증하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))
+          )
+        ]
+      )
+    )
+  ); 
+}
