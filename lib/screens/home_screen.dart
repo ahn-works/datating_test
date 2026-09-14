@@ -72,7 +72,41 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 12),
           _featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalCoupleScreen()))), 
           const SizedBox(height: 12),
-          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen())))
+          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen()))
+          const SizedBox(height: 24),
+          const Text('소소카 (SosoCar)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          // 소소카 (SosoCar) 바로가기 배너 추가
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHubScreen())),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFF3A674F), Color(0xFF2D5A43)]),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [BoxShadow(color: const Color(0xFF3A674F).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))]
+              ),
+              child: Row(
+                children: [
+                  Container(padding: const EdgeInsets.all(12), decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle), child: const Icon(Icons.directions_car, color: Colors.white, size: 28)),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('동네 카풀 SosoCar 🚙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                        SizedBox(height: 4),
+                        Text('우리 동네 이웃과 함께하는 카풀 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                      ]
+                    )
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white)
+                ]
+              )
+            )
+          ),
+          const SizedBox(height: 40)
+)
         ]
       )
     );
