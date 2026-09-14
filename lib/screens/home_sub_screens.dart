@@ -5,31 +5,34 @@ class LocalCoupleScreen extends StatelessWidget {
   const LocalCoupleScreen({super.key});
   
   @override Widget build(BuildContext context) => DefaultTabController(
-    length: 3,
+    length: 4,
     child: Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('동네 인연 찾기', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('자연스러운 만남', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         bottom: const TabBar(
+          isScrollable: true,
           labelColor: Color(0xFFFF3B30),
           unselectedLabelColor: Colors.grey,
           indicatorColor: Color(0xFFFF3B30),
           indicatorWeight: 3,
+          labelPadding: EdgeInsets.symmetric(horizontal: 20),
           tabs: [
-            Tab(text: '동네 친구'),
-            Tab(text: '동네 소개팅'),
-            Tab(text: '오늘의 번개'),
+            Tab(text: '🐶 산책 메이트'),
+            Tab(text: '🍱 밥친구·카공'),
+            Tab(text: '🏃‍♂️ 동네 크루'),
+            Tab(text: '⚡ 오늘의 번개'),
           ]
         )
       ),
       body: const TabBarView(
-        physics: NeverScrollableScrollPhysics(), // swipe cards could conflict with tab view
         children: [
-          _LocalFriendsTab(),
-          _BlindDateTab(),
+          _PetWalkingTab(),
+          _MealFriendTab(),
+          _ActivityCrewTab(),
           _LightningMeetingTab(),
         ]
       )
@@ -37,121 +40,96 @@ class LocalCoupleScreen extends StatelessWidget {
   );
 }
 
-// 1. 동네 친구 탭 (기존 GridView 방식 + 성별 표시)
-class _LocalFriendsTab extends StatelessWidget {
-  const _LocalFriendsTab();
-  @override Widget build(BuildContext context) => GridView.builder(
-    padding: const EdgeInsets.all(16), 
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 16, mainAxisSpacing: 16), 
-    itemCount: 10, 
-    itemBuilder: (ctx, i) => GestureDetector(
-      onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: '위피친구 ', age: '25', region: '서울 강남구', imageUrl: 'https://picsum.photos/300/400?random=', intro: '친해져요!', mannerTemp: 36.5))), 
-      child: Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0,5))]), 
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20), 
-          child: Stack(
-            fit: StackFit.expand, 
+// 1. 산책 메이트 (반려동물 매칭)
+class _PetWalkingTab extends StatelessWidget {
+  const _PetWalkingTab();
+  @override Widget build(BuildContext context) => ListView.separated(
+    padding: const EdgeInsets.all(16),
+    itemCount: 4,
+    separatorBuilder: (_,__) => const SizedBox(height: 12),
+    itemBuilder: (_, i) => Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 5))]),
+      child: Row(
+        children: [
+          ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network('https://picsum.photos/120/120?random=', width: 80, height: 80, fit: BoxFit.cover)),
+          const SizedBox(width: 16),
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.network('https://picsum.photos/300/400?random=', fit: BoxFit.cover), 
-              Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.8)], begin: Alignment.center, end: Alignment.bottomCenter))), 
-              Positioned(
-                top: 12, left: 12, 
-                child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFFF3B30), borderRadius: BorderRadius.circular(12)), child: const Text('1km 이내', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))
-              ), 
-              Positioned(
-                bottom: 16, left: 16, right: 16, 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, 
-                  children: [
-                    Row(children: [Text('위피친구 ', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)), const SizedBox(width: 4), Icon(i%2==0 ? Icons.female : Icons.male, color: i%2==0 ? Colors.pinkAccent : Colors.blueAccent, size: 16)]), 
-                    const SizedBox(height: 4), 
-                    const Text('가볍게 커피 한잔 해요 ☕', style: TextStyle(color: Colors.white70, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis)
-                  ]
-                )
-              )
+              Row(children: [Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(8)), child: const Text('강아지 산책', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold))), const SizedBox(width: 8), Text('보리네 (km)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))]),
+              const SizedBox(height: 8),
+              const Text('올림픽공원 같이 산책하실 댕댕이 찾아요! 저희 애는 골든리트리버예요 🦮', style: TextStyle(fontSize: 13, color: Colors.black87), maxLines: 2, overflow: TextOverflow.ellipsis),
             ]
-          )
-        )
+          )),
+          const SizedBox(width: 8),
+          const Icon(Icons.favorite_border, color: Colors.grey)
+        ]
       )
     )
   ); 
 }
 
-// 2. 동네 소개팅 탭 (카드 스와이프 UI 느낌)
-class _BlindDateTab extends StatelessWidget {
-  const _BlindDateTab();
-  @override Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(20),
-    child: Column(
-      children: [
-        const Text('나와 딱 맞는 동네 인연을 만나보세요', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
-        const SizedBox(height: 16),
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 20, offset: const Offset(0, 10))]
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network('https://picsum.photos/500/700?random=199', fit: BoxFit.cover),
-                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.9)], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
-                  Positioned(
-                    top: 20, left: 20,
-                    child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)), child: const Text('오늘의 추천', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))
-                  ),
-                  Positioned(
-                    bottom: 30, left: 20, right: 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Text('지연, 26', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.verified, color: Colors.blue, size: 24)
-                          ]
-                        ),
-                        const SizedBox(height: 8),
-                        const Row(children: [Icon(Icons.location_on, color: Colors.white70, size: 16), SizedBox(width: 4), Text('서울 강남구 · 1.2km', style: TextStyle(color: Colors.white70, fontSize: 16))]),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8, runSpacing: 8,
-                          children: ['#맛집탐방', '#넷플릭스', '#댕댕이'].map((t) => Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(16)), child: Text(t, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))).toList()
-                        ),
-                        const SizedBox(height: 32),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _actionBtn(Icons.close, Colors.grey, Colors.white),
-                            _actionBtn(Icons.favorite, const Color(0xFFFF3B30), Colors.white, size: 64),
-                            _actionBtn(Icons.star, Colors.blueAccent, Colors.white),
-                          ]
-                        )
-                      ]
-                    )
-                  )
-                ]
-              )
+// 2. 밥친구 / 카공 (일상 공유)
+class _MealFriendTab extends StatelessWidget {
+  const _MealFriendTab();
+  @override Widget build(BuildContext context) => GridView.builder(
+    padding: const EdgeInsets.all(16),
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, crossAxisSpacing: 12, mainAxisSpacing: 12),
+    itemCount: 6,
+    itemBuilder: (ctx, i) => Container(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), child: Stack(fit: StackFit.expand, children: [Image.network('https://picsum.photos/200/200?random=', fit: BoxFit.cover), Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(8)), child: Text(i%2==0 ? '고기팟 🥩' : '카페 카공 ☕', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))))]))),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(i%2==0 ? '하남돼지집 3명 모여요' : '스벅 조용히 각자 할일', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1),
+                const SizedBox(height: 4),
+                Row(children: [Icon(Icons.person, size: 12, color: Colors.grey.shade500), const SizedBox(width: 4), Text('1/4명 참여중', style: TextStyle(color: Colors.grey.shade500, fontSize: 11))])
+              ]
             )
           )
-        )
-      ]
+        ]
+      )
     )
-  );
-
-  Widget _actionBtn(IconData icon, Color bg, Color iconColor, {double size = 56}) => Container(
-    width: size, height: size,
-    decoration: BoxDecoration(shape: BoxShape.circle, color: bg, boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5))]),
-    child: Icon(icon, color: iconColor, size: size * 0.5)
   );
 }
 
-// 3. 오늘의 번개 탭 (실시간 모임 피드)
+// 3. 동네 크루 (액티비티)
+class _ActivityCrewTab extends StatelessWidget {
+  const _ActivityCrewTab();
+  @override Widget build(BuildContext context) => ListView.separated(
+    padding: const EdgeInsets.all(16),
+    itemCount: 4,
+    separatorBuilder: (_,__) => const SizedBox(height: 12),
+    itemBuilder: (_, i) => Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)),
+      child: Row(
+        children: [
+          Container(width: 60, height: 60, decoration: BoxDecoration(color: Colors.blue.shade50, shape: BoxShape.circle), child: Icon(i%2==0 ? Icons.directions_run : Icons.sports_tennis, color: Colors.blue, size: 30)),
+          const SizedBox(width: 16),
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(i%2==0 ? '한강 나이트 러닝 크루 🏃‍♂️' : '배드민턴 초보 모임 🏸', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(height: 4),
+              Text(i%2==0 ? '매주 수요일 저녁 8시 반포대교' : '주말 오전 동네 체육관', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            ]
+          )),
+          ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('가입', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))
+        ]
+      )
+    )
+  );
+}
+
+// 4. 오늘의 번개 탭 (실시간 모임 피드)
 class _LightningMeetingTab extends StatelessWidget {
   const _LightningMeetingTab();
   @override Widget build(BuildContext context) => Scaffold(
