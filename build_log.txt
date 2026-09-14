@@ -8,6 +8,246 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+lib/screens/neighborhood_crew_screen.dart:59:24:
+Error: String starting with ' must end with '.
+            const Text('지난 주말 강화도 동행이 벌써
+                       ^^^^^^^^^^^^^^^^^
+lib/screens/neighborhood_crew_screen.dart:60:1:
+Error: The non-ASCII character '그' (U+ADF8) can't be used in identifiers, only in strings and comments.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+^
+lib/screens/neighborhood_crew_screen.dart:60:2:
+Error: The non-ASCII character '립' (U+B9BD) can't be used in identifiers, only in strings and comments.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+ ^
+lib/screens/neighborhood_crew_screen.dart:60:3:
+Error: The non-ASCII character '다' (U+B2E4) can't be used in identifiers, only in strings and comments.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+  ^
+lib/screens/neighborhood_crew_screen.dart:60:4:
+Error: The non-ASCII character '면' (U+BA74) can't be used in identifiers, only in strings and comments.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+   ^
+lib/screens/neighborhood_crew_screen.dart:60:6:
+Error: String starting with ' must end with '.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/neighborhood_crew_screen.dart:62:18:
+Error: String starting with ' must end with '.
+            Text('취향이 잘 맞았던 이웃들과 번거로운 신청·승인
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/neighborhood_crew_screen.dart:63:1:
+Error: The non-ASCII character '절' (U+C808) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+^
+lib/screens/neighborhood_crew_screen.dart:63:2:
+Error: The non-ASCII character '차' (U+CC28) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+ ^
+lib/screens/neighborhood_crew_screen.dart:63:4:
+Error: The non-ASCII character '없' (U+C5C6) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+   ^
+lib/screens/neighborhood_crew_screen.dart:63:5:
+Error: The non-ASCII character '이' (U+C774) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+    ^
+lib/screens/neighborhood_crew_screen.dart:63:7:
+Error: The non-ASCII character '다' (U+B2E4) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+      ^
+lib/screens/neighborhood_crew_screen.dart:63:8:
+Error: The non-ASCII character '음' (U+C74C) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+       ^
+lib/screens/neighborhood_crew_screen.dart:63:10:
+Error: The non-ASCII character '일' (U+C77C) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+         ^
+lib/screens/neighborhood_crew_screen.dart:63:11:
+Error: The non-ASCII character '정' (U+C815) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+          ^
+lib/screens/neighborhood_crew_screen.dart:63:12:
+Error: The non-ASCII character '을' (U+C744) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+           ^
+lib/screens/neighborhood_crew_screen.dart:63:14:
+Error: The non-ASCII character '원' (U+C6D0) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+             ^
+lib/screens/neighborhood_crew_screen.dart:63:15:
+Error: The non-ASCII character '클' (U+D074) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+              ^
+lib/screens/neighborhood_crew_screen.dart:63:16:
+Error: The non-ASCII character '릭' (U+B9AD) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+               ^
+lib/screens/neighborhood_crew_screen.dart:63:17:
+Error: The non-ASCII character '으' (U+C73C) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                ^
+lib/screens/neighborhood_crew_screen.dart:63:18:
+Error: The non-ASCII character '로' (U+B85C) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                 ^
+lib/screens/neighborhood_crew_screen.dart:63:20:
+Error: The non-ASCII character '가' (U+AC00) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                   ^
+lib/screens/neighborhood_crew_screen.dart:63:21:
+Error: The non-ASCII character '볍' (U+BCCD) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                    ^
+lib/screens/neighborhood_crew_screen.dart:63:22:
+Error: The non-ASCII character '게' (U+AC8C) can't be used in identifiers, only in strings and comments.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                     ^
+lib/screens/neighborhood_crew_screen.dart:64:1:
+Error: The non-ASCII character '시' (U+C2DC) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+^
+lib/screens/neighborhood_crew_screen.dart:64:2:
+Error: The non-ASCII character '작' (U+C791) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+ ^
+lib/screens/neighborhood_crew_screen.dart:64:3:
+Error: The non-ASCII character '해' (U+D574) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+  ^
+lib/screens/neighborhood_crew_screen.dart:64:4:
+Error: The non-ASCII character '보' (U+BCF4) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+   ^
+lib/screens/neighborhood_crew_screen.dart:64:5:
+Error: The non-ASCII character '세' (U+C138) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+    ^
+lib/screens/neighborhood_crew_screen.dart:64:6:
+Error: The non-ASCII character '요' (U+C694) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+     ^
+lib/screens/neighborhood_crew_screen.dart:64:9:
+Error: The non-ASCII character '🌿' (U+1F33F) can't be used in identifiers, only in strings and comments.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+        ^
+lib/screens/neighborhood_crew_screen.dart:64:11:
+Error: String starting with ' must end with '.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/neighborhood_crew_screen.dart:62:17:
+Error: Can't find ')' to match '('.
+            Text('취향이 잘 맞았던 이웃들과 번거로운 신청·승인
+                ^
+lib/screens/neighborhood_crew_screen.dart:59:23:
+Error: Can't find ')' to match '('.
+            const Text('지난 주말 강화도 동행이 벌써
+                      ^
+lib/screens/neighborhood_crew_screen.dart:60:1:
+Error: Expected ',' before this.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+^^^^
+lib/screens/neighborhood_crew_screen.dart:61:13:
+Error: Expected ':' before this.
+            const SizedBox(height: 8),
+            ^^^^^
+lib/screens/neighborhood_crew_screen.dart:63:1:
+Error: Expected ',' before this.
+절차 없이 다음 일정을 원클릭으로 가볍게
+^^
+lib/screens/neighborhood_crew_screen.dart:63:4:
+Error: Expected ',' before this.
+절차 없이 다음 일정을 원클릭으로 가볍게
+   ^^
+lib/screens/neighborhood_crew_screen.dart:63:7:
+Error: Expected ',' before this.
+절차 없이 다음 일정을 원클릭으로 가볍게
+      ^^
+lib/screens/neighborhood_crew_screen.dart:63:10:
+Error: Expected ',' before this.
+절차 없이 다음 일정을 원클릭으로 가볍게
+         ^^^
+lib/screens/neighborhood_crew_screen.dart:63:14:
+Error: Expected ',' before this.
+절차 없이 다음 일정을 원클릭으로 가볍게
+             ^^^^^
+lib/screens/neighborhood_crew_screen.dart:63:20:
+Error: Expected ',' before this.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                   ^^^
+lib/screens/neighborhood_crew_screen.dart:64:1:
+Error: Expected ',' before this.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+^^^^^^
+lib/screens/neighborhood_crew_screen.dart:64:11:
+Error: Expected ',' before this.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/neighborhood_crew_screen.dart:60:1:
+Error: Not a constant expression.
+그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+^^^^
+lib/screens/neighborhood_crew_screen.dart:63:1:
+Error: Not a constant expression.
+절차 없이 다음 일정을 원클릭으로 가볍게
+^^
+lib/screens/neighborhood_crew_screen.dart:63:4:
+Error: Not a constant expression.
+절차 없이 다음 일정을 원클릭으로 가볍게
+   ^^
+lib/screens/neighborhood_crew_screen.dart:63:7:
+Error: Not a constant expression.
+절차 없이 다음 일정을 원클릭으로 가볍게
+      ^^
+lib/screens/neighborhood_crew_screen.dart:63:10:
+Error: Not a constant expression.
+절차 없이 다음 일정을 원클릭으로 가볍게
+         ^^^
+lib/screens/neighborhood_crew_screen.dart:63:14:
+Error: Not a constant expression.
+절차 없이 다음 일정을 원클릭으로 가볍게
+             ^^^^^
+lib/screens/neighborhood_crew_screen.dart:63:20:
+Error: Not a constant expression.
+절차 없이 다음 일정을 원클릭으로 가볍게
+                   ^^^
+lib/screens/neighborhood_crew_screen.dart:64:1:
+Error: Not a constant expression.
+시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+^^^^^^
+lib/screens/neighborhood_crew_screen.dart:62:17:
+Error: Too many positional arguments: 1 allowed, but 9 found.
+            Text('취향이 잘 맞았던 이웃들과 번거로운 신청·승인
+                ^
+/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/packages/flutter/lib/src/widgets/text.dart:507:9:
+Info: Found this candidate, but the arguments don't match.
+  const Text(
+        ^^^^
+lib/screens/neighborhood_crew_screen.dart:59:23:
+Error: Too many positional arguments: 1 allowed, but 3 found.
+            const Text('지난 주말 강화도 동행이 벌써
+                      ^
+/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/packages/flutter/lib/src/widgets/text.dart:507:9:
+Info: Found this candidate, but the arguments don't match.
+  const Text(
+        ^^^^
+lib/screens/neighborhood_crew_screen.dart:104:410:
+Error: No named parameter with the name 'border'.
+              Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87, size: 16), label: const Text('크루 전용 채팅방', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300))))),
+                                                                                          ^^^^^^
+/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/packages/flutter/lib/src/painting/rounded_rectangle_border.dart:40:9:
+Info: Found this candidate, but the arguments don't match.
+  const RoundedRectangleBorder({super.side, this.borderRadius = BorderRadius.zero});
+        ^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/neighborhood_crew_screen.dart:106:414:
+Error: No named parameter with the name 'border'.
+              Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.photo_library_outlined, color: Colors.black87, size: 16), label: const Text('동행 앨범 (14)', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300))))),
+                                                                                          ^^^^^^
+/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/packages/flutter/lib/src/painting/rounded_rectangle_border.dart:40:9:
+Info: Found this candidate, but the arguments don't match.
+  const RoundedRectangleBorder({super.side, this.borderRadius = BorderRadius.zero});
+        ^^^^^^^^^^^^^^^^^^^^^^
 lib/screens/natural_meeting_detail_screens.dart:39:320:
 Error: Member not found: 'dash'.
                   Row(children: List.generate(4, (i) => Container(margin: const EdgeInsets.only(right: 12), width: 48, height: 48, decoration: BoxDecoration(color: i==0 ? Colors.transparent : Colors.grey.shade100, shape: BoxShape.circle, border: i==0 ? null : Border.all(color: Colors.grey.shade300, style: BorderStyle.dash), image: i==0 ? const DecorationImage(image: NetworkImage('https://picsum.photos/100?random=301')) : null), child: i==0 ? null : const Icon(Icons.person_outline, color: Colors.grey))))
@@ -60,5 +300,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             21.5s
+Compiling lib/main.dart for the Web...                             27.2s
 Error: Failed to compile application for the Web.
