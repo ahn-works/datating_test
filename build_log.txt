@@ -1,5 +1,11 @@
 Compiling lib/main.dart for the Web...                          
-Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+Wasm dry run findings:
+Found incompatibilities with WebAssembly.
+
+package:spot10_app/screens/soso_car_hub_screen.dart 3:1 - dart:html unsupported (0)
+
+Consider addressing these issues to enable wasm builds. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
 lib/screens/natural_meeting_detail_screens.dart:39:320:
@@ -54,5 +60,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             26.0s
+Compiling lib/main.dart for the Web...                             28.0s
 Error: Failed to compile application for the Web.
