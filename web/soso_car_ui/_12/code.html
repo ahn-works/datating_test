@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>소소카 - 드라이버 안심 프로필</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f2f7f4',
+              100: '#e1ede6',
+              200: '#c5ddd0',
+              500: '#2d5a43',
+              600: '#224734',
+              700: '#1a3728',
+            },
+            sand: {
+              50: '#fbf9f6',
+              100: '#f5f1ea',
+              200: '#e8e2d8',
+            }
+          },
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styling -->
+<style data-purpose="scroll-behavior">
+    /* Custom thin scrollbar for smooth mobile scrolling */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(45, 90, 67, 0.2);
+      border-radius: 9999px;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style data-purpose="bottom-sheet-animation">
+    /* Smooth sliding sheet elevation shadow */
+    .sheet-shadow {
+      box-shadow: 0 -10px 30px rgba(18, 38, 28, 0.18), 0 -2px 6px rgba(0, 0, 0, 0.04);
+    }
+  </style>
+<!-- END: Custom Styling -->
+</head>
+<body class="bg-[#24292e] flex justify-center items-center min-h-screen p-0 m-0 font-sans antialiased select-none text-slate-800">
+<!-- BEGIN: Mobile Frame Container -->
+<div class="relative w-full max-w-[430px] h-[932px] bg-[#fbf9f6] overflow-hidden flex flex-col shadow-2xl rounded-none md:rounded-[48px] border-0 md:border-[10px] md:border-slate-800">
+<!-- BEGIN: Background Chat Screen (SCREEN_2 Representation) -->
+<div aria-hidden="true" class="absolute inset-0 flex flex-col bg-[#fbf9f6] filter blur-[1.5px] pointer-events-none opacity-80" data-purpose="background-chat-preview">
+<!-- Background Header -->
+<header class="pt-12 px-4 pb-3 flex items-center justify-between border-b border-stone-200 bg-[#fbf9f6]">
+<div class="flex items-center gap-3">
+<span class="text-xl">←</span>
+<span class="font-bold text-lg text-slate-900">Chat Room</span>
+</div>
+<div class="flex items-center gap-3 text-stone-600">
+<span>↗</span>
+<div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-semibold">소소</div>
+</div>
+</header>
+<!-- Pinned Trip Header Banner -->
+<div class="p-3.5 bg-white border-b border-stone-100 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="bg-[#f06e47] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">D-Day 오늘</span>
+<h2 class="font-bold text-sm text-slate-900 truncate">강화도 동막해변 일몰 드라이브</h2>
+<span class="text-xs text-red-500 font-medium">● 4명 참여중</span>
+</div>
+<div class="flex gap-2 mt-2 text-xs">
+<span class="px-2.5 py-1 bg-stone-100 rounded-full text-stone-700">📍 집결지</span>
+<span class="px-2.5 py-1 bg-brand-100 text-brand-600 rounded-full font-medium">🛡️ 안심 드라이버</span>
+<span class="px-2.5 py-1 bg-stone-100 rounded-full text-stone-700">🗺️ 경로</span>
+<span class="px-2.5 py-1 bg-stone-100 rounded-full text-stone-700">🧾 1/N 정산</span>
+</div>
+</div>
+<!-- Chat Bubbles Simulation Behind -->
+<div class="flex-1 p-4 space-y-4">
+<div class="text-center text-[11px] text-stone-500 bg-stone-200/60 rounded-full py-1 px-4 mx-auto w-fit">2024년 10월 19일 토요일</div>
+<!-- Driver Message Card -->
+<div class="flex items-start gap-2.5">
+<div class="w-10 h-10 rounded-full bg-slate-300 border-2 border-brand-500"></div>
+<div class="max-w-[75%] space-y-1">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-xs text-slate-800">민우</span>
+<span class="bg-brand-600 text-white text-[10px] px-1.5 py-0.5 rounded">공식 안심 드라이버</span>
+</div>
+<div class="bg-white p-3 rounded-2xl rounded-tl-sm text-xs shadow-sm border border-stone-200/70">
+              안녕하세요! 흰색 볼보 비상등 켜두고 대기 중입니다 편히 오세요 ㅎㅎ 🚗✨
+            </div>
+</div>
+</div>
+<!-- Passenger Message -->
+<div class="flex items-start gap-2.5">
+<div class="w-10 h-10 rounded-full bg-amber-200"></div>
+<div class="max-w-[75%] space-y-1">
+<span class="font-bold text-xs text-slate-800">서연 <span class="text-stone-400 font-normal">연남동 이웃</span></span>
+<div class="bg-white p-3 rounded-2xl rounded-tl-sm text-xs shadow-sm border border-stone-200/70">
+              지금 3번 출구 계단 올라가고 있어요! 3분 내 도착합니다 🏃‍♀️💨
+            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- END: Background Chat Screen -->
+<!-- BEGIN: Dimmed Modal Backdrop -->
+<div class="absolute inset-0 bg-[#0f1f16]/65 backdrop-blur-[2px] transition-opacity z-20" data-purpose="modal-backdrop"></div>
+<!-- END: Dimmed Modal Backdrop -->
+<!-- BEGIN: Bottom Sheet Modal -->
+<section aria-labelledby="driver-profile-name" aria-modal="true" class="absolute bottom-0 inset-x-0 bg-[#fdfcfb] rounded-t-[34px] sheet-shadow z-30 flex flex-col max-h-[85%] border-t border-brand-100/80 transition-transform duration-300" data-purpose="driver-profile-bottom-sheet" role="dialog">
+<!-- Top Drag Bar & Close Action -->
+<div class="sticky top-0 bg-[#fdfcfb]/95 backdrop-blur-md pt-3 pb-2 px-5 flex items-center justify-between z-10 border-b border-stone-100">
+<div class="w-7"></div> <!-- Spacer for symmetry -->
+<div aria-hidden="true" class="w-10 h-1.5 bg-stone-300 rounded-full mx-auto"></div>
+<button aria-label="닫기" class="w-7 h-7 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 font-bold transition-colors">
+          ✕
+        </button>
+</div>
+<!-- Scrollable Profile Content -->
+<div class="overflow-y-auto px-5 pt-3 pb-24 space-y-5">
+<!-- BEGIN: Driver Profile Header Card -->
+<div class="flex flex-col items-center text-center pb-2">
+<!-- Avatar with Verified Badge -->
+<div class="relative mb-3">
+<div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-brand-600 via-emerald-400 to-amber-200 shadow-md">
+<div class="w-full h-full rounded-full bg-stone-100 overflow-hidden flex items-center justify-center border-2 border-white">
+<!-- Fallback/Stylized Avatar representing young smiling driver -->
+<span aria-label="달리는 민우 프로필 사진" class="text-4xl" role="img">👨‍✈️</span>
+</div>
+</div>
+<div class="absolute bottom-1 right-1 bg-brand-600 text-white rounded-full p-1.5 border-2 border-white shadow-sm flex items-center justify-center" title="공인 안심 인증 완료">
+<svg class="w-3.5 h-3.5 text-white fill-current" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zm3.707 6.764a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<div class="flex items-center gap-1.5">
+<h1 class="text-xl font-extrabold text-slate-900 tracking-tight" id="driver-profile-name">달리는 민우</h1>
+<span class="text-stone-500 text-sm font-medium">(32세)</span>
+</div>
+<!-- Badges Cluster -->
+<div class="flex flex-wrap items-center justify-center gap-1.5 mt-2.5">
+<span class="inline-flex items-center gap-1 bg-brand-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+<svg class="w-3 h-3 fill-current" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zm3.707 6.764a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path></svg>
+              공식 안심 드라이버
+            </span>
+<span class="bg-[#f0ebe3] text-[#5c5449] text-[11px] font-semibold px-2.5 py-1 rounded-full">
+              📍 마포구 연남동 2년차
+            </span>
+<span class="bg-stone-100 text-stone-600 text-[11px] font-medium px-2.5 py-1 rounded-full">
+              가입 2023.04 (1년 6개월)
+            </span>
+</div>
+<!-- Driver Intro Statement -->
+<div class="mt-3.5 bg-sand-50 border border-stone-200/80 rounded-xl p-3 text-xs text-stone-700 leading-relaxed max-w-sm">
+            "안전하고 기분 좋은 동네 드라이브를 지향합니다 🚗✨ 주말엔 주로 강화도, 파주 쪽 다녀요!"
+          </div>
+</div>
+<!-- END: Driver Profile Header Card -->
+<!-- BEGIN: Trust Metrics & Drive Stats (3 Grid Cards) -->
+<div class="grid grid-cols-3 gap-2.5" data-purpose="drive-stats-grid">
+<!-- Stat 1: 동행 횟수 -->
+<div class="bg-white border border-stone-200/80 rounded-2xl p-3 flex flex-col justify-between text-center shadow-sm">
+<span class="text-[11px] text-stone-500 font-medium">동행 횟수</span>
+<div class="my-1">
+<span class="text-lg font-black text-brand-600">28</span><span class="text-xs font-semibold text-stone-600">회</span>
+</div>
+<span class="text-[10px] text-stone-400 font-medium">운전 24 · 동승 4</span>
+</div>
+<!-- Stat 2: 안전 운전 이력 -->
+<div class="bg-white border border-stone-200/80 rounded-2xl p-3 flex flex-col justify-between text-center shadow-sm">
+<span class="text-[11px] text-stone-500 font-medium">안전 운전</span>
+<div class="my-1">
+<span class="text-lg font-black text-emerald-700">무사고</span>
+</div>
+<span class="text-[10px] text-stone-500 font-semibold bg-emerald-50 text-emerald-700 rounded-md py-0.5 px-1 inline-block">6년 연속 안전</span>
+</div>
+<!-- Stat 3: 매너 온도 -->
+<div class="bg-white border border-stone-200/80 rounded-2xl p-3 flex flex-col justify-between text-center shadow-sm">
+<div class="flex items-center justify-center gap-1 text-[11px] text-stone-500 font-medium">
+<span>매너온도</span>
+</div>
+<div class="my-1 flex items-baseline justify-center gap-0.5">
+<span class="text-lg font-black text-[#d9532f]">42.8</span><span class="text-[11px] font-bold text-[#d9532f]">°C</span>
+</div>
+<!-- Progress gauge -->
+<div class="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+<div class="bg-gradient-to-r from-amber-400 to-[#d9532f] h-1.5 rounded-full" style="width: 72%"></div>
+</div>
+<span class="text-[9px] text-[#d9532f] font-semibold mt-1">상위 1% 호스트</span>
+</div>
+</div>
+<!-- END: Trust Metrics & Drive Stats -->
+<!-- BEGIN: AI Verification Status Card -->
+<div class="bg-[#f2f7f4] border border-brand-200/90 rounded-2xl p-4 shadow-sm" data-purpose="ai-verification-box">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-xs">
+                AI
+              </div>
+<h2 class="font-bold text-xs text-brand-700">AI 전산망 실시간 공인 검증 완료</h2>
+</div>
+<span class="bg-brand-600/10 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-600 animate-pulse"></span> 적격 판정
+            </span>
+</div>
+<!-- Verification Items -->
+<ul class="space-y-2 text-xs text-slate-700">
+<li class="flex items-start gap-2 bg-white/70 p-2 rounded-xl border border-brand-100">
+<span class="text-brand-600 text-sm mt-[-1px]">✓</span>
+<div>
+<p class="font-semibold text-slate-900">경찰청 실시간 전산 대조 면허 적격</p>
+<p class="text-[11px] text-stone-500">2종 보통 · 적성검사 유효 (2027년까지 갱신 완료)</p>
+</div>
+</li>
+<li class="flex items-start gap-2 bg-white/70 p-2 rounded-xl border border-brand-100">
+<span class="text-brand-600 text-sm mt-[-1px]">✓</span>
+<div>
+<p class="font-semibold text-slate-900">종합보험 실시간 가입 검증 완료</p>
+<p class="text-[11px] text-stone-500">대인배상 II (무한) · 대물배상 (10억원 보상 가입)</p>
+</div>
+</li>
+<li class="flex items-start gap-2 bg-white/70 p-2 rounded-xl border border-brand-100">
+<span class="text-brand-600 text-sm mt-[-1px]">✓</span>
+<div>
+<p class="font-semibold text-slate-900">본인 명의 실명 및 통신사 3사 인증</p>
+<p class="text-[11px] text-stone-500">신원 불일치 0건 · 마포구 실거주 생활권 인증 완료</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- END: AI Verification Status Card -->
+<!-- BEGIN: Vehicle Information -->
+<div class="bg-white border border-stone-200/80 rounded-2xl p-4 shadow-sm" data-purpose="registered-vehicle-info">
+<div class="flex items-center justify-between pb-2 mb-2 border-b border-stone-100">
+<span class="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+<span>🚗</span> 등록 운행 차량
+            </span>
+<span class="text-[11px] font-semibold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">차량 인증완료</span>
+</div>
+<div class="flex items-center justify-between mb-3">
+<div>
+<h3 class="font-bold text-sm text-slate-900">볼보 XC40 B4 AWD</h3>
+<p class="text-[11px] text-stone-500">화이트 · 번호판 34소 78** (동행 확정자 공개)</p>
+</div>
+<span aria-label="화이트 SUV 차량" class="text-2xl" role="img">🚙</span>
+</div>
+<!-- Feature tags -->
+<div class="flex flex-wrap gap-1.5 pt-1">
+<span class="text-[11px] bg-stone-100 text-stone-700 px-2.5 py-1 rounded-lg">🚭 완전 금연 차량</span>
+<span class="text-[11px] bg-stone-100 text-stone-700 px-2.5 py-1 rounded-lg">🧳 트렁크 넉넉함</span>
+<span class="text-[11px] bg-stone-100 text-stone-700 px-2.5 py-1 rounded-lg">🐶 반려동물 케이지 가능</span>
+<span class="text-[11px] bg-stone-100 text-stone-700 px-2.5 py-1 rounded-lg">⚡ 스마트폰 C타입 충전</span>
+</div>
+</div>
+<!-- END: Vehicle Information -->
+<!-- BEGIN: Neighbor Tags & Reviews -->
+<div class="bg-white border border-stone-200/80 rounded-2xl p-4 shadow-sm space-y-3" data-purpose="neighbor-feedback">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+<span>💬</span> 이웃들이 남긴 칭찬 키워드
+            </h3>
+<span class="text-[11px] text-stone-400 font-medium">총 48개 피드백</span>
+</div>
+<!-- Tag Badges with Count -->
+<div class="flex flex-wrap gap-1.5">
+<span class="bg-[#f4f7f5] text-brand-700 border border-brand-200/70 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+              # 운전이 편안해요 <span class="font-normal text-brand-600">22</span>
+</span>
+<span class="bg-[#f4f7f5] text-brand-700 border border-brand-200/70 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+              # 시간 약속을 잘 지켜요 <span class="font-normal text-brand-600">19</span>
+</span>
+<span class="bg-stone-100 text-stone-700 text-[11px] font-medium px-2.5 py-1 rounded-full">
+              # 차량이 쾌적하고 향기로워요 17
+            </span>
+<span class="bg-stone-100 text-stone-700 text-[11px] font-medium px-2.5 py-1 rounded-full">
+              # 선곡 센스 최고 15
+            </span>
+</div>
+<!-- Latest Verified Neighbor Review Card -->
+<div class="bg-sand-50/80 border border-stone-200/60 rounded-xl p-3 text-xs space-y-1.5">
+<div class="flex items-center justify-between text-[11px] text-stone-500">
+<span class="font-bold text-stone-800">서연 <span class="font-normal text-stone-400">· 연남동 이웃</span></span>
+<span>1주일 전 강화도 동행</span>
+</div>
+<p class="text-stone-700 leading-relaxed italic">
+              "강화도 갈 때 운전 정말 부드럽게 잘해주셔서 멀미 한 번 안 했어요! 선곡도 감성적이고 차도 너무 깨끗해요. 믿고 타는 민우님 강추합니다 👍"
+            </p>
+</div>
+</div>
+<!-- END: Neighbor Tags & Reviews -->
+</div>
+<!-- BEGIN: Sticky Bottom Action Buttons -->
+<footer class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-4 border-t border-stone-200 flex items-center gap-2.5 z-20">
+<!-- 1:1 대화하기 버튼 -->
+<button class="flex-1 py-3.5 px-4 rounded-xl border border-stone-300 text-stone-700 font-bold text-sm bg-white hover:bg-stone-50 active:scale-[0.98] transition flex items-center justify-center gap-1.5 shadow-sm" type="button">
+<svg class="w-4 h-4 text-stone-500 fill-current" viewbox="0 0 24 24">
+<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"></path>
+</svg>
+          1:1 대화하기
+        </button>
+<!-- 이 드라이버의 여행 모임 보기 버튼 -->
+<button class="flex-[1.6] py-3.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md active:scale-[0.98] transition flex items-center justify-center gap-1" type="button">
+<span>민우님의 여행 모임 보기</span>
+<span class="text-xs">→</span>
+</button>
+</footer>
+<!-- END: Sticky Bottom Action Buttons -->
+</section>
+<!-- END: Bottom Sheet Modal -->
+</div>
+<!-- END: Mobile Frame Container -->
+</body></html>

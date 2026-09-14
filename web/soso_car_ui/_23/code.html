@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>소소카 - SosoCar</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed-dim": "#ffb780", "on-tertiary-fixed": "#2f1400", "inverse-on-surface": "#f2f0ed", "surface-container-lowest": "#ffffff", "surface-dim": "#dbdad7", "on-surface-variant": "#414943", "on-primary": "#ffffff", "secondary-container": "#ff8162", "error": "#ba1a1a", "surface-tint": "#3a674f", "on-primary-fixed": "#002112", "surface-container": "#efeeeb", "surface-bright": "#fbf9f6", "primary-container": "#2d5a43", "secondary-fixed-dim": "#ffb4a2", "tertiary-container": "#7e4205", "background": "#fbf9f6", "tertiary": "#5d2e00", "primary-fixed-dim": "#a1d1b4", "outline": "#717973", "on-surface": "#1b1c1a", "on-secondary": "#ffffff", "outline-variant": "#c0c9c1", "primary": "#14422d", "on-secondary-fixed": "#3c0700", "secondary-fixed": "#ffdad2", "on-primary-fixed-variant": "#224f39", "on-tertiary-fixed-variant": "#6f3800", "surface": "#fbf9f6", "tertiary-fixed": "#ffdcc4", "primary-fixed": "#bceecf", "inverse-surface": "#30312f", "secondary": "#a33d23", "surface-container-high": "#eae8e5", "on-error": "#ffffff", "on-secondary-container": "#731a04", "on-background": "#1b1c1a", "on-primary-container": "#9fcfb2", "surface-container-low": "#f5f3f0", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "surface-variant": "#e4e2df", "on-secondary-fixed-variant": "#83260e", "inverse-primary": "#a1d1b4", "surface-container-highest": "#e4e2df", "on-tertiary-container": "#ffb57c", "error-container": "#ffdad6" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "gutter": "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "space-md": "1rem", "margin": "1.25rem", "space-xl": "2.25rem" }, "fontFamily": { "headline-xl": ["Inter"], "body-lg": ["Inter"], "headline-lg": ["Inter"], "body-md": ["Inter"], "label-md": ["Inter"], "label-lg": ["Inter"], "body-sm": ["Inter"], "headline-md": ["Inter"], "headline-sm": ["Inter"], "label-sm": ["Inter"] }, "fontSize": { "headline-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fbf9f6;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style></head><body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen flex flex-col antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs"><button aria-label="뒤로가기" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors" onclick="window.history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex items-center gap-space-xs pl-space-xs"><img alt="동네친구 카풀 여행 앱 소소카(SosoCar)의 귀여운 자동차와 따뜻한 동네 길/새싹 모티프의 미니멀 심볼 마크 로고. Brand logo. - Primary color: #2d5a43
+- Font: inter
+- Mode: light
+- Roundness: rounded-full
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XILJns7JRqsZT9I-abH20JCej-GrJyYsCJky3mkNjfSCuIId2tI2f44FsxjrumOFxCZb-YCSnsBR8m627SV0J5Xj_ZBoEGVYGh7ytCS4fDYJJ5D7tfbKlNKaMqmTocgaFnari-EC-EbNBXp5wY-MIMjiYHpt9lpIELiB-3j_kekpdPPvZLpWtThQ91iyEFiwvCOrYXIUaopdvE8LghqJc5g1koWA8xEdTjiXhAQZSbH9BbtR1pddhzNBkP"/><h1 class="font-headline-sm text-headline-sm text-on-surface truncate tracking-tight">Regular Crew</h1></div></div><div class="flex items-center gap-space-xs"><button aria-label="알림" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors relative" type="button"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary"></span></button><button aria-label="더보기" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">more_vert</span></button><div class="pl-space-xs flex items-center"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-fixed-dim/40" src="https://lh3.googleusercontent.com/aida/AEtjO1UH4l1Moc2w9X22NljyuZAwmgWWXBFNRnRKZgpTMybhbwYE7ZJ-IzjVVlWXXdvusy0OkMtXFyQ_0MLUKSPt0EgAI4eU_5clUQMYJoCYfDUae2ZgkNwwO5BFbq-Q4JZxp_l9xiQvTKyHxjuB6b5xwTFtMSi_Fvws4wXT82RRoeiJy8nJXTldRSo0m2gH4IwHUTJlCz36bmoVlwFUGs_GhIt94Ef0YnzopYeVzEUwTW-A5yEoWQInFWbTF3K_"/></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface max-w-[480px] mx-auto min-h-screen"><div class="flex flex-col w-full px-margin pb-10 space-y-space-lg" style="word-break: keep-all;">
+<!-- 상단 세그먼트 컨트롤 / 탭 -->
+<div class="w-full bg-surface-container-high p-1 rounded-full flex items-center shadow-inner mt-2">
+<button class="flex-1 py-2 px-space-xs rounded-full bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center gap-1 transition-all" type="button">
+<span class="font-label-md text-label-md whitespace-nowrap">함께한 크루</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+</button>
+<button class="flex-1 py-2 px-space-xs rounded-full text-on-surface-variant flex items-center justify-center gap-1 hover:text-on-surface transition-all" type="button">
+<span class="font-label-md text-label-md whitespace-nowrap">찜한 드라이버</span>
+<span class="bg-surface-dim text-on-surface-variant text-[10px] font-bold px-1.5 py-0.5 rounded-full">4</span>
+</button>
+<button class="flex-1 py-2 px-space-xs rounded-full text-on-surface-variant flex items-center justify-center gap-1 hover:text-on-surface transition-all" type="button">
+<span class="font-label-md text-label-md whitespace-nowrap">나의 뱃지함</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold px-1.5 py-0.5 rounded-full">5</span>
+</button>
+</div>
+<!-- 상단 감성 하이라이트 배너 -->
+<div class="w-full bg-surface-container-low rounded-lg p-5 shadow-sm relative overflow-hidden">
+<div class="absolute -right-4 -bottom-6 opacity-20 pointer-events-none">
+<span class="material-symbols-outlined text-[110px] text-primary">diversity_1</span>
+</div>
+<div class="relative z-10 flex flex-col gap-1.5">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Memorable Companion</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+        지난 주말 강화도 동행이 벌써 그립다면?
+      </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 leading-relaxed">
+        취향이 잘 맞았던 이웃들과 번거로운 신청·승인 절차 없이 다음 일정을 원클릭으로 가볍게 시작해보세요. 🌿
+      </p>
+</div>
+</div>
+<!-- 섹션 1: 함께한 단골 크루 리스트 -->
+<section class="flex flex-col space-y-space-md">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">group_work</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">검증된 우리 동네 단골 크루</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-medium">총 3개 그룹</span>
+</div>
+<!-- 대표 크루 카드 1 -->
+<article class="bg-surface-container-lowest rounded-lg p-5 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-4">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-1.5 flex-wrap mb-1">
+<span class="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-2.5 py-0.5 rounded-full font-bold whitespace-nowrap">만족도 100%</span>
+<span class="bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm px-2.5 py-0.5 rounded-full font-bold whitespace-nowrap">환상의 케미 🧡</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-1">
+            강화도 동막해변 1기 크루 🌅
+          </h4>
+</div>
+<button aria-label="크루 옵션" class="text-on-surface-variant hover:text-on-surface p-1" type="button">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<!-- 멤버 및 롤 태그 아바타 섹션 -->
+<div class="bg-surface-container-low rounded-DEFAULT p-3.5 flex flex-col gap-3">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>최근 동행: 2024. 10. 26 (토)</span>
+<span class="text-primary font-bold">4명 완주</span>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<!-- 민우 (호스트) -->
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2 rounded-DEFAULT shadow-xs">
+<img class="w-9 h-9 rounded-full object-cover" data-alt="Warm smiling Korean male driver in early thirties wearing comfortable olive sweater inside a cozy car interior, warm afternoon sunlit background, realistic portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLGUpZoPkPGo3CV5bQbvKBCiQq7AUIJln7ABWMkPtCIIP8XMYHFmnl-hxvGLFchamFINSpURVoFMc6RR_NFWJqWT37kmhhTvGg0EzpT_HXrb2J_AlYihjUeBYoKuNPMAINO-PT35SrSBTs_y5jtYkFvgT6QdbwRNuIfBjiJ-pyXCS3l3YqNCfDVkyNGKGKIo5dZazQgUxECW54J257UfkX1UOEZ8Xf0xrEKGd3m8bfrAtdzNWihBBbLw"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1">
+<span class="font-label-md text-label-md text-on-surface truncate">호스트 민우</span>
+<span class="material-symbols-outlined text-primary text-[14px]">verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold truncate whitespace-nowrap">운전매너 100점</span>
+</div>
+</div>
+<!-- 지우 -->
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2 rounded-DEFAULT shadow-xs">
+<img class="w-9 h-9 rounded-full object-cover" data-alt="Cheerful Korean female passenger with earphones in twenties, candid natural aesthetic, warm cafe mood lighting, soft cozy atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNAZkECLH-LCq88DqN_ckkL3Il1eJu8OqJMEY_GVFd6n2RQh2U4Y3_GfWcmu_uuqN5-qJe59aRnxDaCIOkxthlSp2Mn-PTMhgMXAvzfs3wVd-ZnHgCa8XBvgBizhnkEI3NEuSOLpUbUD1jCQtv-h7_I7F4X_ifdUt-hSy6FAoGWXyiGc_s_yU6zQTBIGDEXbaMZDNMtLnx3OGOXSV4eT3gH7Kjo2nUmCziwCl_klehT06VjItPe1FRTA"/>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate">지우</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold truncate whitespace-nowrap">감성 선곡 DJ 🎵</span>
+</div>
+</div>
+<!-- 서연 -->
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2 rounded-DEFAULT shadow-xs">
+<img class="w-9 h-9 rounded-full object-cover" data-alt="Kind smiling Korean woman in her late twenties with warm wool cardigan, holding travel thermos, soft daylight bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRCcoAfcTu9v8UBd8Hr5djKVC4Ayz_RdiPqx-RzW7098uhSGFvcZZY7djXLzDOjQfQSZa4-SZwH6YvquGm8JaKpr9Y1foTRZ7j9siZGGN1XUxS2BNcu0_NPeY4wXfFAUBeDGjDhAUA__ycbOmC88oKJyqLOufRh16tHznzzXj3XsZyVnpnyfwbwyHy_6CDtK2lVvlKhKU9f6fDjIEOqhyCqSd5tvjPwo4hnRyFdbf8aItFDxyIjMHw7A"/>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate">서연</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold truncate whitespace-nowrap">간식 요정 🥐</span>
+</div>
+</div>
+<!-- 나 -->
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2 rounded-DEFAULT shadow-xs">
+<div class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-label-md">
+              나
+            </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">나 (동행 크루)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate whitespace-nowrap">시간약속 완벽 ⏱️</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 크루의 추억 코멘트 박스 -->
+<div class="flex items-start gap-2.5 px-3 py-2.5 bg-surface-container rounded-DEFAULT">
+<span class="material-symbols-outlined text-primary-container text-[18px] mt-0.5 shrink-0">chat</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+          “갑자기 비바람 칠 때 다 함께 온실 북카페로 피신했던 전설의 강화 드라이브! 다음엔 일몰 맛집으로 가요 ☕”
+        </p>
+</div>
+<!-- 크루 액션 버튼 -->
+<div class="flex flex-col gap-2 pt-1">
+<button class="w-full h-12 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+<span class="whitespace-nowrap">이 멤버로 다음 여행 또 가기 (초대 전송)</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<button class="h-10 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center gap-1.5 hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+<span class="whitespace-nowrap">크루 전용 채팅방</span>
+</button>
+<button class="h-10 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md flex items-center justify-center gap-1.5 hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+<span class="whitespace-nowrap">동행 앨범 (14)</span>
+</button>
+</div>
+</div>
+</article>
+<!-- 크루 카드 2 -->
+<article class="bg-surface-container-lowest rounded-lg p-5 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-3.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">2회 동행 완료</span>
+<span class="bg-primary-fixed-dim text-on-primary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">정숙 힐링 취향 🌿</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+            파주 출판단지 북카페 탐험대 📚
+          </h4>
+</div>
+<span class="text-on-surface-variant text-label-sm font-medium">10.12 동행</span>
+</div>
+<div class="flex items-center justify-between py-1">
+<div class="flex items-center -space-x-2 overflow-hidden">
+<img class="w-8 h-8 rounded-full object-cover shadow-xs" data-alt="Quiet thoughtful Korean male with glasses reading in book cafe interior, warm ambient wood furniture, soft morning lighting portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMzMguwgSPWUCFVleZcYsM_j3qdpgUvtFiioLINJHYeUxEt2TE9V3njRyBH3k4Qew8RIYmlbwi8H8lsYcSY9iDwWuZkyRSrN5CGuVwZ4KstuDEQYy07Dztqev3kQWAnSpDFCvghcbxvx6ogojP3qeniG42U-WEAsYvdc1VzD1WwvyKHeX7oBSQ-LvgiaAKCrNDBPi7wVekMd08G0pymCt6WIs-r9n-LpA9ih523SGiacGR9y1Ma2S1XA"/>
+<img class="w-8 h-8 rounded-full object-cover shadow-xs" data-alt="Gentle smiling Korean woman holding hot latte cup in modern minimalist library interior, cozy natural aesthetic portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZhTRMCmserXPVAH7_riyAQxZC3e75M3QDnEomGd_tbc0S5-nzuaOERwm3Nl60tuWapUuQzvCReNn3kSSmcPVLY_09Ym283FCQLKfkHBhXuXuF9WyJksWdlZayDnETF5TX7XggKV-iZvfS88zaHzo0APWOc0HB8gFSu07i8A5WCnBVkAG9pTrg4N5NiX2rdnzqHBoEY7PloEzR1IQyiROwaOsG2cTDWI-ig-v6szlvrGzZIphrcbVDnA"/>
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary text-[11px] font-bold flex items-center justify-center shadow-xs">
+            나
+          </div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">호스트 준호, 수진, 나 (3인)</span>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-3 flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-tertiary-container text-[18px]">bookmark_heart</span>
+<p class="font-body-sm text-body-sm truncate text-on-surface-variant">
+          메모: “다음 주말엔 헤이리 예술마을 LP 청음 카페 들르기로 약속!”
+        </p>
+</div>
+<button class="w-full h-11 rounded-full bg-surface-container-high text-primary font-label-md text-label-md flex items-center justify-center gap-1.5 hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">calendar_add_on</span>
+<span class="whitespace-nowrap font-bold">이 멤버로 일정 잡기 제안</span>
+</button>
+</article>
+</section>
+<!-- 섹션 2: 취향 맞춤 찜한 안심 드라이버 -->
+<section class="flex flex-col space-y-space-md pt-2">
+<div class="flex flex-col gap-0.5 px-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[22px]">favorite</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">찜한 안심 드라이버 이웃</h3>
+</div>
+<a class="font-label-sm text-label-sm text-primary font-semibold hover:underline" href="#">전체보기</a>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        새로운 코스의 주말 동행 모집 글이 등록되면 가장 먼저 푸시 알림을 드려요.
+      </p>
+</div>
+<!-- 드라이버 카드 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-3.5">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-13 h-13 rounded-full object-cover" data-alt="Reliable warm Korean male carpool host smiling softly in casual outdoor vest, sunny green city park background, cozy community avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAJolfFKBL7E8LzenwO8mqg1MCFVORJ6UxiJN5mCVAQAnCJWrmqSyDAMPSO6w9QZjSPIvkGibdUmBi0qNAfXjk4SlKf8q9Btye5leoNgL-xdRHQWPJrbOMfcPaEBjCV9seH0d9SEB6p3Bg323mq_rXYM-623cXFPZJVzdibW2ftUe-635l-JRQv9cX0aFzPiFBshDfYz6JqhXajkWXzjWuLLd4Z-FdAX4mnZ1Cb0QRuvAD7xVgGvtH6Q"/>
+<span class="absolute -bottom-1 -right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">호스트 민우</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">31세 · 마포구 연남동</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="inline-flex items-center gap-1 bg-primary-fixed/60 text-on-primary-fixed-variant font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">
+<span class="material-symbols-outlined text-[13px]">shield</span> 안심인증
+              </span>
+<span class="font-label-sm text-label-sm font-bold text-secondary flex items-center">
+                온도 42.5°C ♨
+              </span>
+</div>
+</div>
+</div>
+<!-- 알림 활성 토글 상태 버튼 -->
+<button class="h-8 px-3 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm flex items-center gap-1 shadow-xs whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[16px]">notifications_active</span>
+<span>알림 받는 중</span>
+</button>
+</div>
+<!-- 차량 및 취향 스펙 -->
+<div class="flex items-center gap-2 py-2 px-3 bg-surface-container-low rounded-DEFAULT text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">directions_car</span>
+<span class="font-semibold text-on-surface">기아 셀토스</span>
+<span class="text-outline-variant">|</span>
+<span class="truncate">비흡연 쾌적 · 클래식/인디음악 선호</span>
+</div>
+<!-- 최근 모집 구상 중 카드 티저 -->
+<div class="bg-surface-container p-3 rounded-DEFAULT flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold shrink-0">D-3 구상중</span>
+<p class="font-body-sm text-body-sm text-on-surface truncate">
+            이번 주말 영종도 선녀바위 드라이브 &amp; 노을 카페
+          </p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] shrink-0">arrow_forward_ios</span>
+</div>
+<button class="w-full h-11 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.99] transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+<span class="whitespace-nowrap">1:1 메시지로 다음 여행 미리 요청하기</span>
+</button>
+</div>
+<!-- 드라이버 카드 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-13 h-13 rounded-full object-cover" data-alt="Pleasant Korean female driver in late twenties wearing simple ivory linen shirt, bright warm outdoor travel vehicle ambiance, cozy friendly portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS7VqnEkA_JREZLvLsr1HnnWIVzpORAeo4JoFySq935a6Caeo54BZVO77zK7hHUTakfNBkxveBOmh1tH5pe_KDReHM3pLCbtTP2y0-Sf_4AyR8iB_Quuyj8pJqMenI4lW86EK-3imGQlfb9hUnjFWfy5_zNQIZsblowHUxTzkEDNuzmT_EfkEKOLycE4I4ovtdN7JHz0MhPBJY--VB_nwa-tG-Ny7eMxG-G9FKf3vRIQ4eNRS_yKgZOw"/>
+<span class="absolute -bottom-1 -right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">호스트 지은</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">28세 · 서대문구 연희동</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="inline-flex items-center gap-1 bg-primary-fixed/60 text-on-primary-fixed-variant font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">
+<span class="material-symbols-outlined text-[13px]">shield</span> 초보안전주행
+              </span>
+<span class="font-label-sm text-label-sm font-bold text-secondary flex items-center">
+                온도 39.8°C
+              </span>
+</div>
+</div>
+</div>
+<button class="h-8 px-3 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 hover:bg-surface-container-highest transition-colors whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[16px]">notifications_none</span>
+<span>알림 켜기</span>
+</button>
+</div>
+<div class="flex items-center gap-2 py-2 px-3 bg-surface-container-low rounded-DEFAULT text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">minor_crash</span>
+<span class="font-semibold text-on-surface">현대 캐스퍼</span>
+<span class="text-outline-variant">|</span>
+<span class="truncate">아늑한 소형 힐링 드라이브 &amp; 반려견 환영 🐶</span>
+</div>
+</div>
+</section>
+<!-- 섹션 3: 동네 크루 친밀감 뱃지 컬렉션 그리드 -->
+<section class="flex flex-col space-y-space-md pt-2">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-tertiary text-[22px]">military_tech</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">소소한 동행 뱃지 컬렉션</h3>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-bold">5개 보유 중</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- 뱃지 1 -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-3.5 flex flex-col items-center text-center shadow-[0_2px_10px_rgba(45,90,67,0.04)] relative overflow-hidden">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary mb-2 shadow-inner">
+<span class="material-symbols-outlined text-[26px]">sunny</span>
+</div>
+<h5 class="font-label-md text-label-md text-on-surface font-bold truncate w-full">동막해변 1기 크루</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">폭우 속 낭만을 함께 나눈 잊지 못할 사이</p>
+<span class="mt-2 text-[10px] text-tertiary font-semibold bg-tertiary-fixed-dim/30 px-2 py-0.5 rounded-full">레전드 뱃지</span>
+</div>
+<!-- 뱃지 2 -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-3.5 flex flex-col items-center text-center shadow-[0_2px_10px_rgba(45,90,67,0.04)]">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary mb-2 shadow-inner">
+<span class="material-symbols-outlined text-[26px]">menu_book</span>
+</div>
+<h5 class="font-label-md text-label-md text-on-surface font-bold truncate w-full">파주 북카페 탐험대</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">책과 커피 향기 속 침묵이 편안한 메이트</p>
+<span class="mt-2 text-[10px] text-primary font-semibold bg-primary-fixed-dim/30 px-2 py-0.5 rounded-full">취향 존중</span>
+</div>
+<!-- 뱃지 3 -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-3.5 flex flex-col items-center text-center shadow-[0_2px_10px_rgba(45,90,67,0.04)]">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary mb-2 shadow-inner">
+<span class="material-symbols-outlined text-[26px]">schedule</span>
+</div>
+<h5 class="font-label-md text-label-md text-on-surface font-bold truncate w-full">랑데부 픽업 마스터</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">1분의 오차도 없이 약속 장소에 칼도착</p>
+<span class="mt-2 text-[10px] text-secondary font-semibold bg-secondary-fixed-dim/30 px-2 py-0.5 rounded-full">매너 5.0 만점</span>
+</div>
+<!-- 뱃지 4 -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-3.5 flex flex-col items-center text-center shadow-[0_2px_10px_rgba(45,90,67,0.04)]">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface mb-2 shadow-inner">
+<span class="material-symbols-outlined text-[26px]">music_note</span>
+</div>
+<h5 class="font-label-md text-label-md text-on-surface font-bold truncate w-full">차내 DJ 명예의 전당</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">호스트와 동행자 모두 만족한 드라이브 선곡</p>
+<span class="mt-2 text-[10px] text-on-surface-variant font-semibold bg-surface-dim px-2 py-0.5 rounded-full">인기 메이트</span>
+</div>
+</div>
+</section>
+<!-- 하단 안심 프라이버시 가이드 카드 -->
+<div class="bg-surface-container rounded-DEFAULT p-4 flex items-start gap-3 mt-4">
+<span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5">lock_person</span>
+<div class="flex flex-col gap-1">
+<h6 class="font-label-md text-label-md text-on-surface font-bold">
+        소소카 단골 크루 프라이버시 안심 안내
+      </h6>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+        비공개 카풀 일정 초대는 서로 상호 동의가 완료된 크루 간에만 전송됩니다. 일정이 맞지 않아 거절하시더라도 부담이 남지 않도록 어떠한 불이익이나 공개 알림이 발생하지 않습니다.
+      </p>
+</div>
+</div>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-4px_20px_rgba(45,90,67,0.06)]" data-active-classes="text-primary font-label-md"><div class="max-w-[480px] mx-auto h-16 px-space-xs flex items-center justify-around"><a class="group flex flex-col items-center justify-center w-16 h-14 text-on-surface-variant transition-transform active:scale-95" data-path="home-explore" href="#"><span class="material-symbols-outlined text-[24px] mb-0.5">explore</span><span class="font-label-sm text-label-sm">홈/둘러보기</span></a><a class="group flex flex-col items-center justify-center w-16 h-14 text-on-surface-variant transition-transform active:scale-95" data-path="my-trips" href="#"><span class="material-symbols-outlined text-[24px] mb-0.5">route</span><span class="font-label-sm text-label-sm">내 여행</span></a><a aria-current="page" class="group flex flex-col items-center justify-center w-16 h-14 transition-transform active:scale-95 text-primary font-label-md" data-path="regular-crew" href="#"><span class="material-symbols-outlined text-[24px] mb-0.5">group</span><span class="font-label-sm text-label-sm">단골 크루</span></a><a class="group flex flex-col items-center justify-center w-16 h-14 text-on-surface-variant transition-transform active:scale-95" data-path="chat-rooms" href="#"><span class="material-symbols-outlined text-[24px] mb-0.5">chat_bubble</span><span class="font-label-sm text-label-sm">채팅</span></a><a class="group flex flex-col items-center justify-center w-16 h-14 text-on-surface-variant transition-transform active:scale-95" data-path="my-page" href="#"><span class="material-symbols-outlined text-[24px] mb-0.5">person</span><span class="font-label-sm text-label-sm">마이페이지</span></a></div></nav></body></html>

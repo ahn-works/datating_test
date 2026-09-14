@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "error-container": "#ffdad6", "primary": "#14422d", "surface-container-lowest": "#ffffff", "surface-container-high": "#eae8e5", "surface-bright": "#fbf9f6", "on-primary-container": "#9fcfb2", "error": "#ba1a1a", "secondary-fixed-dim": "#ffb4a2", "primary-fixed": "#bceecf", "on-background": "#1b1c1a", "primary-container": "#2d5a43", "surface-dim": "#dbdad7", "on-error-container": "#93000a", "surface-variant": "#e4e2df", "inverse-primary": "#a1d1b4", "on-surface": "#1b1c1a", "on-primary-fixed-variant": "#224f39", "on-tertiary": "#ffffff", "inverse-surface": "#30312f", "on-tertiary-fixed-variant": "#6f3800", "secondary-container": "#ff8162", "outline": "#717973", "tertiary-fixed-dim": "#ffb780", "surface-container": "#efeeeb", "tertiary-container": "#7e4205", "on-tertiary-fixed": "#2f1400", "on-primary": "#ffffff", "secondary": "#a33d23", "outline-variant": "#c0c9c1", "inverse-on-surface": "#f2f0ed", "secondary-fixed": "#ffdad2", "tertiary-fixed": "#ffdcc4", "on-secondary-fixed-variant": "#83260e", "background": "#fbf9f6", "on-secondary-container": "#731a04", "on-secondary-fixed": "#3c0700", "on-secondary": "#ffffff", "surface-tint": "#3a674f", "surface-container-low": "#f5f3f0", "on-error": "#ffffff", "on-surface-variant": "#414943", "surface": "#fbf9f6", "tertiary": "#5d2e00", "on-primary-fixed": "#002112", "surface-container-highest": "#e4e2df", "primary-fixed-dim": "#a1d1b4", "on-tertiary-container": "#ffb57c" }, borderRadius: { DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px" }, spacing: { margin: "1.25rem", "space-xl": "2.25rem", "space-lg": "1.5rem", "space-xs": "0.25rem", gutter: "1rem", "space-md": "1rem", "space-sm": "0.5rem" }, fontFamily: { "body-lg": ["Inter"], "headline-md": ["Inter"], "headline-xl": ["Inter"], "body-md": ["Inter"], "label-sm": ["Inter"], "headline-lg": ["Inter"], "label-lg": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "headline-sm": ["Inter"] }, fontSize: { "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "headline-md": ["22px", { lineHeight: "30px", fontWeight: "600" }], "headline-xl": ["32px", { lineHeight: "40px", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "21px", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", fontWeight: "600" }], "headline-lg": ["26px", { lineHeight: "34px", fontWeight: "700" }], "label-lg": ["15px", { lineHeight: "20px", fontWeight: "600" }], "body-sm": ["13px", { lineHeight: "19px", fontWeight: "400" }], "label-md": ["13px", { lineHeight: "18px", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "26px", fontWeight: "600" }] } } } };</script><style>@layer base { html, body { width: 100vw; margin: 0; padding: 0; } body { overscroll-behavior: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs min-w-0"><button aria-label="뒤로 가기" class="w-11 h-11 -ml-2 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><img alt="동네친구 카풀 여행 앱 소소카(SosoCar)의 귀여운 자동차와 따뜻한 동네 길/새싹 모티프의 미니멀 심볼 마크 로고. Brand logo. - Primary color: #2d5a43 - Font: inter - Mode: light - Roundness: rounded-full" class="h-7 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1X9TezKnuSGnflQUScMrpyeg8V7FPcTMkQ5MntHqIx8AwrDWPuWJ9jSbgb3L5y8uERrBMRuNYIyIugRjYeQ4Ns4fIudXPSgwH3J6XghnSpc1a7a3RZvrrS6FRRJaKMPzdDj3RAZOV3lkUI1XyWJzl_nSV_Ywlyf9IFYpopG0zl4qoOp6Q2QEYrw6UVTsSTIylKKJ_T4eRNf6yEFBb8CDt9s8jGQwwfqx1JomPU3n3WTBHln24pDRxDvG0Wc"/><h1 class="font-headline-sm text-headline-sm text-on-surface truncate min-w-0">Shared Album & Memories</h1></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="공유하기" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all"><span class="material-symbols-outlined text-[22px]">share</span></button><button aria-label="다운로드" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all"><span class="material-symbols-outlined text-[22px]">download</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-surface-container-high ml-1" src="https://lh3.googleusercontent.com/aida/AEtjO1Uv_sXxxvwO6IfxYs-7S9h149Z9DQgLPK222xysXkdKtN_4E0NjarmwGZHTSiceBafYqAdTlGTnifsAejexdBvRSXJNpzXwK0l7ihfGBofHkcmH4jS4xwQj_BLt3GgNan9adcy8oW5bUmW7-l85lO2NoOKk_kYmSWn8hiwGHX8uZa4P_6Cfa7xR6tWCyeatFoVqaLPXYqfLneLZEatfTxG3w8MAf7pqGF7bWmpCDL-N-hFri1ZNMUZgA1xY"/></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 bg-surface max-w-[480px] mx-auto px-margin"><div class="flex flex-col w-full pb-12 space-y-space-lg">
+<!-- Search & View Toggle Section -->
+<section class="flex flex-col gap-space-sm pt-space-xs">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">local_library</span>
+<span class="font-label-md text-label-md text-primary font-semibold">소소카 로컬 루트북</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">동네 이웃들이 직접 다녀오고 검증한 코스</p>
+</div>
+<!-- View mode switch -->
+<div class="bg-surface-container flex items-center p-1 rounded-full">
+<button aria-label="리스트 보기" class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-label-sm text-label-sm transition-all" id="viewListBtn">
+<span class="material-symbols-outlined text-[16px]">view_agenda</span>
+<span>목록</span>
+</button>
+<button aria-label="지도 보기" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all" id="viewMapBtn">
+<span class="material-symbols-outlined text-[16px]">map</span>
+<span>지도</span>
+</button>
+</div>
+</div>
+<!-- Search Input -->
+<div class="relative flex items-center w-full">
+<span class="material-symbols-outlined absolute left-3.5 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-10 py-3 bg-surface-container-lowest rounded-full font-body-sm text-body-sm text-on-surface placeholder:text-outline shadow-[0_2px_10px_rgba(45,90,67,0.04)] focus:outline-none focus:bg-surface-bright transition-all" placeholder="가고 싶은 테마나 동네를 검색해보세요 (예: 파주, 노을, 초보)" type="text"/>
+<button aria-label="검색 지우기" class="absolute right-3 w-6 h-6 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+</button>
+</div>
+</section>
+<!-- Horizontal Scrolling Theme Filter Chips -->
+<section class="flex items-center gap-2 overflow-x-auto -mx-margin px-margin no-scrollbar py-0.5" role="tablist">
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span>#전체</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span>#당일치기힐링</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[14px]">wb_twilight</span>
+<span>#노을맛집</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+<span>#초보운전환영</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[14px]">local_parking</span>
+<span>#주차편한대형카페</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[14px]">pets</span>
+<span>#반려견동반</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[14px]">headphones</span>
+<span>#조용한음악감상</span>
+</button>
+</section>
+<!-- Featured Course Hero Banner -->
+<article class="bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] flex flex-col gap-space-md relative overflow-hidden">
+<!-- Top badge ribbon -->
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+        이웃 찜 1위 이번 주 추천
+      </span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+        318명 저장
+      </span>
+</div>
+<!-- Title & Neighborhood -->
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold leading-tight">
+        파주 출판도시 & 헤이리 노을 메타세쿼이아 숲길
+      </h2>
+<div class="flex items-center gap-2 mt-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary">navigation</span>
+          출발: 마포·홍대권
+        </span>
+<span>•</span>
+<span>왕복 68km (약 1시간 15분)</span>
+</div>
+</div>
+<!-- Visual Thumbnail / Scenic View -->
+<div class="relative w-full h-44 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Peaceful sunset road in Paju with tall Metasequoia trees, warm golden hour natural light, quiet rural road with minimal cars, cozy aesthetic for weekend road trip, soft natural tones matching olive green and terracotta" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOxOIeXtRZamlvjOFKznMzwl7yzTjvjDh30nNjobqdEE5EuTLAHMkjsJzMW5x523D_qHGwhqveY5GE_YLLC7ljO1YygXOCRaYkNcFBMa3yZtnqbxztxcMSicsuT_Vm7Lwgq2D_bMv0BSemYgmTW7G3OJoARxj0eQJdbL-CnycqdVOyWPbU7dpHvLKcYFpr_IVJGcxSVrvWvg572qU4tShf9EKy6_QDHpkyS97SJ_A0QgxAczNUM224SA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+<!-- Neighborhood verification pill floating -->
+<div class="absolute bottom-2.5 left-3 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm font-semibold">동네 이웃 42팀 다녀옴 · 만족도 4.9점</span>
+</div>
+</div>
+<!-- Friendly Spec Tags -->
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        초보 운전 안심 코스 🟢
+      </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+        주차 난이도 하 (무료 120대)
+      </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm">
+        #차분한북카페
+      </span>
+</div>
+<!-- Route Nodes Visual -->
+<div class="bg-surface-container-low p-3 rounded-DEFAULT flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-on-surface truncate">합정역</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px] flex-shrink-0">arrow_forward</span>
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-on-surface truncate">지혜의숲 카페</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px] flex-shrink-0">arrow_forward</span>
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-on-surface truncate">헤이리 노을 언덕</span>
+</div>
+</div>
+<!-- Cost Settlement preview & CTA Button -->
+<div class="flex flex-col gap-2.5 pt-1">
+<div class="flex items-center justify-between px-1 text-on-surface-variant font-body-sm text-body-sm">
+<span>예상 분담 정산 (4인 탑승 시)</span>
+<span class="font-label-lg text-label-lg text-primary font-semibold">1인 약 8,500원</span>
+</div>
+<button class="w-full h-12 bg-primary-container text-on-primary font-label-lg text-label-lg rounded-full flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-all">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+<span>이 코스로 주말 번개 모임 열기</span>
+</button>
+</div>
+</article>
+<!-- Feed Header -->
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">이웃 검증 추천 코스</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant">총 28개</span>
+</div>
+<button class="flex items-center gap-0.5 text-outline text-label-sm font-label-sm">
+<span>거리순</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<!-- Route Card 1: Ganghwa Island Sunset -->
+<article class="bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-space-sm">
+<div class="relative w-full h-36 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Dongmak beach in Ganghwa island Korea during low tide sunset, warm orange red skies reflecting on the wet mudflats, calm coastal road leading to small beachfront cafes, inviting and peaceful atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE4Z6nZ0fgoKvVJRAhM65-23QScmpl_z1MQMG6RWPEh-eRO3QLUYvgtMrMhvwRcpACEzekXmiyYUI_T7njDM1cXVChwt___36eiSsY7fkkBUsmcPxL0Q_WpncNtxQebkwFt6fsKAUA4_El8i-k_pgZIh3mjm4RS2HVyhHioEaODFAVlguebBeNLoV0u2KPORVkPXgcKhuZYgfJqBlUlAaqe6hjyV9L6KGe9zG3v6Hn2LglNIgFgxaBOg"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm">#노을맛집</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm">#주말소풍</span>
+</div>
+<button aria-label="찜하기" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center text-secondary active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white font-label-sm text-label-sm">
+        왕복 86km
+      </div>
+</div>
+<div>
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+          강화도 동막해변 갯벌 낙조 드라이브
+        </h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+        마포·영등포권 출발 → 초지진 해안도로 → 동막 오션뷰 쉼터
+      </p>
+</div>
+<!-- Specs breakdown -->
+<div class="bg-surface-container-low rounded-DEFAULT p-3 flex flex-col gap-2">
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">local_parking</span>
+<span>주차: 보통 (공영 2천원 지원)</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">alt_route</span>
+<span>곡선 해안길 · 일몰 정체 주의</span>
+</div>
+</div>
+<!-- Split Cost calculation note -->
+<div class="pt-2 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-on-surface-variant">예상 기름값·톨비 합계</span>
+<span class="text-primary font-semibold">총 36,000원 ÷ 4명 = 1인 9,000원</span>
+</div>
+</div>
+<!-- Neighbor Quote / Review -->
+<div class="bg-surface-container p-2.5 rounded-DEFAULT flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0 mt-0.5">format_quote</span>
+<div class="min-w-0 flex-1">
+<p class="font-body-sm text-body-sm text-on-surface leading-snug line-clamp-2">
+          "초보도 갈 수 있을 만큼 도로 잘 닦여있고, 일몰 30분 전 도착하면 갯벌 반사광이 예술이에요!"
+        </p>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-1">
+          민우 (매너온도 39.8℃ · 안심 드라이버)
+        </span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 h-11 bg-primary-container text-on-primary font-label-md text-label-md rounded-full flex items-center justify-center gap-1 shadow-sm active:scale-98 transition-all">
+<span class="material-symbols-outlined text-[18px]">electric_bolt</span>
+<span>이 코스로 모임 열기</span>
+</button>
+<button aria-label="경로 상세" class="w-11 h-11 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</article>
+<!-- Route Card 2: Namyangju River View -->
+<article class="bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-space-sm">
+<div class="relative w-full h-36 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Serene Bukhangang river view in Namyangju with misty morning water surface, a lush riverside garden cafe with outdoor wooden chairs, calm and green natural road trip setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuKULPbsLTZBDz8xmwMIg2yq4I0mGEor5vePysc4As2jiRGbGXHPsBsDRk4ky0Cp3aeKZ4sPCfoACIuP3BWa5Rbl54_Bs9uCWwvbMOwAShT46JIdTFNW8do2SyaUvraiQeIfBLY1Kj9UhxN1z5H4AVyOc5rdLftTtwQT32N50HcRqgssf7boZpOEpV1-uvC1Z9s6-Pnfe6V8O1LjInQPPGvUirzDLytCzaUMXGnB5urUW9K1jHIVmOTA"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm">#조용한음악감상</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm">#당일치기힐링</span>
+</div>
+<button aria-label="찜하기" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center text-outline active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white font-label-sm text-label-sm">
+        왕복 54km
+      </div>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+        남양주 북한강 물안개 리버뷰 & 베이커리 쉼터
+      </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+        성동·광진권 출발 → 팔당댐 드라이브웨이 → 물의정원
+      </p>
+</div>
+<!-- Specs -->
+<div class="bg-surface-container-low rounded-DEFAULT p-3 flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">local_parking</span>
+          주차 난이도: 쉬움 (대형 야외 주차장 완비)
+        </span>
+<span class="text-primary font-semibold">1인 약 7,200원 (3인 기준)</span>
+</div>
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-tertiary">music_note</span>
+<span>이웃 추천 플레이리스트: 어쿠스틱 드라이브 42곡 탑재</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 h-11 bg-primary-container text-on-primary font-label-md text-label-md rounded-full flex items-center justify-center gap-1 shadow-sm active:scale-98 transition-all">
+<span class="material-symbols-outlined text-[18px]">electric_bolt</span>
+<span>이 코스로 모임 열기</span>
+</button>
+<button aria-label="경로 상세" class="w-11 h-11 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</article>
+<!-- Route Card 3: Yangpyeong Pet Friendly -->
+<article class="bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06)] flex flex-col gap-space-sm">
+<div class="relative w-full h-36 rounded-DEFAULT overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Sunny green lawn cafe with happy small pet dog resting near a clean stream in Yangpyeong, outdoor camping chairs, warm sunlit scenery, friendly countryside vibe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnDDBUfZTAN-1qkf1Ov9x8MN6qgoDyD4IVGGMWRne0aeQhvdQLcijxTCgTaxJ9QDUWV-6dGQTSPrWBr2tnTLoho90VxKFzN1YV0aGHVXIE-SLaevlYYhhwql8FtsMNEWVPC2mtGeyx3rcdyhq6OsyRIQfScMr0I147uwQfnQLDR9B7fy-LdsfcjekozNBVPjLQxu5spHED69stquYKwPUU1SG9k1mb8mL-f3IwBhIlPq7oD4uLVoAbiQ"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm">#반려견동반</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm">#자연힐링</span>
+</div>
+<button aria-label="찜하기" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center text-outline active:scale-90 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white font-label-sm text-label-sm">
+        왕복 92km
+      </div>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+        양평 용문산 반려견 전용 잔디 카페 & 계곡길
+      </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+        강남·서초권 출발 → 양평 물소리길 → 잔디정원 쉼터
+      </p>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-3 flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">pets</span>
+        반려견 안전벨트 구비 차량 우대
+      </span>
+<span class="text-primary font-semibold">1인 약 11,500원</span>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 h-11 bg-primary-container text-on-primary font-label-md text-label-md rounded-full flex items-center justify-center gap-1 shadow-sm active:scale-98 transition-all">
+<span class="material-symbols-outlined text-[18px]">electric_bolt</span>
+<span>이 코스로 모임 열기</span>
+</button>
+<button aria-label="경로 상세" class="w-11 h-11 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</article>
+<!-- Interactive Quick Split Calculator Widget -->
+<section class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">calculate</span>
+<span class="font-headline-sm text-headline-sm font-semibold">내 차로 떠날 때 분담금 계산기</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">
+        실시간 산출
+      </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+      동네 이웃과 함께 갈 때 주유비와 톨비를 공정하게 자동 계산해요.
+    </p>
+<!-- Passenger Counter Selector -->
+<div class="flex items-center justify-between bg-surface-container-lowest p-3 rounded-DEFAULT shadow-sm">
+<span class="font-label-md text-label-md text-on-surface">탑승 인원 (운전자 포함)</span>
+<div class="flex items-center gap-1 bg-surface-container p-1 rounded-full">
+<button class="px-3 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-lowest text-on-surface shadow-sm transition-all" id="pax3Btn">
+          3명
+        </button>
+<button class="px-3 py-1 rounded-full text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-all" id="pax4Btn">
+          4명 (추천)
+        </button>
+</div>
+</div>
+<!-- Calculation output preview card -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-3 flex items-center justify-between shadow-sm">
+<div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">평균 코스 (왕복 75km) 기준</span>
+<span class="font-label-sm text-label-sm text-outline">예상 기름값 12,000원 + 톨비 4,800원</span>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-primary font-bold" id="calcResult">4,200원</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant block">1인당 부담금</span>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-outline text-center">
+      * 소소카 정산 가이드는 영리 목적이 아닌 순수 실비 1/N 분담 원칙을 따릅니다.
+    </p>
+</section>
+</div>
+<script>
+  // Quick Calculator Interaction
+  const pax3 = document.getElementById('pax3Btn');
+  const pax4 = document.getElementById('pax4Btn');
+  const calcResult = document.getElementById('calcResult');
+
+  if (pax3 && pax4 && calcResult) {
+    pax3.addEventListener('click', () => {
+      pax3.className = 'px-3 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-lowest text-on-surface shadow-sm transition-all';
+      pax4.className = 'px-3 py-1 rounded-full text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-all';
+      calcResult.innerText = '5,600원';
+    });
+
+    pax4.addEventListener('click', () => {
+      pax4.className = 'px-3 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-lowest text-on-surface shadow-sm transition-all';
+      pax3.className = 'px-3 py-1 rounded-full text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-all';
+      calcResult.innerText = '4,200원';
+    });
+  }
+
+  // View toggle button styling
+  const viewList = document.getElementById('viewListBtn');
+  const viewMap = document.getElementById('viewMapBtn');
+  if (viewList && viewMap) {
+    viewMap.addEventListener('click', () => {
+      viewMap.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-label-sm text-label-sm transition-all';
+      viewList.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all';
+    });
+    viewList.addEventListener('click', () => {
+      viewList.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-label-sm text-label-sm transition-all';
+      viewMap.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all';
+    });
+  }
+</script></main></body></html>

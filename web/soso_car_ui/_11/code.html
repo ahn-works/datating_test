@@ -1,0 +1,520 @@
+<!DOCTYPE html><html lang="ko" data-deeptranslate-injected="true"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><title>소소카 - 중간 경유지 픽업 &amp; 동네 랑데부 스팟 투표 (Smart Pickup &amp; Meetup Point)</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-low": "#f5f3f0", "surface-container": "#efeeeb", "surface-tint": "#3a674f", "error-container": "#ffdad6", "outline": "#717973", "on-secondary-container": "#731a04", "on-surface-variant": "#414943", "on-tertiary-fixed": "#2f1400", "primary-fixed-dim": "#a1d1b4", "secondary-fixed-dim": "#ffb4a2", "secondary": "#a33d23", "on-secondary": "#ffffff", "on-tertiary-fixed-variant": "#6f3800", "surface-variant": "#e4e2df", "tertiary-fixed-dim": "#ffb780", "background": "#fbf9f6", "on-primary-container": "#9fcfb2", "on-error": "#ffffff", "surface-container-highest": "#e4e2df", "on-surface": "#1b1c1a", "surface": "#fbf9f6", "primary-container": "#2d5a43", "on-primary-fixed-variant": "#224f39", "on-tertiary": "#ffffff", "on-background": "#1b1c1a", "on-secondary-fixed-variant": "#83260e", "on-secondary-fixed": "#3c0700", "primary-fixed": "#bceecf", "secondary-container": "#ff8162", "on-primary": "#ffffff", "on-error-container": "#93000a", "inverse-on-surface": "#f2f0ed", "tertiary-fixed": "#ffdcc4", "surface-container-lowest": "#ffffff", "secondary-fixed": "#ffdad2", "on-tertiary-container": "#ffb57c", "error": "#ba1a1a", "surface-bright": "#fbf9f6", "primary": "#14422d", "tertiary": "#5d2e00", "inverse-primary": "#a1d1b4", "inverse-surface": "#30312f", "surface-container-high": "#eae8e5", "on-primary-fixed": "#002112", "outline-variant": "#c0c9c1", "surface-dim": "#dbdad7", "tertiary-container": "#7e4205" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2.25rem", "margin": "1.25rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem" }, fontFamily: { "label-sm": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "headline-xl": ["Inter"], "label-lg": ["Inter"] }, fontSize: { "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f6;color:#1b1c1a;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed" style="word-break: keep-all; min-height: max(884px, 100dvh);"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(20,66,45,0.05)]"><div class="h-16 px-margin max-w-[480px] mx-auto flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="뒤로가기" class="w-11 h-11 flex-shrink-0 flex items-center justify-center -ml-2 rounded-full text-on-surface hover:bg-surface-container-low transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight truncate">중간 경유지 픽업 &amp; 동네 랑데부 스팟 투표 (Smart Pickup &amp; Meetup Point)</h1></div><div class="flex items-center gap-space-xs"><button aria-label="공유 또는 옵션" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">share</span></button><button aria-label="새로고침 또는 옵션" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">more_vert</span></button></div></div></header><main class="flex flex-col relative w-full max-w-[480px] mx-auto px-margin pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-32">
+<!-- Trip Banner Overview -->
+<section class="mt-4 bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_20px_-4px_rgba(20,66,45,0.06)] relative overflow-hidden">
+<div class="absolute -right-6 -bottom-6 w-28 h-28 bg-primary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between gap-2 mb-space-xs">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+        강화도 동막해변 드라이브
+      </span>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded-full font-semibold">
+        D-2 출발
+      </span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight mt-1">
+      일몰 드라이브 &amp; 오션뷰 카페
+    </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1.5 mt-1">
+<span class="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+      10.26 (토) 14:00 출발 · 이웃 4인 동행
+    </p>
+<!-- Checklist Progress Bar -->
+<div class="mt-4 pt-3 bg-surface-container-low/70 rounded-xl p-3">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-1.5">
+<div class="flex items-center gap-1.5 font-semibold text-primary">
+<span class="material-symbols-outlined text-[16px]">task_alt</span>
+          짐 분담 조율 중
+        </div>
+<span class="font-semibold text-on-surface" id="overall-progress-text">8/10 준비 완료 (80%)</span>
+</div>
+<div class="w-full h-2.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-fixed-dim to-primary rounded-full transition-all duration-500 ease-out" id="overall-progress-bar" style="width: 80%"></div>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1.5 leading-tight">
+        이웃들과 겹치지 않게 가볍고 쾌적한 피크닉을 완성해봐요!
+      </p>
+</div>
+</section>
+<!-- Trunk Capacity Visualizer -->
+<section class="mt-space-lg bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_18px_-4px_rgba(20,66,45,0.05)]">
+<div class="flex items-start justify-between"><div class="min-w-0 flex-1 pr-2"><div class="flex items-center gap-1.5 flex-wrap"><span class="material-symbols-outlined text-primary text-[20px] flex-shrink-0">luggage</span><h3 class="font-headline-sm text-[17px] text-on-surface font-semibold truncate" style="word-break: keep-all;">호스트 민우의 트렁크 여유 공간</h3></div><div class="mt-1 flex items-center gap-2 flex-wrap"><span class="px-2 py-0.5 rounded-md bg-surface-container-high font-label-sm text-[11px] text-on-surface-variant font-medium whitespace-nowrap">기아 셀토스 (소형 SUV · 498L)</span><span class="text-primary font-label-sm text-[11px] font-semibold flex items-center gap-0.5 whitespace-nowrap flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-primary inline-block animate-ping"></span>실시간 적재 반영</span></div></div><div class="flex-shrink-0 text-right"><span class="font-headline-sm text-headline-sm text-primary font-bold whitespace-nowrap">35% <span class="font-body-sm text-[12px] text-on-surface-variant font-normal inline-block">여유</span></span></div></div>
+<!-- Interactive Trunk Gauge -->
+<div class="mt-4 bg-surface-container-low rounded-2xl p-3.5">
+<div class="flex justify-between items-center text-label-sm font-label-sm text-on-surface-variant mb-2"><span class="whitespace-nowrap">현재 적재량: <strong>약 65%</strong></span><span class="text-secondary font-semibold text-right whitespace-nowrap">백팩 2개 or 기내용 1개 가능</span></div>
+<!-- Segmented Trunk Gauge representation -->
+<div class="h-5 w-full bg-surface-variant rounded-xl p-0.5 flex gap-1 overflow-hidden"><div class="h-full rounded-lg bg-primary flex-1 relative group cursor-pointer min-w-0" title="캠핑체어 (민우)"><div class="absolute inset-0 flex items-center justify-center text-[10px] text-on-primary font-semibold whitespace-nowrap">체어2</div></div><div class="h-full rounded-lg bg-primary flex-1 relative group cursor-pointer min-w-0" title="아이스박스 (준호)"><div class="absolute inset-0 flex items-center justify-center text-[10px] text-on-primary font-semibold whitespace-nowrap">쿨러</div></div><div class="h-full rounded-lg bg-primary flex-1 relative group cursor-pointer min-w-0" title="피크닉 테이블 (민우)"><div class="absolute inset-0 flex items-center justify-center text-[10px] text-on-primary font-semibold whitespace-nowrap">테이블</div></div><div class="h-full rounded-lg bg-primary-fixed flex-1 flex items-center justify-center text-[10px] text-on-primary-fixed font-semibold whitespace-nowrap min-w-0">매트</div><div class="h-full rounded-lg bg-secondary-container/40 flex-1 border-dashed flex items-center justify-center text-[10px] text-on-secondary-container font-semibold animate-pulse whitespace-nowrap min-w-0">여유✨</div><div class="h-full rounded-lg bg-secondary-container/40 flex-1 border-dashed flex items-center justify-center text-[10px] text-on-secondary-container font-semibold whitespace-nowrap min-w-0">여유✨</div></div>
+<!-- Trunk Slot Detail Grid -->
+<div class="grid grid-cols-2 gap-2 mt-3 font-body-sm text-[12px]">
+<div class="bg-surface-container-lowest p-2 rounded-xl flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></span>
+<div class="truncate">
+<span class="text-on-surface font-medium truncate block">캠핑체어 2개</span>
+<span class="text-on-surface-variant text-[11px]">호스트 민우 차 비치</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-xl flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></span>
+<div class="truncate">
+<span class="text-on-surface font-medium truncate block">중형 아이스박스</span>
+<span class="text-on-surface-variant text-[11px]">동행 준호 적재</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-xl flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></span>
+<div class="truncate">
+<span class="text-on-surface font-medium truncate block">돗자리 &amp; 미니테이블</span>
+<span class="text-on-surface-variant text-[11px]">호스트 민우 적재</span>
+</div>
+</div>
+<div class="bg-secondary-fixed/30 p-2 rounded-xl flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container flex-shrink-0"></span>
+<div class="truncate">
+<span class="text-secondary font-semibold truncate block">여유 공간 넉넉</span>
+<span class="text-on-secondary-container text-[11px]">백팩 2개 거치 가능</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Soft friendly reminder note -->
+<div class="mt-3 flex items-start gap-2 p-2.5 bg-tertiary-fixed/30 rounded-xl text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[18px] text-tertiary mt-0.5 flex-shrink-0">tips_and_updates</span>
+<p class="font-body-sm text-[12px] leading-snug">
+        소형 SUV 특성상 <strong>24인치 이상 대형 하드 캐리어</strong>는 싣기 어려워요. 유연한 백팩이나 더플백으로 챙겨주시면 모두의 짐이 편안히 들어가요!
+      </p>
+</div>
+</section>
+<!-- Co-Trip Shared Packing Checklist -->
+<section class="mt-space-lg">
+<div class="flex items-center justify-between mb-2">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">공동 짐 실시간 분담</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">누가 챙겨올지 미리 정해두면 짐이 훨씬 가벼워져요.</p>
+</div>
+<button class="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-label-md text-label-md flex items-center gap-1 transition-all active:scale-95" id="addItemBtn">
+<span class="material-symbols-outlined text-[16px]">add</span>
+        제안하기
+      </button>
+</div>
+<div class="space-y-2.5 mt-3" id="checklist-container">
+<!-- Item 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 shadow-sm transition-all flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">감성 방수 피크닉 매트 2장</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-[11px]">적재 완료</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "초대형 방수 매트라 4명 넉넉히 둘러앉을 수 있어요"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Warm smiling portrait of Minwoo, a reliable and friendly Korean neighborhood driver in his late 20s wearing a comfortable forest green flannel shirt, warm natural lighting and soft focus outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5bsREdXYdnRWID1mRiPLFwbS5LZAt-dG1v9et2M-sUa3YROqmz7C487CNbt4Ig0Ux2wC-mS7EGZGCG9mPOpwU1YF4o8IA2A1qrPy9WfRi7JwdFptlhYP0jf-Se41tMc43ep61NdXVOflLDe2UpWkQn9Gt7XpGHQa7j-VRPZyJftlfu1IUDrh4PWxcT0--CzVtxKlKh6m_98UE5-nqncn1TGyuMAJUpO8XXvtMHV7kjGlCbAe_TSyGvw">
+<span class="font-label-sm text-label-sm text-on-surface">민우 <span class="text-on-surface-variant font-normal">(호스트)</span></span>
+</div>
+<span class="font-label-sm text-[11px] text-primary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">done_all</span> 차량 트렁크 보관
+          </span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 shadow-sm transition-all flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">마샬 블루투스 스피커 &amp; 플레이리스트</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-[11px]">준비 완료</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "노을 볼 때 틀기 좋은 시티팝/인디 리스트 준비해갈게요 🎵"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Friendly young Korean woman named Jiwoo smiling warmly with natural bob hair, wearing an earthy cozy knit sweater, gentle daylight portrait with warm organic colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwkItOSwVBuqGm1nkKgvTFSvb-3jiV0QjWaFbFzeZ_pmQujZiLMg2OR4YmnHOQRl8jb3HbUiQhh9Ze-EnIHHiBoq3vdRUeu9PXpvfjxWssIQfvdr22gmSTTn4nsJ7uVxPNXooK76EX6qTMGi4c_sgbLEF68YF0OXvc4G0n84VoBg5m9zTSkQs2wwWGi9RiuOWr1yY3vlAzEy3L9zotuCkzeHMQTfta54gMNzkMZxWi5W7FWXC6BRtGpw">
+<span class="font-label-sm text-label-sm text-on-surface">지우</span>
+</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary">battery_charging_full</span> 완충 보관 중
+          </span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 shadow-sm transition-all flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">시원한 생수 &amp; 무라벨 탄산수 번들</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-[11px]">준비 완료</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "텀블러에 넣을 얼음컵 4개도 함께 픽업할게요 🧊"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Charming Korean woman named Seoyeon smiling gently with casual outdoor styling in soft neutral tones, neighborhood warmth and approachable expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9gu2ifAF2AdnXnJN7ydvRDzeGHnEiX2OFMDUOJjeolHS4N5NY02LUbsTHYU2QmnKE08jBbBzNcCSNtvpmo2HVnkwzoPahiyFFOmyUGHOWDhmSNiXvU0vGdOHwQqyd9w9XSkpH0vFo4BLC7GF24UAdsj01KtPAhK7KRYtP2pE3i-EAFcLz9MFMCsa9q-m6c1vjCpqk3yMiRx9-kxXzvn5L7ewDE-dbFNy18XnPhjT2Vr9DRKq0RK_wyQ">
+<span class="font-label-sm text-label-sm text-on-surface">서연</span>
+</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant">출발 전 구매 예정</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 shadow-sm transition-all flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">벌레 기피제 &amp; 모기 진정 패치</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-[11px]">준비 완료</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "바닷가 일몰 산책길에 벌레 많으니 필수예요!"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Cheerful Korean man named Junho wearing a warm earth-tone windbreaker, smiling warmly with neat modern haircut in an outdoor park setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA-m51WLsu-HLyknLjT62lDPkcVuab8v5UAAKpzL-NklV209-Rv8tHeXIIAhjHcKfNEjpQqNLYvbIsVc4bUxBZ6g5DcATEov1b4LdBotFtW4V2vwTN6Ehi5cXk_8UFAcHcj5ftmX4U63rG67KpnNmCmLg3EDbsTXtuXWCvV_yuoQGTiQTGlh1h2wBG_HYJ14dVSGIY994man8vc-gM5Z9dgBh1c_Mme1HX30mmgJf2IPSKfEg2yl5YvQ">
+<span class="font-label-sm text-label-sm text-on-surface">준호</span>
+</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant">가방 패킹 완료</span>
+</div>
+</div>
+<!-- Item 5: Pending state -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 shadow-sm transition-all flex flex-col gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]">pending</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">드라이브 주전부리 간식박스</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[11px]">포장 중</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "동네 소금빵 맛집에서 에그타르트 &amp; 쿠키 포장 중이에요 🍪"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Close-up portrait of Korean young adult woman with friendly eyes and warm demeanor, sitting by a cozy cafe window with soft ambient sunshine" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVAJVUbiHLvsb30yu20iKYqHSH6W-xV7-eu7RCcvQ16ET2Z_Cdh0PQUUiZf_axNQ131QY5aJf34qV-J9wujP9jTVfd1ViQrZVlUCeJncZcUPTq0th3fXNwUO2EBu4V3PhZSC8eDf27fA2M3PAYNEaxj5vGlukqdRYBWiPxmdxbUGMl7gj5M73LyJHdwrOJwYHVnEgdBHBn_d_CD2FIip1rpe1-WuwQtawGwVlSG35NP6njupCJogM0WA">
+<span class="font-label-sm text-label-sm text-on-surface">서연</span>
+</div>
+<span class="font-label-sm text-[11px] text-secondary font-medium">당일 오전 픽업</span>
+</div>
+</div>
+<!-- Item 6: Unassigned 1 -->
+<div class="bg-surface-container-low/80 rounded-lg p-3.5 transition-all flex flex-col gap-2 shadow-sm" id="unassigned-item-1">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]">photo_camera</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5"><span class="font-label-lg text-label-lg text-on-surface font-semibold flex-1" style="word-break: keep-all;">일회용 필름 카메라 or 즉석 인화기</span><span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[11px] whitespace-nowrap flex-shrink-0">담당 필요</span></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "동행 추억 남길 수 있게 소장하신 분 계시면 환영해요!"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-lowest -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-secondary">pan_tool</span> 아직 담당자가 없어요
+          </span>
+<button class="claim-btn px-3 py-1 rounded-full bg-secondary text-on-secondary font-label-md text-[12px] hover:bg-secondary/90 active:scale-95 transition-all shadow-sm" onclick="claimItem('unassigned-item-1', '즉석 인화기')">
+            내가 챙길게요!
+          </button>
+</div>
+</div>
+<!-- Item 7: Unassigned 2 -->
+<div class="bg-surface-container-low/80 rounded-lg p-3.5 transition-all flex flex-col gap-2 shadow-sm" id="unassigned-item-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-6 h-6 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center mt-0.5 flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]">casino</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5"><span class="font-label-lg text-label-lg text-on-surface font-semibold flex-1" style="word-break: keep-all;">야외 간단 보드게임 (루미큐브/스플렌더)</span><span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[11px] whitespace-nowrap flex-shrink-0">담당 필요</span></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "카페 테라스에서 노을 기다리며 한 판 어때요?"
+              </p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 bg-surface-container-lowest -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-secondary">pan_tool</span> 아직 담당자가 없어요
+          </span>
+<button class="claim-btn px-3 py-1 rounded-full bg-secondary text-on-secondary font-label-md text-[12px] hover:bg-secondary/90 active:scale-95 transition-all shadow-sm" onclick="claimItem('unassigned-item-2', '야외 보드게임')">
+            내가 챙길게요!
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- In-Vehicle Host Amenities -->
+<section class="mt-space-lg bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.05)]">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</span>
+<h3 class="font-headline-sm text-[17px] text-on-surface font-semibold">호스트가 차 안에 준비해둔 안심 아이템</h3>
+</div>
+</div>
+<p class="font-body-sm text-[13px] text-on-surface-variant mb-4 pl-9">
+      따로 챙겨오실 필요 없이 차 안에 넉넉히 비치되어 있어요 :)
+    </p>
+<div class="grid grid-cols-2 gap-2.5">
+<!-- Amenity 1 -->
+<div class="bg-surface-container-low/70 rounded-xl p-3 flex flex-col justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">cable</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">초고속 멀티 케이블</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 leading-tight">C타입 &amp; 아이폰 8핀 전 좌석 지원</p>
+</div>
+</div>
+<!-- Amenity 2 -->
+<div class="bg-surface-container-low/70 rounded-xl p-3 flex flex-col justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">clean_hands</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">도톰한 손소독 물티슈</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 leading-tight">엠보싱 원단 넉넉히 비치</p>
+</div>
+</div>
+<!-- Amenity 3 -->
+<div class="bg-surface-container-low/70 rounded-xl p-3 flex flex-col justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">medication</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">차량 비상 상비약</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 leading-tight">마시는 멀미약 &amp; 타이레놀</p>
+</div>
+</div>
+<!-- Amenity 4 -->
+<div class="bg-surface-container-low/70 rounded-xl p-3 flex flex-col justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">airline_seat_recline_extra</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">극세사 무릎담요</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 leading-tight">세탁 완료된 포근 담요 3개</p>
+</div>
+</div>
+<!-- Amenity 5 -->
+<div class="bg-surface-container-low/70 rounded-xl p-3 flex flex-col justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface-variant mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">좌석 미니 에티켓백</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 leading-tight">간식 껍질 전용 휴지통 봉투</p>
+</div>
+</div>
+<!-- Amenity 6 -->
+<div class="bg-surface-container-low/70 rounded-xl p-3 flex flex-col justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">bakery_dining</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">졸음 방지 캔디 &amp; 껌</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 leading-tight">유기농 자일리톨 &amp; 페퍼민트</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Individual Personal Checklist -->
+<section class="mt-space-lg bg-surface-container-low rounded-lg p-space-md mb-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-[20px] text-primary">person_check</span>
+<h3 class="font-headline-sm text-[17px] text-on-surface font-semibold">내가 꼭 챙겨야 할 개인 준비물</h3>
+</div>
+<p class="font-body-sm text-[13px] text-on-surface-variant mb-3">
+      출발 당일 아침에 잊지 말고 가방에 쏙 넣어주세요.
+    </p>
+<div class="space-y-2">
+<label class="flex items-center gap-3 p-2.5 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-bright transition-colors select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox">
+<div class="flex-1">
+<span class="font-label-md text-label-md text-on-surface">신분증 또는 모바일 신분증</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant">소소카 안전 이웃 본인 탑승 확인용</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-primary">badge</span>
+</label>
+<label class="flex items-center gap-3 p-2.5 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-bright transition-colors select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox">
+<div class="flex-1">
+<span class="font-label-md text-label-md text-on-surface">개인 텀블러 or 보온병</span>
+<span class="block font-body-sm text-[11px] text-primary font-medium">🌱 에코 텀블러 지참 시 소소카 500P 적립</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-primary">eco</span>
+</label>
+<label class="flex items-center gap-3 p-2.5 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-bright transition-colors select-none">
+<input class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox">
+<div class="flex-1">
+<span class="font-label-md text-label-md text-on-surface">바닷바람 대비 겉옷 &amp; 편한 신발</span>
+<span class="block font-body-sm text-[11px] text-on-surface-variant">일몰 시간대 해풍으로 기온이 뚝 떨어져요</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">checkroom</span>
+</label>
+</div>
+</section>
+<!-- Sticky Bottom Action Floating Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-primary/5 pb-safe">
+<div class="max-w-[480px] mx-auto px-margin py-3 flex flex-col gap-2">
+<button class="w-full h-13 py-3.5 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 shadow-[0_10px_25px_-5px_rgba(20,66,45,0.3)] active:scale-[0.98] transition-transform" id="confirmAllBtn">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+<span class="">내 짐 분담 확정하고 체크완료</span>
+</button>
+<button class="w-full py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md rounded-xl flex items-center justify-center gap-1.5 transition-colors" id="shareChatBtn">
+<span class="material-symbols-outlined text-[18px] text-primary">chat</span>
+<span class="">동행 단톡방에 체크리스트 현황 공유</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interactions for assigning items and updating checklist progress
+  let completedItems = 8;
+  const totalItems = 10;
+
+  function updateProgress() {
+    const percent = Math.min(100, Math.round((completedItems / totalItems) * 100));
+    const progressBar = document.getElementById('overall-progress-bar');
+    const progressText = document.getElementById('overall-progress-text');
+    if (progressBar && progressText) {
+      progressBar.style.width = percent + '%';
+      progressText.textContent = `${completedItems}/${totalItems} 준비 완료 (${percent}%)`;
+    }
+  }
+
+  function claimItem(elementId, itemName) {
+    const card = document.getElementById(elementId);
+    if (!card) return;
+
+    // Transition visually into claimed status
+    card.classList.remove('bg-surface-container-low/80');
+    card.classList.add('bg-surface-container-lowest');
+
+    card.innerHTML = `
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex items-start gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center mt-0.5 flex-shrink-0 animate-bounce">
+            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-label-lg text-label-lg text-on-surface font-semibold">${itemName}</span>
+              <span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-[11px]">배정 완료</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-primary mt-0.5 font-medium">
+              "제가 챙겨갈게요! 준비 완료할게요 ✨"
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-full bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center">나</div>
+          <span class="font-label-sm text-label-sm text-on-surface">나 (동행 멤버)</span>
+        </div>
+        <span class="font-label-sm text-[11px] text-primary flex items-center gap-0.5">
+          <span class="material-symbols-outlined text-[14px]">volunteer_activism</span> 고마워요 이웃님!
+        </span>
+      </div>
+    `;
+
+    completedItems = Math.min(totalItems, completedItems + 1);
+    updateProgress();
+  }
+
+  // Interaction for Add button
+  document.getElementById('addItemBtn')?.addEventListener('click', () => {
+    const itemPrompt = prompt("함께 쓸 공동 준비물을 제안해주세요 (예: 피크닉 조명, 모래놀이 세트)");
+    if (itemPrompt && itemPrompt.trim() !== "") {
+      const container = document.getElementById('checklist-container');
+      const newCard = document.createElement('div');
+      newCard.className = 'bg-surface-container-lowest rounded-lg p-3.5 shadow-sm transition-all flex flex-col gap-2 animate-fade-in';
+      newCard.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-start gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center mt-0.5 flex-shrink-0">
+              <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-label-lg text-label-lg text-on-surface font-semibold">${itemPrompt.trim()}</span>
+                <span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[11px]">방금 제안됨</span>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                "이웃님께서 추가로 제안해주신 유용한 짐이에요!"
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2 bg-surface-container-low/50 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center">나</div>
+            <span class="font-label-sm text-label-sm text-on-surface">내가 제안함</span>
+          </div>
+          <span class="font-label-sm text-[11px] text-secondary font-medium">동행 승인 대기중</span>
+        </div>
+      `;
+      container.prepend(newCard);
+    }
+  });
+
+  // Action Bar feedback
+  document.getElementById('confirmAllBtn')?.addEventListener('click', function() {
+    this.innerHTML = `<span class="material-symbols-outlined text-[20px]">check</span> 분담 확정 및 알림 발송 완료!`;
+    this.classList.replace('bg-primary', 'bg-primary-container');
+    setTimeout(() => {
+      alert("🎉 호스트 및 동행 3명에게 준비물 현황 알림이 전송되었습니다. 즐거운 강화도 드라이브 되세요!");
+    }, 150);
+  });
+
+  document.getElementById('shareChatBtn')?.addEventListener('click', () => {
+    alert("🔗 '강화도 일몰 드라이브' 동행 단톡방에 트렁크 여유 공간과 챙길 목록 요약 카드가 복사되었습니다.");
+  });
+</script></main>
+
+</body><div data-deeptranslate-ui="hover" hidden="" style="position: fixed; z-index: 2147483500; max-width: 360px; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: rgb(23, 32, 51); color: white; font: 13px / 1.5 system-ui; box-shadow: rgba(19, 41, 77, 0.333) 0px 8px 28px; white-space: pre-wrap;"></div><div id="deeptranslate-word-selection" data-deeptranslate-ui="word-selection"></div></html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>소소카 - 동네 소규모 카풀 여행</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-low": "#f5f3f0", "surface-container": "#efeeeb", "surface-tint": "#3a674f", "error-container": "#ffdad6", "outline": "#717973", "on-secondary-container": "#731a04", "on-surface-variant": "#414943", "on-tertiary-fixed": "#2f1400", "primary-fixed-dim": "#a1d1b4", "secondary-fixed-dim": "#ffb4a2", "secondary": "#a33d23", "on-secondary": "#ffffff", "on-tertiary-fixed-variant": "#6f3800", "surface-variant": "#e4e2df", "tertiary-fixed-dim": "#ffb780", "background": "#fbf9f6", "on-primary-container": "#9fcfb2", "on-error": "#ffffff", "surface-container-highest": "#e4e2df", "on-surface": "#1b1c1a", "surface": "#fbf9f6", "primary-container": "#2d5a43", "on-primary-fixed-variant": "#224f39", "on-tertiary": "#ffffff", "on-background": "#1b1c1a", "on-secondary-fixed-variant": "#83260e", "on-secondary-fixed": "#3c0700", "primary-fixed": "#bceecf", "secondary-container": "#ff8162", "on-primary": "#ffffff", "on-error-container": "#93000a", "inverse-on-surface": "#f2f0ed", "tertiary-fixed": "#ffdcc4", "surface-container-lowest": "#ffffff", "secondary-fixed": "#ffdad2", "on-tertiary-container": "#ffb57c", "error": "#ba1a1a", "surface-bright": "#fbf9f6", "primary": "#14422d", "tertiary": "#5d2e00", "inverse-primary": "#a1d1b4", "inverse-surface": "#30312f", "surface-container-high": "#eae8e5", "on-primary-fixed": "#002112", "outline-variant": "#c0c9c1", "surface-dim": "#dbdad7", "tertiary-container": "#7e4205" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2.25rem", "margin": "1.25rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem" }, fontFamily: { "label-sm": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "headline-xl": ["Inter"], "label-lg": ["Inter"] }, fontSize: { "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f6;color:#1b1c1a;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(20,66,45,0.05)]"><div class="h-16 px-margin max-w-[480px] mx-auto flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[22px]">local_taxi</span><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">소소카</span></div><button class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors min-h-[32px]"><span class="font-label-sm text-label-sm text-on-surface font-semibold">마포구 연남동</span><span class="material-symbols-outlined text-[16px] text-outline">expand_more</span></button></div><div class="flex items-center gap-space-xs"><button aria-label="알림" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors relative"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span></button><div class="flex items-center justify-center pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1X9TezKnuSGnflQUScMrpyeg8V7FPcTMkQ5MntHqIx8AwrDWPuWJ9jSbgb3L5y8uERrBMRuNYIyIugRjYeQ4Ns4fIudXPSgwH3J6XghnSpc1a7a3RZvrrS6FRRJaKMPzdDj3RAZOV3lkUI1XyWJzl_nSV_Ywlyf9IFYpopG0zl4qoOp6Q2QEYrw6UVTsSTIylKKJ_T4eRNf6yEFBb8CDt9s8jGQwwfqx1JomPU3n3WTBHln24pDRxDvG0Wc"/></div></div></div></header><main class="flex flex-col relative w-full max-w-[480px] mx-auto px-margin pt-16 pb-28 bg-surface"><div class="flex flex-col w-full pb-8">
+<!-- Top Section: Screen Title & Action -->
+<div class="flex items-center justify-between mt-2 mb-4">
+<div class="flex items-center gap-2">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">내 여행</h1>
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">총 5회 동행</span>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="필터 및 정렬" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+<button aria-label="여행 기록 설정" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+<!-- Segmented Tabs -->
+<div class="relative flex items-center p-1 bg-surface-container rounded-full mb-6" role="tablist">
+<button aria-selected="true" class="flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-full text-center transition-all bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm" id="tab-upcoming" onclick="switchTripTab('upcoming')" role="tab">
+<span>참여 예정</span>
+<span class="w-4 h-4 inline-flex items-center justify-center rounded-full bg-primary text-on-primary font-label-sm text-[10px] leading-none">1</span>
+</button>
+<button aria-selected="false" class="flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-full text-center transition-all text-on-surface-variant hover:text-on-surface font-label-md text-label-md" id="tab-completed" onclick="switchTripTab('completed')" role="tab">
+<span>지난 여행</span>
+<span class="w-4 h-4 inline-flex items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] leading-none">3</span>
+</button>
+<button aria-selected="false" class="flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-full text-center transition-all text-on-surface-variant hover:text-on-surface font-label-md text-label-md" id="tab-hosted" onclick="switchTripTab('hosted')" role="tab">
+<span>내가 모집한</span>
+<span class="w-4 h-4 inline-flex items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] leading-none">1</span>
+</button>
+</div>
+<!-- Section 1: Upcoming Active Ride Hero Card (D-2) -->
+<div class="flex flex-col gap-3 mb-8">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
+</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">다가오는 여행</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold tracking-tight">D-2 출발 임박</span>
+</div>
+<!-- Active Trip Card -->
+<div class="flex flex-col bg-surface-container-lowest rounded-lg p-5 shadow-sm">
+<!-- Top Image Header with Tags -->
+<div class="relative w-full h-40 rounded-DEFAULT overflow-hidden mb-4">
+<img class="w-full h-full object-cover" data-alt="Warm scenic autumn landscape of Gapyeong Jaraseom Island blooming with colorful zinnia and cosmos flowers under a soft morning glow, peaceful weekend road trip atmosphere with trees turning yellow and orange" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB34QS4smX8Dgk7YTe17hsft0TaNVupPoPMp_dfG5L0FLQEyk7bSD4CYm4voYSj52ylIWsDmPeHsbVhquvoVra878xhbCJsuzVFq7-u1-vFrMEQTOR9ewkByzf0ZupCQlK3nWirxGkLsKQ8NnldfxcRbenxx47NpMA7hBCKGwjxXPT2m78PJvhEqRUQdb9Zmq2sIWZ3O_eo7jGaAJdx42F1uz7SdTxrL66AHxcKiYZGOxsTdxjkLlimDQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
+<!-- Badges on image -->
+<div class="absolute top-3 left-3 flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded-full bg-primary-container/90 text-on-primary font-label-sm text-label-sm backdrop-blur-md">
+            동승자 · 조수석
+          </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-lowest/90 text-primary font-label-sm text-label-sm backdrop-blur-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_gas_station</span> 정산 예정
+          </span>
+</div>
+<div class="absolute bottom-3 left-3 right-3 text-on-primary">
+<p class="font-headline-sm text-headline-sm font-bold leading-tight drop-shadow-sm line-clamp-1">가평 자라섬 꽃 페스티벌 &amp; 잣닭갈비 드라이브</p>
+</div>
+</div>
+<!-- Key Itinerary Meta -->
+<div class="flex flex-col gap-2.5 py-3 bg-surface-container-low rounded-DEFAULT px-4 mb-4">
+<div class="flex items-center gap-2.5 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0">calendar_today</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold">11월 4일 (토) 09:00 출발</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">당일 복귀 · 예상 왕복 4시간 30분</span>
+</div>
+</div>
+<div class="h-[1px] bg-surface-variant"></div>
+<div class="flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0">near_me</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold truncate">합정역 8번 출구 앞 (KB국민은행)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">마포구 집결 포인트</span>
+</div>
+</div>
+<button class="px-2.5 py-1 rounded-full bg-surface-container-highest text-primary hover:bg-surface-variant transition-colors text-label-sm font-label-sm shrink-0 flex items-center gap-0.5">
+<span>지도보기</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Driver Profile & Car Details -->
+<div class="flex items-center justify-between py-2 mb-4">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-full object-cover" data-alt="A warm and friendly smiling Asian male driver in casual autumn knitwear, warm sunlit background, natural portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi37vm5HKsMl99jUrwnWa_xUEOFkQ0wrviNbnTJYszCgtEtyVC5P9PQ1Uh5Er6n4huqMsJokST66F2_-caS9Fsv_7T_9-PUYUrqwcP2vIoOagXZl01GVauJCyGR5RikYnHxdQDlestsAxDjZtCl82DnZz81ot-VS3EAMeThy5iZX0HOZTetnC_jEsf5c6QquHmkvqvGAlzZifvbMBy-zjIVou9zck2xwkuef9ZxtXnD_WyIa8Ux0_zFw"/>
+<span class="material-symbols-outlined absolute -bottom-1 -right-1 text-[16px] text-primary bg-surface-container-lowest rounded-full p-0.5" title="운전자">airline_seat_recline_extra</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">친절한 민호님</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">드라이버</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">볼보 XC40 · 14가 78**</p>
+</div>
+</div>
+<!-- Manner Temperature -->
+<div class="flex flex-col items-end shrink-0 pl-2">
+<div class="flex items-center gap-1 text-secondary font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[16px]">device_thermostat</span>
+<span>39.2℃</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">매너온도 따뜻함</span>
+</div>
+</div>
+<!-- Passengers Occupancy Dots -->
+<div class="flex items-center justify-between px-3.5 py-2.5 bg-surface-container-low rounded-DEFAULT mb-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">group</span>
+<span class="font-label-md text-label-md text-on-surface">탑승 인원 (4/4명 마감)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-primary" title="운전자 민호님"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-primary-fixed" title="나 (조수석)"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary" title="동승자 유진님"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary" title="동승자 태준님"></span>
+<span class="font-label-sm text-label-sm text-primary font-bold ml-1">만석</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<a class="flex-1 min-h-[48px] py-3 px-4 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+<span>동행 단체 채팅방</span>
+<span class="w-5 h-5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[11px] font-bold flex items-center justify-center">3</span>
+</a>
+<button aria-label="일정 공유" class="w-12 h-12 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant flex items-center justify-center shrink-0 transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-1 px-1">
+<button class="font-label-sm text-label-sm text-outline hover:text-error transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+<span>참여 취소 요청</span>
+</button>
+<span class="font-label-sm text-label-sm text-outline">출발 24시간 전까지 전액 무료 취소</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Completed Trips (지난 여행 내역) -->
+<div class="flex flex-col gap-4 mb-8">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">history_toggle_off</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">함께한 지난 여행</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline">최근 순</span>
+</div>
+<!-- Completed Card 1: Review Pending (평가 대기 중) -->
+<div class="flex flex-col bg-surface-container-lowest rounded-lg p-5 shadow-sm relative overflow-hidden">
+<!-- Accent status tag -->
+<div class="flex items-center justify-between mb-3">
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">rate_review</span> 평가 대기
+        </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">10월 28일 (토) 완료</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-2 line-clamp-1">
+        강화도 동막해변 일몰 보고 대하구이 먹고 올 분!
+      </h3>
+<!-- Companion Avatars & Settlement Info -->
+<div class="flex items-center justify-between py-2 bg-surface-container-low rounded-DEFAULT px-3.5 mb-3.5">
+<div class="flex items-center gap-2 min-w-0">
+<div class="flex -space-x-2 overflow-hidden shrink-0">
+<img class="inline-block h-7 w-7 rounded-full object-cover ring-2 ring-surface-container-lowest" data-alt="Profile photo of driver Minwoo smiling gently outdoors with sea breeze" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiFmQ3YbrApINIqrtIoG9yQORQzGs3ZTCYzuWb3tcsticKn69SCrUgEMSzK7Xvsb7RjaaSFv1pE6R-VbGsWYQJWsPS3F2T4HCcacyXXH35ItaEdEXMQ0YSQy9MP36ZfpnPO2WtjFqZJmMvqIgZ45FageOdb8ZPMqyqoj5F4wFNJqd85DK4aMheeSs97m7Y5h3X71DZiK00Ng4S8WlxGqqBHRV13PpGMQcFtZwoT0NPp45lS2VD_Mii8A"/>
+<img class="inline-block h-7 w-7 rounded-full object-cover ring-2 ring-surface-container-lowest" data-alt="Profile photo of passenger Seoyeon in cozy travel clothing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZrQgjyI_ibm4LL1nluoHHKgKuSmakcKIVo_ZKS6qmk_9SNwAioISGCuif2cHbrOMLLu6QocZQoLUmurHSlg_k9Jmp5rFEu_MhAZc25_riGrovvElh5VNbrT51nkv-NqArfj8xgC2DMUI__kEwev7JsYATI03PD61wmB26Z5RY0dTOWpXDveOenff7wVxRmUO4NOUz6iS9fhM0x-DH09-8l-al0eC3_lEROxV22R1S6ZUgYgpGTfDt5Q"/>
+<img class="inline-block h-7 w-7 rounded-full object-cover ring-2 ring-surface-container-lowest" data-alt="Profile photo of passenger Junho with stylish glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNmdgGrkt9acvc3BAJ67wogaebqtywgxUMWEVX9Hwic7lnx8xMoRZnPf1QCKUErMmZJXoduoGcfk07K1CGQILYHUhq0CndzxL-rbqWNuX-Z_657ESTT8GtqJlIBtkYmEQzHI_qYz-zXSBaplkPFF4mlRyazHoKZIPoGS3i0q4wJp6zo-pSXu7MSZTozE9yXy11pHZl-C9GLgC-rtMyZKtlI2E2Qcsc9-Q0EXoxBglznBhnFVi0LpPN0w"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface truncate">달리는 민우, 서연, 준호님</span>
+</div>
+<div class="flex items-center gap-1 shrink-0 text-primary font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">check_circle</span>
+<span>11,900원 완료</span>
+</div>
+</div>
+<!-- Action Prompt Banner for Manner Evaluation -->
+<div class="flex flex-col gap-2.5 p-3.5 rounded-DEFAULT bg-surface-container border-dashed border-primary/20">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">volunteer_activism</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">민우 드라이버님과의 여행은 어떠셨나요?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!</span>
+</div>
+</div>
+<button class="w-full min-h-[44px] py-2.5 px-4 rounded-full bg-secondary text-on-secondary font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span>운전자 매너 평가하기 (+500P)</span>
+</button>
+</div>
+</div>
+<!-- Completed Card 2: Reviewed (평가 완료) -->
+<div class="flex flex-col bg-surface-container-lowest rounded-lg p-5 shadow-sm">
+<div class="flex items-center justify-between mb-3">
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">task_alt</span> 여행 &amp; 정산 완료
+        </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">10월 14일 (토) 완료</span>
+</div>
+<div class="flex gap-3 mb-3">
+<div class="relative w-20 h-20 rounded-DEFAULT overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Cozy interior of Heyri art village book cafe in Paju with huge wooden bookshelves, warm tungsten lamps, coffee mugs on table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJzkgASoGTjUYNvP_simzRrEHcPx0rwNY65NWY8Xw4mV6UPJhMFBqatvW5x0bv2ltVwLd_yPRZ03qS2DpIGHBu5EWly405LbMVN92zn8kp9QONwAY4sM2sMlJoGpkBo7kn8OAB2tjgzT4u-d2-y5yQBqEVO5PtRW6q1ZN9m26Y9h2xH22W0sMcAsG0XOPyC7Uo4lQlwLik271V8OML94cynhLw6dB16Olpcs9pao7jvNO48IGd2f57Uw"/>
+</div>
+<div class="flex flex-col justify-between min-w-0 py-0.5">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold line-clamp-1">파주 헤이리마을 대형 북카페 나들이</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">운전자: 책읽는 지은님 (40.1℃)</p>
+</div>
+<span class="font-label-sm text-label-sm text-outline">정산 8,500원 · 3명 동행</span>
+</div>
+</div>
+<!-- My Review Bubble -->
+<div class="flex items-start gap-2 p-3 bg-surface-container-low rounded-DEFAULT mb-3">
+<span class="material-symbols-outlined text-surface-tint text-[18px] shrink-0 mt-0.5">format_quote</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic line-clamp-2">
+          "차량도 너무 쾌적하고 지은님이 운전도 부드럽게 해주셔서 편안한 주말 보냈어요. 추천해주신 카페 라떼도 최고였습니다! 👍"
+        </p>
+</div>
+<!-- Bottom Card Action -->
+<div class="flex items-center justify-between pt-1">
+<button class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">photo_library</span>
+<span>공유 앨범 보기 (14장)</span>
+</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span>영수증 내역</span>
+<span class="material-symbols-outlined text-[14px]">receipt_long</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section 3: Trust & Safety Neighborhood Culture Banner -->
+<div class="flex items-center gap-3.5 p-4 rounded-lg bg-surface-container-high">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[22px]">verified_user</span>
+</div>
+<div class="flex flex-col min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-semibold">동네 이웃 안심 약속</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+        소소카는 상호 존중 매너와 운전자 신원 인증을 통해 믿을 수 있는 로컬 동행 문화를 만들어갑니다.
+      </p>
+</div>
+</div>
+</div>
+<script>
+  function switchTripTab(type) {
+    const tabs = ['upcoming', 'completed', 'hosted'];
+    tabs.forEach(tabKey => {
+      const btn = document.getElementById('tab-' + tabKey);
+      if (!btn) return;
+      if (tabKey === type) {
+        btn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+        btn.classList.remove('text-on-surface-variant');
+        btn.setAttribute('aria-selected', 'true');
+      } else {
+        btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+        btn.classList.add('text-on-surface-variant');
+        btn.setAttribute('aria-selected', 'false');
+      }
+    });
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(20,66,45,0.06)]" data-active-classes="text-primary font-semibold"><div class="max-w-[480px] mx-auto flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 w-16 h-12 text-on-surface-variant transition-colors" data-path="explore" href="#"><span class="material-symbols-outlined text-[24px]">explore</span><span class="font-label-sm text-label-sm">탐색</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-16 h-12 text-on-surface-variant transition-colors" data-path="create-trip" href="#"><span class="material-symbols-outlined text-[24px]">add_circle</span><span class="font-label-sm text-label-sm">모집하기</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-16 h-12 text-on-surface-variant transition-colors relative" data-path="carpool-chats" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">forum</span><span class="absolute -top-1 -right-2 px-1.5 py-0.2 rounded-full bg-secondary text-on-secondary font-label-sm text-[10px] leading-tight font-bold">2</span></div><span class="font-label-sm text-label-sm">동행채팅</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 w-16 h-12 transition-colors relative text-primary font-semibold" data-path="my-trips" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">directions_car</span><span class="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span></div><span class="font-label-sm text-label-sm">내 여행</span></a></div></nav></body></html>
