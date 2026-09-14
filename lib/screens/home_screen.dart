@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'profile_detail_screen.dart';
+import 'party_screen.dart';
+import 'home_sub_screens.dart';
+import 'signal_house_intro_screen.dart';
 
 class HomeScreen extends StatefulWidget { const HomeScreen({super.key}); @override State<HomeScreen> createState() => _HomeScreenState(); }
 class _HomeScreenState extends State<HomeScreen> {
@@ -64,9 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 32),
           const Text('주요 기능', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30)), const SizedBox(height: 12),
-          _featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue), const SizedBox(height: 12),
-          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange)
+          _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyScreen()))), 
+          const SizedBox(height: 12),
+          _featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalCoupleScreen()))), 
+          const SizedBox(height: 12),
+          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen())))
         ]
       )
     );
@@ -74,5 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _userCard(BuildContext ctx, String name, String sub, String img) => GestureDetector(onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: '24', region: '서울', imageUrl: '', intro: '안녕하세요!', mannerTemp: 36.5))), child: Container(width: 160, margin: const EdgeInsets.only(right: 16), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), image: DecorationImage(image: NetworkImage(img), fit: BoxFit.cover)), child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.8)], begin: Alignment.topCenter, end: Alignment.bottomCenter)), padding: const EdgeInsets.all(16), child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)), const SizedBox(height: 4), Row(children: [const Icon(Icons.location_on, color: Colors.white70, size: 12), const SizedBox(width: 4), Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500))])]))));
 
-  Widget _featureCard(IconData icon, String title, String sub, Color color) => Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]), child: Row(children: [Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 24)), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(sub, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))])), const Icon(Icons.chevron_right, color: Colors.grey)]));
+  Widget _featureCard(IconData icon, String title, String sub, Color color, VoidCallback onTap) => GestureDetector(
+    onTap: onTap,
+    child: Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]), child: Row(children: [Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 24)), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(sub, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))])), const Icon(Icons.chevron_right, color: Colors.grey)])),
+  );
 }
