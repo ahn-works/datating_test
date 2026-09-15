@@ -4,6 +4,7 @@ import 'profile_detail_screen.dart';
 import 'party_screen.dart';
 import 'home_sub_screens.dart';
 import 'soso_car_hub_screen.dart';
+import 'soso_car_home_screen.dart';
 import 'signal_house_intro_screen.dart';
 
 class HomeScreen extends StatefulWidget { const HomeScreen({super.key}); @override State<HomeScreen> createState() => _HomeScreenState(); }
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           // 소소카 (SosoCar) 바로가기 배너 추가
           GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHubScreen())),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHomeScreen())),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
