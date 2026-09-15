@@ -10,12 +10,134 @@ class SosoCarHomeScreen extends StatefulWidget {
 }
 
 class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
-  final Color oliveGreen = const Color(0xFFE2F0D9); // 배경 연한 그린
   final Color darkGreen = const Color(0xFF2E4F28);
-  final Color terracotta = const Color(0xFFC04020);
   
+  int _selectedFilter = 0;
+  final List<Map<String, dynamic>> _filters = [
+    {'label': '전체', 'key': 'all'},
+    {'label': '당일치기 ☕', 'key': '#당일치기'},
+    {'label': '노을 드라이브 🌅', 'key': '#노을'},
+    {'label': '주말 🚗', 'key': '#주말'},
+  ];
+
+  final List<Map<String, dynamic>> _allTrips = [
+    {
+      'title': '강화도 동막해변 일몰 보고 대하구이 먹...',
+      'location': '강화도 동막해변',
+      'tags': ['#노을', '#수다환영', '#플리공유'],
+      'driverName': '달리는 민우',
+      'seats': '1자리',
+      'price': '약 12,000원',
+      'image': 'https://picsum.photos/600/300?random=20',
+      'badge': '🔥 마감임박 1자리!',
+      'time': '토요일 당일',
+    },
+    {
+      'title': '파주 마장호수 출렁다리 당일치기 팟',
+      'location': '파주 마장호수',
+      'tags': ['#당일치기', '#조용한힐링'],
+      'driverName': '베스트드라이버',
+      'seats': '2자리',
+      'price': '약 8,000원',
+      'image': 'https://picsum.photos/600/300?random=21',
+      'badge': '모집중',
+      'time': '일요일 당일',
+    },
+    {
+      'title': '가평 풀빌라 호캉스 1박2일 주말 여행',
+      'location': '가평 아침고요수목원 인근',
+      'tags': ['#주말', '#1박2일', '#수다환영'],
+      'driverName': '여행조아',
+      'seats': '3자리',
+      'price': '약 15,000원',
+      'image': 'https://picsum.photos/600/300?random=22',
+      'badge': '여유있음',
+      'time': '이번 주말',
+    },
+  ];
+
+  void _showLocationPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('지도에서 위치 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, color: Colors.black87),
+                    hintText: '어디로 떠날까요? (강화도, 헤이리 등)',
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      children: [
+                        // 가짜 지도 이미지
+                        Image.network('https://picsum.photos/800/800?random=100', width: double.infinity, height: double.infinity, fit: BoxFit.cover),
+                        Container(color: Colors.white.withOpacity(0.5)),
+                        const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.location_on, color: Color(0xFFC04020), size: 48),
+                              Text('지도를 움직여 핀을 설정하세요', style: TextStyle(fontWeight: FontWeight.bold, backgroundColor: Colors.white70)),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('위치가 선택되었습니다.')));
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E4F28), padding: const EdgeInsets.symmetric(vertical: 16)),
+                    child: const Text('이 위치로 설정', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // 필터 로직 적용
+    final filterKey = _filters[_selectedFilter]['key'];
+    final filteredTrips = filterKey == 'all' 
+        ? _allTrips 
+        : _allTrips.where((trip) => (trip['tags'] as List).contains(filterKey)).toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -31,7 +153,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             const SizedBox(width: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: Colors.yellow.withOpacity(0.3), borderRadius: BorderRadius.circular(4)), // 형광펜 하이라이트 느낌
+              decoration: BoxDecoration(color: Colors.yellow.withOpacity(0.3), borderRadius: BorderRadius.circular(4)),
               child: const Row(
                 children: [
                   Text('마포구 연남동', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 14)),
@@ -41,26 +163,16 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             ),
           ],
         ),
-        actions: [
-          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black87), onPressed: (){}),
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(radius: 16, backgroundColor: darkGreen, child: const Icon(Icons.directions_car, color: Colors.white, size: 16)),
-          )
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. 메인 배너
+            // 배너
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEEF3E9),
-                borderRadius: BorderRadius.circular(20),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFEEF3E9), borderRadius: BorderRadius.circular(20)),
               child: Row(
                 children: [
                   Expanded(
@@ -74,8 +186,6 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         const Text('연남동 이웃과 떠나는\n소소한 주말 로드트립', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, height: 1.3)),
-                        const SizedBox(height: 8),
-                        const Text('가까운 3~4명과 유류비 나누며 가볍게 훌쩍\n다녀와요.', style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.4)),
                       ],
                     ),
                   ),
@@ -84,65 +194,87 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
               ),
             ),
 
-            // 2. 검색바 (하이라이트된 부분)
+            // 1. 검색바 -> 위치 선택 모달 연결
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Colors.grey.shade300),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.black87),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text('어디로 떠날까요? (강화도, 헤이리, 바다)', style: TextStyle(color: Colors.grey.shade600, fontSize: 14))),
-                    const Icon(Icons.tune, color: Colors.black87),
-                  ],
+              child: GestureDetector(
+                onTap: _showLocationPicker,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: Colors.black87),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text('어디로 떠날까요? (강화도, 헤이리, 바다)', style: TextStyle(color: Colors.grey.shade600, fontSize: 14))),
+                    ],
+                  ),
                 ),
               ),
             ),
             
-            // 3. 필터 칩
+            // 2. 필터 칩 연결 (동작)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
-                children: [
-                  _buildChip('전체', true),
-                  _buildChip('당일치기 ☕', false),
-                  _buildChip('노을 드라이브 🌅', false),
-                  _buildChip('주말 🚗', false),
-                ],
+                children: List.generate(_filters.length, (index) {
+                  final isSelected = _selectedFilter == index;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedFilter = index),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? darkGreen : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
+                      ),
+                      child: Text(_filters[index]['label'], style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
+                    ),
+                  );
+                }),
               ),
             ),
 
-            // 4. 모임 리스트 헤더
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('이번 주말 출발 모집 🔴', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                  Text('출발 임박순', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
-                ],
-              ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
+              child: Text('이번 주말 출발 모집 🔴', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
             ),
 
-            // 5. 모임 카드
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildImageTripCard(context),
-            ),
+            // 3. 필터링된 모임 리스트
+            if (filteredTrips.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: Text('조건에 맞는 모임이 없습니다.', style: TextStyle(color: Colors.grey))),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: filteredTrips.map((trip) => _buildTripCard(context, trip)).toList(),
+                ),
+              ),
+              
             const SizedBox(height: 100),
           ],
         ),
       ),
+      // 모임 등록 연동
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHostScreen())),
+        onPressed: () async {
+          final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHostScreen()));
+          if (result != null && result is Map<String, dynamic>) {
+            setState(() {
+              _allTrips.insert(0, result); // 새 모임을 리스트 맨 앞에 추가
+            });
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('새 여행 모임이 성공적으로 등록되었습니다! 🎉')));
+          }
+        },
         backgroundColor: const Color(0xFFC04020),
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('빠른 모임 생성', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -150,38 +282,20 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
     );
   }
 
-  Widget _buildChip(String label, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF2E4F28) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isSelected ? const Color(0xFF2E4F28) : Colors.grey.shade300),
-      ),
-      child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
-    );
-  }
-
-  Widget _buildImageTripCard(BuildContext context) {
+  Widget _buildTripCard(BuildContext context, Map<String, dynamic> trip) {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarDetailScreen())),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 상단 이미지 영역
             Stack(
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network('https://picsum.photos/600/300?random=20', height: 180, width: double.infinity, fit: BoxFit.cover),
+                  child: Image.network(trip['image'], height: 180, width: double.infinity, fit: BoxFit.cover),
                 ),
                 Positioned(
                   top: 12, left: 12,
@@ -190,45 +304,43 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(color: const Color(0xFFB53D25), borderRadius: BorderRadius.circular(12)),
-                        child: const Text('🔥 마감임박 1자리!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        child: Text(trip['badge'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                        child: const Text('토요일 당일', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
+                        child: Text(trip['time'], style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     ],
                   ),
                 ),
                 Positioned(
-                  top: 12, right: 12,
-                  child: CircleAvatar(backgroundColor: Colors.white.withOpacity(0.8), radius: 16, child: const Icon(Icons.favorite_border, color: Colors.black54, size: 18)),
-                ),
-                Positioned(
-                  bottom: 12, left: 12, right: 12,
+                  bottom: 12, left: 12,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(children: [Icon(Icons.location_on, color: Colors.white, size: 14), SizedBox(width: 4), Text('강화도 동막해변', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))]),
-                      const Text('편도 약 1시간 20분', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.location_on, color: Colors.white, size: 14), 
+                      const SizedBox(width: 4), 
+                      Text(trip['location'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
                     ],
                   ),
                 )
               ],
             ),
-            // 하단 텍스트 영역
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('강화도 동막해변 일몰 보고 대하구이 먹...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                  Text(trip['title'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
-                      _buildTag('#노을맛집'), _buildTag('#수다환영'), _buildTag('#플리공유'),
-                    ],
+                    children: (trip['tags'] as List).map<Widget>((tag) => Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6)),
+                      child: Text(tag, style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.w500)),
+                    )).toList(),
                   )
                 ],
               ),
@@ -236,15 +348,6 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTag(String text) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6)),
-      child: Text(text, style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.w500)),
     );
   }
 }

@@ -1,7 +1,40 @@
 import 'package:flutter/material.dart';
 
-class SosoCarHostScreen extends StatelessWidget {
+class SosoCarHostScreen extends StatefulWidget {
   const SosoCarHostScreen({super.key});
+
+  @override
+  State<SosoCarHostScreen> createState() => _SosoCarHostScreenState();
+}
+
+class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
+  final TextEditingController _destController = TextEditingController();
+  final TextEditingController _locController = TextEditingController();
+  
+  final List<String> _availableTags = ['조용한 힐링', '수다 환영', '플리 공유', '비흡연 차량', '반려동물 가능'];
+  final Set<String> _selectedTags = {};
+
+  void _submit() {
+    if (_destController.text.isEmpty || _locController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('목적지와 집결 장소를 모두 입력해주세요!')));
+      return;
+    }
+    
+    // 새 모임 데이터 생성
+    final newTrip = {
+      'title': _destController.text,
+      'location': _locController.text,
+      'tags': _selectedTags.map((t) => '#').toList(),
+      'driverName': '나(호스트)',
+      'seats': '3/4석',
+      'price': '약 10,000원',
+      'image': 'https://picsum.photos/600/300?random=',
+      'badge': '방금 등록',
+      'time': '오늘',
+    };
+    
+    Navigator.pop(context, newTrip);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +54,9 @@ class SosoCarHostScreen extends StatelessWidget {
             const Text('어디로 떠나시나요?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
             const SizedBox(height: 16),
             TextField(
+              controller: _destController,
               decoration: InputDecoration(
-                hintText: '목적지를 입력해주세요',
+                hintText: '예: 강화도 동막해변 일몰 팟',
                 filled: true,
                 fillColor: Colors.grey.shade100,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -33,6 +67,7 @@ class SosoCarHostScreen extends StatelessWidget {
             const Text('집결 장소 및 시간', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
             const SizedBox(height: 16),
             TextField(
+              controller: _locController,
               decoration: InputDecoration(
                 hintText: '예: 마포구청역 2번 출구',
                 filled: true,
@@ -46,9 +81,25 @@ class SosoCarHostScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Wrap(
               spacing: 8, runSpacing: 8,
-              children: [
-                _buildTagChip('조용한 힐링'), _buildTagChip('수다 환영'), _buildTagChip('플리 공유'), _buildTagChip('비흡연 차량'), _buildTagChip('반려동물 가능')
-              ],
+              children: _availableTags.map((tag) {
+                final isSelected = _selectedTags.contains(tag);
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) _selectedTags.remove(tag);
+                      else _selectedTags.add(tag);
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFF2E4F28) : Colors.grey.shade100, 
+                      borderRadius: BorderRadius.circular(20)
+                    ),
+                    child: Text(tag, style: TextStyle(fontWeight: FontWeight.w500, color: isSelected ? Colors.white : Colors.black87)),
+                  ),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 32),
 
@@ -70,7 +121,7 @@ class SosoCarHostScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: _submit,
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFC04020), padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 child: const Text('모집 시작하기', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               ),
@@ -78,14 +129,6 @@ class SosoCarHostScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTagChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
     );
   }
 }
