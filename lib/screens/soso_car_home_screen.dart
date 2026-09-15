@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'soso_car_detail_screen.dart';
+import 'soso_car_host_screen.dart';
 
 class SosoCarHomeScreen extends StatefulWidget {
   const SosoCarHomeScreen({super.key});
@@ -139,6 +140,12 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             const SizedBox(height: 100),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHostScreen())),
+        backgroundColor: const Color(0xFFC04020),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('빠른 모임 생성', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
