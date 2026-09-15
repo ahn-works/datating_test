@@ -184,10 +184,6 @@ lib/screens/neighborhood_crew_screen.dart:64:11:
 Error: Expected ',' before this.
 시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/home_screen.dart:109:1:
-Error: Expected ']' before this.
-)
-^
 lib/screens/neighborhood_crew_screen.dart:60:1:
 Error: Not a constant expression.
 그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
@@ -304,5 +300,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             29.2s
+Compiling lib/main.dart for the Web...                             21.3s
 Error: Failed to compile application for the Web.
