@@ -36,7 +36,7 @@ class MealDetailScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   const Text('참여자 (1/4)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 12),
-                  Row(children: List.generate(4, (i) => Container(margin: const EdgeInsets.only(right: 12), width: 48, height: 48, decoration: BoxDecoration(color: i==0 ? Colors.transparent : Colors.grey.shade100, shape: BoxShape.circle, border: i==0 ? null : Border.all(color: Colors.grey.shade300, style: BorderStyle.dash), image: i==0 ? const DecorationImage(image: NetworkImage('https://picsum.photos/100?random=301')) : null), child: i==0 ? null : const Icon(Icons.person_outline, color: Colors.grey))))
+                  Row(children: List.generate(4, (i) => Container(margin: const EdgeInsets.only(right: 12), width: 48, height: 48, decoration: BoxDecoration(color: i==0 ? Colors.transparent : Colors.grey.shade100, shape: BoxShape.circle, border: i==0 ? null : Border.all(color: Colors.grey.shade300, style: BorderStyle.solid), image: i==0 ? const DecorationImage(image: NetworkImage('https://picsum.photos/100?random=301')) : null), child: i==0 ? null : const Icon(Icons.person_outline, color: Colors.grey))))
                 ]
               )
             )

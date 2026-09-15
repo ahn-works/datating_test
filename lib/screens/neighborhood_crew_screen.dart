@@ -56,12 +56,9 @@ class _CrewTab extends StatelessWidget {
           children: [
             const Row(children: [Icon(Icons.favorite_border, color: Color(0xFF2E7D32), size: 16), SizedBox(width: 8), Text('MEMORABLE COMPANION', style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold, fontSize: 12))]),
             const SizedBox(height: 12),
-            const Text('지난 주말 강화도 동행이 벌써
-그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
+            Text('지난 주말 강화도 동행이 벌써\n그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
             const SizedBox(height: 8),
-            Text('취향이 잘 맞았던 이웃들과 번거로운 신청·승인
-절차 없이 다음 일정을 원클릭으로 가볍게
-시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
+            Text('취향이 잘 맞았던 이웃들과 번거로운 신청·승인\n절차 없이 다음 일정을 원클릭으로 가볍게\n시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
           ]
         )
       ),
@@ -101,9 +98,9 @@ class _CrewTab extends StatelessWidget {
             SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.send, color: Colors.white, size: 18), label: const Text('이 멤버로 다음 여행 또 가기 (초대 전송)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF14422D), padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87, size: 16), label: const Text('크루 전용 채팅방', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300))))),
+              Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87, size: 16), label: const Text('크루 전용 채팅방', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade300))))),
               const SizedBox(width: 12),
-              Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.photo_library_outlined, color: Colors.black87, size: 16), label: const Text('동행 앨범 (14)', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300))))),
+              Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: const Icon(Icons.photo_library_outlined, color: Colors.black87, size: 16), label: const Text('동행 앨범 (14)', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade300))))),
             ])
           ]
         )
