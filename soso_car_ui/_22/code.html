@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>소소카 - 스마트 대체 일정 &amp; 코스 변경 (Weather &amp; Traffic Reroute)</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-low": "#f5f3f0", "surface-container": "#efeeeb", "surface-tint": "#3a674f", "error-container": "#ffdad6", "outline": "#717973", "on-secondary-container": "#731a04", "on-surface-variant": "#414943", "on-tertiary-fixed": "#2f1400", "primary-fixed-dim": "#a1d1b4", "secondary-fixed-dim": "#ffb4a2", "secondary": "#a33d23", "on-secondary": "#ffffff", "on-tertiary-fixed-variant": "#6f3800", "surface-variant": "#e4e2df", "tertiary-fixed-dim": "#ffb780", "background": "#fbf9f6", "on-primary-container": "#9fcfb2", "on-error": "#ffffff", "surface-container-highest": "#e4e2df", "on-surface": "#1b1c1a", "surface": "#fbf9f6", "primary-container": "#2d5a43", "on-primary-fixed-variant": "#224f39", "on-tertiary": "#ffffff", "on-background": "#1b1c1a", "on-secondary-fixed-variant": "#83260e", "on-secondary-fixed": "#3c0700", "primary-fixed": "#bceecf", "secondary-container": "#ff8162", "on-primary": "#ffffff", "on-error-container": "#93000a", "inverse-on-surface": "#f2f0ed", "tertiary-fixed": "#ffdcc4", "surface-container-lowest": "#ffffff", "secondary-fixed": "#ffdad2", "on-tertiary-container": "#ffb57c", "error": "#ba1a1a", "surface-bright": "#fbf9f6", "primary": "#14422d", "tertiary": "#5d2e00", "inverse-primary": "#a1d1b4", "inverse-surface": "#30312f", "surface-container-high": "#eae8e5", "on-primary-fixed": "#002112", "outline-variant": "#c0c9c1", "surface-dim": "#dbdad7", "tertiary-container": "#7e4205" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2.25rem", "margin": "1.25rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem" }, fontFamily: { "label-sm": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "headline-xl": ["Inter"], "label-lg": ["Inter"] }, fontSize: { "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f6;color:#1b1c1a;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(20,66,45,0.05)]"><div class="h-16 px-margin max-w-[480px] mx-auto flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="뒤로가기" class="w-11 h-11 flex-shrink-0 flex items-center justify-center -ml-2 rounded-full text-on-surface hover:bg-surface-container-low transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight truncate">스마트 대체 일정 &amp; 코스 변경 (Weather &amp; Traffic Reroute)</h1></div><div class="flex items-center gap-space-xs"><button aria-label="공유하기" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined text-[22px]">share</span></button><button aria-label="알림" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span></button></div></div></header><main class="flex flex-col relative w-full max-w-[480px] mx-auto px-margin pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-28">
+<!-- Top Journey Context Card -->
+<section class="w-full bg-surface-container-low rounded-xl p-space-md shadow-sm mb-space-md break-keep">
+<div class="flex items-center justify-between gap-space-sm mb-space-xs">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm whitespace-nowrap">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        실시간 주행 중 · 김포IC 인근
+      </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">오늘 10.26 (토)</span>
+</div>
+<div class="flex items-start justify-between gap-space-sm">
+<div class="min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">
+          강화도 동막해변 일몰 드라이브 &amp; 카페
+        </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary">groups</span>
+          이웃 카풀 4인 동행 중 (호스트 민우 · 지우 · 서연 · 나)
+        </p>
+</div>
+<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">near_me</span>
+</div>
+</div>
+</section>
+<!-- Weather & Traffic Smart Advisory Alert -->
+<section class="w-full bg-tertiary-fixed/40 rounded-xl p-space-md shadow-sm mb-space-lg break-keep">
+<div class="flex items-center gap-2 mb-space-sm">
+<div class="w-7 h-7 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+</div>
+<span class="font-label-lg text-label-lg text-tertiary font-semibold whitespace-nowrap">
+        소소 내비 기상 · 도로 정체 긴급 리포트
+      </span>
+</div>
+<div class="grid grid-cols-1 gap-2.5 mb-space-sm">
+<div class="flex items-start gap-2.5 bg-surface-container-lowest/80 p-3 rounded-lg shadow-sm">
+<span class="text-lg leading-none">☔</span>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-semibold">동막해변 16:30부터 폭우 예보</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">강수확률 85% · 시간당 12mm 비바람 동반 (야외 해변 산책 위험)</p>
+</div>
+</div>
+<div class="flex items-start gap-2.5 bg-surface-container-lowest/80 p-3 rounded-lg shadow-sm">
+<span class="text-lg leading-none">🚗</span>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-secondary font-semibold">올림픽대로 말단-초지대교 극심 정체</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">주말 정체 가중으로 도착 예정 시각 +45분 이상 지속 지연 중</p>
+</div>
+</div>
+</div>
+<!-- Friendly Soso Bot Dialogue -->
+<div class="bg-surface-container-lowest p-3.5 rounded-lg shadow-sm flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px] text-primary">eco</span>
+</div>
+<div class="min-w-0 text-on-surface">
+<p class="font-label-sm text-label-sm text-primary font-semibold mb-0.5">소소 안내 매니저</p>
+<p class="font-body-sm text-body-sm leading-relaxed text-on-surface">
+          “예정된 해변 일몰 산책이 궂은 날씨로 아쉬울 수 있어요! 비바람을 피해 운치 있는 대형 식물원 카페나 아늑한 한옥 다도 갤러리로 동행들과 코스를 스마트하게 바꿔볼까요?”
+        </p>
+</div>
+</div>
+</section>
+<!-- Route Voting Section -->
+<section class="w-full mb-space-lg break-keep">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]">how_to_vote</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">대체 코스 실시간 투표</h3>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm whitespace-nowrap">
+<span class="material-symbols-outlined text-[13px]">timer</span>
+        3/4명 완료 · 마감 15분 전
+      </span>
+</div>
+<div class="space-y-3.5" id="route-voting-group">
+<!-- Option A (Leader / Highest Vote) -->
+<article class="relative bg-surface-container-lowest rounded-xl p-space-md shadow-md border-2 border-primary transition-all">
+<div class="absolute -top-3 right-4 bg-primary text-on-primary px-2.5 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-sm whitespace-nowrap">
+<span>👑</span>
+<span>현재 1위 · 최다 득표 (2표)</span>
+</div>
+<div class="flex items-start gap-3 mb-space-sm">
+<div class="w-14 h-14 rounded-lg bg-surface-container shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="A lush and modern botanical greenhouse cafe interior with large glass ceilings, filled with tropical trees, gentle warm pendant lights, and people relaxing comfortably with coffee on a rainy afternoon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASrr5o2RDA84APvQJxog0ReyhrNXl0dMxr8U7yMtSyO2CTsY8WXErL9ooiDQULMy7ekKZBhI3aD4qeVyBNGqq2UcG2zr2ZEZzcilVD1sS73RqN39VN-UGQySYMqTMYbWNqpZgIKulbmFRrJoMwCGgv_kiiw05Nr3lLZUH1H5JF_sxdlEEuW0q8wmc2JUzxiqo0op2X3QrNb7e3AqRbdrslberTnLQ2JG3T5zyadbpmES1oGcsczwiL4A"/>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-primary font-semibold">옵션 A</span>
+<span class="font-label-sm text-label-sm text-primary-fixed-dim bg-primary px-1.5 py-0.2 rounded whitespace-nowrap">우회시간 -35분</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">
+              감성 숲속 초대형 온실 북카페 &amp; 식물원
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">김포 글린공원 복합문화공간</p>
+</div>
+</div>
+<!-- Tags -->
+<div class="flex flex-wrap gap-1.5 mb-space-sm">
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#비와도쾌적</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#초대형주차장</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#실내통창우중뷰</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed/60 font-label-sm text-label-sm text-primary whitespace-nowrap font-semibold">#도착까지30분</span>
+</div>
+<!-- Participants -->
+<div class="flex items-center justify-between pt-2.5 border-t border-surface-container">
+<div class="flex items-center gap-2 min-w-0">
+<div class="flex -space-x-2 shrink-0">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary text-[11px] font-semibold flex items-center justify-center shadow-sm">민우</div>
+<div class="w-7 h-7 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-semibold flex items-center justify-center shadow-sm">지우</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">민우(호스트), 지우 님 투표함</span>
+</div>
+<button class="vote-btn-A px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 shadow-sm whitespace-nowrap" onclick="selectVote('A')" type="button">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>내 투표 완료</span>
+</button>
+</div>
+</article>
+<!-- Option B -->
+<article class="relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all">
+<div class="flex items-start gap-3 mb-space-sm">
+<div class="w-14 h-14 rounded-lg bg-surface-container shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Traditional Korean hanok tea house terrace on a drizzly autumn day, dark wood eaves dripping with raindrops, steaming traditional ceramic tea sets, and warm cozy floor seating." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBib6xJCSL3xlIg8h6qDPjeVY9qcslx8pdBPgPQ9o-z1ZrEgFpyRuUTiWVw7HxpZJIkG24ahGD9PhCXcnfQN2wj9bXoxWQKfs_gf5KzjFJYO8bluqpdGxvLZKYDVkhQTJdmiMIjuc53bkJjLHLmLmrDZyasdpSSbGdXOkVVX9bfFzHlzk4DmJ3JkJMe386tW-5kzF-bPRcKvp_hc6ajExJvEMQbZWaqmsYx_YuR3hJG1uZP7tTN1aezsQ"/>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">옵션 B</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold whitespace-nowrap">1표 획득</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">
+              강화 한옥 갤러리 차실 &amp; 전통 다도 체험
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">강화 도솔미술관 &amp; 한옥다원</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-space-sm">
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#빗소리명당</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#실내다도체험</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#고즈넉한감성</span>
+</div>
+<div class="flex items-center justify-between pt-2.5 border-t border-surface-container">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-semibold flex items-center justify-center shrink-0 shadow-sm">서연</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">서연 님 투표함</span>
+</div>
+<button class="vote-btn-B px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-high transition-colors whitespace-nowrap" onclick="selectVote('B')" type="button">
+<span>여기로 변경</span>
+</button>
+</div>
+</article>
+<!-- Option C (Original Plan) -->
+<article class="relative bg-surface-container-low/70 rounded-xl p-space-md shadow-sm transition-all opacity-85">
+<div class="flex items-start gap-3 mb-space-sm">
+<div class="w-14 h-14 rounded-lg bg-surface-container shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="A gloomy rainy seashore with misty waves and a distant view of an empty seaside boardwalk, droplets in the chilly coastal air." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyU3nw8VtDw5tThM6OFRv4d_t6LA-YhLLa3ZU3P5seTaBZJ-T2jldF6rnClNrV0qgAavSrvRs-qt7amnYpL2i2SPpPSNK5kFKmgo_omrSo3CEsV3V8NPqMRIDMyb_Esk2LRy1RxSQY_WAb5WrnCUf3xnrsI7OkppIx_Jms4j-tqRk6_XKiCZnB2Nl4z93ff-J7qUHMCwb2F02MhoqT4o_fl_xwnwc4NbT68wigqwxTd23g0EC3LzMX7w"/>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-outline font-semibold">옵션 C (기존 코스)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">0표</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">
+              원래대로 동막해변 강행 (우산 바다산책)
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">바다 앞 조개구이 &amp; 카페 직행</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-space-sm">
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#바다포기못해</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">#우중캠핑감성</span>
+</div>
+<div class="flex items-center justify-between pt-2.5 border-t border-surface-container">
+<span class="font-body-sm text-body-sm text-outline">아직 투표한 동행이 없어요</span>
+<button class="vote-btn-C px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-high transition-colors whitespace-nowrap" onclick="selectVote('C')" type="button">
+<span>여기로 변경</span>
+</button>
+</div>
+</article>
+</div>
+</section>
+<!-- Scenic Byway Route Comparison -->
+<section class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-md mb-space-md break-keep">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">alt_route</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+          경치 좋은 국도 낭만 우회로
+        </h3>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold whitespace-nowrap">
+        정체 회피 강력 추천
+      </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+      붉게 물든 고속도로 정체 구간을 피해, 한강 철새 도래지를 따라 달리는 평화누리길 강변 국도로 우회합니다 🌾
+    </p>
+<!-- Visual Map Graphic Representation -->
+<div class="relative w-full h-44 rounded-xl overflow-hidden bg-surface-container mb-space-md shadow-inner">
+<div class="w-full h-full bg-cover bg-center" data-location="Gimpo Han River Peace Nuri Road, South Korea" style=""></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-between p-3">
+<div class="flex justify-between items-start">
+<span class="px-2 py-1 rounded bg-surface/90 text-on-surface text-[11px] font-semibold flex items-center gap-1 backdrop-blur-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+            기존 고속도로: 1시간 40분 (극심 정체)
+          </span>
+<span class="px-2 py-1 rounded bg-primary text-on-primary text-[11px] font-semibold flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary-fixed"></span>
+            추천 우회로: 1시간 10분 (원활)
+          </span>
+</div>
+<div class="bg-surface/95 backdrop-blur-md rounded-lg p-2 text-on-surface flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
+<span class="font-label-sm text-label-sm font-semibold">중간 쉼터: 전류리포구 갈대밭 전망 쉼터</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">휴식 15분</span>
+</div>
+</div>
+</div>
+<!-- Route Stats Matrix -->
+<div class="grid grid-cols-2 gap-2.5 mb-space-sm">
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">기존 고속화도로</span>
+<span class="font-headline-sm text-headline-sm text-secondary font-bold mt-0.5">1시간 40분</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">답답한 정체 · 피로도 높음</span>
+</div>
+<div class="p-3 rounded-lg bg-primary-fixed/30 flex flex-col">
+<span class="font-label-sm text-label-sm text-primary font-semibold">평화누리 낭만 국도</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold mt-0.5">1시간 10분</span>
+<span class="font-body-sm text-body-sm text-primary font-semibold mt-1">30분 단축 · 강변 경관 드라이브</span>
+</div>
+</div>
+<!-- Driver Care Tip Card -->
+<div class="p-3 rounded-lg bg-tertiary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-tertiary text-[20px] shrink-0 mt-0.5">sentiment_satisfied</span>
+<div class="min-w-0">
+<p class="font-label-sm text-label-sm text-tertiary font-semibold">드라이버 배려 꿀팁</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          신호 대기가 적고 시야가 탁 트여 있어 운전자 민우 님의 운전 피로감이 크게 감소해요!
+        </p>
+</div>
+</div>
+</section>
+<!-- Sticky Bottom Confirmation Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-surface-container py-3 px-margin pb-safe">
+<div class="max-w-[480px] mx-auto flex flex-col gap-2">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[15px]">verified</span>
+          동승자 전원 합의 시 내비 목적지가 자동 동기화됩니다
+        </span>
+<button class="font-label-sm text-label-sm text-primary font-semibold flex items-center gap-0.5 hover:underline whitespace-nowrap" onclick="shareToChat()" type="button">
+<span class="material-symbols-outlined text-[14px]">forum</span>
+          채팅방 공유
+        </button>
+</div>
+<div class="flex gap-2">
+<button class="h-13 px-4 rounded-full bg-surface-container text-on-surface font-label-lg text-label-lg flex items-center justify-center shrink-0 hover:bg-surface-container-high transition-colors" onclick="shareToChat()" type="button">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+<button class="flex-1 h-13 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-lg hover:bg-primary/90 transition-all active:scale-[0.98]" id="confirm-route-btn" onclick="confirmRoute()" type="button">
+<span class="material-symbols-outlined text-[20px]">directions_car</span>
+<span class="truncate">투표 1위 코스로 즉시 변경 &amp; 내비 전송</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentSelection = 'A';
+
+  function selectVote(option) {
+    currentSelection = option;
+    const btnA = document.querySelector('.vote-btn-A');
+    const btnB = document.querySelector('.vote-btn-B');
+    const btnC = document.querySelector('.vote-btn-C');
+
+    const resetBtn = (btn, text) => {
+      if(!btn) return;
+      btn.className = "px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-high transition-colors whitespace-nowrap";
+      btn.innerHTML = `<span>${text}</span>`;
+    };
+
+    resetBtn(btnA, '여기로 변경');
+    resetBtn(btnB, '여기로 변경');
+    resetBtn(btnC, '여기로 변경');
+
+    let activeBtn = option === 'A' ? btnA : (option === 'B' ? btnB : btnC);
+    if(activeBtn) {
+      activeBtn.className = "px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 shadow-sm whitespace-nowrap";
+      activeBtn.innerHTML = `<span class="material-symbols-outlined text-[16px]">check_circle</span><span>내 투표 완료</span>`;
+    }
+
+    const toast = document.createElement('div');
+    toast.className = "fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-inverse-surface text-inverse-on-surface px-4 py-2 rounded-full font-label-md text-label-md shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none";
+    toast.textContent = `옵션 ${option} 코스에 투표를 반영했습니다.`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.remove('opacity-0'), 10);
+    setTimeout(() => {
+      toast.classList.add('opacity-0');
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  }
+
+  function shareToChat() {
+    alert("동행 단체 채팅방에 '스마트 우회 코스 투표 현황'이 공유되었습니다. 이웃들의 의견을 실시간으로 확인해보세요!");
+  }
+
+  function confirmRoute() {
+    const mainBtn = document.getElementById('confirm-route-btn');
+    mainBtn.classList.remove('bg-primary');
+    mainBtn.classList.add('bg-secondary');
+    mainBtn.innerHTML = `
+      <span class="material-symbols-outlined text-[20px] animate-spin">refresh</span>
+      <span>새 경로 동기화 중...</span>
+    `;
+
+    setTimeout(() => {
+      mainBtn.classList.remove('bg-secondary');
+      mainBtn.classList.add('bg-primary');
+      mainBtn.innerHTML = `
+        <span class="material-symbols-outlined text-[20px]">navigation</span>
+        <span>경로 변경 완료! 온실 북카페로 안내 시작</span>
+      `;
+      alert("🎉 동행 4인 합의 완료!\n호스트 민우 님의 내비게이션 경로가 '김포 글린공원 온실카페 (평화누리 낭만 국도)'로 성공적으로 전환되었습니다.");
+    }, 1200);
+  }
+</script></main></body></html>

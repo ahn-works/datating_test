@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>Edit Vehicle &amp; License Verification - 소소카</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-low": "#f5f3f0", "surface-container": "#efeeeb", "surface-tint": "#3a674f", "error-container": "#ffdad6", "outline": "#717973", "on-secondary-container": "#731a04", "on-surface-variant": "#414943", "on-tertiary-fixed": "#2f1400", "primary-fixed-dim": "#a1d1b4", "secondary-fixed-dim": "#ffb4a2", "secondary": "#a33d23", "on-secondary": "#ffffff", "on-tertiary-fixed-variant": "#6f3800", "surface-variant": "#e4e2df", "tertiary-fixed-dim": "#ffb780", "background": "#fbf9f6", "on-primary-container": "#9fcfb2", "on-error": "#ffffff", "surface-container-highest": "#e4e2df", "on-surface": "#1b1c1a", "surface": "#fbf9f6", "primary-container": "#2d5a43", "on-primary-fixed-variant": "#224f39", "on-tertiary": "#ffffff", "on-background": "#1b1c1a", "on-secondary-fixed-variant": "#83260e", "on-secondary-fixed": "#3c0700", "primary-fixed": "#bceecf", "secondary-container": "#ff8162", "on-primary": "#ffffff", "on-error-container": "#93000a", "inverse-on-surface": "#f2f0ed", "tertiary-fixed": "#ffdcc4", "surface-container-lowest": "#ffffff", "secondary-fixed": "#ffdad2", "on-tertiary-container": "#ffb57c", "error": "#ba1a1a", "surface-bright": "#fbf9f6", "primary": "#14422d", "tertiary": "#5d2e00", "inverse-primary": "#a1d1b4", "inverse-surface": "#30312f", "surface-container-high": "#eae8e5", "on-primary-fixed": "#002112", "outline-variant": "#c0c9c1", "surface-dim": "#dbdad7", "tertiary-container": "#7e4205" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2.25rem", "margin": "1.25rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem" }, fontFamily: { "label-sm": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "headline-xl": ["Inter"], "label-lg": ["Inter"] }, fontSize: { "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f6;color:#1b1c1a;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(20,66,45,0.05)]"><div class="h-16 px-margin max-w-[480px] mx-auto flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="뒤로가기" class="w-11 h-11 -ml-2 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-low transition-colors" onclick="window.history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Edit Vehicle &amp; License Verification</h1></div><div class="flex items-center gap-space-xs"><a aria-label="마이페이지로 이동" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="my-page" href="#"><span class="material-symbols-outlined text-[22px]">close</span></a></div></div></header><main class="flex flex-col relative w-full max-w-[480px] mx-auto px-margin pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-10">
+<!-- Screen Sub-Header & Trust Intro -->
+<div class="pt-4 pb-5 flex flex-col gap-space-xs">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary-container/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</span>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">차량 정보 및 면허 인증</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+      동네 이웃과 안전하고 신뢰할 수 있는 드라이브를 위해 최신 등록 정보를 유지해주세요.
+    </p>
+</div>
+<!-- Section 1: 운전자 면허 및 종합보험 인증 현황 (Bento Cards) -->
+<section class="flex flex-col gap-3 mb-6">
+<div class="flex items-center justify-between px-0.5">
+<h3 class="font-label-lg text-label-lg text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">shield_person</span>
+        안심 인증 자격 현황
+      </h3>
+<span class="font-label-sm text-label-sm text-primary font-semibold px-2 py-0.5 rounded-full bg-primary-fixed/40">
+        신뢰 호스트 레벨
+      </span>
+</div>
+<!-- License Verification Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">badge</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-on-surface">운전면허 진위 확인</span>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                인증 완료
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">1종 보통 • 적성검사 기간 유효</p>
+</div>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:underline px-2 py-1 rounded-lg hover:bg-surface-container-low transition-colors" type="button">
+          갱신 신청
+        </button>
+</div>
+<div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">면허증 일련번호</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold tracking-wider">서울-12-******-**</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-on-surface-variant">최초 발급일자</span>
+<span class="font-body-md text-body-md text-on-surface">2019.04.12</span>
+</div>
+</div>
+</div>
+<!-- Auto Insurance Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed/40 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-on-surface">자동차 종합보험 검증</span>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px]">verified</span>
+                검증 완료
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">DB손해보험 다이렉트 개인용</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded-full">
+          D-184
+        </span>
+</div>
+<!-- Coverage Breakdown -->
+<div class="grid grid-cols-3 gap-2 text-center pt-1">
+<div class="bg-surface-container-low rounded-xl py-2 px-1">
+<span class="block font-label-sm text-label-sm text-on-surface-variant">대인배상 II</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">무한 보장</span>
+</div>
+<div class="bg-surface-container-low rounded-xl py-2 px-1">
+<span class="block font-label-sm text-label-sm text-on-surface-variant">대물배상</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">10억 가입</span>
+</div>
+<div class="bg-surface-container-low rounded-xl py-2 px-1">
+<span class="block font-label-sm text-label-sm text-on-surface-variant">동승자(자손/상해)</span>
+<span class="font-label-md text-label-md text-primary font-semibold">전액 완비</span>
+</div>
+</div>
+<!-- Warm Trust Banner -->
+<div class="flex items-center gap-2 bg-primary-fixed/25 rounded-xl px-3 py-2.5">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0">handshake</span>
+<p class="font-body-sm text-body-sm text-on-surface leading-tight">
+          소소카는 이웃 간 신뢰 여행을 위해 모든 드라이버의 책임·종합보험 내역을 자동 갱신 검증합니다.
+        </p>
+</div>
+</div>
+</section>
+<!-- Section 2: 내 운행 차량 정보 (Interactive Vehicle Editor) -->
+<section class="flex flex-col gap-3 mb-6">
+<div class="flex items-center justify-between px-0.5">
+<h3 class="font-label-lg text-label-lg text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">directions_car</span>
+        내 운행 차량 정보
+      </h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">정보 변경 시 자동 심사</span>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] flex flex-col gap-4">
+<!-- Vehicle Photo Slot with Warm Frame -->
+<div class="relative w-full h-44 rounded-xl overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A modern pristine matte white Hyundai Ioniq 5 electric car parked peacefully near a sunny rural road trip trailhead in South Korea. Soft natural morning sunlight casts gentle shadows on the warm pavement, with lush pine trees softly blurred in the backdrop. The mood is clean, eco-friendly, and inviting, styled in organic earthy tones of forest green and gentle cream." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwSs14uWCoHtVhBWLG9VWRUBmZZGmiSNkLTfPMNcxWbwUHAAQd-rU5K2ErmXcbINPdm2KhBQOIcKpHfmpDqVlrLl1gWxTpirw1Pk6b20x_PWaM2x3Ouv9SUGD-lChzU6BdIkdnK9PXzkUf4QohkL7w3QhZCfjr2j73ezU0CmtEeHt5ZxfWJjN6uSWxd06htNBCi4z4mVooy5AK4-czgGz9AfBlXY-x3UGw1Z1i87Voka1XCBl7BODBnA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+<!-- Photo edit button overlay -->
+<button aria-label="차량 사진 변경" class="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md shadow-sm text-on-surface flex items-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">photo_camera</span>
+<span class="font-label-sm text-label-sm font-semibold">사진 변경</span>
+</button>
+<div class="absolute top-3 left-3 bg-primary text-on-primary px-2.5 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+          친환경 순수 전기차
+        </div>
+</div>
+<!-- Vehicle Model / Trim Input -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant">차종 및 세부 트림</label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-low rounded-xl px-3.5 py-2.5 font-body-md text-body-md text-on-surface pr-10 focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all" type="text" value="현대 아이오닉 5 롱레인지 익스클루시브"/>
+<button aria-label="차종 검색" class="absolute right-3 text-on-surface-variant hover:text-primary" type="button">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+</div>
+</div>
+<!-- Vehicle Plate UI & Masking -->
+<div class="grid grid-cols-2 gap-2.5">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant">차량 등록 번호</label>
+<div class="bg-surface-container-low rounded-xl px-3 py-2.5 flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold tracking-wider">12가 3456</span>
+<span class="material-symbols-outlined text-[18px] text-primary" title="인증된 번호판">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant">외장 색상</label>
+<div class="bg-surface-container-low rounded-xl px-3 py-2.5 flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full bg-white shadow-sm ring-1 ring-black/10"></span>
+<span class="font-body-md text-body-md text-on-surface">아틀라스 화이트</span>
+</div>
+</div>
+</div>
+<!-- Fuel Type Segment Buttons -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant">동력원 및 유종</label>
+<div class="grid grid-cols-4 gap-1.5 bg-surface-container-low p-1 rounded-xl" id="fuel-type-group">
+<button class="fuel-tab py-2 rounded-lg font-label-sm text-label-sm bg-primary text-on-primary shadow-sm flex items-center justify-center gap-1 transition-all" type="button">
+<span class="material-symbols-outlined text-[15px]">electric_car</span>
+            전기차
+          </button>
+<button class="fuel-tab py-2 rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" type="button">
+            하이브리드
+          </button>
+<button class="fuel-tab py-2 rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" type="button">
+            가솔린
+          </button>
+<button class="fuel-tab py-2 rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" type="button">
+            디젤
+          </button>
+</div>
+</div>
+<!-- Year & Mileage Details -->
+<div class="grid grid-cols-2 gap-2.5">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant">연식</label>
+<input class="bg-surface-container-low rounded-xl px-3.5 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest" type="text" value="2023년식"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant">누적 주행거리</label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-low rounded-xl px-3.5 py-2.5 font-body-md text-body-md text-on-surface pr-8 focus:outline-none focus:bg-surface-container-lowest" type="text" value="24,500"/>
+<span class="absolute right-3 font-body-sm text-body-sm text-on-surface-variant">km</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: 동승 편의 및 차량 환경 옵션 (Ride Amenities & Vibe Chips) -->
+<section class="flex flex-col gap-3 mb-6">
+<div class="flex items-center justify-between px-0.5">
+<div>
+<h3 class="font-label-lg text-label-lg text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">local_convenience_store</span>
+          동승 편의 및 온보딩 환경
+        </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">동승 이웃이 여행 준비에 참고할 수 있는 편의 옵션입니다.</p>
+</div>
+</div>
+<!-- Toggle Cards -->
+<div class="grid grid-cols-1 gap-2.5" id="amenity-list">
+<!-- Item 1: Non Smoking -->
+<label class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_rgba(45,90,67,0.04)] cursor-pointer active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">smoke_free</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">완전 금연 차량</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">연초 및 궐련형/액상 전자담배 모두 절대 불가</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary rounded cursor-pointer" type="checkbox"/>
+</label>
+<!-- Item 2: Trunk Space -->
+<label class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_rgba(45,90,67,0.04)] cursor-pointer active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">luggage</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">트렁크 수납 여유</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">백팩 4개 또는 기내용 캐리어 2개 수납 가능</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary rounded cursor-pointer" type="checkbox"/>
+</label>
+<!-- Item 3: Pet Friendly Cage -->
+<label class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_rgba(45,90,67,0.04)] cursor-pointer active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container-low flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[20px]">pets</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">반려동물 케이지 동반 가능</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">7kg 미만 소형견 켄넬 탑승 허용</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary rounded cursor-pointer" type="checkbox"/>
+</label>
+<!-- Item 4: Fast Charging -->
+<label class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_rgba(45,90,67,0.04)] cursor-pointer active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">power</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">스마트폰 고속 충전 지원</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">C타입 &amp; 라이트닝 고속 케이블 전 좌석 구비</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary rounded cursor-pointer" type="checkbox"/>
+</label>
+<!-- Item 5: CarPlay / Android Auto -->
+<label class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_rgba(45,90,67,0.04)] cursor-pointer active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">queue_music</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">로드트립 플레이리스트 연동</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">애플 카플레이 • 안드로이드 오토 자유 신청</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary rounded cursor-pointer" type="checkbox"/>
+</label>
+<!-- Item 6: Cupholders -->
+<label class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_rgba(45,90,67,0.04)] cursor-pointer active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container-low flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[20px]">coffee</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">개별 컵홀더 완비</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">앞좌석 2개 및 뒷좌석 암레스트 2개 (총 4구)</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary rounded cursor-pointer" type="checkbox"/>
+</label>
+</div>
+</section>
+<!-- Section 4: 동승자 안전 및 좌석 정원 가이드 (Tactile Seat Layout) -->
+<section class="flex flex-col gap-3 mb-6">
+<div class="flex items-center justify-between px-0.5">
+<h3 class="font-label-lg text-label-lg text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">airline_seat_recline_extra</span>
+        추천 동승 인원 및 좌석 구성
+      </h3>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label-md text-label-md text-on-surface font-semibold">권장 총원: 운전자 포함 4인</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">쾌적하고 안락한 드라이브를 위해 뒷좌석 2인 탑승 권장</p>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold bg-primary-fixed/40 px-2.5 py-1 rounded-full">
+          2열 여유형
+        </span>
+</div>
+<!-- Visual Car Seat Schematic (Delightful Mini Illustration) -->
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col items-center gap-3">
+<!-- Front Row -->
+<div class="flex items-center gap-8">
+<div class="flex flex-col items-center gap-1">
+<div class="w-11 h-12 rounded-xl bg-primary text-on-primary flex flex-col items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">drive_eta</span>
+<span class="font-label-sm text-[10px] leading-tight">호스트</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">운전석</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-11 h-12 rounded-xl bg-surface-container-lowest text-primary shadow-sm flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span class="font-label-sm text-[10px] leading-tight">동승 1</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">조수석</span>
+</div>
+</div>
+<div class="w-36 h-[2px] bg-outline-variant/40 rounded-full"></div>
+<!-- Back Row (2 spacious seats with center armrest) -->
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-center gap-1">
+<div class="w-11 h-12 rounded-xl bg-surface-container-lowest text-primary shadow-sm flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span class="font-label-sm text-[10px] leading-tight">동승 2</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2열 좌측</span>
+</div>
+<!-- Armrest folded cup holder -->
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant" title="접이식 암레스트 &amp; 컵홀더">
+<span class="material-symbols-outlined text-[16px]">local_cafe</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-11 h-12 rounded-xl bg-surface-container-lowest text-primary shadow-sm flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span class="font-label-sm text-[10px] leading-tight">동승 3</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2열 우측</span>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-2 pt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">info</span>
+<p class="font-body-sm text-body-sm leading-relaxed">
+          여기서 설정한 차량 환경 및 편의 옵션은 다음 카풀 모집 글 작성 시 자동으로 기본 옵션에 채워집니다.
+        </p>
+</div>
+</div>
+</section>
+<!-- Section 5: Bottom Sticky Save CTA & Security Footnote -->
+<div class="sticky bottom-4 z-20 flex flex-col gap-2 pt-2 bg-gradient-to-t from-surface via-surface/95 to-transparent pb-1">
+<button class="w-full h-[52px] bg-primary text-on-primary rounded-full font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_10px_30px_-4px_rgba(45,90,67,0.25)] active:scale-[0.98] transition-all hover:bg-primary-container" id="save-btn" type="button">
+<span class="material-symbols-outlined text-[20px]">save</span>
+      수정사항 저장하기
+    </button>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+      등록된 모든 정보 및 서류는 전자서명 암호화되어 안전하게 보관됩니다.
+    </p>
+</div>
+</div>
+<script>
+  // Fuel tab interaction
+  const fuelTabs = document.querySelectorAll('.fuel-tab');
+  fuelTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      fuelTabs.forEach(t => {
+        t.className = 'fuel-tab py-2 rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all';
+      });
+      tab.className = 'fuel-tab py-2 rounded-lg font-label-sm text-label-sm bg-primary text-on-primary shadow-sm flex items-center justify-center gap-1 transition-all';
+    });
+  });
+
+  // Save Toast interaction
+  const saveBtn = document.getElementById('save-btn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = `
+        <span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+        저장 및 검증 중...
+      `;
+      saveBtn.disabled = true;
+
+      setTimeout(() => {
+        saveBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[20px]">check_circle</span>
+          저장 완료되었습니다!
+        `;
+        saveBtn.classList.remove('bg-primary');
+        saveBtn.classList.add('bg-primary-container');
+
+        setTimeout(() => {
+          saveBtn.innerHTML = originalText;
+          saveBtn.classList.remove('bg-primary-container');
+          saveBtn.classList.add('bg-primary');
+          saveBtn.disabled = false;
+        }, 1800);
+      }, 700);
+    });
+  }
+</script></main></body></html>

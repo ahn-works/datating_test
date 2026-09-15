@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>소소카 - Manage Applicants &amp; Requests</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-low": "#f5f3f0", "surface-container": "#efeeeb", "surface-tint": "#3a674f", "error-container": "#ffdad6", "outline": "#717973", "on-secondary-container": "#731a04", "on-surface-variant": "#414943", "on-tertiary-fixed": "#2f1400", "primary-fixed-dim": "#a1d1b4", "secondary-fixed-dim": "#ffb4a2", "secondary": "#a33d23", "on-secondary": "#ffffff", "on-tertiary-fixed-variant": "#6f3800", "surface-variant": "#e4e2df", "tertiary-fixed-dim": "#ffb780", "background": "#fbf9f6", "on-primary-container": "#9fcfb2", "on-error": "#ffffff", "surface-container-highest": "#e4e2df", "on-surface": "#1b1c1a", "surface": "#fbf9f6", "primary-container": "#2d5a43", "on-primary-fixed-variant": "#224f39", "on-tertiary": "#ffffff", "on-background": "#1b1c1a", "on-secondary-fixed-variant": "#83260e", "on-secondary-fixed": "#3c0700", "primary-fixed": "#bceecf", "secondary-container": "#ff8162", "on-primary": "#ffffff", "on-error-container": "#93000a", "inverse-on-surface": "#f2f0ed", "tertiary-fixed": "#ffdcc4", "surface-container-lowest": "#ffffff", "secondary-fixed": "#ffdad2", "on-tertiary-container": "#ffb57c", "error": "#ba1a1a", "surface-bright": "#fbf9f6", "primary": "#14422d", "tertiary": "#5d2e00", "inverse-primary": "#a1d1b4", "inverse-surface": "#30312f", "surface-container-high": "#eae8e5", "on-primary-fixed": "#002112", "outline-variant": "#c0c9c1", "surface-dim": "#dbdad7", "tertiary-container": "#7e4205" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2.25rem", "margin": "1.25rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem" }, fontFamily: { "label-sm": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-md": ["Inter"], "headline-sm": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "headline-xl": ["Inter"], "label-lg": ["Inter"] }, fontSize: { "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "fontWeight": "700" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f6;color:#1b1c1a;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(20,66,45,0.05)]"><div class="h-16 px-margin max-w-[480px] mx-auto flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="뒤로가기" class="w-11 h-11 flex-shrink-0 flex items-center justify-center -ml-2 rounded-full text-on-surface hover:bg-surface-container-low transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight truncate">Manage Applicants &amp; Requests</h1></div><div class="flex items-center gap-space-xs"><button aria-label="새로고침 또는 옵션" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">more_vert</span></button></div></div></header><main class="flex flex-col relative w-full max-w-[480px] mx-auto px-margin pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-8">
+<!-- Recruitment Itinerary Summary Card -->
+<div class="w-full bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] mb-space-lg">
+<div class="flex items-center justify-between gap-space-xs mb-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-semibold">동승자 선별 중</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary/10 text-secondary">
+<span class="material-symbols-outlined text-[16px]">notifications_active</span>
+<span class="font-label-sm text-label-sm font-semibold">새 신청 2건 도착</span>
+</div>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight mb-2">
+      강화도 동막해변 일몰 드라이브 &amp; 오션뷰 카페
+    </h2>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm mb-space-md">
+<span class="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
+<span>2024.10.26 (토) 14:00</span>
+<span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-[18px] text-primary">near_me</span>
+<span class="truncate">합정역 8번 출구 앞</span>
+</div>
+<!-- Occupancy Visualizer & Status -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">정원 점유 현황</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">확정 2명 / 총 4명 정원</p>
+</div>
+</div>
+<!-- Seat Indicator Dots -->
+<div class="flex items-center gap-1.5">
+<div class="flex flex-col items-center gap-0.5" title="호스트">
+<div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[10px]">person</span>
+</div>
+<span class="font-label-sm text-[9px] text-primary font-bold">호스트</span>
+</div>
+<div class="flex flex-col items-center gap-0.5" title="동승 확정 1">
+<div class="w-4 h-4 rounded-full bg-primary-fixed-dim flex items-center justify-center text-on-primary-fixed-variant">
+<span class="material-symbols-outlined text-[10px]">check</span>
+</div>
+<span class="font-label-sm text-[9px] text-on-surface-variant">확정</span>
+</div>
+<div class="flex flex-col items-center gap-0.5" title="잔여석">
+<div class="w-4 h-4 rounded-full bg-surface-container-high border-dashed border border-outline-variant"></div>
+<span class="font-label-sm text-[9px] text-secondary font-semibold">잔여</span>
+</div>
+<div class="flex flex-col items-center gap-0.5" title="잔여석">
+<div class="w-4 h-4 rounded-full bg-surface-container-high border-dashed border border-outline-variant"></div>
+<span class="font-label-sm text-[9px] text-secondary font-semibold">잔여</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section Header -->
+<div class="flex items-center justify-between mb-space-sm px-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]">how_to_reg</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">도착한 동승 신청서</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">호스트 권한으로 심사 중</span>
+</div>
+<!-- Applicant Card #1 (Strongly Recommended) -->
+<div class="w-full bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] mb-space-lg">
+<!-- Top Match Badge -->
+<div class="flex items-center justify-between mb-space-md">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[15px]">favorite</span>
+<span>호스트 여행 성향 98% 일치</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">12분 전 신청</span>
+</div>
+<!-- Profile Header -->
+<div class="flex items-start gap-space-sm mb-space-md">
+<div class="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A warm candid portrait of a 31-year-old Korean female traveler smiling warmly outdoors in cozy autumn knitwear, warm soft sunlight, natural lifestyle photography, gentle earthy tones matching forest green and terracotta palette" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqdIA1FvIw4nNNt_RKdMNQiaCEcKADZFst1-A_xsr9Bb-82MsWgKm7grxpchghA6zSkeIGxfzDFoesZqXM4KUuvjKafPf48qrnqXlhh7cte7WSeGz3XtvwWjI9mD1v8dII_0XoIe4dfEWLruGfJ-dYE33xaQT8ToDCLhAz1VhxVgiEgW5yUfvpVwonBcz6nGWoahKbqZALpFIcOIbu0_qBdQKHkxNHLQg93VwfJGdoqX2u81s7KM0MEA"/>
+<span class="absolute bottom-0 right-0 w-4 h-4 bg-primary text-on-primary rounded-full flex items-center justify-center text-[10px]">
+<span class="material-symbols-outlined text-[11px]">verified</span>
+</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">지우</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(31세 • 마포구 연남동 이웃)</span>
+</div>
+<div class="flex items-center gap-2 mt-1 flex-wrap">
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[13px] text-primary">home_pin</span>
+            동네인증 (3개월 거주)
+          </span>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[13px] text-primary">shield_person</span>
+            실명 신원인증
+          </span>
+</div>
+</div>
+</div>
+<!-- Trust & Manner Temperature Bar -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-sm mb-space-md">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-secondary">local_fire_department</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">소소카 매너온도</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-sm text-headline-sm font-bold text-secondary">41.2°C</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/ 기본 36.5°C</span>
+</div>
+</div>
+<!-- Temperature Track -->
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden mb-2">
+<div class="h-full rounded-full bg-secondary-container" style="width: 78%;"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">car_rental</span>
+          동승 이력 6회 완료
+        </span>
+<span class="font-semibold text-primary">노쇼 0회 • 지각 0회</span>
+</div>
+</div>
+<!-- Verified Review Tags -->
+<div class="mb-space-md">
+<p class="font-label-sm text-label-sm text-on-surface-variant font-semibold mb-2">이전 드라이버들이 남긴 검증 태그</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>⏱️</span> #시간약속철저
+        </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>😄</span> #유쾌한분위기메이커
+        </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>🧼</span> #차량청결유지
+        </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>🎵</span> #선곡센스만점
+        </span>
+</div>
+</div>
+<!-- Ride Preference Match Breakdown -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-sm mb-space-md">
+<div class="flex items-center gap-1.5 mb-3">
+<span class="material-symbols-outlined text-[18px] text-primary">tune</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">카풀 승차 에티켓 성향 매칭</span>
+</div>
+<div class="space-y-2 font-body-sm text-body-sm">
+<div class="flex items-start gap-2">
+<span class="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<div class="flex-1">
+<span class="font-semibold text-on-surface">흡연 에티켓:</span>
+<span class="text-on-surface-variant"> 100% 비흡연자 (전자담배 포함 절대 금연)</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<div class="flex-1">
+<span class="font-semibold text-on-surface">대화 선호:</span>
+<span class="text-on-surface-variant"> 자연스럽고 편안한 대화 선호 (풍경 감상도 환영)</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<div class="flex-1">
+<span class="font-semibold text-on-surface">음악 취향:</span>
+<span class="text-on-surface-variant"> 인디 어쿠스틱 / 재즈 팝 (운전자 선곡 리스트 전적 환영)</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<div class="flex-1">
+<span class="font-semibold text-on-surface">동반 반려동물:</span>
+<span class="text-on-surface-variant"> 없음 (알레르기 우려 無)</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<div class="flex-1">
+<span class="font-semibold text-on-surface">휴대 수하물:</span>
+<span class="text-on-surface-variant"> 작은 백팩 1개 (트렁크 공간 넉넉함)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Note from Applicant -->
+<div class="bg-surface-variant/40 rounded-DEFAULT p-space-sm mb-space-md">
+<div class="flex items-center gap-1 text-primary mb-1">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span class="font-label-sm text-label-sm font-semibold">지우 님의 신청 한마디</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+        “안녕하세요 호스트님! 동막해변 일몰 사진 찍는 걸 정말 좋아하는데 합정 이웃분과 함께 갈 수 있어 신청했어요. 시간 약속 꼭 칼같이 지키고 기분 좋은 동행 될게요! 😊”
+      </p>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-sm">
+<button class="w-2/5 h-[50px] rounded-full bg-surface-container-high text-on-surface-variant font-label-lg text-label-lg font-semibold hover:bg-surface-variant active:scale-[0.98] transition-all flex items-center justify-center gap-1" onclick="openDeclineModal('지우')">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span>정중한 거절</span>
+</button>
+<button class="flex-1 h-[50px] rounded-full bg-primary text-on-primary font-label-lg text-label-lg font-semibold shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-1.5" onclick="approveApplicant('지우')">
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+<span>동승 수락하기 (1석 배정)</span>
+</button>
+</div>
+</div>
+<!-- Applicant Card #2 (Reviewing Case) -->
+<div class="w-full bg-surface-container-lowest rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] mb-space-lg">
+<!-- Status Badge -->
+<div class="flex items-center justify-between mb-space-md">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[15px]">hourglass_empty</span>
+<span>새로운 동네 이웃</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">35분 전 신청</span>
+</div>
+<!-- Profile Header -->
+<div class="flex items-start gap-space-sm mb-space-md">
+<div class="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A portrait of a 29-year-old Korean male smiling quietly with wireless earphones, soft studio daylight, wearing a cozy forest-toned sweater, clean aesthetic matching sandstone and olive green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxh0gEY7me4jPS_z9S2JOQdc6o4Tj0j9temXdDDQipS2mo4mm8YuDdMmUsQaNxtPnlCMD0GFD2aOxPW7yn0yC1k5UT1-BNr65lfkvdVNZ-DX8maPfeI1fbfdJ6uPXeC6QweD3btOQ_qCg0ycSNw947cvoWYWj_GvSy7ZvAcCGLJ5qbPNTkqDU0DxnKvbH4tsjhdqDyErLmGVWTQ2iXujXHfQtdkaZ9UJ6fr9_O2WKKGZy92kHz2OTP_g"/>
+<span class="absolute bottom-0 right-0 w-4 h-4 bg-primary text-on-primary rounded-full flex items-center justify-center text-[10px]">
+<span class="material-symbols-outlined text-[11px]">verified</span>
+</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">현우</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(29세 • 마포구 망원동 이웃)</span>
+</div>
+<div class="flex items-center gap-2 mt-1 flex-wrap">
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[13px] text-primary">home_pin</span>
+            동네인증 완료
+          </span>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[13px] text-primary">verified_user</span>
+            기본 인증
+          </span>
+</div>
+</div>
+</div>
+<!-- Trust & Manner Temperature Bar -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-sm mb-space-md">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-secondary">local_fire_department</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">소소카 매너온도</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">37.5°C</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/ 기본 36.5°C</span>
+</div>
+</div>
+<!-- Temperature Track -->
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden mb-2">
+<div class="h-full rounded-full bg-secondary-fixed-dim" style="width: 55%;"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">car_rental</span>
+          동승 이력 2회 완료
+        </span>
+<span class="font-semibold text-primary">신뢰로운 첫 출발</span>
+</div>
+</div>
+<!-- Keyword Tags -->
+<div class="mb-space-md">
+<p class="font-label-sm text-label-sm text-on-surface-variant font-semibold mb-2">이전 평가 키워드</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>☕</span> #조용하고차분함
+        </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>⏱️</span> #약속시간준수
+        </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span>🌱</span> #깔끔한매너
+        </span>
+</div>
+</div>
+<!-- Ride Preference Details -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-sm mb-space-md font-body-sm text-body-sm space-y-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">smoke_free</span>
+<span class="text-on-surface font-medium">100% 비흡연자</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">volume_mute</span>
+<span class="text-on-surface-variant">조용히 창밖 보며 힐링 선호 (말수 적은 편)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">headphones</span>
+<span class="text-on-surface-variant">개인 이어폰 청취 또는 잔잔한 클래식/재즈</span>
+</div>
+</div>
+<!-- Note -->
+<div class="bg-surface-variant/40 rounded-DEFAULT p-space-sm mb-space-md">
+<div class="flex items-center gap-1 text-primary mb-1">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span class="font-label-sm text-label-sm font-semibold">현우 님의 신청 한마디</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+        “주말에 조용히 힐링 드라이브 하고 싶어 신청합니다. 차내 에티켓 철저히 지키겠습니다.”
+      </p>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-sm">
+<button class="w-2/5 h-[50px] rounded-full bg-surface-container-high text-on-surface-variant font-label-lg text-label-lg font-semibold hover:bg-surface-variant active:scale-[0.98] transition-all flex items-center justify-center gap-1" onclick="openDeclineModal('현우')">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span>정중한 거절</span>
+</button>
+<button class="flex-1 h-[50px] rounded-full bg-primary text-on-primary font-label-lg text-label-lg font-semibold shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-1.5" onclick="approveApplicant('현우')">
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+<span>동승 수락하기</span>
+</button>
+</div>
+</div>
+<!-- Emotional Care Guide & Safe Guard Preview Section -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-md shadow-[0_4px_16px_-2px_rgba(45,90,67,0.06),0_2px_6px_-1px_rgba(30,35,32,0.04)] mb-space-lg">
+<div class="flex items-center gap-space-sm mb-space-sm">
+<div class="w-9 h-9 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">volunteer_activism</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">소소카 '이웃 감정 케어' 안심망</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">거절이 미안한 호스트를 위한 시스템 배려</p>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-space-md">
+      동승 신청을 거절하셔도 이웃에게는 호스트님의 개인 사유 대신 <strong>소소카 표준 정중 안내문</strong>으로 부드럽게 전달됩니다. 마음의 짐 없이 내 차에 편안한 이웃만 선별하세요.
+    </p>
+<div class="bg-surface-container-lowest rounded-DEFAULT p-space-sm space-y-2">
+<p class="font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">mail_lock</span>
+        전달되는 따뜻한 템플릿 예시
+      </p>
+<div class="p-2.5 rounded-DEFAULT bg-surface-container-low text-on-surface font-body-sm text-body-sm">
+        “죄송해요, 다른 이웃분과 먼저 일정이 조율되어 이번 드라이브는 마감되었습니다. 다음 소소카 여정에서 꼭 좋은 인연으로 봬요! 🌿”
+      </div>
+</div>
+</div>
+<!-- Host Safety Tip Bottom Bar -->
+<div class="w-full bg-surface-container rounded-DEFAULT p-space-md flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px] flex-shrink-0 mt-0.5">verified_user</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<span class="font-semibold text-on-surface">100% 호스트 결정권 보장</span><br/>
+      호스트는 동승 확정 전까지 신청자의 프로필, 매너온도, 카풀 성향을 자유롭게 검토하고 승인할 전권을 가집니다. 소소카는 상호 안전을 위해 100% 동네 실명 인증제도를 운영합니다.
+    </div>
+</div>
+<!-- Modal Bottom Sheet for Polite Rejection (Interactive Element) -->
+<div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-end justify-center" id="declineModal">
+<div class="w-full max-w-[480px] bg-surface-container-lowest rounded-t-lg p-space-lg shadow-2xl animate-in slide-in-from-bottom duration-200">
+<div class="w-10 h-1.5 rounded-full bg-outline-variant mx-auto mb-space-md"></div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">heart_broken</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">정중한 거절 사유 선택</h3>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container" onclick="closeDeclineModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+<span class="font-semibold text-on-surface" id="targetApplicantName">이웃</span>님께 가장 알맞은 정중 메시지를 선택해 주세요. 개인 연락처 노출 없이 매끄럽게 정리됩니다.
+      </p>
+<!-- Reason Options -->
+<div class="space-y-2 mb-space-lg">
+<label class="flex items-start gap-3 p-3 rounded-DEFAULT bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 accent-primary" name="decline_reason" type="radio"/>
+<div class="font-body-sm text-body-sm text-on-surface">
+<span class="font-semibold block">일정 조기 마감</span>
+            "다른 이웃분과 먼저 일정이 확정되어 아쉽게도 마감되었습니다."
+          </div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-DEFAULT bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input class="mt-1 accent-primary" name="decline_reason" type="radio"/>
+<div class="font-body-sm text-body-sm text-on-surface">
+<span class="font-semibold block">적재 짐 공간 제한</span>
+            "이번 여정은 트렁크 적재물이 많아 추가 동승이 어렵게 되었습니다."
+          </div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-DEFAULT bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input class="mt-1 accent-primary" name="decline_reason" type="radio"/>
+<div class="font-body-sm text-body-sm text-on-surface">
+<span class="font-semibold block">다음 여정 기약</span>
+            "다음에 열릴 다른 드라이브 모임에서 꼭 좋은 인연으로 봬요!"
+          </div>
+</label>
+</div>
+<div class="flex gap-space-sm">
+<button class="w-1/3 h-[50px] rounded-full bg-surface-container text-on-surface-variant font-label-lg text-label-lg font-semibold" onclick="closeDeclineModal()">
+          돌아가기
+        </button>
+<button class="flex-1 h-[50px] rounded-full bg-secondary text-on-secondary font-label-lg text-label-lg font-semibold shadow-md active:scale-[0.98]" onclick="confirmDecline()">
+          정중 메시지 보내고 거절
+        </button>
+</div>
+</div>
+</div>
+<!-- Toast Notification for Interaction Feedback -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-inverse-surface text-inverse-on-surface shadow-xl font-label-md text-label-md opacity-0 pointer-events-none transition-opacity duration-300 flex items-center gap-2" id="actionToast">
+<span class="material-symbols-outlined text-primary-fixed text-[18px]">check_circle</span>
+<span id="toastMessage">동승 신청이 안전하게 수락되었습니다.</span>
+</div>
+</div>
+<script>
+  let currentTarget = '';
+
+  function openDeclineModal(applicantName) {
+    currentTarget = applicantName;
+    const nameSpan = document.getElementById('targetApplicantName');
+    if (nameSpan) nameSpan.textContent = applicantName;
+    const modal = document.getElementById('declineModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeDeclineModal() {
+    const modal = document.getElementById('declineModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('actionToast');
+    const toastMessage = document.getElementById('toastMessage');
+    if (toast && toastMessage) {
+      toastMessage.textContent = message;
+      toast.classList.remove('opacity-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, 2500);
+    }
+  }
+
+  function confirmDecline() {
+    closeDeclineModal();
+    showToast(`${currentTarget} 님에게 정중한 케어 안내문이 전달되었습니다.`);
+  }
+
+  function approveApplicant(name) {
+    showToast(`${name} 님의 동승이 확정되었습니다! (1석 배정 완료)`);
+  }
+</script></main></body></html>
