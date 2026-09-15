@@ -15,11 +15,151 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
   final Color badgeGreen = const Color(0xFFA5D6A7); // 인증이웃 뱃지 그린
   final Color terracotta = const Color(0xFFC04020);
   int _bottomNavIndex = 0;
+  int _selectedFilter = 0;
+
+  final List<Map<String, dynamic>> _filters = [
+    {'label': '전체', 'key': 'all'},
+    {'label': '당일치기 ☕', 'key': '#당일치기'},
+    {'label': '노을 드라이브 🌅', 'key': '#노을맛집'},
+    {'label': '주말 🚗', 'key': '#주말'},
+  ];
+
+  final List<Map<String, dynamic>> _allTrips = [
+    {
+      'title': '강화도 동막해변 일몰 보고 대하구이 먹...',
+      'location': '강화도 동막해변',
+      'tags': ['#노을맛집', '#수다환영', '#플리공유'],
+      'driverName': '달리는 민우',
+      'driverCar': '볼보 XC40 - 비흡연 - 클래식음악',
+      'driverTemp': 38.5,
+      'reservedSeats': 3,
+      'totalSeats': 4,
+      'price': '18,000',
+      'image': 'https://picsum.photos/600/300?random=30',
+      'badge': '🔥 마감임박 1자리!',
+      'timeBadge': '토요일 당일',
+      'distance': '편도 약 1시간 20분',
+      'scheduleTime': '이번 주 토요일 14:00 출발 - 21:00 연남 도착 예정',
+      'scheduleLoc': '집결지: 홍대입구역 3번 출구 앞',
+    },
+    {
+      'title': '파주 헤이리마을 대형 북카페 책 읽고 ...',
+      'location': '파주 헤이리 예술마을',
+      'tags': ['#조용한힐링', '#커피한잔', '#자유시간', '#당일치기'],
+      'driverName': '책읽는 지훈',
+      'driverCar': '쏘렌토 하이브리드 - 안전운전 5년차',
+      'driverTemp': 41.2,
+      'reservedSeats': 2,
+      'totalSeats': 4,
+      'price': '12,000',
+      'image': 'https://picsum.photos/600/300?random=31',
+      'badge': '일요일 낮',
+      'timeBadge': '조용한 힐링',
+      'distance': '편도 약 45분',
+      'scheduleTime': '이번 주 일요일 10:30 출발 - 17:30 복귀',
+      'scheduleLoc': '집결지: 연남파출소 앞 미팅',
+    },
+    {
+      'title': '양평 두물머리 연핫도그 & 물안개 아...',
+      'location': '양평 두물머리',
+      'tags': ['#물안개산책', '#소규모3인', '#쾌적드라이브', '#주말'],
+      'driverName': '얼리버드 진호',
+      'driverCar': '아이오닉 5 전기차 - 무사고',
+      'driverTemp': 39.1,
+      'reservedSeats': 2,
+      'totalSeats': 3,
+      'price': '15,000',
+      'image': 'https://picsum.photos/600/300?random=32',
+      'badge': '토요일 아침',
+      'timeBadge': '연핫도그 투어 🌭',
+      'distance': '편도 약 55분',
+      'scheduleTime': '이번 주 토요일 07:00 출발 - 12:30 복귀 (오전순삭)',
+      'scheduleLoc': '집결지: 가좌역 1번 출구',
+    },
+  ];
+
+  void _showLocationPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('지도에서 위치 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, color: Colors.black87),
+                    hintText: '어디로 떠날까요? (강화도, 헤이리 등)',
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      children: [
+                        Image.network('https://picsum.photos/800/800?random=100', width: double.infinity, height: double.infinity, fit: BoxFit.cover),
+                        Container(color: Colors.white.withOpacity(0.5)),
+                        const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.location_on, color: Color(0xFFC04020), size: 48),
+                              Text('지도를 움직여 핀을 설정하세요', style: TextStyle(fontWeight: FontWeight.bold, backgroundColor: Colors.white70)),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('위치가 선택되었습니다.')));
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E4F28), padding: const EdgeInsets.symmetric(vertical: 16)),
+                    child: const Text('이 위치로 설정', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final filterKey = _filters[_selectedFilter]['key'];
+    final filteredTrips = filterKey == 'all' 
+        ? _allTrips 
+        : _allTrips.where((trip) => (trip['tags'] as List).any((tag) => tag.contains(filterKey))).toList();
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F7), // 스크린샷의 따뜻한 배경색
+      backgroundColor: const Color(0xFFF9F9F7),
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
         child: Column(
@@ -29,68 +169,45 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             _buildSearchBar(context),
             _buildFilterChips(),
             _buildListHeader(),
-            _buildTripCard(
-              context: context,
-              image: 'https://picsum.photos/600/300?random=30',
-              badge: '🔥 마감임박 1자리!',
-              timeBadge: '토요일 당일',
-              location: '강화도 동막해변',
-              distance: '편도 약 1시간 20분',
-              title: '강화도 동막해변 일몰 보고 대하구이 먹...',
-              tags: ['#노을맛집', '#수다환영', '#플리공유'],
-              scheduleTime: '이번 주 토요일 14:00 출발 - 21:00 연남 도착 예정',
-              scheduleLoc: '집결지: 홍대입구역 3번 출구 앞',
-              driverName: '달리는 민우',
-              driverCar: '볼보 XC40 - 비흡연 - 클래식음악',
-              driverTemp: 38.5,
-              reservedSeats: 3,
-              totalSeats: 4,
-              price: '18,000',
-            ),
-            _buildTripCard(
-              context: context,
-              image: 'https://picsum.photos/600/300?random=31',
-              badge: '일요일 낮',
-              timeBadge: '조용한 힐링',
-              location: '파주 헤이리 예술마을',
-              distance: '편도 약 45분',
-              title: '파주 헤이리마을 대형 북카페 책 읽고 ...',
-              tags: ['#조용한힐링', '#커피한잔', '#자유시간'],
-              scheduleTime: '이번 주 일요일 10:30 출발 - 17:30 복귀',
-              scheduleLoc: '집결지: 연남파출소 앞 미팅',
-              driverName: '책읽는 지훈',
-              driverCar: '쏘렌토 하이브리드 - 안전운전 5년차',
-              driverTemp: 41.2,
-              reservedSeats: 2,
-              totalSeats: 4,
-              price: '12,000',
-            ),
-            _buildTripCard(
-              context: context,
-              image: 'https://picsum.photos/600/300?random=32',
-              badge: '토요일 아침',
-              timeBadge: '연핫도그 투어 🌭',
-              location: '양평 두물머리',
-              distance: '편도 약 55분',
-              title: '양평 두물머리 연핫도그 & 물안개 아...',
-              tags: ['#물안개산책', '#소규모3인', '#쾌적드라이브'],
-              scheduleTime: '이번 주 토요일 07:00 출발 - 12:30 복귀 (오전순삭)',
-              scheduleLoc: '집결지: 가좌역 1번 출구',
-              driverName: '얼리버드 진호',
-              driverCar: '아이오닉 5 전기차 - 무사고',
-              driverTemp: 39.1,
-              reservedSeats: 2,
-              totalSeats: 3,
-              price: '15,000',
-            ),
+            if (filteredTrips.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: Text('조건에 맞는 모임이 없습니다.', style: TextStyle(color: Colors.grey))),
+              )
+            else
+              ...filteredTrips.map((trip) => _buildTripCard(context: context, trip: trip)).toList(),
             _buildSafetyBanner(),
-            const SizedBox(height: 80), // 하단 FAB 공간
+            const SizedBox(height: 80),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHostScreen())),
+        onPressed: () async {
+          final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHostScreen()));
+          if (result != null && result is Map<String, dynamic>) {
+            setState(() {
+              _allTrips.insert(0, {
+                'title': result['title'],
+                'location': result['location'],
+                'tags': result['tags'],
+                'driverName': result['driverName'],
+                'driverCar': '나의 멋진 차 - 무사고',
+                'driverTemp': 36.5,
+                'reservedSeats': 1,
+                'totalSeats': 4,
+                'price': result['price'].toString().replaceAll('약 ', '').replaceAll('원', ''),
+                'image': result['image'],
+                'badge': result['badge'],
+                'timeBadge': result['time'],
+                'distance': '위치 계산중...',
+                'scheduleTime': '오늘 출발 예정',
+                'scheduleLoc': '집결지: ' + result['location'],
+              });
+            });
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('새 여행 모임이 성공적으로 등록되었습니다! 🎉')));
+          }
+        },
         backgroundColor: const Color(0xFFB53D25),
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('번개 드라이브 열기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -203,9 +320,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('위치 검색 모달 오픈!')));
-        },
+        onTap: _showLocationPicker,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
@@ -231,26 +346,23 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
-        children: [
-          _buildChip('전체', true),
-          _buildChip('당일치기 ☕', false),
-          _buildChip('노을 드라이브 🌅', false),
-          _buildChip('주말 🚗', false),
-        ],
+        children: List.generate(_filters.length, (index) {
+          final isSelected = _selectedFilter == index;
+          return GestureDetector(
+            onTap: () => setState(() => _selectedFilter = index),
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? darkGreen : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
+              ),
+              child: Text(_filters[index]['label'], style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 13)),
+            ),
+          );
+        }),
       ),
-    );
-  }
-
-  Widget _buildChip(String label, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? darkGreen : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
-      ),
-      child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 13)),
     );
   }
 
@@ -272,14 +384,12 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
     );
   }
 
-  Widget _buildTripCard({
-    required BuildContext context,
-    required String image, required String badge, required String timeBadge, required String location, required String distance,
-    required String title, required List<String> tags,
-    required String scheduleTime, required String scheduleLoc,
-    required String driverName, required String driverCar, required double driverTemp,
-    required int reservedSeats, required int totalSeats, required String price,
-  }) {
+  Widget _buildTripCard({required BuildContext context, required Map<String, dynamic> trip}) {
+    final double temp = trip['driverTemp'];
+    final int reserved = trip['reservedSeats'];
+    final int total = trip['totalSeats'];
+    final String price = trip['price'];
+
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarDetailScreen())),
       child: Container(
@@ -291,12 +401,11 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
         ),
         child: Column(
           children: [
-            // 이미지 영역
             Stack(
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(image, height: 160, width: double.infinity, fit: BoxFit.cover),
+                  child: Image.network(trip['image'], height: 160, width: double.infinity, fit: BoxFit.cover),
                 ),
                 Positioned(
                   top: 12, left: 12,
@@ -304,12 +413,12 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: badge.contains('마감') ? const Color(0xFFB53D25) : (badge.contains('일요일') ? const Color(0xFF90CAF9) : Colors.white), borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: trip['badge'].contains('마감') ? const Color(0xFFB53D25) : (trip['badge'].contains('일요일') ? const Color(0xFF90CAF9) : Colors.white), borderRadius: BorderRadius.circular(12)),
                         child: Row(
                           children: [
-                            if (badge.contains('마감')) const Icon(Icons.local_fire_department, color: Colors.white, size: 12),
-                            if (badge.contains('마감')) const SizedBox(width: 4),
-                            Text(badge, style: TextStyle(color: badge.contains('마감') ? Colors.white : Colors.black87, fontWeight: FontWeight.bold, fontSize: 11)),
+                            if (trip['badge'].contains('마감')) const Icon(Icons.local_fire_department, color: Colors.white, size: 12),
+                            if (trip['badge'].contains('마감')) const SizedBox(width: 4),
+                            Text(trip['badge'], style: TextStyle(color: trip['badge'].contains('마감') ? Colors.white : Colors.black87, fontWeight: FontWeight.bold, fontSize: 11)),
                           ],
                         ),
                       ),
@@ -317,7 +426,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                        child: Text(timeBadge, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 11)),
+                        child: Text(trip['timeBadge'], style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 11)),
                       ),
                     ],
                   ),
@@ -331,25 +440,23 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(children: [const Icon(Icons.location_on, color: Color(0xFFC04020), size: 14), const SizedBox(width: 4), Text(location, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13, shadows: [Shadow(color: Colors.black87, blurRadius: 4)]))]),
-                      Text(distance, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, shadows: [Shadow(color: Colors.black87, blurRadius: 4)])),
+                      Row(children: [const Icon(Icons.location_on, color: Color(0xFFC04020), size: 14), const SizedBox(width: 4), Text(trip['location'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13, shadows: [Shadow(color: Colors.black87, blurRadius: 4)]))]),
+                      Text(trip['distance'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, shadows: [Shadow(color: Colors.black87, blurRadius: 4)])),
                     ],
                   ),
                 )
               ],
             ),
-            // 하단 정보 영역
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                  Text(trip['title'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 8),
-                  Row(children: tags.map((t) => Container(margin: const EdgeInsets.only(right: 6), padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)), child: Text(t, style: TextStyle(color: Colors.grey.shade700, fontSize: 11, fontWeight: FontWeight.bold)))).toList()),
+                  Row(children: (trip['tags'] as List).map<Widget>((t) => Container(margin: const EdgeInsets.only(right: 6), padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)), child: Text(t, style: TextStyle(color: Colors.grey.shade700, fontSize: 11, fontWeight: FontWeight.bold)))).toList()),
                   
                   const SizedBox(height: 16),
-                  // 일정 박스
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(12)),
@@ -357,19 +464,18 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                       children: [
                         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           const Icon(Icons.access_time, size: 14, color: Colors.black54), const SizedBox(width: 8),
-                          Expanded(child: Text(scheduleTime, style: const TextStyle(fontSize: 12, color: Colors.black87)))
+                          Expanded(child: Text(trip['scheduleTime'], style: const TextStyle(fontSize: 12, color: Colors.black87)))
                         ]),
                         const SizedBox(height: 8),
                         Row(children: [
                           const Icon(Icons.near_me, size: 14, color: Color(0xFFC04020)), const SizedBox(width: 8),
-                          Expanded(child: Text(scheduleLoc, style: const TextStyle(fontSize: 12, color: Colors.black87)))
+                          Expanded(child: Text(trip['scheduleLoc'], style: const TextStyle(fontSize: 12, color: Colors.black87)))
                         ]),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 16),
-                  // 운전자 정보
                   Row(
                     children: [
                       const CircleAvatar(radius: 20, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=11')),
@@ -380,25 +486,25 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                           children: [
                             Row(
                               children: [
-                                Text(driverName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                Text(trip['driverName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                 const SizedBox(width: 6),
                                 Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: badgeGreen, borderRadius: BorderRadius.circular(10)), child: Text('인증이웃', style: TextStyle(color: darkGreen, fontSize: 10, fontWeight: FontWeight.bold))),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text(driverCar, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text(trip['driverCar'], style: const TextStyle(color: Colors.grey, fontSize: 11)),
                           ],
                         ),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('\°C 🟡', style: const TextStyle(color: Color(0xFFC04020), fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text(temp.toString() + '°C 🟡', style: const TextStyle(color: Color(0xFFC04020), fontWeight: FontWeight.bold, fontSize: 12)),
                           const SizedBox(height: 4),
                           Container(
                             width: 60, height: 4,
                             decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(2)),
-                            child: Row(children: [Container(width: (driverTemp/100)*60, height: 4, decoration: BoxDecoration(color: const Color(0xFFC04020), borderRadius: BorderRadius.circular(2)))]),
+                            child: Row(children: [Container(width: (temp/100)*60, height: 4, decoration: BoxDecoration(color: const Color(0xFFC04020), borderRadius: BorderRadius.circular(2)))]),
                           )
                         ],
                       )
@@ -407,18 +513,17 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
 
                   const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1)),
                   
-                  // 탑승 인원 및 정산
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('탑승 인원 (\/\ 예약됨)', style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                          Text('탑승 인원 (' + reserved.toString() + '/' + total.toString() + '석 예약됨)', style: const TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 6),
                           Row(
-                            children: List.generate(totalSeats, (index) {
-                              bool isReserved = index < reservedSeats;
+                            children: List.generate(total, (index) {
+                              bool isReserved = index < reserved;
                               return Container(
                                 margin: const EdgeInsets.only(right: 4),
                                 width: 24, height: 24,
@@ -434,7 +539,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                         children: [
                           const Text('예상 1인 합산금', style: TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 4),
-                          Text('', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                          Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
                         ],
                       ),
                       ElevatedButton(
