@@ -9,35 +9,56 @@ class SosoCarHomeScreen extends StatefulWidget {
 }
 
 class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
-  final Color oliveGreen = const Color(0xFF556B2F);
-  final Color terracotta = const Color(0xFFE2725B);
+  final Color oliveGreen = const Color(0xFFE2F0D9); // 배경 연한 그린
+  final Color darkGreen = const Color(0xFF2E4F28);
+  final Color terracotta = const Color(0xFFC04020);
   
-  int _selectedFilter = 0;
-  final List<String> _filters = ['전체', '당일치기', '1박 2일', '반려동물 동반', '여성 전용'];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F7),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Navigator.pop(context)),
-        title: const Text('동네 카풀 SosoCar', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-        actions: [IconButton(icon: const Icon(Icons.search, color: Colors.black87), onPressed: (){})],
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            const SizedBox(width: 16),
+            const Icon(Icons.directions_car, color: Color(0xFF2E4F28)),
+            const SizedBox(width: 8),
+            const Text('소소카', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 20)),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: Colors.yellow.withOpacity(0.3), borderRadius: BorderRadius.circular(4)), // 형광펜 하이라이트 느낌
+              child: const Row(
+                children: [
+                  Text('마포구 연남동', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 14)),
+                  Icon(Icons.keyboard_arrow_down, color: Colors.black87, size: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black87), onPressed: (){}),
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: CircleAvatar(radius: 16, backgroundColor: darkGreen, child: const Icon(Icons.directions_car, color: Colors.white, size: 16)),
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. 프로모션 배너 (감성 터치)
+            // 1. 메인 배너
             Container(
               margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [oliveGreen, Color(0xFF3A4D1C)]),
+                color: const Color(0xFFEEF3E9),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: oliveGreen.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))]
               ),
               child: Row(
                 children: [
@@ -45,184 +66,178 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(8)), child: const Text('이번 주말 추천', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(color: const Color(0xFFA5D6A7), borderRadius: BorderRadius.circular(12)),
+                          child: const Text('🏠 마포 이웃 전용 소모임', style: TextStyle(color: Color(0xFF1B5E20), fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
                         const SizedBox(height: 12),
-                        const Text('마포구 이웃들과 떠나는\n가을 단풍 드라이브 🍁', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, height: 1.4)),
+                        const Text('연남동 이웃과 떠나는\n소소한 주말 로드트립', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, height: 1.3)),
+                        const SizedBox(height: 8),
+                        const Text('가까운 3~4명과 유류비 나누며 가볍게 훌쩍\n다녀와요.', style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.4)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.map, color: Colors.white54, size: 48),
+                  const Icon(Icons.wb_sunny, color: Color(0xFFC85A32), size: 48),
                 ],
               ),
             ),
 
-            // 2. 필터 영역 (스티키 느낌)
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+            // 2. 검색바 (하이라이트된 부분)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.grey.shade300),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
+                ),
                 child: Row(
-                  children: List.generate(_filters.length, (index) {
-                    final isSelected = _selectedFilter == index;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(_filters[index], style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-                        selected: isSelected,
-                        onSelected: (s) => setState(() => _selectedFilter = index),
-                        selectedColor: oliveGreen,
-                        backgroundColor: Colors.grey.shade100,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: isSelected ? oliveGreen : Colors.grey.shade200)),
-                      ),
-                    );
-                  }),
+                  children: [
+                    const Icon(Icons.search, color: Colors.black87),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text('어디로 떠날까요? (강화도, 헤이리, 바다)', style: TextStyle(color: Colors.grey.shade600, fontSize: 14))),
+                    const Icon(Icons.tune, color: Colors.black87),
+                  ],
                 ),
               ),
             ),
             
-            // 3. 실시간 급상승 핫플 드라이브 (가로 스크롤)
-            const Padding(padding: EdgeInsets.fromLTRB(16, 24, 16, 12), child: Text('🔥 우리 동네 급상승 핫플', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+            // 3. 필터 칩
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
                 children: [
-                  _buildHotPlaceCard('양평 두물머리', '물안개 피는 아침', 'https://picsum.photos/300/200?random=11'),
-                  _buildHotPlaceCard('파주 마장호수', '출렁다리 스릴', 'https://picsum.photos/300/200?random=12'),
-                  _buildHotPlaceCard('인천 영종도', '바다 뷰 카페 투어', 'https://picsum.photos/300/200?random=13'),
-                ],
-              ),
-            ),
-            
-            // 4. 안심 드라이버 추천 (가로 스크롤)
-            const Padding(padding: EdgeInsets.fromLTRB(16, 32, 16, 12), child: Text('🛡️ 이번 주말, 믿고 타는 안심 드라이버', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-            SizedBox(
-              height: 120,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildDriverCard('달리는 민우', '42.5°C', '아이오닉5', 1),
-                  _buildDriverCard('베스트드라이버', '45.0°C', '쏘렌토', 2),
-                  _buildDriverCard('조용한 힐링', '39.8°C', 'K5', 3),
-                  _buildDriverCard('수다쟁이', '41.2°C', '아반떼', 4),
+                  _buildChip('전체', true),
+                  _buildChip('당일치기 ☕', false),
+                  _buildChip('노을 드라이브 🌅', false),
+                  _buildChip('주말 🚗', false),
                 ],
               ),
             ),
 
-            // 5. 메인 모임 피드 (세로 리스트)
-            const Padding(padding: EdgeInsets.fromLTRB(16, 32, 16, 12), child: Text('🚗 지금 모집 중인 동네 카풀', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+            // 4. 모임 리스트 헤더
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('이번 주말 출발 모집 🔴', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                  Text('출발 임박순', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+                ],
+              ),
+            ),
+
+            // 5. 모임 카드
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  _buildTripCard(context, title: '이번 주말 강화도 일몰 보고 조개구이 팟', destTags: ['#일몰 명소', '#바다뷰 카페'], driverName: '달리는 민우', mannerTemp: 42.5, seats: '2/4석', time: '이번 주 토요일 오후 3시', price: '약 12,000원'),
-                  const SizedBox(height: 16),
-                  _buildTripCard(context, title: '분당 율동공원 반려견 산책 힐링 드라이브', destTags: ['#힐링 숲', '#반려동물'], driverName: '댕댕이엄마', mannerTemp: 38.0, seats: '1/3석', time: '내일 오전 10시', price: '약 5,000원'),
-                  const SizedBox(height: 16),
-                  _buildTripCard(context, title: '가평 풀빌라 1박 2일 카풀 구해요 (여성만)', destTags: ['#1박2일', '#여성전용', '#호캉스'], driverName: '여행조아', mannerTemp: 44.1, seats: '1/4석', time: '이번 주 금요일 오후 6시', price: '약 15,000원'),
-                  const SizedBox(height: 16),
-                  _buildTripCard(context, title: '퇴근길 한강공원 피크닉 & 치맥 팟', destTags: ['#당일치기', '#퇴근길', '#한강'], driverName: '직장인A', mannerTemp: 36.5, seats: '3/4석', time: '오늘 저녁 7시', price: '약 3,000원'),
-                ],
-              ),
+              child: _buildImageTripCard(context),
             ),
-            const SizedBox(height: 100), // FAB 하단 여백
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: terracotta,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('빠른 모임 생성', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-  }
-
-  Widget _buildHotPlaceCard(String title, String sub, String imgUrl) {
-    return Container(
-      width: 140,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), image: DecorationImage(image: NetworkImage(imgUrl), fit: BoxFit.cover)),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.8)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 11)),
-            const SizedBox(height: 4),
-            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 100),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDriverCard(String name, String temp, String car, int id) {
+  Widget _buildChip(String label, bool isSelected) {
     return Container(
-      width: 100,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(radius: 20, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=')),
-          const SizedBox(height: 8),
-          Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 4),
-          Text(temp, style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold)),
-        ],
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFF2E4F28) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isSelected ? const Color(0xFF2E4F28) : Colors.grey.shade300),
       ),
+      child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
     );
   }
 
-  Widget _buildTripCard(BuildContext context, {required String title, required List<String> destTags, required String driverName, required double mannerTemp, required String seats, required String time, required String price}) {
+  Widget _buildImageTripCard(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarDetailScreen())),
       child: Container(
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // 상단 이미지 영역
+            Stack(
               children: [
-                Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: terracotta.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Text('잔여 좌석 ', style: TextStyle(color: terracotta, fontWeight: FontWeight.bold, fontSize: 12))),
-                Row(children: [const Icon(Icons.thermostat, color: Colors.orange, size: 14), Text('°C', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.orange))])
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.3)),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: destTags.map((tag) => Text(tag, style: TextStyle(color: Colors.grey.shade600, fontSize: 13))).toList(),
-            ),
-            const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, thickness: 1)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(radius: 14, backgroundColor: oliveGreen.withOpacity(0.2), child: Icon(Icons.person, color: oliveGreen, size: 16)),
-                    const SizedBox(width: 8),
-                    Text(driverName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                  ],
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: Image.network('https://picsum.photos/600/300?random=20', height: 180, width: double.infinity, fit: BoxFit.cover),
                 ),
-                Text(price, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                Positioned(
+                  top: 12, left: 12,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(color: const Color(0xFFB53D25), borderRadius: BorderRadius.circular(12)),
+                        child: const Text('🔥 마감임박 1자리!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        child: const Text('토요일 당일', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: 12, right: 12,
+                  child: CircleAvatar(backgroundColor: Colors.white.withOpacity(0.8), radius: 16, child: const Icon(Icons.favorite_border, color: Colors.black54, size: 18)),
+                ),
+                Positioned(
+                  bottom: 12, left: 12, right: 12,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(children: [Icon(Icons.location_on, color: Colors.white, size: 14), SizedBox(width: 4), Text('강화도 동막해변', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))]),
+                      const Text('편도 약 1시간 20분', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                )
               ],
+            ),
+            // 하단 텍스트 영역
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('강화도 동막해변 일몰 보고 대하구이 먹...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _buildTag('#노을맛집'), _buildTag('#수다환영'), _buildTag('#플리공유'),
+                    ],
+                  )
+                ],
+              ),
             )
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTag(String text) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6)),
+      child: Text(text, style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.w500)),
     );
   }
 }
