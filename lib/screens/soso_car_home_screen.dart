@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'soso_car_detail_screen.dart';
 
 class SosoCarHomeScreen extends StatefulWidget {
   const SosoCarHomeScreen({super.key});
@@ -70,7 +71,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _buildTripCard(
+                _buildTripCard(context, 
                   title: '이번 주말 강화도 일몰 보고 조개구이 팟',
                   destTags: ['#일몰 명소', '#바다뷰 카페'],
                   driverName: '달리는 민우',
@@ -80,7 +81,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                   price: '약 12,000원',
                 ),
                 const SizedBox(height: 16),
-                _buildTripCard(
+                _buildTripCard(context, 
                   title: '분당 율동공원 반려견 산책 힐링 드라이브',
                   destTags: ['#힐링 숲', '#반려동물'],
                   driverName: '댕댕이엄마',
@@ -103,7 +104,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
     );
   }
 
-  Widget _buildTripCard({
+  Widget _buildTripCard(context, BuildContext context, {
     required String title,
     required List<String> destTags,
     required String driverName,
@@ -112,7 +113,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
     required String time,
     required String price,
   }) {
-    return Container(
+    return GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarDetailScreen())), child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20), // 둥글고 부드러운 카드 UI
@@ -175,6 +176,6 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
           )
         ],
       ),
-    );
+    ));
   }
 }
