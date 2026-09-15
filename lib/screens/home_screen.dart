@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 12),
           _featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalCoupleScreen()))), 
           const SizedBox(height: 12),
-          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen()))
+          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen()))),
           const SizedBox(height: 24),
           const Text('소소카 (SosoCar)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
