@@ -184,14 +184,10 @@ lib/screens/neighborhood_crew_screen.dart:64:11:
 Error: Expected ',' before this.
 시작해보세요. 🌿', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5)),
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/home_screen.dart:76:11:
-Error: Expected ',' before this.
-          const SizedBox(height: 24),
-          ^^^^^
-lib/screens/home_screen.dart:75:23:
-Error: Too many positional arguments: 5 allowed, but 10 found.
-          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen()))
-                      ^
+lib/screens/home_screen.dart:109:1:
+Error: Expected ']' before this.
+)
+^
 lib/screens/neighborhood_crew_screen.dart:60:1:
 Error: Not a constant expression.
 그립다면?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
@@ -308,5 +304,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             28.3s
+Compiling lib/main.dart for the Web...                             29.2s
 Error: Failed to compile application for the Web.
