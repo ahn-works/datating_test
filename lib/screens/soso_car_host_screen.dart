@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kpostal/kpostal.dart';
 
 class SosoCarHostScreen extends StatefulWidget {
   const SosoCarHostScreen({super.key});
@@ -242,7 +243,24 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ),
-                const Icon(Icons.search, color: Colors.black54, size: 16),
+                GestureDetector(
+                  onTap: () async {
+                    try {
+                      Kpostal? result = await Navigator.push(context, MaterialPageRoute(builder: (_) => KpostalView()));
+                      if (result != null) {
+                        setState(() {
+                          _destController.text = result.address;
+                        });
+                      }
+                    } catch (e) {
+                      print("Kpostal error: \");
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    child: const Icon(Icons.search, color: Colors.black87, size: 20),
+                  ),
+                ),
               ],
             ),
           ),
