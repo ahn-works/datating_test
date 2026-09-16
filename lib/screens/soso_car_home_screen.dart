@@ -433,7 +433,22 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                 ),
                 Positioned(
                   top: 12, right: 12,
-                  child: CircleAvatar(backgroundColor: Colors.white, radius: 14, child: const Icon(Icons.favorite_border, color: Colors.black87, size: 16)),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        trip['isFavorite'] = !(trip['isFavorite'] ?? false);
+                      });
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white, 
+                      radius: 14, 
+                      child: Icon(
+                        (trip['isFavorite'] ?? false) ? Icons.favorite : Icons.favorite_border, 
+                        color: (trip['isFavorite'] ?? false) ? const Color(0xFFC04020) : Colors.black87, 
+                        size: 16,
+                      )
+                    ),
+                  ),
                 ),
                 Positioned(
                   bottom: 12, left: 12, right: 12,
