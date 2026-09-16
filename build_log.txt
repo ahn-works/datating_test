@@ -72,5 +72,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             30.0s
+Compiling lib/main.dart for the Web...                             29.8s
 Error: Failed to compile application for the Web.
