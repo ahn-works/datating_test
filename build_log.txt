@@ -8,7 +8,19 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_host_screen.dart:429:27:
+lib/screens/soso_car_host_screen.dart:256:29:
+Error: String starting with " must end with ".
+                      print("Kpostal error: \");
+                            ^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_host_screen.dart:256:28:
+Error: Can't find ')' to match '('.
+                      print("Kpostal error: \");
+                           ^
+lib/screens/soso_car_host_screen.dart:256:29:
+Error: Expected ';' after this.
+                      print("Kpostal error: \");
+                            ^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_host_screen.dart:447:27:
 Error: Cannot invoke a non-'const' constructor where a const expression is expected.
                           Container(padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Color(0xFFA5D6A7), borderRadius: BorderRadius.all(Radius.circular(10))), child: Text('전기차', style: TextStyle(fontSize: 9, color: Color(0xFF1B4D3E), fontWeight: FontWeight.bold))),
                           ^^^^^^^^^
@@ -60,5 +72,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             28.7s
+Compiling lib/main.dart for the Web...                             30.0s
 Error: Failed to compile application for the Web.
