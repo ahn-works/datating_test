@@ -253,7 +253,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                         });
                       }
                     } catch (e) {
-                      print("Kpostal error: \");
+                      print("Kpostal error: ");
                     }
                   },
                   child: Container(
@@ -436,7 +436,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: const Icon(Icons.directions_car, color: Colors.black87),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
