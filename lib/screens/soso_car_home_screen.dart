@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kpostal/kpostal.dart';
 import 'soso_car_detail_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'soso_car_chat_screen.dart';
@@ -11,6 +12,7 @@ class SosoCarHomeScreen extends StatefulWidget {
 }
 
 class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+  String _currentLocation = '마포구 연남동';
   final Color darkGreen = const Color(0xFF1B4D3E); // 소소카 딥그린
   final Color badgeGreen = const Color(0xFFA5D6A7); // 인증이웃 뱃지 그린
   final Color terracotta = const Color(0xFFC04020);
