@@ -99,13 +99,13 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
             children: [
               Icon(Icons.rocket_launch_outlined, color: terracotta, size: 16),
               const SizedBox(width: 4),
-              Text('출발 전 마지막 단계예요', style: TextStyle(color: terracotta, fontWeight: FontWeight.bold, fontSize: 12)),
+              Text('출발 전 마지막 단계예요', style: TextStyle(color: terracotta, fontWeight: FontWeight.w800, fontSize: 13)),
             ],
           ),
-          const SizedBox(height: 8),
-          const Text("이웃들과 함께 떠날 준비가\n거의 끝났어요! 🎉", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, height: 1.4)),
           const SizedBox(height: 12),
-          const Text("작성하신 여정과 정산 룰, 동승 승인 방식을 꼼꼼히 확인하고 모임을 열어보세요.", style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.5)),
+          const Text("이웃들과 함께 떠날 준비가\n거의 끝났어요! 🎉", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, height: 1.3, letterSpacing: -0.5, color: Colors.black)),
+          const SizedBox(height: 16),
+          const Text("작성하신 여정과 정산 룰, 동승 승인 방식을 꼼꼼히 확인하고\n모임을 열어보세요.", style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.5, letterSpacing: -0.3)),
         ],
       ),
     );
@@ -115,7 +115,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -162,7 +162,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    const Text('AI 무사고 안심 드라이버 🛡️', style: TextStyle(color: Colors.black54, fontSize: 11)),
+                    const Text('AI 무사고 안심 드라이버 🛡️', style: TextStyle(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),

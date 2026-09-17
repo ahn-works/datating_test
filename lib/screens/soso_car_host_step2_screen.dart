@@ -151,13 +151,13 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
             children: [
               Icon(Icons.eco_outlined, color: terracotta, size: 16),
               const SizedBox(width: 4),
-              Text('느긋한 여정 설계', style: TextStyle(color: terracotta, fontWeight: FontWeight.bold, fontSize: 12)),
+              Text('느긋한 여정 설계', style: TextStyle(color: terracotta, fontWeight: FontWeight.w800, fontSize: 13)),
             ],
           ),
-          const SizedBox(height: 8),
-          const Text("여유로운 드라이브를 위한\n'일정 쉼표(쉼터·스팟)'를\n등록해주세요 ☕", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, height: 1.4)),
           const SizedBox(height: 12),
-          const Text("동네 이웃과의 카풀은 쫓기는 관광이 아닌, 1~2곳의 여유로운 스팟과 숨은 쉼표 중심의 힐링 로드트립을 지향해요.", style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.5)),
+          const Text("여유로운 드라이브를 위한\n'일정 쉼표(쉼터·스팟)'를\n등록해주세요 ☕", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, height: 1.3, letterSpacing: -0.5, color: Colors.black)),
+          const SizedBox(height: 16),
+          const Text("동네 이웃과의 카풀은 쫓기는 관광이 아닌, 1~2곳의\n여유로운 스팟과 숨은 쉼표 중심의 힐링 로드트립을 지향해요.", style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.5, letterSpacing: -0.3)),
         ],
       ),
     );
