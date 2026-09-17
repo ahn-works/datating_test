@@ -465,7 +465,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: const Icon(Icons.directions_car, color: Colors.black87),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
