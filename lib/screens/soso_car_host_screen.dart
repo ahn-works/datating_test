@@ -9,6 +9,7 @@ class SosoCarHostScreen extends StatefulWidget {
 }
 
 class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
+  final TextEditingController _meetingController = TextEditingController(text: '마포구청역 1번출구');
   DateTime? _depDate;
   TimeOfDay? _depTime;
   DateTime? _retDate;
