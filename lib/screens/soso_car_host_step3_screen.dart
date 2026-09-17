@@ -369,33 +369,40 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                   ],
                 ),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                _buildCostRow('예상 유류비 (왕복 205km, 공인연비 13km/L)', '약 26,000원'),
-                const SizedBox(height: 8),
-                _buildCostRow('고속도로 통행료 (하이패스 왕복)', '약 11,200원'),
-                const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                _isLoadingRoute ? const Center(child: CircularProgressIndicator()) : Column(
                   children: [
-                    const Text('총 예상 이동 실비', style: TextStyle(fontSize: 13, color: Colors.black54)),
-                    const Text('37,200원', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: darkGreen, borderRadius: BorderRadius.circular(12)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    _buildCostRow('예상 유류비 (왕복 km, 13km/L)', '약 원'),
+                    const SizedBox(height: 8),
+                    _buildCostRow('고속도로 통행료 (하이패스 왕복)', '약 원'),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('총 예상 이동 실비', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                        Text('원', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: darkGreen, borderRadius: BorderRadius.circular(12)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('4인 탑승 완료 시 1인당 분담금', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                          SizedBox(height: 2),
-                          Text('호스트 포함 1/N 자동 정산', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('인 탑승 완료 시 1인당 분담금', style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                              const SizedBox(height: 2),
+                              const Text('호스트 포함 1/N 자동 정산', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
+                            ],
+                          ),
+                          Text('약  원', style: TextStyle(color: badgeGreen, fontSize: 18, fontWeight: FontWeight.w900)),
                         ],
                       ),
-                      Text('약 9,300 원', style: TextStyle(color: badgeGreen, fontSize: 18, fontWeight: FontWeight.w900)),
+                    ),
+                  ],
+                ),
                     ],
                   ),
                 ),
