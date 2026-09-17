@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:kpostal/kpostal.dart';
 
 class SosoCarHostScreen extends StatefulWidget {
@@ -46,6 +47,61 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     final h = t.hour == 0 ? 12 : (t.hour > 12 ? t.hour - 12 : t.hour);
     final m = t.minute.toString().padLeft(2, '0');
     return "${ap} ${h}:${m}";
+  }
+
+  void _showDateTimePicker(bool isDeparture) {
+    DateTime tempDate = DateTime.now();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext builder) {
+        return Container(
+          height: 300,
+          padding: const EdgeInsets.only(top: 6),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CupertinoButton(
+                    child: const Text('취소', style: TextStyle(color: Colors.grey)),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const Text('날짜 및 시간 선택', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  CupertinoButton(
+                    child: const Text('완료', style: TextStyle(color: Color(0xFF1B4D3E), fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      setState(() {
+                        if (isDeparture) {
+                          _depDate = tempDate;
+                          _depTime = TimeOfDay.fromDateTime(tempDate);
+                        } else {
+                          _retDate = tempDate;
+                          _retTime = TimeOfDay.fromDateTime(tempDate);
+                        }
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.dateAndTime,
+                  initialDateTime: DateTime.now(),
+                  minimumDate: DateTime.now(),
+                  maximumDate: DateTime.now().add(const Duration(days: 365)),
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    tempDate = newDateTime;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _submitForm() {
@@ -191,12 +247,8 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             GestureDetector(
-                              onTap: () async {
-                                final d = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 365)));
-                                if (d != null) {
-                                  final t = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-                                  if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                }
+                              onTap: () {
+                                _showDateTimePicker(true);
                               },
                               child: Container(
                                 color: Colors.transparent,
@@ -230,12 +282,8 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             GestureDetector(
-                              onTap: () async {
-                                final d = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 365)));
-                                if (d != null) {
-                                  final t = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-                                  if (t != null) setState(() { _retDate = d; _retTime = t; });
-                                }
+                              onTap: () {
+                                _showDateTimePicker(false);
                               },
                               child: Container(
                                 color: Colors.transparent,
