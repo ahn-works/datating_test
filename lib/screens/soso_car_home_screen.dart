@@ -180,7 +180,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-        border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]
+        border: Border.all(color: Colors.black.withOpacity(0.04))
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
