@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'soso_car_host_step2_screen.dart';
 import 'package:kpostal/kpostal.dart';
 
 class SosoCarHostScreen extends StatefulWidget {
@@ -105,17 +106,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
   }
 
   void _submitForm() {
-    // Return structured data back to Home Screen
-    Navigator.pop(context, {
-      'title': _titleController.text,
-      'location': _destController.text.replaceAll('강원 춘천시 ', ''),
-      'tags': _selectedTags.toList(),
-      'driverName': '차주 민우', // Placeholder for current user
-      'price': '9,000',
-      'image': 'https://picsum.photos/600/300?random=50',
-      'badge': '여유자리',
-      'time': '이번 주말',
-    });
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostStep2Screen()));
   }
 
   @override
