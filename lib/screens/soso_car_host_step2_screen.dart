@@ -146,7 +146,7 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
                         final item = searchResults[index];
                         return ListTile(
                           title: Text(item['place_name'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(item['address_name']),
+                          subtitle: Text(item['address_name'].toString()),
                           onTap: () {
                             setState(() {
                               // Insert before the destination if it's the first rest stop, etc.
