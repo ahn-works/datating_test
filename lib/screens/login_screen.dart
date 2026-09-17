@@ -1,38 +1,41 @@
 import 'package:flutter/material.dart';
-import 'auth_pass_screen.dart';
+import 'home_screen.dart';
 
-class LoginScreen extends StatelessWidget { 
-  const LoginScreen({super.key}); 
-  @override Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.white, 
-    body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(32), 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, 
-          children: [
-            const Spacer(), 
-            const Icon(Icons.favorite, size: 64, color: Color(0xFFFF3B30)), 
-            const SizedBox(height: 24), 
-            const Text('위피 버디', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFFFF3B30))), 
-            const SizedBox(height: 12),
-            const Text('10분 익명 대화, 20분 뒤 진짜 만남', style: TextStyle(color: Colors.grey, fontSize: 16)),
-            const Spacer(), 
-            _btn(context, '카카오로 시작하기', const Color(0xFFFEE500), Colors.black, Icons.chat_bubble), 
-            const SizedBox(height: 12), 
-            _btn(context, 'Apple로 시작하기', Colors.black, Colors.white, Icons.apple), 
-            const SizedBox(height: 32), 
-            const Text('가입 시 이용약관 및 개인정보 취급방침에 동의하게 됩니다.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12))
-          ]
-        )
-      )
-    )
-  );
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
-  Widget _btn(BuildContext ctx, String label, Color bg, Color text, IconData icon) => ElevatedButton.icon(
-    onPressed: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => const AuthPassScreen())), 
-    icon: Icon(icon, color: text), 
-    label: Text(label, style: TextStyle(color: text, fontWeight: FontWeight.bold, fontSize: 16)), 
-    style: ElevatedButton.styleFrom(backgroundColor: bg, minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))
-  );
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(),
+              const Icon(Icons.favorite, size: 64, color: Color(0xFFFF7A59)),
+              const SizedBox(height: 24),
+              const Text('우무(OOMU)', textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFFFF7A59))),
+              const SizedBox(height: 8),
+              const Text('자연스러운 만남을 시작해볼까요?', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen())),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF7A59),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('카카오로 시작하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
