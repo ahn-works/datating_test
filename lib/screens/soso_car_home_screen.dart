@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:kpostal/kpostal.dart';
 import 'soso_car_detail_screen.dart';
 import 'soso_car_host_screen.dart';
@@ -12,71 +12,71 @@ class SosoCarHomeScreen extends StatefulWidget {
 }
 
 class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
-  String _currentLocation = '留덊룷援??곕궓??;
-  final Color darkGreen = const Color(0xFF1B4D3E); // ?뚯냼移??κ렇由?
-  final Color badgeGreen = const Color(0xFFA5D6A7); // ?몄쬆?댁썐 諭껋? 洹몃┛
+  String _currentLocation = '마포구 연남동';
+  final Color darkGreen = const Color(0xFF1B4D3E); // 소소카 딥그린
+  final Color badgeGreen = const Color(0xFFA5D6A7); // 인증이웃 뱃지 그린
   final Color terracotta = const Color(0xFFC04020);
   int _bottomNavIndex = 0;
   int _selectedFilter = 0;
 
   final List<Map<String, dynamic>> _filters = [
-    {'label': '?꾩껜', 'key': 'all'},
-    {'label': '?뱀씪移섍린 ??, 'key': '#?뱀씪移섍린'},
-    {'label': '?몄쓣 ?쒕씪?대툕 ?똿', 'key': '#?몄쓣留쏆쭛'},
-    {'label': '二쇰쭚 ?슅', 'key': '#二쇰쭚'},
+    {'label': '전체', 'key': 'all'},
+    {'label': '당일치기 ☕', 'key': '#당일치기'},
+    {'label': '노을 드라이브 🌅', 'key': '#노을맛집'},
+    {'label': '주말 🚗', 'key': '#주말'},
   ];
 
   final List<Map<String, dynamic>> _allTrips = [
     {
-      'title': '媛뺥솕???숇쭑?대? ?쇰ぐ 蹂닿퀬 ??섍뎄??癒?..',
-      'location': '媛뺥솕???숇쭑?대?',
-      'tags': ['#?몄쓣留쏆쭛', '#?섎떎?섏쁺', '#?뚮━怨듭쑀'],
-      'driverName': '?щ━??誘쇱슦',
-      'driverCar': '蹂쇰낫 XC40 - 鍮꾪씉??- ?대옒?앹쓬??,
+      'title': '강화도 동막해변 일몰 보고 대하구이 먹...',
+      'location': '강화도 동막해변',
+      'tags': ['#노을맛집', '#수다환영', '#플리공유'],
+      'driverName': '달리는 민우',
+      'driverCar': '볼보 XC40 - 비흡연 - 클래식음악',
       'driverTemp': 38.5,
       'reservedSeats': 3,
       'totalSeats': 4,
       'price': '18,000',
       'image': 'https://picsum.photos/600/300?random=30',
-      'badge': '?뵦 留덇컧?꾨컯 1?먮━!',
-      'timeBadge': '?좎슂???뱀씪',
-      'distance': '?몃룄 ??1?쒓컙 20遺?,
-      'scheduleTime': '?대쾲 二??좎슂??14:00 異쒕컻 - 21:00 ?곕궓 ?꾩갑 ?덉젙',
-      'scheduleLoc': '吏묎껐吏: ?띾??낃뎄??3踰?異쒓뎄 ??,
+      'badge': '🔥 마감임박 1자리!',
+      'timeBadge': '토요일 당일',
+      'distance': '편도 약 1시간 20분',
+      'scheduleTime': '이번 주 토요일 14:00 출발 - 21:00 연남 도착 예정',
+      'scheduleLoc': '집결지: 홍대입구역 3번 출구 앞',
     },
     {
-      'title': '?뚯＜ ?ㅼ씠由щ쭏?????遺곸뭅??梨??쎄퀬 ...',
-      'location': '?뚯＜ ?ㅼ씠由??덉닠留덉쓣',
-      'tags': ['#議곗슜?쒗옄留?, '#而ㅽ뵾?쒖옍', '#?먯쑀?쒓컙', '#?뱀씪移섍린'],
-      'driverName': '梨낆씫??吏??,
-      'driverCar': '?섎젋???섏씠釉뚮━??- ?덉쟾?댁쟾 5?꾩감',
+      'title': '파주 헤이리마을 대형 북카페 책 읽고 ...',
+      'location': '파주 헤이리 예술마을',
+      'tags': ['#조용한힐링', '#커피한잔', '#자유시간', '#당일치기'],
+      'driverName': '책읽는 지훈',
+      'driverCar': '쏘렌토 하이브리드 - 안전운전 5년차',
       'driverTemp': 41.2,
       'reservedSeats': 2,
       'totalSeats': 4,
       'price': '12,000',
       'image': 'https://picsum.photos/600/300?random=31',
-      'badge': '?쇱슂????,
-      'timeBadge': '議곗슜???먮쭅',
-      'distance': '?몃룄 ??45遺?,
-      'scheduleTime': '?대쾲 二??쇱슂??10:30 異쒕컻 - 17:30 蹂듦?',
-      'scheduleLoc': '吏묎껐吏: ?곕궓?뚯텧????誘명똿',
+      'badge': '일요일 낮',
+      'timeBadge': '조용한 힐링',
+      'distance': '편도 약 45분',
+      'scheduleTime': '이번 주 일요일 10:30 출발 - 17:30 복귀',
+      'scheduleLoc': '집결지: 연남파출소 앞 미팅',
     },
     {
-      'title': '?묓룊 ?먮Ъ癒몃━ ?고빂?꾧렇 & 臾쇱븞媛???..',
-      'location': '?묓룊 ?먮Ъ癒몃━',
-      'tags': ['#臾쇱븞媛쒖궛梨?, '#?뚭퇋紐???, '#苡뚯쟻?쒕씪?대툕', '#二쇰쭚'],
-      'driverName': '?쇰━踰꾨뱶 吏꾪샇',
-      'driverCar': '?꾩씠?ㅻ땳 5 ?꾧린李?- 臾댁궗怨?,
+      'title': '양평 두물머리 연핫도그 & 물안개 아...',
+      'location': '양평 두물머리',
+      'tags': ['#물안개산책', '#소규모3인', '#쾌적드라이브', '#주말'],
+      'driverName': '얼리버드 진호',
+      'driverCar': '아이오닉 5 전기차 - 무사고',
       'driverTemp': 39.1,
       'reservedSeats': 2,
       'totalSeats': 3,
       'price': '15,000',
       'image': 'https://picsum.photos/600/300?random=32',
-      'badge': '?좎슂???꾩묠',
-      'timeBadge': '?고빂?꾧렇 ?ъ뼱 ?뙪',
-      'distance': '?몃룄 ??55遺?,
-      'scheduleTime': '?대쾲 二??좎슂??07:00 異쒕컻 - 12:30 蹂듦? (?ㅼ쟾?쒖궘)',
-      'scheduleLoc': '吏묎껐吏: 媛醫뚯뿭 1踰?異쒓뎄',
+      'badge': '토요일 아침',
+      'timeBadge': '연핫도그 투어 🌭',
+      'distance': '편도 약 55분',
+      'scheduleTime': '이번 주 토요일 07:00 출발 - 12:30 복귀 (오전순삭)',
+      'scheduleLoc': '집결지: 가좌역 1번 출구',
     },
   ];
 
@@ -97,7 +97,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('吏?꾩뿉???꾩튂 ?좏깮', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('지도에서 위치 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                   ],
                 ),
@@ -106,7 +106,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                   autofocus: true,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search, color: Colors.black87),
-                    hintText: '?대뵒濡??좊궇源뚯슂? (媛뺥솕?? ?ㅼ씠由???',
+                    hintText: '어디로 떠날까요? (강화도, 헤이리 등)',
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
@@ -125,7 +125,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.location_on, color: Color(0xFFC04020), size: 48),
-                              Text('吏?꾨? ?吏곸뿬 ????ㅼ젙?섏꽭??, style: TextStyle(fontWeight: FontWeight.bold, backgroundColor: Colors.white70)),
+                              Text('지도를 움직여 핀을 설정하세요', style: TextStyle(fontWeight: FontWeight.bold, backgroundColor: Colors.white70)),
                             ],
                           ),
                         )
@@ -139,10 +139,10 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('?꾩튂媛 ?좏깮?섏뿀?듬땲??')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('위치가 선택되었습니다.')));
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E4F28), padding: const EdgeInsets.symmetric(vertical: 16)),
-                    child: const Text('???꾩튂濡??ㅼ젙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('이 위치로 설정', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],
@@ -174,7 +174,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             if (filteredTrips.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(32),
-                child: Center(child: Text('議곌굔??留욌뒗 紐⑥엫???놁뒿?덈떎.', style: TextStyle(color: Colors.grey))),
+                child: Center(child: Text('조건에 맞는 모임이 없습니다.', style: TextStyle(color: Colors.grey))),
               )
             else
               ...filteredTrips.map((trip) => _buildTripCard(context: context, trip: trip)).toList(),
@@ -194,25 +194,25 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                 'location': result['location'],
                 'tags': result['tags'],
                 'driverName': result['driverName'],
-                'driverCar': '?섏쓽 硫뗭쭊 李?- 臾댁궗怨?,
+                'driverCar': '나의 멋진 차 - 무사고',
                 'driverTemp': 36.5,
                 'reservedSeats': 1,
                 'totalSeats': 4,
-                'price': result['price'].toString().replaceAll('??', '').replaceAll('??, ''),
+                'price': result['price'].toString().replaceAll('약 ', '').replaceAll('원', ''),
                 'image': result['image'],
                 'badge': result['badge'],
                 'timeBadge': result['time'],
-                'distance': '?꾩튂 怨꾩궛以?..',
-                'scheduleTime': '?ㅻ뒛 異쒕컻 ?덉젙',
-                'scheduleLoc': '吏묎껐吏: ' + result['location'],
+                'distance': '위치 계산중...',
+                'scheduleTime': '오늘 출발 예정',
+                'scheduleLoc': '집결지: ' + result['location'],
               });
             });
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('???ы뻾 紐⑥엫???깃났?곸쑝濡??깅줉?섏뿀?듬땲?? ?럦')));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('새 여행 모임이 성공적으로 등록되었습니다! 🎉')));
           }
         },
         backgroundColor: const Color(0xFFB53D25),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('踰덇컻 ?쒕씪?대툕 ?닿린', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        label: const Text('번개 드라이브 열기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _bottomNavIndex,
@@ -224,8 +224,8 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '?먯깋'),
-          const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '紐⑥쭛?섍린'),
+          const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
+          const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
           BottomNavigationBarItem(
             icon: Stack(
               clipBehavior: Clip.none,
@@ -240,9 +240,9 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                 )
               ],
             ),
-            label: '?숉뻾梨꾪똿',
+            label: '동행채팅',
           ),
-          const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '?댁뿬??),
+          const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내여행'),
         ],
       ),
     );
@@ -258,14 +258,14 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
           const SizedBox(width: 16),
           Icon(Icons.directions_car, color: darkGreen),
           const SizedBox(width: 8),
-          const Text('?뚯냼移?, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 20)),
+          const Text('소소카', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 20)),
           const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(8)),
             child: const Row(
               children: [
-                Text('留덊룷援??곕궓??, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)),
+                Text('마포구 연남동', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)),
                 SizedBox(width: 4),
                 Icon(Icons.keyboard_arrow_down, color: Colors.black87, size: 16),
               ],
@@ -303,12 +303,12 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: badgeGreen, borderRadius: BorderRadius.circular(12)),
-                  child: Text('?룧 留덊룷 ?댁썐 ?꾩슜 ?뚮え??, style: TextStyle(color: darkGreen, fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: Text('🏠 마포 이웃 전용 소모임', style: TextStyle(color: darkGreen, fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 12),
-                const Text('?곕궓???댁썐怨??좊굹??n?뚯냼??二쇰쭚 濡쒕뱶?몃┰', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, height: 1.3)),
+                const Text('연남동 이웃과 떠나는\n소소한 주말 로드트립', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, height: 1.3)),
                 const SizedBox(height: 8),
-                const Text('媛源뚯슫 3~4紐낃낵 ?좊쪟鍮??섎늻硫?媛蹂띻쾶 ??n姨??ㅻ????', style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.4)),
+                const Text('가까운 3~4명과 유류비 나누며 가볍게 훌\n쩍 다녀와요.', style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.4)),
               ],
             ),
           ),
@@ -334,7 +334,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             children: [
               const Icon(Icons.search, color: Colors.black54),
               const SizedBox(width: 12),
-              Expanded(child: Text('?대뵒濡??좊궇源뚯슂? (媛뺥솕?? ?ㅼ씠由? 諛붾떎)', style: TextStyle(color: Colors.grey.shade500, fontSize: 14))),
+              Expanded(child: Text('어디로 떠날까요? (강화도, 헤이리, 바다)', style: TextStyle(color: Colors.grey.shade500, fontSize: 14))),
               const Icon(Icons.tune, color: Colors.black54),
             ],
           ),
@@ -376,11 +376,11 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
         children: [
           Row(
             children: [
-              const Text('?대쾲 二쇰쭚 異쒕컻 紐⑥쭛 ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+              const Text('이번 주말 출발 모집 ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
               Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFC04020), shape: BoxShape.circle)),
             ],
           ),
-          Text('異쒕컻 ?꾨컯??, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
+          Text('출발 임박순', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
         ],
       ),
     );
@@ -415,12 +415,12 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: trip['badge'].contains('留덇컧') ? const Color(0xFFB53D25) : (trip['badge'].contains('?쇱슂??) ? const Color(0xFF90CAF9) : Colors.white), borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: trip['badge'].contains('마감') ? const Color(0xFFB53D25) : (trip['badge'].contains('일요일') ? const Color(0xFF90CAF9) : Colors.white), borderRadius: BorderRadius.circular(12)),
                         child: Row(
                           children: [
-                            if (trip['badge'].contains('留덇컧')) const Icon(Icons.local_fire_department, color: Colors.white, size: 12),
-                            if (trip['badge'].contains('留덇컧')) const SizedBox(width: 4),
-                            Text(trip['badge'], style: TextStyle(color: trip['badge'].contains('留덇컧') ? Colors.white : Colors.black87, fontWeight: FontWeight.bold, fontSize: 11)),
+                            if (trip['badge'].contains('마감')) const Icon(Icons.local_fire_department, color: Colors.white, size: 12),
+                            if (trip['badge'].contains('마감')) const SizedBox(width: 4),
+                            Text(trip['badge'], style: TextStyle(color: trip['badge'].contains('마감') ? Colors.white : Colors.black87, fontWeight: FontWeight.bold, fontSize: 11)),
                           ],
                         ),
                       ),
@@ -505,7 +505,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                               children: [
                                 Text(trip['driverName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                 const SizedBox(width: 6),
-                                Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: badgeGreen, borderRadius: BorderRadius.circular(10)), child: Text('?몄쬆?댁썐', style: TextStyle(color: darkGreen, fontSize: 10, fontWeight: FontWeight.bold))),
+                                Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: badgeGreen, borderRadius: BorderRadius.circular(10)), child: Text('인증이웃', style: TextStyle(color: darkGreen, fontSize: 10, fontWeight: FontWeight.bold))),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -516,7 +516,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(temp.toString() + '째C ?윞', style: const TextStyle(color: Color(0xFFC04020), fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text(temp.toString() + '°C 🟡', style: const TextStyle(color: Color(0xFFC04020), fontWeight: FontWeight.bold, fontSize: 12)),
                           const SizedBox(height: 4),
                           Container(
                             width: 60, height: 4,
@@ -536,7 +536,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('?묒듅 ?몄썝 (' + reserved.toString() + '/' + total.toString() + '???덉빟??', style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                          Text('탑승 인원 (' + reserved.toString() + '/' + total.toString() + '석 예약됨)', style: const TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 6),
                           Row(
                             children: List.generate(total, (index) {
@@ -554,15 +554,15 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('?덉긽 1???⑹궛湲?, style: TextStyle(fontSize: 11, color: Colors.black54)),
+                          const Text('예상 1인 합산금', style: TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 4),
-                          Text(price + '??, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                          Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
                         ],
                       ),
                       ElevatedButton(
                         onPressed: (){},
                         style: ElevatedButton.styleFrom(backgroundColor: darkGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
-                        child: const Text('?숉뻾 ?좎껌', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                        child: const Text('동행 신청', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                       )
                     ],
                   )
@@ -589,9 +589,9 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('?뚯냼移??덉쟾 ?숉뻾 ?쎌냽', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('소소카 안전 동행 약속', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 SizedBox(height: 6),
-                Text('?숇꽕 ?댁썐 ?몄쬆, ?댁쟾硫댄뿀 諛??먮룞李⑤낫??寃利앹씠 ?꾨즺??李⑥＜留?紐⑥쭛湲???깅줉?????덉뒿?덈떎.', style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.4)),
+                Text('동네 이웃 인증, 운전면허 및 자동차보험 검증이 완료된 차주만 모집글을 등록할 수 있습니다.', style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.4)),
               ],
             ),
           )

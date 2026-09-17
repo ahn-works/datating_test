@@ -1,7 +1,17 @@
 ﻿import io
+import re
 
+# 1. Fix soso_car_home_screen.dart print syntax
+with io.open('lib/screens/soso_car_home_screen.dart', 'r', encoding='utf-8') as f:
+    home = f.read()
+home = re.sub(r'print\("Kpostal error: .*?"\);', 'print("Kpostal error: \\$e");', home)
+with io.open('lib/screens/soso_car_home_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(home)
+
+# 2. Fix soso_car_host_screen.dart print syntax and add Date/Time Pickers
 with io.open('lib/screens/soso_car_host_screen.dart', 'r', encoding='utf-8') as f:
-    code = f.read()
+    host = f.read()
+host = re.sub(r'print\("Kpostal error: .*?"\);', 'print("Kpostal error: \\$e");', host)
 
 state_vars = '''class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
   DateTime? _depDate;
@@ -21,8 +31,8 @@ state_vars = '''class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     return "${ap} ${h}:${m}";
   }
 '''
-if "DateTime? _depDate" not in code:
-    code = code.replace('class _SosoCarHostScreenState extends State<SosoCarHostScreen> {', state_vars)
+if "DateTime? _depDate" not in host:
+    host = host.replace('class _SosoCarHostScreenState extends State<SosoCarHostScreen> {', state_vars)
 
 old_dep = '''                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +61,7 @@ new_dep = '''                          GestureDetector(
                               ),
                             ),
                           ),'''
-code = code.replace(old_dep, new_dep)
+host = host.replace(old_dep, new_dep)
 
 old_ret = '''                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +90,7 @@ new_ret = '''                          GestureDetector(
                               ),
                             ),
                           ),'''
-code = code.replace(old_ret, new_ret)
+host = host.replace(old_ret, new_ret)
 
 with io.open('lib/screens/soso_car_host_screen.dart', 'w', encoding='utf-8') as f:
-    f.write(code)
+    f.write(host)
