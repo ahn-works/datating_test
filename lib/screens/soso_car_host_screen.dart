@@ -465,11 +465,11 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: const Icon(Icons.directions_car, color: Colors.black87),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                         children: [
                           Text('기아 EV6 Long Range', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                           SizedBox(width: 6),
