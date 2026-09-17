@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'soso_car_home_screen.dart';
 
 class SosoCarHostStep3Screen extends StatefulWidget {
-  const SosoCarHostStep3Screen({super.key});
+  final List<Map<String, dynamic>> timelineItems;
+  final DateTime? depDate;
+  final DateTime? retDate;
+  final int seats;
+
+  const SosoCarHostStep3Screen({
+    super.key,
+    required this.timelineItems,
+    this.depDate,
+    this.retDate,
+    required this.seats,
+  });
 
   @override
   State<SosoCarHostStep3Screen> createState() => _SosoCarHostStep3ScreenState();
@@ -17,6 +30,67 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
 
   int _selectedApprovalMethod = 0; // 0: 수락제, 1: 선착순
   bool _isConsentChecked = true;
+  
+  bool _isLoadingRoute = true;
+  int _totalDistanceMeter = 0;
+  int _tollFare = 0;
+  int _fuelCost = 0;
+  int _totalCost = 0;
+  int _costPerPerson = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateRoute();
+  }
+
+  Future<void> _calculateRoute() async {
+    try {
+      final originItem = widget.timelineItems.firstWhere((e) => e['type'] == 'departure');
+      final destItem = widget.timelineItems.firstWhere((e) => e['type'] == 'destination');
+      final waypoints = widget.timelineItems.where((e) => e['type'] == 'rest').toList();
+
+      String origin = '${originItem['lng']},${originItem['lat']}';
+      String destination = '${destItem['lng']},${destItem['lat']}';
+      String waypointsStr = waypoints.map((w) => '${w['lng']},${w['lat']}').join('|');
+
+      String url = 'https://apis-navi.kakaomobility.com/v1/directions?origin=$origin&destination=$destination';
+      if (waypointsStr.isNotEmpty) {
+        url += '&waypoints=$waypointsStr';
+      }
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'KakaoAK 3f91399ac9b6731d96f6d4b9ac13c502'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final summary = data['routes'][0]['summary'];
+          setState(() {
+            _totalDistanceMeter = summary['distance'];
+            _tollFare = summary['fare']['toll'];
+            
+            // Calculate fuel cost: (Distance km / 13 km/L) * 1700 KRW/L
+            double distanceKm = _totalDistanceMeter / 1000.0;
+            // * 2 for round trip (왕복)
+            distanceKm = distanceKm * 2;
+            _tollFare = _tollFare * 2;
+            
+            _fuelCost = ((distanceKm / 13.0) * 1700).round();
+            _totalCost = _fuelCost + _tollFare;
+            _costPerPerson = (_totalCost / widget.seats).round();
+            _isLoadingRoute = false;
+          });
+        }
+      }
+    } catch (e) {
+      print(e);
+      setState(() => _isLoadingRoute = false);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

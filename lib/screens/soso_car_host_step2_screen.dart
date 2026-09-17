@@ -1,8 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'soso_car_host_step3_screen.dart';
 
 class SosoCarHostStep2Screen extends StatefulWidget {
-  const SosoCarHostStep2Screen({super.key});
+  final String meetingAddr;
+  final double? meetingLat;
+  final double? meetingLng;
+  final String destAddr;
+  final double? destLat;
+  final double? destLng;
+  final DateTime? depDate;
+  final TimeOfDay? depTime;
+  final DateTime? retDate;
+  final TimeOfDay? retTime;
+  final int seats;
+
+  const SosoCarHostStep2Screen({
+    super.key,
+    required this.meetingAddr,
+    this.meetingLat,
+    this.meetingLng,
+    required this.destAddr,
+    this.destLat,
+    this.destLng,
+    this.depDate,
+    this.depTime,
+    this.retDate,
+    this.retTime,
+    required this.seats,
+  });
 
   @override
   State<SosoCarHostStep2Screen> createState() => _SosoCarHostStep2ScreenState();
@@ -15,60 +42,146 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
   final Color surfaceContainer = const Color(0xFFF9F9F7);
   final Color background = const Color(0xFFFBF9F6);
 
-  List<Map<String, dynamic>> _timelineItems = [
-    {
-      'type': 'departure',
-      'time': '09:30',
-      'title': '마포구청역 1번 출구 지상 버스베이',
-      'desc': '호스트 차량 대기 및 탑승자 3인 랑데부',
-    },
-    {
-      'type': 'drive',
-      'desc': '약 1시간 15분 주행 (72km)',
-    },
-    {
-      'type': 'rest',
-      'label': '쉼표 1',
-      'category': '휴게소/전망',
-      'time': '10:45 ~ 11:15',
-      'duration': '30분 휴식',
-      'title': '가평휴게소 춘천방향 (맛남샌드 & 커피타임)',
-      'desc': '호스트가 추천하는 브레이크 타임! 화장실 이용 및 따뜻한 커피 한 잔 ☕',
-      'tag': '가평 잣도넛 & 호두과자 나누기',
-    },
-    {
-      'type': 'drive',
-      'desc': '약 40분 주행 (38km)',
-    },
-    {
-      'type': 'destination',
-      'time': '12:00 ~ 14:00',
-      'title': '춘천 소양강 스카이워크 & 호반 드라이브',
-      'desc': '호수 위 투명 유리 산책로 걷기 및 탁 트인 전경 사진 촬영 📸',
-    },
-    {
-      'type': 'drive',
-      'desc': '약 15분 이동 (7.5km)',
-    },
-    {
-      'type': 'rest',
-      'label': '쉼표 2',
-      'category': '맛집/카페',
-      'time': '14:20 ~ 16:30',
-      'title': '춘천 통나무집 닭갈비 ➡ 카페 감자밭',
-      'desc': '이웃 추천 숯불닭갈비 1/N 식사 후 시그니처 감자빵과 야외 가든 산책',
-    },
-    {
-      'type': 'drive',
-      'desc': '약 1시간 30분 귀가 주행 (88km)',
-    },
-    {
-      'type': 'return',
-      'time': '16:30 출발 ➡ 18:00 도착',
-      'title': '마포구청역 복귀 및 안전 귀가 인사',
-      'desc': '하차 후 모바일 앱으로 1/N 실비 자동 정산 및 매너 평가 완료',
-    }
-  ];
+  List<Map<String, dynamic>> _timelineItems = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    String depTimeStr = widget.depTime != null ? "${widget.depTime!.hour.toString().padLeft(2, '0')}:${widget.depTime!.minute.toString().padLeft(2, '0')}" : '시간 미정';
+    _timelineItems = [
+      {
+        'type': 'departure',
+        'time': depTimeStr,
+        'title': widget.meetingAddr,
+        'desc': '호스트 차량 대기 및 탑승자 랑데부',
+        'lat': widget.meetingLat ?? 37.5638, // default seoul
+        'lng': widget.meetingLng ?? 126.9037,
+      },
+      {
+        'type': 'drive',
+        'desc': '목적지로 이동 중',
+      },
+      {
+        'type': 'destination',
+        'time': '도착',
+        'title': widget.destAddr,
+        'desc': '목적지 도착 및 일정',
+        'lat': widget.destLat ?? 37.8813, // default chuncheon
+        'lng': widget.destLng ?? 127.7300,
+      },
+      {
+        'type': 'drive',
+        'desc': '귀가 주행',
+      },
+      {
+        'type': 'return',
+        'time': '복귀',
+        'title': '출발지로 복귀 및 해산',
+        'desc': '1/N 실비 자동 정산 완료',
+        'lat': widget.meetingLat ?? 37.5638,
+        'lng': widget.meetingLng ?? 126.9037,
+      }
+    ];
+  }
+  
+  Future<void> _searchAndAddRestStop() async {
+    TextEditingController searchController = TextEditingController();
+    List<dynamic> searchResults = [];
+    bool isSearching = false;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext ctx) {
+        return StatefulBuilder(
+          builder: (BuildContext ctx, StateSetter setModalState) {
+            return Container(
+              height: MediaQuery.of(ctx).size.height * 0.8,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('경유 쉼표 추가', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: '카페, 휴게소, 명소 검색 (예: 가평휴게소)',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () async {
+                          if (searchController.text.isEmpty) return;
+                          setModalState(() => isSearching = true);
+                          try {
+                            final response = await http.get(
+                              Uri.parse('https://dapi.kakao.com/v2/local/search/keyword.json?query=$searchController.text'),
+                              headers: {'Authorization': 'KakaoAK 3f91399ac9b6731d96f6d4b9ac13c502'},
+                            );
+                            if (response.statusCode == 200) {
+                              final data = json.decode(response.body);
+                              setModalState(() {
+                                searchResults = data['documents'];
+                                isSearching = false;
+                              });
+                            } else {
+                              setModalState(() => isSearching = false);
+                            }
+                          } catch (e) {
+                            setModalState(() => isSearching = false);
+                          }
+                        },
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  isSearching ? const Center(child: CircularProgressIndicator()) :
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: searchResults.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (ctx, index) {
+                        final item = searchResults[index];
+                        return ListTile(
+                          title: Text(item['place_name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(item['address_name']),
+                          onTap: () {
+                            setState(() {
+                              // Insert before the destination if it's the first rest stop, etc.
+                              // Let's just insert it right before the destination drive connector.
+                              int destIdx = _timelineItems.indexWhere((e) => e['type'] == 'destination');
+                              _timelineItems.insert(destIdx - 1, {
+                                'type': 'rest',
+                                'label': '쉼표',
+                                'category': item['category_group_name'] ?? '장소',
+                                'time': '경유',
+                                'title': item['place_name'],
+                                'desc': item['address_name'],
+                                'lat': double.tryParse(item['y']) ?? 0.0,
+                                'lng': double.tryParse(item['x']) ?? 0.0,
+                              });
+                              _timelineItems.insert(destIdx, {
+                                'type': 'drive',
+                                'desc': '이동',
+                              });
+                            });
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +303,7 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
             ],
           ),
           const SizedBox(height: 12),
-          const Text('마포구청역 1번 출구 ➡ 강원 춘천시 ...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text('${widget.meetingAddr.split(' ').first} ➡ ${widget.destAddr.split(' ').first}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -477,7 +590,12 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
                   flex: 7,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostStep3Screen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostStep3Screen(
+                        timelineItems: _timelineItems,
+                        depDate: widget.depDate,
+                        retDate: widget.retDate,
+                        seats: widget.seats,
+                      )));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: darkGreen,

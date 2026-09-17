@@ -32,6 +32,11 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
   final TextEditingController _titleController = TextEditingController(text: '춘천 소양강 드라이브 & 닭갈비 투어 🚗');
   final TextEditingController _destController = TextEditingController(text: '강원 춘천시 소양강스카이워크');
   final TextEditingController _meetingController = TextEditingController(text: '마포구청역 1번출구 지상 버스베이');
+  
+  double? _meetingLat;
+  double? _meetingLng;
+  double? _destLat;
+  double? _destLng;
 
   DateTime? _depDate;
   TimeOfDay? _depTime;
@@ -106,7 +111,19 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
   }
 
   void _submitForm() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostStep2Screen()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostStep2Screen(
+      meetingAddr: _meetingController.text,
+      meetingLat: _meetingLat,
+      meetingLng: _meetingLng,
+      destAddr: _destController.text,
+      destLat: _destLat,
+      destLng: _destLng,
+      depDate: _depDate,
+      depTime: _depTime,
+      retDate: _retDate,
+      retTime: _retTime,
+      seats: _seats,
+    )));
   }
 
   @override
@@ -238,9 +255,9 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLocationBox('출발 집결 장소', _meetingController),
+                      _buildLocationBox('출발 집결 장소', _meetingController, true),
                       const SizedBox(height: 16),
-                      _buildLocationBox('목적지 (도착 장소)', _destController),
+                      _buildLocationBox('목적지 (도착 장소)', _destController, false),
                     ],
                   ),
                 ),
@@ -330,7 +347,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     );
   }
 
-  Widget _buildLocationBox(String label, TextEditingController controller) {
+  Widget _buildLocationBox(String label, TextEditingController controller, bool isMeeting) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -355,6 +372,13 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                     if (result != null) {
                       setState(() {
                         controller.text = result.address;
+                        if (isMeeting) {
+                          _meetingLat = result.latitude;
+                          _meetingLng = result.longitude;
+                        } else {
+                          _destLat = result.latitude;
+                          _destLng = result.longitude;
+                        }
                       });
                     }
                   } catch (e) {
