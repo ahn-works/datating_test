@@ -1,74 +1,198 @@
 Compiling lib/main.dart for the Web...                          
-Wasm dry run findings:
-Found incompatibilities with WebAssembly.
-
-package:spot10_app/screens/soso_car_hub_screen.dart 3:1 - dart:html unsupported (0)
-
-Consider addressing these issues to enable wasm builds. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
-
+Unexpected wasm dry run failure (252):
 Use --no-wasm-dry-run to disable these warnings.
-Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_host_screen.dart:303:35:
-Error: Not a constant expression.
-                              if (d != null) {
-                                  ^
-lib/screens/soso_car_host_screen.dart:305:37:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                    ^
-lib/screens/soso_car_host_screen.dart:305:73:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                                                        ^
-lib/screens/soso_car_host_screen.dart:305:71:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                                                      ^
-lib/screens/soso_car_host_screen.dart:305:87:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                                                                      ^
-lib/screens/soso_car_host_screen.dart:305:85:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                                                                    ^
-lib/screens/soso_car_host_screen.dart:305:57:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                                        ^^
-lib/screens/soso_car_host_screen.dart:305:48:
-Error: Not a constant expression.
-                                if (t != null) setState(() { _depDate = d; _depTime = t; });
-                                               ^^^^^^^^
-lib/screens/soso_car_host_screen.dart:301:36:
-Error: Not a constant expression.
-                            onTap: () async {
-                                   ^^
-lib/screens/soso_car_host_screen.dart:313:52:
-Error: Not a constant expression.
-                                  Text(_formatDate(_depDate, '출발 날짜 선택'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                                   ^^^^^^^^
-lib/screens/soso_car_host_screen.dart:313:40:
-Error: Not a constant expression.
-                                  Text(_formatDate(_depDate, '출발 날짜 선택'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                       ^^^^^^^^^^^
-lib/screens/soso_car_host_screen.dart:314:52:
-Error: Not a constant expression.
-                                  Text(_formatTime(_depTime, '시간 선택'), style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                                                   ^^^^^^^^
-lib/screens/soso_car_host_screen.dart:314:40:
-Error: Not a constant expression.
-                                  Text(_formatTime(_depTime, '시간 선택'), style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                                       ^^^^^^^^^^^
-lib/screens/soso_car_host_screen.dart:308:36:
-Error: Cannot invoke a non-'const' constructor where a const expression is expected.
-                            child: Container(
-                                   ^^^^^^^^^
-lib/screens/soso_car_host_screen.dart:300:27:
-Error: Cannot invoke a non-'const' constructor where a const expression is expected.
-                          GestureDetector(
-                          ^^^^^^^^^^^^^^^
-Error: Compilation failed.
+Target dart2js failed: ProcessException: Process exited abnormally with exit code 253:
+lib/screens/soso_car_home_screen.dart:183:68:
+Error: Duplicated named argument 'boxShadow'.
+        border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]
+                                                                   ^^^^^^^^^
+.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart:
+Internal Error: The compiler crashed when compiling this element.
+
+The compiler is broken.
+
+When compiling the above element, the compiler crashed. It is not
+possible to tell if this is caused by a problem in your program or
+not. Regardless, the compiler should not crash.
+
+The Dart team would greatly appreciate if you would take a moment to
+report this problem at http://dartbug.com/new.
+
+Please include the following information:
+
+* the name and version of your operating system,
+
+* the Dart SDK build number (3.13.3), and
+
+* the entire message you see here (including the full stack trace
+  below as well as the source location above).
+
+The compiler crashed: Crash when compiling:
+Null check operator used on a null value
+
+#0      ConstantEvaluator._recordConstructorCoverage (package:front_end/src/kernel/constant_evaluator.dart:3082)
+#1      ConstantEvaluator.handleConstructorInvocation.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:3724)
+#2      ConstantEvaluator.withNewEnvironment (package:front_end/src/kernel/constant_evaluator.dart:5984)
+#3      ConstantEvaluator.handleConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:3719)
+#4      ConstantEvaluator.visitConstructorInvocation.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:3625)
+#5      ConstantEvaluator.withNewInstanceBuilder (package:front_end/src/kernel/constant_evaluator.dart:5972)
+#6      ConstantEvaluator.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:3609)
+#7      ConstructorInvocation.accept (package:kernel/src/ast/expressions.dart:2956)
+#8      ConstantEvaluator._evaluateSubexpression (package:front_end/src/kernel/constant_evaluator.dart:3127)
+#9      ConstantEvaluator._evaluate (package:front_end/src/kernel/constant_evaluator.dart:2800)
+#10     ConstantEvaluator.evaluate (package:front_end/src/kernel/constant_evaluator.dart:2792)
+#11     ConstantsTransformer.evaluateWithContext (package:front_end/src/kernel/constant_evaluator.dart:2538)
+#12     ConstantsTransformer.evaluateAndTransformWithContext (package:front_end/src/kernel/constant_evaluator.dart:2533)
+#13     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2475)
+#14     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
+#15     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#16     FieldInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:155)
+#17     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#18     TreeVisitor1DefaultMixin.visitNamedExpression (package:kernel/visitor.dart:780)
+#19     NamedExpression.accept1 (package:kernel/src/ast/expressions.dart:1641)
+#20     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#21     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
+#22     RemovingTransformer.transformNamedExpressionList (package:kernel/visitor.dart:2229)
+#23     Arguments.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:1585)
+#24     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#25     TreeVisitor1DefaultMixin.visitArguments (package:kernel/visitor.dart:777)
+#26     Arguments.accept1 (package:kernel/src/ast/expressions.dart:1565)
+#27     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#28     RedirectingInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:303)
+#29     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#30     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
+#31     ExpressionVisitor1DefaultMixin.visitConstructorInvocation (package:kernel/visitor.dart:2495)
+#32     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2477)
+#33     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
+#34     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#35     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
+#36     RemovingTransformer.transformExpressionList (package:kernel/visitor.dart:2217)
+#37     ThisVariable.transformOrRemoveChildren (package:kernel/src/ast/variables.dart:2053)
+#38     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#39     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
+#40     ExpressionVisitor1DefaultMixin.visitListLiteral (package:kernel/visitor.dart:2550)
+#41     ConstantsTransformer.visitListLiteral (package:front_end/src/kernel/constant_evaluator.dart:2319)
+#42     ListLiteral.accept1 (package:kernel/src/ast/expressions.dart:4551)
+#43     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#44     BlockExpression.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:5246)
+#45     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#46     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
+#47     ExpressionVisitor1DefaultMixin.visitBlockExpression (package:kernel/visitor.dart:2577)
+#48     BlockExpression.accept1 (package:kernel/src/ast/expressions.dart:5226)
+#49     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#50     RemovingTransformer.transformOrRemoveExpression (package:kernel/visitor.dart:2026)
+#51     InvalidExpression.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:181)
+#52     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#53     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
+#54     ExpressionVisitor1DefaultMixin.visitInvalidExpression (package:kernel/visitor.dart:2425)
+#55     InvalidExpression.accept1 (package:kernel/src/ast/expressions.dart:163)
+#56     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#57     FieldInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:155)
+#58     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#59     TreeVisitor1DefaultMixin.visitNamedExpression (package:kernel/visitor.dart:780)
+#60     NamedExpression.accept1 (package:kernel/src/ast/expressions.dart:1641)
+#61     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#62     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
+#63     RemovingTransformer.transformNamedExpressionList (package:kernel/visitor.dart:2229)
+#64     Arguments.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:1585)
+#65     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#66     TreeVisitor1DefaultMixin.visitArguments (package:kernel/visitor.dart:777)
+#67     Arguments.accept1 (package:kernel/src/ast/expressions.dart:1565)
+#68     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#69     RedirectingInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:303)
+#70     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#71     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
+#72     ExpressionVisitor1DefaultMixin.visitConstructorInvocation (package:kernel/visitor.dart:2495)
+#73     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2477)
+#74     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
+#75     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#76     FieldInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:155)
+#77     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#78     TreeVisitor1DefaultMixin.visitNamedExpression (package:kernel/visitor.dart:780)
+#79     NamedExpression.accept1 (package:kernel/src/ast/expressions.dart:1641)
+#80     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#81     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
+#82     RemovingTransformer.transformNamedExpressionList (package:kernel/visitor.dart:2229)
+#83     Arguments.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:1585)
+#84     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#85     TreeVisitor1DefaultMixin.visitArguments (package:kernel/visitor.dart:777)
+#86     Arguments.accept1 (package:kernel/src/ast/expressions.dart:1565)
+#87     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#88     RedirectingInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:303)
+#89     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#90     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
+#91     ExpressionVisitor1DefaultMixin.visitConstructorInvocation (package:kernel/visitor.dart:2495)
+#92     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2477)
+#93     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
+#94     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#95     RemovingTransformer.transformOrRemoveExpression (package:kernel/visitor.dart:2026)
+#96     ReturnStatement.transformOrRemoveChildren (package:kernel/src/ast/statements.dart:1142)
+#97     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
+#98     TreeVisitor1Default.defaultStatement (package:kernel/visitor.dart:834)
+#99     StatementVisitor1DefaultMixin.visitReturnStatement (package:kernel/visitor.dart:2766)
+#100    ReturnStatement.accept1 (package:kernel/src/ast/statements.dart:1124)
+#101    RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#102    ConstantsTransformer.visitBlock (package:front_end/src/kernel/constant_evaluator.dart:662)
+#103    Block.accept1 (package:kernel/src/ast/statements.dart:109)
+#104    RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#105    ConstantsTransformer.visitFunctionNode (package:front_end/src/kernel/constant_evaluator.dart:428)
+#106    FunctionNode.accept1 (package:kernel/src/ast/functions.dart:255)
+#107    RemovingTransformer.transform (package:kernel/visitor.dart:2017)
+#108    ConstantsTransformer.visitProcedure.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:318)
+#109    ConstantEvaluator.withNewEnvironment (package:front_end/src/kernel/constant_evaluator.dart:5984)
+#110    ConstantsTransformer.visitProcedure (package:front_end/src/kernel/constant_evaluator.dart:316)
+#111    Procedure.accept1 (package:kernel/src/ast/members.dart:1266)
+#112    RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#113    RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
+#114    RemovingTransformer.transformProcedureList (package:kernel/visitor.dart:2183)
+#115    ConstantsTransformer.visitClass.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:261)
+#116    ConstantEvaluator.withNewEnvironment (package:front_end/src/kernel/constant_evaluator.dart:5984)
+#117    ConstantsTransformer.visitClass (package:front_end/src/kernel/constant_evaluator.dart:256)
+#118    Class.accept1 (package:kernel/src/ast/declarations.dart:509)
+#119    RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
+#120    RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
+#121    RemovingTransformer.transformClassList (package:kernel/visitor.dart:2144)
+#122    ConstantsTransformer.convertLibrary (package:front_end/src/kernel/constant_evaluator.dart:197)
+#123    transformLibraries (package:front_end/src/kernel/constant_evaluator.dart:81)
+#124    KernelTarget.runBuildTransformations (package:front_end/src/kernel/kernel_target.dart:1865)
+#125    KernelTarget.buildComponent.<anonymous closure> (package:front_end/src/kernel/kernel_target.dart:765)
+<asynchronous suspension>
+#126    withCrashReporting (package:front_end/src/base/crash.dart:85)
+<asynchronous suspension>
+#127    KernelTarget.buildComponent (package:front_end/src/kernel/kernel_target.dart:697)
+<asynchronous suspension>
+#128    _buildInternal (package:front_end/src/kernel_generator_impl.dart:243)
+<asynchronous suspension>
+#129    withCrashReporting (package:front_end/src/base/crash.dart:85)
+<asynchronous suspension>
+#130    compile.<anonymous closure> (package:front_end/src/api_unstable/dart2js.dart:169)
+<asynchronous suspension>
+#131    CompilerContext.clear (package:front_end/src/base/compiler_context.dart:92)
+<asynchronous suspension>
+#132    compile (package:front_end/src/api_unstable/dart2js.dart:166)
+<asynchronous suspension>
+#133    _loadFromSource (package:compiler/src/phase/load_kernel.dart:307)
+<asynchronous suspension>
+#134    run (package:compiler/src/phase/load_kernel.dart:421)
+<asynchronous suspension>
+#135    Compiler.loadKernel (package:compiler/src/compiler.dart:418)
+<asynchronous suspension>
+#136    Compiler.produceKernel (package:compiler/src/compiler.dart:427)
+<asynchronous suspension>
+#137    Compiler.runSequentialPhases (package:compiler/src/compiler.dart:712)
+<asynchronous suspension>
+#138    Compiler.runInternal.<anonymous closure> (package:compiler/src/compiler.dart:329)
+<asynchronous suspension>
+#139    Compiler.runInternal (package:compiler/src/compiler.dart:328)
+<asynchronous suspension>
+#140    Compiler.run.<anonymous closure> (package:compiler/src/compiler.dart:240)
+<asynchronous suspension>
+#141    compile.<anonymous closure> (package:compiler/compiler_api.dart:273)
+<asynchronous suspension>
+#142    compile.compilationDone (package:compiler/src/dart2js.dart:764)
+<asynchronous suspension>
+#143    main (package:compiler/src/dart2js.dart:1318)
+<asynchronous suspension>
   Command: /opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=9584c6713b -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
@@ -116,5 +240,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             29.2s
+Compiling lib/main.dart for the Web...                              7.3s
 Error: Failed to compile application for the Web.
