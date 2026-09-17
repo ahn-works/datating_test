@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'soso_car_host_step3_screen.dart';
 
 class SosoCarHostStep2Screen extends StatefulWidget {
   const SosoCarHostStep2Screen({super.key});
@@ -460,7 +461,9 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
                 Expanded(
                   flex: 7,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostStep3Screen()));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: darkGreen,
                       padding: const EdgeInsets.symmetric(vertical: 18),
