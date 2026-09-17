@@ -125,7 +125,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('동네 이웃과 함께 떠나는\n주말 드라이브 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.3)),
+          const Text('동네 이웃과 함께 떠나는\n주말 드라이브 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -180,7 +180,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-        border: Border.all(color: Colors.grey.shade100)
+        border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -216,7 +216,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(trip['title'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                  Text(trip['title'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                   const SizedBox(height: 8),
                   Row(children: (trip['tags'] as List).map<Widget>((t) => Container(margin: const EdgeInsets.only(right: 6), padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)), child: Text(t, style: TextStyle(color: Colors.grey.shade700, fontSize: 11, fontWeight: FontWeight.bold)))).toList()),
                   
@@ -303,7 +303,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
                         children: [
                           const Text('예상 1인 정산금', style: TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 4),
-                          Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                          Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                         ],
                       ),
                       ElevatedButton(

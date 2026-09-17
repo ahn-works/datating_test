@@ -545,7 +545,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: const Text('이전 (2단계)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
+                child: const Text('이전 (2단계)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: Colors.black87)),
               ),
             ),
             const SizedBox(width: 12),
@@ -567,7 +567,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                   children: [
                     Icon(Icons.rocket_launch, color: Colors.white, size: 16),
                     SizedBox(width: 8),
-                    Text('여행 모임 등록 완료하기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('여행 모임 등록 완료하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: Colors.white)),
                   ],
                 ),
               ),

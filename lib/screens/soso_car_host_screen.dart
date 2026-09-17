@@ -181,7 +181,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 12, offset: const Offset(0, 4))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -205,7 +205,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 12, offset: const Offset(0, 4))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -377,7 +377,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 12, offset: const Offset(0, 4))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -388,7 +388,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                 children: [
                   Icon(Icons.directions_car, size: 18),
                   SizedBox(width: 8),
-                  Text('차량 및 탑승 정보', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('차량 및 탑승 정보', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                 ],
               ),
               Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(12)), child: const Text('차주 정보 연동됨', style: TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
@@ -551,7 +551,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 12, offset: const Offset(0, 4))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -562,7 +562,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                 children: [
                   Icon(Icons.receipt_long, size: 18),
                   SizedBox(width: 8),
-                  Text('예상 정산 금액', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('예상 정산 금액', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                 ],
               ),
               Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(12)), child: const Text('자동 1/N 정산', style: TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
@@ -635,7 +635,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('다음 단계 (확인 & 등록하기)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('다음 단계 (확인 & 등록하기)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: Colors.white)),
                     SizedBox(width: 8),
                     Icon(Icons.arrow_forward, color: Colors.white, size: 18),
                   ],
