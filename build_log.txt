@@ -2,10 +2,27 @@ Compiling lib/main.dart for the Web...
 Unexpected wasm dry run failure (252):
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 253:
+Error: Couldn't resolve the package 'http' in 'package:http/http.dart'.
+lib/screens/soso_car_host_step2_screen.dart:2:8:
+Error: Not found: 'package:http/http.dart'
+import 'package:http/http.dart' as http;
+       ^
+lib/screens/soso_car_host_step3_screen.dart:2:8:
+Error: Not found: 'package:http/http.dart'
+import 'package:http/http.dart' as http;
+       ^
 lib/screens/soso_car_home_screen.dart:183:68:
 Error: Duplicated named argument 'boxShadow'.
         border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]
                                                                    ^^^^^^^^^
+lib/screens/soso_car_host_step2_screen.dart:118:57:
+Error: Method not found: 'get'.
+                            final response = await http.get(
+                                                        ^^^
+lib/screens/soso_car_host_step3_screen.dart:62:35:
+Error: Method not found: 'get'.
+      final response = await http.get(
+                                  ^^^
 .dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart:
 Internal Error: The compiler crashed when compiling this element.
 
