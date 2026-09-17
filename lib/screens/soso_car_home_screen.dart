@@ -125,7 +125,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('동네 이웃과 함께 떠나는\n주말 드라이브 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+          const Text('우리끼리 무드있게\n자만추 드라이브 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
           const SizedBox(height: 16),
           Row(
             children: [
