@@ -129,7 +129,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildFilterChip('이번 주말', true),
+              _buildFilterChip('드라이브 메이트', true),
               const SizedBox(width: 8),
               _buildFilterChip('당일치기', false),
               const SizedBox(width: 8),

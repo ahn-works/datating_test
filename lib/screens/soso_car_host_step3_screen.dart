@@ -28,10 +28,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
   
   bool _isLoadingRoute = true;
   int _totalDistanceMeter = 0;
-  int _tollFare = 0;
-  int _fuelCost = 0;
-  int _totalCost = 0;
-  int _costPerPerson = 0;
+  int _estimatedDues = 15000; // 정적 회비 (식비 등 공통 경비)
 
   @override
   void initState() {
@@ -39,6 +36,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
     _calculateRoute();
   }
 
+  // 거리는 UI를 위해 계산하되, 비용(유류비/톨비) 정산 로직은 법적 문제로 완전 삭제
   Future<void> _calculateRoute() async {
     try {
       final originItem = widget.timelineItems.firstWhere((e) => e['type'] == 'departure');
@@ -65,15 +63,6 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
           final summary = data['routes'][0]['summary'];
           setState(() {
             _totalDistanceMeter = summary['distance'] as int;
-            _tollFare = summary['fare']['toll'] as int;
-            
-            double distanceKm = _totalDistanceMeter / 1000.0;
-            distanceKm = distanceKm * 2;
-            _tollFare = _tollFare * 2;
-            
-            _fuelCost = ((distanceKm / 13.0) * 1700).round();
-            _totalCost = _fuelCost + _tollFare;
-            _costPerPerson = (_totalCost / widget.seats).round();
             _isLoadingRoute = false;
           });
         }
@@ -98,12 +87,12 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
     );
   }
 
-  Widget _buildCostRow(String title, String amount) {
+  Widget _buildCostRow(String title, String amount, {bool isBold = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: Text(title, style: const TextStyle(fontSize: 11, color: Colors.black54))),
-        Text(amount, style: const TextStyle(fontSize: 11, color: Colors.black87)),
+        Expanded(child: Text(title, style: TextStyle(fontSize: 13, color: isBold ? Colors.black87 : Colors.black54, fontWeight: isBold ? FontWeight.bold : FontWeight.normal))),
+        Text(amount, style: TextStyle(fontSize: 14, color: Colors.black87, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
       ],
     );
   }
@@ -123,7 +112,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                 children: [
                   const Text('3/3', style: TextStyle(color: Color(0xFF243B33), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5)),
                   const SizedBox(height: 8),
-                  const Text('우무(OOMU) 미리보기', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, height: 1.3, letterSpacing: -0.5)),
+                  const Text('드라이브 메이트 모집 미리보기', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, height: 1.3, letterSpacing: -0.5)),
                   const SizedBox(height: 24),
                   Container(
                     width: double.infinity,
@@ -149,7 +138,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text('춘천 소양강 드라이브 가요\n(휴게소 커피 쏠게요!)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.4)),
+                        const Text('춘천 소양강 드라이브 가요\n(이동 간 밥값, 카페 N빵해요!)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.4)),
                         const SizedBox(height: 20),
                         Row(
                           children: [
@@ -165,18 +154,10 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                         const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
                         _isLoadingRoute ? const Center(child: CircularProgressIndicator()) : Column(
                           children: [
-                            _buildCostRow('예상 유류비 (왕복 km, 13km/L)', '약 원'),
+                            _buildCostRow('예상 모임 전체 회비', '약 원', isBold: true),
                             const SizedBox(height: 8),
-                            _buildCostRow('고속도로 통행료 (하이패스 왕복)', '약 원'),
+                            const Text('* 식비, 카페, 공통 활동비 등 모임에 필요한 전체 경비 기준이며, 차량 이동에 대한 대가가 아닙니다.', style: TextStyle(fontSize: 10, color: Colors.black54, height: 1.4)),
                             const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('총 예상 이동 실비', style: TextStyle(fontSize: 13, color: Colors.black54)),
-                                Text('원', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(color: darkGreen, borderRadius: BorderRadius.circular(12)),
@@ -186,9 +167,9 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('인 탑승 완료 시 1인당 분담금', style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                                      Text('인 참석 시 1인당 회비', style: const TextStyle(color: Colors.white70, fontSize: 10)),
                                       const SizedBox(height: 2),
-                                      const Text('호스트 포함 1/N 자동 정산', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
+                                      const Text('호스트 포함 투명한 모임 N빵', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                                     ],
                                   ),
                                   Text('약  원', style: TextStyle(color: badgeGreen, fontSize: 18, fontWeight: FontWeight.w900)),
@@ -203,7 +184,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
                           children: [
                             Icon(Icons.info_outline, size: 14, color: Colors.black54),
                             SizedBox(width: 6),
-                            Expanded(child: Text('최종 1인당 분담금은 주행 종료 후 실제 내비게이션 거리에 비례하여 1/N 자동 정산됩니다.', style: TextStyle(fontSize: 10, color: Colors.black54, height: 1.4))),
+                            Expanded(child: Text('모임 참석 보증금(10,000원)은 노쇼 방지용이며, 현장에서 식비로 사용되거나 전액 환불됩니다.', style: TextStyle(fontSize: 10, color: Colors.black54, height: 1.4))),
                           ],
                         )
                       ],
@@ -223,7 +204,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SosoCarHomeScreen()), (route) => false);
             },
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF5A5F), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-            child: const Text('동행 모집 시작하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text('여행 팟 모집 시작하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ),
       ),
