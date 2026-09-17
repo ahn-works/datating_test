@@ -69,8 +69,8 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
         if (data['routes'] != null && data['routes'].isNotEmpty) {
           final summary = data['routes'][0]['summary'];
           setState(() {
-            _totalDistanceMeter = summary['distance'];
-            _tollFare = summary['fare']['toll'];
+            _totalDistanceMeter = summary['distance'] as int;
+            _tollFare = summary['fare']['toll'] as int;
             
             // Calculate fuel cost: (Distance km / 13 km/L) * 1700 KRW/L
             double distanceKm = _totalDistanceMeter / 1000.0;
