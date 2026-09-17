@@ -6,6 +6,66 @@ lib/screens/soso_car_home_screen.dart:183:68:
 Error: Duplicated named argument 'boxShadow'.
         border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]
                                                                    ^^^^^^^^^
+lib/screens/soso_car_host_step3_screen.dart:420:11:
+Error: Expected ';' after this.
+          )
+          ^
+lib/screens/soso_car_host_step3_screen.dart:421:9:
+Error: Expected an identifier, but got ']'.
+        ],
+        ^
+lib/screens/soso_car_host_step3_screen.dart:421:9:
+Error: Unexpected token ';'.
+        ],
+        ^
+lib/screens/soso_car_host_step3_screen.dart:421:10:
+Error: Expected an identifier, but got ','.
+        ],
+         ^
+lib/screens/soso_car_host_step3_screen.dart:421:9:
+Error: Expected ';' after this.
+        ],
+        ^
+lib/screens/soso_car_host_step3_screen.dart:421:10:
+Error: Unexpected token ';'.
+        ],
+         ^
+lib/screens/soso_car_host_step3_screen.dart:422:7:
+Error: Expected an identifier, but got ')'.
+      ),
+      ^
+lib/screens/soso_car_host_step3_screen.dart:421:10:
+Error: Expected ';' after this.
+        ],
+         ^
+lib/screens/soso_car_host_step3_screen.dart:422:7:
+Error: Unexpected token ';'.
+      ),
+      ^
+lib/screens/soso_car_host_step3_screen.dart:422:8:
+Error: Expected an identifier, but got ','.
+      ),
+       ^
+lib/screens/soso_car_host_step3_screen.dart:422:7:
+Error: Expected ';' after this.
+      ),
+      ^
+lib/screens/soso_car_host_step3_screen.dart:422:8:
+Error: Unexpected token ';'.
+      ),
+       ^
+lib/screens/soso_car_host_step3_screen.dart:423:5:
+Error: Expected an identifier, but got ')'.
+    );
+    ^
+lib/screens/soso_car_host_step3_screen.dart:422:8:
+Error: Expected ';' after this.
+      ),
+       ^
+lib/screens/soso_car_host_step3_screen.dart:423:5:
+Error: Unexpected token ';'.
+    );
+    ^
 .dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart:
 Internal Error: The compiler crashed when compiling this element.
 
@@ -240,5 +300,5 @@ Null check operator used on a null value
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                              5.4s
+Compiling lib/main.dart for the Web...                              7.5s
 Error: Failed to compile application for the Web.
