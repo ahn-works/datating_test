@@ -145,7 +145,7 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
                       itemBuilder: (ctx, index) {
                         final item = searchResults[index];
                         return ListTile(
-                          title: Text(item['place_name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                          title: Text(item['place_name'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(item['address_name']),
                           onTap: () {
                             setState(() {
@@ -155,12 +155,12 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
                               _timelineItems.insert(destIdx - 1, {
                                 'type': 'rest',
                                 'label': '쉼표',
-                                'category': item['category_group_name'] ?? '장소',
+                                'category': item['category_group_name']?.toString() ?? '장소',
                                 'time': '경유',
-                                'title': item['place_name'],
-                                'desc': item['address_name'],
-                                'lat': double.tryParse(item['y']) ?? 0.0,
-                                'lng': double.tryParse(item['x']) ?? 0.0,
+                                'title': item['place_name'].toString(),
+                                'desc': item['address_name'].toString(),
+                                'lat': double.tryParse(item['y'].toString()) ?? 0.0,
+                                'lng': double.tryParse(item['x'].toString()) ?? 0.0,
                               });
                               _timelineItems.insert(destIdx, {
                                 'type': 'drive',
