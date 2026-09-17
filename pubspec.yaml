@@ -9,7 +9,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   kpostal: ^2.0.0
-  http: ^1.2.0
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
