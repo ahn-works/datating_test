@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
-import 'package:kpostal/kpostal.dart';
+﻿import io
+
+code = '''import 'package:flutter/material.dart';
 
 class SosoCarHostScreen extends StatefulWidget {
   const SosoCarHostScreen({super.key});
@@ -9,23 +10,6 @@ class SosoCarHostScreen extends StatefulWidget {
 }
 
 class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
-  DateTime? _depDate;
-  TimeOfDay? _depTime;
-  DateTime? _retDate;
-  TimeOfDay? _retTime;
-  
-  String _formatDate(DateTime? d, String fallback) {
-    if (d == null) return fallback;
-    return "${d.month}월 ${d.day}일";
-  }
-  String _formatTime(TimeOfDay? t, String fallback) {
-    if (t == null) return fallback;
-    final ap = t.hour < 12 ? '오전' : '오후';
-    final h = t.hour == 0 ? 12 : (t.hour > 12 ? t.hour - 12 : t.hour);
-    final m = t.minute.toString().padLeft(2, '0');
-    return "${ap} ${h}:${m}";
-  }
-
   final Color darkGreen = const Color(0xFF1B4D3E);
   final Color badgeGreen = const Color(0xFFA5D6A7);
   final Color terracotta = const Color(0xFFC04020);
@@ -39,25 +23,25 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
   bool _hasTrunkSpace = true;
 
   final List<String> _allTags = [
-    '#?붿옍?쒖닔??, '#?뚯븙媛먯긽 ?렦', '#移댄럹?ъ뼱 ??, 
-    '#留쏆엳?붿떇???쪟', '#?ъ쭊?숉뻾 ?벝', '#?ъ깋利먭? ?뙼'
+    '#잔잔한수다', '#음악감상 🎵', '#카페투어 ☕', 
+    '#맛있는식사 🥘', '#사진동행 📸', '#사색즐김 🌿'
   ];
-  final Set<String> _selectedTags = {'#?붿옍?쒖닔??, '#?뚯븙媛먯긽 ?렦', '#移댄럹?ъ뼱 ??, '#留쏆엳?붿떇???쪟'};
+  final Set<String> _selectedTags = {'#잔잔한수다', '#음악감상 🎵', '#카페투어 ☕', '#맛있는식사 🥘'};
 
-  final TextEditingController _titleController = TextEditingController(text: '異섏쿇 ?뚯뼇媛??쒕씪?대툕 & ??컝鍮??ъ뼱 ?뛻');
-  final TextEditingController _destController = TextEditingController(text: '媛뺤썝 異섏쿇???뚯뼇媛??ㅼ뭅?댁썙??);
+  final TextEditingController _titleController = TextEditingController(text: '춘천 소양강 드라이브 & 닭갈비 투어 🍁');
+  final TextEditingController _destController = TextEditingController(text: '강원 춘천시 소양강 스카이워크');
 
   void _submitForm() {
     // Return structured data back to Home Screen
     Navigator.pop(context, {
       'title': _titleController.text,
-      'location': _destController.text.replaceAll('媛뺤썝 異섏쿇??', ''),
+      'location': _destController.text.replaceAll('강원 춘천시 ', ''),
       'tags': _selectedTags.toList(),
-      'driverName': '?щ━??誘쇱슦', // Placeholder for current user
+      'driverName': '달리는 민우', // Placeholder for current user
       'price': '9,000',
       'image': 'https://picsum.photos/600/300?random=50',
-      'badge': '?ъ쑀?먮━',
-      'time': '?대쾲 二쇰쭚',
+      'badge': '여유자리',
+      'time': '이번 주말',
     });
   }
 
@@ -76,16 +60,16 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('?대뼡 ?쒕씪?대툕瑜?n?④퍡 ?좊굹蹂쇨퉴??', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.3)),
+                  const Text('어떤 드라이브를\\n함께 떠나볼까요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.3)),
                   const SizedBox(height: 8),
-                  const Text('?숇꽕 ?댁썐怨??뚯냼?섍퀬 ?ъ쑀濡쒖슫 濡쒕뱶?몃┰???댁뼱蹂댁꽭??', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                  const Text('동네 이웃과 소소하고 여유로운 로드트립을 열어보세요.', style: TextStyle(fontSize: 13, color: Colors.black54)),
                   const SizedBox(height: 32),
                   
-                  _buildSectionTitle('?ы뻾 ?쒕ぉ', trailing: '理쒕? 30??),
+                  _buildSectionTitle('여행 제목', trailing: '최대 30자'),
                   _buildTextField(_titleController, false),
                   const SizedBox(height: 32),
 
-                  _buildSectionTitle('異쒕컻 諛?紐⑹쟻吏', trailing: '?뺣났 ?ъ젙', icon: Icons.explore_outlined),
+                  _buildSectionTitle('출발 및 목적지', trailing: '왕복 여정', icon: Icons.explore_outlined),
                   _buildLocationBox(),
                   const SizedBox(height: 32),
 
@@ -121,7 +105,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
           const SizedBox(width: 16),
           Icon(Icons.directions_car, color: darkGreen, size: 20),
           const SizedBox(width: 4),
-          const Text('?뚯냼移?, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 16)),
+          const Text('소소카', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 16)),
         ],
       ),
       title: Container(
@@ -130,7 +114,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('留덊룷援??곕궓??, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
+            Text('마포구 연남동', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
             SizedBox(width: 4),
             Icon(Icons.keyboard_arrow_down, color: Colors.black87, size: 14),
           ],
@@ -169,10 +153,10 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                     child: Text('Step 1 / 3', style: TextStyle(color: darkGreen, fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(width: 8),
-                  const Text('湲곕낯 ?ы뻾 ?뺣낫', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  const Text('기본 여행 정보', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
                 ],
               ),
-              const Text('33% ?꾨즺', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54)),
+              const Text('33% 완료', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54)),
             ],
           ),
         ),
@@ -229,7 +213,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('異쒕컻 吏묎껐 ?μ냼', style: TextStyle(fontSize: 11, color: Colors.black54)),
+          const Text('출발 집결 장소', style: TextStyle(fontSize: 11, color: Colors.black54)),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -238,13 +222,13 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               children: [
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: darkGreen, shape: BoxShape.circle)),
                 const SizedBox(width: 12),
-                const Expanded(child: Text('留덊룷援ъ껌??1踰?異쒓뎄 吏??踰꾩뒪踰좎씠', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+                const Expanded(child: Text('마포구청역 1번 출구 지상 버스베이', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
                 const Icon(Icons.keyboard_arrow_down, color: Colors.black54, size: 16),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          const Text('紐⑹쟻吏 (?꾩갑 ?μ냼)', style: TextStyle(fontSize: 11, color: Colors.black54)),
+          const Text('목적지 (도착 장소)', style: TextStyle(fontSize: 11, color: Colors.black54)),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -260,24 +244,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () async {
-                    try {
-                      Kpostal? result = await Navigator.push(context, MaterialPageRoute(builder: (_) => KpostalView()));
-                      if (result != null) {
-                        setState(() {
-                          _destController.text = result.address;
-                        });
-                      }
-                    } catch (e) {
-                      print("Kpostal error: `$e");
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    child: const Icon(Icons.search, color: Colors.black87, size: 20),
-                  ),
-                ),
+                const Icon(Icons.search, color: Colors.black54, size: 16),
               ],
             ),
           ),
@@ -291,7 +258,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('異쒕컻 ?쇱떆', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                      Text('출발 일시', style: TextStyle(fontSize: 11, color: Colors.black54)),
                       SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -299,8 +266,8 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('10??28??(??', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                              Text('?ㅼ쟾 09:30', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                              Text('10월 28일 (토)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              Text('오전 09:30', style: TextStyle(fontSize: 12, color: Colors.black54)),
                             ],
                           ),
                           Icon(Icons.calendar_today, size: 16, color: Colors.black54)
@@ -318,7 +285,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('蹂듦? ?덉젙', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                      const Text('복귀 예정', style: TextStyle(fontSize: 11, color: Colors.black54)),
                       const SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -326,8 +293,8 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('?뱀씪 蹂듦?', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC04020))),
-                              const Text('?ㅽ썑 18:00', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                              Text('당일 복귀', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC04020))),
+                              const Text('오후 18:00', style: TextStyle(fontSize: 12, color: Colors.black54)),
                             ],
                           ),
                           const Icon(Icons.access_time, size: 16, color: Colors.black54)
@@ -357,9 +324,9 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('紐⑥쭛 ?몄썝 ?ㅼ젙', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('모집 인원 설정', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   SizedBox(height: 4),
-                  Text('?쒕씪?대쾭 蹂몄씤???쒖쇅???묒듅 ?댁썐', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                  Text('드라이버 본인을 제외한 탑승 이웃', style: TextStyle(fontSize: 11, color: Colors.black54)),
                 ],
               ),
               Container(
@@ -392,10 +359,10 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildSeatIcon('?쒕씪?대쾭 (??', Icons.airline_seat_recline_extra, true, true),
-                _buildSeatIcon('蹂댁“??, Icons.looks_one, _seats >= 1, false),
-                _buildSeatIcon('?룹쥖??醫?, Icons.looks_two, _seats >= 2, false),
-                _buildSeatIcon('?룹쥖????, Icons.looks_3, _seats >= 3, false),
+                _buildSeatIcon('드라이버 (나)', Icons.airline_seat_recline_extra, true, true),
+                _buildSeatIcon('보조석', Icons.looks_one, _seats >= 1, false),
+                _buildSeatIcon('뒷좌석 좌', Icons.looks_two, _seats >= 2, false),
+                _buildSeatIcon('뒷좌석 우', Icons.looks_3, _seats >= 3, false),
               ],
             ),
           ),
@@ -408,7 +375,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               children: [
                 Icon(Icons.info_outline, color: terracotta, size: 16),
                 const SizedBox(width: 8),
-                const Expanded(child: Text('苡뚯쟻???대룞怨??댁깋???녿뒗 ??붾? ?꾪빐 理쒕? 3~4???뚭퇋紐??숈듅?쇰줈留??댁쁺?⑸땲??', style: TextStyle(fontSize: 11, color: Colors.black87, height: 1.4))),
+                const Expanded(child: Text('쾌적한 이동과 어색함 없는 대화를 위해 최대 3~4인 소규모 동승으로만 운영됩니다.', style: TextStyle(fontSize: 11, color: Colors.black87, height: 1.4))),
               ],
             ),
           )
@@ -441,7 +408,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('?댄뻾 李⑤웾 ?뺣낫', trailing: '湲곕낯 ?깅줉李⑤웾', icon: Icons.directions_car_outlined),
+          _buildSectionTitle('운행 차량 정보', trailing: '기본 등록차량', icon: Icons.directions_car_outlined),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(12)),
@@ -453,19 +420,19 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                   child: const Icon(Icons.directions_car, color: Colors.black87),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text('湲곗븘 EV6 Long Range', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text('기아 EV6 Long Range', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                           SizedBox(width: 6),
-                          Container(padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Color(0xFFA5D6A7), borderRadius: BorderRadius.all(Radius.circular(10))), child: Text('?꾧린李?, style: TextStyle(fontSize: 9, color: Color(0xFF1B4D3E), fontWeight: FontWeight.bold))),
+                          Container(padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Color(0xFFA5D6A7), borderRadius: BorderRadius.all(Radius.circular(10))), child: Text('전기차', style: TextStyle(fontSize: 9, color: Color(0xFF1B4D3E), fontWeight: FontWeight.bold))),
                         ],
                       ),
                       SizedBox(height: 4),
-                      Text('留덊룷援??몄쬆 李⑤웾 쨌 苡뚯쟻???ㅻ궡 泥?냼??, style: TextStyle(fontSize: 11, color: Colors.black54)),
+                      Text('마포구 인증 차량 · 쾌적한 실내 청소됨', style: TextStyle(fontSize: 11, color: Colors.black54)),
                     ],
                   ),
                 )
@@ -473,11 +440,11 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('?묒듅 諛곕젮 諛??몄쓽 ?듭뀡', style: TextStyle(fontSize: 11, color: Colors.black54)),
+          const Text('탑승 배려 및 편의 옵션', style: TextStyle(fontSize: 11, color: Colors.black54)),
           const SizedBox(height: 8),
-          _buildCheckbox(Icons.smoke_free, '苡뚯쟻???꾩쟾 湲덉뿰 李⑤웾', _isNonSmoking, (val) => setState(() => _isNonSmoking = val!)),
-          _buildCheckbox(Icons.pets, '?뚰삎 諛섎젮?숇Ъ 耳?댁? ?숇컲 媛??, _isPetFriendly, (val) => setState(() => _isPetFriendly = val!)),
-          _buildCheckbox(Icons.luggage, '?몃쟻??吏?蹂닿? ?ъ쑀 (諛깊뙥 / ?쇳겕??諛붽뎄??', _hasTrunkSpace, (val) => setState(() => _hasTrunkSpace = val!)),
+          _buildCheckbox(Icons.smoke_free, '쾌적한 완전 금연 차량', _isNonSmoking, (val) => setState(() => _isNonSmoking = val!)),
+          _buildCheckbox(Icons.pets, '소형 반려동물 케이지 동반 가능', _isPetFriendly, (val) => setState(() => _isPetFriendly = val!)),
+          _buildCheckbox(Icons.luggage, '트렁크 짐 보관 여유 (백팩 / 피크닉 바구니)', _hasTrunkSpace, (val) => setState(() => _hasTrunkSpace = val!)),
         ],
       ),
     );
@@ -512,8 +479,8 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('?쒕씪?대툕 遺꾩쐞湲?痍⑦뼢 ?쒓렇', trailing: '蹂듭닔 ?좏깮', icon: Icons.local_offer_outlined),
-          const Text('?대뼡 遺꾩쐞湲곕줈 ?④퍡 ?대룞?섍퀬 ?띕굹?? ?묒듅 ?댁썐 留ㅼ묶??諛섏쁺?⑸땲??', style: TextStyle(fontSize: 11, color: Colors.black54)),
+          _buildSectionTitle('드라이브 분위기 취향 태그', trailing: '복수 선택', icon: Icons.local_offer_outlined),
+          const Text('어떤 분위기로 함께 이동하고 싶나요? 탑승 이웃 매칭에 반영됩니다.', style: TextStyle(fontSize: 11, color: Colors.black54)),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8, runSpacing: 8,
@@ -561,18 +528,18 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                 children: [
                   Icon(Icons.receipt_long, size: 18),
                   SizedBox(width: 8),
-                  Text('?덉긽 ?뺤궛 湲덉븸 ?곗텧', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('예상 정산 금액 산출', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 ],
               ),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(12)), child: const Text('?먮룞 1/N ?뺤궛', style: TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(12)), child: const Text('자동 1/N 정산', style: TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
             ],
           ),
           const SizedBox(height: 16),
-          _buildCostRow('?덉긽 ?꾧린李?異⑹쟾鍮?(?뺣났 210km)', '18,500??),
+          _buildCostRow('예상 전기차 충전비 (왕복 210km)', '18,500원'),
           const SizedBox(height: 8),
-          _buildCostRow('怨좎냽?꾨줈 ?듯뻾猷?(?쒖슱-異섏쿇 ?뺣났)', '13,600??),
+          _buildCostRow('고속도로 통행료 (서울-춘천 왕복)', '13,600원'),
           const SizedBox(height: 8),
-          _buildCostRow('?뚯뼇媛?怨듭쁺二쇱감???덉긽鍮?, '4,000??),
+          _buildCostRow('소양강 공영주차장 예상비', '4,000원'),
           const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -581,23 +548,23 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('1???덉긽 ?뺤궛湲?, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+                  Text('1인 예상 정산금', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
                   SizedBox(height: 4),
-                  Text('珥?36,100??첨 4紐??쒕씪?대쾭 ?ы븿)', style: TextStyle(fontSize: 10, color: Colors.black54)),
+                  Text('총 36,100원 ÷ 4명(드라이버 포함)', style: TextStyle(fontSize: 10, color: Colors.black54)),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('??9,000??, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: terracotta)),
+                  Text('약 9,000원', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: terracotta)),
                   const SizedBox(height: 4),
-                  const Text('?대룞 ?꾨즺 ??????媛꾪렪寃곗젣', style: TextStyle(fontSize: 10, color: Colors.black54)),
+                  const Text('이동 완료 후 앱 내 간편결제', style: TextStyle(fontSize: 10, color: Colors.black54)),
                 ],
               )
             ],
           ),
           const SizedBox(height: 16),
-          const Text('* ?뚯냼移대뒗 ?쒖닔 ?ㅻ퉬(?좊쪟鍮??듯뻾猷?留뚯쓣 ?숈듅?먯뿉寃??섎닏?덈떎. ?댁쟾?먯쓽 ?곷━ 紐⑹쟻 ?섏닔猷뚮뒗 ?ы븿?섏? ?딆뒿?덈떎.', style: TextStyle(fontSize: 10, color: Colors.grey, height: 1.4)),
+          const Text('* 소소카는 순수 실비(유류비/통행료)만을 동승자에게 나눕니다. 운전자의 영리 목적 수수료는 포함되지 않습니다.', style: TextStyle(fontSize: 10, color: Colors.grey, height: 1.4)),
         ],
       ),
     );
@@ -634,7 +601,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('?ㅼ쓬 ?④퀎 (?쇱젙 ?곸꽭 & ?쇳몴 ?깅줉)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('다음 단계 (일정 상세 & 쉼표 등록)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
                     SizedBox(width: 8),
                     Icon(Icons.arrow_forward, color: Colors.white, size: 18),
                   ],
@@ -647,7 +614,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               children: [
                 Icon(Icons.security, size: 12, color: Colors.grey),
                 SizedBox(width: 4),
-                Text('?댁썐 移쒗솕&留ㅻ꼫 ?쒕씪?대쾭 ?덉떖 ?깅줉 以?, style: TextStyle(fontSize: 11, color: Colors.grey)),
+                Text('이웃 친화&매너 드라이버 안심 등록 중', style: TextStyle(fontSize: 11, color: Colors.grey)),
               ],
             )
           ],
@@ -658,7 +625,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
 
   Widget _buildBottomNav() {
     return BottomNavigationBar(
-      currentIndex: 1, // "紐⑥쭛?섍린" tab
+      currentIndex: 1, // "모집하기" tab
       type: BottomNavigationBarType.fixed,
       selectedItemColor: darkGreen,
       unselectedItemColor: Colors.grey,
@@ -666,8 +633,8 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '?먯깋'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '紐⑥쭛?섍린'),
+        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
+        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
@@ -682,10 +649,13 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
               )
             ],
           ),
-          label: '?숉뻾梨꾪똿',
+          label: '동행채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '?댁뿬??),
+        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내여행'),
       ],
     );
   }
 }
+'''
+with io.open('lib/screens/soso_car_host_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(code)

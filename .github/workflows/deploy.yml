@@ -1,4 +1,4 @@
-name: Flutter Web Deploy to GitHub Pages
+﻿name: Flutter Web Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
@@ -19,6 +19,8 @@ jobs:
         run: flutter pub get
       - name: Enable Web Platform
         run: flutter create . --platforms web
+      - name: Inject Daum Postcode JS
+        run: sed -i 's|</head>|<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script></head>|' web/index.html
       - name: Build Web
         id: build
         run: |
