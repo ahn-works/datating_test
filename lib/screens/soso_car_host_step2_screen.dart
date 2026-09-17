@@ -104,20 +104,35 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
         IconButton(icon: const Icon(Icons.more_vert, color: Colors.black87), onPressed: () {}),
       ],
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(40),
+        preferredSize: const Size.fromHeight(48),
         child: Container(
           color: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
             children: [
-              Row(
-                children: [
-                  const Text('STEP 2', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black87)),
-                  Text(' / 3', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey.shade400)),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('STEP 2', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black87)),
+                        Text(' / 3', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey.shade400)),
+                      ],
+                    ),
+                    Text('일정 상세 & 쉼표 등록', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+                  ],
+                ),
               ),
-              const Text('일정 상세 & 쉼표 등록', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+              Stack(
+                children: [
+                  Container(width: double.infinity, height: 3, color: Colors.grey.shade200),
+                  FractionallySizedBox(
+                    widthFactor: 0.6666666666666666,
+                    child: Container(height: 3, color: const Color(0xFF1B4D3E)),
+                  )
+                ],
+              )
             ],
           ),
         ),

@@ -132,20 +132,48 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: background,
+      backgroundColor: Colors.white,
       elevation: 0,
-      leadingWidth: 100,
-      leading: Row(
-        children: [
-          const SizedBox(width: 16),
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: const Row(children: [Icon(Icons.close, color: Colors.black87), SizedBox(width: 4), Text('취소', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 14))]),
+      leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Navigator.pop(context)),
+      title: const Text('Chat Room', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16)),
+      actions: [
+        IconButton(icon: const Icon(Icons.share, color: Colors.black87), onPressed: () {}),
+        IconButton(icon: const Icon(Icons.more_vert, color: Colors.black87), onPressed: () {}),
+      ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(48),
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('STEP 1', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black87)),
+                        Text(' / 3', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey.shade400)),
+                      ],
+                    ),
+                    Text('모임 기본 정보', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+                  ],
+                ),
+              ),
+              Stack(
+                children: [
+                  Container(width: double.infinity, height: 3, color: Colors.grey.shade200),
+                  FractionallySizedBox(
+                    widthFactor: 0.3333333333333333,
+                    child: Container(height: 3, color: const Color(0xFF1B4D3E)),
+                  )
+                ],
+              )
+            ],
           ),
-        ],
+        ),
       ),
-      centerTitle: true,
-      title: const Text('동네 카풀 만들기', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16)),
     );
   }
 
