@@ -484,17 +484,20 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
   Widget _buildAddRestStopButton() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_circle_outline, size: 18),
-            SizedBox(width: 8),
-            Text('경유 쉼표 추가 (휴게소, 전망대, 카페, 맛집)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          ],
+      child: GestureDetector(
+        onTap: _searchAndAddRestStop,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add_circle_outline, size: 18),
+              SizedBox(width: 8),
+              Text('경유 쉼표 추가 (휴게소, 맛집, 카페 등)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            ],
+          ),
         ),
       ),
     );
