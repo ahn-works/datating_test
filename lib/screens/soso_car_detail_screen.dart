@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import "soso_car_chat_screen.dart";
 
 class OOMUDetailScreen extends StatefulWidget {
   const OOMUDetailScreen({super.key});
@@ -343,6 +342,162 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     );
   }
 
+  Widget _buildCostSplit() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.receipt_long, color: Colors.black87),
+              const SizedBox(width: 8),
+              const Text('투명 1/N 정산 안내', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+              const Spacer(),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(4)), child: const Text('소수점 올림 없음', style: TextStyle(fontSize: 11, color: Colors.black54))),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(16)),
+            child: Column(
+              children: [
+                _buildCostRow('예상 왕복 주유비 (약 130km)', '45,000원', false),
+                const SizedBox(height: 12),
+                _buildCostRow('왕복 고속도로 통행료', '11,000원', false),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
+                _buildCostRow('예상 총 모임 회비', '56,000원', true),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: badgeGreen.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('4인 탑승 시 1인당 예상 분담금', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 4),
+                          Text('식비/카페는 현장 개별 결제', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                        ],
+                      ),
+                      Text('14,000원', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: darkGreen)),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCostRow(String title, String amount, bool isTotal) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: TextStyle(fontSize: isTotal ? 15 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal, color: Colors.black87)),
+        Text(amount, style: TextStyle(fontSize: isTotal ? 16 : 14, fontWeight: isTotal ? FontWeight.w900 : FontWeight.bold, color: Colors.black87)),
+      ],
+    );
+  }
+
+  Widget _buildFellowPassengers() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('함께하는 동네 이웃', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+              Row(
+                children: [
+                  const Text('3명', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 8),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: terracotta, borderRadius: BorderRadius.circular(12)), child: const Text('1자리 남음', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))),
+                ],
+              )
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildPassengerItem('민우', 'https://i.pravatar.cc/100?img=11', '운전자', '연남동 · "안전운전 책임질게요!"', null),
+          _buildPassengerItem('서연', 'https://i.pravatar.cc/100?img=5', '풍경 사진 찍는 걸 좋아해요 📷', '망원동', '37.2°C'),
+          _buildPassengerItem('준호', 'https://i.pravatar.cc/100?img=8', '로컬 맛집 탐방가 🍤', '서교동', '36.9°C'),
+          
+          // Empty Seat
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: terracotta.withOpacity(0.5), style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(16),
+              color: terracotta.withOpacity(0.05),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48, height: 48,
+                  decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: terracotta)),
+                  child: Icon(Icons.person_add, color: terracotta),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('마지막 한 자리의 주인공! ✨', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: terracotta)),
+                      const SizedBox(height: 4),
+                      const Text('당신과 함께 떠나기를 기다리고 있어요', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade300)),
+                  child: const Text('대기 중', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPassengerItem(String name, String img, String desc, String location, String? temp) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          CircleAvatar(radius: 24, backgroundImage: NetworkImage(img)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Text(location, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(desc, style: TextStyle(fontSize: 13, color: name == '민우' ? darkGreen : Colors.black87, fontWeight: name == '민우' ? FontWeight.bold : FontWeight.normal)),
+              ],
+            ),
+          ),
+          if (temp != null) Text(temp, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black87)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -351,21 +506,39 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4))],
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUChatScreen()));
-            },
-            icon: const Icon(Icons.chat, color: Colors.white, size: 18),
-            label: const Text('참여 신청하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B4D3E),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
+        child: Row(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('1인당 예상 회비', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    const Text('14,000', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                    const Text('원', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ],
+                )
+              ],
             ),
-          ),
+            const SizedBox(width: 24),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _showApplyToast,
+                icon: const Icon(Icons.chat, color: Colors.white, size: 18),
+                label: const Text('참여 신청하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: darkGreen,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
