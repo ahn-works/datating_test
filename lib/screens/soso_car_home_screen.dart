@@ -375,8 +375,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '만들기'),
+        BottomNavigationBarItem(
+          icon: InkWell(
+            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
+            child: const Icon(Icons.explore_outlined)
+          ), 
+          activeIcon: const Icon(Icons.explore), 
+          label: '탐색'
+        ),
+        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
@@ -390,6 +397,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 ),
               )
             ],
+          ),
+          label: '채팅',
+        ),
+        BottomNavigationBarItem(
+          icon: InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+            },
+            child: const Icon(Icons.directions_car_outlined)
+          ),
+          activeIcon: const Icon(Icons.directions_car),
+          label: '내 여행',
+        ),
+      ],
           ),
           label: '채팅',
         ),
