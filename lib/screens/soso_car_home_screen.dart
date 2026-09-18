@@ -379,7 +379,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           // 탐색 (현재 화면)
         } else if (index == 1) {
           // 모집하기
-          Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUHostScreen()));
         } else if (index == 2) {
           // 채팅 (soso_car_chat_screen으로 연결하거나 chat_screen으로 연결)
           Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));

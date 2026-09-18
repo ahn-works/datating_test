@@ -590,7 +590,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
           Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 1) {
           // 모집하기
-          Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUHostScreen()));
         } else if (index == 2) {
           // 채팅
           Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
