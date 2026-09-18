@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'local_friends_screen.dart';
 import 'dart:async';
 import 'profile_detail_screen.dart';
 import 'party_screen.dart';
@@ -76,15 +77,15 @@ class _HomeScreenState extends State<HomeScreen> {
           
           const Text('동네 친구부터 만들기 👫', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _featureCard(Icons.directions_walk, '동네 산책', '가볍게 걷는 산책 메이트', const Color(0xFFF19E39), () {}),
+          _featureCard(Icons.directions_walk, '동네 산책', '가볍게 걷는 산책 메이트', const Color(0xFFF19E39), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()))),
           const SizedBox(height: 12),
-          _featureCard(Icons.restaurant, '밥친구', '혼밥 말고 같이 밥 먹기', const Color(0xFFE76F51), () {}),
+          _featureCard(Icons.restaurant, '밥친구', '혼밥 말고 같이 밥 먹기', const Color(0xFFE76F51), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()))),
           const SizedBox(height: 12),
-          _featureCard(Icons.menu_book, '카공', '조용히 카페에서 같이 공부/일', const Color(0xFF2A9D8F), () {}),
+          _featureCard(Icons.menu_book, '카공', '조용히 카페에서 같이 공부/일', const Color(0xFF2A9D8F), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()))),
           const SizedBox(height: 12),
-          _featureCard(Icons.directions_run, '러닝', '동네 한 바퀴 러닝 메이트', const Color(0xFF264653), () {}),
+          _featureCard(Icons.directions_run, '러닝', '동네 한 바퀴 러닝 메이트', const Color(0xFF264653), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()))),
           const SizedBox(height: 12),
-          _featureCard(Icons.flash_on, '급벙', '지금 당장 만날 동네 친구', const Color(0xFF6A4C93), () {}),
+          _featureCard(Icons.flash_on, '급벙', '지금 당장 만날 동네 친구', const Color(0xFF6A4C93), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()))),
           const SizedBox(height: 32),
 
           const Text('우무 드라이브 메이트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
