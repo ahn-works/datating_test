@@ -521,24 +521,21 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     const Text('14,000', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
                     const Text('원', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
-                )
-              ],
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUChatScreen()));
+            },
+            icon: const Icon(Icons.chat, color: Colors.white, size: 18),
+            label: const Text('참여 신청하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: darkGreen,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
             ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _showApplyToast,
-                icon: const Icon(Icons.chat, color: Colors.white, size: 18),
-                label: const Text('참여 신청하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: darkGreen,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                ),
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );
