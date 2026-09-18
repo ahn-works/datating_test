@@ -8,26 +8,122 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_detail_screen.dart:49:17:
-Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                _buildDivider(),
-                ^^^^^^^^^^^^^
-lib/screens/soso_car_detail_screen.dart:51:17:
-Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                _buildDivider(),
-                ^^^^^^^^^^^^^
-lib/screens/soso_car_detail_screen.dart:53:17:
-Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                _buildDivider(),
-                ^^^^^^^^^^^^^
-lib/screens/soso_car_detail_screen.dart:55:17:
-Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                _buildDivider(),
-                ^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:128:22:
+Error: String starting with ' must end with '.
+          const Text('우리 동네 이웃과 함께하는
+                     ^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:129:1:
+Error: The non-ASCII character '새' (U+C0C8) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+^
+lib/screens/soso_car_home_screen.dart:129:2:
+Error: The non-ASCII character '로' (U+B85C) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+ ^
+lib/screens/soso_car_home_screen.dart:129:3:
+Error: The non-ASCII character '운' (U+C6B4) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+  ^
+lib/screens/soso_car_home_screen.dart:129:5:
+Error: The non-ASCII character '만' (U+B9CC) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+    ^
+lib/screens/soso_car_home_screen.dart:129:6:
+Error: The non-ASCII character '남' (U+B0A8) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+     ^
+lib/screens/soso_car_home_screen.dart:129:7:
+Error: The non-ASCII character '은' (U+C740) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+      ^
+lib/screens/soso_car_home_screen.dart:129:9:
+Error: The non-ASCII character '어' (U+C5B4) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+        ^
+lib/screens/soso_car_home_screen.dart:129:10:
+Error: The non-ASCII character '때' (U+B54C) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+         ^
+lib/screens/soso_car_home_screen.dart:129:11:
+Error: The non-ASCII character '요' (U+C694) can't be used in identifiers, only in strings and comments.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+          ^
+lib/screens/soso_car_home_screen.dart:129:13:
+Error: String starting with ' must end with '.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:128:21:
+Error: Can't find ')' to match '('.
+          const Text('우리 동네 이웃과 함께하는
+                    ^
+lib/screens/soso_car_home_screen.dart:129:1:
+Error: Expected ',' before this.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+^^^
+lib/screens/soso_car_home_screen.dart:129:1:
+Error: Not a constant expression.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+^^^
+lib/screens/soso_car_home_screen.dart:129:5:
+Error: Expected ',' before this.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+    ^^^
+lib/screens/soso_car_home_screen.dart:129:5:
+Error: Not a constant expression.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+    ^^^
+lib/screens/soso_car_home_screen.dart:129:9:
+Error: Expected ',' before this.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+        ^^^
+lib/screens/soso_car_home_screen.dart:129:9:
+Error: Not a constant expression.
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+        ^^^
+lib/screens/soso_car_home_screen.dart:130:11:
+Error: Expected ':' before this.
+          const SizedBox(height: 24),
+          ^^^^^
+lib/screens/soso_car_home_screen.dart:141:17:
+Error: Not a constant expression.
+                _buildFilterChip('드라이브', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:139:17:
+Error: Not a constant expression.
+                _buildFilterChip('자연풍경', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:137:17:
+Error: Not a constant expression.
+                _buildFilterChip('당일치기', true),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:160:17:
+Error: Not a constant expression.
+                _buildFilterChip('급벙', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:158:17:
+Error: Not a constant expression.
+                _buildFilterChip('러닝', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:156:17:
+Error: Not a constant expression.
+                _buildFilterChip('카공', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:154:17:
+Error: Not a constant expression.
+                _buildFilterChip('밥친구', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:152:17:
+Error: Not a constant expression.
+                _buildFilterChip('동네 산책', false),
+                ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:128:21:
+Error: Too many positional arguments: 1 allowed, but 11 found.
+          const Text('우리 동네 이웃과 함께하는
+                    ^
+/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/packages/flutter/lib/src/widgets/text.dart:507:9:
+Info: Found this candidate, but the arguments don't match.
+  const Text(
+        ^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=9584c6713b -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -76,5 +172,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             31.7s
+Compiling lib/main.dart for the Web...                             30.4s
 Error: Failed to compile application for the Web.
