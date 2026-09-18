@@ -47,7 +47,7 @@ class _OOMUReviewScreenState extends State<OOMUReviewScreen> {
         title: Text(widget.isDriveMode ? 'Driver Review' : 'Host Review', style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16)),
         actions: [
           IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black87), onPressed: (){}),
-          IconButton(icon: const Icon(Icons.account_circle, color: darkGreen), onPressed: (){}),
+          IconButton(icon: Icon(Icons.account_circle, color: darkGreen), onPressed: (){}),
         ],
       ),
       body: SingleChildScrollView(
