@@ -1,57 +1,59 @@
-﻿import io
+import io
 
-with io.open('lib/screens/soso_car_home_screen.dart', 'r', encoding='utf-8') as f:
-    code = f.read()
+with io.open('lib/screens/home_screen.dart', 'r', encoding='utf-8') as f:
+    text = f.read()
 
-if "import 'package:kpostal/kpostal.dart';" not in code:
-    code = code.replace("import 'package:flutter/material.dart';", "import 'package:flutter/material.dart';\nimport 'package:kpostal/kpostal.dart';")
+# 1. Remove '동네 커플' card
+text = text.replace(
+    "_featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalCoupleScreen()))), \n          const SizedBox(height: 12),",
+    ""
+)
 
-if "String _currentLocation =" not in code:
-    code = code.replace("class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {", "class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {\n  String _currentLocation = '마포구 연남동';")
+# 2. Add '동네 친구 만들기' shortcut below '동네 드라이브 OOMU' banner
+# Find the end of the green banner
+green_banner = '''Text('우리 동네 이웃과 함께하는 드라이브 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                      ]
+                    )
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white)
+                ]
+              )
+            )
+          ),'''
 
-old_title = '''      title: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(8)),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('마포구 연남동', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
-            SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down, color: Colors.black87, size: 14),
-          ],
-        ),
-      ),'''
+new_banner = '''
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [BoxShadow(color: const Color(0xFFF19E39).withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))]
+              ),
+              child: Row(
+                children: [
+                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.people_alt, color: Color(0xFFF19E39), size: 28)),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('동네 친구 만들기 👫', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
+                        SizedBox(height: 4),
+                        Text('동네 산책, 밥친구, 카공, 러닝 등', style: TextStyle(color: Colors.black54, fontSize: 13)),
+                      ]
+                    )
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.black26)
+                ]
+              )
+            )
+          ),'''
 
-new_title = '''      title: GestureDetector(
-        onTap: () async {
-          try {
-            Kpostal? result = await Navigator.push(context, MaterialPageRoute(builder: (_) => KpostalView()));
-            if (result != null) {
-              setState(() {
-                String addr = result.address;
-                if (addr.length > 15) addr = addr.substring(0, 15) + '...';
-                _currentLocation = addr;
-              });
-            }
-          } catch (e) {
-            print("Kpostal error: \\\");
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(8)),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_currentLocation, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
-              const SizedBox(width: 4),
-              const Icon(Icons.keyboard_arrow_down, color: Colors.black87, size: 14),
-            ],
-          ),
-        ),
-      ),'''
+text = text.replace(green_banner, green_banner + new_banner)
 
-code = code.replace(old_title, new_title)
-
-with io.open('lib/screens/soso_car_home_screen.dart', 'w', encoding='utf-8') as f:
-    f.write(code)
+with io.open('lib/screens/home_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(text)
