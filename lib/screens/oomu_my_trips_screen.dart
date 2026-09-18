@@ -427,8 +427,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
                         Icon(Icons.volunteer_activism, color: Color(0xFFC04020), size: 20),
                         SizedBox(width: 12),
                         Expanded(
-                          child: Text('민우 드라이버님과의 여행은 어떠셨나요?
-따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                          child: Text('민우 드라이버님과의 여행은 어떠셨나요?\n따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
                         )
                       ],
                     ),
