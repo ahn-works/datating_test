@@ -1,4 +1,20 @@
-import 'package:flutter/material.dart';
+import io
+
+# 1. Update home_screen.dart
+with io.open('lib/screens/home_screen.dart', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+text = text.replace("import 'profile_detail_screen.dart';", "import 'driver_profile_modal.dart';")
+text = text.replace(
+    "Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: '24', region: '서울', imageUrl: '', intro: '안녕하세요!', mannerTemp: 36.5)))",
+    "showDriverProfileModal(ctx)"
+)
+
+with io.open('lib/screens/home_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(text)
+
+# 2. Update edit_profile_screen.dart
+edit_code = '''import 'package:flutter/material.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
@@ -91,3 +107,7 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 }
+'''
+with io.open('lib/screens/edit_profile_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(edit_code)
+

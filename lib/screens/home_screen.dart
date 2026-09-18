@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'local_friends_screen.dart';
 import 'dart:async';
-import 'profile_detail_screen.dart';
+import 'driver_profile_modal.dart';
 import 'party_screen.dart';
 import 'home_sub_screens.dart';
 import 'soso_car_hub_screen.dart';
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _userCard(BuildContext ctx, String name, String sub, String img) => GestureDetector(onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: name, age: '24', region: '서울', imageUrl: '', intro: '안녕하세요!', mannerTemp: 36.5))), child: Container(width: 160, margin: const EdgeInsets.only(right: 16), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), image: DecorationImage(image: NetworkImage(img), fit: BoxFit.cover)), child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.8)], begin: Alignment.topCenter, end: Alignment.bottomCenter)), padding: const EdgeInsets.all(16), child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)), const SizedBox(height: 4), Row(children: [const Icon(Icons.location_on, color: Colors.white70, size: 12), const SizedBox(width: 4), Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500))])]))));
+  Widget _userCard(BuildContext ctx, String name, String sub, String img) => GestureDetector(onTap: () => showDriverProfileModal(ctx), child: Container(width: 160, margin: const EdgeInsets.only(right: 16), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), image: DecorationImage(image: NetworkImage(img), fit: BoxFit.cover)), child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [Colors.transparent, Colors.black.withOpacity(0.8)], begin: Alignment.topCenter, end: Alignment.bottomCenter)), padding: const EdgeInsets.all(16), child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)), const SizedBox(height: 4), Row(children: [const Icon(Icons.location_on, color: Colors.white70, size: 12), const SizedBox(width: 4), Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500))])]))));
 
   Widget _featureCard(IconData icon, String title, String sub, Color color, VoidCallback onTap) => GestureDetector(
     onTap: onTap,
