@@ -1,73 +1,20 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'profile_detail_screen.dart';
-import 'party_screen.dart';
-import 'home_sub_screens.dart';
-import 'soso_car_hub_screen.dart';
-import 'soso_car_home_screen.dart';
-import 'signal_house_intro_screen.dart';
+import io
+import re
 
-class HomeScreen extends StatefulWidget { const HomeScreen({super.key}); @override State<HomeScreen> createState() => _HomeScreenState(); }
-class _HomeScreenState extends State<HomeScreen> {
-  final PageController _pc = PageController();
-  int _p = 0;
-  Timer? _t;
-  final _banners = [
-    {'title': '오늘의 여행 친구를 찾아보세요', 'sub': '동네 친구들과 지역 여행을 함께!'},
-    {'title': '새로운 동네 커플의 탄생', 'sub': '나와 잘 맞는 동네 인연을 만나보세요'},
-    {'title': '심쿵 하트 시그널', 'sub': '마음에 드는 이성에게 마음을 표현하세요'}
-  ];
+with io.open('lib/screens/home_screen.dart', 'r', encoding='utf-8') as f:
+    text = f.read()
 
-  @override void initState() {
-    super.initState();
-    _t = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (!mounted) return;
-      setState(() { _p = (_p + 1) % _banners.length; });
-      _pc.animateToPage(_p, duration: const Duration(milliseconds: 600), curve: Curves.easeInOut);
-    });
-  }
-  @override void dispose() { _t?.cancel(); _pc.dispose(); super.dispose(); }
+# First, extract the first part of the file up to "const Text('주요 기능'"
+idx = text.find("const Text('주요 기능'")
+if idx == -1:
+    print("Could not find '주요 기능'")
+    exit(1)
 
-  @override Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('우무(OOMU)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)), backgroundColor: Colors.white, elevation: 0, actions: [IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black), onPressed: () {})]),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          SizedBox(
-            height: 120,
-            child: PageView.builder(
-              controller: _pc,
-              onPageChanged: (i) => setState(() => _p = i),
-              itemCount: _banners.length,
-              itemBuilder: (ctx, i) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(color: const Color(0xFFFF3B30), borderRadius: BorderRadius.circular(20)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(_banners[i]['title']!, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text(_banners[i]['sub']!, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(_banners.length, (i) => AnimatedContainer(duration: const Duration(milliseconds: 300), margin: const EdgeInsets.symmetric(horizontal: 4), width: _p == i ? 20 : 8, height: 8, decoration: BoxDecoration(color: _p == i ? const Color(0xFFFF3B30) : Colors.grey.shade300, borderRadius: BorderRadius.circular(4)))),
-          ),
-          const SizedBox(height: 24),
-          const Text('추천 사용자', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          SizedBox(height: 240, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 5, itemBuilder: (ctx, i) => _userCard(ctx, '우무멤버 ', '서울 강남구', 'https://picsum.photos/200/300?random='))),
-          const SizedBox(height: 12),const SizedBox(height: 24),
-          const Text('주요 기능', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+part1 = text[:idx]
+
+# I need to construct the new bottom part.
+# The user wants "동네 친구 만들기" as a new category with items inside, and separate from "우무 드라이브 메이트"
+new_bottom = '''const Text('주요 기능', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyScreen()))), 
           const SizedBox(height: 12),
@@ -131,3 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
     child: Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]), child: Row(children: [Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 24)), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(sub, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))])), const Icon(Icons.chevron_right, color: Colors.grey)])),
   );
 }
+'''
+
+new_text = part1 + new_bottom
+
+with io.open('lib/screens/home_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(new_text)
