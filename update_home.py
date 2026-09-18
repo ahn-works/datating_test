@@ -3,28 +3,17 @@ import io
 with io.open('lib/screens/home_screen.dart', 'r', encoding='utf-8') as f:
     text = f.read()
 
-# 1. Remove '동네 커플' card
-text = text.replace(
-    "_featureCard(Icons.people, '동네 커플', '남성/여성 성비 확인 후 참여', Colors.blue, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalCoupleScreen()))), \n          const SizedBox(height: 12),",
-    ""
-)
+start_str = "const Text('동네 친구부터 만들기 👫'"
+end_str = "const Text('우무 드라이브 메이트'"
 
-# 2. Add '동네 친구 만들기' shortcut below '동네 드라이브 OOMU' banner
-# Find the end of the green banner
-green_banner = '''Text('우리 동네 이웃과 함께하는 드라이브 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                      ]
-                    )
-                  ),
-                  const Icon(Icons.chevron_right, color: Colors.white)
-                ]
-              )
-            )
-          ),'''
+start_idx = text.find(start_str)
+end_idx = text.find(end_str)
 
-new_banner = '''
+if start_idx != -1 and end_idx != -1:
+    new_section = '''const Text('동네 친구부터 만들기 👫', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen())),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -41,7 +30,7 @@ new_banner = '''
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('동네 친구 만들기 👫', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text('우리 동네 친구 모임 보기', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
                         SizedBox(height: 4),
                         Text('동네 산책, 밥친구, 카공, 러닝 등', style: TextStyle(color: Colors.black54, fontSize: 13)),
                       ]
@@ -51,9 +40,13 @@ new_banner = '''
                 ]
               )
             )
-          ),'''
+          ),
+          const SizedBox(height: 32),
 
-text = text.replace(green_banner, green_banner + new_banner)
-
-with io.open('lib/screens/home_screen.dart', 'w', encoding='utf-8') as f:
-    f.write(text)
+          '''
+    new_text = text[:start_idx] + new_section + text[end_idx:]
+    with io.open('lib/screens/home_screen.dart', 'w', encoding='utf-8') as f:
+        f.write(new_text)
+    print('home_screen.dart updated successfully!')
+else:
+    print('Could not find sections in home_screen.dart')
