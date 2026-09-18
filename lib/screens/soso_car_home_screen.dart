@@ -125,8 +125,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('우리 동네 이웃과 함께하는
-새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+          const Text('우리 동네 이웃과 함께하는\n새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
           const SizedBox(height: 24),
           const Text('🚙 우무 드라이브 메이트', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54)),
           const SizedBox(height: 12),
