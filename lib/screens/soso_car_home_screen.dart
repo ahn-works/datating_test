@@ -379,13 +379,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           // 탐색 (현재 화면)
         } else if (index == 1) {
           // 모집하기
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostScreen()));
         } else if (index == 2) {
           // 채팅 (soso_car_chat_screen으로 연결하거나 chat_screen으로 연결)
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
         } else if (index == 3) {
           // 내 여행
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUMyTripsScreen()));
         }
       },
       items: [

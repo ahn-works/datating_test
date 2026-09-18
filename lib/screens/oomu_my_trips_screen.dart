@@ -315,7 +315,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUChatScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUChatScreen()));
                             },
                             icon: const Icon(Icons.chat, color: Colors.white, size: 18),
                             label: const Text('동행 단체 채팅방', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -590,10 +590,10 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
           Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 1) {
           // 모집하기
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostScreen()));
         } else if (index == 2) {
           // 채팅
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
         } else if (index == 3) {
           // 내 여행 (현재 화면)
         }
