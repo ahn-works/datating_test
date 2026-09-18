@@ -72,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           _featureCard(Icons.travel_explore, '여행 모집', '지역 기반 여행 모임 만들기', const Color(0xFFFF3B30), () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyScreen()))), 
           const SizedBox(height: 12),
-          _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen()))),
           const SizedBox(height: 32),
           
           const Text('동네 친구부터 만들기 👫', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
