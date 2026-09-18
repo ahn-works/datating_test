@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'chat_screen.dart';
+import 'soso_car_chat_screen.dart';
+import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'package:kpostal/kpostal.dart';
 import 'soso_car_host_screen.dart';
