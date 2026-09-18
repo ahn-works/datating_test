@@ -125,17 +125,42 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('우리끼리 무드있게\n자만추 드라이브 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildFilterChip('드라이브 메이트', true),
-              const SizedBox(width: 8),
-              _buildFilterChip('당일치기', false),
-              const SizedBox(width: 8),
-              _buildFilterChip('자연풍경', false),
-            ],
-          )
+          const Text('우리 동네 이웃과 함께하는
+새로운 만남은 어때요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4, letterSpacing: -0.5)),
+          const SizedBox(height: 24),
+          const Text('🚙 우무 드라이브 메이트', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54)),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildFilterChip('당일치기', true),
+                const SizedBox(width: 8),
+                _buildFilterChip('자연풍경', false),
+                const SizedBox(width: 8),
+                _buildFilterChip('드라이브', false),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text('👫 동네 친구 만들기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54)),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildFilterChip('동네 산책', false),
+                const SizedBox(width: 8),
+                _buildFilterChip('밥친구', false),
+                const SizedBox(width: 8),
+                _buildFilterChip('카공', false),
+                const SizedBox(width: 8),
+                _buildFilterChip('러닝', false),
+                const SizedBox(width: 8),
+                _buildFilterChip('급벙', false),
+              ],
+            ),
+          ),
         ],
       ),
     );
