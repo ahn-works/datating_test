@@ -8,10 +8,6 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_detail_screen.dart:10:62:
-Error: Can't find '}' to match '{'.
-class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
-                                                             ^
 lib/screens/soso_car_detail_screen.dart:49:17:
 Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
  - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
@@ -80,5 +76,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             29.0s
+Compiling lib/main.dart for the Web...                             31.7s
 Error: Failed to compile application for the Web.
