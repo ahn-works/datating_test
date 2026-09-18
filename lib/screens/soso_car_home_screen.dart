@@ -301,7 +301,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('예상 1인 정산금', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                          const Text('예상 1인 회비', style: TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 4),
                           Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                         ],
@@ -648,7 +648,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('예상 1인 정산금', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                          const Text('예상 1인 회비', style: TextStyle(fontSize: 11, color: Colors.black54)),
                           const SizedBox(height: 4),
                           Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                         ],
