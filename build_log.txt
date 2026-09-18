@@ -1,258 +1,228 @@
 Compiling lib/main.dart for the Web...                          
-Unexpected wasm dry run failure (252):
+Wasm dry run findings:
+Found incompatibilities with WebAssembly.
+
+package:spot10_app/screens/soso_car_hub_screen.dart 3:1 - dart:html unsupported (0)
+
+Consider addressing these issues to enable wasm builds. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+
 Use --no-wasm-dry-run to disable these warnings.
-Target dart2js failed: ProcessException: Process exited abnormally with exit code 253:
-lib/screens/soso_car_home_screen.dart:183:68:
-Error: Duplicated named argument 'boxShadow'.
-        border: Border.all(color: Colors.black.withOpacity(0.04)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]
-                                                                   ^^^^^^^^^
-lib/screens/soso_car_host_step3_screen.dart:420:11:
+Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+lib/screens/soso_car_home_screen.dart:13:64:
+Error: Can't find '}' to match '{'.
+class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+                                                               ^
+lib/screens/soso_car_home_screen.dart:348:4:
+Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
+  }import 'package:flutter/material.dart';
+   ^^^^^^
+lib/screens/soso_car_home_screen.dart:348:4:
 Error: Expected ';' after this.
-          )
-          ^
-lib/screens/soso_car_host_step3_screen.dart:421:9:
-Error: Expected an identifier, but got ']'.
-        ],
-        ^
-lib/screens/soso_car_host_step3_screen.dart:421:9:
-Error: Unexpected token ';'.
-        ],
-        ^
-lib/screens/soso_car_host_step3_screen.dart:421:10:
-Error: Expected an identifier, but got ','.
-        ],
-         ^
-lib/screens/soso_car_host_step3_screen.dart:421:9:
+  }import 'package:flutter/material.dart';
+   ^^^^^^
+lib/screens/soso_car_home_screen.dart:348:11:
+Error: Expected a class member, but got ''package:flutter/material.dart''.
+  }import 'package:flutter/material.dart';
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:348:42:
+Error: Expected a class member, but got ';'.
+  }import 'package:flutter/material.dart';
+                                         ^
+lib/screens/soso_car_home_screen.dart:349:1:
+Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
+import 'package:kpostal/kpostal.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:349:1:
 Error: Expected ';' after this.
-        ],
-        ^
-lib/screens/soso_car_host_step3_screen.dart:421:10:
-Error: Unexpected token ';'.
-        ],
-         ^
-lib/screens/soso_car_host_step3_screen.dart:422:7:
-Error: Expected an identifier, but got ')'.
-      ),
-      ^
-lib/screens/soso_car_host_step3_screen.dart:421:10:
+import 'package:kpostal/kpostal.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:349:8:
+Error: Expected a class member, but got ''package:kpostal/kpostal.dart''.
+import 'package:kpostal/kpostal.dart';
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:349:38:
+Error: Expected a class member, but got ';'.
+import 'package:kpostal/kpostal.dart';
+                                     ^
+lib/screens/soso_car_home_screen.dart:350:1:
+Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
+import 'soso_car_host_screen.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:350:1:
 Error: Expected ';' after this.
-        ],
-         ^
-lib/screens/soso_car_host_step3_screen.dart:422:7:
-Error: Unexpected token ';'.
-      ),
-      ^
-lib/screens/soso_car_host_step3_screen.dart:422:8:
-Error: Expected an identifier, but got ','.
-      ),
-       ^
-lib/screens/soso_car_host_step3_screen.dart:422:7:
+import 'soso_car_host_screen.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:350:8:
+Error: Expected a class member, but got ''soso_car_host_screen.dart''.
+import 'soso_car_host_screen.dart';
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:350:35:
+Error: Expected a class member, but got ';'.
+import 'soso_car_host_screen.dart';
+                                  ^
+lib/screens/soso_car_home_screen.dart:351:1:
+Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
+import 'soso_car_detail_screen.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:351:1:
 Error: Expected ';' after this.
-      ),
-      ^
-lib/screens/soso_car_host_step3_screen.dart:422:8:
-Error: Unexpected token ';'.
-      ),
-       ^
-lib/screens/soso_car_host_step3_screen.dart:423:5:
-Error: Expected an identifier, but got ')'.
-    );
-    ^
-lib/screens/soso_car_host_step3_screen.dart:422:8:
-Error: Expected ';' after this.
-      ),
-       ^
-lib/screens/soso_car_host_step3_screen.dart:423:5:
-Error: Unexpected token ';'.
-    );
-    ^
-.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart:
-Internal Error: The compiler crashed when compiling this element.
-
-The compiler is broken.
-
-When compiling the above element, the compiler crashed. It is not
-possible to tell if this is caused by a problem in your program or
-not. Regardless, the compiler should not crash.
-
-The Dart team would greatly appreciate if you would take a moment to
-report this problem at http://dartbug.com/new.
-
-Please include the following information:
-
-* the name and version of your operating system,
-
-* the Dart SDK build number (3.13.3), and
-
-* the entire message you see here (including the full stack trace
-  below as well as the source location above).
-
-The compiler crashed: Crash when compiling:
-Null check operator used on a null value
-
-#0      ConstantEvaluator._recordConstructorCoverage (package:front_end/src/kernel/constant_evaluator.dart:3082)
-#1      ConstantEvaluator.handleConstructorInvocation.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:3724)
-#2      ConstantEvaluator.withNewEnvironment (package:front_end/src/kernel/constant_evaluator.dart:5984)
-#3      ConstantEvaluator.handleConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:3719)
-#4      ConstantEvaluator.visitConstructorInvocation.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:3625)
-#5      ConstantEvaluator.withNewInstanceBuilder (package:front_end/src/kernel/constant_evaluator.dart:5972)
-#6      ConstantEvaluator.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:3609)
-#7      ConstructorInvocation.accept (package:kernel/src/ast/expressions.dart:2956)
-#8      ConstantEvaluator._evaluateSubexpression (package:front_end/src/kernel/constant_evaluator.dart:3127)
-#9      ConstantEvaluator._evaluate (package:front_end/src/kernel/constant_evaluator.dart:2800)
-#10     ConstantEvaluator.evaluate (package:front_end/src/kernel/constant_evaluator.dart:2792)
-#11     ConstantsTransformer.evaluateWithContext (package:front_end/src/kernel/constant_evaluator.dart:2538)
-#12     ConstantsTransformer.evaluateAndTransformWithContext (package:front_end/src/kernel/constant_evaluator.dart:2533)
-#13     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2475)
-#14     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
-#15     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#16     FieldInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:155)
-#17     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#18     TreeVisitor1DefaultMixin.visitNamedExpression (package:kernel/visitor.dart:780)
-#19     NamedExpression.accept1 (package:kernel/src/ast/expressions.dart:1641)
-#20     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#21     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
-#22     RemovingTransformer.transformNamedExpressionList (package:kernel/visitor.dart:2229)
-#23     Arguments.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:1585)
-#24     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#25     TreeVisitor1DefaultMixin.visitArguments (package:kernel/visitor.dart:777)
-#26     Arguments.accept1 (package:kernel/src/ast/expressions.dart:1565)
-#27     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#28     RedirectingInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:303)
-#29     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#30     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
-#31     ExpressionVisitor1DefaultMixin.visitConstructorInvocation (package:kernel/visitor.dart:2495)
-#32     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2477)
-#33     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
-#34     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#35     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
-#36     RemovingTransformer.transformExpressionList (package:kernel/visitor.dart:2217)
-#37     ThisVariable.transformOrRemoveChildren (package:kernel/src/ast/variables.dart:2053)
-#38     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#39     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
-#40     ExpressionVisitor1DefaultMixin.visitListLiteral (package:kernel/visitor.dart:2550)
-#41     ConstantsTransformer.visitListLiteral (package:front_end/src/kernel/constant_evaluator.dart:2319)
-#42     ListLiteral.accept1 (package:kernel/src/ast/expressions.dart:4551)
-#43     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#44     BlockExpression.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:5246)
-#45     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#46     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
-#47     ExpressionVisitor1DefaultMixin.visitBlockExpression (package:kernel/visitor.dart:2577)
-#48     BlockExpression.accept1 (package:kernel/src/ast/expressions.dart:5226)
-#49     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#50     RemovingTransformer.transformOrRemoveExpression (package:kernel/visitor.dart:2026)
-#51     InvalidExpression.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:181)
-#52     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#53     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
-#54     ExpressionVisitor1DefaultMixin.visitInvalidExpression (package:kernel/visitor.dart:2425)
-#55     InvalidExpression.accept1 (package:kernel/src/ast/expressions.dart:163)
-#56     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#57     FieldInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:155)
-#58     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#59     TreeVisitor1DefaultMixin.visitNamedExpression (package:kernel/visitor.dart:780)
-#60     NamedExpression.accept1 (package:kernel/src/ast/expressions.dart:1641)
-#61     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#62     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
-#63     RemovingTransformer.transformNamedExpressionList (package:kernel/visitor.dart:2229)
-#64     Arguments.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:1585)
-#65     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#66     TreeVisitor1DefaultMixin.visitArguments (package:kernel/visitor.dart:777)
-#67     Arguments.accept1 (package:kernel/src/ast/expressions.dart:1565)
-#68     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#69     RedirectingInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:303)
-#70     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#71     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
-#72     ExpressionVisitor1DefaultMixin.visitConstructorInvocation (package:kernel/visitor.dart:2495)
-#73     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2477)
-#74     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
-#75     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#76     FieldInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:155)
-#77     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#78     TreeVisitor1DefaultMixin.visitNamedExpression (package:kernel/visitor.dart:780)
-#79     NamedExpression.accept1 (package:kernel/src/ast/expressions.dart:1641)
-#80     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#81     RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
-#82     RemovingTransformer.transformNamedExpressionList (package:kernel/visitor.dart:2229)
-#83     Arguments.transformOrRemoveChildren (package:kernel/src/ast/expressions.dart:1585)
-#84     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#85     TreeVisitor1DefaultMixin.visitArguments (package:kernel/visitor.dart:777)
-#86     Arguments.accept1 (package:kernel/src/ast/expressions.dart:1565)
-#87     RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#88     RedirectingInitializer.transformOrRemoveChildren (package:kernel/src/ast/initializers.dart:303)
-#89     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#90     TreeVisitor1Default.defaultExpression (package:kernel/visitor.dart:830)
-#91     ExpressionVisitor1DefaultMixin.visitConstructorInvocation (package:kernel/visitor.dart:2495)
-#92     ConstantsTransformer.visitConstructorInvocation (package:front_end/src/kernel/constant_evaluator.dart:2477)
-#93     ConstructorInvocation.accept1 (package:kernel/src/ast/expressions.dart:2960)
-#94     RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#95     RemovingTransformer.transformOrRemoveExpression (package:kernel/visitor.dart:2026)
-#96     ReturnStatement.transformOrRemoveChildren (package:kernel/src/ast/statements.dart:1142)
-#97     RemovingTransformer.defaultTreeNode (package:kernel/visitor.dart:2330)
-#98     TreeVisitor1Default.defaultStatement (package:kernel/visitor.dart:834)
-#99     StatementVisitor1DefaultMixin.visitReturnStatement (package:kernel/visitor.dart:2766)
-#100    ReturnStatement.accept1 (package:kernel/src/ast/statements.dart:1124)
-#101    RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#102    ConstantsTransformer.visitBlock (package:front_end/src/kernel/constant_evaluator.dart:662)
-#103    Block.accept1 (package:kernel/src/ast/statements.dart:109)
-#104    RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#105    ConstantsTransformer.visitFunctionNode (package:front_end/src/kernel/constant_evaluator.dart:428)
-#106    FunctionNode.accept1 (package:kernel/src/ast/functions.dart:255)
-#107    RemovingTransformer.transform (package:kernel/visitor.dart:2017)
-#108    ConstantsTransformer.visitProcedure.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:318)
-#109    ConstantEvaluator.withNewEnvironment (package:front_end/src/kernel/constant_evaluator.dart:5984)
-#110    ConstantsTransformer.visitProcedure (package:front_end/src/kernel/constant_evaluator.dart:316)
-#111    Procedure.accept1 (package:kernel/src/ast/members.dart:1266)
-#112    RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#113    RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
-#114    RemovingTransformer.transformProcedureList (package:kernel/visitor.dart:2183)
-#115    ConstantsTransformer.visitClass.<anonymous closure> (package:front_end/src/kernel/constant_evaluator.dart:261)
-#116    ConstantEvaluator.withNewEnvironment (package:front_end/src/kernel/constant_evaluator.dart:5984)
-#117    ConstantsTransformer.visitClass (package:front_end/src/kernel/constant_evaluator.dart:256)
-#118    Class.accept1 (package:kernel/src/ast/declarations.dart:509)
-#119    RemovingTransformer.transformOrRemove (package:kernel/visitor.dart:2063)
-#120    RemovingTransformer.transformList (package:kernel/visitor.dart:2307)
-#121    RemovingTransformer.transformClassList (package:kernel/visitor.dart:2144)
-#122    ConstantsTransformer.convertLibrary (package:front_end/src/kernel/constant_evaluator.dart:197)
-#123    transformLibraries (package:front_end/src/kernel/constant_evaluator.dart:81)
-#124    KernelTarget.runBuildTransformations (package:front_end/src/kernel/kernel_target.dart:1865)
-#125    KernelTarget.buildComponent.<anonymous closure> (package:front_end/src/kernel/kernel_target.dart:765)
-<asynchronous suspension>
-#126    withCrashReporting (package:front_end/src/base/crash.dart:85)
-<asynchronous suspension>
-#127    KernelTarget.buildComponent (package:front_end/src/kernel/kernel_target.dart:697)
-<asynchronous suspension>
-#128    _buildInternal (package:front_end/src/kernel_generator_impl.dart:243)
-<asynchronous suspension>
-#129    withCrashReporting (package:front_end/src/base/crash.dart:85)
-<asynchronous suspension>
-#130    compile.<anonymous closure> (package:front_end/src/api_unstable/dart2js.dart:169)
-<asynchronous suspension>
-#131    CompilerContext.clear (package:front_end/src/base/compiler_context.dart:92)
-<asynchronous suspension>
-#132    compile (package:front_end/src/api_unstable/dart2js.dart:166)
-<asynchronous suspension>
-#133    _loadFromSource (package:compiler/src/phase/load_kernel.dart:307)
-<asynchronous suspension>
-#134    run (package:compiler/src/phase/load_kernel.dart:421)
-<asynchronous suspension>
-#135    Compiler.loadKernel (package:compiler/src/compiler.dart:418)
-<asynchronous suspension>
-#136    Compiler.produceKernel (package:compiler/src/compiler.dart:427)
-<asynchronous suspension>
-#137    Compiler.runSequentialPhases (package:compiler/src/compiler.dart:712)
-<asynchronous suspension>
-#138    Compiler.runInternal.<anonymous closure> (package:compiler/src/compiler.dart:329)
-<asynchronous suspension>
-#139    Compiler.runInternal (package:compiler/src/compiler.dart:328)
-<asynchronous suspension>
-#140    Compiler.run.<anonymous closure> (package:compiler/src/compiler.dart:240)
-<asynchronous suspension>
-#141    compile.<anonymous closure> (package:compiler/compiler_api.dart:273)
-<asynchronous suspension>
-#142    compile.compilationDone (package:compiler/src/dart2js.dart:764)
-<asynchronous suspension>
-#143    main (package:compiler/src/dart2js.dart:1318)
-<asynchronous suspension>
+import 'soso_car_detail_screen.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:351:8:
+Error: Expected a class member, but got ''soso_car_detail_screen.dart''.
+import 'soso_car_detail_screen.dart';
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:351:37:
+Error: Expected a class member, but got ';'.
+import 'soso_car_detail_screen.dart';
+                                    ^
+lib/screens/soso_car_home_screen.dart:353:1:
+Error: Classes can't be declared inside other classes.
+class SosoCarHomeScreen extends StatefulWidget {
+^^^^^
+lib/screens/soso_car_home_screen.dart:353:25:
+Error: Expected a class member, but got 'extends'.
+class SosoCarHomeScreen extends StatefulWidget {
+                        ^^^^^^^
+lib/screens/soso_car_home_screen.dart:353:33:
+Error: A method declaration needs an explicit list of parameters.
+class SosoCarHomeScreen extends StatefulWidget {
+                                ^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:360:1:
+Error: Classes can't be declared inside other classes.
+class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+^^^^^
+lib/screens/soso_car_home_screen.dart:360:31:
+Error: Expected a class member, but got 'extends'.
+class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+                              ^^^^^^^
+lib/screens/soso_car_home_screen.dart:360:39:
+Error: A method declaration needs an explicit list of parameters.
+class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+                                      ^^^^^
+lib/screens/soso_car_home_screen.dart:349:1:
+Error: 'import' is already declared in this scope.
+import 'package:kpostal/kpostal.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:348:4:
+Info: Previous declaration of 'import'.
+  }import 'package:flutter/material.dart';
+   ^^^^^^
+lib/screens/soso_car_home_screen.dart:350:1:
+Error: 'import' is already declared in this scope.
+import 'soso_car_host_screen.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:348:4:
+Info: Previous declaration of 'import'.
+  }import 'package:flutter/material.dart';
+   ^^^^^^
+lib/screens/soso_car_home_screen.dart:351:1:
+Error: 'import' is already declared in this scope.
+import 'soso_car_detail_screen.dart';
+^^^^^^
+lib/screens/soso_car_home_screen.dart:348:4:
+Info: Previous declaration of 'import'.
+  }import 'package:flutter/material.dart';
+   ^^^^^^
+lib/screens/soso_car_home_screen.dart:68:28:
+Error: The method '_buildBottomNav' isn't defined for the type '_SosoCarHomeScreenState'.
+ - '_SosoCarHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+      bottomNavigationBar: _buildBottomNav(),
+                           ^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:354:34:
+Error: Superclass has no getter named 'key'.
+  const SosoCarHomeScreen({super.key});
+                                 ^^^
+lib/screens/soso_car_home_screen.dart:354:26:
+Error: Too many positional arguments: 0 allowed, but 1 found.
+  const SosoCarHomeScreen({super.key});
+                         ^
+lib/screens/soso_car_home_screen.dart:7:9:
+Info: Found this candidate, but the arguments don't match.
+  const SosoCarHomeScreen({super.key});
+        ^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:357:3:
+Error: 'State' isn't a type.
+  State<SosoCarHomeScreen> createState() => _SosoCarHomeScreenState();
+  ^^^^^
+lib/screens/soso_car_home_screen.dart:404:15:
+Error: Local variable '_buildAppBar' can't be referenced before it is declared.
+      appBar: _buildAppBar(),
+              ^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:437:10:
+Info: This is the declaration of the variable '_buildAppBar'.
+  AppBar _buildAppBar() {
+         ^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:409:13:
+Error: Local variable '_buildHeroSection' can't be referenced before it is declared.
+            _buildHeroSection(),
+            ^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:468:10:
+Info: This is the declaration of the variable '_buildHeroSection'.
+  Widget _buildHeroSection() {
+         ^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:479:15:
+Error: Local variable '_buildFilterChip' can't be referenced before it is declared.
+              _buildFilterChip('드라이브 메이트', true),
+              ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:491:10:
+Info: This is the declaration of the variable '_buildFilterChip'.
+  Widget _buildFilterChip(String label, bool isSelected) {
+         ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:481:15:
+Error: Local variable '_buildFilterChip' can't be referenced before it is declared.
+              _buildFilterChip('당일치기', false),
+              ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:491:10:
+Info: This is the declaration of the variable '_buildFilterChip'.
+  Widget _buildFilterChip(String label, bool isSelected) {
+         ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:483:15:
+Error: Local variable '_buildFilterChip' can't be referenced before it is declared.
+              _buildFilterChip('자연풍경', false),
+              ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:491:10:
+Info: This is the declaration of the variable '_buildFilterChip'.
+  Widget _buildFilterChip(String label, bool isSelected) {
+         ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:410:13:
+Error: Local variable '_buildTripList' can't be referenced before it is declared.
+            _buildTripList(),
+            ^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:503:10:
+Info: This is the declaration of the variable '_buildTripList'.
+  Widget _buildTripList() {
+         ^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:513:18:
+Error: Local variable '_buildTripCard' can't be referenced before it is declared.
+          child: _buildTripCard(_trips[index], index == 0 ? 21 : 18),
+                 ^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:519:10:
+Info: This is the declaration of the variable '_buildTripCard'.
+  Widget _buildTripCard(Map<String, dynamic> trip, int temp) {
+         ^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:411:13:
+Error: Local variable '_buildSafetyBanner' can't be referenced before it is declared.
+            _buildSafetyBanner(),
+            ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:672:10:
+Info: This is the declaration of the variable '_buildSafetyBanner'.
+  Widget _buildSafetyBanner() {
+         ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:415:28:
+Error: Local variable '_buildBottomNav' can't be referenced before it is declared.
+      bottomNavigationBar: _buildBottomNav(),
+                           ^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:697:10:
+Info: This is the declaration of the variable '_buildBottomNav'.
+  Widget _buildBottomNav() {
+         ^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:415:28:
+Error: The method '_buildBottomNav' isn't defined for the type '_SosoCarHomeScreenState'.
+ - '_SosoCarHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+      bottomNavigationBar: _buildBottomNav(),
+                           ^^^^^^^^^^^^^^^
+Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=9584c6713b -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
@@ -300,5 +270,5 @@ Null check operator used on a null value
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                              5.5s
+Compiling lib/main.dart for the Web...                             29.8s
 Error: Failed to compile application for the Web.
