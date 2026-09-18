@@ -8,11 +8,203 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_detail_screen.dart:57:17:
-Error: The method '_buildFellowPassengers' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                _buildFellowPassengers(),
-                ^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/oomu_my_trips_screen.dart:430:39:
+Error: String starting with ' must end with '.
+                          child: Text('민우 드라이버님과의 여행은 어떠셨나요?
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/oomu_my_trips_screen.dart:431:1:
+Error: The non-ASCII character '따' (U+B530) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+^
+lib/screens/oomu_my_trips_screen.dart:431:2:
+Error: The non-ASCII character '뜻' (U+B73B) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+ ^
+lib/screens/oomu_my_trips_screen.dart:431:3:
+Error: The non-ASCII character '한' (U+D55C) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+  ^
+lib/screens/oomu_my_trips_screen.dart:431:5:
+Error: The non-ASCII character '피' (U+D53C) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+    ^
+lib/screens/oomu_my_trips_screen.dart:431:6:
+Error: The non-ASCII character '드' (U+B4DC) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+     ^
+lib/screens/oomu_my_trips_screen.dart:431:7:
+Error: The non-ASCII character '백' (U+BC31) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+      ^
+lib/screens/oomu_my_trips_screen.dart:431:8:
+Error: The non-ASCII character '으' (U+C73C) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+       ^
+lib/screens/oomu_my_trips_screen.dart:431:9:
+Error: The non-ASCII character '로' (U+B85C) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+        ^
+lib/screens/oomu_my_trips_screen.dart:431:11:
+Error: The non-ASCII character '동' (U+B3D9) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+          ^
+lib/screens/oomu_my_trips_screen.dart:431:12:
+Error: The non-ASCII character '네' (U+B124) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+           ^
+lib/screens/oomu_my_trips_screen.dart:431:14:
+Error: The non-ASCII character '이' (U+C774) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+             ^
+lib/screens/oomu_my_trips_screen.dart:431:15:
+Error: The non-ASCII character '웃' (U+C6C3) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+              ^
+lib/screens/oomu_my_trips_screen.dart:431:17:
+Error: The non-ASCII character '매' (U+B9E4) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                ^
+lib/screens/oomu_my_trips_screen.dart:431:18:
+Error: The non-ASCII character '너' (U+B108) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                 ^
+lib/screens/oomu_my_trips_screen.dart:431:20:
+Error: The non-ASCII character '온' (U+C628) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                   ^
+lib/screens/oomu_my_trips_screen.dart:431:21:
+Error: The non-ASCII character '도' (U+B3C4) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                    ^
+lib/screens/oomu_my_trips_screen.dart:431:22:
+Error: The non-ASCII character '를' (U+B97C) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                     ^
+lib/screens/oomu_my_trips_screen.dart:431:24:
+Error: The non-ASCII character '올' (U+C62C) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                       ^
+lib/screens/oomu_my_trips_screen.dart:431:25:
+Error: The non-ASCII character '려' (U+B824) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                        ^
+lib/screens/oomu_my_trips_screen.dart:431:26:
+Error: The non-ASCII character '주' (U+C8FC) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                         ^
+lib/screens/oomu_my_trips_screen.dart:431:27:
+Error: The non-ASCII character '세' (U+C138) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                          ^
+lib/screens/oomu_my_trips_screen.dart:431:28:
+Error: The non-ASCII character '요' (U+C694) can't be used in identifiers, only in strings and comments.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                           ^
+lib/screens/oomu_my_trips_screen.dart:431:30:
+Error: String starting with ' must end with '.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/oomu_my_trips_screen.dart:429:33:
+Error: Can't find ')' to match '('.
+                        Expanded(
+                                ^
+lib/screens/soso_car_home_screen.dart:399:30:
+Error: Not a constant expression.
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+                             ^^^^^^^
+lib/screens/soso_car_home_screen.dart:399:66:
+Error: Not a constant expression.
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+                                                                 ^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:399:39:
+Error: Cannot invoke a non-'const' constructor where a const expression is expected.
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+                                      ^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:399:25:
+Error: Method invocation is not a constant expression.
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+                        ^^^^
+lib/screens/soso_car_home_screen.dart:398:20:
+Error: Not a constant expression.
+            onTap: () {
+                   ^^
+lib/screens/soso_car_home_screen.dart:405:17:
+Error: Expected ']' before this.
+        ), label: '내 차'),
+                ^
+lib/screens/soso_car_home_screen.dart:405:12:
+Error: The getter 'label' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+        ), label: '내 차'),
+           ^^^^^
+lib/screens/oomu_my_trips_screen.dart:431:1:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+^^^
+lib/screens/oomu_my_trips_screen.dart:431:1:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+^^^
+lib/screens/oomu_my_trips_screen.dart:431:5:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+    ^^^^^
+lib/screens/oomu_my_trips_screen.dart:431:5:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+    ^^^^^
+lib/screens/oomu_my_trips_screen.dart:431:11:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+          ^^
+lib/screens/oomu_my_trips_screen.dart:431:11:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+          ^^
+lib/screens/oomu_my_trips_screen.dart:431:14:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+             ^^
+lib/screens/oomu_my_trips_screen.dart:431:14:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+             ^^
+lib/screens/oomu_my_trips_screen.dart:431:17:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                ^^
+lib/screens/oomu_my_trips_screen.dart:431:17:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                ^^
+lib/screens/oomu_my_trips_screen.dart:431:20:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                   ^^^
+lib/screens/oomu_my_trips_screen.dart:431:20:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                   ^^^
+lib/screens/oomu_my_trips_screen.dart:431:24:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                       ^^^^^
+lib/screens/oomu_my_trips_screen.dart:431:24:
+Error: Not a constant expression.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                       ^^^^^
+lib/screens/oomu_my_trips_screen.dart:431:30:
+Error: Expected ',' before this.
+따뜻한 피드백으로 동네 이웃 매너 온도를 올려주세요!', style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4)),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/oomu_my_trips_screen.dart:430:38:
+Error: Too many positional arguments: 1 allowed, but 9 found.
+                          child: Text('민우 드라이버님과의 여행은 어떠셨나요?
+                                     ^
+/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/packages/flutter/lib/src/widgets/text.dart:507:9:
+Info: Found this candidate, but the arguments don't match.
+  const Text(
+        ^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=9584c6713b -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -61,5 +253,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             29.5s
+Compiling lib/main.dart for the Web...                             30.0s
 Error: Failed to compile application for the Web.
