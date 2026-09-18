@@ -507,3 +507,5 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       ),
     );
   }
+
+}
