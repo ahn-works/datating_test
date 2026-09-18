@@ -367,7 +367,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 const SizedBox(height: 12),
                 _buildCostRow('왕복 고속도로 통행료', '11,000원', false),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                _buildCostRow('예상 총 드라이브 경비', '56,000원', true),
+                _buildCostRow('예상 총 모임 회비', '56,000원', true),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -512,7 +512,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('1/N 분담금', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                const Text('1인당 예상 회비', style: TextStyle(fontSize: 12, color: Colors.black54)),
                 const SizedBox(height: 4),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
