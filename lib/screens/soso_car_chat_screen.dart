@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import "oomu_review_screen.dart";
 
 class OOMUChatScreen extends StatefulWidget {
   const OOMUChatScreen({super.key});
@@ -22,8 +23,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Navigator.pop(context)),
         title: const Text('Chat Room', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
         actions: [
+          IconButton(icon: const Icon(Icons.rate_review_outlined, color: Colors.black87), onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUReviewScreen(isDriveMode: true))); }),
           IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black87), onPressed: (){}),
-          IconButton(icon: const Icon(Icons.account_circle, color: darkGreen), onPressed: (){}),
         ],
       ),
       body: Column(

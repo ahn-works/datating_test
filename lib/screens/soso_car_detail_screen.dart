@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import "soso_car_chat_screen.dart";
 
 class OOMUDetailScreen extends StatefulWidget {
   const OOMUDetailScreen({super.key});
@@ -506,21 +507,6 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4))],
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('1인당 예상 회비', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    const Text('14,000', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-                    const Text('원', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
@@ -528,9 +514,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUChatScreen()));
             },
             icon: const Icon(Icons.chat, color: Colors.white, size: 18),
-            label: const Text('참여 신청하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+            label: const Text('참여 신청하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: darkGreen,
+              backgroundColor: const Color(0xFF1B4D3E),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
