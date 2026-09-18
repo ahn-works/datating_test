@@ -683,7 +683,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('소소카 안전 운행 약속', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('우무(OOMU) 안전 운행 약속', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 SizedBox(height: 6),
                 Text('동네 이웃 인증, 운전면허 & 자동차보험 검증이 완료된 차주만 모집글을 등록할 수 있습니다.', style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.4)),
               ],
