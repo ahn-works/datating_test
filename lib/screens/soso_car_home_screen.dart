@@ -298,14 +298,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           )
                         ],
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text('예상 1인 회비', style: TextStyle(fontSize: 11, color: Colors.black54)),
-                          const SizedBox(height: 4),
-                          Text(price + '원', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-                        ],
-                      ),
+                      const SizedBox(),
                       ElevatedButton(
                         onPressed: (){},
                         style: ElevatedButton.styleFrom(backgroundColor: darkGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),

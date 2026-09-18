@@ -152,32 +152,7 @@ class _OOMUHostStep3ScreenState extends State<OOMUHostStep3Screen> {
                           ],
                         ),
                         const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                        _isLoadingRoute ? const Center(child: CircularProgressIndicator()) : Column(
-                          children: [
-                            _buildCostRow('예상 모임 전체 회비', '약 원', isBold: true),
-                            const SizedBox(height: 8),
-                            const Text('* 식비, 카페, 공통 활동비 등 모임에 필요한 전체 경비 기준이며, 차량 이동에 대한 대가가 아닙니다.', style: TextStyle(fontSize: 10, color: Colors.black54, height: 1.4)),
-                            const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: darkGreen, borderRadius: BorderRadius.circular(12)),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('인 참석 시 1인당 회비', style: const TextStyle(color: Colors.white70, fontSize: 10)),
-                                      const SizedBox(height: 2),
-                                      const Text('호스트 포함 투명한 모임 N빵', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
-                                    ],
-                                  ),
-                                  Text('약  원', style: TextStyle(color: badgeGreen, fontSize: 18, fontWeight: FontWeight.w900)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                        const SizedBox(height: 8),
                         const SizedBox(height: 16),
                         const Row(
                           crossAxisAlignment: CrossAxisAlignment.start,

@@ -51,7 +51,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 _buildDivider(),
                 _buildTimeline(),
                 _buildDivider(),
-                _buildCostSplit(),
+                
                 _buildDivider(),
                 _buildFellowPassengers(),
                 const SizedBox(height: 100), // Space for bottom bar
@@ -500,51 +500,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   Widget _buildBottomBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4))],
-      ),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))]),
       child: SafeArea(
-        child: Row(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('1인당 예상 회비', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    const Text('14,000', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-                    const Text('원', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
-                )
-              ],
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _showApplyToast,
-                icon: const Icon(Icons.chat, color: Colors.white, size: 18),
-                label: const Text('참여 신청하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: darkGreen,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                ),
-              ),
-            )
-          ],
-        ),
+        child: ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat, size: 18), label: const Text('참여 신청하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), style: ElevatedButton.styleFrom(backgroundColor: darkGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
       ),
     );
   }
-
-  Widget _buildDivider() {
-    return Container(height: 8, color: surfaceContainer);
-  }
-}
