@@ -411,6 +411,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           label: '내 여행',
         ),
       ],
+],
           ),
           label: '채팅',
         ),
