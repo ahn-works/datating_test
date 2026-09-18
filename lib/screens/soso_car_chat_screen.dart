@@ -1,143 +1,288 @@
 import 'package:flutter/material.dart';
 
-class OOMUChatScreen extends StatelessWidget {
+class OOMUChatScreen extends StatefulWidget {
   const OOMUChatScreen({super.key});
+
+  @override
+  State<OOMUChatScreen> createState() => _OOMUChatScreenState();
+}
+
+class _OOMUChatScreenState extends State<OOMUChatScreen> {
+  final Color darkGreen = const Color(0xFF1B4D3E);
+  final Color background = const Color(0xFFF9FAFB);
+  final TextEditingController _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F7),
+      backgroundColor: background,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
-        title: const Text('강화도 조개구이 팟 (3/4)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+        elevation: 0,
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Navigator.pop(context)),
+        title: const Text('Chat Room', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
         actions: [
-          IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: (){})
+          IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black87), onPressed: (){}),
+          IconButton(icon: const Icon(Icons.account_circle, color: darkGreen), onPressed: (){}),
         ],
       ),
       body: Column(
         children: [
-          // 실시간 픽업 위치 공유 배너
-          Container(
-            color: const Color(0xFFE2F0D9),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                const Icon(Icons.location_on, color: Color(0xFF2E4F28)),
-                const SizedBox(width: 8),
-                Expanded(child: const Text('현재 민우님(호스트)이 마포구청역으로 이동 중입니다.', style: TextStyle(color: Color(0xFF2E4F28), fontWeight: FontWeight.bold, fontSize: 13))),
-              ],
-            ),
-          ),
-          
+          _buildTripHeader(),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               children: [
-                const Center(child: Text('2024년 10월 28일 토요일', style: TextStyle(color: Colors.grey, fontSize: 12))),
+                _buildDateBadge(),
                 const SizedBox(height: 16),
-                _buildMessage(text: '안녕하세요! 토요일 3시 마포구청역 2번 출구에서 뵐게요!', isMe: false, sender: '달리는 민우'),
-                _buildMessage(text: '네 확인했습니다! 짐이 조금 있는데 트렁크 가능할까요?', isMe: true),
-                _buildMessage(text: '네 트렁크 비워두었습니다 ㅎㅎ', isMe: false, sender: '달리는 민우'),
-                
+                _buildSystemMessage('📍 달리는 민우 님이 집결지에 도착했습니다...'),
                 const SizedBox(height: 24),
-                // 정산 위젯
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFC04020))),
-                  child: Column(
-                    children: [
-                      const Text('🚙 주유비·통행료 1/N 정산 요청', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('총 금액 (3명)', style: TextStyle(color: Colors.grey)),
-                          const Text('36,000원', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider()),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('나의 정산 금액', style: TextStyle(color: Color(0xFFC04020), fontWeight: FontWeight.bold)),
-                          const Text('12,000원', style: TextStyle(color: Color(0xFFC04020), fontWeight: FontWeight.bold, fontSize: 18)),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: (){},
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFC04020), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                          child: const Text('간편 송금하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        ),
-                      )
-                    ],
-                  ),
-                )
+                _buildOtherMessage(
+                  name: '민우',
+                  tag: '드라이버',
+                  isDriver: true,
+                  time: '13:52',
+                  text: '안녕하세요! 흰색 볼보 비상등 켜두고 대기 중입니다 편히 오세요 ㅎㅎ 🚗✨',
+                ),
+                const SizedBox(height: 16),
+                _buildOtherMessage(
+                  name: '서연',
+                  tag: '연남동 이웃',
+                  isDriver: false,
+                  time: '13:54',
+                  text: '지금 3번 출구 계단 올라가고 있어요! 3분 내 도착합니다 🏃‍♀️💨',
+                ),
+                const SizedBox(height: 16),
+                _buildMyMessage(
+                  time: '13:55',
+                  text: '저도 횡단보도 건너는 중이에요! 곧 뵙겠습니다 ☕',
+                ),
+                const SizedBox(height: 32),
+                _buildPhotoShareMessage(),
               ],
             ),
           ),
-          
-          // 채팅 입력창
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.white,
-            child: Row(
-              children: [
-                const Icon(Icons.add_circle_outline, color: Colors.grey),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
-                    child: const Text('메시지를 입력하세요', style: TextStyle(color: Colors.grey)),
-                  ),
+          _buildBottomInput(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTripHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: const Color(0xFFFF5A5F).withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                child: const Text('D-Day 오늘', style: TextStyle(color: Color(0xFFFF5A5F), fontSize: 10, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(child: Text('강화도 동막해변 일몰 드...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
+              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFFFF5A5F), shape: BoxShape.circle)),
+              const SizedBox(width: 4),
+              const Text('4명 참여중', style: TextStyle(fontSize: 12, color: Colors.black54)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.near_me_outlined, size: 16, color: Colors.black54),
+              const SizedBox(width: 4),
+              const Text('집결 중', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text(' · 홍대입구역...', style: TextStyle(color: Colors.black54, fontSize: 12)),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
+                child: const Row(
+                  children: [
+                    Icon(Icons.map_outlined, size: 14, color: Colors.black87),
+                    SizedBox(width: 4),
+                    Text('경로 안내', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                const Icon(Icons.send, color: Color(0xFF2E4F28)),
-              ],
-            ),
+              ),
+            ],
           )
         ],
       ),
     );
   }
 
-  Widget _buildMessage({required String text, required bool isMe, String? sender}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isMe) ...[
-            const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=11')),
-            const SizedBox(width: 8),
-          ],
-          Column(
-            crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+  Widget _buildDateBadge() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
+        child: const Text('2024년 10월 19일 토요일', style: TextStyle(fontSize: 11, color: Colors.black54)),
+      ),
+    );
+  }
+
+  Widget _buildSystemMessage(String text) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(20)),
+        child: Text(text, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+      ),
+    );
+  }
+
+  Widget _buildOtherMessage({required String name, required String tag, required bool isDriver, required String time, required String text}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 18,
+          backgroundColor: Colors.grey.shade300,
+          backgroundImage: const NetworkImage('https://picsum.photos/100?random=2'),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMe && sender != null) Padding(padding: const EdgeInsets.only(bottom: 4, left: 4), child: Text(sender, style: const TextStyle(fontSize: 12, color: Colors.grey))),
-              Container(
-                constraints: const BoxConstraints(maxWidth: 240),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: isMe ? const Color(0xFF2E4F28) : Colors.white,
-                  borderRadius: BorderRadius.circular(16).copyWith(
-                    bottomRight: isMe ? const Radius.circular(0) : const Radius.circular(16),
-                    topLeft: !isMe ? const Radius.circular(0) : const Radius.circular(16),
+              Row(
+                children: [
+                  Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: isDriver ? const Color(0xFFE8F3EE) : Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
+                    child: Text(tag, style: TextStyle(fontSize: 10, color: isDriver ? darkGreen : Colors.black54, fontWeight: isDriver ? FontWeight.bold : FontWeight.normal)),
                   ),
-                  border: isMe ? null : Border.all(color: Colors.grey.shade300),
-                ),
-                child: Text(text, style: TextStyle(color: isMe ? Colors.white : Colors.black87)),
+                ],
               ),
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(topRight: Radius.circular(16), bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+                      ),
+                      child: Text(text, style: const TextStyle(fontSize: 14, height: 1.4)),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(time, style: const TextStyle(fontSize: 10, color: Colors.black38)),
+                ],
+              )
             ],
           ),
+        ),
+        const SizedBox(width: 40),
+      ],
+    );
+  }
+
+  Widget _buildMyMessage({required String time, required String text}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        const SizedBox(width: 60),
+        Text(time, style: const TextStyle(fontSize: 10, color: Colors.black38)),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: darkGreen,
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16), bottomLeft: Radius.circular(16)),
+            ),
+            child: Text(text, style: const TextStyle(fontSize: 14, color: Colors.white, height: 1.4)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhotoShareMessage() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.camera_alt, color: Color(0xFFFF5A5F), size: 16),
+              const SizedBox(width: 6),
+              const Text('동막해변 일몰 순간 공유', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const Spacer(),
+              const Text('18:40', style: TextStyle(fontSize: 10, color: Colors.black38)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network('https://images.unsplash.com/photo-1526761122248-c31c93f8b2b9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80', height: 180, width: double.infinity, fit: BoxFit.cover),
+          ),
+          const SizedBox(height: 12),
+          const Text('"오늘 날씨 정말 최고였어요! 다들 조심히 들어가세요 🧡"', style: TextStyle(fontSize: 13, color: Colors.black87)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey.shade200))),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
+              child: IconButton(icon: const Icon(Icons.add, color: Colors.black54), onPressed: (){}),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _textController,
+                        decoration: const InputDecoration(hintText: '이웃들과 대화를 나눠보세요...', border: InputBorder.none, hintStyle: TextStyle(fontSize: 14, color: Colors.black38)),
+                      ),
+                    ),
+                    const Icon(Icons.sentiment_satisfied_alt, color: Colors.black38),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: BoxDecoration(color: darkGreen, shape: BoxShape.circle),
+              child: IconButton(icon: const Icon(Icons.send, color: Colors.white, size: 18), onPressed: (){}),
+            ),
+          ],
+        ),
       ),
     );
   }
