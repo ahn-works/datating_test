@@ -8,220 +8,30 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_home_screen.dart:13:58:
+lib/screens/soso_car_detail_screen.dart:10:62:
 Error: Can't find '}' to match '{'.
-class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
-                                                         ^
-lib/screens/soso_car_home_screen.dart:348:4:
-Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-  }import 'package:flutter/material.dart';
-   ^^^^^^
-lib/screens/soso_car_home_screen.dart:348:4:
-Error: Expected ';' after this.
-  }import 'package:flutter/material.dart';
-   ^^^^^^
-lib/screens/soso_car_home_screen.dart:348:11:
-Error: Expected a class member, but got ''package:flutter/material.dart''.
-  }import 'package:flutter/material.dart';
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:348:42:
-Error: Expected a class member, but got ';'.
-  }import 'package:flutter/material.dart';
-                                         ^
-lib/screens/soso_car_home_screen.dart:349:1:
-Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-import 'package:kpostal/kpostal.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:349:1:
-Error: Expected ';' after this.
-import 'package:kpostal/kpostal.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:349:8:
-Error: Expected a class member, but got ''package:kpostal/kpostal.dart''.
-import 'package:kpostal/kpostal.dart';
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:349:38:
-Error: Expected a class member, but got ';'.
-import 'package:kpostal/kpostal.dart';
-                                     ^
-lib/screens/soso_car_home_screen.dart:350:1:
-Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-import 'soso_car_host_screen.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:350:1:
-Error: Expected ';' after this.
-import 'soso_car_host_screen.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:350:8:
-Error: Expected a class member, but got ''soso_car_host_screen.dart''.
-import 'soso_car_host_screen.dart';
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:350:35:
-Error: Expected a class member, but got ';'.
-import 'soso_car_host_screen.dart';
-                                  ^
-lib/screens/soso_car_home_screen.dart:351:1:
-Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-import 'soso_car_detail_screen.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:351:1:
-Error: Expected ';' after this.
-import 'soso_car_detail_screen.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:351:8:
-Error: Expected a class member, but got ''soso_car_detail_screen.dart''.
-import 'soso_car_detail_screen.dart';
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:351:37:
-Error: Expected a class member, but got ';'.
-import 'soso_car_detail_screen.dart';
-                                    ^
-lib/screens/soso_car_home_screen.dart:353:1:
-Error: Classes can't be declared inside other classes.
-class OOMUHomeScreen extends StatefulWidget {
-^^^^^
-lib/screens/soso_car_home_screen.dart:353:22:
-Error: Expected a class member, but got 'extends'.
-class OOMUHomeScreen extends StatefulWidget {
-                     ^^^^^^^
-lib/screens/soso_car_home_screen.dart:353:30:
-Error: A method declaration needs an explicit list of parameters.
-class OOMUHomeScreen extends StatefulWidget {
-                             ^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:360:1:
-Error: Classes can't be declared inside other classes.
-class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
-^^^^^
-lib/screens/soso_car_home_screen.dart:360:28:
-Error: Expected a class member, but got 'extends'.
-class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
-                           ^^^^^^^
-lib/screens/soso_car_home_screen.dart:360:36:
-Error: A method declaration needs an explicit list of parameters.
-class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
-                                   ^^^^^
-lib/screens/soso_car_home_screen.dart:349:1:
-Error: 'import' is already declared in this scope.
-import 'package:kpostal/kpostal.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:348:4:
-Info: Previous declaration of 'import'.
-  }import 'package:flutter/material.dart';
-   ^^^^^^
-lib/screens/soso_car_home_screen.dart:350:1:
-Error: 'import' is already declared in this scope.
-import 'soso_car_host_screen.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:348:4:
-Info: Previous declaration of 'import'.
-  }import 'package:flutter/material.dart';
-   ^^^^^^
-lib/screens/soso_car_home_screen.dart:351:1:
-Error: 'import' is already declared in this scope.
-import 'soso_car_detail_screen.dart';
-^^^^^^
-lib/screens/soso_car_home_screen.dart:348:4:
-Info: Previous declaration of 'import'.
-  }import 'package:flutter/material.dart';
-   ^^^^^^
-lib/screens/soso_car_home_screen.dart:68:28:
-Error: The method '_buildBottomNav' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-      bottomNavigationBar: _buildBottomNav(),
-                           ^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:354:31:
-Error: Superclass has no getter named 'key'.
-  const OOMUHomeScreen({super.key});
-                              ^^^
-lib/screens/soso_car_home_screen.dart:354:23:
-Error: Too many positional arguments: 0 allowed, but 1 found.
-  const OOMUHomeScreen({super.key});
-                      ^
-lib/screens/soso_car_home_screen.dart:7:9:
-Info: Found this candidate, but the arguments don't match.
-  const OOMUHomeScreen({super.key});
-        ^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:357:3:
-Error: 'State' isn't a type.
-  State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
-  ^^^^^
-lib/screens/soso_car_home_screen.dart:404:15:
-Error: Local variable '_buildAppBar' can't be referenced before it is declared.
-      appBar: _buildAppBar(),
-              ^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:437:10:
-Info: This is the declaration of the variable '_buildAppBar'.
-  AppBar _buildAppBar() {
-         ^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:409:13:
-Error: Local variable '_buildHeroSection' can't be referenced before it is declared.
-            _buildHeroSection(),
-            ^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:468:10:
-Info: This is the declaration of the variable '_buildHeroSection'.
-  Widget _buildHeroSection() {
-         ^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:479:15:
-Error: Local variable '_buildFilterChip' can't be referenced before it is declared.
-              _buildFilterChip('드라이브 메이트', true),
-              ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:491:10:
-Info: This is the declaration of the variable '_buildFilterChip'.
-  Widget _buildFilterChip(String label, bool isSelected) {
-         ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:481:15:
-Error: Local variable '_buildFilterChip' can't be referenced before it is declared.
-              _buildFilterChip('당일치기', false),
-              ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:491:10:
-Info: This is the declaration of the variable '_buildFilterChip'.
-  Widget _buildFilterChip(String label, bool isSelected) {
-         ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:483:15:
-Error: Local variable '_buildFilterChip' can't be referenced before it is declared.
-              _buildFilterChip('자연풍경', false),
-              ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:491:10:
-Info: This is the declaration of the variable '_buildFilterChip'.
-  Widget _buildFilterChip(String label, bool isSelected) {
-         ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:410:13:
-Error: Local variable '_buildTripList' can't be referenced before it is declared.
-            _buildTripList(),
-            ^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:503:10:
-Info: This is the declaration of the variable '_buildTripList'.
-  Widget _buildTripList() {
-         ^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:513:18:
-Error: Local variable '_buildTripCard' can't be referenced before it is declared.
-          child: _buildTripCard(_trips[index], index == 0 ? 21 : 18),
-                 ^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:519:10:
-Info: This is the declaration of the variable '_buildTripCard'.
-  Widget _buildTripCard(Map<String, dynamic> trip, int temp) {
-         ^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:411:13:
-Error: Local variable '_buildSafetyBanner' can't be referenced before it is declared.
-            _buildSafetyBanner(),
-            ^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:672:10:
-Info: This is the declaration of the variable '_buildSafetyBanner'.
-  Widget _buildSafetyBanner() {
-         ^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:415:28:
-Error: Local variable '_buildBottomNav' can't be referenced before it is declared.
-      bottomNavigationBar: _buildBottomNav(),
-                           ^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:697:10:
-Info: This is the declaration of the variable '_buildBottomNav'.
-  Widget _buildBottomNav() {
-         ^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:415:28:
-Error: The method '_buildBottomNav' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-      bottomNavigationBar: _buildBottomNav(),
-                           ^^^^^^^^^^^^^^^
+class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
+                                                             ^
+lib/screens/soso_car_detail_screen.dart:49:17:
+Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
+ - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                _buildDivider(),
+                ^^^^^^^^^^^^^
+lib/screens/soso_car_detail_screen.dart:51:17:
+Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
+ - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                _buildDivider(),
+                ^^^^^^^^^^^^^
+lib/screens/soso_car_detail_screen.dart:53:17:
+Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
+ - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                _buildDivider(),
+                ^^^^^^^^^^^^^
+lib/screens/soso_car_detail_screen.dart:55:17:
+Error: The method '_buildDivider' isn't defined for the type '_OOMUDetailScreenState'.
+ - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                _buildDivider(),
+                ^^^^^^^^^^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.4-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=9584c6713b -DFLUTTER_ENGINE_REVISION=06a2e2a110 -DFLUTTER_DART_VERSION=3.13.3 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/0c911770799c981567672e3d6d4d42ce/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -270,5 +80,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             30.2s
+Compiling lib/main.dart for the Web...                             29.0s
 Error: Failed to compile application for the Web.
