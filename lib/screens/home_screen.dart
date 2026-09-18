@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('위피 버디', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)), backgroundColor: Colors.white, elevation: 0, actions: [IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black), onPressed: () {})]),
+      appBar: AppBar(title: const Text('우무(OOMU)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22)), backgroundColor: Colors.white, elevation: 0, actions: [IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black), onPressed: () {})]),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 24),
           const Text('추천 사용자', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          SizedBox(height: 240, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 5, itemBuilder: (ctx, i) => _userCard(ctx, '위피멤버 ', '서울 강남구', 'https://picsum.photos/200/300?random='))),
+          SizedBox(height: 240, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 5, itemBuilder: (ctx, i) => _userCard(ctx, '우무멤버 ', '서울 강남구', 'https://picsum.photos/200/300?random='))),
           const SizedBox(height: 12),const SizedBox(height: 24),
           const Text('주요 기능', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
@@ -75,11 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 12),
           _featureCard(Icons.task_alt, '미션 & 하트시그널', '현장 인증 미션 및 최종 선택', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignalHouseIntroScreen()))),
           const SizedBox(height: 24),
-          const Text('소소카 (SosoCar)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('우무 드라이브 메이트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          // 소소카 (SosoCar) 바로가기 배너 추가
+          // 우무 드라이브 메이트 바로가기 배너 추가
           GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SosoCarHomeScreen())),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -95,9 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('동네 카풀 SosoCar 🚙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text('동네 드라이브 OOMU 🚙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                         SizedBox(height: 4),
-                        Text('우리 동네 이웃과 함께하는 카풀 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        Text('우리 동네 이웃과 함께하는 드라이브 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
                       ]
                     )
                   ),

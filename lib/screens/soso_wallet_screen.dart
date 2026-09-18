@@ -5,7 +5,7 @@ class SosoWalletScreen extends StatelessWidget {
   
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: const Color(0xFFF8F9FA),
-    appBar: AppBar(title: const Text('소소카 정산 지갑', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
+    appBar: AppBar(title: const Text('우무(OOMU) 정산 지갑', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)),
     body: ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -15,7 +15,7 @@ class SosoWalletScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('나의 소소카 포인트', style: TextStyle(color: Colors.white70, fontSize: 14)),
+              const Text('나의 우무(OOMU) 포인트', style: TextStyle(color: Colors.white70, fontSize: 14)),
               const SizedBox(height: 8),
               const Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [Text('25,400', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)), SizedBox(width: 4), Text('P', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))]),
               const SizedBox(height: 24),
@@ -30,7 +30,7 @@ class SosoWalletScreen extends StatelessWidget {
           )
         ),
         const SizedBox(height: 32),
-        const Text('카풀 간편 정산기 (1/N)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text('드라이브 간편 정산기 (1/N)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(24),
@@ -57,7 +57,7 @@ class SosoWalletScreen extends StatelessWidget {
         const SizedBox(height: 32),
         const Text('최근 정산 내역', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 16),
-        _historyItem('양양 카풀 서핑 🚙', '완료 (1/N 입금됨)', '+ 12,000 P', '9. 12', true),
+        _historyItem('양양 드라이브 서핑 🚙', '완료 (1/N 입금됨)', '+ 12,000 P', '9. 12', true),
         _historyItem('남양주 카페 드라이브', '톨비 정산 (하이패스 연동)', '- 3,200 P', '9. 10', false),
       ]
     )

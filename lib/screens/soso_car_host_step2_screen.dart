@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'soso_car_host_step3_screen.dart';
 
-class SosoCarHostStep2Screen extends StatefulWidget {
+class OOMUHostStep2Screen extends StatefulWidget {
   final String meetingAddr;
   final double? meetingLat;
   final double? meetingLng;
@@ -16,7 +16,7 @@ class SosoCarHostStep2Screen extends StatefulWidget {
   final TimeOfDay? retTime;
   final int seats;
 
-  const SosoCarHostStep2Screen({
+  const OOMUHostStep2Screen({
     super.key,
     required this.meetingAddr,
     this.meetingLat,
@@ -32,10 +32,10 @@ class SosoCarHostStep2Screen extends StatefulWidget {
   });
 
   @override
-  State<SosoCarHostStep2Screen> createState() => _SosoCarHostStep2ScreenState();
+  State<OOMUHostStep2Screen> createState() => _OOMUHostStep2ScreenState();
 }
 
-class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
+class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
   final Color darkGreen = const Color(0xFF1B4D3E);
   final Color badgeGreen = const Color(0xFFA5D6A7);
   final Color terracotta = const Color(0xFFC04020);
@@ -270,7 +270,7 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
           const SizedBox(height: 12),
           const Text("여유로운 드라이브를 위한\n'일정 쉼표(쉼터·스팟)'를\n등록해주세요 ☕", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, height: 1.3, letterSpacing: -0.5, color: Colors.black)),
           const SizedBox(height: 16),
-          const Text("동네 이웃과의 카풀은 쫓기는 관광이 아닌, 1~2곳의\n여유로운 스팟과 숨은 쉼표 중심의 힐링 로드트립을 지향해요.", style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.5, letterSpacing: -0.3)),
+          const Text("동네 이웃과의 드라이브은 쫓기는 관광이 아닌, 1~2곳의\n여유로운 스팟과 숨은 쉼표 중심의 힐링 로드트립을 지향해요.", style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.5, letterSpacing: -0.3)),
         ],
       ),
     );
@@ -554,7 +554,7 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("소소카의 '안전 쉼표' 원칙", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87)),
+                Text("우무(OOMU)의 '안전 쉼표' 원칙", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87)),
                 SizedBox(height: 6),
                 Text("2시간 이상 연속 운전 시 드라이버 피로 경감을 위해 최소 20분 이상의 쉼표 등록을 권장합니다. 탑승자 전원이 충분히 여유를 누릴 수 있도록 코스를 구성해주세요.", style: TextStyle(fontSize: 11, color: Colors.black54, height: 1.4)),
               ],
@@ -593,7 +593,7 @@ class _SosoCarHostStep2ScreenState extends State<SosoCarHostStep2Screen> {
                   flex: 7,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostStep3Screen(
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUHostStep3Screen(
                         timelineItems: _timelineItems,
                         depDate: widget.depDate,
                         retDate: widget.retDate,

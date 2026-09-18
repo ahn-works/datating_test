@@ -18,7 +18,7 @@ class MyPageScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, 
                 children: [
-                  const Text('위피멤버 (ENFP)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), 
+                  const Text('우무멤버 (ENFP)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), 
                   const SizedBox(height: 4), 
                   const Text('서울 강남구 · 26세', style: TextStyle(color: Colors.grey)), 
                   const SizedBox(height: 8), 
@@ -34,7 +34,7 @@ class MyPageScreen extends StatelessWidget {
         const SizedBox(height: 40), 
         const Text('내 활동', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), 
         const SizedBox(height: 16), 
-        _menu(context, Icons.account_balance_wallet, '소소카 정산 지갑', const SosoWalletScreen(), color: const Color(0xFFFF3B30)), 
+        _menu(context, Icons.account_balance_wallet, '우무(OOMU) 정산 지갑', const SosoWalletScreen(), color: const Color(0xFFFF3B30)), 
         _menu(context, Icons.lock, '비밀 메모', const SecretMemoScreen()), 
         _menu(context, Icons.phone_in_talk, '안심콜 귀가 (가짜 전화)', const FakeCallScreen(), color: Colors.green), 
         _menu(context, Icons.block, '차단 관리', const BlockManageScreen()), 

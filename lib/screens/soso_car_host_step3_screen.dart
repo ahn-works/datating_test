@@ -3,13 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'soso_car_home_screen.dart';
 
-class SosoCarHostStep3Screen extends StatefulWidget {
+class OOMUHostStep3Screen extends StatefulWidget {
   final List<Map<String, dynamic>> timelineItems;
   final DateTime? depDate;
   final DateTime? retDate;
   final int seats;
 
-  const SosoCarHostStep3Screen({
+  const OOMUHostStep3Screen({
     super.key,
     required this.timelineItems,
     this.depDate,
@@ -18,10 +18,10 @@ class SosoCarHostStep3Screen extends StatefulWidget {
   });
 
   @override
-  State<SosoCarHostStep3Screen> createState() => _SosoCarHostStep3ScreenState();
+  State<OOMUHostStep3Screen> createState() => _OOMUHostStep3ScreenState();
 }
 
-class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
+class _OOMUHostStep3ScreenState extends State<OOMUHostStep3Screen> {
   final Color background = const Color(0xFFF9FAFB);
   final Color darkGreen = const Color(0xFF243B33);
   final Color badgeGreen = const Color(0xFFE8F3EE);
@@ -201,7 +201,7 @@ class _SosoCarHostStep3ScreenState extends State<SosoCarHostStep3Screen> {
           padding: const EdgeInsets.all(20),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SosoCarHomeScreen()), (route) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen()), (route) => false);
             },
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF5A5F), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             child: const Text('여행 팟 모집 시작하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

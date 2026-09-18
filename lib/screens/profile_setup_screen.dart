@@ -8,7 +8,7 @@ class ProfileSetupScreen extends StatefulWidget {
 }
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   bool _isPassVerified = false;
-  final String _name = '김위피'; 
+  final String _name = '김우무'; 
   final String _gender = '여성'; 
   final String _age = '25세';
 
@@ -65,7 +65,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainTabScreen()), (_) => false);
             }, 
             style: ElevatedButton.styleFrom(backgroundColor: _isPassVerified ? const Color(0xFFFF3B30) : Colors.grey.shade400, minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), 
-            child: const Text('위피 시작하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))
+            child: const Text('우무 시작하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))
           )
         ]
       )

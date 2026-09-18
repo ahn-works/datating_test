@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SosoCarDetailScreen extends StatefulWidget {
-  const SosoCarDetailScreen({super.key});
+class OOMUDetailScreen extends StatefulWidget {
+  const OOMUDetailScreen({super.key});
 
   @override
-  State<SosoCarDetailScreen> createState() => _SosoCarDetailScreenState();
+  State<OOMUDetailScreen> createState() => _OOMUDetailScreenState();
 }
 
-class _SosoCarDetailScreenState extends State<SosoCarDetailScreen> {
+class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   final Color darkGreen = const Color(0xFF1B4D3E);
   final Color badgeGreen = const Color(0xFFA5D6A7);
   final Color terracotta = const Color(0xFFC04020);
@@ -367,7 +367,7 @@ class _SosoCarDetailScreenState extends State<SosoCarDetailScreen> {
                 const SizedBox(height: 12),
                 _buildCostRow('왕복 고속도로 통행료', '11,000원', false),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.black12)),
-                _buildCostRow('예상 총 카풀 경비', '56,000원', true),
+                _buildCostRow('예상 총 드라이브 경비', '56,000원', true),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(16),

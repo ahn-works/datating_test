@@ -3,14 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'soso_car_host_step2_screen.dart';
 import 'package:kpostal/kpostal.dart';
 
-class SosoCarHostScreen extends StatefulWidget {
-  const SosoCarHostScreen({super.key});
+class OOMUHostScreen extends StatefulWidget {
+  const OOMUHostScreen({super.key});
 
   @override
-  State<SosoCarHostScreen> createState() => _SosoCarHostScreenState();
+  State<OOMUHostScreen> createState() => _OOMUHostScreenState();
 }
 
-class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
+class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final Color darkGreen = const Color(0xFF1B4D3E);
   final Color badgeGreen = const Color(0xFFA5D6A7);
   final Color terracotta = const Color(0xFFC04020);
@@ -111,7 +111,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
   }
 
   void _submitForm() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SosoCarHostStep2Screen(
+    Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUHostStep2Screen(
       meetingAddr: _meetingController.text,
       meetingLat: _meetingLat,
       meetingLng: _meetingLng,
@@ -622,7 +622,7 @@ class _SosoCarHostScreenState extends State<SosoCarHostScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          const Text('* 소소카는 순수 실비(유류비/통행료)만을 탑승객과 나누며, 운전자의 영리 목적 수수료는 포함되지 않습니다.', style: TextStyle(fontSize: 10, color: Colors.grey, height: 1.4)),
+          const Text('* 우무(OOMU)는 순수 실비(유류비/통행료)만을 탑승객과 나누며, 운전자의 영리 목적 수수료는 포함되지 않습니다.', style: TextStyle(fontSize: 10, color: Colors.grey, height: 1.4)),
         ],
       ),
     );

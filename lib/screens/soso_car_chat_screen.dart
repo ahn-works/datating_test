@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SosoCarChatScreen extends StatelessWidget {
-  const SosoCarChatScreen({super.key});
+class OOMUChatScreen extends StatelessWidget {
+  const OOMUChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

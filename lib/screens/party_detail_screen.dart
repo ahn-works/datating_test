@@ -109,7 +109,7 @@ class PartyDetailScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: const Color(0xFFE8F5E9).withOpacity(0.7), borderRadius: BorderRadius.circular(8)), child: const Text('카풀/드라이브', style: TextStyle(color: Color(0xFF2E7D32), fontSize: 12, fontWeight: FontWeight.bold))),
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: const Color(0xFFE8F5E9).withOpacity(0.7), borderRadius: BorderRadius.circular(8)), child: const Text('드라이브/드라이브', style: TextStyle(color: Color(0xFF2E7D32), fontSize: 12, fontWeight: FontWeight.bold))),
                     ElevatedButton.icon(
                       onPressed: () => _showHostManagementModal(context), 
                       icon: const Icon(Icons.people_alt, size: 16, color: Colors.white), 
@@ -119,7 +119,7 @@ class PartyDetailScreen extends StatelessWidget {
                   ]
                 ),
                 const SizedBox(height: 16),
-                const Text('이번 주말 양양 카풀 서핑 🚙 (제 차로 편하게 가요!)', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4)),
+                const Text('이번 주말 양양 드라이브 서핑 🚙 (제 차로 편하게 가요!)', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.4)),
                 const SizedBox(height: 24),
                 const Text('상세 일정', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 12),
@@ -137,7 +137,7 @@ class PartyDetailScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 const Text('상세 내용', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 12),
-                const Text('안녕하세요! 이번 주말에 서핑하러 양양에 가는데 혼자 가기 심심해서 카풀 인원 모집합니다. 제 차는 싼타페라 뒷자리 넉넉하고 트렁크 공간도 충분해요! 운전은 제가 다 할 테니 편하게 오시면 됩니다. 휴게소에서 소떡소떡 쏘실 분 환영해요 😆', style: TextStyle(fontSize: 15, height: 1.6, color: Colors.black87)),
+                const Text('안녕하세요! 이번 주말에 서핑하러 양양에 가는데 혼자 가기 심심해서 드라이브 인원 모집합니다. 제 차는 싼타페라 뒷자리 넉넉하고 트렁크 공간도 충분해요! 운전은 제가 다 할 테니 편하게 오시면 됩니다. 휴게소에서 소떡소떡 쏘실 분 환영해요 😆', style: TextStyle(fontSize: 15, height: 1.6, color: Colors.black87)),
                 const SizedBox(height: 100),
               ]
             )

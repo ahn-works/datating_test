@@ -3,14 +3,14 @@ import 'package:kpostal/kpostal.dart';
 import 'soso_car_host_screen.dart';
 import 'soso_car_detail_screen.dart';
 
-class SosoCarHomeScreen extends StatefulWidget {
-  const SosoCarHomeScreen({super.key});
+class OOMUHomeScreen extends StatefulWidget {
+  const OOMUHomeScreen({super.key});
 
   @override
-  State<SosoCarHomeScreen> createState() => _SosoCarHomeScreenState();
+  State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
 }
 
-class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color darkGreen = const Color(0xFF1B4D3E);
   final Color badgeGreen = const Color(0xFFA5D6A7);
   final Color terracotta = const Color(0xFFC04020);
@@ -68,7 +68,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       bottomNavigationBar: _buildBottomNav(),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final newTrip = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostScreen()));
+          final newTrip = await Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHostScreen()));
           if (newTrip != null && newTrip is Map<String, dynamic>) {
             setState(() {
               newTrip['distance'] = '측정불가';
@@ -161,7 +161,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarDetailScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUDetailScreen()));
           },
           child: _buildTripCard(_trips[index], index == 0 ? 21 : 18),
         );
@@ -350,14 +350,14 @@ import 'package:kpostal/kpostal.dart';
 import 'soso_car_host_screen.dart';
 import 'soso_car_detail_screen.dart';
 
-class SosoCarHomeScreen extends StatefulWidget {
-  const SosoCarHomeScreen({super.key});
+class OOMUHomeScreen extends StatefulWidget {
+  const OOMUHomeScreen({super.key});
 
   @override
-  State<SosoCarHomeScreen> createState() => _SosoCarHomeScreenState();
+  State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
 }
 
-class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color darkGreen = const Color(0xFF1B4D3E);
   final Color badgeGreen = const Color(0xFFA5D6A7);
   final Color terracotta = const Color(0xFFC04020);
@@ -415,7 +415,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       bottomNavigationBar: _buildBottomNav(),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final newTrip = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostScreen()));
+          final newTrip = await Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHostScreen()));
           if (newTrip != null && newTrip is Map<String, dynamic>) {
             setState(() {
               newTrip['distance'] = '측정불가';
@@ -508,7 +508,7 @@ class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarDetailScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUDetailScreen()));
           },
           child: _buildTripCard(_trips[index], index == 0 ? 21 : 18),
         );

@@ -10,16 +10,16 @@ class PartyScreen extends StatefulWidget {
 
 class _PartyScreenState extends State<PartyScreen> {
   int _selectedFilter = 0;
-  final _filters = ['전체', '🚗 카풀/드라이브', '✈️ 해외여행', '🎒 배낭여행', '🏖️ 호캉스', '🏕️ 캠핑/차박'];
+  final _filters = ['전체', '🚗 드라이브/드라이브', '✈️ 해외여행', '🎒 배낭여행', '🏖️ 호캉스', '🏕️ 캠핑/차박'];
 
   final List<Map<String, dynamic>> _allParties = [
     {
-      'category': '🚗 카풀/드라이브',
-      'title': '이번 주말 양양 카풀 서핑 🚙 (제 차로 편하게 가요!)',
+      'category': '🚗 드라이브/드라이브',
+      'title': '이번 주말 양양 드라이브 서핑 🚙 (제 차로 편하게 가요!)',
       'status': '여1/남1 (여성 1명 급구)',
       'loc': '양양/강릉',
       'date': '26.09.19 - 26.09.20 (1박2일)',
-      'tags': ['#카풀', '#서핑', '#2030'],
+      'tags': ['#드라이브', '#서핑', '#2030'],
       'author': '스윗드라이버',
       'authorInfo': '30대 · 남성',
       'isUrgent': true,
@@ -38,7 +38,7 @@ class _PartyScreenState extends State<PartyScreen> {
       'img': 'https://picsum.photos/400?random=11'
     },
     {
-      'category': '🚗 카풀/드라이브',
+      'category': '🚗 드라이브/드라이브',
       'title': '서울 근교 남양주 카페 드라이브 번개 ☕️',
       'status': '남1/여2 (남성 1명 모집)',
       'loc': '남양주',
