@@ -374,15 +374,22 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       showUnselectedLabels: true,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      onTap: (index) {
+        if (index == 0) {
+          // 탐색 (현재 화면)
+        } else if (index == 1) {
+          // 모집하기
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostScreen()));
+        } else if (index == 2) {
+          // 채팅 (soso_car_chat_screen으로 연결하거나 chat_screen으로 연결)
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+        } else if (index == 3) {
+          // 내 여행
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+        }
+      },
       items: [
-        BottomNavigationBarItem(
-          icon: InkWell(
-            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
-            child: const Icon(Icons.explore_outlined)
-          ), 
-          activeIcon: const Icon(Icons.explore), 
-          label: '탐색'
-        ),
+        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
         const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
         BottomNavigationBarItem(
           icon: Stack(
@@ -400,16 +407,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
           label: '채팅',
         ),
-        BottomNavigationBarItem(
-          icon: InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
-            },
-            child: const Icon(Icons.directions_car_outlined)
-          ),
-          activeIcon: const Icon(Icons.directions_car),
-          label: '내 여행',
-        ),
+        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내 여행'),
       ],
     );
   }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'soso_car_host_screen.dart';
+import 'chat_screen.dart';
+import 'soso_car_chat_screen.dart';
 import 'soso_car_chat_screen.dart';
 import 'oomu_review_screen.dart';
 
@@ -581,15 +584,22 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
       showUnselectedLabels: true,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      onTap: (index) {
+        if (index == 0) {
+          // 탐색 (메인 화면으로 이동)
+          Navigator.popUntil(context, (route) => route.isFirst);
+        } else if (index == 1) {
+          // 모집하기
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SosoCarHostScreen()));
+        } else if (index == 2) {
+          // 채팅
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+        } else if (index == 3) {
+          // 내 여행 (현재 화면)
+        }
+      },
       items: [
-        BottomNavigationBarItem(
-          icon: InkWell(
-            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
-            child: const Icon(Icons.explore_outlined)
-          ), 
-          activeIcon: const Icon(Icons.explore), 
-          label: '탐색'
-        ),
+        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
         const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
         BottomNavigationBarItem(
           icon: Stack(
