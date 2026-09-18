@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'oomu_my_trips_screen.dart';
 import 'package:kpostal/kpostal.dart';
 import 'soso_car_host_screen.dart';
 import 'soso_car_detail_screen.dart';
@@ -392,7 +393,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
           label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내 차'),
+        const         BottomNavigationBarItem(
+          icon: InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+            },
+            child: const Icon(Icons.directions_car_outlined)
+          ),
+          activeIcon: const Icon(Icons.directions_car),
+          label: '내 여행',
+        ), label: '내 차'),
       ],
     );
   }
