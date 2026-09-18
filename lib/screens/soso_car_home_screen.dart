@@ -411,6 +411,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           label: '내 여행',
         ),
       ],
+          ),
+          label: '채팅',
+        ),
+        BottomNavigationBarItem(
+          icon: InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+            },
+            child: const Icon(Icons.directions_car_outlined)
+          ),
+          activeIcon: const Icon(Icons.directions_car),
+          label: '내 여행',
+        ),
+      ],
 ],
           ),
           label: '채팅',
