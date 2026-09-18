@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'my_page_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
 import 'soso_car_chat_screen.dart';
@@ -586,16 +587,15 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       onTap: (index) {
         if (index == 0) {
-          // 탐색 (메인 화면으로 이동)
           Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 1) {
-          // 모집하기
-          Navigator.push(context, MaterialPageRoute(builder: (context) => OOMUHostScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHostScreen()));
         } else if (index == 2) {
-          // 채팅
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
         } else if (index == 3) {
-          // 내 여행 (현재 화면)
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+        } else if (index == 4) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPageScreen()));
         }
       },
       items: [
@@ -618,6 +618,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
           label: '채팅',
         ),
         const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내 여행'),
+        const BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: '마이'),
       ],
     );
   }
