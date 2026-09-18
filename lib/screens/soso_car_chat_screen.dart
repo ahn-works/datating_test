@@ -23,7 +23,6 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black87), onPressed: () => Navigator.pop(context)),
         title: const Text('Chat Room', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
         actions: [
-          IconButton(icon: const Icon(Icons.rate_review_outlined, color: Colors.black87), onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUReviewScreen(isDriveMode: true))); }),
           IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black87), onPressed: (){}),
         ],
       ),
@@ -60,6 +59,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 ),
                 const SizedBox(height: 32),
                 _buildPhotoShareMessage(),
+                const SizedBox(height: 16),
+                _buildReviewBotMessage(context),
               ],
             ),
           ),
@@ -284,6 +285,57 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildReviewBotMessage(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16, bottom: 24),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(20)),
+            child: const Text('🚗 여정이 모두 종료되었습니다.', style: TextStyle(fontSize: 12, color: Colors.black54)),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF1B4D3E).withOpacity(0.2)),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.stars, color: Color(0xFFC04020), size: 32),
+                const SizedBox(height: 12),
+                const Text('이웃들과의 동행은 어떠셨나요?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 6),
+                const Text('따뜻한 후기를 남겨주시면 매너 온도에 반영됩니다.', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUReviewScreen(isDriveMode: true)));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1B4D3E),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: const Text('⭐ 매너 평가하러 가기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
