@@ -8,10 +8,10 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_home_screen.dart:13:64:
+lib/screens/soso_car_home_screen.dart:13:58:
 Error: Can't find '}' to match '{'.
-class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
-                                                               ^
+class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
+                                                         ^
 lib/screens/soso_car_home_screen.dart:348:4:
 Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
   }import 'package:flutter/material.dart';
@@ -78,28 +78,28 @@ import 'soso_car_detail_screen.dart';
                                     ^
 lib/screens/soso_car_home_screen.dart:353:1:
 Error: Classes can't be declared inside other classes.
-class SosoCarHomeScreen extends StatefulWidget {
+class OOMUHomeScreen extends StatefulWidget {
 ^^^^^
-lib/screens/soso_car_home_screen.dart:353:25:
+lib/screens/soso_car_home_screen.dart:353:22:
 Error: Expected a class member, but got 'extends'.
-class SosoCarHomeScreen extends StatefulWidget {
-                        ^^^^^^^
-lib/screens/soso_car_home_screen.dart:353:33:
+class OOMUHomeScreen extends StatefulWidget {
+                     ^^^^^^^
+lib/screens/soso_car_home_screen.dart:353:30:
 Error: A method declaration needs an explicit list of parameters.
-class SosoCarHomeScreen extends StatefulWidget {
-                                ^^^^^^^^^^^^^^
+class OOMUHomeScreen extends StatefulWidget {
+                             ^^^^^^^^^^^^^^
 lib/screens/soso_car_home_screen.dart:360:1:
 Error: Classes can't be declared inside other classes.
-class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
+class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 ^^^^^
-lib/screens/soso_car_home_screen.dart:360:31:
+lib/screens/soso_car_home_screen.dart:360:28:
 Error: Expected a class member, but got 'extends'.
-class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
-                              ^^^^^^^
-lib/screens/soso_car_home_screen.dart:360:39:
+class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
+                           ^^^^^^^
+lib/screens/soso_car_home_screen.dart:360:36:
 Error: A method declaration needs an explicit list of parameters.
-class _SosoCarHomeScreenState extends State<SosoCarHomeScreen> {
-                                      ^^^^^
+class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
+                                   ^^^^^
 lib/screens/soso_car_home_screen.dart:349:1:
 Error: 'import' is already declared in this scope.
 import 'package:kpostal/kpostal.dart';
@@ -125,25 +125,25 @@ Info: Previous declaration of 'import'.
   }import 'package:flutter/material.dart';
    ^^^^^^
 lib/screens/soso_car_home_screen.dart:68:28:
-Error: The method '_buildBottomNav' isn't defined for the type '_SosoCarHomeScreenState'.
- - '_SosoCarHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+Error: The method '_buildBottomNav' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
       bottomNavigationBar: _buildBottomNav(),
                            ^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:354:34:
+lib/screens/soso_car_home_screen.dart:354:31:
 Error: Superclass has no getter named 'key'.
-  const SosoCarHomeScreen({super.key});
-                                 ^^^
-lib/screens/soso_car_home_screen.dart:354:26:
+  const OOMUHomeScreen({super.key});
+                              ^^^
+lib/screens/soso_car_home_screen.dart:354:23:
 Error: Too many positional arguments: 0 allowed, but 1 found.
-  const SosoCarHomeScreen({super.key});
-                         ^
+  const OOMUHomeScreen({super.key});
+                      ^
 lib/screens/soso_car_home_screen.dart:7:9:
 Info: Found this candidate, but the arguments don't match.
-  const SosoCarHomeScreen({super.key});
-        ^^^^^^^^^^^^^^^^^
+  const OOMUHomeScreen({super.key});
+        ^^^^^^^^^^^^^^
 lib/screens/soso_car_home_screen.dart:357:3:
 Error: 'State' isn't a type.
-  State<SosoCarHomeScreen> createState() => _SosoCarHomeScreenState();
+  State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
   ^^^^^
 lib/screens/soso_car_home_screen.dart:404:15:
 Error: Local variable '_buildAppBar' can't be referenced before it is declared.
@@ -218,8 +218,8 @@ Info: This is the declaration of the variable '_buildBottomNav'.
   Widget _buildBottomNav() {
          ^^^^^^^^^^^^^^^
 lib/screens/soso_car_home_screen.dart:415:28:
-Error: The method '_buildBottomNav' isn't defined for the type '_SosoCarHomeScreenState'.
- - '_SosoCarHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+Error: The method '_buildBottomNav' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
       bottomNavigationBar: _buildBottomNav(),
                            ^^^^^^^^^^^^^^^
 Error: Compilation failed.
@@ -270,5 +270,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             29.8s
+Compiling lib/main.dart for the Web...                             24.4s
 Error: Failed to compile application for the Web.
