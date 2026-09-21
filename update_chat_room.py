@@ -18,7 +18,11 @@ class OOMUChatScreen extends StatefulWidget {
 }
 
 class _OOMUChatScreenState extends State<OOMUChatScreen> {
-  final Color darkGreen = const Color(0xFF14422D);
+  final Color textPrimary = const Color(0xFF111111);
+  final Color textSecondary = const Color(0xFF767676);
+  final Color surfaceColor = const Color(0xFFF5F5F7);
+  final Color accentColor = const Color(0xFF007AFF);
+  
   final TextEditingController _controller = TextEditingController();
   
   final List<Map<String, dynamic>> _messages = [
@@ -57,12 +61,13 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF9F6),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -70,54 +75,45 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             Expanded(
               child: Text(
                 widget.title,
-                style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: textPrimary, fontWeight: FontWeight.w800, fontSize: 16),
+                maxLines: 1, overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 6),
-            Text(
-              '${widget.memberCount}',
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 16),
-            )
+            const SizedBox(width: 8),
+            Text('${widget.memberCount}', style: const TextStyle(color: Color(0xFFAEAEC2), fontSize: 16, fontWeight: FontWeight.w600))
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.menu, color: Colors.black87), onPressed: () {}),
+          IconButton(icon: Icon(Icons.menu, color: textPrimary), onPressed: () {}),
         ],
       ),
       body: Column(
         children: [
-          // Meetup Banner
+          // Meetup Banner (Ultra minimal)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+              border: Border(bottom: BorderSide(color: Color(0xFFEBEBEF))),
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: const Color(0xFFE8ECEF), borderRadius: BorderRadius.circular(8)),
-                  child: Icon(Icons.calendar_month, color: darkGreen, size: 20),
-                ),
+                Icon(Icons.calendar_month_outlined, color: textSecondary, size: 20),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('이번주 토요일 오후 6시', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      SizedBox(height: 2),
-                      Text('홍대입구역 9번 출구 앞', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text('이번주 토요일 오후 6시', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPrimary)),
+                      const SizedBox(height: 2),
+                      Text('홍대입구역 9번 출구 앞', style: TextStyle(color: textSecondary, fontSize: 12)),
                     ],
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUDetailScreen()));
-                  },
-                  child: Text('모임 상세', style: TextStyle(color: darkGreen, fontWeight: FontWeight.bold)),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUDetailScreen(), fullscreenDialog: true)),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(50, 30), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  child: Text('상세 보기', style: TextStyle(color: accentColor, fontWeight: FontWeight.w700, fontSize: 13)),
                 )
               ],
             ),
@@ -125,36 +121,30 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
                 if (msg['type'] == 'system') {
                   return Center(
                     child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(msg['text'], style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20)),
+                      child: Text(msg['text'], style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
                     ),
                   );
                 }
 
                 bool isMe = msg['isMe'];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 20),
                   child: Row(
                     mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (!isMe) ...[
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundImage: NetworkImage(msg['avatar']),
-                        ),
+                        CircleAvatar(radius: 20, backgroundImage: NetworkImage(msg['avatar'])),
                         const SizedBox(width: 12),
                       ],
                       Flexible(
@@ -162,39 +152,37 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                           children: [
                             if (!isMe) ...[
-                              Text(msg['sender'], style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
+                              Text(msg['sender'], style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 6),
                             ],
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 if (isMe) ...[
-                                  Text(msg['time'], style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                                  Text(msg['time'], style: const TextStyle(fontSize: 11, color: Color(0xFFAEAEC2), fontWeight: FontWeight.w500)),
                                   const SizedBox(width: 8),
                                 ],
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
-                                    color: isMe ? darkGreen : Colors.white,
+                                    color: isMe ? textPrimary : surfaceColor,
                                     borderRadius: BorderRadius.circular(20).copyWith(
                                       topLeft: isMe ? const Radius.circular(20) : const Radius.circular(4),
                                       topRight: isMe ? const Radius.circular(4) : const Radius.circular(20),
                                     ),
-                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
                                   ),
                                   child: Text(
                                     msg['text'],
                                     style: TextStyle(
-                                      color: isMe ? Colors.white : Colors.black87,
-                                      fontSize: 15,
-                                      height: 1.3,
+                                      color: isMe ? Colors.white : textPrimary,
+                                      fontSize: 15, height: 1.4,
                                     ),
                                   ),
                                 ),
                                 if (!isMe) ...[
                                   const SizedBox(width: 8),
-                                  Text(msg['time'], style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                                  Text(msg['time'], style: const TextStyle(fontSize: 11, color: Color(0xFFAEAEC2), fontWeight: FontWeight.w500)),
                                 ],
                               ],
                             ),
@@ -210,43 +198,39 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           
           // Input Area
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+              border: Border(top: BorderSide(color: const Color(0xFFEBEBEF))),
             ),
             child: SafeArea(
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.add, color: Colors.grey.shade600),
+                    icon: const Icon(Icons.add_circle_outline, size: 28),
+                    color: const Color(0xFFAEAEC2),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                     onPressed: () {},
                   ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFBF9F6),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
+                      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24)),
                       child: TextField(
                         controller: _controller,
-                        decoration: const InputDecoration(
-                          hintText: '메시지 보내기',
+                        style: TextStyle(color: textPrimary, fontSize: 15),
+                        decoration: InputDecoration(
+                          hintText: '메시지를 입력하세요',
+                          hintStyle: const TextStyle(color: Color(0xFFAEAEC2)),
                           border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.send, color: textPrimary, size: 20),
+                            onPressed: () {},
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: darkGreen,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                      onPressed: () {},
                     ),
                   ),
                 ],
@@ -262,4 +246,4 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 with io.open('lib/screens/soso_car_chat_screen.dart', 'w', encoding='utf-8') as f:
     f.write(chat_room_code)
 
-print("Updated soso_car_chat_screen.dart")
+print("soso_car_chat_screen.dart updated")
