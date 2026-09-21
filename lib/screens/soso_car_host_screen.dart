@@ -11,6 +11,16 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final Color darkGreen = const Color(0xFF14422D);
   String _transportMethod = '각자 이동';
   bool _isFemaleOnly = false;
+  String _selectedCategory = '';
+
+  final List<Map<String, dynamic>> _categories = [
+    {'icon': '🎤', 'name': '코노/노래'},
+    {'icon': '🍻', 'name': '술/맛집'},
+    {'icon': '☕', 'name': '카페/수다'},
+    {'icon': '✈️', 'name': '여행/드라이브'},
+    {'icon': '🎳', 'name': '액티비티'},
+    {'icon': '📚', 'name': '독서/스터디'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +41,43 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           const Text('어떤 취향의 찐친을 찾고 있나요?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87, height: 1.3)),
           const SizedBox(height: 32),
           
-          _buildTextField('모임 제목', '예: 파주 대형 북카페 같이 가실 분!'),
-          const SizedBox(height: 24),
-          
-          _buildTextField('카테고리', '예: 독서/카페, 맛집탐방, 러닝'),
+          const Text('모임 카테고리', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: _categories.map((cat) {
+              bool isSelected = _selectedCategory == cat['name'];
+              return GestureDetector(
+                onTap: () => setState(() => _selectedCategory = cat['name']),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isSelected ? darkGreen : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(cat['icon'], style: const TextStyle(fontSize: 16)),
+                      const SizedBox(width: 8),
+                      Text(
+                        cat['name'],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 32),
+
+          _buildTextField('모임 제목', '예: 불금엔 역시 코노! 스트레스 풀 분'),
           const SizedBox(height: 24),
           
           _buildTextField('만날 장소', '예: 홍대입구역 9번 출구 앞'),
