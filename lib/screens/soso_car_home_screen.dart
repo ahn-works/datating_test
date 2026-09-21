@@ -30,7 +30,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'members': '2/4명',
       'isFemaleOnly': true,
       'transport': '각자 이동',
-      'imageUrl': 'https://images.unsplash.com/photo-1583314782006-25f0cb175b16?w=500&q=80'
+      'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80'
     },
     {
       'title': '파주 대형 북카페로 드라이브 가요',
@@ -43,7 +43,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'members': '1/3명',
       'isFemaleOnly': false,
       'transport': '호스트 차로 같이 이동',
-      'imageUrl': 'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=500&q=80'
+      'imageUrl': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&q=80'
     },
     {
       'title': '볼링 에버리지 100 쪼렙팟',
@@ -56,7 +56,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'members': '3/4명',
       'isFemaleOnly': false,
       'transport': '각자 이동',
-      'imageUrl': 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=500&q=80'
+      'imageUrl': 'https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=500&q=80'
     }
   ];
 

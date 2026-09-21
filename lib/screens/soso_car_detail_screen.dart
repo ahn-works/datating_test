@@ -57,7 +57,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    'https://images.unsplash.com/photo-1583314782006-25f0cb175b16?w=800&q=80',
+                    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
                     fit: BoxFit.cover,
                   ),
                   Container(
