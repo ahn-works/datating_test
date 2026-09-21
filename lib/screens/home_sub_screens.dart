@@ -49,7 +49,7 @@ class _PetWalkingTab extends StatelessWidget {
     itemCount: 4,
     separatorBuilder: (_,__) => const SizedBox(height: 12),
     itemBuilder: (_, i) => GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileDetailScreen(name: '보리네', age: '28', region: '서울 송파구', imageUrl: 'https://picsum.photos/120/120?random=', intro: '강아지 산책 같이 해요!', mannerTemp: 37.5))),
+      onTap: () => showDriverProfileModal(context),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 5))]),
