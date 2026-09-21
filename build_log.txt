@@ -8,10 +8,26 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_home_screen.dart:185:59:
-Error: Method invocation is not a constant expression.
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 30, offset: Offset(0, -5))],
-                                                          ^^^^^^^^^^^
+lib/screens/soso_car_host_screen.dart:142:21:
+Error: No named parameter with the name 'content'.
+                    content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?', textAlign: TextAlign.center, style: TextStyle(height: 1.5)),
+                    ^^^^^^^
+/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/packages/flutter/lib/src/material/dialog.dart:1622:12:
+Info: Found this candidate, but the arguments don't match.
+Future<T?> showDialog<T>({
+           ^^^^^^^^^^
+lib/screens/soso_car_host_screen.dart:160:19:
+Error: Expected ';' after this.
+                  )
+                  ^
+lib/screens/soso_car_host_screen.dart:161:17:
+Error: Expected an identifier, but got ')'.
+                );
+                ^
+lib/screens/soso_car_host_screen.dart:161:17:
+Error: Unexpected token ';'.
+                );
+                ^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/ac7b535a9ad15a593962bd51f42ec72d/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/ac7b535a9ad15a593962bd51f42ec72d/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -60,5 +76,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             22.1s
+Compiling lib/main.dart for the Web...                             22.7s
 Error: Failed to compile application for the Web.
