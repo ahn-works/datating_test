@@ -8,14 +8,6 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/home_screen.dart:9:8:
-Error: Error when reading 'lib/screens/signal_house_intro_screen.dart': Error reading 'lib/screens/signal_house_intro_screen.dart'  (No such file or directory)
-import 'signal_house_intro_screen.dart';
-       ^
-lib/screens/home_sub_screens.dart:2:8:
-Error: Error when reading 'lib/screens/profile_detail_screen.dart': Error reading 'lib/screens/profile_detail_screen.dart'  (No such file or directory)
-import 'profile_detail_screen.dart';
-       ^
 lib/screens/home_sub_screens.dart:52:78:
 Error: The method 'ProfileDetailScreen' isn't defined for the type '_PetWalkingTab'.
  - '_PetWalkingTab' is from 'package:spot10_app/screens/home_sub_screens.dart' ('lib/screens/home_sub_screens.dart').
@@ -69,5 +61,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             20.8s
+Compiling lib/main.dart for the Web...                             22.2s
 Error: Failed to compile application for the Web.
