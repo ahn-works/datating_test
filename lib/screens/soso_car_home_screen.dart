@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
 import 'oomu_my_trips_screen.dart';
@@ -30,47 +31,68 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     {'icon': '🎳', 'name': '액티비티'},
   ];
 
-  final List<Map<String, dynamic>> _meetups = [
-    {
-      'title': '불금엔 역시 코노! 스트레스 풀 분 🎤',
-      'category': '코노/노래',
-      'location': '합정역 수코인노래방',
-      'date': '오늘 저녁 8시',
-      'host': '고음불가',
-      'manner': 38.5,
-      'price': 'N빵',
-      'members': '2/4',
-      'isFemaleOnly': true,
-      'transport': '각자 이동',
-      'imageUrl': 'https://images.unsplash.com/photo-1516280440502-8618eb3090ef?w=800&q=80'
-    },
-    {
-      'title': '주말 엽떡+마라탕 조지실 분',
-      'category': '술/맛집',
-      'location': '홍대입구역 9번 출구',
-      'date': '이번주 토요일 18:00',
-      'host': '매운맛킬러',
-      'manner': 41.2,
-      'price': 'N빵',
-      'members': '2/4',
-      'isFemaleOnly': true,
-      'transport': '각자 이동',
-      'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80'
-    },
-    {
-      'title': '파주 대형 북카페로 드라이브 가요',
-      'category': '여행/드라이브',
-      'location': '파주 지혜의 숲',
-      'date': '일요일 14:00',
-      'host': '달리는 민우',
-      'manner': 42.8,
-      'price': 'N빵',
-      'members': '1/3',
-      'isFemaleOnly': false,
-      'transport': '호스트 차로 같이 이동',
-      'imageUrl': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80'
+  @override
+  void initState() {
+    super.initState();
+    _seedDatabase();
+  }
+
+  Future<void> _seedDatabase() async {
+    try {
+      var snapshot = await FirebaseFirestore.instance.collection('meetups').limit(1).get();
+      if (snapshot.docs.isEmpty) {
+        final dummyMeetups = [
+          {
+            'title': '불금엔 역시 코노! 스트레스 풀 분 🎤',
+            'category': '코노/노래',
+            'location': '합정역 수코인노래방',
+            'date': '오늘 저녁 8시',
+            'host': '고음불가',
+            'manner': 38.5,
+            'price': 'N빵',
+            'members': '2/4',
+            'isFemaleOnly': true,
+            'transport': '각자 이동',
+            'imageUrl': 'https://images.unsplash.com/photo-1516280440502-8618eb3090ef?w=800&q=80',
+            'createdAt': FieldValue.serverTimestamp()
+          },
+          {
+            'title': '주말 엽떡+마라탕 조지실 분',
+            'category': '술/맛집',
+            'location': '홍대입구역 9번 출구',
+            'date': '이번주 토요일 18:00',
+            'host': '매운맛킬러',
+            'manner': 41.2,
+            'price': 'N빵',
+            'members': '2/4',
+            'isFemaleOnly': true,
+            'transport': '각자 이동',
+            'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+            'createdAt': FieldValue.serverTimestamp()
+          },
+          {
+            'title': '파주 대형 북카페로 드라이브 가요',
+            'category': '여행/드라이브',
+            'location': '파주 지혜의 숲',
+            'date': '일요일 14:00',
+            'host': '달리는 민우',
+            'manner': 42.8,
+            'price': 'N빵',
+            'members': '1/3',
+            'isFemaleOnly': false,
+            'transport': '호스트 차로 같이 이동',
+            'imageUrl': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80',
+            'createdAt': FieldValue.serverTimestamp()
+          }
+        ];
+        for (var m in dummyMeetups) {
+          await FirebaseFirestore.instance.collection('meetups').add(m);
+        }
+      }
+    } catch (e) {
+      debugPrint("Seed error: $e");
     }
-  ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,14 +150,38 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ),
                   const SizedBox(height: 20),
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 4),
-                      itemCount: _meetups.length,
-                      itemBuilder: (context, index) {
-                        if (_selectedCategoryIndex != 0 && _meetups[index]['category'] != _categories[_selectedCategoryIndex]['name']) {
-                          return const SizedBox.shrink();
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection('meetups').orderBy('createdAt', descending: true).snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator(color: Colors.black));
                         }
-                        return _buildMeetupCard(_meetups[index]);
+                        if (snapshot.hasError) {
+                          return const Center(child: Text("데이터를 불러오는데 실패했습니다."));
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Center(child: Text("아직 등록된 모임이 없습니다.", style: TextStyle(color: Colors.grey)));
+                        }
+                        
+                        final docs = snapshot.data!.docs;
+                        final filteredDocs = docs.where((doc) {
+                          if (_selectedCategoryIndex == 0) return true;
+                          var data = doc.data() as Map<String, dynamic>;
+                          return data['category'] == _categories[_selectedCategoryIndex]['name'];
+                        }).toList();
+
+                        if (filteredDocs.isEmpty) {
+                          return const Center(child: Text("선택한 카테고리의 모임이 없습니다.", style: TextStyle(color: Colors.grey)));
+                        }
+
+                        return ListView.builder(
+                          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 4),
+                          itemCount: filteredDocs.length,
+                          itemBuilder: (context, index) {
+                            var data = filteredDocs[index].data() as Map<String, dynamic>;
+                            return _buildMeetupCard(data);
+                          },
+                        );
                       },
                     ),
                   ),

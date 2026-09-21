@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_chat_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
@@ -19,6 +20,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   String _transportMethod = '각자 이동';
   bool _isFemaleOnly = false;
   String _selectedCategory = '';
+
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+
 
   final List<Map<String, dynamic>> _categories = [
     {'icon': '🎤', 'name': '코노/노래'},
@@ -82,11 +88,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           ),
           const SizedBox(height: 40),
 
-          _buildTextField('모임 제목', '예: 불금엔 역시 코노! 스트레스 풀 분'),
+          _buildTextField('모임 제목', '예: 불금엔 역시 코노! 스트레스 풀 분', _titleController),
           const SizedBox(height: 32),
-          _buildTextField('만날 장소', '예: 홍대입구역 9번 출구 앞'),
+          _buildTextField('만날 장소', '예: 홍대입구역 9번 출구 앞', _locationController),
           const SizedBox(height: 32),
-          _buildTextField('일시', '예: 이번주 토요일 오후 2시'),
+          _buildTextField('일시', '예: 이번주 토요일 오후 2시', _dateController),
           const SizedBox(height: 40),
 
           Text('이동 방법 (선택)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
@@ -132,7 +138,28 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                if (_titleController.text.isEmpty || _selectedCategory.isEmpty) {
+                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('카테고리와 제목을 입력해주세요!')));
+                   return;
+                }
+                
+                // Firestore에 데이터 쓰기!
+                await FirebaseFirestore.instance.collection('meetups').add({
+                  'title': _titleController.text,
+                  'category': _selectedCategory,
+                  'location': _locationController.text.isEmpty ? '위치 미정' : _locationController.text,
+                  'date': _dateController.text.isEmpty ? '시간 미정' : _dateController.text,
+                  'host': '매운맛킬러', // Dummy User
+                  'manner': 41.2,
+                  'price': 'N빵',
+                  'members': '1/4',
+                  'isFemaleOnly': _isFemaleOnly,
+                  'transport': _transportMethod,
+                  'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80', // Dummy Image
+                  'createdAt': FieldValue.serverTimestamp()
+                });
+
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
@@ -174,13 +201,14 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String hint) {
+  Widget _buildTextField(String label, String hint, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
         const SizedBox(height: 12),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: const Color(0xFFAEAEC2), fontSize: 15),

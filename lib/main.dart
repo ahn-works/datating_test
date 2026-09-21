@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'screens/home_screen.dart'; import 'screens/party_screen.dart'; import 'screens/chat_screen.dart'; import 'screens/my_page_screen.dart';
 import 'screens/splash_screen.dart';
 void main() => runApp(const Spot10App());
