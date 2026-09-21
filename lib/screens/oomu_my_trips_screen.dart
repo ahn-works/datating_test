@@ -144,7 +144,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
                           child: Text(meetup['title']!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis),
                         ),
                         Container(
-                          margin: const EdgeInsets.left(12),
+                          margin: const EdgeInsets.only(left: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(color: isHosting ? surfaceColor : const Color(0xFFE5F0FF), borderRadius: BorderRadius.circular(8)),
                           child: Text(meetup['status']!, style: TextStyle(fontSize: 12, color: isHosting ? textPrimary : accentColor, fontWeight: FontWeight.bold)),
