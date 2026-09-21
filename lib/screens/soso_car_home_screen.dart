@@ -14,8 +14,8 @@ class OOMUHomeScreen extends StatefulWidget {
 }
 
 class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
-  final Color darkGreen = const Color(0xFF14422D);
-  final Color badgeGreen = const Color(0xFFBCEECF);
+  final Color primaryColor = const Color(0xFF1A1A1A);
+  final Color badgeGrey = const Color(0xFFF0F0F0);
   
   int _selectedCategoryIndex = 0;
   final List<Map<String, dynamic>> _categories = [
@@ -77,7 +77,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           // Dummy Map Background
           Positioned.fill(
             child: Container(
-              color: const Color(0xFFE8ECEF),
+              color: const Color(0xFFF5F5F7),
               child: CustomPaint(
                 painter: _GridPainter(),
                 child: Stack(
@@ -110,10 +110,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)]),
                         child: Row(
                           children: [
-                            Icon(Icons.location_on, color: darkGreen, size: 18),
+                            Icon(Icons.location_on, color: primaryColor, size: 18),
                             const SizedBox(width: 8),
                             const Text('마포구 서교동', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                             const Icon(Icons.keyboard_arrow_down, size: 18),
@@ -124,8 +124,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen())),
                         child: Container(
                           padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
-                          child: Icon(Icons.tune, color: darkGreen),
+                          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)]),
+                          child: Icon(Icons.tune, color: primaryColor),
                         ),
                       )
                     ],
@@ -145,10 +145,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isSelected ? darkGreen : Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
-                              boxShadow: isSelected ? [BoxShadow(color: darkGreen.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))] : [],
+                              color: isSelected ? primaryColor : Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              border: isSelected ? null : Border.all(color: Colors.grey.shade200),
+                              boxShadow: isSelected ? [BoxShadow(color: primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))] : [],
                             ),
                             child: Row(
                               children: [
@@ -180,9 +180,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             child: Container(
               height: MediaQuery.of(context).size.height * 0.50,
               decoration: const BoxDecoration(
-                color: Color(0xFFFBF9F6),
+                color: Color(0xFFF5F5F7),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -5))],
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 30, offset: Offset(0, -5))],
               ),
               child: Column(
                 children: [
@@ -194,7 +194,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('우리 동네 취향 모임', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: darkGreen)),
+                        Text('우리 동네 취향 모임', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryColor)),
                         Text('12개 진행 중', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
                       ],
                     ),
@@ -230,10 +230,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(color: darkGreen, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: darkGreen.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]),
+            decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(30), boxShadow: [BoxShadow(color: primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]),
             child: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
           ),
-          CustomPaint(size: const Size(10, 10), painter: _TrianglePainter(color: darkGreen)),
+          CustomPaint(size: const Size(10, 10), painter: _TrianglePainter(color: primaryColor)),
           const SizedBox(height: 4),
           Container(width: 12, height: 4, decoration: BoxDecoration(color: Colors.black.withOpacity(0.2), borderRadius: BorderRadius.circular(50))),
         ],
@@ -246,18 +246,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUDetailScreen())),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 5))]),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 5))]),
         child: Column(
           children: [
             Container(
               height: 120,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
                 image: DecorationImage(image: NetworkImage(meetup['imageUrl']), fit: BoxFit.cover),
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
                   gradient: LinearGradient(colors: [Colors.black.withOpacity(0.6), Colors.transparent], begin: Alignment.topCenter, end: Alignment.bottomCenter),
                 ),
                 padding: const EdgeInsets.all(16),
@@ -268,12 +268,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                      child: Text(meetup['category'], style: TextStyle(color: darkGreen, fontWeight: FontWeight.bold, fontSize: 11)),
+                      child: Text(meetup['category'], style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 11)),
                     ),
                     if (meetup['isFemaleOnly'])
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: const Color(0xFFA33D23), borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: const Color(0xFFFF3B30), borderRadius: BorderRadius.circular(12)),
                         child: const Text('여성 전용', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
                       ),
                   ],
@@ -301,9 +301,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(meetup['transport'] == '각자 이동' ? Icons.directions_walk : Icons.directions_car, size: 14, color: darkGreen),
+                      Icon(meetup['transport'] == '각자 이동' ? Icons.directions_walk : Icons.directions_car, size: 14, color: primaryColor),
                       const SizedBox(width: 4),
-                      Text(meetup['transport'], style: TextStyle(fontSize: 12, color: darkGreen, fontWeight: FontWeight.bold)),
+                      Text(meetup['transport'], style: TextStyle(fontSize: 12, color: primaryColor, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
@@ -312,7 +312,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(radius: 12, backgroundColor: badgeGreen, child: Icon(Icons.person, size: 14, color: darkGreen)),
+                          CircleAvatar(radius: 12, backgroundColor: badgeGrey, child: Icon(Icons.person, size: 14, color: primaryColor)),
                           const SizedBox(width: 8),
                           Text('${meetup['host']} (${meetup['manner']}°C)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
                         ],
@@ -333,7 +333,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return BottomNavigationBar(
       currentIndex: 0,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: darkGreen,
+      selectedItemColor: primaryColor,
       unselectedItemColor: Colors.grey,
       showUnselectedLabels: true,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
@@ -353,7 +353,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             clipBehavior: Clip.none,
             children: [
               const Icon(Icons.chat_bubble_outline),
-              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFA33D23), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
+              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
             ],
           ),
           label: '채팅',

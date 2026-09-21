@@ -10,7 +10,7 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color darkGreen = const Color(0xFF14422D);
+    final Color primaryColor = const Color(0xFF1A1A1A);
     
     final List<Map<String, dynamic>> _chatRooms = [
       {
@@ -99,7 +99,7 @@ class ChatScreen extends StatelessWidget {
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey.shade200),
                             ),
-                            child: Icon(Icons.group, size: 12, color: darkGreen),
+                            child: Icon(Icons.group, size: 12, color: primaryColor),
                           ),
                         ),
                     ],
@@ -148,7 +148,7 @@ class ChatScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: const BoxDecoration(
-                            color: Color(0xFFA33D23),
+                            color: Color(0xFFFF3B30),
                             shape: BoxShape.circle,
                           ),
                           child: Text(
@@ -169,11 +169,11 @@ class ChatScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNav(BuildContext context) {
-    final Color darkGreen = const Color(0xFF14422D);
+    final Color primaryColor = const Color(0xFF1A1A1A);
     return BottomNavigationBar(
       currentIndex: 2,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: darkGreen,
+      selectedItemColor: primaryColor,
       unselectedItemColor: Colors.grey,
       showUnselectedLabels: true,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
@@ -193,7 +193,7 @@ class ChatScreen extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               const Icon(Icons.chat_bubble_outline),
-              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFA33D23), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
+              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
             ],
           ),
           label: '채팅',

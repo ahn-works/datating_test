@@ -9,9 +9,9 @@ class OOMUDetailScreen extends StatefulWidget {
 }
 
 class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
-  final Color darkGreen = const Color(0xFF14422D);
-  final Color badgeGreen = const Color(0xFFBCEECF);
-  final Color surfaceColor = const Color(0xFFFBF9F6);
+  final Color primaryColor = const Color(0xFF1A1A1A);
+  final Color badgeGrey = const Color(0xFFF0F0F0);
+  final Color surfaceColor = const Color(0xFFF5F5F7);
   
   bool _isFavorite = false;
 
@@ -24,7 +24,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         height: 280,
         child: Column(
           children: [
-            const Icon(Icons.check_circle, color: Color(0xFF14422D), size: 64),
+            const Icon(Icons.check_circle, color: Color(0xFF1A1A1A), size: 64),
             const SizedBox(height: 16),
             const Text('모임 참여 신청이 완료되었습니다!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
             const SizedBox(height: 8),
@@ -35,8 +35,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               height: 56,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF14422D),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  backgroundColor: const Color(0xFF1A1A1A),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
                 onPressed: () {
                   Navigator.pop(ctx);
@@ -60,12 +60,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           SliverAppBar(
             expandedHeight: 280,
             pinned: true,
-            backgroundColor: darkGreen,
+            backgroundColor: primaryColor,
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.white),
             actions: [
               IconButton(
-                icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border, color: _isFavorite ? const Color(0xFFA33D23) : Colors.white),
+                icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border, color: _isFavorite ? const Color(0xFFFF3B30) : Colors.white),
                 onPressed: () => setState(() => _isFavorite = !_isFavorite),
               ),
               IconButton(icon: const Icon(Icons.share, color: Colors.white), onPressed: () {}),
@@ -98,13 +98,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(color: badgeGreen, borderRadius: BorderRadius.circular(12)),
-                              child: Text('맛집/카페', style: TextStyle(color: darkGreen, fontWeight: FontWeight.bold, fontSize: 12)),
+                              decoration: BoxDecoration(color: badgeGrey, borderRadius: BorderRadius.circular(12)),
+                              child: Text('맛집/카페', style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(color: const Color(0xFFA33D23), borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(color: const Color(0xFFFF3B30), borderRadius: BorderRadius.circular(12)),
                               child: const Text('여성 전용', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                           ],
@@ -149,7 +149,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Icon(Icons.verified, color: badgeGreen, size: 16),
+                                  Icon(Icons.verified, color: badgeGrey, size: 16),
                                   const SizedBox(width: 4),
                                   Text('AI 실명인증 완료', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                                 ],
@@ -162,7 +162,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           children: [
                             Text('매너온도', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
                             const SizedBox(height: 4),
-                            Text('41.2°C', style: TextStyle(color: darkGreen, fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text('41.2°C', style: TextStyle(color: primaryColor, fontSize: 18, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ],
@@ -205,7 +205,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: surfaceColor,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           child: const Text(
                             "스트레스 팍팍 받는 주말엔 역시 매운 거 아니겠습니까? 🔥\n\n엽기떡볶이 오리지널맛에 마라탕 4단계 팍팍 추가해서 같이 땀흘리면서 드실 여성 찐친 구합니다!\n\n맵찔이는 정중히 사양합니다..ㅎㅎ 다 먹고 근처 예쁜 카페 가서 커피도 마셔요!",
@@ -226,7 +226,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('참여 인원', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            Text('2 / 4명', style: TextStyle(fontSize: 14, color: darkGreen, fontWeight: FontWeight.bold)),
+                            Text('2 / 4명', style: TextStyle(fontSize: 14, color: primaryColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -273,7 +273,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, -5))],
         ),
         child: SafeArea(
           child: Row(
@@ -292,9 +292,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 child: ElevatedButton(
                   onPressed: _showApplyToast,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: darkGreen,
+                    backgroundColor: primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   child: const Text('참여 신청하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
@@ -312,7 +312,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(12)),
-          child: Icon(icon, color: darkGreen, size: 20),
+          child: Icon(icon, color: primaryColor, size: 20),
         ),
         const SizedBox(width: 16),
         Column(
@@ -343,8 +343,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             right: 0,
             child: Container(
               padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(color: badgeGreen, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-              child: const Icon(Icons.star, color: Color(0xFF14422D), size: 10),
+              decoration: BoxDecoration(color: badgeGrey, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+              child: const Icon(Icons.star, color: Color(0xFF1A1A1A), size: 10),
             ),
           )
       ],

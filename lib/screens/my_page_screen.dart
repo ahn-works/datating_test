@@ -10,19 +10,19 @@ class MyPageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF9F6),
+      backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFFBF9F6).withOpacity(0.9),
+        backgroundColor: const Color(0xFFF5F5F7).withOpacity(0.9),
         elevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.person, color: Color(0xFF14422D), size: 24),
+            const Icon(Icons.person, color: Color(0xFF1A1A1A), size: 24),
             const SizedBox(width: 4),
             const Text(
               '마이페이지',
               style: TextStyle(
-                color: Color(0xFF14422D),
+                color: Color(0xFF1A1A1A),
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -31,14 +31,14 @@ class MyPageScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFF14422D).withOpacity(0.1),
+                color: const Color(0xFF1A1A1A).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.settings, color: Color(0xFF14422D), size: 16),
+                  Icon(Icons.settings, color: Color(0xFF1A1A1A), size: 16),
                   SizedBox(width: 4),
-                  Text('설정', style: TextStyle(color: Color(0xFF14422D), fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('설정', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               ),
             )
@@ -56,8 +56,8 @@ class MyPageScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 20,
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 30,
                   offset: const Offset(0, 10),
                 )
               ],
@@ -71,7 +71,7 @@ class MyPageScreen extends StatelessWidget {
                       height: 72,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFBCEECF), width: 3),
+                        border: Border.all(color: const Color(0xFFF0F0F0), width: 3),
                         image: const DecorationImage(
                           image: NetworkImage('https://i.pravatar.cc/150?img=47'),
                           fit: BoxFit.cover,
@@ -111,7 +111,7 @@ class MyPageScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFBF9F6),
+                    color: const Color(0xFFF5F5F7),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -128,11 +128,11 @@ class MyPageScreen extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Color(0xFF14422D),
+                              color: Color(0xFF1A1A1A),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Icon(Icons.sentiment_very_satisfied, color: const Color(0xFF14422D).withOpacity(0.8), size: 20),
+                          Icon(Icons.sentiment_very_satisfied, color: const Color(0xFF1A1A1A).withOpacity(0.8), size: 20),
                         ],
                       )
                     ],
@@ -149,15 +149,15 @@ class MyPageScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF14422D),
+              color: Color(0xFF1A1A1A),
             ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildBadge(Icons.verified_user, 'AI 신원인증', const Color(0xFFBCEECF), const Color(0xFF14422D)),
+              _buildBadge(Icons.verified_user, 'AI 신원인증', const Color(0xFFF0F0F0), const Color(0xFF1A1A1A)),
               const SizedBox(width: 12),
-              _buildBadge(Icons.directions_car, '안심 드라이버', const Color(0xFF14422D), Colors.white),
+              _buildBadge(Icons.directions_car, '안심 드라이버', const Color(0xFF1A1A1A), Colors.white),
               const SizedBox(width: 12),
               _buildBadge(Icons.star, '인기 호스트', Colors.orange.shade100, Colors.orange.shade800),
             ],
@@ -230,10 +230,10 @@ class MyPageScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFFFBF9F6),
+          color: const Color(0xFFF5F5F7),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: const Color(0xFF14422D), size: 20),
+        child: Icon(icon, color: const Color(0xFF1A1A1A), size: 20),
       ),
       title: Text(
         title,
@@ -255,11 +255,11 @@ class MyPageScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNav(BuildContext context) {
-    final Color darkGreen = const Color(0xFF14422D);
+    final Color primaryColor = const Color(0xFF1A1A1A);
     return BottomNavigationBar(
       currentIndex: 4,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: darkGreen,
+      selectedItemColor: primaryColor,
       unselectedItemColor: Colors.grey,
       showUnselectedLabels: true,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
@@ -279,7 +279,7 @@ class MyPageScreen extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               const Icon(Icons.chat_bubble_outline),
-              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFA33D23), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
+              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
             ],
           ),
           label: '채팅',

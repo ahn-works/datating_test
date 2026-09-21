@@ -16,7 +16,7 @@ class OOMUChatScreen extends StatefulWidget {
 }
 
 class _OOMUChatScreenState extends State<OOMUChatScreen> {
-  final Color darkGreen = const Color(0xFF14422D);
+  final Color primaryColor = const Color(0xFF1A1A1A);
   final TextEditingController _controller = TextEditingController();
   
   final List<Map<String, dynamic>> _messages = [
@@ -55,7 +55,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF9F6),
+      backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -97,8 +97,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: const Color(0xFFE8ECEF), borderRadius: BorderRadius.circular(8)),
-                  child: Icon(Icons.calendar_month, color: darkGreen, size: 20),
+                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
+                  child: Icon(Icons.calendar_month, color: primaryColor, size: 20),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
@@ -115,7 +115,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUDetailScreen()));
                   },
-                  child: Text('모임 상세', style: TextStyle(color: darkGreen, fontWeight: FontWeight.bold)),
+                  child: Text('모임 상세', style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
                 )
               ],
             ),
@@ -133,7 +133,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(0.03),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(msg['text'], style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
@@ -174,12 +174,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
-                                    color: isMe ? darkGreen : Colors.white,
+                                    color: isMe ? primaryColor : Colors.white,
                                     borderRadius: BorderRadius.circular(20).copyWith(
                                       topLeft: isMe ? const Radius.circular(20) : const Radius.circular(4),
                                       topRight: isMe ? const Radius.circular(4) : const Radius.circular(20),
                                     ),
-                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
+                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 5, offset: const Offset(0, 2))],
                                   ),
                                   child: Text(
                                     msg['text'],
@@ -211,7 +211,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, -5))],
             ),
             child: SafeArea(
               child: Row(
@@ -224,7 +224,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFBF9F6),
+                        color: const Color(0xFFF5F5F7),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: TextField(
@@ -239,7 +239,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   const SizedBox(width: 8),
                   Container(
                     decoration: BoxDecoration(
-                      color: darkGreen,
+                      color: primaryColor,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(

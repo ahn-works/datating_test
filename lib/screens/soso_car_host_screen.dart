@@ -9,7 +9,7 @@ class OOMUHostScreen extends StatefulWidget {
 }
 
 class _OOMUHostScreenState extends State<OOMUHostScreen> {
-  final Color darkGreen = const Color(0xFF14422D);
+  final Color primaryColor = const Color(0xFF1A1A1A);
   String _transportMethod = '각자 이동';
   bool _isFemaleOnly = false;
   String _selectedCategory = '';
@@ -43,7 +43,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     actions: [
                       TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey))),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF14422D)),
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1A1A1A)),
                         onPressed: () {
                           Navigator.pop(ctx); // close dialog
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
@@ -74,9 +74,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isSelected ? darkGreen : Colors.white,
+                    color: isSelected ? primaryColor : Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
+                    border: Border.all(color: isSelected ? primaryColor : Colors.grey.shade300),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -120,7 +120,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: const Color(0xFFFBF9F6), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(12)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -134,7 +134,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   ),
                   Switch(
                     value: _isFemaleOnly,
-                    activeColor: darkGreen,
+                    activeColor: primaryColor,
                     onChanged: (val) => setState(() => _isFemaleOnly = val),
                   )
                 ],
@@ -157,7 +157,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     actions: [
                       TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey))),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF14422D)),
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1A1A1A)),
                         onPressed: () {
                           Navigator.pop(ctx); // close dialog
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
@@ -169,7 +169,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: darkGreen,
+                backgroundColor: primaryColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               child: const Text('모임 등록하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -192,7 +192,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             hintText: hint,
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
             filled: true,
-            fillColor: const Color(0xFFFBF9F6),
+            fillColor: const Color(0xFFF5F5F7),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
@@ -209,8 +209,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: isSelected ? darkGreen : Colors.white,
-            border: Border.all(color: isSelected ? darkGreen : Colors.grey.shade300),
+            color: isSelected ? primaryColor : Colors.white,
+            border: Border.all(color: isSelected ? primaryColor : Colors.grey.shade300),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
