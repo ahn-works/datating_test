@@ -1,82 +1,19 @@
 Compiling lib/main.dart for the Web...                          
-Unexpected wasm dry run failure (255):
+Wasm dry run findings:
+Found incompatibilities with WebAssembly.
 
-Unhandled exception:
-Unsupported operation: Cannot extract a file path from a org-dartlang-untranslatable-uri URI
-#0      _Uri.toFilePath (dart:core/uri.dart:3432)
-#1      DryRunSummarizer._lintChecks (package:dart2wasm/dry_run.dart:204)
-#2      DryRunSummarizer.summarize (package:dart2wasm/dry_run.dart:278)
-#3      _runCfePhase (package:dart2wasm/compile.dart:356)
-<asynchronous suspension>
-#4      compile (package:dart2wasm/compile.dart:245)
-<asynchronous suspension>
-#5      generateWasm (package:dart2wasm/generate_wasm.dart:78)
-<asynchronous suspension>
-#6      main (file:///b/s/w/ir/x/w/sdk/pkg/dart2wasm/bin/dart2wasm.dart:10)
-<asynchronous suspension>
+package:spot10_app/screens/soso_car_hub_screen.dart 3:1 - dart:html unsupported (0)
+
+Consider addressing these issues to enable wasm builds. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-Error: Couldn't resolve the package 'firebase_core' in 'package:firebase_core/firebase_core.dart'.
-lib/main.dart:2:8:
-Error: Not found: 'package:firebase_core/firebase_core.dart'
-import 'package:firebase_core/firebase_core.dart';
-       ^
-Error: Couldn't resolve the package 'cloud_firestore' in 'package:cloud_firestore/cloud_firestore.dart'.
-lib/screens/soso_car_home_screen.dart:2:8:
-Error: Not found: 'package:cloud_firestore/cloud_firestore.dart'
-import 'package:cloud_firestore/cloud_firestore.dart';
-       ^
-lib/screens/soso_car_host_screen.dart:3:8:
-Error: Not found: 'package:cloud_firestore/cloud_firestore.dart'
-import 'package:cloud_firestore/cloud_firestore.dart';
-       ^
-lib/screens/soso_car_home_screen.dart:42:28:
-Error: The getter 'FirebaseFirestore' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-      var snapshot = await FirebaseFirestore.instance.collection('meetups').limit(1).get();
-                           ^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:57:26:
-Error: The getter 'FieldValue' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-            'createdAt': FieldValue.serverTimestamp()
-                         ^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:71:26:
-Error: The getter 'FieldValue' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-            'createdAt': FieldValue.serverTimestamp()
-                         ^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:85:26:
-Error: The getter 'FieldValue' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-            'createdAt': FieldValue.serverTimestamp()
-                         ^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:89:17:
-Error: The getter 'FirebaseFirestore' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-          await FirebaseFirestore.instance.collection('meetups').add(m);
-                ^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:153:42:
-Error: 'QuerySnapshot' isn't a type.
-                    child: StreamBuilder<QuerySnapshot>(
-                                         ^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:154:31:
-Error: The getter 'FirebaseFirestore' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-                      stream: FirebaseFirestore.instance.collection('meetups').orderBy('createdAt', descending: true).snapshots(),
-                              ^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_host_screen.dart:148:23:
-Error: The getter 'FirebaseFirestore' isn't defined for the type '_OOMUHostScreenState'.
- - '_OOMUHostScreenState' is from 'package:spot10_app/screens/soso_car_host_screen.dart' ('lib/screens/soso_car_host_screen.dart').
-                await FirebaseFirestore.instance.collection('meetups').add({
-                      ^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_host_screen.dart:160:32:
-Error: The getter 'FieldValue' isn't defined for the type '_OOMUHostScreenState'.
- - '_OOMUHostScreenState' is from 'package:spot10_app/screens/soso_car_host_screen.dart' ('lib/screens/soso_car_host_screen.dart').
-                  'createdAt': FieldValue.serverTimestamp()
-                               ^^^^^^^^^^
+lib/screens/oomu_my_trips_screen.dart:147:52:
+Error: Couldn't find constructor 'EdgeInsets.left'.
+                          margin: const EdgeInsets.left(12),
+                                                   ^^^^
 Error: Compilation failed.
-  Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/ac7b535a9ad15a593962bd51f42ec72d/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/ac7b535a9ad15a593962bd51f42ec72d/main.dart
+  Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
 <asynchronous suspension>
@@ -123,5 +60,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                              7.4s
+Compiling lib/main.dart for the Web...                             25.0s
 Error: Failed to compile application for the Web.
