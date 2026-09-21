@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'soso_car_chat_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
@@ -9,7 +10,12 @@ class OOMUHostScreen extends StatefulWidget {
 }
 
 class _OOMUHostScreenState extends State<OOMUHostScreen> {
-  final Color primaryColor = const Color(0xFF1A1A1A);
+  final Color textPrimary = const Color(0xFF111111);
+  final Color textSecondary = const Color(0xFF767676);
+  final Color surfaceColor = const Color(0xFFF5F5F7);
+  final Color accentColor = const Color(0xFF007AFF);
+  final Color destructiveColor = const Color(0xFFFF3B30);
+
   String _transportMethod = '각자 이동';
   bool _isFemaleOnly = false;
   String _selectedCategory = '';
@@ -28,121 +34,100 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('새로운 동네 모임 열기', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: Text('새로운 모임 열기', style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    title: const Text('🎉 모임 개설 완료!'),
-                    content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?'),
-                    actions: [
-                      TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey))),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1A1A1A)),
-                        onPressed: () {
-                          Navigator.pop(ctx); // close dialog
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
-                        },
-                        child: const Text('이동하기', style: TextStyle(color: Colors.white)),
-                      )
-                    ]
-                  )
-                );
-              },
+          icon: Icon(Icons.close, color: textPrimary),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          const Text('어떤 취향의 찐친을 찾고 있나요?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87, height: 1.3)),
-          const SizedBox(height: 32),
+          Text('어떤 취향의 찐친을 찾고 있나요?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: textPrimary, height: 1.3)),
+          const SizedBox(height: 40),
           
-          const Text('모임 카테고리', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey)),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _categories.map((cat) {
+          Text('모임 카테고리', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+          const SizedBox(height: 16),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1.1),
+            itemCount: _categories.length,
+            itemBuilder: (context, index) {
+              final cat = _categories[index];
               bool isSelected = _selectedCategory == cat['name'];
               return GestureDetector(
                 onTap: () => setState(() => _selectedCategory = cat['name']),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
-                    color: isSelected ? primaryColor : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isSelected ? primaryColor : Colors.grey.shade300),
+                    color: isSelected ? Colors.white : surfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isSelected ? textPrimary : Colors.transparent, width: isSelected ? 2 : 0),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(cat['icon'], style: const TextStyle(fontSize: 16)),
-                      const SizedBox(width: 8),
-                      Text(
-                        cat['name'],
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      Text(cat['icon'], style: const TextStyle(fontSize: 24)),
+                      const SizedBox(height: 8),
+                      Text(cat['name'], style: TextStyle(color: textPrimary, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 13)),
                     ],
                   ),
                 ),
               );
-            }).toList(),
+            },
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
 
           _buildTextField('모임 제목', '예: 불금엔 역시 코노! 스트레스 풀 분'),
-          const SizedBox(height: 24),
-          
-          _buildTextField('만날 장소', '예: 홍대입구역 9번 출구 앞'),
-          const SizedBox(height: 24),
-          
-          _buildTextField('일시', '예: 이번주 토요일 오후 2시'),
           const SizedBox(height: 32),
+          _buildTextField('만날 장소', '예: 홍대입구역 9번 출구 앞'),
+          const SizedBox(height: 32),
+          _buildTextField('일시', '예: 이번주 토요일 오후 2시'),
+          const SizedBox(height: 40),
 
-          const Text('이동 방법 (선택)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildTransportOption('각자 이동'),
-              const SizedBox(width: 12),
-              _buildTransportOption('내 차로 카풀'),
-            ],
+          Text('이동 방법 (선택)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(12)),
+            child: Row(
+              children: [
+                _buildTransportOption('각자 이동'),
+                _buildTransportOption('내 차로 카풀'),
+              ],
+            ),
           ),
-          if (_transportMethod == '내 차로 카풀') ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(12)),
+          
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            child: _transportMethod == '내 차로 카풀' ? Padding(
+              padding: const EdgeInsets.only(top: 24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('여성 전용 카풀 설정', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      SizedBox(height: 4),
-                      Text('안전을 위해 여성 멤버만 탑승하도록 제한합니다.', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Text('여성 전용 카풀 설정', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textPrimary)),
+                      const SizedBox(height: 4),
+                      Text('안전을 위해 여성 멤버만 탑승하도록 제한합니다.', style: TextStyle(fontSize: 13, color: textSecondary)),
                     ],
                   ),
-                  Switch(
+                  CupertinoSwitch(
                     value: _isFemaleOnly,
-                    activeColor: primaryColor,
+                    activeColor: accentColor,
                     onChanged: (val) => setState(() => _isFemaleOnly = val),
                   )
                 ],
               ),
-            )
-          ],
+            ) : const SizedBox.shrink(),
+          ),
           
-          const SizedBox(height: 40),
+          const SizedBox(height: 60),
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -151,25 +136,33 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    title: const Text('🎉 모임 개설 완료!'),
-                    content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?'),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    contentPadding: const EdgeInsets.all(24),
+                    title: const Center(child: Text('🎉 모임 개설 완료!', style: TextStyle(fontWeight: FontWeight.w800)))),
+                    content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?', textAlign: TextAlign.center, style: TextStyle(height: 1.5)),
                     actions: [
-                      TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey))),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1A1A1A)),
-                        onPressed: () {
-                          Navigator.pop(ctx); // close dialog
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
-                        },
-                        child: const Text('이동하기', style: TextStyle(color: Colors.white)),
+                      Row(
+                        children: [
+                          Expanded(child: TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)))),
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: textPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                              onPressed: () {
+                                Navigator.pop(ctx); // close dialog
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
+                              },
+                              child: const Text('이동하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            ),
+                          )
+                        ],
                       )
                     ]
                   )
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
+                backgroundColor: textPrimary,
+                elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               child: const Text('모임 등록하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -185,16 +178,17 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey)),
-        const SizedBox(height: 8),
+        Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+        const SizedBox(height: 12),
         TextField(
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+            hintStyle: TextStyle(color: const Color(0xFFAEAEC2), fontSize: 15),
             filled: true,
-            fillColor: const Color(0xFFF5F5F7),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            fillColor: surfaceColor,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: textPrimary, width: 1.5)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           ),
         ),
       ],
@@ -207,18 +201,19 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       child: GestureDetector(
         onTap: () => setState(() => _transportMethod = title),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? primaryColor : Colors.white,
-            border: Border.all(color: isSelected ? primaryColor : Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(12),
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 2))] : [],
           ),
           child: Center(
             child: Text(
               title,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.bold,
+                color: isSelected ? textPrimary : textSecondary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 14,
               ),
             ),
           ),

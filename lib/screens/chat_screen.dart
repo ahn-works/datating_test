@@ -10,7 +10,8 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = const Color(0xFF1A1A1A);
+    final Color textPrimary = const Color(0xFF111111);
+    final Color textSecondary = const Color(0xFF767676);
     
     final List<Map<String, dynamic>> _chatRooms = [
       {
@@ -48,13 +49,13 @@ class ChatScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('우무 채팅', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 24)),
+        title: Text('채팅', style: TextStyle(color: textPrimary, fontWeight: FontWeight.w800, fontSize: 24)),
         actions: [
-          IconButton(icon: const Icon(Icons.search, color: Colors.black87), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black87), onPressed: () {}),
+          IconButton(icon: Icon(Icons.search, color: textPrimary), onPressed: () {}),
         ],
       ),
       body: ListView.builder(
+        padding: const EdgeInsets.only(top: 12),
         itemCount: _chatRooms.length,
         itemBuilder: (context, index) {
           final room = _chatRooms[index];
@@ -70,38 +71,23 @@ class ChatScreen extends StatelessWidget {
                 ),
               );
             },
+            highlightColor: const Color(0xFFF5F5F7),
+            splashColor: Colors.transparent,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 children: [
                   Stack(
                     children: [
                       Container(
-                        width: 60,
-                        height: 60,
+                        width: 56, height: 56,
                         decoration: BoxDecoration(
                           shape: room['isGroup'] ? BoxShape.rectangle : BoxShape.circle,
                           borderRadius: room['isGroup'] ? BorderRadius.circular(20) : null,
-                          image: DecorationImage(
-                            image: NetworkImage(room['imageUrl']),
-                            fit: BoxFit.cover,
-                          ),
+                          image: DecorationImage(image: NetworkImage(room['imageUrl']), fit: BoxFit.cover),
+                          border: Border.all(color: const Color(0xFFEBEBEF)),
                         ),
                       ),
-                      if (room['isGroup'])
-                        Positioned(
-                          right: -4,
-                          bottom: -4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Icon(Icons.group, size: 12, color: primaryColor),
-                          ),
-                        ),
                     ],
                   ),
                   const SizedBox(width: 16),
@@ -114,48 +100,38 @@ class ChatScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 room['title'],
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary),
+                                maxLines: 1, overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             if (room['isGroup']) ...[
                               const SizedBox(width: 6),
-                              Text(
-                                '${room['members']}',
-                                style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                              ),
+                              Text('${room['members']}', style: TextStyle(color: textSecondary, fontSize: 14)),
                             ],
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
                           room['lastMessage'],
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: textSecondary, fontSize: 14, fontWeight: room['unread'] > 0 ? FontWeight.w600 : FontWeight.w400),
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(room['time'], style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+                      Text(room['time'], style: const TextStyle(color: Color(0xFFAEAEC2), fontSize: 12, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 8),
                       if (room['unread'] > 0)
                         Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF3B30),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${room['unread']}',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: const Color(0xFFFF3B30), borderRadius: BorderRadius.circular(10)),
+                          child: Text('${room['unread']}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
+                      if (room['unread'] == 0) const SizedBox(height: 22),
                     ],
                   )
                 ],
@@ -169,37 +145,39 @@ class ChatScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNav(BuildContext context) {
-    final Color primaryColor = const Color(0xFF1A1A1A);
     return BottomNavigationBar(
       currentIndex: 2,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: primaryColor,
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: const Color(0xFF111111),
+      unselectedItemColor: const Color(0xFFC7C7CC),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+      elevation: 20,
+      backgroundColor: Colors.white,
       onTap: (index) {
-        if (index == 0) { Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHomeScreen())); }
-        else if (index == 1) { Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHostScreen())); }
+        if (index == 0) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHomeScreen(), transitionDuration: Duration.zero)); }
+        else if (index == 1) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHostScreen(), transitionDuration: Duration.zero)); }
         else if (index == 2) { }
-        else if (index == 3) { Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen())); }
-        else if (index == 4) { Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPageScreen())); }
+        else if (index == 3) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUMyTripsScreen(), transitionDuration: Duration.zero)); }
+        else if (index == 4) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const MyPageScreen(), transitionDuration: Duration.zero)); }
       },
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
+        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined, size: 26), activeIcon: Icon(Icons.explore, size: 26), label: '탐색'),
+        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 26), activeIcon: Icon(Icons.add_circle, size: 26), label: '모집하기'),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.chat_bubble_outline),
-              Positioned(right: -4, top: -4, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
+              const Icon(Icons.chat_bubble_outline, size: 24),
+              Positioned(right: -6, top: -6, child: Container(padding: const EdgeInsets.all(5), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
             ],
           ),
+          activeIcon: const Icon(Icons.chat_bubble, size: 24),
           label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내 모임'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: '마이'),
+        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined, size: 26), activeIcon: Icon(Icons.directions_car, size: 26), label: '내 모임'),
+        const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 26), activeIcon: Icon(Icons.person, size: 26), label: '마이'),
       ],
     );
   }
