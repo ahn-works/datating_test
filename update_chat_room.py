@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import io
+
+chat_room_code = '''import 'package:flutter/material.dart';
 import 'soso_car_detail_screen.dart';
 
 class OOMUChatScreen extends StatefulWidget {
@@ -26,7 +28,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     },
     {
       'type': 'system',
-      'text': '모임 장소가 \'홍대입구역 9번 출구 앞\'으로 설정되었습니다.'
+      'text': '모임 장소가 \\'홍대입구역 9번 출구 앞\\'으로 설정되었습니다.'
     },
     {
       'type': 'user',
@@ -256,3 +258,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 }
+'''
+with io.open('lib/screens/soso_car_chat_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(chat_room_code)
+
+print("Updated soso_car_chat_screen.dart")

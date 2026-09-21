@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'soso_car_chat_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
   const OOMUHostScreen({super.key});
@@ -32,7 +33,27 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    title: const Text('🎉 모임 개설 완료!'),
+                    content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?'),
+                    actions: [
+                      TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey))),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF14422D)),
+                        onPressed: () {
+                          Navigator.pop(ctx); // close dialog
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
+                        },
+                        child: const Text('이동하기', style: TextStyle(color: Colors.white)),
+                      )
+                    ]
+                  )
+                );
+              },
         ),
       ),
       body: ListView(
@@ -126,7 +147,27 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    title: const Text('🎉 모임 개설 완료!'),
+                    content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?'),
+                    actions: [
+                      TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey))),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF14422D)),
+                        onPressed: () {
+                          Navigator.pop(ctx); // close dialog
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
+                        },
+                        child: const Text('이동하기', style: TextStyle(color: Colors.white)),
+                      )
+                    ]
+                  )
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: darkGreen,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

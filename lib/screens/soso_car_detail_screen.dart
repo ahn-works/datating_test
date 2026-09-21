@@ -16,20 +16,38 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   bool _isFavorite = false;
 
   void _showApplyToast() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        height: 280,
+        child: Column(
           children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            const Text('참여 신청이 완료되었습니다!', style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        backgroundColor: darkGreen,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
+            const Icon(Icons.check_circle, color: Color(0xFF14422D), size: 64),
+            const SizedBox(height: 16),
+            const Text('모임 참여 신청이 완료되었습니다!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+            const SizedBox(height: 8),
+            const Text('호스트가 수락하면 단톡방 초대가 완료됩니다.\n미리 채팅방에 입장하시겠어요?', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, height: 1.4)),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF14422D),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '주말 엽떡+마라탕 조지실 분', memberCount: 3)));
+                },
+                child: const Text('채팅방 입장하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              )
+            )
+          ]
+        )
+      )
     );
   }
 
