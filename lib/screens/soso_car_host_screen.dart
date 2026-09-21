@@ -138,7 +138,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   builder: (ctx) => AlertDialog(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                     contentPadding: const EdgeInsets.all(24),
-                    title: const Center(child: Text('🎉 모임 개설 완료!', style: TextStyle(fontWeight: FontWeight.w800)))),
+                    title: const Center(child: Text('🎉 모임 개설 완료!', style: TextStyle(fontWeight: FontWeight.w800))),
                     content: const Text('취향 저격 찐친 모임이 만들어졌습니다!\n참여자들이 기다리는 채팅방으로 이동할까요?', textAlign: TextAlign.center, style: TextStyle(height: 1.5)),
                     actions: [
                       Row(
