@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import io
+
+detail_code = '''import 'package:flutter/material.dart';
 import "soso_car_chat_screen.dart";
 
 class OOMUDetailScreen extends StatefulWidget {
@@ -190,7 +192,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Text(
-                            "스트레스 팍팍 받는 주말엔 역시 매운 거 아니겠습니까? 🔥\n\n엽기떡볶이 오리지널맛에 마라탕 4단계 팍팍 추가해서 같이 땀흘리면서 드실 여성 찐친 구합니다!\n\n맵찔이는 정중히 사양합니다..ㅎㅎ 다 먹고 근처 예쁜 카페 가서 커피도 마셔요!",
+                            "스트레스 팍팍 받는 주말엔 역시 매운 거 아니겠습니까? 🔥\\n\\n엽기떡볶이 오리지널맛에 마라탕 4단계 팍팍 추가해서 같이 땀흘리면서 드실 여성 찐친 구합니다!\\n\\n맵찔이는 정중히 사양합니다..ㅎㅎ 다 먹고 근처 예쁜 카페 가서 커피도 마셔요!",
                             style: TextStyle(fontSize: 15, height: 1.6, color: Colors.black87),
                           ),
                         ),
@@ -333,3 +335,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     );
   }
 }
+'''
+
+with io.open('lib/screens/soso_car_detail_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(detail_code)
+
+print("soso_car_detail_screen.dart rewritten!")

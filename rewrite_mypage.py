@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import io
+
+mypage_code = '''import 'package:flutter/material.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
@@ -290,3 +292,8 @@ class MyPageScreen extends StatelessWidget {
     );
   }
 }
+'''
+with io.open('lib/screens/my_page_screen.dart', 'w', encoding='utf-8') as f:
+    f.write(mypage_code)
+
+print("my_page_screen.dart rewritten!")
