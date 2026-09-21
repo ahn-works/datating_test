@@ -107,38 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 32),
 
-          const Text('우무 드라이브 메이트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          // 우무 드라이브 메이트 바로가기 배너 추가
-          GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF3A674F), Color(0xFF2D5A43)]),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: const Color(0xFF3A674F).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))]
-              ),
-              child: Row(
-                children: [
-                  Container(padding: const EdgeInsets.all(12), decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle), child: const Icon(Icons.directions_car, color: Colors.white, size: 28)),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('동네 드라이브 OOMU 🚙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                        SizedBox(height: 4),
-                        Text('우리 동네 이웃과 함께하는 드라이브 여행', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                      ]
-                    )
-                  ),
-                  const Icon(Icons.chevron_right, color: Colors.white)
-                ]
-              )
-            )
-          ),
-          const SizedBox(height: 40)
+                    const SizedBox(height: 40)
         ]
       )
     );
