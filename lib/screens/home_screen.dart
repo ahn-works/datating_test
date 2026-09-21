@@ -6,7 +6,7 @@ import 'party_screen.dart';
 import 'home_sub_screens.dart';
 import 'soso_car_hub_screen.dart';
 import 'soso_car_home_screen.dart';
-import 'signal_house_intro_screen.dart';
+
 
 class HomeScreen extends StatefulWidget { const HomeScreen({super.key}); @override State<HomeScreen> createState() => _HomeScreenState(); }
 class _HomeScreenState extends State<HomeScreen> {

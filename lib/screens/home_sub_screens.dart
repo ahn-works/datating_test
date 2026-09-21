@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'profile_detail_screen.dart';
+import 'driver_profile_modal.dart';
 import 'natural_meeting_detail_screens.dart';
 
 class LocalCoupleScreen extends StatelessWidget {
