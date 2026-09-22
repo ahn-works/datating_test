@@ -37,34 +37,36 @@ Error: The method 'OOMUDetailScreen' isn't defined for the type '_OOMUMyTripsScr
  - '_OOMUMyTripsScreenState' is from 'package:spot10_app/screens/oomu_my_trips_screen.dart' ('lib/screens/oomu_my_trips_screen.dart').
         return GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))), child: Container(
                                                                                           ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_detail_screen.dart:64:112:
-Error: Not a constant expression.
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: (meetup != null ? meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
+lib/screens/soso_car_detail_screen.dart:64:113:
+Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
+ - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
                                                                                           ^^^^^^
-lib/screens/soso_car_detail_screen.dart:64:129:
-Error: Not a constant expression.
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: (meetup != null ? meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
+lib/screens/soso_car_detail_screen.dart:64:137:
+Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
+ - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
                                                                                           ^^^^^^
-lib/screens/soso_car_detail_screen.dart:158:44:
-Error: The getter 'meetup' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                              child: Text((meetup != null ? meetup!['category'] : '술/맛집'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
-                                           ^^^^^^
-lib/screens/soso_car_detail_screen.dart:158:61:
-Error: The getter 'meetup' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                              child: Text((meetup != null ? meetup!['category'] : '술/맛집'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
-                                                            ^^^^^^
-lib/screens/soso_car_detail_screen.dart:201:39:
-Error: The getter 'meetup' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                                Text((meetup != null ? meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
-                                      ^^^^^^
-lib/screens/soso_car_detail_screen.dart:201:56:
-Error: The getter 'meetup' isn't defined for the type '_OOMUDetailScreenState'.
- - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
-                                Text((meetup != null ? meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
-                                                       ^^^^^^
+lib/screens/soso_car_detail_screen.dart:158:51:
+Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
+ - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                              child: Text((widget.meetup != null ? widget.meetup!['category'] : '술/맛집'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
+                                                  ^^^^^^
+lib/screens/soso_car_detail_screen.dart:158:75:
+Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
+ - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                              child: Text((widget.meetup != null ? widget.meetup!['category'] : '술/맛집'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
+                                                                          ^^^^^^
+lib/screens/soso_car_detail_screen.dart:201:46:
+Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
+ - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                                Text((widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+                                             ^^^^^^
+lib/screens/soso_car_detail_screen.dart:201:70:
+Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
+ - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                                Text((widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+                                                                     ^^^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -113,5 +115,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             28.7s
+Compiling lib/main.dart for the Web...                             31.2s
 Error: Failed to compile application for the Web.
