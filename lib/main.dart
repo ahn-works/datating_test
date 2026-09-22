@@ -1,12 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'screens/soso_car_home_screen.dart';
 
-import 'screens/home_screen.dart'; import 'screens/party_screen.dart'; import 'screens/chat_screen.dart'; import 'screens/my_page_screen.dart';
-import 'screens/splash_screen.dart';
-void main() => runApp(const Spot10App());
-class Spot10App extends StatelessWidget { const Spot10App({super.key}); @override Widget build(BuildContext context) => MaterialApp(title: '위피 버디', debugShowCheckedModeBanner: false, theme: ThemeData(primaryColor: const Color(0xFFFF3B30), colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF3B30), primary: const Color(0xFFFF3B30)), scaffoldBackgroundColor: const Color(0xFFF8F9FA), appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 0, iconTheme: IconThemeData(color: Colors.black), titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18))), builder: (context, child) => Container(color: Colors.grey.shade300, child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: Container(color: Colors.white, child: child!)))), home: const SplashScreen()); }
-class MainTabScreen extends StatefulWidget { const MainTabScreen({super.key}); @override State<MainTabScreen> createState() => _MainTabScreenState(); }
-class _MainTabScreenState extends State<MainTabScreen> {
-  int _currentIndex = 0; final _screens = const [HomeScreen(), PartyScreen(), ChatScreen(), MyPageScreen()];
-  @override Widget build(BuildContext context) => Scaffold(body: _screens[_currentIndex], bottomNavigationBar: Container(decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))]), child: SafeArea(child: BottomNavigationBar(backgroundColor: Colors.white, elevation: 0, currentIndex: _currentIndex, onTap: (i) => setState(() => _currentIndex = i), selectedItemColor: const Color(0xFFFF3B30), unselectedItemColor: Colors.grey.shade400, type: BottomNavigationBarType.fixed, selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12), unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12), items: const [BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: '홈'), BottomNavigationBarItem(icon: Icon(Icons.travel_explore), label: '여행'), BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_rounded), label: '채팅'), BottomNavigationBarItem(icon: Icon(Icons.person), label: 'MY')]))));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyDWOPC60MA39jq2HAVg6UpKnLB5DalDu7U",
+        authDomain: "test-b54fc.firebaseapp.com",
+        projectId: "test-b54fc",
+        storageBucket: "test-b54fc.firebasestorage.app",
+        messagingSenderId: "610801542567",
+        appId: "1:610801542567:web:6eb035b321d9ac7b688282",
+        measurementId: "G-341F6S06TG",
+      ),
+    );
+  } catch (e) {
+    debugPrint("Firebase init error: $e");
+  }
+  runApp(const Spot10App());
+}
+
+class Spot10App extends StatelessWidget { 
+  const Spot10App({super.key}); 
+  
+  @override 
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'OOMU', 
+      debugShowCheckedModeBanner: false, 
+      theme: ThemeData(
+        primaryColor: const Color(0xFF111111), 
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF111111), primary: const Color(0xFF111111)), 
+        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+      ), 
+      builder: (context, child) => Container(
+        color: Colors.grey.shade300, 
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480), 
+            child: Container(color: Colors.white, child: child!)
+          )
+        )
+      ), 
+      home: const OOMUHomeScreen()
+    ); 
+  }
 }
