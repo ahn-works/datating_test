@@ -8,35 +8,10 @@ Consider addressing these issues to enable wasm builds. See docs for more info: 
 
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/oomu_my_trips_screen.dart:5:30:
-Error: Expected a declaration, but got '\'.
-import 'my_page_screen.dart';\nimport 'soso_car_detail_screen.dart';
-                             ^
-lib/screens/oomu_my_trips_screen.dart:5:31:
-Error: Variables must be declared using the keywords 'const', 'final', 'var' or a type name.
-import 'my_page_screen.dart';\nimport 'soso_car_detail_screen.dart';
-                              ^^^^^^^
-lib/screens/oomu_my_trips_screen.dart:5:31:
-Error: Expected ';' after this.
-import 'my_page_screen.dart';\nimport 'soso_car_detail_screen.dart';
-                              ^^^^^^^
-lib/screens/oomu_my_trips_screen.dart:5:39:
-Error: Expected a declaration, but got ''soso_car_detail_screen.dart''.
-import 'my_page_screen.dart';\nimport 'soso_car_detail_screen.dart';
-                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/oomu_my_trips_screen.dart:5:68:
-Error: Unexpected token ';'.
-import 'my_page_screen.dart';\nimport 'soso_car_detail_screen.dart';
-                                                                   ^
 lib/screens/soso_car_detail_screen.dart:5:43:
 Error: 'meetup' isn't an instance field of this class.
   const OOMUDetailScreen({super.key, this.meetup});
                                           ^^^^^^
-lib/screens/oomu_my_trips_screen.dart:98:103:
-Error: The method 'OOMUDetailScreen' isn't defined for the type '_OOMUMyTripsScreenState'.
- - '_OOMUMyTripsScreenState' is from 'package:spot10_app/screens/oomu_my_trips_screen.dart' ('lib/screens/oomu_my_trips_screen.dart').
-        return GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))), child: Container(
-                                                                                          ^^^^^^^^^^^^^^^^
 lib/screens/soso_car_detail_screen.dart:64:113:
 Error: The getter 'meetup' isn't defined for the type 'OOMUDetailScreen'.
  - 'OOMUDetailScreen' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
@@ -115,5 +90,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             31.2s
+Compiling lib/main.dart for the Web...                             25.7s
 Error: Failed to compile application for the Web.
