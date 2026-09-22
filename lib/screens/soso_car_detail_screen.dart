@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "soso_car_chat_screen.dart";
 
 class OOMUDetailScreen extends StatefulWidget {
+  final Map<String, dynamic>? meetup;
   const OOMUDetailScreen({super.key, this.meetup});
 
   @override
