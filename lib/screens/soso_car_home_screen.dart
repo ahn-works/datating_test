@@ -295,7 +295,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
   Widget _buildMeetupCard(Map<String, dynamic> meetup) {
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUDetailScreen())),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
         decoration: BoxDecoration(

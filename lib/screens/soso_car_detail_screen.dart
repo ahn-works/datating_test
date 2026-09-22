@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import "soso_car_chat_screen.dart";
 
 class OOMUDetailScreen extends StatefulWidget {
-  const OOMUDetailScreen({super.key});
+  const OOMUDetailScreen({super.key, this.meetup});
 
   @override
   State<OOMUDetailScreen> createState() => _OOMUDetailScreenState();
@@ -61,7 +61,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       ),
                       onPressed: () {
                         Navigator.pop(ctx);
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '주말 엽떡+마라탕 조지실 분', memberCount: 3)));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: (meetup != null ? meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
                       },
                       child: const Text('채팅방 입장하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                     )
@@ -155,7 +155,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(8)),
-                              child: Text('술/맛집', style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
+                              child: Text((meetup != null ? meetup!['category'] : '술/맛집'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                             const SizedBox(width: 8),
                             Container(
@@ -198,7 +198,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('매운맛킬러', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+                                Text((meetup != null ? meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
