@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
-import 'my_page_screen.dart';\nimport 'soso_car_detail_screen.dart';
+import 'my_page_screen.dart';
+import 'soso_car_detail_screen.dart';
 
 class OOMUMyTripsScreen extends StatefulWidget {
   const OOMUMyTripsScreen({super.key});
