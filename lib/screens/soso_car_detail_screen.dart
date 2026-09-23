@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import "soso_car_chat_screen.dart";
+import "user_profile_screen.dart";
 
 class OOMUDetailScreen extends StatefulWidget {
   final Map<String, dynamic>? meetup;
@@ -187,32 +188,40 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: const Color(0xFFEBEBEF)),
                       ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=47'),
-                            backgroundColor: surfaceColor,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text((widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.verified, color: accentColor, size: 14),
-                                    const SizedBox(width: 4),
-                                    Text('AI 실명인증 완료', style: TextStyle(color: textSecondary, fontSize: 12)),
-                                  ],
-                                ),
-                              ],
+                      child: GestureDetector(
+                        onTap: () {
+                          final hostName = (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러').toString();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: hostName)));
+                        },
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 28,
+                              backgroundImage: const NetworkImage('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&q=80'),
+                              backgroundColor: surfaceColor,
                             ),
-                          ),
-                          Icon(Icons.chevron_right, color: textSecondary, size: 20),
-                        ],
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text((widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text('매너온도 42.5°C', style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                                      const SizedBox(width: 8),
+                                      Icon(Icons.verified, color: accentColor, size: 14),
+                                      const SizedBox(width: 4),
+                                      Text('AI 본명인증', style: TextStyle(color: textSecondary, fontSize: 12)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.chevron_right, color: textSecondary, size: 20),
+                          ],
+                        ),
                       ),
                     ),
                   ),

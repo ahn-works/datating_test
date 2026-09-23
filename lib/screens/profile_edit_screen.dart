@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -16,9 +17,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _jobController = TextEditingController();
+  final TextEditingController _mbtiController = TextEditingController();
   
   final List<String> _availableHobbies = ['맛집탐방', '러닝', '코노', '보드게임', '전시회', '드라이브', '카공', '혼술', '산책'];
   List<String> _selectedHobbies = [];
+  
+  final List<String> _availablePersonalities = ['리액션 요정', '친화력 갑', '긍정적', '경청하는 편', '텐션 높음', '차분함', '유머러스함'];
+  List<String> _selectedPersonalities = [];
+  
+  final List<String> _availableDrinking = ['알쓰', '가볍게 한잔', '분위기 메이커', '술자리 매니아', '비음주'];
+  List<String> _selectedDrinking = [];
+
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -35,18 +46,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         final data = doc.data()!;
         _nicknameController.text = data['nickname'] ?? '매운맛킬러';
         _locationController.text = data['location'] ?? '마포구 연남동';
+        _bioController.text = data['bio'] ?? '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
+        _jobController.text = data['job'] ?? 'IT/개발';
+        _mbtiController.text = data['mbti'] ?? 'ENFP';
         _selectedHobbies = List<String>.from(data['hobbies'] ?? ['맛집탐방', '코노']);
+        _selectedPersonalities = List<String>.from(data['personalities'] ?? ['리액션 요정', '친화력 갑']);
+        _selectedDrinking = List<String>.from(data['drinking'] ?? ['가볍게 한잔']);
       } else {
         _nicknameController.text = '매운맛킬러';
         _locationController.text = '마포구 연남동';
+        _bioController.text = '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
+        _jobController.text = 'IT/개발';
+        _mbtiController.text = 'ENFP';
         _selectedHobbies = ['맛집탐방', '코노'];
+        _selectedPersonalities = ['리액션 요정', '친화력 갑'];
+        _selectedDrinking = ['가볍게 한잔'];
       }
     } catch (e) {
       debugPrint("Error loading profile: $e");
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() { _isLoading = false; });
     }
   }
 
@@ -58,22 +77,88 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
         'nickname': _nicknameController.text.trim(),
         'location': _locationController.text.trim(),
+        'bio': _bioController.text.trim(),
+        'job': _jobController.text.trim(),
+        'mbti': _mbtiController.text.trim(),
         'hobbies': _selectedHobbies,
-        'manner': 41.2, // hardcoded for now
+        'personalities': _selectedPersonalities,
+        'drinking': _selectedDrinking,
+        'manner': 41.2, 
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
       
       if (mounted) {
-        Navigator.pop(context, true); // true indicates a refresh is needed
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('프로필이 성공적으로 업데이트되었습니다.')),
-        );
+        Navigator.pop(context, true); 
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필이 성공적으로 업데이트되었습니다.')));
       }
     } catch (e) {
       debugPrint("Error saving profile: $e");
     } finally {
       if (mounted) setState(() { _isSaving = false; });
     }
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, String hint = ''}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: TextStyle(fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: const Color(0xFFC7C7CC), fontSize: 15, fontWeight: FontWeight.normal),
+            fillColor: surfaceColor,
+            filled: true,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: accentColor, width: 2)),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildChipSection(String title, List<String> available, List<String> selected) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8, runSpacing: 12,
+          children: available.map((item) {
+            final isSelected = selected.contains(item);
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) selected.remove(item);
+                  else selected.add(item);
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? accentColor : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: isSelected ? accentColor : const Color(0xFFEBEBEF)),
+                  boxShadow: isSelected ? [BoxShadow(color: accentColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))] : [],
+                ),
+                child: Text(item, style: TextStyle(
+                  color: isSelected ? Colors.white : textPrimary,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 14
+                )),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 32),
+      ],
+    );
   }
 
   @override
@@ -84,7 +169,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: textPrimary),
-        title: Text('프로필 수정', style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text('프로필 상세 수정', style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
       ),
       body: _isLoading 
         ? Center(child: CircularProgressIndicator(color: accentColor))
@@ -101,10 +186,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         decoration: BoxDecoration(
                           color: surfaceColor,
                           shape: BoxShape.circle,
-                          image: const DecorationImage(
-                            image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80'),
-                            fit: BoxFit.cover,
-                          ),
+                          image: const DecorationImage(image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80'), fit: BoxFit.cover),
                         ),
                       ),
                       Positioned(
@@ -120,68 +202,24 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 ),
                 const SizedBox(height: 40),
                 
-                Text('닉네임', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _nicknameController,
-                  style: TextStyle(fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
-                  decoration: InputDecoration(
-                    fillColor: surfaceColor,
-                    filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: accentColor, width: 2)),
-                  ),
+                _buildTextField('닉네임', _nicknameController),
+                _buildTextField('동네 위치', _locationController),
+                
+                Row(
+                  children: [
+                    Expanded(child: _buildTextField('직무/직업', _jobController, hint: '예: IT/개발')),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildTextField('MBTI', _mbtiController, hint: '예: ENFP')),
+                  ],
                 ),
-                const SizedBox(height: 24),
-
-                Text('동네 위치', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _locationController,
-                  style: TextStyle(fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
-                  decoration: InputDecoration(
-                    fillColor: surfaceColor,
-                    filled: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: accentColor, width: 2)),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                Text('나의 관심사 / 취향', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8, runSpacing: 12,
-                  children: _availableHobbies.map((hobby) {
-                    final isSelected = _selectedHobbies.contains(hobby);
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedHobbies.remove(hobby);
-                          } else {
-                            _selectedHobbies.add(hobby);
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? accentColor : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: isSelected ? accentColor : const Color(0xFFEBEBEF)),
-                          boxShadow: isSelected ? [BoxShadow(color: accentColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))] : [],
-                        ),
-                        child: Text(hobby, style: TextStyle(
-                          color: isSelected ? Colors.white : textPrimary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          fontSize: 14
-                        )),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 60),
+                
+                _buildTextField('한줄 소개', _bioController, maxLines: 2, hint: '나를 표현할 수 있는 한줄 소개를 적어주세요!'),
+                
+                _buildChipSection('성격 태그', _availablePersonalities, _selectedPersonalities),
+                _buildChipSection('음주 성향', _availableDrinking, _selectedDrinking),
+                _buildChipSection('나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
+                
+                const SizedBox(height: 40),
               ],
             ),
           ),
