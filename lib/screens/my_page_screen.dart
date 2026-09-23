@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
 import 'oomu_my_trips_screen.dart';
+import 'profile_edit_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -22,142 +24,193 @@ class MyPageScreen extends StatelessWidget {
         elevation: 0,
         title: Text('마이페이지', style: TextStyle(color: textPrimary, fontSize: 24, fontWeight: FontWeight.w800)),
         actions: [
-          IconButton(icon: Icon(Icons.settings_outlined, color: textPrimary), onPressed: () {}),
+          IconButton(
+            icon: Icon(Icons.edit_outlined, color: textPrimary),
+            tooltip: '프로필 수정',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
+            }
+          ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          // User Profile Card (Toss Style)
-          Container(
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').doc('test_user_1').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator(color: accentColor));
+          }
+          
+          String nickname = '매운맛킬러';
+          String location = '마포구 연남동';
+          double manner = 41.2;
+          List<String> hobbies = [];
+          
+          if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            nickname = data['nickname'] ?? nickname;
+            location = data['location'] ?? location;
+            manner = (data['manner'] ?? manner).toDouble();
+            if (data['hobbies'] != null) {
+              hobbies = List<String>.from(data['hobbies']);
+            }
+          }
+
+          return ListView(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFEBEBEF)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, offset: const Offset(0, 10))],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 64, height: 64,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(image: NetworkImage('https://i.pravatar.cc/150?img=47'), fit: BoxFit.cover),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('매운맛킬러', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textPrimary)),
-                          const SizedBox(height: 4),
-                          Text('마포구 연남동', style: TextStyle(color: textSecondary, fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: surfaceColor, shape: BoxShape.circle),
-                      child: Icon(Icons.edit, color: textSecondary, size: 18),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(16)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // User Profile Card (Toss Style)
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFEBEBEF)),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, offset: const Offset(0, 10))],
+                  ),
+                  child: Column(
                     children: [
-                      Text('나의 매너 온도', style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 14)),
                       Row(
                         children: [
-                          Text('41.2°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: accentColor)),
+                          Container(
+                            width: 64, height: 64,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80'), fit: BoxFit.cover),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(nickname, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textPrimary)),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFC7C7CC)),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(location, style: TextStyle(color: textSecondary, fontSize: 14)),
+                              ],
+                            ),
+                          ),
                         ],
-                      )
+                      ),
+                      const SizedBox(height: 24),
+                      Container(height: 1, color: const Color(0xFFEBEBEF)),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('나의 매너 온도', style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 14)),
+                          Row(
+                            children: [
+                              Text('${manner}°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: accentColor)),
+                              const SizedBox(width: 4),
+                              Icon(Icons.thermostat, color: accentColor, size: 18),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 40),
+              
+              if (hobbies.isNotEmpty) ...[
+                Text('나의 관심사 / 취향', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8, runSpacing: 8,
+                  children: hobbies.map((hobby) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: surfaceColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(hobby, style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  )).toList(),
+                ),
+                const SizedBox(height: 40),
               ],
-            ),
-          ),
-          const SizedBox(height: 40),
-          
-          Text('나의 활동 배지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 20),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildBadge(Icons.verified_user, 'AI 신원인증', const Color(0xFFE5F0FF), accentColor),
-                const SizedBox(width: 12),
-                _buildBadge(Icons.directions_car, '안심 카풀러', const Color(0xFFF5F5F7), textPrimary),
-                const SizedBox(width: 12),
-                _buildBadge(Icons.star, '인기 호스트', const Color(0xFFFFF4E5), const Color(0xFFFF9500)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 40),
+              
+              Text('나의 활동 배지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                child: Row(
+                  children: [
+                    _buildBadge('👑', '파티 마스터', '모임 개설 10회', textPrimary),
+                    _buildBadge('🗣️', '핵인싸', '모임 참여 20회', textPrimary),
+                    _buildBadge('💖', '매너왕', '매너 온도 40도+', textPrimary),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 40),
 
-          // Menu List (No Dividers, Clean Layout)
-          Text('설정 및 관리', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 16),
-          _buildMenuItem(Icons.favorite_border, '내가 찜한 모임'),
-          _buildMenuItem(Icons.history, '참여/개설 내역'),
-          _buildMenuItem(Icons.local_offer_outlined, '나의 취향 태그 수정'),
-          _buildMenuItem(Icons.directions_car_outlined, '카풀 차량 정보 관리'),
-          _buildMenuItem(Icons.help_outline, '고객센터 / 자주 묻는 질문'),
-        ],
+              // Menu List (No Dividers, Clean Layout)
+              Text('설정 및 관리', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+              const SizedBox(height: 16),
+              _buildMenuItem(Icons.favorite_border, '내가 찜한 모임', textPrimary),
+              _buildMenuItem(Icons.history, '참여/개설 내역', textPrimary),
+              _buildMenuItem(Icons.notifications_outlined, '알림 설정', textPrimary),
+              _buildMenuItem(Icons.support_agent, '고객 센터', textPrimary),
+              
+              const SizedBox(height: 40),
+            ],
+          );
+        }
       ),
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
-  Widget _buildBadge(IconData icon, String label, Color bgColor, Color iconColor) {
+  Widget _buildBadge(String emoji, String title, String subtitle, Color textPrimary) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)),
-      child: Row(
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F7),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
         children: [
-          Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: iconColor, fontSize: 13, fontWeight: FontWeight.w700)),
+          Text(emoji, style: const TextStyle(fontSize: 28)),
+          const SizedBox(height: 8),
+          Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
+          const SizedBox(height: 2),
+          Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF767676))),
         ],
       ),
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title) {
-    return InkWell(
-      onTap: () {},
-      highlightColor: const Color(0xFFF5F5F7),
-      splashColor: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, color: const Color(0xFF111111), size: 20),
-            ),
-            const SizedBox(width: 16),
-            Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Color(0xFF111111)))),
-            const Icon(Icons.chevron_right, color: Color(0xFFC7C7CC)),
-          ],
-        ),
+  Widget _buildMenuItem(IconData icon, String title, Color textPrimary) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        children: [
+          Icon(icon, color: textPrimary, size: 24),
+          const SizedBox(width: 16),
+          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary)),
+          const Spacer(),
+          const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFFC7C7CC)),
+        ],
       ),
     );
   }
 
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: 4,
+      currentIndex: 3,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF111111),
       unselectedItemColor: const Color(0xFFC7C7CC),
@@ -167,15 +220,17 @@ class MyPageScreen extends StatelessWidget {
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
-        if (index == 0) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHomeScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 1) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHostScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 2) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const ChatScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 3) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUMyTripsScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 4) { }
+        if (index == 0) {
+          Navigator.pushReplacement(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHomeScreen(), transitionDuration: Duration.zero));
+        } else if (index == 1) { 
+          Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHostScreen(), transitionDuration: Duration.zero)); 
+        } else if (index == 2) {
+          Navigator.pushReplacement(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUMyTripsScreen(), transitionDuration: Duration.zero));
+        }
       },
       items: [
         const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined, size: 26), activeIcon: Icon(Icons.explore, size: 26), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 26), activeIcon: Icon(Icons.add_circle, size: 26), label: '모집하기'),
+        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 26), activeIcon: Icon(Icons.add_circle, size: 26), label: '만들기'),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
@@ -185,10 +240,9 @@ class MyPageScreen extends StatelessWidget {
             ],
           ),
           activeIcon: const Icon(Icons.chat_bubble, size: 24),
-          label: '채팅',
+          label: '내 모임',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined, size: 26), activeIcon: Icon(Icons.directions_car, size: 26), label: '내 모임'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 26), activeIcon: Icon(Icons.person, size: 26), label: '마이'),
+        const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 26), activeIcon: Icon(Icons.person, size: 26), label: 'MY'),
       ],
     );
   }
