@@ -13,7 +13,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFF007AFF);
+  final Color accentColor = const Color(0xFFF19E39);
   final Color destructiveColor = const Color(0xFFFF3B30);
   
   bool _isFavorite = false;
@@ -56,7 +56,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     height: 56,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: textPrimary,
+                        backgroundColor: accentColor,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
@@ -316,7 +316,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           child: ElevatedButton(
             onPressed: _showApplyToast,
             style: ElevatedButton.styleFrom(
-              backgroundColor: textPrimary,
+              backgroundColor: accentColor,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),

@@ -16,7 +16,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFF007AFF);
+  final Color accentColor = const Color(0xFFF19E39);
   final Color destructiveColor = const Color(0xFFFF3B30);
 
   late TabController _tabController;
@@ -46,7 +46,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
           controller: _tabController,
           labelColor: textPrimary,
           unselectedLabelColor: textSecondary,
-          indicatorColor: textPrimary,
+          indicatorColor: accentColor,
           indicatorWeight: 3,
           labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),

@@ -18,7 +18,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFF007AFF);
+  final Color accentColor = const Color(0xFFF19E39);
   final Color destructiveColor = const Color(0xFFFF3B30);
   
   int _selectedCategoryIndex = 0;
@@ -238,10 +238,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isSelected ? textPrimary : Colors.white,
+                              color: isSelected ? accentColor : Colors.white,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: isSelected ? textPrimary : const Color(0xFFEBEBEF)),
-                              boxShadow: isSelected ? [BoxShadow(color: textPrimary.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))] : [],
+                              border: Border.all(color: isSelected ? accentColor : const Color(0xFFEBEBEF)),
+                              boxShadow: isSelected ? [BoxShadow(color: accentColor.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))] : [],
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,

@@ -31,8 +31,8 @@ class Spot10App extends StatelessWidget {
       title: 'OOMU', 
       debugShowCheckedModeBanner: false, 
       theme: ThemeData(
-        primaryColor: const Color(0xFF111111), 
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF111111), primary: const Color(0xFF111111)), 
+        primaryColor: const Color(0xFFF19E39), 
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFF19E39), primary: const Color(0xFFF19E39)), 
         scaffoldBackgroundColor: const Color(0xFFFFFFFF),
       ), 
       builder: (context, child) => Container(

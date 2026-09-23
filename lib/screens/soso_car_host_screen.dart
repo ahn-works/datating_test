@@ -14,7 +14,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFF007AFF);
+  final Color accentColor = const Color(0xFFF19E39);
   final Color destructiveColor = const Color(0xFFFF3B30);
 
   String _transportMethod = '각자 이동';
@@ -72,7 +72,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.white : surfaceColor,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isSelected ? textPrimary : Colors.transparent, width: isSelected ? 2 : 0),
+                    border: Border.all(color: isSelected ? accentColor : Colors.transparent, width: isSelected ? 2 : 0),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +173,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                           Expanded(child: TextButton(onPressed: () { Navigator.pop(ctx); Navigator.pop(context); }, child: const Text('닫기', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)))),
                           Expanded(
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: textPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                              style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                               onPressed: () {
                                 Navigator.pop(ctx); // close dialog
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
@@ -188,7 +188,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: textPrimary,
+                backgroundColor: accentColor,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
