@@ -1,4 +1,32 @@
+import io
+import re
 
+def update_file(filepath, callback):
+    with io.open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    new_content = callback(content)
+    with io.open(filepath, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(new_content)
+
+# 1. Update Home Screen Background
+def update_home_screen(content):
+    # Change Scaffold background color to off-white
+    content = content.replace("backgroundColor: Colors.white,", "backgroundColor: const Color(0xFFF7F8FA),")
+    content = content.replace("backgroundColor: Colors.white, // AppBar", "backgroundColor: const Color(0xFFF7F8FA),")
+    return content
+
+# 2. Update Detail Screen
+def update_detail_screen(content):
+    # Scaffold background
+    content = content.replace("backgroundColor: Colors.white,", "backgroundColor: const Color(0xFFF7F8FA),")
+    content = content.replace("backgroundColor: Colors.white, // appBar", "backgroundColor: const Color(0xFFF7F8FA),")
+    # Participant avatars (Replace pravatar with unsplash)
+    content = content.replace("'https://i.pravatar.cc/150?img=47'", "'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&q=80'")
+    content = content.replace("'https://i.pravatar.cc/150?img=9'", "'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80'")
+    return content
+
+# 3. Update Chat Screen (Rewrite entirely)
+chat_screen_code = """
 import 'package:flutter/material.dart';
 import 'soso_car_chat_screen.dart';
 import 'soso_car_home_screen.dart';
@@ -197,3 +225,13 @@ class ChatScreen extends StatelessWidget {
     );
   }
 }
+"""
+
+def update_chat_screen(content):
+    return chat_screen_code
+
+update_file('lib/screens/soso_car_home_screen.dart', update_home_screen)
+update_file('lib/screens/soso_car_detail_screen.dart', update_detail_screen)
+update_file('lib/screens/chat_screen.dart', update_chat_screen)
+
+print("UI backgrounds and chat screen updated.")

@@ -21,7 +21,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _jobController = TextEditingController();
   final TextEditingController _mbtiController = TextEditingController();
   
-  final List<String> _availableHobbies = ['맛집탐방', '러닝', '코노', '보드게임', '전시회', '드라이브', '카공', '혼술', '산책'];
+    final List<String> _availableHobbies = ['맛집탐방', '러닝', '전시회', '와인', '드라이브', '캠핑', '보드게임', '방탈출', '뮤지컬', '카페투어'];
+  final List<String> _availableCloseFriendPersonalities = [
+    '또라이', '장난꾸러기', '화끈함', '분위기 메이커', '조용히 챙겨주는', '팩폭러', '리액션 봇', '순둥이', 
+    '텐션 폭발', '어색함 제로', '은은한 광기', '다정다감', '츤데레', '허당', '고민 상담소', '선넘는 장난', '솔직함 100%'
+  ];
+  final List<String> _availableValues = [
+    '신중한', '예의바른', '대화가 잘 통하는', '책임감 있는', '배려심 깊은', '자기계발', '긍정적인', '솔직함', 
+    '도전적인', '여유로운', '약속을 잘 지키는', '감사할 줄 아는', '유머러스한', '독립적인', '가족적인', 
+    '성실한', '편견 없는', '공감 능력이 뛰어난', '도덕적인', '신뢰할 수 있는'
+  ];
   List<String> _selectedHobbies = [];
   
   final List<String> _availablePersonalities = ['리액션 요정', '친화력 갑', '긍정적', '경청하는 편', '텐션 높음', '차분함', '유머러스함'];

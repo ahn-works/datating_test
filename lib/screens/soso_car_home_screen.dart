@@ -97,7 +97,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F8FA),
       body: Stack(
         children: [
           // Dummy Map Background (Lighter and more transparent)
@@ -403,7 +403,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       elevation: 20,
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F8FA),
       onTap: (index) {
         if (index == 0) { }
         else if (index == 1) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHostScreen(), transitionDuration: Duration.zero)); }

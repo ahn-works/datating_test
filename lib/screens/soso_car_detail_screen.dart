@@ -80,7 +80,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F8FA),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -88,7 +88,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             expandedHeight: 320,
             pinned: true,
             stretch: true,
-            backgroundColor: Colors.white,
+            backgroundColor: const Color(0xFFF7F8FA),
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.white),
             leading: Padding(
@@ -283,8 +283,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         const SizedBox(height: 20),
                         Row(
                           children: [
-                            _buildMemberAvatar('https://i.pravatar.cc/150?img=47', true),
-                            Transform.translate(offset: const Offset(-12, 0), child: _buildMemberAvatar('https://i.pravatar.cc/150?img=9', false)),
+                            _buildMemberAvatar('https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&q=80', true),
+                            Transform.translate(offset: const Offset(-12, 0), child: _buildMemberAvatar('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80', false)),
                             Transform.translate(
                               offset: const Offset(-24, 0),
                               child: Container(
