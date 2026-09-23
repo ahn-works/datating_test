@@ -160,6 +160,34 @@ class MyPageScreen extends StatelessWidget {
                     child: Text(hobby, style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                   )).toList(),
                 ),
+                const SizedBox(height: 32),
+              ],
+              
+              if (data['closeFriendPersonalities'] != null && (data['closeFriendPersonalities'] as List).isNotEmpty) ...[
+                Text('찐친이랑 있을 때 내 성격 🤪', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8, runSpacing: 8,
+                  children: (data['closeFriendPersonalities'] as List).map((p) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEBEBEF))),
+                    child: Text(p.toString(), style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  )).toList(),
+                ),
+                const SizedBox(height: 32),
+              ],
+              
+              if (data['values'] != null && (data['values'] as List).isNotEmpty) ...[
+                Text('내가 중요하게 생각하는 가치관 💎', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8, runSpacing: 8,
+                  children: (data['values'] as List).map((v) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEBEBEF))),
+                    child: Text(v.toString(), style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  )).toList(),
+                ),
                 const SizedBox(height: 40),
               ],
               
