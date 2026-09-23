@@ -2,36 +2,58 @@ Compiling lib/main.dart for the Web...
 Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/my_page_screen.dart:166:19:
-Error: The getter 'data' isn't defined for the type 'MyPageScreen'.
- - 'MyPageScreen' is from 'package:spot10_app/screens/my_page_screen.dart' ('lib/screens/my_page_screen.dart').
-              if (data['closeFriendPersonalities'] != null && (data['closeFriendPersonalities'] as List).isNotEmpty) ...[
+lib/screens/soso_car_home_screen.dart:245:24:
+Error: String starting with ' must end with '.
+                  Text('우리 동네
+                       ^^^^^^
+lib/screens/soso_car_home_screen.dart:246:1:
+Error: The non-ASCII character '취' (U+CDE8) can't be used in identifiers, only in strings and comments.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+^
+lib/screens/soso_car_home_screen.dart:246:2:
+Error: The non-ASCII character '향' (U+D5A5) can't be used in identifiers, only in strings and comments.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+ ^
+lib/screens/soso_car_home_screen.dart:246:4:
+Error: The non-ASCII character '모' (U+BAA8) can't be used in identifiers, only in strings and comments.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+   ^
+lib/screens/soso_car_home_screen.dart:246:5:
+Error: The non-ASCII character '임' (U+C784) can't be used in identifiers, only in strings and comments.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+    ^
+lib/screens/soso_car_home_screen.dart:246:6:
+Error: String starting with ' must end with '.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:245:23:
+Error: Can't find ')' to match '('.
+                  Text('우리 동네
+                      ^
+lib/screens/soso_car_home_screen.dart:246:1:
+Error: Expected ',' before this.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+^^
+lib/screens/soso_car_home_screen.dart:246:4:
+Error: Expected ',' before this.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+   ^^
+lib/screens/soso_car_home_screen.dart:246:6:
+Error: Expected ',' before this.
+취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:247:19:
+Error: Expected ',' before this.
+                  Text('12개 진행 중', style: TextStyle(fontSize: 14, color: accentColor, fontWeight: FontWeight.w600)),
                   ^^^^
-lib/screens/my_page_screen.dart:166:64:
-Error: The getter 'data' isn't defined for the type 'MyPageScreen'.
- - 'MyPageScreen' is from 'package:spot10_app/screens/my_page_screen.dart' ('lib/screens/my_page_screen.dart').
-              if (data['closeFriendPersonalities'] != null && (data['closeFriendPersonalities'] as List).isNotEmpty) ...[
-                                                               ^^^^
-lib/screens/my_page_screen.dart:171:30:
-Error: The getter 'data' isn't defined for the type 'MyPageScreen'.
- - 'MyPageScreen' is from 'package:spot10_app/screens/my_page_screen.dart' ('lib/screens/my_page_screen.dart').
-                  children: (data['closeFriendPersonalities'] as List).map((p) => Container(
-                             ^^^^
-lib/screens/my_page_screen.dart:180:19:
-Error: The getter 'data' isn't defined for the type 'MyPageScreen'.
- - 'MyPageScreen' is from 'package:spot10_app/screens/my_page_screen.dart' ('lib/screens/my_page_screen.dart').
-              if (data['values'] != null && (data['values'] as List).isNotEmpty) ...[
-                  ^^^^
-lib/screens/my_page_screen.dart:180:46:
-Error: The getter 'data' isn't defined for the type 'MyPageScreen'.
- - 'MyPageScreen' is from 'package:spot10_app/screens/my_page_screen.dart' ('lib/screens/my_page_screen.dart').
-              if (data['values'] != null && (data['values'] as List).isNotEmpty) ...[
-                                             ^^^^
-lib/screens/my_page_screen.dart:185:30:
-Error: The getter 'data' isn't defined for the type 'MyPageScreen'.
- - 'MyPageScreen' is from 'package:spot10_app/screens/my_page_screen.dart' ('lib/screens/my_page_screen.dart').
-                  children: (data['values'] as List).map((v) => Container(
-                             ^^^^
+lib/screens/soso_car_home_screen.dart:245:23:
+Error: Too many positional arguments: 1 allowed, but 5 found.
+                  Text('우리 동네
+                      ^
+/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/packages/flutter/lib/src/widgets/text.dart:507:9:
+Info: Found this candidate, but the arguments don't match.
+  const Text(
+        ^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -80,5 +102,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             30.4s
+Compiling lib/main.dart for the Web...                             32.4s
 Error: Failed to compile application for the Web.
