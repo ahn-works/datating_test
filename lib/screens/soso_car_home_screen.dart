@@ -94,6 +94,33 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     }
   }
 
+  Widget _buildVibeCard(String emoji, String title, String subtitle, Color bgColor) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title 모임을 찾아볼게요!')));
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 24)),
+              const SizedBox(height: 12),
+              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF111111))),
+              const SizedBox(height: 4),
+              Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF767676), fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,7 +151,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           Positioned(
             left: 0, right: 0, bottom: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.70,
+              height: MediaQuery.of(context).size.height * 0.80,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -137,13 +164,49 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 12),
                   Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFEBEBEF), borderRadius: BorderRadius.circular(2))),
                   const SizedBox(height: 24),
+                  // [NEW] 지금 내 상황 (My Current Situation)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('지금 내 상황', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textPrimary)),
+                            Text('전체 보기', style: TextStyle(fontSize: 14, color: textSecondary, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            _buildVibeCard('⚡', '놀줄아는', '핫플·페스티벌', const Color(0xFFFFF4E6)),
+                            const SizedBox(width: 12),
+                            _buildVibeCard('☕', '소소하게', '카페·산책', const Color(0xFFF3F4F6)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _buildVibeCard('🍔', '메이트', '맛집·배달', const Color(0xFFFCE8E6)),
+                            const SizedBox(width: 12),
+                            _buildVibeCard('💖', '소개팅', '취향 기반', const Color(0xFFFCE4EC)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // [EXISTING] 우리 동네 취향 모임
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('우리 동네\n취향 모임', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
+                        Text('우리 동네\n취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
                         Text('12개 진행 중', style: TextStyle(fontSize: 14, color: accentColor, fontWeight: FontWeight.w600)),
                       ],
                     ),
