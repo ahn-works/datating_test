@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
-import 'chat_screen.dart';
+import 'soso_car_chat_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
   const OOMUHostScreen({super.key});
