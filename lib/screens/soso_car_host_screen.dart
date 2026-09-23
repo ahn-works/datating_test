@@ -116,7 +116,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                       onPressed: () {
                         Navigator.pop(ctx); // close dialog
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
                       },
                       child: const Text('채팅방으로 이동', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
