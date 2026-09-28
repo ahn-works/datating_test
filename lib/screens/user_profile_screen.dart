@@ -4,6 +4,84 @@ class UserProfileScreen extends StatelessWidget {
   final String userName;
   const UserProfileScreen({super.key, required this.userName});
 
+
+  void _showReportBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: const Icon(Icons.report_problem_outlined, color: Colors.redAccent),
+                title: const Text('이 사용자 신고하기', style: TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showReportReasonDialog(context, '사용자');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.block, color: Colors.redAccent),
+                title: const Text('이 사용자 차단 및 매칭 제외', style: TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showBlockConfirmDialog(context);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _showReportReasonDialog(BuildContext context, String targetType) {
+    final reasons = ['불쾌한 언어 사용', '스팸 및 광고', '부적절한 프로필/사진', '노쇼 (약속 미이행)', '안전 위협 및 기타'];
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('$targetType 신고 사유 선택'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: reasons.map((r) => ListTile(
+            title: Text(r),
+            onTap: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('운영진에게 신고 접수되었습니다. 빠른 시일 내에 검토 후 조치됩니다.')));
+            },
+          )).toList(),
+        ),
+      )
+    );
+  }
+
+  void _showBlockConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('사용자 차단'),
+        content: const Text('이 사용자를 차단하시겠습니까?\n더 이상 동네 모임과 채팅에서 서로 노출되지 않으며 매칭에서 제외됩니다.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('취소', style: TextStyle(color: Colors.grey))),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('차단 및 매칭 제외 처리가 완료되었습니다.')));
+              Navigator.pop(context); 
+            }, 
+            child: const Text('차단하기', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold))
+          ),
+        ]
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Color textPrimary = const Color(0xFF111111);
@@ -22,6 +100,17 @@ class UserProfileScreen extends StatelessWidget {
             backgroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
+
+            actions: [
+              Container(
+                margin: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), shape: BoxShape.circle),
+                child: IconButton(
+                  icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+                  onPressed: () => _showReportBottomSheet(context),
+                )
+              )
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,

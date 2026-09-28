@@ -169,6 +169,54 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     );
   }
 
+  void _showMeetupReportBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: const Icon(Icons.report_problem_outlined, color: Colors.redAccent),
+                title: const Text('이 모임 신고하기', style: TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showReportReasonDialog(context, '모임');
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _showReportReasonDialog(BuildContext context, String targetType) {
+    final reasons = ['부적절한 모임 목적', '스팸 및 홍보성 모임', '위험 및 불법적인 내용', '기타 사유'];
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('$targetType 신고 사유 선택'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: reasons.map((r) => ListTile(
+            title: Text(r),
+            onTap: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('해당 모임이 운영진에게 신고되었습니다. 24시간 내 검토됩니다.')));
+            },
+          )).toList(),
+        ),
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
