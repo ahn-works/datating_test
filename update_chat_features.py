@@ -1,4 +1,9 @@
-import 'package:flutter/material.dart';
+import io
+
+with io.open('lib/screens/soso_car_chat_screen.dart', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+new_content = """import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/interactive_map_popup.dart';
@@ -673,3 +678,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 }
+"""
+
+with io.open('lib/screens/soso_car_chat_screen.dart', 'w', encoding='utf-8', newline='\n') as f:
+    f.write(new_content)

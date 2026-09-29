@@ -273,33 +273,32 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ),
           
-          // 4. StreamBuilder (List of Meetups)
+                    // 4. StreamBuilder (List of Meetups) - with Fallback
           SliverToBoxAdapter(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('meetups').orderBy('createdAt', descending: true).limit(20).snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator(color: Colors.black)));
-                }
-                if (snapshot.hasError) {
-                  return const Center(child: Text("데이터를 불러오는데 실패했습니다."));
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("아직 등록된 모임이 없습니다.")));
-                }
+            child: _getMeetupStream() == null
+              ? _buildDummyMeetups()
+              : StreamBuilder<QuerySnapshot>(
+                  stream: _getMeetupStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator(color: Colors.black)));
+                    }
+                    if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return _buildDummyMeetups(); // 데이터가 없거나 에러나면 더미 보여주기
+                    }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                    return _buildMeetupCard(data);
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                        return _buildMeetupCard(data);
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
           ),
           
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
