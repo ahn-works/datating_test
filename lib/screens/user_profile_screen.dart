@@ -231,7 +231,7 @@ class UserProfileScreen extends StatelessWidget {
                         Text('매너 온도', style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 16)),
                         Row(
                           children: [
-                            Text('42.5°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: accentColor)),
+                            ValueListenableBuilder<double>(valueListenable: globalData.temperature, builder: (context, temp, _) => Text('${temp.toStringAsFixed(1)}°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: accentColor))),
                             const SizedBox(width: 4),
                             Icon(Icons.thermostat, color: accentColor, size: 20),
                           ],
