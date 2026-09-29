@@ -2,10 +2,26 @@ Compiling lib/main.dart for the Web...
 Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/main.dart:47:19:
-Error: Not a constant expression.
-      home: const OOMUHomeScreen()
-                  ^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:278:20:
+Error: The method '_getMeetupStream' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+            child: _getMeetupStream() == null
+                   ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:279:17:
+Error: The method '_buildDummyMeetups' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+              ? _buildDummyMeetups()
+                ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:281:27:
+Error: The method '_getMeetupStream' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+                  stream: _getMeetupStream(),
+                          ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:287:30:
+Error: The method '_buildDummyMeetups' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+                      return _buildDummyMeetups(); // 데이터가 없거나 에러나면 더미 보여주기
+                             ^^^^^^^^^^^^^^^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -54,5 +70,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             33.8s
+Compiling lib/main.dart for the Web...                             38.4s
 Error: Failed to compile application for the Web.
