@@ -154,8 +154,7 @@ class MyPageScreen extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            const Text('시크릿 프로필 열람 및 프리미엄 필터로
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
+                            const Text('시크릿 프로필 열람 및 프리미엄 필터로 나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
                           ],
                         ),
                       ),
