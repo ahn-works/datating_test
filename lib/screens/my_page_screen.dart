@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../utils/global_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';

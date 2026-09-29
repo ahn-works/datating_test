@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/global_data.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final String userName;
