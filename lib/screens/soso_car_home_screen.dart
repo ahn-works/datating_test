@@ -428,7 +428,44 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
-  Widget _buildBottomNav(BuildContext context) {
+  
+  Widget _buildDummyMeetups() {
+    final List<Map<String, dynamic>> dummyData = [
+      {
+        'title': '성수동 카페 투어 하실 분!',
+        'location': '성동구 성수동',
+        'date': '오늘 오후 3:00',
+        'imageUrl': 'https://images.unsplash.com/photo-1501339817309-1141e1ee256e?q=80&w=600&auto=format&fit=crop',
+        'tags': ['소소하게', '커피', '당일치기'],
+      },
+      {
+        'title': '한강 러닝 메이트 구해요 🏃‍♂️',
+        'location': '마포구 망원동',
+        'date': '내일 오전 7:00',
+        'imageUrl': 'https://images.unsplash.com/photo-1552674605-15c3704ba158?q=80&w=600&auto=format&fit=crop',
+        'tags': ['러닝', '운동', '건강'],
+      },
+    ];
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: dummyData.length,
+      itemBuilder: (context, index) {
+        return _buildMeetupCard(dummyData[index]);
+      },
+    );
+  }
+
+  Stream<QuerySnapshot>? _getMeetupStream() {
+    try {
+      return FirebaseFirestore.instance.collection('meetups').orderBy('createdAt', descending: true).limit(20).snapshots();
+    } catch (e) {
+      return null;
+    }
+  }
+
+Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: 0,
       type: BottomNavigationBarType.fixed,
