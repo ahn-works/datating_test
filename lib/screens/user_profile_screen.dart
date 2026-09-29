@@ -157,6 +157,30 @@ class UserProfileScreen extends StatelessWidget {
                                   Text('본명인증', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                                 ],
                               ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(color: const Color(0xFF4A90E2), borderRadius: BorderRadius.circular(6)),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.work, color: Colors.white, size: 12),
+                                  SizedBox(width: 4),
+                                  Text('N사 재직', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(color: const Color(0xFF34C759), borderRadius: BorderRadius.circular(6)),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.school, color: Colors.white, size: 12),
+                                  SizedBox(width: 4),
+                                  Text('홍대졸업', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
                             )
                           ],
                         ),

@@ -15,6 +15,10 @@ dependencies:
   url_launcher: any
   flutter_map: any
   latlong2: any
+  image_picker: any
+  firebase_storage: any
+  geolocator: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
