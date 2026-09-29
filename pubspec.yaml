@@ -13,6 +13,8 @@ dependencies:
   kpostal: ^2.0.0
   http: any
   url_launcher: any
+  flutter_map: any
+  latlong2: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

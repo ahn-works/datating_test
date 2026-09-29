@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import '../widgets/interactive_map_popup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_chat_screen.dart';
@@ -219,7 +221,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             Text('모임의 기본 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
             const SizedBox(height: 16),
             _buildTextField('모임 제목', _titleController, '예) 연남동에서 커피 한잔 하실 분!'),
-            _buildTextField('모임 장소', _locationController, '예) 마포구 연남동 (또는 구체적인 카페명)'),
+                        _buildLocationField(context),
             _buildTextField('상세 소개', _descController, '어떤 사람들과 어떤 시간을 보내고 싶은지 자세히 적어주세요.', maxLines: 4),
             
             const SizedBox(height: 40),
@@ -259,6 +261,63 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               : const Text('새로운 모임 열기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLocationField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('모임 장소', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => const InteractiveMapPopup(
+                  initialCenter: LatLng(37.5665, 126.9780), // 서울 중심 또는 지정 위치
+                  locationName: '모임 장소 설정',
+                  kakaoLink: 'https://map.kakao.com/', // 임시
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.location_on, color: textSecondary, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    _locationController.text.isEmpty ? '지도에서 모임 장소 선택' : _locationController.text,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: _locationController.text.isEmpty ? textSecondary : textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  // 우측 작은 썸네일 (당근마켓 스타일)
+                  Container(
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      image: const DecorationImage(
+                        image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'),
+                        fit: BoxFit.cover,
+                      )
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

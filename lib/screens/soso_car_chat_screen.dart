@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:latlong2/latlong.dart';
+import '../widgets/interactive_map_popup.dart';
 
 class OOMUChatScreen extends StatefulWidget {
   final String title;
@@ -192,11 +194,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           const SizedBox(height: 12),
           // 다음 지도 (Kakao Map) 썸네일 예시
           GestureDetector(
-            onTap: () async {
-              final Uri url = Uri.parse('https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242');
-              if (!await launchUrl(url)) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('지도를 열 수 없습니다.')));
-              }
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => const InteractiveMapPopup(
+                  initialCenter: LatLng(37.5568, 126.9242),
+                  locationName: '홍대입구역 9번 출구',
+                  kakaoLink: 'https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242',
+                ),
+              );
             },
             child: Container(
               height: 80,
