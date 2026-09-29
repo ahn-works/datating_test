@@ -284,6 +284,130 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   }
 
 
+
+  // ===========================================================================
+  // [동적 작동] 핫플 검색 폼 (BottomSheet)
+  // ===========================================================================
+  void _showHotspotSearchBottomSheet() {
+    Navigator.pop(context);
+    
+    // 더미 장소 데이터 (실제 위경도를 포함하여 카카오맵 링크 생성에 활용)
+    final List<Map<String, dynamic>> dummyPlaces = [
+      {'name': '어니언 성수', 'category': '카페', 'address': '서울 성동구 아차산로9길 8', 'lat': 37.5445, 'lng': 127.0560},
+      {'name': '대림창고', 'category': '카페', 'address': '서울 성동구 성수이로 78', 'lat': 37.5401, 'lng': 127.0562},
+      {'name': '성수명당', 'category': '술집', 'address': '서울 성동구 연무장19길 10', 'lat': 37.5414, 'lng': 127.0569},
+      {'name': '밀도 성수점', 'category': '빵집', 'address': '서울 성동구 왕십리로 96', 'lat': 37.5432, 'lng': 127.0440},
+      {'name': '서울숲', 'category': '관광지', 'address': '서울 성동구 뚝섬로 273', 'lat': 37.5443, 'lng': 127.0374},
+      {'name': '성수연방', 'category': '관광지', 'address': '서울 성동구 성수이로14길 14', 'lat': 37.5408, 'lng': 127.0565},
+    ];
+
+    String searchQuery = '';
+    String selectedCategory = '전체';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            List<Map<String, dynamic>> filteredPlaces = dummyPlaces.where((place) {
+              final matchesQuery = place['name'].toLowerCase().contains(searchQuery.toLowerCase());
+              final matchesCategory = selectedCategory == '전체' || place['category'] == selectedCategory;
+              return matchesQuery && matchesCategory;
+            }).toList();
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: Container(
+                height: MediaQuery.of(ctx).size.height * 0.7,
+                padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [Icon(Icons.travel_explore, color: Colors.brown), SizedBox(width: 8), Text('핫플 검색 및 공유', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      onChanged: (val) => setState(() => searchQuery = val),
+                      decoration: InputDecoration(
+                        hintText: '장소 이름 검색 (예: 성수 카페)',
+                        prefixIcon: const Icon(Icons.search),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      )
+                    ),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: ['전체', '관광지', '카페', '술집', '빵집'].map((category) {
+                          final isSelected = selectedCategory == category;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(category),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                if(selected) setState(() => selectedCategory = category);
+                              },
+                              selectedColor: Colors.brown.withOpacity(0.2),
+                              labelStyle: TextStyle(color: isSelected ? Colors.brown : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Divider(),
+                    Expanded(
+                      child: filteredPlaces.isEmpty 
+                        ? const Center(child: Text('검색 결과가 없습니다.'))
+                        : ListView.builder(
+                            itemCount: filteredPlaces.length,
+                            itemBuilder: (context, index) {
+                              final place = filteredPlaces[index];
+                              return ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: Container(
+                                  width: 40, height: 40,
+                                  decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                                  child: const Icon(Icons.place, color: Colors.brown),
+                                ),
+                                title: Text(place['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text('${place['category']} • ${place['address']}', style: const TextStyle(fontSize: 12)),
+                                trailing: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.brown, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    _addMessage({
+                                      'type': 'hotspot',
+                                      'title': '☕ 우리 동네 핫플 추천!',
+                                      'name': place['name'],
+                                      'category': place['category'],
+                                      'address': place['address'],
+                                      'lat': place['lat'],
+                                      'lng': place['lng'],
+                                    });
+                                  },
+                                  child: const Text('공유', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                ),
+                              );
+                            },
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
+
   void _showAttachmentMenu() {
     showModalBottomSheet(
       context: context,
@@ -309,10 +433,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               _buildAttachmentIcon(Icons.calendar_month, '일정', Colors.blue, onTap: _showScheduleCreatorBottomSheet),
               _buildAttachmentIcon(Icons.how_to_vote, '투표', Colors.purple, onTap: _showPollCreatorBottomSheet),
               _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF19E39)), 
-              _buildAttachmentIcon(Icons.local_cafe, '핫플 공유', Colors.brown, onTap: () {
-                Navigator.pop(ctx);
-                _addMessage({'type': 'hotspot', 'title': '☕ 분위기 좋은 성수 카페 추천!', 'desc': '나만 아는 조용한 핫플 공유합니다.'});
-              }),
+              _buildAttachmentIcon(Icons.local_cafe, '핫플 공유', Colors.brown, onTap: _showHotspotSearchBottomSheet),
               _buildAttachmentIcon(Icons.directions_car, '동행/드라이브', Colors.indigo, onTap: () {
                 Navigator.pop(ctx);
                 _addMessage({'type': 'carpool', 'title': '🚗 오늘 저녁 드라이브 가실 분?', 'desc': '목적지: 북악스카이웨이'});
@@ -430,7 +551,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     if (type == 'schedule') return InteractiveScheduleCard(msg: data, isMe: data['isMe'] == true);
     if (type == 'poll') return InteractivePollCard(msg: data, isMe: data['isMe'] == true);
     
-    if (['review', 'hotspot', 'carpool', 'safe_return', 'profile_exchange'].contains(type)) {
+    if (type == 'hotspot') return InteractiveHotspotCard(msg: data, isMe: data['isMe'] == true);
+    if (['review', 'carpool', 'safe_return', 'profile_exchange'].contains(type)) {
       return _buildInteractiveCardMessage(data);
     }
     return _buildTextMessage(data);
@@ -1008,6 +1130,95 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
             Text('$count명', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.purple : Colors.grey)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// 동적 컴포넌트: 핫플 공유 카드
+// ===========================================================================
+class InteractiveHotspotCard extends StatelessWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+
+  const InteractiveHotspotCard({super.key, required this.msg, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    final String name = msg['name'] ?? '핫플 이름';
+    final String address = msg['address'] ?? '주소 정보 없음';
+    final double lat = msg['lat'] ?? 37.5665;
+    final double lng = msg['lng'] ?? 126.9780;
+    
+    // 실제 카카오맵 링크 생성 (이름과 좌표 포함)
+    final String kakaoMapUrl = 'https://map.kakao.com/link/map/$name,$lat,$lng';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!isMe) const SizedBox(width: 8),
+          if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: const Color(0xFF767676))),
+          if (isMe) const SizedBox(width: 4),
+          
+          Container(
+            width: 250,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.brown.withOpacity(0.3)),
+              boxShadow: [BoxShadow(color: Colors.brown.withOpacity(0.05), blurRadius: 10)],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.local_cafe, color: Colors.brown, size: 16)),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(msg['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87)),
+                const SizedBox(height: 4),
+                Text(address, style: const TextStyle(fontSize: 12, color: const Color(0xFF767676))),
+                const SizedBox(height: 12),
+                
+                // 미니 지도 썸네일
+                GestureDetector(
+                  onTap: () async {
+                    final Uri url = Uri.parse(kakaoMapUrl);
+                    if (!await launchUrl(url)) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('지도를 열 수 없습니다.')));
+                  },
+                  child: Container(
+                    height: 90, width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F7),
+                      borderRadius: BorderRadius.circular(8),
+                      image: const DecorationImage(image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'), fit: BoxFit.cover),
+                    ),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(12)),
+                        child: const Text('카카오맵 열기', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (!isMe) const SizedBox(width: 4),
+          if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: const Color(0xFF767676))),
+        ],
       ),
     );
   }
