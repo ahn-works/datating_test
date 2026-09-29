@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong2/latlong.dart';
@@ -291,18 +293,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   void _showHotspotSearchBottomSheet() {
     Navigator.pop(context);
     
-    // 더미 장소 데이터 (실제 위경도를 포함하여 카카오맵 링크 생성에 활용)
-    final List<Map<String, dynamic>> dummyPlaces = [
-      {'name': '어니언 성수', 'category': '카페', 'address': '서울 성동구 아차산로9길 8', 'lat': 37.5445, 'lng': 127.0560},
-      {'name': '대림창고', 'category': '카페', 'address': '서울 성동구 성수이로 78', 'lat': 37.5401, 'lng': 127.0562},
-      {'name': '성수명당', 'category': '술집', 'address': '서울 성동구 연무장19길 10', 'lat': 37.5414, 'lng': 127.0569},
-      {'name': '밀도 성수점', 'category': '빵집', 'address': '서울 성동구 왕십리로 96', 'lat': 37.5432, 'lng': 127.0440},
-      {'name': '서울숲', 'category': '관광지', 'address': '서울 성동구 뚝섬로 273', 'lat': 37.5443, 'lng': 127.0374},
-      {'name': '성수연방', 'category': '관광지', 'address': '서울 성동구 성수이로14길 14', 'lat': 37.5408, 'lng': 127.0565},
-    ];
-
     String searchQuery = '';
     String selectedCategory = '전체';
+    List<Map<String, dynamic>> searchResults = [];
+    bool isLoading = false;
 
     showModalBottomSheet(
       context: context,
@@ -311,11 +305,41 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            List<Map<String, dynamic>> filteredPlaces = dummyPlaces.where((place) {
-              final matchesQuery = place['name'].toLowerCase().contains(searchQuery.toLowerCase());
-              final matchesCategory = selectedCategory == '전체' || place['category'] == selectedCategory;
-              return matchesQuery && matchesCategory;
-            }).toList();
+
+            Future<void> performSearch(String query) async {
+              if (query.trim().isEmpty) return;
+              setState(() {
+                isLoading = true;
+                searchResults = [];
+              });
+
+              try {
+                // OpenStreetMap Nominatim API (CORS Free, 전국 검색 가능)
+                final url = Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&countrycodes=kr');
+                final response = await http.get(url, headers: {'User-Agent': 'OOMU_Flutter_Web_App'});
+                
+                if (response.statusCode == 200) {
+                  final List<dynamic> data = json.decode(response.body);
+                  setState(() {
+                    searchResults = data.map((item) {
+                      return {
+                        'name': item['name'] ?? item['display_name'].split(',')[0],
+                        'category': selectedCategory == '전체' ? '핫플' : selectedCategory,
+                        'address': item['display_name'] ?? '주소 정보 없음',
+                        'lat': double.tryParse(item['lat'] ?? '37.5665') ?? 37.5665,
+                        'lng': double.tryParse(item['lon'] ?? '126.9780') ?? 126.9780,
+                      };
+                    }).toList();
+                  });
+                }
+              } catch (e) {
+                print('Search error: $e');
+              } finally {
+                setState(() {
+                  isLoading = false;
+                });
+              }
+            }
 
             return Padding(
               padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
@@ -327,17 +351,25 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Row(
-                      children: [Icon(Icons.travel_explore, color: Colors.brown), SizedBox(width: 8), Text('핫플 검색 및 공유', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
+                      children: [Icon(Icons.travel_explore, color: Colors.brown), SizedBox(width: 8), Text('실시간 장소 검색 (전국)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
                     ),
                     const SizedBox(height: 16),
                     TextField(
-                      onChanged: (val) => setState(() => searchQuery = val),
+                      onSubmitted: (val) {
+                         searchQuery = val;
+                         performSearch(val);
+                      },
                       decoration: InputDecoration(
-                        hintText: '장소 이름 검색 (예: 성수 카페)',
+                        hintText: '장소 이름 또는 지역 검색 (예: 여수 카페)',
                         prefixIcon: const Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.send, color: Colors.brown),
+                          onPressed: () => performSearch(searchQuery),
+                        ),
                         contentPadding: const EdgeInsets.symmetric(vertical: 0),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      )
+                      ),
+                      onChanged: (val) => searchQuery = val,
                     ),
                     const SizedBox(height: 16),
                     SingleChildScrollView(
@@ -363,40 +395,42 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     const SizedBox(height: 8),
                     const Divider(),
                     Expanded(
-                      child: filteredPlaces.isEmpty 
-                        ? const Center(child: Text('검색 결과가 없습니다.'))
-                        : ListView.builder(
-                            itemCount: filteredPlaces.length,
-                            itemBuilder: (context, index) {
-                              final place = filteredPlaces[index];
-                              return ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: Container(
-                                  width: 40, height: 40,
-                                  decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                  child: const Icon(Icons.place, color: Colors.brown),
-                                ),
-                                title: Text(place['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                                subtitle: Text('${place['category']} • ${place['address']}', style: const TextStyle(fontSize: 12)),
-                                trailing: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.brown, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                                  onPressed: () {
-                                    Navigator.pop(ctx);
-                                    _addMessage({
-                                      'type': 'hotspot',
-                                      'title': '☕ 우리 동네 핫플 추천!',
-                                      'name': place['name'],
-                                      'category': place['category'],
-                                      'address': place['address'],
-                                      'lat': place['lat'],
-                                      'lng': place['lng'],
-                                    });
-                                  },
-                                  child: const Text('공유', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                ),
-                              );
-                            },
-                          ),
+                      child: isLoading
+                        ? const Center(child: CircularProgressIndicator(color: Colors.brown))
+                        : searchResults.isEmpty 
+                          ? const Center(child: Text('장소 이름이나 지역을 검색해보세요.'))
+                          : ListView.builder(
+                              itemCount: searchResults.length,
+                              itemBuilder: (context, index) {
+                                final place = searchResults[index];
+                                return ListTile(
+                                  contentPadding: EdgeInsets.symmetric(vertical: 4),
+                                  leading: Container(
+                                    width: 40, height: 40,
+                                    decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                                    child: const Icon(Icons.place, color: Colors.brown),
+                                  ),
+                                  title: Text(place['name'], style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  subtitle: Text('${place['category']} • ${place['address']}', style: const TextStyle(fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                  trailing: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.brown, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      _addMessage({
+                                        'type': 'hotspot',
+                                        'title': '☕ 우리 동네 핫플 추천!',
+                                        'name': place['name'],
+                                        'category': place['category'],
+                                        'address': place['address'],
+                                        'lat': place['lat'],
+                                        'lng': place['lng'],
+                                      });
+                                    },
+                                    child: const Text('공유', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
