@@ -12,6 +12,7 @@ dependencies:
   cloud_firestore: any
   kpostal: ^2.0.0
   http: any
+  url_launcher: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

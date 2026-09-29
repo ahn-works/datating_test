@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OOMUChatScreen extends StatefulWidget {
   final String title;
@@ -65,12 +66,16 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             runSpacing: 32,
             alignment: WrapAlignment.start,
             children: [
-              _buildAttachmentIcon(Icons.image, '사진보내기', Colors.green),
+              _buildAttachmentIcon(Icons.image, '사진', Colors.green),
               _buildAttachmentIcon(Icons.location_on, '현재 위치', Colors.redAccent),
               _buildAttachmentIcon(Icons.rate_review, '모임후기', Colors.orange),
               _buildAttachmentIcon(Icons.calendar_month, '일정', Colors.blue),
               _buildAttachmentIcon(Icons.how_to_vote, '투표', Colors.purple),
               _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF19E39)),
+              _buildAttachmentIcon(Icons.local_cafe, '핫플 공유', Colors.brown),
+              _buildAttachmentIcon(Icons.directions_car, '카풀 요청', Colors.indigo),
+              _buildAttachmentIcon(Icons.contact_emergency, '안전귀가', Colors.pink),
+              _buildAttachmentIcon(Icons.badge, '프로필 교환', Colors.teal),
             ],
           ),
         ),
@@ -186,23 +191,31 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           Text('장소: 홍대입구역 9번 출구 앞', style: TextStyle(fontSize: 14, color: textPrimary, fontWeight: FontWeight.w500)),
           const SizedBox(height: 12),
           // 다음 지도 (Kakao Map) 썸네일 예시
-          Container(
-            height: 80,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: const DecorationImage(
-                image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'), // Placeholder for map
-                fit: BoxFit.cover,
-              ),
-            ),
+          GestureDetector(
+            onTap: () async {
+              final Uri url = Uri.parse('https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242');
+              if (!await launchUrl(url)) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('지도를 열 수 없습니다.')));
+              }
+            },
             child: Container(
+              height: 80,
+              width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.black.withOpacity(0.3),
+                image: const DecorationImage(
+                  image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
-              child: const Center(
-                child: Text('📍 카카오맵에서 위치 보기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.black.withOpacity(0.3),
+                ),
+                child: const Center(
+                  child: Text('📍 카카오맵에서 위치 보기 (클릭)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
               ),
             ),
           ),
