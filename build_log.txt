@@ -2,26 +2,301 @@ Compiling lib/main.dart for the Web...
 Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/soso_car_home_screen.dart:278:20:
-Error: The method '_getMeetupStream' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-            child: _getMeetupStream() == null
-                   ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:279:17:
-Error: The method '_buildDummyMeetups' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-              ? _buildDummyMeetups()
-                ^^^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:281:27:
-Error: The method '_getMeetupStream' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-                  stream: _getMeetupStream(),
-                          ^^^^^^^^^^^^^^^^
-lib/screens/soso_car_home_screen.dart:287:30:
-Error: The method '_buildDummyMeetups' isn't defined for the type '_OOMUHomeScreenState'.
- - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
-                      return _buildDummyMeetups(); // 데이터가 없거나 에러나면 더미 보여주기
-                             ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:5:37:
+Error: Type 'StatelessWidget' not found.
+class InteractiveReviewCard extends StatelessWidget {
+                                    ^^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:12:3:
+Error: Type 'Widget' not found.
+  Widget build(BuildContext context) {
+  ^^^^^^
+lib/screens/soso_car_chat_screen.dart:12:16:
+Error: Type 'BuildContext' not found.
+  Widget build(BuildContext context) {
+               ^^^^^^^^^^^^
+lib/screens/soso_car_host_screen.dart:121:94:
+Error: The method 'OOMUChatScreen' isn't defined for the type '_OOMUHostScreenState'.
+ - '_OOMUHostScreenState' is from 'package:spot10_app/screens/soso_car_host_screen.dart' ('lib/screens/soso_car_host_screen.dart').
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
+                                                                                          ^^^^^^^^^^^^^^
+lib/screens/chat_screen.dart:69:73:
+Error: The method 'OOMUChatScreen' isn't defined for the type 'ChatScreen'.
+ - 'ChatScreen' is from 'package:spot10_app/screens/chat_screen.dart' ('lib/screens/chat_screen.dart').
+              Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: room['title'], memberCount: room['members'])));
+                                                                        ^^^^^^^^^^^^^^
+lib/screens/soso_car_detail_screen.dart:128:83:
+Error: The method 'OOMUChatScreen' isn't defined for the type '_OOMUDetailScreenState'.
+ - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
+                                                                                  ^^^^^^^^^^^^^^
+lib/screens/soso_car_detail_screen.dart:242:104:
+Error: The method 'OOMUChatScreen' isn't defined for the type '_OOMUDetailScreenState'.
+ - '_OOMUDetailScreenState' is from 'package:spot10_app/screens/soso_car_detail_screen.dart' ('lib/screens/soso_car_detail_screen.dart').
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: (widget.meetup != null ? widget.meetup!['title'] : '마라탕 & 탕후루 팟'), memberCount: 4)));
+                                                                                          ^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:12:16:
+Error: 'BuildContext' isn't a type.
+  Widget build(BuildContext context) {
+               ^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:17:22:
+Error: Couldn't find constructor 'EdgeInsets.only'.
+      padding: const EdgeInsets.only(bottom: 16),
+                     ^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:22:70:
+Error: Not a constant expression.
+          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+                                                                     ^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:22:28:
+Error: Not a constant expression.
+          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+                           ^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:23:28:
+Error: Not a constant expression.
+          if (!isMe) const SizedBox(width: 8),
+                           ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:24:89:
+Error: Not a constant expression.
+          if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+                                                                                        ^^^^^
+lib/screens/soso_car_chat_screen.dart:24:58:
+Error: Not a constant expression.
+          if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+                                                         ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:25:27:
+Error: Not a constant expression.
+          if (isMe) const SizedBox(width: 4),
+                          ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:29:28:
+Error: Couldn't find constructor 'EdgeInsets.all'.
+            padding: const EdgeInsets.all(16),
+                           ^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:46:
+Error: Couldn't find constructor 'EdgeInsets.all'.
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                             ^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:173:
+Error: Not a constant expression.
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                                                                          ^^^^^
+lib/screens/soso_car_chat_screen.dart:41:199:
+Error: Not a constant expression.
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                                                                          ^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:168:
+Error: Not a constant expression.
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                                                                          ^^^^
+lib/screens/soso_car_chat_screen.dart:42:27:
+Error: Not a constant expression.
+                    const SizedBox(width: 8),
+                          ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:43:96:
+Error: Not a constant expression.
+                    const Expanded(child: Text('✨ 모임 후기가 도착했어요!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                                                                                          ^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:43:74:
+Error: Not a constant expression.
+                    const Expanded(child: Text('✨ 모임 후기가 도착했어요!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                                                                         ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:43:43:
+Error: Not a constant expression.
+                    const Expanded(child: Text('✨ 모임 후기가 도착했어요!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                                          ^^^^
+lib/screens/soso_car_chat_screen.dart:43:27:
+Error: Not a constant expression.
+                    const Expanded(child: Text('✨ 모임 후기가 도착했어요!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                          ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:46:23:
+Error: Not a constant expression.
+                const SizedBox(height: 16),
+                      ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:54:23:
+Error: Not a constant expression.
+                const SizedBox(height: 8),
+                      ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:57:34:
+Error: Couldn't find constructor 'EdgeInsets.all'.
+                  padding: const EdgeInsets.all(12),
+                                 ^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:58:58:
+Error: Not a constant expression.
+                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
+                                                         ^^^^^
+lib/screens/soso_car_chat_screen.dart:59:81:
+Error: Not a constant expression.
+                  child: Text(text, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
+                                                                                ^^^^^^
+lib/screens/soso_car_chat_screen.dart:59:50:
+Error: Not a constant expression.
+                  child: Text(text, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
+                                                 ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:65:28:
+Error: Not a constant expression.
+          if (!isMe) const SizedBox(width: 4),
+                           ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:66:90:
+Error: Not a constant expression.
+          if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+                                                                                         ^^^^^
+lib/screens/soso_car_chat_screen.dart:66:59:
+Error: Not a constant expression.
+          if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+                                                          ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:19:35:
+Error: The getter 'MainAxisAlignment' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                  ^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:19:59:
+Error: The getter 'MainAxisAlignment' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                                          ^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:20:29:
+Error: The getter 'CrossAxisAlignment' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+        crossAxisAlignment: CrossAxisAlignment.end,
+                            ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:24:21:
+Error: The method 'Text' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+          if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+                    ^^^^
+lib/screens/soso_car_chat_screen.dart:31:22:
+Error: The getter 'Colors' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              color: Colors.white,
+                     ^^^^^^
+lib/screens/soso_car_chat_screen.dart:32:29:
+Error: The getter 'BorderRadius' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              borderRadius: BorderRadius.circular(16),
+                            ^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:33:23:
+Error: The getter 'Border' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                      ^^^^^^
+lib/screens/soso_car_chat_screen.dart:33:41:
+Error: The getter 'Colors' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                                        ^^^^^^
+lib/screens/soso_car_chat_screen.dart:34:44:
+Error: The getter 'Colors' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.05), blurRadius: 10)],
+                                           ^^^^^^
+lib/screens/soso_car_chat_screen.dart:34:27:
+Error: The method 'BoxShadow' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.05), blurRadius: 10)],
+                          ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:30:25:
+Error: The method 'BoxDecoration' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+            decoration: BoxDecoration(
+                        ^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:37:35:
+Error: The getter 'CrossAxisAlignment' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+              crossAxisAlignment: CrossAxisAlignment.start,
+                                  ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:98:
+Error: The getter 'Colors' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                                                                          ^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:137:
+Error: The getter 'BoxShape' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                                                                          ^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:77:
+Error: The method 'BoxDecoration' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                                                                            ^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:41:21:
+Error: The method 'Container' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                    ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:39:17:
+Error: The method 'Row' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                Row(
+                ^^^
+lib/screens/soso_car_chat_screen.dart:49:38:
+Error: The getter 'Icons' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    index < rating ? Icons.star : Icons.star_border,
+                                     ^^^^^
+lib/screens/soso_car_chat_screen.dart:49:51:
+Error: The getter 'Icons' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    index < rating ? Icons.star : Icons.star_border,
+                                                  ^^^^^
+lib/screens/soso_car_chat_screen.dart:50:28:
+Error: The getter 'Colors' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                    color: Colors.orange,
+                           ^^^^^^
+lib/screens/soso_car_chat_screen.dart:48:57:
+Error: The method 'Icon' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                  children: List.generate(5, (index) => Icon(
+                                                        ^^^^
+lib/screens/soso_car_chat_screen.dart:47:17:
+Error: The method 'Row' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                Row(
+                ^^^
+lib/screens/soso_car_chat_screen.dart:58:91:
+Error: The getter 'BorderRadius' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
+                                                                                          ^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:58:31:
+Error: The method 'BoxDecoration' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
+                              ^^^^^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:59:26:
+Error: The method 'Text' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                  child: Text(text, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
+                         ^^^^
+lib/screens/soso_car_chat_screen.dart:55:17:
+Error: The method 'Container' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+                Container(
+                ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:36:20:
+Error: The method 'Column' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+            child: Column(
+                   ^^^^^^
+lib/screens/soso_car_chat_screen.dart:27:11:
+Error: The method 'Container' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+          Container(
+          ^^^^^^^^^
+lib/screens/soso_car_chat_screen.dart:66:22:
+Error: The method 'Text' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+          if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+                     ^^^^
+lib/screens/soso_car_chat_screen.dart:18:14:
+Error: The method 'Row' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+      child: Row(
+             ^^^
+lib/screens/soso_car_chat_screen.dart:16:12:
+Error: The method 'Padding' isn't defined for the type 'InteractiveReviewCard'.
+ - 'InteractiveReviewCard' is from 'package:spot10_app/screens/soso_car_chat_screen.dart' ('lib/screens/soso_car_chat_screen.dart').
+    return Padding(
+           ^^^^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -70,5 +345,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             38.4s
+Compiling lib/main.dart for the Web...                             37.3s
 Error: Failed to compile application for the Web.
