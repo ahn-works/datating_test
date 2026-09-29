@@ -2,150 +2,26 @@ Compiling lib/main.dart for the Web...
 Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
 Use --no-wasm-dry-run to disable these warnings.
 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
-lib/screens/my_page_screen.dart:157:40:
-Error: String starting with ' must end with '.
-                            const Text('시크릿 프로필 열람 및 프리미엄 필터로
-                                       ^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/my_page_screen.dart:158:1:
-Error: The non-ASCII character '나' (U+B098) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-^
-lib/screens/my_page_screen.dart:158:2:
-Error: The non-ASCII character '와' (U+C640) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
- ^
-lib/screens/my_page_screen.dart:158:4:
-Error: The non-ASCII character '딱' (U+B531) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-   ^
-lib/screens/my_page_screen.dart:158:6:
-Error: The non-ASCII character '맞' (U+B9DE) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-     ^
-lib/screens/my_page_screen.dart:158:7:
-Error: The non-ASCII character '는' (U+B294) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-      ^
-lib/screens/my_page_screen.dart:158:9:
-Error: The non-ASCII character '사' (U+C0AC) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-        ^
-lib/screens/my_page_screen.dart:158:10:
-Error: The non-ASCII character '람' (U+B78C) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-         ^
-lib/screens/my_page_screen.dart:158:11:
-Error: The non-ASCII character '을' (U+C744) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-          ^
-lib/screens/my_page_screen.dart:158:13:
-Error: The non-ASCII character '더' (U+B354) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-            ^
-lib/screens/my_page_screen.dart:158:15:
-Error: The non-ASCII character '빠' (U+BE60) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-              ^
-lib/screens/my_page_screen.dart:158:16:
-Error: The non-ASCII character '르' (U+B974) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-               ^
-lib/screens/my_page_screen.dart:158:17:
-Error: The non-ASCII character '게' (U+AC8C) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                ^
-lib/screens/my_page_screen.dart:158:19:
-Error: The non-ASCII character '찾' (U+CC3E) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                  ^
-lib/screens/my_page_screen.dart:158:20:
-Error: The non-ASCII character '아' (U+C544) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                   ^
-lib/screens/my_page_screen.dart:158:21:
-Error: The non-ASCII character '보' (U+BCF4) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                    ^
-lib/screens/my_page_screen.dart:158:22:
-Error: The non-ASCII character '세' (U+C138) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                     ^
-lib/screens/my_page_screen.dart:158:23:
-Error: The non-ASCII character '요' (U+C694) can't be used in identifiers, only in strings and comments.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                      ^
-lib/screens/my_page_screen.dart:158:25:
-Error: String starting with ' must end with '.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/my_page_screen.dart:157:39:
-Error: Can't find ')' to match '('.
-                            const Text('시크릿 프로필 열람 및 프리미엄 필터로
-                                      ^
-lib/screens/my_page_screen.dart:158:1:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-^^
-lib/screens/my_page_screen.dart:158:1:
-Error: Not a constant expression.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-^^
-lib/screens/my_page_screen.dart:158:4:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-   ^
-lib/screens/my_page_screen.dart:158:4:
-Error: Not a constant expression.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-   ^
-lib/screens/my_page_screen.dart:158:6:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-     ^^
-lib/screens/my_page_screen.dart:158:6:
-Error: Not a constant expression.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-     ^^
-lib/screens/my_page_screen.dart:158:9:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-        ^^^
-lib/screens/my_page_screen.dart:158:9:
-Error: Not a constant expression.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-        ^^^
-lib/screens/my_page_screen.dart:158:13:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-            ^
-lib/screens/my_page_screen.dart:158:13:
-Error: Not a constant expression.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-            ^
-lib/screens/my_page_screen.dart:158:15:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-              ^^^
-lib/screens/my_page_screen.dart:158:15:
-Error: Not a constant expression.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-              ^^^
-lib/screens/my_page_screen.dart:158:19:
-Error: Expected ',' before this.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                  ^^^^^
-lib/screens/my_page_screen.dart:158:25:
-Error: Expected an identifier, but got '', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),''.
-나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-lib/screens/my_page_screen.dart:157:39:
-Error: Too many positional arguments: 1 allowed, but 8 found.
-                            const Text('시크릿 프로필 열람 및 프리미엄 필터로
-                                      ^
-/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/packages/flutter/lib/src/widgets/text.dart:507:9:
-Info: Found this candidate, but the arguments don't match.
-  const Text(
-        ^^^^
+lib/screens/soso_car_home_screen.dart:278:20:
+Error: The method '_getMeetupStream' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+            child: _getMeetupStream() == null
+                   ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:279:17:
+Error: The method '_buildDummyMeetups' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+              ? _buildDummyMeetups()
+                ^^^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:281:27:
+Error: The method '_getMeetupStream' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+                  stream: _getMeetupStream(),
+                          ^^^^^^^^^^^^^^^^
+lib/screens/soso_car_home_screen.dart:287:30:
+Error: The method '_buildDummyMeetups' isn't defined for the type '_OOMUHomeScreenState'.
+ - '_OOMUHomeScreenState' is from 'package:spot10_app/screens/soso_car_home_screen.dart' ('lib/screens/soso_car_home_screen.dart').
+                      return _buildDummyMeetups(); // 데이터가 없거나 에러나면 더미 보여주기
+                             ^^^^^^^^^^^^^^^^^^
 Error: Compilation failed.
   Command: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_BUILD_NAME=1.0.0 -DFLUTTER_BUILD_NUMBER=1 -DFLUTTER_VERSION=3.47.5 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=6a19cca564 -DFLUTTER_ENGINE_REVISION=af7e796e16 -DFLUTTER_DART_VERSION=3.13.4 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/af7e796e161ae0bb1ff0758c71a7105418bd9ded/ --write-resources --native-null-assertions --no-source-maps -O4 --minify -o /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/app.dill --packages=/home/runner/work/datating_test/datating_test/.dart_tool/package_config.json --cfe-only /home/runner/work/datating_test/datating_test/.dart_tool/flutter_build/4af4a34ee2023d8db063309841520555/main.dart
 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
@@ -194,5 +70,5 @@ Error: Compilation failed.
 #22     main (package:flutter_tools/executable.dart:103:3)
 <asynchronous suspension>
 
-Compiling lib/main.dart for the Web...                             31.7s
+Compiling lib/main.dart for the Web...                             36.0s
 Error: Failed to compile application for the Web.
