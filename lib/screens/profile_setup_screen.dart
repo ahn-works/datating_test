@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'soso_car_home_screen.dart';
 import 'dart:async';
 
 class ProfileSetupScreen extends StatefulWidget { 
@@ -62,7 +62,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PASS 본인 인증을 먼저 진행해주세요.'))); 
                 return; 
               }
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainTabScreen()), (_) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen()), (_) => false);
             }, 
             style: ElevatedButton.styleFrom(backgroundColor: _isPassVerified ? const Color(0xFFFF3B30) : Colors.grey.shade400, minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), 
             child: const Text('우무 시작하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))
