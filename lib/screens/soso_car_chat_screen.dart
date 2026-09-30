@@ -472,8 +472,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       children: [Icon(Icons.rate_review, color: Colors.orange), SizedBox(width: 8), Text('모임 후기 남기기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
                     ),
                     const SizedBox(height: 8),
-                    const Text('이번 모임은 어떠셨나요? 별점과 솔직한 후기를 남겨주세요.
-작성하신 별점은 상대방의 매너 온도에 즉시 반영됩니다.', style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4)),
+                    const Text('이번 모임은 어떠셨나요? 별점과 솔직한 후기를 남겨주세요.\n작성하신 별점은 상대방의 매너 온도에 즉시 반영됩니다.', style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4)),
                     const SizedBox(height: 24),
                     Center(
                       child: Row(
@@ -557,10 +556,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             children: [
               _buildAttachmentIcon(Icons.image, '사진', Colors.green, onTap: _sendImageAction),
               _buildAttachmentIcon(Icons.location_on, '현재 위치', Colors.redAccent, onTap: _sendLocationAction),
-              _buildAttachmentIcon(Icons.rate_review, '모임후기', Colors.orange, onTap: () {
-                Navigator.pop(ctx);
-                _addMessage({'type': 'review', 'title': '✨ 모임 후기 작성하기', 'desc': '즐거운 모임이었나요? 후기를 남겨주세요.'});
-              }),
+              _buildAttachmentIcon(Icons.rate_review, '모임후기', Colors.orange, onTap: _showReviewBottomSheet),
               _buildAttachmentIcon(Icons.calendar_month, '일정', Colors.blue, onTap: _showScheduleCreatorBottomSheet),
               _buildAttachmentIcon(Icons.how_to_vote, '투표', Colors.purple, onTap: _showPollCreatorBottomSheet),
               _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF19E39)), 
