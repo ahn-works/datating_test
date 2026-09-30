@@ -145,88 +145,135 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   // [동적 작동] 일정 생성 폼 (BottomSheet)
   // ===========================================================================
   void _showScheduleCreatorBottomSheet() {
-    Navigator.pop(context); 
+    Navigator.pop(context);
     
-    final TextEditingController dateCtrl = TextEditingController();
-    final TextEditingController timeCtrl = TextEditingController();
-    final TextEditingController locCtrl = TextEditingController();
-
+    DateTime? selectedDate;
+    TimeOfDay? selectedTime;
+    String location = '';
+    int maxMembers = 4;
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.calendar_month, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text('일정 제안하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: dateCtrl,
-                  decoration: InputDecoration(
-                    labelText: '날짜 (예: 10월 5일 토요일)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.calendar_month, color: Colors.blue),
+                          SizedBox(width: 8),
+                          Text('상세 일정 제안하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Date Picker
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('날짜 선택', style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(selectedDate != null ? '${selectedDate!.year}년 ${selectedDate!.month}월 ${selectedDate!.day}일' : '터치하여 날짜를 선택하세요'),
+                        trailing: const Icon(Icons.edit_calendar, color: Colors.blue),
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: ctx,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) setState(() => selectedDate = date);
+                        },
+                      ),
+                      const Divider(),
+                      
+                      // Time Picker
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('시간 선택', style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(selectedTime != null ? selectedTime!.format(context) : '터치하여 시간을 선택하세요'),
+                        trailing: const Icon(Icons.access_time, color: Colors.blue),
+                        onTap: () async {
+                          final time = await showTimePicker(
+                            context: ctx,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (time != null) setState(() => selectedTime = time);
+                        },
+                      ),
+                      const Divider(),
+                      
+                      // Location
+                      TextField(
+                        onChanged: (val) => location = val,
+                        decoration: InputDecoration(
+                          labelText: '모임 장소 (예: 스타벅스 여수점)',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          filled: true,
+                          fillColor: const Color(0xFFF5F5F7),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Max Members
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('모임 인원', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          DropdownButton<int>(
+                            value: maxMembers,
+                            items: [2,3,4,5,6,7,8].map((e) => DropdownMenuItem(value: e, child: Text('$e명'))).toList(),
+                            onChanged: (val) {
+                              if (val != null) setState(() => maxMembers = val);
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          onPressed: () {
+                            if (selectedDate == null || selectedTime == null || location.trim().isEmpty) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('날짜, 시간, 장소를 모두 입력해주세요.')));
+                              return;
+                            }
+                            Navigator.pop(ctx);
+                            _addMessage({
+                              'type': 'schedule',
+                              'title': '새로운 일정이 제안되었습니다!',
+                              'date': '${selectedDate!.month}월 ${selectedDate!.day}일',
+                              'timeStr': selectedTime!.format(ctx),
+                              'location': location,
+                              'maxMembers': maxMembers,
+                            });
+                          },
+                          child: const Text('일정 공유 및 투표 시작', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      )
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: timeCtrl,
-                  decoration: InputDecoration(
-                    labelText: '시간 (예: 오후 6시 30분)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: locCtrl,
-                  decoration: InputDecoration(
-                    labelText: '모임 장소 (예: 성수동 카페)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                    onPressed: () {
-                      if (dateCtrl.text.isEmpty || timeCtrl.text.isEmpty || locCtrl.text.isEmpty) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('모든 항목을 입력해주세요.')));
-                        return;
-                      }
-                      Navigator.pop(ctx);
-                      _addMessage({
-                        'type': 'schedule',
-                        'title': '📅 새로운 일정 제안',
-                        'date': dateCtrl.text,
-                        'timeStr': timeCtrl.text,
-                        'location': locCtrl.text,
-                      });
-                    },
-                    child: const Text('투표 올리기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
+              ),
+            );
+          }
+        );
+      },
     );
   }
 
@@ -1073,6 +1120,109 @@ class InteractiveScheduleCard extends StatefulWidget {
 
   @override
   State<InteractiveScheduleCard> createState() => _InteractiveScheduleCardState();
+}
+
+class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
+  bool _isAttending = false;
+  int _attendCount = 1; // 기본적으로 제안자는 참석
+
+  @override
+  Widget build(BuildContext context) {
+    int maxMembers = widget.msg['maxMembers'] ?? 4;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const SizedBox(width: 8),
+          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe) const SizedBox(width: 4),
+          
+          Container(
+            width: 260,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.blue.withOpacity(0.3)),
+              boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.05), blurRadius: 10)],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.calendar_month, color: Colors.blue, size: 16)),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(widget.msg['title'] ?? '일정 제안', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
+                  child: Column(
+                    children: [
+                      Row(children: [const Text('📅 날짜: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Text(widget.msg['date'] ?? '-', style: const TextStyle(fontSize: 12))]),
+                      const SizedBox(height: 4),
+                      Row(children: [const Text('⏰ 시간: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Text(widget.msg['timeStr'] ?? widget.msg['time'] ?? '-', style: const TextStyle(fontSize: 12))]),
+                      const SizedBox(height: 4),
+                      Row(children: [const Text('📍 장소: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Text(widget.msg['location'] ?? '-', style: const TextStyle(fontSize: 12))]),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('🙋 참석 인원 현황', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                    Text('$_attendCount / $maxMembers 명', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Progress Bar
+                LinearProgressIndicator(
+                  value: _attendCount / maxMembers,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity, height: 44,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (!_isAttending && _attendCount >= maxMembers) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('모집 인원이 마감되었습니다!')));
+                        return;
+                      }
+                      setState(() {
+                        _isAttending = !_isAttending;
+                        _isAttending ? _attendCount++ : _attendCount--;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isAttending ? Colors.grey[300] : Colors.blue,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      _isAttending ? '참석 취소하기' : '👍 저도 참석할게요!',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: _isAttending ? Colors.black87 : Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+        ],
+      ),
+    );
+  }
 }
 
 class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
