@@ -338,6 +338,25 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   // ===========================================================================
   // [동적 작동] 핫플 검색 폼 (BottomSheet)
   // ===========================================================================
+  
+  void _showSafeReturnBottomSheet() {
+    Navigator.pop(context);
+    _addMessage({
+      'type': 'safe_return',
+      'title': '🌃 안전 귀가 알림',
+      'desc': '방금 집에 무사히 도착했습니다! 다들 푹 쉬세요~'
+    });
+  }
+
+  void _showProfileExchangeBottomSheet() {
+    Navigator.pop(context);
+    _addMessage({
+      'type': 'profile_exchange',
+      'title': '📇 명함/프로필 교환 요청',
+      'desc': '서로의 상세 프로필을 확인해볼까요?'
+    });
+  }
+
   void _showHotspotSearchBottomSheet() {
     Navigator.pop(context);
     
@@ -727,7 +746,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     
     if (type == 'hotspot') return InteractiveHotspotCard(msg: data, isMe: data['isMe'] == true);
     if (type == 'review') return InteractiveReviewCard(msg: data, isMe: data['isMe'] == true);
-    if (['carpool', 'safe_return', 'profile_exchange'].contains(type)) {
+    
+    if (type == 'safe_return') return InteractiveSafeReturnCard(msg: data, isMe: data['isMe'] == true);
+    if (type == 'profile_exchange') return InteractiveProfileExchangeCard(msg: data, isMe: data['isMe'] == true);
+    if (['carpool'].contains(type)) {
+
       return _buildInteractiveCardMessage(data);
     }
     return _buildTextMessage(data);
@@ -1481,6 +1504,167 @@ class InteractiveReviewCard extends StatelessWidget {
 
           if (!isMe) const SizedBox(width: 4),
           if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+        ],
+      ),
+    );
+  }
+}
+
+
+// ===========================================================================
+// 동적 컴포넌트: 안전 귀가 (Safe Return)
+// ===========================================================================
+class InteractiveSafeReturnCard extends StatefulWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+  const InteractiveSafeReturnCard({super.key, required this.msg, required this.isMe});
+  @override
+  State<InteractiveSafeReturnCard> createState() => _InteractiveSafeReturnCardState();
+}
+class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
+  int _likes = 0;
+  bool _isLiked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const SizedBox(width: 8),
+          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe) const SizedBox(width: 4),
+          
+          Container(
+            width: 250,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.pink.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.pink.withOpacity(0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.nightlight_round, color: Colors.pink, size: 20),
+                    const SizedBox(width: 8),
+                    Text(widget.msg['title'] ?? '안전 귀가', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.pink)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(widget.msg['desc'] ?? '', style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      _isLiked = !_isLiked;
+                      _isLiked ? _likes++ : _likes--;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: _isLiked ? Colors.pink : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.pink),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.favorite, color: _isLiked ? Colors.white : Colors.pink, size: 16),
+                        const SizedBox(width: 6),
+                        Text('다행이에요! $_likes', style: TextStyle(color: _isLiked ? Colors.white : Colors.pink, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+        ],
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// 동적 컴포넌트: 프로필 교환 (Profile Exchange)
+// ===========================================================================
+class InteractiveProfileExchangeCard extends StatefulWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+  const InteractiveProfileExchangeCard({super.key, required this.msg, required this.isMe});
+  @override
+  State<InteractiveProfileExchangeCard> createState() => _InteractiveProfileExchangeCardState();
+}
+class _InteractiveProfileExchangeCardState extends State<InteractiveProfileExchangeCard> {
+  bool _accepted = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const SizedBox(width: 8),
+          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe) const SizedBox(width: 4),
+          
+          Container(
+            width: 250,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFFE0F2F1), Color(0xFFB2DFDB)]),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [BoxShadow(color: Colors.teal.withOpacity(0.2), blurRadius: 10)],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const CircleAvatar(radius: 24, backgroundColor: Colors.white, child: Icon(Icons.badge, color: Colors.teal, size: 28)),
+                const SizedBox(height: 12),
+                Text(widget.msg['title'] ?? '명함 교환', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.teal)),
+                const SizedBox(height: 8),
+                Text(widget.msg['desc'] ?? '', textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                const SizedBox(height: 16),
+                if (!widget.isMe)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _accepted ? null : () {
+                        setState(() => _accepted = true);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필 교환을 수락했습니다! 이제 상대방의 상세 프로필을 볼 수 있습니다.')));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(_accepted ? '교환 완료 🤝' : '수락하기', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                if (widget.isMe)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(12)),
+                    child: const Center(child: Text('상대방의 수락을 대기중입니다...', style: TextStyle(fontSize: 12, color: Colors.teal))),
+                  )
+              ],
+            ),
+          ),
+          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
       ),
     );
