@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -45,6 +46,13 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     {'type': 'text', 'sender': '매운맛킬러', 'text': '안녕하세요! 다들 마라탕 좋아하시죠?', 'isMe': false, 'time': '오후 2:30'},
     {'type': 'text', 'sender': '우리동네민우', 'text': '완전완전 좋아합니다ㅎㅎ 잘 부탁드려요!', 'isMe': true, 'time': '오후 2:32'},
     {'type': 'text', 'sender': '매운맛킬러', 'text': '그럼 이번주 토요일 6시에 홍대에서 봬요!', 'isMe': false, 'time': '오후 2:35'},
+    {
+      'type': 'secret_after',
+      'title': '💖 시크릿 애프터 1:1 호감 매칭',
+      'desc': '오늘 모임은 어떠셨나요? 마음이 통했던 멤버 1~2명을 비공개로 선택해 보세요.',
+      'isMe': false,
+      'time': '오후 6:30'
+    },
   ];
 
   @override
@@ -639,6 +647,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 Navigator.pop(ctx);
                 _addMessage({'type': 'profile_exchange', 'title': '🤝 명함/프로필 교환 요청', 'desc': '서로의 상세 프로필을 확인해볼까요?'});
               }),
+              _buildAttachmentIcon(Icons.favorite_rounded, '시크릿 애프터', Colors.pinkAccent, onTap: () {
+                Navigator.pop(ctx);
+                _addMessage({
+                  'type': 'secret_after',
+                  'title': '💖 시크릿 애프터 1:1 호감 매칭',
+                  'desc': '모임 종료 후 비공개 호감 매칭이 오픈되었습니다! 마음에 드는 멤버를 선택해 보세요.',
+                });
+              }),
             ],
           ),
         ),
@@ -693,7 +709,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       ),
       body: Column(
         children: [
-          _buildAppointmentCard(),
+          const FixedPromiseHeader(),
           Expanded(
             child: _firebaseMessageStream == null
                 ? _buildDummyMessageList() 
@@ -749,6 +765,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     
     if (type == 'safe_return') return InteractiveSafeReturnCard(msg: data, isMe: data['isMe'] == true);
     if (type == 'profile_exchange') return InteractiveProfileExchangeCard(msg: data, isMe: data['isMe'] == true);
+    if (type == 'secret_after') return InteractiveSecretAfterMatchCard(msg: data, isMe: data['isMe'] == true);
     if (['carpool'].contains(type)) {
 
       return _buildInteractiveCardMessage(data);
@@ -1666,6 +1683,660 @@ class _InteractiveProfileExchangeCardState extends State<InteractiveProfileExcha
           if (!widget.isMe) const SizedBox(width: 4),
           if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
+      ),
+    );
+  }
+}
+
+
+// ===========================================================================
+// [동적 컴포넌트 1] 📍 상단 고정 약속 카드 & 7일 시한폭탄 타이머 (FixedPromiseHeader)
+// ===========================================================================
+class FixedPromiseHeader extends StatefulWidget {
+  const FixedPromiseHeader({super.key});
+
+  @override
+  State<FixedPromiseHeader> createState() => _FixedPromiseHeaderState();
+}
+
+class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
+  bool _isExpanded = true;
+  bool _isArrived = false; // 장소 도착 여부 Y/N
+  int _arrivedCount = 2;   // 현재 도착 완료 인원 (2/4명)
+  final int _totalMembers = 4;
+  
+  // 약속 정보
+  final String _meetingTime = '2026. 10. 18 (일) 오후 6:00';
+  final String _locationName = '홍대입구역 9번 출구 앞 (서교동 마라토끼)';
+  final String _kakaoMapUrl = 'https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242';
+  final String _naverMapUrl = 'https://map.naver.com/v5/search/홍대입구역 9번출구';
+
+  void _showMapOptionsModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: Color(0xFFF19E39)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _locationName,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '원하시는 지도 앱으로 이동하여 길찾기 또는 위치를 확인하세요.',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFFFEE500), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.map, color: Colors.black87),
+              ),
+              title: const Text('카카오맵으로 열기', style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final uri = Uri.parse(_kakaoMapUrl);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('카카오맵을 열 수 없습니다.')));
+                }
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFF03C75A), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.navigation, color: Colors.white),
+              ),
+              title: const Text('네이버지도로 열기', style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final uri = Uri.parse(_naverMapUrl);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('네이버지도를 열 수 없습니다.')));
+                }
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.copy, color: Colors.black87),
+              ),
+              title: const Text('장소 주소 복사하기', style: TextStyle(fontWeight: FontWeight.bold)),
+              onTap: () {
+                Navigator.pop(ctx);
+                Clipboard.setData(ClipboardData(text: _locationName));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('📍 장소 주소가 클립보드에 복사되었습니다!')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _shareSchedule() {
+    final text = '📅 [OOMU 약속 확정]\n일시: $_meetingTime\n장소: $_locationName\n함께 만나요!';
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('📅 약속 일정이 클립보드에 복사되었습니다! 카카오톡이나 캘린더에 공유하세요.'),
+        backgroundColor: Color(0xFFF19E39),
+      ),
+    );
+  }
+
+  void _toggleArrival() {
+    setState(() {
+      _isArrived = !_isArrived;
+      if (_isArrived) {
+        _arrivedCount++;
+      } else {
+        _arrivedCount--;
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isArrived ? '🎉 도착 완료로 변경되었습니다! (현재 $_arrivedCount/$_totalMembers명 도착)' : '📍 도착 상태를 [이동 중]으로 변경했습니다.'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF19E39).withOpacity(0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 상단 바: D-Day & 7일 시한폭탄 타이머 배지 & 접기 버튼
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 12, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF19E39).withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.timer_outlined, color: Color(0xFFF19E39), size: 18),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      '약속 확정!',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                    ),
+                    const SizedBox(width: 8),
+                    // 7일 시한폭탄 타이머 뱃지
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFECE0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.local_fire_department, color: Color(0xFFE65100), size: 12),
+                          SizedBox(width: 2),
+                          Text(
+                            'D-2 (47시간 남음)',
+                            style: TextStyle(color: Color(0xFFE65100), fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey),
+                  onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+          ),
+
+          if (_isExpanded) ...[
+            const Divider(height: 1, color: Color(0xFFF0F0F0)),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 일정 확인 & 공유 행
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today, size: 14, color: Color(0xFF767676)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _meetingTime,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF222222)),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _shareSchedule,
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F7),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.share, size: 12, color: Color(0xFF555555)),
+                              SizedBox(width: 4),
+                              Text('일정 공유', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF555555))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // 장소 보기 행
+                  Row(
+                    children: [
+                      const Icon(Icons.place, size: 14, color: Color(0xFF767676)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _locationName,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF222222)),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _showMapOptionsModal,
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F5E9),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.map, size: 12, color: Color(0xFF2E7D32)),
+                              SizedBox(width: 4),
+                              Text('장소 보기', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 장소 도착 여부 Y/N 인터랙션 영역
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9F9FA),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              _isArrived ? Icons.check_circle : Icons.directions_walk,
+                              color: _isArrived ? Colors.green : Colors.grey,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('현장 도착 여부', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                Text(
+                                  '현재 $_arrivedCount/$_totalMembers명 도착',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: _arrivedCount >= _totalMembers ? Colors.green : const Color(0xFF333333),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        // 도착 상태 Y/N 토글 스위치 버튼
+                        ElevatedButton(
+                          onPressed: _toggleArrival,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isArrived ? Colors.green : Colors.white,
+                            foregroundColor: _isArrived ? Colors.white : const Color(0xFF555555),
+                            elevation: 0,
+                            side: BorderSide(color: _isArrived ? Colors.green : const Color(0xFFCCCCCC)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            minimumSize: Size.zero,
+                          ),
+                          child: Text(
+                            _isArrived ? '도착 완료! (Y)' : '아직 이동 중 (N)',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// [동적 컴포넌트 2] 💖 시크릿 애프터 1:1 호감 매칭 카드 (InteractiveSecretAfterMatchCard)
+// ===========================================================================
+class InteractiveSecretAfterMatchCard extends StatefulWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+
+  const InteractiveSecretAfterMatchCard({super.key, required this.msg, required this.isMe});
+
+  @override
+  State<InteractiveSecretAfterMatchCard> createState() => _InteractiveSecretAfterMatchCardState();
+}
+
+class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfterMatchCard> {
+  // 모임 참가자 목록 (상대방)
+  final List<Map<String, String>> _candidates = [
+    {'name': '매운맛킬러', 'tag': '🦊 여우 · 마라탕 러버', 'avatar': 'https://i.pravatar.cc/100?img=12'},
+    {'name': '러닝조아', 'tag': '🐰 토끼 · 주말 한강 러닝', 'avatar': 'https://i.pravatar.cc/100?img=25'},
+    {'name': '카페탐방러', 'tag': '🐱 고양이 · 성수동 카페 덕후', 'avatar': 'https://i.pravatar.cc/100?img=36'},
+  ];
+
+  final Set<String> _selectedMembers = {};
+  bool _isSubmitted = false;
+  bool _isMatched = false; // 양방향 매칭 성사 여부
+
+  void _toggleMember(String name) {
+    if (_isSubmitted) return;
+    setState(() {
+      if (_selectedMembers.contains(name)) {
+        _selectedMembers.remove(name);
+      } else {
+        if (_selectedMembers.length >= 2) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('시크릿 애프터 호감은 최대 2명까지만 선택할 수 있습니다.')),
+          );
+          return;
+        }
+        _selectedMembers.add(name);
+      }
+    });
+  }
+
+  void _submitSecretAfter() {
+    if (_selectedMembers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('호감을 표시할 멤버를 1명 이상 선택해 주세요!')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitted = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('💌 ${_selectedMembers.join(", ")}님에게 비공개 호감이 전달되었습니다! (0% 노출 보장)'),
+        backgroundColor: Colors.pinkAccent,
+      ),
+    );
+  }
+
+  void _simulateMutualMatch() {
+    setState(() {
+      _isMatched = true;
+    });
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.celebration, color: Colors.pinkAccent),
+            SizedBox(width: 8),
+            Text('💖 시크릿 매칭 성사!', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircleAvatar(
+              radius: 36,
+              backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=12'),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '매운맛킬러님도 당신에게 호감을 표시했습니다! 💕',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '두 분만의 1:1 소개팅 단독 대화방이 생성되었습니다.\n자연스럽게 대화를 이어가 보세요!',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pinkAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('💬 1:1 시크릿 소개팅 대화방으로 이동합니다!'),
+                    backgroundColor: Colors.pinkAccent,
+                  ),
+                );
+              },
+              child: const Text('1:1 소개팅 대화방 열기 💬', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFF0F5), Color(0xFFFFE4E1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.pinkAccent.withOpacity(0.4), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.pink.withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 헤더
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.pinkAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.favorite, color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '시크릿 애프터 1:1 호감 매칭',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFFC2185B)),
+                        ),
+                        Text(
+                          '상호 선택 시에만 1:1 대화방 개설 (거절 부담 0%)',
+                          style: TextStyle(fontSize: 11, color: Color(0xFF880E4F)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              const Text(
+                '오늘 모임에서 대화가 가장 잘 통했던 멤버 1~2명을 선택하세요.',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+              ),
+              const SizedBox(height: 12),
+
+              // 후보 멤버 칩 리스트
+              Column(
+                children: _candidates.map((cand) {
+                  final isSelected = _selectedMembers.contains(cand['name']);
+                  return GestureDetector(
+                    onTap: () => _toggleMember(cand['name']!),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white : Colors.white.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected ? Colors.pinkAccent : Colors.transparent,
+                          width: 2,
+                        ),
+                        boxShadow: isSelected
+                            ? [BoxShadow(color: Colors.pinkAccent.withOpacity(0.2), blurRadius: 8)]
+                            : [],
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundImage: NetworkImage(cand['avatar']!),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  cand['name']!,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                Text(
+                                  cand['tag']!,
+                                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            isSelected ? Icons.favorite : Icons.favorite_border,
+                            color: isSelected ? Colors.pinkAccent : Colors.grey,
+                            size: 22,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 10),
+
+              // 하단 버튼
+              if (!_isSubmitted)
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: _submitSecretAfter,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      '비공개 호감 전달하기 (${_selectedMembers.length}명 선택)',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                  ),
+                )
+              else ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock, size: 16, color: Colors.pinkAccent),
+                      SizedBox(width: 6),
+                      Text(
+                        '💌 비공개 호감 전송 완료! (상대방 응답 대기 중)',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pinkAccent, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // 테스트/체험용 시뮬레이션 버튼
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _simulateMutualMatch,
+                    icon: const Icon(Icons.flash_on, size: 16, color: Colors.purple),
+                    label: const Text(
+                      '🧪 상호 매칭 성사 시뮬레이션 테스트',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
