@@ -4,15 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../utils/global_data.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:latlong2/latlong.dart';
-import '../widgets/interactive_map_popup.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-import 'dart:io';
-
 class OOMUChatScreen extends StatefulWidget {
   final String title;
   final int memberCount;
@@ -351,8 +346,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     Navigator.pop(context);
     _addMessage({
       'type': 'safe_return',
-      'title': '🌃 안전 귀가 알림',
-      'desc': '방금 집에 무사히 도착했습니다! 다들 푹 쉬세요~'
+      'title': '🏠 안전 귀가 알림',
+      'desc': '방금 집에 무사히 도착했습니다! 다들 푹 쉬세요.'
     });
   }
 
@@ -360,7 +355,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     Navigator.pop(context);
     _addMessage({
       'type': 'profile_exchange',
-      'title': '📇 명함/프로필 교환 요청',
+      'title': '🤝 명함/프로필 교환 요청',
       'desc': '서로의 상세 프로필을 확인해볼까요?'
     });
   }
@@ -639,14 +634,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 Navigator.pop(ctx);
                 _addMessage({'type': 'carpool', 'title': '🚗 오늘 저녁 드라이브 가실 분?', 'desc': '목적지: 북악스카이웨이'});
               }),
-              _buildAttachmentIcon(Icons.contact_emergency, '안전귀가', Colors.pink, onTap: () {
-                Navigator.pop(ctx);
-                _addMessage({'type': 'safe_return', 'title': '🏠 안전 귀가 알림', 'desc': '방금 집에 무사히 도착했습니다! 다들 푹 쉬세요.'});
-              }),
-              _buildAttachmentIcon(Icons.badge, '프로필 교환', Colors.teal, onTap: () {
-                Navigator.pop(ctx);
-                _addMessage({'type': 'profile_exchange', 'title': '🤝 명함/프로필 교환 요청', 'desc': '서로의 상세 프로필을 확인해볼까요?'});
-              }),
+              _buildAttachmentIcon(Icons.contact_emergency, '안전귀가', Colors.pink, onTap: _showSafeReturnBottomSheet),
+              _buildAttachmentIcon(Icons.badge, '프로필 교환', Colors.teal, onTap: _showProfileExchangeBottomSheet),
               _buildAttachmentIcon(Icons.favorite_rounded, '시크릿 애프터', Colors.pinkAccent, onTap: () {
                 Navigator.pop(ctx);
                 _addMessage({
@@ -927,68 +916,6 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           ),
           if (!isMe) const SizedBox(width: 4),
           if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppointmentCard() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.calendar_month, color: accentColor, size: 20),
-                  const SizedBox(width: 8),
-                  Text('약속 확정!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFFFFEFE5), borderRadius: BorderRadius.circular(12)),
-                child: Text('D-2', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text('일시: 2026. 9. 26 (토) 오후 6:00', style: TextStyle(fontSize: 14, color: textPrimary, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 4),
-          Text('장소: 홍대입구역 9번 출구 앞', style: TextStyle(fontSize: 14, color: textPrimary, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => const InteractiveMapPopup(
-                  initialCenter: LatLng(37.5568, 126.9242),
-                  locationName: '홍대입구역 9번 출구',
-                  kakaoLink: 'https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242',
-                ),
-              );
-            },
-            child: Container(
-              height: 80, width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: const DecorationImage(image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'), fit: BoxFit.cover),
-              ),
-              child: Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black.withOpacity(0.3)),
-                child: const Center(child: Text('📍 지도에서 위치 보기 (클릭)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -2061,7 +1988,6 @@ class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfter
 
   final Set<String> _selectedMembers = {};
   bool _isSubmitted = false;
-  bool _isMatched = false; // 양방향 매칭 성사 여부
 
   void _toggleMember(String name) {
     if (_isSubmitted) return;
@@ -2101,10 +2027,6 @@ class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfter
   }
 
   void _simulateMutualMatch() {
-    setState(() {
-      _isMatched = true;
-    });
-
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(

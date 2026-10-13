@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'chat_screen.dart';
-import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'my_page_screen.dart';

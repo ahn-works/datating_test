@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'soso_car_home_screen.dart';
 
 class OOMUHostStep3Screen extends StatefulWidget {
@@ -26,53 +24,6 @@ class _OOMUHostStep3ScreenState extends State<OOMUHostStep3Screen> {
   final Color darkGreen = const Color(0xFF243B33);
   final Color badgeGreen = const Color(0xFFE8F3EE);
   
-  bool _isLoadingRoute = true;
-  int _totalDistanceMeter = 0;
-  int _estimatedDues = 15000; // 정적 회비 (식비 등 공통 경비)
-
-  @override
-  void initState() {
-    super.initState();
-    _calculateRoute();
-  }
-
-  // 거리는 UI를 위해 계산하되, 비용(유류비/톨비) 정산 로직은 법적 문제로 완전 삭제
-  Future<void> _calculateRoute() async {
-    try {
-      final originItem = widget.timelineItems.firstWhere((e) => e['type'] == 'departure');
-      final destItem = widget.timelineItems.firstWhere((e) => e['type'] == 'destination');
-      final waypoints = widget.timelineItems.where((e) => e['type'] == 'rest').toList();
-
-      String origin = ',';
-      String destination = ',';
-      String waypointsStr = waypoints.map((w) => ',').join('|');
-
-      String url = 'https://apis-navi.kakaomobility.com/v1/directions?origin=&destination=';
-      if (waypointsStr.isNotEmpty) {
-        url += '&waypoints=';
-      }
-
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'KakaoAK 3f91399ac9b6731d96f6d4b9ac13c502'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['routes'] != null && data['routes'].isNotEmpty) {
-          final summary = data['routes'][0]['summary'];
-          setState(() {
-            _totalDistanceMeter = summary['distance'] as int;
-            _isLoadingRoute = false;
-          });
-        }
-      }
-    } catch (e) {
-      print(e);
-      setState(() => _isLoadingRoute = false);
-    }
-  }
-
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -84,16 +35,6 @@ class _OOMUHostStep3ScreenState extends State<OOMUHostStep3Screen> {
         preferredSize: const Size.fromHeight(4),
         child: LinearProgressIndicator(value: 1.0, backgroundColor: Colors.grey.shade100, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF243B33))),
       ),
-    );
-  }
-
-  Widget _buildCostRow(String title, String amount, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(child: Text(title, style: TextStyle(fontSize: 13, color: isBold ? Colors.black87 : Colors.black54, fontWeight: isBold ? FontWeight.bold : FontWeight.normal))),
-        Text(amount, style: TextStyle(fontSize: 14, color: Colors.black87, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
-      ],
     );
   }
 

@@ -67,7 +67,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           });
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필 완성 완료! 이제 참여 신청을 해주세요.')));
                           // 자동으로 다음 단계(기존 신청서) 열어줌
-                          Future.delayed(const Duration(milliseconds: 300), () => _showApplyToast());
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            if (mounted) _showApplicationBottomSheet(context);
+                          });
                         },
                         child: const Text('프로필 완성하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
@@ -349,6 +351,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   ),
                 ),
               ),
+              IconButton(
+                tooltip: '모임 신고',
+                icon: const Icon(Icons.more_horiz, color: Colors.white),
+                onPressed: () => _showMeetupReportBottomSheet(context),
+              ),
             ],
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: const [StretchMode.zoomBackground],
@@ -560,13 +567,16 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: _showApplyToast,
+            onPressed: _isApplying ? null : _showApplyToast,
             style: ElevatedButton.styleFrom(
               backgroundColor: accentColor,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('참여 신청하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            child: Text(
+              _isApplying ? '신청 확인 중' : '참여 신청하기',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
           ),
         ),
       ),

@@ -308,26 +308,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
-  Widget _buildMapMarker(BuildContext context, double top, double left, String label) {
-    return Positioned(
-      top: top, left: left,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))]
-            ),
-            child: Text(label, style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
-          ),
-          CustomPaint(size: const Size(12, 8), painter: _TrianglePainter(color: Colors.white)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMeetupCard(Map<String, dynamic> meetup) {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
@@ -428,21 +408,30 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
-  
   Widget _buildDummyMeetups() {
     final List<Map<String, dynamic>> dummyData = [
       {
         'title': '성수동 카페 투어 하실 분!',
+        'category': '카페/수다',
         'location': '성동구 성수동',
         'date': '오늘 오후 3:00',
         'imageUrl': 'https://images.unsplash.com/photo-1501339817309-1141e1ee256e?q=80&w=600&auto=format&fit=crop',
+        'isFemaleOnly': false,
+        'host': '익명 호스트',
+        'manner': 36.5,
+        'members': '1/4',
         'tags': ['소소하게', '커피', '당일치기'],
       },
       {
         'title': '한강 러닝 메이트 구해요 🏃‍♂️',
+        'category': '액티비티',
         'location': '마포구 망원동',
         'date': '내일 오전 7:00',
         'imageUrl': 'https://images.unsplash.com/photo-1552674605-15c3704ba158?q=80&w=600&auto=format&fit=crop',
+        'isFemaleOnly': false,
+        'host': '익명 호스트',
+        'manner': 36.5,
+        'members': '1/4',
         'tags': ['러닝', '운동', '건강'],
       },
     ];
@@ -502,24 +491,4 @@ Widget _buildBottomNav(BuildContext context) {
       ],
     );
   }
-}
-
-class _GridPainter extends CustomPainter {
-  @override void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFFF0F0F0)..strokeWidth = 1;
-    for (double i = 0; i < size.width; i += 40) canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    for (double i = 0; i < size.height; i += 40) canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-  }
-  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _TrianglePainter extends CustomPainter {
-  final Color color;
-  _TrianglePainter({required this.color});
-  @override void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color..style = PaintingStyle.fill;
-    final path = Path()..moveTo(0, 0)..lineTo(size.width, 0)..lineTo(size.width / 2, size.height)..close();
-    canvas.drawPath(path, paint);
-  }
-  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

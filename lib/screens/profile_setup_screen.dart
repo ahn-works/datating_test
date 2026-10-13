@@ -8,9 +8,6 @@ class ProfileSetupScreen extends StatefulWidget {
 }
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   bool _isPassVerified = false;
-  final String _name = '김우무'; 
-  final String _gender = '여성'; 
-  final String _age = '25세';
 
   void _simulatePassAuth() {
     showDialog(context: context, barrierDismissible: false, builder: (ctx) => const Center(child: CircularProgressIndicator()));
