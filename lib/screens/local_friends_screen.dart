@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import 'chat_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
@@ -28,7 +29,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       'currentMembers': 2,
       'maxMembers': 4,
       'color': const Color(0xFFF19E39),
-      'image': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&q=80',
+      'image': 'assets/images/cover_running.jpg',
       'likes': 12,
       'comments': 5,
       'hasPoll': true,
@@ -43,7 +44,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       'currentMembers': 1,
       'maxMembers': 2,
       'color': const Color(0xFFE76F51),
-      'image': 'https://images.unsplash.com/photo-1583314782006-25f0cb175b16?w=500&q=80',
+      'image': 'assets/images/cover_food.jpg',
       'likes': 8,
       'comments': 2,
       'hasPoll': false,
@@ -58,7 +59,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       'currentMembers': 1,
       'maxMembers': 4,
       'color': const Color(0xFF2A9D8F),
-      'image': 'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=500&q=80',
+      'image': 'assets/images/cover_cafe.jpg',
       'likes': 24,
       'comments': 11,
       'hasPoll': true,
@@ -73,7 +74,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       'currentMembers': 3,
       'maxMembers': 6,
       'color': const Color(0xFF264653),
-      'image': 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=500&q=80',
+      'image': 'assets/images/cover_running.jpg',
       'likes': 19,
       'comments': 4,
       'hasPoll': false,
@@ -184,7 +185,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                   children: [
                     const CircleAvatar(
                       radius: 16,
-                      backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=5'),
+                      backgroundImage: AssetImage('assets/images/kr_female_2.jpg'),
                     ),
                     const SizedBox(width: 8),
                     Column(
@@ -203,7 +204,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
           // Image with Title and Badge
           Stack(
             children: [
-              Image.network(
+              appNetImage(
                 meetup['image'],
                 height: 180,
                 width: double.infinity,

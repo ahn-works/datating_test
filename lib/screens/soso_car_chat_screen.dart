@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -146,7 +147,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         final downloadUrl = await storageRef.getDownloadURL();
         _addMessage({'type': 'image', 'imageUrl': downloadUrl});
       } catch (e) {
-        _addMessage({'type': 'image', 'imageUrl': 'https://images.unsplash.com/photo-1552674605-15c3704ba158?q=80&w=600'});
+        _addMessage({'type': 'image', 'imageUrl': 'assets/images/cover_running.jpg'});
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('사진 업로드 실패')));
@@ -876,7 +877,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             width: 200, height: 200,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
+              image: DecorationImage(image: appImg(imageUrl), fit: BoxFit.cover),
             ),
           ),
           if (!isMe) const SizedBox(width: 4),
@@ -1065,7 +1066,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   }
 
   Widget _buildAvatar() {
-    return const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33'));
+    return const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg'));
   }
 
   Widget _buildMessageInput() {
@@ -1132,7 +1133,7 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
         mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
@@ -1250,7 +1251,7 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
         mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
@@ -1349,7 +1350,7 @@ class InteractiveHotspotCard extends StatelessWidget {
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
           if (!isMe) const SizedBox(width: 8),
           if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: const Color(0xFF767676))),
           if (isMe) const SizedBox(width: 4),
@@ -1433,7 +1434,7 @@ class InteractiveReviewCard extends StatelessWidget {
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
           if (!isMe) const SizedBox(width: 8),
           if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (isMe) const SizedBox(width: 4),
@@ -1507,7 +1508,7 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
         mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
@@ -1590,7 +1591,7 @@ class _InteractiveProfileExchangeCardState extends State<InteractiveProfileExcha
         mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=33')),
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
@@ -2011,9 +2012,9 @@ class InteractiveSecretAfterMatchCard extends StatefulWidget {
 class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfterMatchCard> {
   // 모임 참가자 목록 (상대방)
   final List<Map<String, String>> _candidates = [
-    {'name': '매운맛킬러', 'tag': '🦊 여우 · 마라탕 러버', 'avatar': 'https://i.pravatar.cc/100?img=12'},
-    {'name': '러닝조아', 'tag': '🐰 토끼 · 주말 한강 러닝', 'avatar': 'https://i.pravatar.cc/100?img=25'},
-    {'name': '카페탐방러', 'tag': '🐱 고양이 · 성수동 카페 덕후', 'avatar': 'https://i.pravatar.cc/100?img=36'},
+    {'name': '매운맛킬러', 'tag': '🦊 여우 · 마라탕 러버', 'avatar': 'assets/images/kr_male_1.jpg'},
+    {'name': '러닝조아', 'tag': '🐰 토끼 · 주말 한강 러닝', 'avatar': 'assets/images/kr_female_3.jpg'},
+    {'name': '카페탐방러', 'tag': '🐱 고양이 · 성수동 카페 덕후', 'avatar': 'assets/images/kr_male_2.jpg'},
   ];
 
   final Set<String> _selectedMembers = {};
@@ -2073,7 +2074,7 @@ class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfter
           children: [
             const CircleAvatar(
               radius: 36,
-              backgroundImage: NetworkImage('https://i.pravatar.cc/100?img=12'),
+              backgroundImage: AssetImage('assets/images/kr_male_1.jpg'),
             ),
             const SizedBox(height: 12),
             const Text(
@@ -2203,7 +2204,7 @@ class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfter
                         children: [
                           CircleAvatar(
                             radius: 18,
-                            backgroundImage: NetworkImage(cand['avatar']!),
+                            backgroundImage: appImg(cand['avatar']!),
                           ),
                           const SizedBox(width: 10),
                           Expanded(

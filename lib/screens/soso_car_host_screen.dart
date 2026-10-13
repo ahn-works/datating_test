@@ -73,6 +73,85 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     );
   }
 
+  String _coverImageUrl = 'assets/images/cover_food.jpg';
+  final List<Map<String, String>> _coverPresets = const [
+    {'label': '🍲 맛집', 'path': 'assets/images/cover_food.jpg'},
+    {'label': '☕ 감성카페', 'path': 'assets/images/cover_cafe.jpg'},
+    {'label': '🍷 와인바', 'path': 'assets/images/cover_wine.jpg'},
+    {'label': '🏃 러닝', 'path': 'assets/images/cover_running.jpg'},
+  ];
+
+  void _showCoverImagePickerBottomSheet() {
+    final urlController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('커버 사진 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                const SizedBox(height: 16),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.7,
+                  children: _coverPresets.map((p) {
+                    final selected = _coverImageUrl == p['path'];
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() => _coverImageUrl = p['path']!);
+                        Navigator.pop(ctx);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: selected ? accentColor : Colors.transparent, width: 3),
+                          image: DecorationImage(image: AssetImage(p['path']!), fit: BoxFit.cover, colorFilter: const ColorFilter.mode(Colors.black26, BlendMode.darken)),
+                        ),
+                        alignment: Alignment.bottomLeft,
+                        padding: const EdgeInsets.all(8),
+                        child: Text(p['label']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: urlController,
+                  decoration: InputDecoration(
+                    hintText: '이미지 URL 직접 입력 (https://...)',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.check, color: accentColor),
+                      onPressed: () {
+                        final u = urlController.text.trim();
+                        if (u.startsWith('http')) {
+                          setState(() => _coverImageUrl = u);
+                          Navigator.pop(ctx);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _submitMeetup() async {
     if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty || _locationController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('필수 정보를 모두 입력해주세요.')));
@@ -91,6 +170,15 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'genderLimit': _genderLimit,
         'ageLimit': _ageLimit,
         'host': '매운맛킬러', // Mock User
+        'hostAvatar': 'assets/images/kr_female_1.jpg',
+        'imageUrl': _coverImageUrl,
+        'photos': [_coverImageUrl],
+        'members': '1/${RegExp(r'(\d+)').allMatches(_memberCount).map((m) => m.group(1)).lastOrNull ?? '4'}',
+        'manner': 36.5,
+        'price': 'N빵',
+        'transport': '각자 이동',
+        'isFemaleOnly': _genderLimit.toString().contains('여'),
+        'date': '일정 협의',
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -154,27 +242,30 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Cover Image Upload (Dummy UI)
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.circular(20),
-                image: const DecorationImage(
-                  image: NetworkImage('https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80'),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
+            // 1. Cover Image (프리셋 선택 / 직접 URL 입력)
+            GestureDetector(
+              onTap: _showCoverImagePickerBottomSheet,
+              child: Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: surfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  image: DecorationImage(
+                    image: appImg(_coverImageUrl),
+                    fit: BoxFit.cover,
+                    colorFilter: const ColorFilter.mode(Colors.black26, BlendMode.darken),
+                  ),
                 ),
-              ),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add_a_photo, color: Colors.white, size: 32),
-                    SizedBox(height: 8),
-                    Text('커버 사진 등록', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                  ],
+                child: const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add_a_photo, color: Colors.white, size: 32),
+                      SizedBox(height: 8),
+                      Text('커버 사진 변경', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    ],
+                  ),
                 ),
               ),
             ),

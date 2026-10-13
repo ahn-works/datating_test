@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
@@ -21,6 +22,51 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color accentColor = const Color(0xFFF19E39);
   final Color destructiveColor = const Color(0xFFFF3B30);
   
+  String _currentLocation = '마포구 서교동';
+  final List<String> _neighborhoods = const [
+    '마포구 서교동', '마포구 연남동', '마포구 망원동', '마포구 합정동',
+    '성동구 성수동', '용산구 한남동', '강남구 신사동', '중구 을지로',
+  ];
+
+  void _showLocationPickerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFEBEBEF), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 20),
+            Text('우리 동네 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+            const SizedBox(height: 8),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: _neighborhoods.map((n) {
+                  final selected = n == _currentLocation;
+                  return ListTile(
+                    leading: Icon(Icons.location_on, color: selected ? accentColor : textSecondary),
+                    title: Text(n, style: TextStyle(fontWeight: selected ? FontWeight.bold : FontWeight.w500, color: selected ? accentColor : textPrimary)),
+                    trailing: selected ? Icon(Icons.check_circle, color: accentColor) : null,
+                    onTap: () {
+                      setState(() => _currentLocation = n);
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('📍 $n(으)로 동네를 변경했어요')));
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
   int _selectedCategoryIndex = 0;
   final List<Map<String, dynamic>> _categories = [
     {'icon': '🔥', 'name': '전체'},
@@ -53,7 +99,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'members': '2/4',
             'isFemaleOnly': true,
             'transport': '각자 이동',
-            'imageUrl': 'https://images.unsplash.com/photo-1516280440502-8618eb3090ef?w=800&q=80',
+            'imageUrl': 'assets/images/cover_wine.jpg',
             'createdAt': FieldValue.serverTimestamp()
           },
           {
@@ -67,7 +113,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'members': '2/4',
             'isFemaleOnly': true,
             'transport': '각자 이동',
-            'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+            'imageUrl': 'assets/images/cover_food.jpg',
             'createdAt': FieldValue.serverTimestamp()
           },
           {
@@ -81,7 +127,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'members': '1/3',
             'isFemaleOnly': false,
             'transport': '호스트 차로 같이 이동',
-            'imageUrl': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80',
+            'imageUrl': 'assets/images/cover_cafe.jpg',
             'createdAt': FieldValue.serverTimestamp()
           }
         ];
@@ -129,12 +175,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Row(
-          children: [
-            Text('마포구 서교동', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: textPrimary)),
-            const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down, size: 24, color: textPrimary),
-          ],
+        title: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _showLocationPickerBottomSheet,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_currentLocation, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: textPrimary)),
+              const SizedBox(width: 4),
+              Icon(Icons.keyboard_arrow_down, size: 24, color: textPrimary),
+            ],
+          ),
         ),
                 actions: [
           GestureDetector(
@@ -327,7 +378,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               height: 180, // Taller image for magazine feel
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                image: DecorationImage(image: NetworkImage(meetup['imageUrl']), fit: BoxFit.cover),
+                image: DecorationImage(image: appImg(meetup['imageUrl']), fit: BoxFit.cover),
               ),
               child: Stack(
                 children: [
@@ -388,11 +439,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         children: [
                           CircleAvatar(
                             radius: 12, 
-                            backgroundImage: NetworkImage(
+                            backgroundImage: appImg(
                               meetup['hostAvatar'] ?? 
                               (meetup['isFemaleOnly'] == true 
-                                ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80'
-                                : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80')
+                                ? 'assets/images/kr_female_1.jpg'
+                                : 'assets/images/kr_male_1.jpg')
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -426,10 +477,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'category': '술/맛집',
         'location': '마포구 홍대입구역 9번 출구',
         'date': '이번주 토요일 18:00',
-        'imageUrl': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
+        'imageUrl': 'assets/images/cover_food.jpg',
         'isFemaleOnly': true,
         'host': '매운맛킬러',
-        'hostAvatar': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+        'hostAvatar': 'assets/images/kr_female_1.jpg',
         'manner': 41.2,
         'members': '2/4',
         'price': 'N빵',
@@ -437,9 +488,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'schedule': '1차 엽떡+마라탕 먹방 ➔ 2차 인생네컷 & 보드게임 카페',
         'tags': ['소셜다이닝', '매운맛', '홍대맛집', '동네찐친'],
         'photos': [
-          'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
+          'assets/images/cover_food.jpg',
+          'assets/images/cover_food.jpg',
+          'assets/images/cover_cafe.jpg',
         ],
       },
       {
@@ -448,10 +499,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'category': '카페/수다',
         'location': '성동구 성수동 카페거리',
         'date': '이번주 일요일 오후 2:00',
-        'imageUrl': 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
+        'imageUrl': 'assets/images/cover_cafe.jpg',
         'isFemaleOnly': false,
         'host': '성수동힙스터',
-        'hostAvatar': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+        'hostAvatar': 'assets/images/kr_female_2.jpg',
         'manner': 38.5,
         'members': '2/4',
         'price': '각자 결제',
@@ -459,8 +510,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'schedule': '힙한 신상 에스프레소 바 ➔ 베이커리 팝업 스토어 탐방',
         'tags': ['소소하게', '성수카페', '디저트', '주말여유'],
         'photos': [
-          'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1501339817309-1141e1ee256e?w=800&auto=format&fit=crop&q=80',
+          'assets/images/cover_cafe.jpg',
+          'assets/images/cover_cafe.jpg',
         ],
       },
       {
@@ -469,10 +520,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'category': '술/맛집',
         'location': '마포구 연남동 미로길',
         'date': '금요일 저녁 7:30',
-        'imageUrl': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&auto=format&fit=crop&q=80',
+        'imageUrl': 'assets/images/cover_wine.jpg',
         'isFemaleOnly': false,
         'host': '와인앤모어',
-        'hostAvatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+        'hostAvatar': 'assets/images/kr_male_1.jpg',
         'manner': 42.0,
         'members': '3/4',
         'price': '1/N 분담',
@@ -480,8 +531,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'schedule': '내추럴 와인 2병 페어링 & 소소한 금요일 밤 이야기',
         'tags': ['놀줄아는', '와인바', '연남동', '소셜다이닝'],
         'photos': [
-          'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
+          'assets/images/cover_wine.jpg',
+          'assets/images/cover_food.jpg',
         ],
       },
       {
@@ -490,10 +541,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'category': '액티비티',
         'location': '마포구 망원 한강공원 입구',
         'date': '목요일 저녁 8:00',
-        'imageUrl': 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&auto=format&fit=crop&q=80',
+        'imageUrl': 'assets/images/cover_running.jpg',
         'isFemaleOnly': false,
         'host': '러닝크루장',
-        'hostAvatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
+        'hostAvatar': 'assets/images/kr_male_3.jpg',
         'manner': 39.8,
         'members': '4/6',
         'price': '무료',
@@ -501,8 +552,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'schedule': '스트레칭 10분 ➔ 6분 페이스 5km 러닝 ➔ 이온음료 쿨다운',
         'tags': ['메이트', '러닝', '한강야경', '오운완'],
         'photos': [
-          'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1552674605-15c3704ba158?w=800&auto=format&fit=crop&q=80',
+          'assets/images/cover_running.jpg',
+          'assets/images/cover_running.jpg',
         ],
       },
     ];

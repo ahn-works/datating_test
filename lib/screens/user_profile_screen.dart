@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -118,8 +119,8 @@ class UserProfileScreen extends StatelessWidget {
                 children: [
                   PageView(
                     children: [
-                      Image.network('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80', fit: BoxFit.cover),
-                      Image.network('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80', fit: BoxFit.cover),
+                      appNetImage('assets/images/kr_female_2.jpg', fit: BoxFit.cover),
+                      appNetImage('assets/images/kr_female_1.jpg', fit: BoxFit.cover),
                     ],
                   ),
                   // Gradient for better text readability

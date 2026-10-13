@@ -92,7 +92,7 @@ class MyPageScreen extends StatelessWidget {
                             width: 72, height: 72,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              image: DecorationImage(image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80'), fit: BoxFit.cover),
+                              image: DecorationImage(image: AssetImage('assets/images/kr_female_1.jpg'), fit: BoxFit.cover),
                             ),
                           ),
                           const SizedBox(width: 16),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import "soso_car_chat_screen.dart";
 import "user_profile_screen.dart";
 
@@ -370,10 +371,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
+                  appNetImage(
                     (widget.meetup != null && widget.meetup!['imageUrl'] != null)
                         ? widget.meetup!['imageUrl']
-                        : 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80',
+                        : 'assets/images/cover_food.jpg',
                     fit: BoxFit.cover,
                   ),
                   Container(
@@ -453,10 +454,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           children: [
                             CircleAvatar(
                               radius: 28,
-                              backgroundImage: NetworkImage(
+                              backgroundImage: appImg(
                                 (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
                                     ? widget.meetup!['hostAvatar']
-                                    : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80',
+                                    : 'assets/images/kr_female_1.jpg',
                               ),
                               backgroundColor: surfaceColor,
                             ),
@@ -571,7 +572,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                   margin: const EdgeInsets.only(right: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(14),
-                                    image: DecorationImage(image: NetworkImage(photoUrl), fit: BoxFit.cover),
+                                    image: DecorationImage(image: appImg(photoUrl), fit: BoxFit.cover),
                                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 8)],
                                   ),
                                 );
@@ -618,8 +619,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         const SizedBox(height: 20),
                         Row(
                           children: [
-                            _buildMemberAvatar('https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&q=80', true),
-                            Transform.translate(offset: const Offset(-12, 0), child: _buildMemberAvatar('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80', false)),
+                            _buildMemberAvatar('assets/images/kr_male_2.jpg', true),
+                            Transform.translate(offset: const Offset(-12, 0), child: _buildMemberAvatar('assets/images/kr_female_3.jpg', false)),
                             Transform.translate(
                               offset: const Offset(-24, 0),
                               child: Container(
@@ -693,7 +694,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 3),
           ),
-          child: CircleAvatar(radius: 24, backgroundImage: NetworkImage(url)),
+          child: CircleAvatar(radius: 24, backgroundImage: appImg(url)),
         ),
         if (isHost)
           Positioned(

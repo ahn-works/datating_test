@@ -186,7 +186,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         decoration: BoxDecoration(
                           color: surfaceColor,
                           shape: BoxShape.circle,
-                          image: const DecorationImage(image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80'), fit: BoxFit.cover),
+                          image: const DecorationImage(image: AssetImage('assets/images/kr_female_1.jpg'), fit: BoxFit.cover),
                         ),
                       ),
                       Positioned(
