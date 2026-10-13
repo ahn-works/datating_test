@@ -60,8 +60,38 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           .collection('messages')
           .orderBy('timestamp', descending: false)
           .snapshots();
+      _seedInitialMessageIfEmpty();
     } catch (e) {
       _firebaseMessageStream = null;
+    }
+  }
+
+  Future<void> _seedInitialMessageIfEmpty() async {
+    try {
+      final msgColl = FirebaseFirestore.instance
+          .collection('chatRooms')
+          .doc(widget.chatRoomId)
+          .collection('messages');
+      final snap = await msgColl.limit(1).get();
+      if (snap.docs.isEmpty) {
+        // 파이어베이스에 첫 메시지를 자동 저장하여 대화방을 영구 기억하도록 설정
+        await msgColl.add({
+          'type': 'system',
+          'text': '${widget.title} 모임 대화방이 개설되었습니다. 🎉',
+          'time': '오후 2:25',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+        await msgColl.add({
+          'type': 'text',
+          'sender': '매운맛킬러',
+          'text': '안녕하세요! 다들 마라탕 좋아하시죠? 이번 주 모임에서 봬요! 😊',
+          'isMe': false,
+          'time': '오후 2:30',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      debugPrint('Firestore seed message note: $e');
     }
   }
 

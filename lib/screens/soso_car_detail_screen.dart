@@ -127,7 +127,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       ),
                       onPressed: () {
                         Navigator.pop(ctx);
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), memberCount: 3)));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
+                        title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), 
+                        memberCount: 3,
+                        chatRoomId: widget.meetup?['id'] ?? 'meetup_chat_room_01',
+                      )));
                       },
                       child: const Text('채팅방 입장하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                     )
@@ -241,7 +245,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: (widget.meetup != null ? widget.meetup!['title'] : '마라탕 & 탕후루 팟'), memberCount: 4)));
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
+                                    title: (widget.meetup != null ? widget.meetup!['title'] : '마라탕 & 탕후루 팟'), 
+                                    memberCount: 4,
+                                    chatRoomId: widget.meetup?['id'] ?? 'meetup_chat_room_01',
+                                  )));
                                 },
                                 style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                                 child: const Text('채팅방 이동', style: TextStyle(color: Colors.white)),
@@ -363,7 +371,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+                    (widget.meetup != null && widget.meetup!['imageUrl'] != null)
+                        ? widget.meetup!['imageUrl']
+                        : 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80',
                     fit: BoxFit.cover,
                   ),
                   Container(
@@ -413,8 +423,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          '주말 엽떡+마라탕\n조지실 분 구해요!',
-                          style: TextStyle(color: textPrimary, fontSize: 28, fontWeight: FontWeight.w800, height: 1.3),
+                          (widget.meetup != null && widget.meetup!['title'] != null)
+                              ? widget.meetup!['title']
+                              : '주말 엽떡+마라탕\n조지실 분 구해요!',
+                          style: TextStyle(color: textPrimary, fontSize: 24, fontWeight: FontWeight.w800, height: 1.3),
                         ),
                       ],
                     ),
@@ -441,7 +453,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           children: [
                             CircleAvatar(
                               radius: 28,
-                              backgroundImage: const NetworkImage('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&q=80'),
+                              backgroundImage: NetworkImage(
+                                (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
+                                    ? widget.meetup!['hostAvatar']
+                                    : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80',
+                              ),
                               backgroundColor: surfaceColor,
                             ),
                             const SizedBox(width: 16),
@@ -453,7 +469,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Text('매너온도 42.5°C', style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                                      Text(
+                                        widget.meetup != null && widget.meetup!['manner'] != null
+                                            ? '매너온도 ${widget.meetup!['manner']}°C'
+                                            : '매너온도 41.2°C',
+                                        style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.bold),
+                                      ),
                                       const SizedBox(width: 8),
                                       Icon(Icons.verified, color: accentColor, size: 14),
                                       const SizedBox(width: 4),
@@ -480,18 +501,88 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       children: [
                         Text('모임 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
                         const SizedBox(height: 24),
-                        _buildInfoRow(Icons.calendar_today_outlined, '일시', '이번주 토요일 오후 6시'),
+                        _buildInfoRow(Icons.calendar_today_outlined, '일시', widget.meetup?['date'] ?? '이번주 토요일 18:00'),
                         const SizedBox(height: 20),
-                        _buildInfoRow(Icons.location_on_outlined, '장소', '홍대입구역 9번 출구 앞'),
+                        _buildInfoRow(Icons.location_on_outlined, '장소', widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞'),
                         const SizedBox(height: 20),
-                        _buildInfoRow(Icons.directions_subway_outlined, '방법', '각자 대중교통 이동'),
+                        _buildInfoRow(Icons.directions_subway_outlined, '방법', widget.meetup?['transport'] ?? '각자 이동'),
                         const SizedBox(height: 20),
-                        _buildInfoRow(Icons.payments_outlined, '비용', '약 1.5만원 (N빵)'),
+                        _buildInfoRow(Icons.payments_outlined, '비용', widget.meetup?['price'] ?? 'N빵'),
                       ],
                     ),
                   ),
                   
                   const SizedBox(height: 40),
+
+                  // 📅 상세 일정 섹션 (Firestore schedule 필드 연동)
+                  if (widget.meetup != null && widget.meetup!['schedule'] != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF9F2),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.event_note, color: Color(0xFFF19E39), size: 22),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('상세 일정 코스', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF111111))),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    widget.meetup!['schedule'].toString(),
+                                    style: const TextStyle(fontSize: 13, color: Color(0xFF555555), height: 1.4),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+
+                  // 📸 사진 갤러리 섹션 (Firestore photos 필드 연동)
+                  if (widget.meetup != null && widget.meetup!['photos'] != null && (widget.meetup!['photos'] is List)) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('모임 & 장소 사진', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111111))),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 110,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: (widget.meetup!['photos'] as List).length,
+                              itemBuilder: (context, idx) {
+                                final photoUrl = (widget.meetup!['photos'] as List)[idx].toString();
+                                return Container(
+                                  width: 130,
+                                  margin: const EdgeInsets.only(right: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    image: DecorationImage(image: NetworkImage(photoUrl), fit: BoxFit.cover),
+                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 8)],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
 
                   // Description
                   Padding(

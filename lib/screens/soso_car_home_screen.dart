@@ -293,7 +293,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) {
-                        var data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                        var doc = snapshot.data!.docs[index];
+                        var data = doc.data() as Map<String, dynamic>;
+                        data['id'] = doc.id;
                         return _buildMeetupCard(data);
                       },
                     );
@@ -384,7 +386,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(radius: 12, backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=11')),
+                          CircleAvatar(
+                            radius: 12, 
+                            backgroundImage: NetworkImage(
+                              meetup['hostAvatar'] ?? 
+                              (meetup['isFemaleOnly'] == true 
+                                ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80'
+                                : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80')
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           Text(meetup['host'], style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary)),
                           const SizedBox(width: 4),
@@ -411,28 +421,89 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Widget _buildDummyMeetups() {
     final List<Map<String, dynamic>> dummyData = [
       {
-        'title': '성수동 카페 투어 하실 분!',
-        'category': '카페/수다',
-        'location': '성동구 성수동',
-        'date': '오늘 오후 3:00',
-        'imageUrl': 'https://images.unsplash.com/photo-1501339817309-1141e1ee256e?q=80&w=600&auto=format&fit=crop',
-        'isFemaleOnly': false,
-        'host': '익명 호스트',
-        'manner': 36.5,
-        'members': '1/4',
-        'tags': ['소소하게', '커피', '당일치기'],
+        'id': 'dummy_meetup_01',
+        'title': '주말 엽떡+마라탕 조지실 분 🔥',
+        'category': '술/맛집',
+        'location': '마포구 홍대입구역 9번 출구',
+        'date': '이번주 토요일 18:00',
+        'imageUrl': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
+        'isFemaleOnly': true,
+        'host': '매운맛킬러',
+        'hostAvatar': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+        'manner': 41.2,
+        'members': '2/4',
+        'price': 'N빵',
+        'transport': '각자 이동',
+        'schedule': '1차 엽떡+마라탕 먹방 ➔ 2차 인생네컷 & 보드게임 카페',
+        'tags': ['소셜다이닝', '매운맛', '홍대맛집', '동네찐친'],
+        'photos': [
+          'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
+        ],
       },
       {
-        'title': '한강 러닝 메이트 구해요 🏃‍♂️',
-        'category': '액티비티',
-        'location': '마포구 망원동',
-        'date': '내일 오전 7:00',
-        'imageUrl': 'https://images.unsplash.com/photo-1552674605-15c3704ba158?q=80&w=600&auto=format&fit=crop',
+        'id': 'dummy_meetup_02',
+        'title': '성수동 감성 카페 & 디저트 투어 ☕',
+        'category': '카페/수다',
+        'location': '성동구 성수동 카페거리',
+        'date': '이번주 일요일 오후 2:00',
+        'imageUrl': 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
         'isFemaleOnly': false,
-        'host': '익명 호스트',
-        'manner': 36.5,
-        'members': '1/4',
-        'tags': ['러닝', '운동', '건강'],
+        'host': '성수동힙스터',
+        'hostAvatar': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+        'manner': 38.5,
+        'members': '2/4',
+        'price': '각자 결제',
+        'transport': '성수역 3번출구 집결',
+        'schedule': '힙한 신상 에스프레소 바 ➔ 베이커리 팝업 스토어 탐방',
+        'tags': ['소소하게', '성수카페', '디저트', '주말여유'],
+        'photos': [
+          'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1501339817309-1141e1ee256e?w=800&auto=format&fit=crop&q=80',
+        ],
+      },
+      {
+        'id': 'dummy_meetup_03',
+        'title': '연남동 내추럴 와인바 소셜 다이닝 🍷',
+        'category': '술/맛집',
+        'location': '마포구 연남동 미로길',
+        'date': '금요일 저녁 7:30',
+        'imageUrl': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&auto=format&fit=crop&q=80',
+        'isFemaleOnly': false,
+        'host': '와인앤모어',
+        'hostAvatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+        'manner': 42.0,
+        'members': '3/4',
+        'price': '1/N 분담',
+        'transport': '홍대입구역 3번출구 도보',
+        'schedule': '내추럴 와인 2병 페어링 & 소소한 금요일 밤 이야기',
+        'tags': ['놀줄아는', '와인바', '연남동', '소셜다이닝'],
+        'photos': [
+          'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
+        ],
+      },
+      {
+        'id': 'dummy_meetup_04',
+        'title': '망원 한강공원 야경 러닝 5km 🏃‍♀️',
+        'category': '액티비티',
+        'location': '마포구 망원 한강공원 입구',
+        'date': '목요일 저녁 8:00',
+        'imageUrl': 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&auto=format&fit=crop&q=80',
+        'isFemaleOnly': false,
+        'host': '러닝크루장',
+        'hostAvatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
+        'manner': 39.8,
+        'members': '4/6',
+        'price': '무료',
+        'transport': '망원역 집결',
+        'schedule': '스트레칭 10분 ➔ 6분 페이스 5km 러닝 ➔ 이온음료 쿨다운',
+        'tags': ['메이트', '러닝', '한강야경', '오운완'],
+        'photos': [
+          'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1552674605-15c3704ba158?w=800&auto=format&fit=crop&q=80',
+        ],
       },
     ];
     return ListView.builder(
