@@ -969,17 +969,23 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         children: [
           if (!isMe) _buildAvatar(),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe) Text(msg['time'] ?? '방금', style: TextStyle(fontSize: 10, color: textSecondary)),
           if (isMe) const SizedBox(width: 4),
-          Container(
-            width: 200, height: 200,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(image: appImg(imageUrl), fit: BoxFit.cover),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              width: 200,
+              height: 200,
+              child: appNetImage(
+                imageUrl,
+                fit: BoxFit.cover,
+                width: 200,
+                height: 200,
+              ),
             ),
           ),
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (!isMe) Text(msg['time'] ?? '방금', style: TextStyle(fontSize: 10, color: textSecondary)),
         ],
       ),
     );

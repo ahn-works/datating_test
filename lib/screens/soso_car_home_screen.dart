@@ -520,7 +520,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_currentLocation, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19, color: textPrimary)),
+              Flexible(
+                child: Text(
+                  _currentLocation,
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19, color: textPrimary),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               const SizedBox(width: 4),
               Icon(Icons.keyboard_arrow_down, size: 22, color: textPrimary),
             ],
@@ -756,7 +762,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                                 ),
                                 const SizedBox(width: 6),
-                                const Text('소소스팟 (SoSo Spot)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
+                                const Expanded(
+                                  child: Text(
+                                    '소소스팟 (SoSo Spot)',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -784,11 +796,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('우리 동네\n취향 모임', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2)),
-                  Text(
-                    _selectedVibe != null
-                        ? '$_selectedVibe 필터링 중'
-                        : (_selectedCategoryIndex > 0 ? '${_categories[_selectedCategoryIndex]['name']} 모임' : '진행 중인 모임'),
-                    style: TextStyle(fontSize: 13, color: coralAccent, fontWeight: FontWeight.w700),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      _selectedVibe != null
+                          ? '$_selectedVibe 필터링 중'
+                          : (_selectedCategoryIndex > 0 ? '${_categories[_selectedCategoryIndex]['name']} 모임' : '진행 중인 모임'),
+                      style: TextStyle(fontSize: 13, color: coralAccent, fontWeight: FontWeight.w700),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -933,11 +949,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Icon(Icons.location_on_outlined, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Text(meetup['location'] ?? '위치 협의', style: TextStyle(fontSize: 13, color: textSecondary)),
-                      const SizedBox(width: 16),
+                      Flexible(
+                        child: Text(
+                          meetup['location'] ?? '위치 협의',
+                          style: TextStyle(fontSize: 13, color: textSecondary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       Icon(Icons.access_time, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Text(meetup['date'] ?? '일정 협의', style: TextStyle(fontSize: 13, color: textSecondary)),
+                      Flexible(
+                        child: Text(
+                          meetup['date'] ?? '일정 협의',
+                          style: TextStyle(fontSize: 13, color: textSecondary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -946,22 +974,31 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 12,
-                            backgroundImage: appImg(
-                              meetup['hostAvatar'] ??
-                                  (meetup['isFemaleOnly'] == true ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg'),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 12,
+                              backgroundImage: appImg(
+                                meetup['hostAvatar'] ??
+                                    (meetup['isFemaleOnly'] == true ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg'),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(meetup['host'] ?? '호스트', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary)),
-                          const SizedBox(width: 4),
-                          Icon(Icons.local_fire_department, size: 14, color: destructiveColor),
-                          Text('${meetup['manner'] ?? 36.5}°C', style: TextStyle(fontSize: 12, color: textSecondary)),
-                        ],
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                meetup['host'] ?? '호스트',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(Icons.local_fire_department, size: 14, color: destructiveColor),
+                            Text('${meetup['manner'] ?? 36.5}°C', style: TextStyle(fontSize: 12, color: textSecondary)),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(8)),

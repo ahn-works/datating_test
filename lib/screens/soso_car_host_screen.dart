@@ -5,6 +5,7 @@ import '../widgets/interactive_map_popup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
+import '../utils/global_data.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_chat_screen.dart';
 
@@ -320,12 +321,12 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'memberCount': _memberCount,
         'genderLimit': _genderLimit,
         'ageLimit': _ageLimit,
-        'host': '매운맛킬러', // Mock User
-        'hostAvatar': 'assets/images/kr_female_1.jpg',
+        'host': globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '매운맛킬러',
+        'hostAvatar': globalData.userAvatar.value,
         'imageUrl': _coverImageUrl,
         'photos': [_coverImageUrl],
         'members': '1/${RegExp(r'(\d+)').allMatches(_memberCount).map((m) => m.group(1)).lastOrNull ?? '4'}',
-        'manner': 36.5,
+        'manner': globalData.temperature.value,
         'price': 'N빵',
         'transport': '각자 이동',
         'isFemaleOnly': _genderLimit.toString().contains('여'),

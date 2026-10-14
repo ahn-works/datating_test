@@ -270,19 +270,16 @@ class R2StorageService {
           return getPublicUrl(objectKey);
         } else {
           debugPrint('[R2 Storage] Upload returned status ${response.statusCode}: ${response.body}');
+          throw Exception('R2 Upload failed with status ${response.statusCode}');
         }
       } catch (e) {
         debugPrint('[R2 Storage] S3 upload error: $e');
+        rethrow;
       }
     }
 
-    // 4. 공개 R2 도메인이 설정된 경우 해당 URL 반환
-    if (publicBaseUrl.isNotEmpty) {
-      return getPublicUrl(objectKey);
-    }
-
-    // 5. 기본 S3 객체 URL 반환
-    return '$s3Endpoint/$objectKey';
+    // 4. S3 자격증명이 아직 등록되지 않은 경우: 로컬 폴백을 타도록 예외 발생
+    throw StateError('Cloudflare R2 API 자격증명이 미등록 상태입니다. 로컬 사진으로 표시합니다.');
   }
 
   // AWS SigV4 헬퍼 함수들

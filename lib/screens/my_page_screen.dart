@@ -78,6 +78,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         try {
           await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
             'photoUrl': finalAvatar,
+            'avatarUrl': finalAvatar,
             'updatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
         } catch (_) {}
@@ -784,6 +785,23 @@ class _MyPageScreenState extends State<MyPageScreen> {
             if (data['drinking'] != null) drinking = List<String>.from(data['drinking']);
             if (data['closeFriendPersonalities'] != null) closeFriendPersonalities = List<String>.from(data['closeFriendPersonalities']);
             if (data['values'] != null) values = List<String>.from(data['values']);
+
+            final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
+            if (loadedAvatar != null && loadedAvatar.isNotEmpty && globalData.userAvatar.value != loadedAvatar) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) globalData.userAvatar.value = loadedAvatar;
+              });
+            }
+            if (globalData.userNickname.value != nickname) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) globalData.userNickname.value = nickname;
+              });
+            }
+            if (globalData.userLocation.value != location) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) globalData.userLocation.value = location;
+              });
+            }
           }
 
           return ListView(

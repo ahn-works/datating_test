@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/global_data.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -86,6 +87,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'manner': 41.2, 
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+      globalData.userNickname.value = _nicknameController.text.trim();
+      globalData.userLocation.value = _locationController.text.trim();
       
       if (mounted) {
         Navigator.pop(context, true); 

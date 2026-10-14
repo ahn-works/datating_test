@@ -1,6 +1,8 @@
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// 로컬 에셋(assets/...) 또는 네트워크 URL을 모두 지원하는 이미지 헬퍼.
+/// 로컬 에셋(assets/...), 로컬 파일 경로(File), 웹 Blob, 네트워크 URL을 모두 완벽 지원하는 이미지 헬퍼.
 ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.jpg'}) {
   final target = (path != null && path.trim().isNotEmpty) ? path.trim() : fallback;
   if (target.contains('unsplash.com') || target.contains('pravatar.cc') || target.contains('picsum.photos')) {
@@ -18,7 +20,23 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
       return const AssetImage('assets/images/cover_food.jpg');
     }
   }
-  if (target.startsWith('assets/')) return AssetImage(target);
+
+  // 1. Flutter 로컬 에셋 경로
+  if (target.startsWith('assets/')) {
+    return AssetImage(target);
+  }
+
+  // 2. 모바일 / 데스크톱 네이티브 로컬 파일 경로 (FileImage 지원)
+  if (!kIsWeb && !target.startsWith('http://') && !target.startsWith('https://') && !target.startsWith('blob:')) {
+    try {
+      final file = io.File(target);
+      if (file.existsSync()) {
+        return FileImage(file);
+      }
+    } catch (_) {}
+  }
+
+  // 3. 웹 blob: 및 네트워크 URL
   return NetworkImage(target);
 }
 

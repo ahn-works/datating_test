@@ -33,7 +33,7 @@ void main() {
           const Offset(0, -1200),
         );
         await tester.pumpAndSettle();
-        expect(find.text('익명 호스트'), findsWidgets);
+        expect(find.text('성수동힙스터'), findsWidgets);
         expect(tester.takeException(), isNull);
       });
     },
