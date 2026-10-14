@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import 'soso_car_chat_screen.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
@@ -23,7 +24,7 @@ class ChatScreen extends StatelessWidget {
         'time': '오후 2:30',
         'unread': 3,
         'members': 4,
-        'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&q=80',
+        'imageUrl': 'assets/images/cover_food.jpg',
         'isGroup': true,
       },
       {
@@ -32,7 +33,7 @@ class ChatScreen extends StatelessWidget {
         'time': '오전 11:15',
         'unread': 0,
         'members': 6,
-        'imageUrl': 'https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=200&q=80',
+        'imageUrl': 'assets/images/cover_wine.jpg',
         'isGroup': true,
       },
       {
@@ -41,7 +42,7 @@ class ChatScreen extends StatelessWidget {
         'time': '어제',
         'unread': 1,
         'members': 2,
-        'imageUrl': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80',
+        'imageUrl': 'assets/images/kr_female_1.jpg',
         'isGroup': false,
       },
     ];
@@ -88,7 +89,7 @@ class ChatScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 32,
-                        backgroundImage: NetworkImage(room['imageUrl']),
+                        backgroundImage: appImg(room['imageUrl']),
                         backgroundColor: const Color(0xFFEBEBEF),
                       ),
                       if (room['isGroup'] == false)

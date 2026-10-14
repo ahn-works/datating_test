@@ -97,7 +97,7 @@ class _DriverProfileModalWidget extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           const Text(
-            '"안전하고 기분 좋은 동네 드라이브를 지향합니다 🚗✨ 주말엔 주로 강화도, 파주 쪽 다녀요!"',
+            '"안전하고 기분 좋은 동네 드라이브를 지향합니다 🚗✨ 주말엔 주로 성수, 양양, 남양주 쪽 다녀요!"',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.5),
           ),

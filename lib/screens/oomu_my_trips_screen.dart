@@ -77,17 +77,17 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
         'date': '이번주 토요일 18:00',
         'status': '모집 중',
         'members': '2/4',
-        'imageUrl': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80'
+        'imageUrl': 'assets/images/cover_food.jpg'
       }
     ] : [
       {
-        'title': '파주 대형 북카페로 드라이브 가요',
-        'category': '여행/드라이브',
-        'location': '파주 지혜의 숲',
+        'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
+        'category': '카페/수다',
+        'location': '성동구 성수동 카페거리',
         'date': '내일 14:00',
         'status': '참여 확정',
-        'members': '3/3',
-        'imageUrl': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80'
+        'members': '3/4',
+        'imageUrl': 'assets/images/cover_cafe.jpg'
       }
     ];
 

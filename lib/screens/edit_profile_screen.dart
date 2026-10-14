@@ -47,7 +47,7 @@ class EditProfileScreen extends StatelessWidget {
           const SizedBox(height: 32),
           _field('닉네임', '햇살가득 지우'),
           const SizedBox(height: 16),
-          _field('자기소개', '안전하고 기분 좋은 동네 드라이브를 지향합니다 🚗✨ 주말엔 주로 강화도, 파주 쪽 다녀요!', maxLines: 3),
+          _field('자기소개', '안전하고 기분 좋은 동네 드라이브를 지향합니다 🚗✨ 주말엔 주로 성수, 양양, 남양주 쪽 다녀요!', maxLines: 3),
           const SizedBox(height: 32),
           const Text('내 차량 및 운전 정보', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),

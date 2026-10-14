@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
+import '../utils/global_data.dart';
 import "soso_car_chat_screen.dart";
 import "user_profile_screen.dart";
 
@@ -22,6 +23,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   
   bool _isFavorite = false;
   bool _hasCompletedProfile = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = globalData.isFavorite(widget.meetup?['id'] ?? widget.meetup?['title']);
+  }
 
   void _showApplyToast() {
     if (!_hasCompletedProfile) {
@@ -356,7 +363,18 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), shape: BoxShape.circle),
                   child: IconButton(
                     icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border, color: _isFavorite ? destructiveColor : Colors.white, size: 20),
-                    onPressed: () => setState(() => _isFavorite = !_isFavorite),
+                    onPressed: () {
+                      setState(() => _isFavorite = !_isFavorite);
+                      if (widget.meetup != null) {
+                        globalData.toggleFavorite(widget.meetup!);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(_isFavorite ? '❤️ 찜한 모임에 추가되었습니다' : '💔 찜한 모임에서 제거되었습니다'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
