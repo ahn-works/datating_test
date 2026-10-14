@@ -1,4 +1,4 @@
-﻿name: Flutter Web Deploy to GitHub Pages
+name: Flutter Web Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
@@ -25,6 +25,11 @@ jobs:
         id: build
         run: |
           flutter build web --base-href /datating_test/ > build_log.txt 2>&1 || echo "BUILD_FAILED=true" >> $GITHUB_ENV
+      - name: Print build errors as annotations
+        if: env.BUILD_FAILED == 'true'
+        run: |
+          grep -E 'Error|error:' build_log.txt | head -25 | while IFS= read -r l; do echo "::error::$l"; done
+          exit 1
       - name: Push log on failure
         if: env.BUILD_FAILED == 'true'
         run: |
