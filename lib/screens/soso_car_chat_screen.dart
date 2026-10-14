@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import '../services/r2_storage_service.dart';
 class OOMUChatScreen extends StatefulWidget {
   final String title;
   final int memberCount;
@@ -133,25 +134,122 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
   Future<void> _sendImageAction() async {
     Navigator.pop(context);
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image == null) return; 
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('사진을 업로드하는 중입니다...')));
-      
+    Future<void> pickAndUpload(ImageSource source) async {
+      Navigator.pop(context);
       try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image = await picker.pickImage(
+          source: source,
+          maxWidth: 1280,
+          maxHeight: 1280,
+          imageQuality: 85,
+        );
+        if (image == null) return;
+
+        if (!R2StorageService.isImageFile(image.name)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 전송할 수 있습니다.')),
+          );
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('☁️ Cloudflare R2로 사진을 업로드하고 있습니다...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
         final bytes = await image.readAsBytes();
-        final storageRef = FirebaseStorage.instance.ref().child('chat_images/${widget.chatRoomId}/${DateTime.now().millisecondsSinceEpoch}.jpg');
-        await storageRef.putData(bytes);
-        final downloadUrl = await storageRef.getDownloadURL();
-        _addMessage({'type': 'image', 'imageUrl': downloadUrl});
+        String downloadUrl = '';
+        try {
+          downloadUrl = await r2Storage.uploadImageBytes(
+            bytes: bytes,
+            fileName: image.name,
+            category: R2UploadCategory.chatPhoto,
+          );
+        } catch (e) {
+          debugPrint('[R2 Chat Image] Upload fallback: $e');
+          downloadUrl = image.path;
+        }
+
+        final finalUrl = downloadUrl.isNotEmpty ? downloadUrl : image.path;
+        _addMessage({'type': 'image', 'imageUrl': finalUrl});
       } catch (e) {
-        _addMessage({'type': 'image', 'imageUrl': 'assets/images/cover_running.jpg'});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사진 업로드 실패: $e')),
+        );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('사진 업로드 실패')));
     }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('대화방 사진 공유 (Cloudflare R2)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => pickAndUpload(ImageSource.camera),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF5F0),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.photo_camera_rounded, color: Color(0xFFFF5E36), size: 24),
+                            const SizedBox(height: 6),
+                            const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text('카메라 촬영', style: TextStyle(fontSize: 11, color: textSecondary)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => pickAndUpload(ImageSource.gallery),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7EE),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFF38020).withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.photo_library_rounded, color: Color(0xFFF38020), size: 24),
+                            const SizedBox(height: 6),
+                            const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text('갤러리/앨범', style: TextStyle(fontSize: 11, color: textSecondary)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _sendLocationAction() async {

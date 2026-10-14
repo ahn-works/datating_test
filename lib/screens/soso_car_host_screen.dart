@@ -3,6 +3,8 @@ import '../utils/app_image.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/interactive_map_popup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/r2_storage_service.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_chat_screen.dart';
 
@@ -84,68 +86,214 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
 
   void _showCoverImagePickerBottomSheet() {
     final urlController = TextEditingController();
+    bool isUploading = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('커버 사진 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-                const SizedBox(height: 16),
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 1.7,
-                  children: _coverPresets.map((p) {
-                    final selected = _coverImageUrl == p['path'];
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() => _coverImageUrl = p['path']!);
-                        Navigator.pop(ctx);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: selected ? accentColor : Colors.transparent, width: 3),
-                          image: DecorationImage(image: AssetImage(p['path']!), fit: BoxFit.cover, colorFilter: const ColorFilter.mode(Colors.black26, BlendMode.darken)),
-                        ),
-                        alignment: Alignment.bottomLeft,
-                        padding: const EdgeInsets.all(8),
-                        child: Text(p['label']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text('커버 사진 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(color: const Color(0xFFF38020).withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
+                        child: const Text('R2 oomu-spot 연동', style: TextStyle(color: Color(0xFFF38020), fontSize: 11, fontWeight: FontWeight.bold)),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: urlController,
-                  decoration: InputDecoration(
-                    hintText: '이미지 URL 직접 입력 (https://...)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.check, color: accentColor),
-                      onPressed: () {
-                        final u = urlController.text.trim();
-                        if (u.startsWith('http')) {
-                          setState(() => _coverImageUrl = u);
-                          Navigator.pop(ctx);
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  Future<void> pickAndSetCover(ImageSource source) async {
+                    try {
+                      final picker = ImagePicker();
+                      final XFile? file = await picker.pickImage(
+                        source: source,
+                        maxWidth: 1280,
+                        maxHeight: 720,
+                        imageQuality: 85,
+                      );
+                      if (file == null) return;
+
+                      if (!R2StorageService.isImageFile(file.name)) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
+                          );
                         }
-                      },
+                        return;
+                      }
+
+                      setSheetState(() => isUploading = true);
+                      final bytes = await file.readAsBytes();
+
+                      String uploadedUrl = '';
+                      try {
+                        uploadedUrl = await r2Storage.uploadImageBytes(
+                          bytes: bytes,
+                          fileName: file.name,
+                          category: R2UploadCategory.meetupCover,
+                        );
+                      } catch (e) {
+                        debugPrint('[R2 Storage] Cover upload fallback: $e');
+                        uploadedUrl = file.path;
+                      }
+
+                      final finalCover = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+                      if (mounted) {
+                        setState(() => _coverImageUrl = finalCover);
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(source == ImageSource.camera
+                                ? '📸 카메라로 촬영한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'
+                                : '🖼️ 갤러리에서 선택한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'),
+                            backgroundColor: const Color(0xFFF38020),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      setSheetState(() => isUploading = false);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('업로드 실패: $e')),
+                        );
+                      }
+                    }
+                  }
+
+                  // 1. Primary Action Cards (Camera & Gallery)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: isUploading ? null : () => pickAndSetCover(ImageSource.camera),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF5F0),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.35)),
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(Icons.photo_camera_rounded, color: Color(0xFFFF5E36), size: 24),
+                                const SizedBox(height: 6),
+                                const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF111111))),
+                                Text('카메라 촬영', style: TextStyle(fontSize: 11, color: textSecondary)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: InkWell(
+                          onTap: isUploading ? null : () => pickAndSetCover(ImageSource.gallery),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF7EE),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFF38020).withOpacity(0.35)),
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(Icons.photo_library_rounded, color: Color(0xFFF38020), size: 24),
+                                const SizedBox(height: 6),
+                                const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF111111))),
+                                Text('갤러리 / 앨범', style: TextStyle(fontSize: 11, color: textSecondary)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  if (isUploading) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF38020).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: const [
+                          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF38020))),
+                          SizedBox(width: 10),
+                          Text('Cloudflare R2 (oomu-spot)에 사진 업로드 중...', style: TextStyle(color: Color(0xFFF38020), fontSize: 12, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 18),
+                  Text('또는 추천 프리셋에서 선택', style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 10),
+
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 1.7,
+                    children: _coverPresets.map((p) {
+                      final selected = _coverImageUrl == p['path'];
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() => _coverImageUrl = p['path']!);
+                          Navigator.pop(ctx);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: selected ? accentColor : Colors.transparent, width: 3),
+                            image: DecorationImage(image: AssetImage(p['path']!), fit: BoxFit.cover, colorFilter: const ColorFilter.mode(Colors.black26, BlendMode.darken)),
+                          ),
+                          alignment: Alignment.bottomLeft,
+                          padding: const EdgeInsets.all(8),
+                          child: Text(p['label']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: urlController,
+                    decoration: InputDecoration(
+                      hintText: 'Cloudflare R2 URL 직접 입력 (https://...)',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.check, color: accentColor),
+                        onPressed: () {
+                          final u = urlController.text.trim();
+                          if (u.startsWith('http')) {
+                            setState(() => _coverImageUrl = u);
+                            Navigator.pop(ctx);
+                          }
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

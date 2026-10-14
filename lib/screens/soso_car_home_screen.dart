@@ -9,6 +9,7 @@ import 'my_page_screen.dart';
 import 'soso_car_detail_screen.dart';
 import 'filter_screen.dart';
 import 'soso_spot_screen.dart';
+import '../utils/location_helper.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   const OOMUHomeScreen({super.key});
@@ -61,18 +62,33 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       '청주시 상당구 성안동', '천안시 서북구 불당동',
     ],
     '광주/전라': [
+      // 전남 여수시 (전역 정밀 지원)
+      '여수시 학동', '여수시 웅천동', '여수시 여서동', '여수시 문수동',
+      '여수시 신월동', '여수시 교동(이순신광장)', '여수시 돌산읍',
+      '여수시 소라면', '여수시 화장동', '여수시 봉산동(게장거리)',
+      '여수시 덕충동(엑스포역)', '여수시 미평동(전남대)', '여수시 국동',
+      // 전남 순천시 / 광양시 / 목포시 / 나주시
+      '순천시 조례동', '순천시 연향동', '순천시 신대지구', '순천시 중앙동',
+      '광양시 중마동', '광양시 광영동',
+      '목포시 하당동', '목포시 평화광장(상동)', '목포시 남악',
+      '나주시 빛가람동(혁신도시)',
+      // 전북 전주시 / 익산시 / 군산시
+      '전주시 완산구 효자동', '전주시 덕진구 송천동', '전주시 완산구 고사동(객사)',
+      '전주시 덕진구 혁신도시', '익산시 영등동', '군산시 수송동',
+      // 광주광역시
       '광주 서구 상무동', '광주 동구 동명동', '광주 광산구 수완동',
-      '전주시 완산구 효자동', '여수시 학동',
+      '광주 남구 봉선동', '광주 북구 용봉동(전남대)', '광주 광산구 첨단동',
     ],
     '강원/제주': [
       '강릉시 교동', '속초시 조양동', '춘천시 효자동',
-      '제주시 노형동', '제주시 연동', '서귀포시 중문동',
+      '제주시 노형동', '제주시 연동', '제주시 아라동', '서귀포시 중문동',
     ],
   };
 
   void _showLocationPickerBottomSheet() {
     String searchQuery = '';
     String selectedRegionTab = '서울';
+    bool isGpsLocating = false;
 
     showModalBottomSheet(
       context: context,
@@ -127,28 +143,46 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     Text('내 위치를 공유하거나 원하는 동네를 검색해보세요.', style: TextStyle(fontSize: 13, color: textSecondary)),
                     const SizedBox(height: 16),
 
-                    // 1. GPS 현재 위치로 찾기 Button
+                    // 1. GPS 현재 위치로 찾기 Button (실제 GPS + 역지오코딩 연동)
                     GestureDetector(
-                      onTap: () {
-                        final detected = '마포구 서교동 (내 위치)';
-                        setState(() {
-                          _currentLocation = '마포구 서교동';
-                        });
-                        globalData.updateLocation('마포구 서교동');
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                const Icon(Icons.my_location, color: Colors.white, size: 18),
-                                const SizedBox(width: 8),
-                                Text('📍 GPS 위치 감지 완료: $detected'),
-                              ],
-                            ),
-                            backgroundColor: coralAccent,
-                          ),
-                        );
-                      },
+                      onTap: isGpsLocating
+                          ? null
+                          : () async {
+                              setModalState(() => isGpsLocating = true);
+                              final detected = await LocationHelper.getCurrentDongName();
+                              setModalState(() => isGpsLocating = false);
+
+                              if (detected != null && detected.isNotEmpty) {
+                                setState(() {
+                                  _currentLocation = detected;
+                                });
+                                globalData.updateLocation(detected);
+                                try {
+                                  FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                                    'location': detected,
+                                    'updatedAt': FieldValue.serverTimestamp(),
+                                  }, SetOptions(merge: true));
+                                } catch (_) {}
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        const Icon(Icons.my_location, color: Colors.white, size: 18),
+                                        const SizedBox(width: 8),
+                                        Expanded(child: Text('📍 내 현재 위치 자동 할당 완료: $detected')),
+                                      ],
+                                    ),
+                                    backgroundColor: coralAccent,
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('⚠️ 위치 권한을 확인해주시거나 동네를 직접 검색해주세요.')),
+                                );
+                              }
+                            },
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
@@ -162,10 +196,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.my_location, color: coralAccent, size: 18),
+                            if (isGpsLocating)
+                              const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFFF5E36)))
+                            else
+                              Icon(Icons.my_location, color: coralAccent, size: 18),
                             const SizedBox(width: 8),
                             Text(
-                              '현재 위치로 동네 찾기 (GPS 연동)',
+                              isGpsLocating ? 'GPS 위치 확인 및 동네 분석 중...' : '현재 위치로 동네 자동 찾기 (GPS 연동)',
                               style: TextStyle(color: coralAccent, fontWeight: FontWeight.w800, fontSize: 14),
                             ),
                           ],
@@ -268,6 +305,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   onTap: () {
                                     setState(() => _currentLocation = dong);
                                     globalData.updateLocation(dong);
+                                    try {
+                                      FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                                        'location': dong,
+                                        'updatedAt': FieldValue.serverTimestamp(),
+                                      }, SetOptions(merge: true));
+                                    } catch (_) {}
                                     Navigator.pop(ctx);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('📍 $dong(으)로 동네를 변경했어요')),

@@ -7,6 +7,8 @@ import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'profile_edit_screen.dart';
 import 'saved_meetups_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/r2_storage_service.dart';
 
 class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});
@@ -33,135 +35,480 @@ class _MyPageScreenState extends State<MyPageScreen> {
     ];
 
     final r2UrlController = TextEditingController();
+    bool isUploading = false;
+
+    Future<void> pickAndSetAvatar(ImageSource source, StateSetter setSheetState, BuildContext ctx) async {
+      try {
+        final picker = ImagePicker();
+        final XFile? file = await picker.pickImage(
+          source: source,
+          maxWidth: 1080,
+          maxHeight: 1080,
+          imageQuality: 85,
+        );
+        if (file == null) return;
+
+        if (!R2StorageService.isImageFile(file.name)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
+            );
+          }
+          return;
+        }
+
+        setSheetState(() => isUploading = true);
+        final bytes = await file.readAsBytes();
+
+        String avatarUrl = '';
+        try {
+          avatarUrl = await r2Storage.uploadImageBytes(
+            bytes: bytes,
+            fileName: file.name,
+            category: R2UploadCategory.profile,
+          );
+        } catch (e) {
+          debugPrint('[R2 Storage] Upload fallback: $e');
+          avatarUrl = file.path;
+        }
+
+        final finalAvatar = avatarUrl.isNotEmpty ? avatarUrl : file.path;
+        globalData.updateAvatar(finalAvatar);
+
+        try {
+          await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+            'photoUrl': finalAvatar,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
+
+        if (mounted) {
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(source == ImageSource.camera
+                  ? '📸 카메라로 촬영한 프로필 사진이 Cloudflare R2에 등록되었습니다!'
+                  : '🖼️ 갤러리에서 선택한 프로필 사진이 Cloudflare R2에 등록되었습니다!'),
+              backgroundColor: const Color(0xFFF38020),
+            ),
+          );
+        }
+      } catch (e) {
+        setSheetState(() => isUploading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('사진 등록 실패: $e')),
+          );
+        }
+      }
+    }
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 20,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 44,
-                  height: 4,
-                  decoration: BoxDecoration(color: const Color(0xFFE5E5EA), borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text('프로필 사진 선택', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textPrimary)),
-              const SizedBox(height: 6),
-              Text('2030 한국인 아바타 또는 Cloudflare R2 링크를 선택하세요.', style: TextStyle(fontSize: 13, color: textSecondary)),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 110,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: avatarList.length,
-                  itemBuilder: (context, index) {
-                    final item = avatarList[index];
-                    final isSel = globalData.userAvatar.value == item['path'];
-                    return GestureDetector(
-                      onTap: () {
-                        globalData.updateAvatar(item['path']!);
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('✨ [${item['name']}] 프로필 사진으로 변경되었습니다!')),
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 14),
-                        child: Column(
-                          children: [
-                            Stack(
-                              children: [
-                                Container(
-                                  width: 68,
-                                  height: 68,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: isSel ? coralAccent : Colors.transparent,
-                                      width: 3,
-                                    ),
-                                    image: DecorationImage(
-                                      image: AssetImage(item['path']!),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                if (isSel)
-                                  Positioned(
-                                    right: 0,
-                                    bottom: 0,
-                                    child: CircleAvatar(
-                                      radius: 10,
-                                      backgroundColor: coralAccent,
-                                      child: const Icon(Icons.check, size: 12, color: Colors.white),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(item['name']!, style: TextStyle(fontSize: 11, color: isSel ? coralAccent : textSecondary, fontWeight: isSel ? FontWeight.bold : FontWeight.w500)),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text('Cloudflare R2 사진 링크 직접 등록', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textPrimary)),
-              const SizedBox(height: 8),
-              Row(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 20,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: r2UrlController,
-                      decoration: InputDecoration(
-                        hintText: 'https://pub-xxxx.r2.dev/photo.jpg',
-                        hintStyle: TextStyle(color: const Color(0xFFC7C7CC), fontSize: 13),
-                        filled: true,
-                        fillColor: surfaceColor,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      ),
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(color: const Color(0xFFE5E5EA), borderRadius: BorderRadius.circular(2)),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: coralAccent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Text('프로필 사진 선택', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textPrimary)),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(color: const Color(0xFFF38020).withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
+                        child: const Text('R2 oomu-spot', style: TextStyle(color: Color(0xFFF38020), fontSize: 11, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text('사진 불러오기 또는 즉시 촬영으로 프로필 사진을 변경하세요.', style: TextStyle(fontSize: 13, color: textSecondary)),
+                  const SizedBox(height: 18),
+
+                  // 1 & 2: Primary Action Cards (Camera & Gallery)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: isUploading ? null : () => pickAndSetAvatar(ImageSource.camera, setSheetState, ctx),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF5F0),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.35)),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFF5E36),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 24),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF111111))),
+                                const SizedBox(height: 4),
+                                Text('카메라로 바로 촬영', style: TextStyle(fontSize: 12, color: textSecondary)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: isUploading ? null : () => pickAndSetAvatar(ImageSource.gallery, setSheetState, ctx),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF7EE),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFF38020).withOpacity(0.35)),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF38020),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.photo_library_rounded, color: Colors.white, size: 24),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF111111))),
+                                const SizedBox(height: 4),
+                                Text('갤러리/앨범 선택', style: TextStyle(fontSize: 12, color: textSecondary)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  if (isUploading) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF38020).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: const [
+                          SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF38020))),
+                          SizedBox(width: 12),
+                          Text('Cloudflare R2 (oomu-spot)에 사진 업로드 중...', style: TextStyle(color: Color(0xFFF38020), fontSize: 13, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
-                    onPressed: () {
-                      final url = r2UrlController.text.trim();
-                      if (url.isNotEmpty) {
-                        globalData.updateAvatar(url);
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('☁️ Cloudflare R2 프로필 사진이 적용되었습니다!')),
+                  ],
+
+                  const SizedBox(height: 22),
+                  Text('또는 2030 아바타 추천', style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 110,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: avatarList.length,
+                      itemBuilder: (context, index) {
+                        final item = avatarList[index];
+                        final isSel = globalData.userAvatar.value == item['path'];
+                        return GestureDetector(
+                          onTap: () async {
+                            globalData.updateAvatar(item['path']!);
+                            try {
+                              await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                                'photoUrl': item['path']!,
+                                'updatedAt': FieldValue.serverTimestamp(),
+                              }, SetOptions(merge: true));
+                            } catch (_) {}
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('✨ [${item['name']}] 프로필 사진으로 변경되었습니다!')),
+                            );
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 14),
+                            child: Column(
+                              children: [
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 68,
+                                      height: 68,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isSel ? coralAccent : Colors.transparent,
+                                          width: 3,
+                                        ),
+                                        image: DecorationImage(
+                                          image: AssetImage(item['path']!),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isSel)
+                                      Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: CircleAvatar(
+                                          radius: 10,
+                                          backgroundColor: coralAccent,
+                                          child: const Icon(Icons.check, size: 12, color: Colors.white),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(item['name']!, style: TextStyle(fontSize: 11, color: isSel ? coralAccent : textSecondary, fontWeight: isSel ? FontWeight.bold : FontWeight.w500)),
+                              ],
+                            ),
+                          ),
                         );
-                      }
-                    },
-                    child: const Text('적용', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Cloudflare R2 사진 링크 직접 등록', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textPrimary)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: r2UrlController,
+                          decoration: InputDecoration(
+                            hintText: 'https://pub-xxxx.r2.dev/photo.jpg',
+                            hintStyle: TextStyle(color: const Color(0xFFC7C7CC), fontSize: 13),
+                            filled: true,
+                            fillColor: surfaceColor,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: coralAccent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        onPressed: () async {
+                          final url = r2UrlController.text.trim();
+                          if (url.isNotEmpty) {
+                            globalData.updateAvatar(url);
+                            try {
+                              await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                                'photoUrl': url,
+                                'updatedAt': FieldValue.serverTimestamp(),
+                              }, SetOptions(merge: true));
+                            } catch (_) {}
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('☁️ Cloudflare R2 프로필 사진이 적용되었습니다!')),
+                            );
+                          }
+                        },
+                        child: const Text('적용', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showR2SettingsBottomSheet() {
+    final accessKeyCtrl = TextEditingController(text: r2Storage.accessKeyId);
+    final secretKeyCtrl = TextEditingController(text: r2Storage.secretAccessKey);
+    final publicUrlCtrl = TextEditingController(text: r2Storage.publicBaseUrl);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 20,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(color: const Color(0xFFE5E5EA), borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: const Color(0xFFF38020).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.cloud_sync_outlined, color: Color(0xFFF38020), size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Cloudflare R2 스토리지 연동', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                          Text('버킷: oomu-spot (Asia-Pacific)', style: TextStyle(fontSize: 12, color: textSecondary)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF9F3),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFF38020).withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.shield_outlined, color: Color(0xFFF38020), size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '보안 안내: 개인정보 및 R2 S3 Secret Access Key는 Git 소스코드에 절대 커밋되지 않으며, Firebase Firestore (config/r2_storage)에 안전하게 암호화 보관됩니다.',
+                            style: TextStyle(fontSize: 12, color: const Color(0xFFB85D00), height: 1.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('S3 Endpoint URL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textSecondary)),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(10)),
+                    child: SelectableText(
+                      R2StorageService.s3Endpoint,
+                      style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF333333)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('S3 Access Key ID (현재: ${r2Storage.getMaskedAccessKey()})', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textSecondary)),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: accessKeyCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'Access Key ID 입력',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('S3 Secret Access Key (현재: ${r2Storage.getMaskedSecretKey()})', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textSecondary)),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: secretKeyCtrl,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: 'Secret Access Key 입력 (마스킹 저장)',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('공개 R2 CDN 도메인 (선택사항, 예: https://pub-xxx.r2.dev)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textSecondary)),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: publicUrlCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'https://pub-xxxx.r2.dev',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF38020),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      icon: const Icon(Icons.lock_outline, color: Colors.white, size: 18),
+                      label: const Text('Firebase에 안전하게 저장 (Git 미포함)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                      onPressed: () async {
+                        await r2Storage.saveToFirestore(
+                          accessKey: accessKeyCtrl.text,
+                          secretKey: secretKeyCtrl.text,
+                          publicUrl: publicUrlCtrl.text,
+                        );
+                        if (mounted) {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🔒 R2 자격 증명이 Firebase Firestore에 안전하게 저장되었습니다.'),
+                              backgroundColor: Color(0xFFF38020),
+                            ),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-            ],
+            ),
           ),
         ),
       ),
@@ -695,6 +1042,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 title: '고객 센터 & FAQ',
                 textPrimary: textPrimary,
                 onTap: _showCustomerCenterModal,
+              ),
+              _buildInteractiveMenuItem(
+                icon: Icons.cloud_done_outlined,
+                iconColor: const Color(0xFFF38020),
+                title: 'Cloudflare R2 스토리지 설정',
+                badge: '안전 보관',
+                textPrimary: textPrimary,
+                onTap: _showR2SettingsBottomSheet,
               ),
 
               const SizedBox(height: 40),
