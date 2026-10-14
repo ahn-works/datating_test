@@ -94,85 +94,86 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text('커버 사진 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: const Color(0xFFF38020).withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
-                        child: const Text('R2 oomu-spot 연동', style: TextStyle(color: Color(0xFFF38020), fontSize: 11, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
+        builder: (ctx, setSheetState) {
+          Future<void> pickAndSetCover(ImageSource source) async {
+            try {
+              final picker = ImagePicker();
+              final XFile? file = await picker.pickImage(
+                source: source,
+                maxWidth: 1280,
+                maxHeight: 720,
+                imageQuality: 85,
+              );
+              if (file == null) return;
+
+              if (!R2StorageService.isImageFile(file.name)) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
+                  );
+                }
+                return;
+              }
+
+              setSheetState(() => isUploading = true);
+              final bytes = await file.readAsBytes();
+
+              String uploadedUrl = '';
+              try {
+                uploadedUrl = await r2Storage.uploadImageBytes(
+                  bytes: bytes,
+                  fileName: file.name,
+                  category: R2UploadCategory.meetupCover,
+                );
+              } catch (e) {
+                debugPrint('[R2 Storage] Cover upload fallback: $e');
+                uploadedUrl = file.path;
+              }
+
+              final finalCover = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+              if (mounted) {
+                setState(() => _coverImageUrl = finalCover);
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(source == ImageSource.camera
+                        ? '📸 카메라로 촬영한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'
+                        : '🖼️ 갤러리에서 선택한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'),
+                    backgroundColor: const Color(0xFFF38020),
                   ),
-                  const SizedBox(height: 16),
+                );
+              }
+            } catch (e) {
+              setSheetState(() => isUploading = false);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('업로드 실패: $e')),
+                );
+              }
+            }
+          }
 
-                  Future<void> pickAndSetCover(ImageSource source) async {
-                    try {
-                      final picker = ImagePicker();
-                      final XFile? file = await picker.pickImage(
-                        source: source,
-                        maxWidth: 1280,
-                        maxHeight: 720,
-                        imageQuality: 85,
-                      );
-                      if (file == null) return;
-
-                      if (!R2StorageService.isImageFile(file.name)) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
-                          );
-                        }
-                        return;
-                      }
-
-                      setSheetState(() => isUploading = true);
-                      final bytes = await file.readAsBytes();
-
-                      String uploadedUrl = '';
-                      try {
-                        uploadedUrl = await r2Storage.uploadImageBytes(
-                          bytes: bytes,
-                          fileName: file.name,
-                          category: R2UploadCategory.meetupCover,
-                        );
-                      } catch (e) {
-                        debugPrint('[R2 Storage] Cover upload fallback: $e');
-                        uploadedUrl = file.path;
-                      }
-
-                      final finalCover = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
-                      if (mounted) {
-                        setState(() => _coverImageUrl = finalCover);
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(source == ImageSource.camera
-                                ? '📸 카메라로 촬영한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'
-                                : '🖼️ 갤러리에서 선택한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'),
-                            backgroundColor: const Color(0xFFF38020),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      setSheetState(() => isUploading = false);
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('업로드 실패: $e')),
-                        );
-                      }
-                    }
-                  }
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('커버 사진 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: const Color(0xFFF38020).withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
+                          child: const Text('R2 oomu-spot 연동', style: TextStyle(color: Color(0xFFF38020), fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
 
                   // 1. Primary Action Cards (Camera & Gallery)
                   Row(
@@ -296,10 +297,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
+        );
+      },
+    ),
+  );
+}
 
   Future<void> _submitMeetup() async {
     if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty || _locationController.text.trim().isEmpty) {
