@@ -10,6 +10,53 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/r2_storage_service.dart';
+/// 대화방 메시지 메모리/로컬 영구 캐시 저장소 (뒤로가기 후 재입장 시에도 메시지 및 사진 100% 보존)
+class OOMUChatStore {
+  static final OOMUChatStore _instance = OOMUChatStore._internal();
+  factory OOMUChatStore() => _instance;
+  OOMUChatStore._internal();
+
+  final Map<String, List<Map<String, dynamic>>> _messagesByRoom = {};
+
+  List<Map<String, dynamic>> getRoomMessages(String roomId, String title) {
+    if (!_messagesByRoom.containsKey(roomId)) {
+      _messagesByRoom[roomId] = [
+        {'type': 'system', 'text': '$title 모임 대화방이 개설되었습니다. 🎉', 'time': '오후 2:20'},
+        {'type': 'system', 'text': '우리동네민우님이 참여 승인되어 합류했습니다! 🎉', 'time': '오후 2:25'},
+        {'type': 'text', 'sender': '매운맛킬러', 'text': '안녕하세요! 다들 마라탕 좋아하시죠?', 'isMe': false, 'time': '오후 2:30'},
+        {'type': 'text', 'sender': '우리동네민우', 'text': '완전완전 좋아합니다ㅎㅎ 잘 부탁드려요!', 'isMe': true, 'time': '오후 2:32'},
+        {'type': 'text', 'sender': '매운맛킬러', 'text': '그럼 이번주 토요일 6시에 홍대에서 봬요!', 'isMe': false, 'time': '오후 2:35'},
+        {
+          'type': 'secret_after',
+          'title': '💖 시크릿 애프터 1:1 호감 매칭',
+          'desc': '오늘 모임은 어떠셨나요? 마음이 통했던 멤버 1~2명을 비공개로 선택해 보세요.',
+          'isMe': false,
+          'time': '오후 6:30'
+        },
+      ];
+    }
+    return _messagesByRoom[roomId]!;
+  }
+
+  void addMessage(String roomId, Map<String, dynamic> msg) {
+    final list = _messagesByRoom.putIfAbsent(roomId, () => []);
+    list.add(msg);
+  }
+
+  String getLastMessageText(String roomId) {
+    final list = _messagesByRoom[roomId];
+    if (list == null || list.isEmpty) return '';
+    final last = list.last;
+    if (last['type'] == 'image') return '📸 사진';
+    if (last['type'] == 'location') return '📍 현재 위치 공유';
+    if (last['type'] == 'schedule') return '📅 상세 일정 제안';
+    if (last['type'] == 'settlement') return '💰 정산 요청';
+    return (last['text'] ?? '').toString();
+  }
+}
+
+final oomuChatStore = OOMUChatStore();
+
 class OOMUChatScreen extends StatefulWidget {
   final String title;
   final int memberCount;
@@ -36,25 +83,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   Stream<QuerySnapshot>? _firebaseMessageStream;
-
-  final List<Map<String, dynamic>> _dummyMessages = [
-    {'type': 'system', 'text': '매운맛킬러(방장)님이 이 모임을 개설했습니다.'},
-    {'type': 'system', 'text': '우리동네민우님이 참여 승인되어 합류했습니다! 🎉'},
-    {'type': 'text', 'sender': '매운맛킬러', 'text': '안녕하세요! 다들 마라탕 좋아하시죠?', 'isMe': false, 'time': '오후 2:30'},
-    {'type': 'text', 'sender': '우리동네민우', 'text': '완전완전 좋아합니다ㅎㅎ 잘 부탁드려요!', 'isMe': true, 'time': '오후 2:32'},
-    {'type': 'text', 'sender': '매운맛킬러', 'text': '그럼 이번주 토요일 6시에 홍대에서 봬요!', 'isMe': false, 'time': '오후 2:35'},
-    {
-      'type': 'secret_after',
-      'title': '💖 시크릿 애프터 1:1 호감 매칭',
-      'desc': '오늘 모임은 어떠셨나요? 마음이 통했던 멤버 1~2명을 비공개로 선택해 보세요.',
-      'isMe': false,
-      'time': '오후 6:30'
-    },
-  ];
+  late List<Map<String, dynamic>> _messages;
 
   @override
   void initState() {
     super.initState();
+    _messages = List<Map<String, dynamic>>.from(
+      oomuChatStore.getRoomMessages(widget.chatRoomId, widget.title)
+    );
     try {
       _firebaseMessageStream = FirebaseFirestore.instance
           .collection('chatRooms')
@@ -76,7 +112,6 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           .collection('messages');
       final snap = await msgColl.limit(1).get();
       if (snap.docs.isEmpty) {
-        // 파이어베이스에 첫 메시지를 자동 저장하여 대화방을 영구 기억하도록 설정
         await msgColl.add({
           'type': 'system',
           'text': '${widget.title} 모임 대화방이 개설되었습니다. 🎉',
@@ -98,8 +133,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   }
 
   void _addMessage(Map<String, dynamic> msgData) {
+    final newMsg = {...msgData, 'time': '방금', 'isMe': true, 'sender': '우리동네민우'};
     setState(() {
-      _dummyMessages.add({...msgData, 'time': '지금', 'isMe': true, 'sender': '우리동네민우'});
+      oomuChatStore.addMessage(widget.chatRoomId, newMsg);
+      _messages = List<Map<String, dynamic>>.from(
+        oomuChatStore.getRoomMessages(widget.chatRoomId, widget.title)
+      );
     });
     _scrollToBottom();
     
@@ -108,9 +147,13 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           .collection('chatRooms')
           .doc(widget.chatRoomId)
           .collection('messages')
-          .add({...msgData, 'isMe': true, 'sender': '우리동네민우', 'timestamp': FieldValue.serverTimestamp()});
+          .add({
+            ...newMsg,
+            'createdAt': DateTime.now().toIso8601String(),
+            'timestamp': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
-      debugPrint('Firebase not connected. Saved to local UI only.');
+      debugPrint('Firebase not connected. Saved to local UI only: $e');
     }
   }
 
@@ -830,23 +873,16 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           const FixedPromiseHeader(),
           Expanded(
             child: _firebaseMessageStream == null
-                ? _buildDummyMessageList() 
+                ? _buildMessageList(_messages) 
                 : StreamBuilder<QuerySnapshot>(
                     stream: _firebaseMessageStream,
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return _buildDummyMessageList(); 
-                      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-                      final docs = snapshot.data!.docs;
-                      return ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                        itemCount: docs.length,
-                        itemBuilder: (context, index) {
-                          final data = docs[index].data() as Map<String, dynamic>;
-                          return _buildDynamicMessage(data);
-                        },
-                      );
+                      if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                        final docs = snapshot.data!.docs;
+                        final firestoreMsgs = docs.map((d) => d.data() as Map<String, dynamic>).toList();
+                        return _buildMessageList(firestoreMsgs);
+                      }
+                      return _buildMessageList(_messages);
                     },
                   ),
           ),
@@ -856,13 +892,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-  Widget _buildDummyMessageList() {
+  Widget _buildMessageList(List<Map<String, dynamic>> list) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      itemCount: _dummyMessages.length,
+      itemCount: list.length,
       itemBuilder: (context, index) {
-        final msg = _dummyMessages[index];
+        final msg = list[index];
         return _buildDynamicMessage(msg);
       },
     );
@@ -960,7 +997,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
   Widget _buildImageMessage(Map<String, dynamic> msg) {
     final isMe = msg['isMe'] == true;
-    final imageUrl = msg['imageUrl'] ?? '';
+    final rawUrl = (msg['imageUrl'] ?? '').toString();
+    final imageUrl = r2Storage.getPublicViewUrl(rawUrl);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(

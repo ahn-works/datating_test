@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
@@ -178,6 +177,83 @@ class R2StorageService {
     return '$s3Endpoint/$objectKey';
   }
 
+  /// AWS SigV4 서명된 임시 GET Presigned URL 생성 (퍼블릭 도메인이 없을 때도 7일간 열람 가능)
+  String generatePresignedGetUrl(String objectKey, {int expiresInSeconds = 604800}) {
+    if (accessKeyId.isEmpty || secretAccessKey.isEmpty) {
+      return getPublicUrl(objectKey);
+    }
+
+    final cleanKey = objectKey.startsWith('/') ? objectKey.substring(1) : objectKey;
+    final now = DateTime.now().toUtc();
+    final dateStamp = _formatDate(now);
+    final amzDate = _formatDateTime(now);
+
+    final credentialScope = '$dateStamp/auto/s3/aws4_request';
+    final credentialParam = '$accessKeyId/$credentialScope';
+
+    final queryParams = <String, String>{
+      'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+      'X-Amz-Credential': credentialParam,
+      'X-Amz-Date': amzDate,
+      'X-Amz-Expires': expiresInSeconds.toString(),
+      'X-Amz-SignedHeaders': 'host',
+    };
+
+    final sortedKeys = queryParams.keys.toList()..sort();
+    final canonicalQueryString = sortedKeys
+        .map((k) => '${Uri.encodeQueryComponent(k)}=${Uri.encodeQueryComponent(queryParams[k]!)}')
+        .join('&');
+
+    final canonicalUri = '/$bucketName/$cleanKey';
+    const canonicalHeaders = 'host:$s3Host\n';
+    const signedHeaders = 'host';
+
+    final canonicalRequest = 'GET\n'
+        '$canonicalUri\n'
+        '$canonicalQueryString\n'
+        '$canonicalHeaders\n'
+        '$signedHeaders\n'
+        'UNSIGNED-PAYLOAD';
+
+    const algorithm = 'AWS4-HMAC-SHA256';
+    final stringToSign = '$algorithm\n'
+        '$amzDate\n'
+        '$credentialScope\n'
+        '${sha256.convert(utf8.encode(canonicalRequest))}';
+
+    final signingKey = _getSignatureKey(secretAccessKey, dateStamp, 'auto', 's3');
+    final signature = Hmac(sha256, signingKey).convert(utf8.encode(stringToSign)).toString();
+
+    return 'https://$s3Host$canonicalUri?$canonicalQueryString&X-Amz-Signature=$signature';
+  }
+
+  /// 브라우저/앱 화면에서 직접 렌더링 가능한 공개 이미지 URL 반환
+  String getPublicViewUrl(String storedUrl) {
+    if (storedUrl.isEmpty) return '';
+    if (storedUrl.startsWith('assets/') || storedUrl.startsWith('blob:')) return storedUrl;
+
+    // R2 S3 엔드포인트 URL이 저장되어 있는 경우
+    if (storedUrl.contains(s3Host)) {
+      final uri = Uri.tryParse(storedUrl);
+      if (uri != null) {
+        final pathSegments = uri.pathSegments;
+        final bucketIndex = pathSegments.indexOf(bucketName);
+        if (bucketIndex != -1 && bucketIndex < pathSegments.length - 1) {
+          final objectKey = pathSegments.sublist(bucketIndex + 1).join('/');
+          if (publicBaseUrl.isNotEmpty) {
+            final base = publicBaseUrl.endsWith('/') ? publicBaseUrl : '$publicBaseUrl/';
+            return '$base$objectKey';
+          }
+          if (accessKeyId.isNotEmpty && secretAccessKey.isNotEmpty) {
+            return generatePresignedGetUrl(objectKey);
+          }
+        }
+      }
+    }
+
+    return storedUrl;
+  }
+
   /// S3 API 직접 업로드 (AWS Signature V4 서명)
   Future<String> uploadImageBytes({
     required Uint8List bytes,
@@ -267,7 +343,11 @@ class R2StorageService {
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
           debugPrint('[R2 Storage] Upload SUCCESS! Status: ${response.statusCode}');
-          return getPublicUrl(objectKey);
+          if (publicBaseUrl.isNotEmpty) {
+            return getPublicUrl(objectKey);
+          } else {
+            return generatePresignedGetUrl(objectKey);
+          }
         } else {
           debugPrint('[R2 Storage] Upload returned status ${response.statusCode}: ${response.body}');
           throw Exception('R2 Upload failed with status ${response.statusCode}');

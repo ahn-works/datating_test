@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/soso_car_home_screen.dart';
+import 'services/r2_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +17,9 @@ void main() async {
         measurementId: "G-341F6S06TG",
       ),
     );
+    await r2Storage.initFromFirestore();
   } catch (e) {
-    debugPrint("Firebase init error: $e");
+    debugPrint("Firebase/R2 init error: $e");
   }
   runApp(const Spot10App());
 }

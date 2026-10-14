@@ -19,6 +19,7 @@ class ChatScreen extends StatelessWidget {
     
     final List<Map<String, dynamic>> _chatRooms = [
       {
+        'id': 'room_mala_01',
         'title': '주말 엽떡+마라탕 조지실 분 🔥',
         'lastMessage': '홍대입구역 9번 출구 앞에서 봬요!',
         'time': '오후 2:30',
@@ -28,6 +29,7 @@ class ChatScreen extends StatelessWidget {
         'isGroup': true,
       },
       {
+        'id': 'room_bowling_02',
         'title': '볼링 에버리지 100 쪼렙팟 🎳',
         'lastMessage': '저 볼링화 240이요~',
         'time': '오전 11:15',
@@ -37,6 +39,7 @@ class ChatScreen extends StatelessWidget {
         'isGroup': true,
       },
       {
+        'id': 'room_direct_03',
         'title': '매운맛킬러 (호스트)',
         'lastMessage': '혹시 마라탕 알러지 있으신가요?',
         'time': '어제',
@@ -67,7 +70,16 @@ class ChatScreen extends StatelessWidget {
           final room = _chatRooms[index];
           return GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: room['title'], memberCount: room['members'])));
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (_) => OOMUChatScreen(
+                    title: room['title'], 
+                    memberCount: room['members'],
+                    chatRoomId: room['id'] ?? 'test_room_01',
+                  ),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -127,11 +139,14 @@ class ChatScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          room['lastMessage'],
-                          style: TextStyle(fontSize: 14, color: textSecondary, fontWeight: FontWeight.w500),
-                          maxLines: 1, overflow: TextOverflow.ellipsis,
-                        ),
+                        Builder(builder: (_) {
+                          final dynamicLast = oomuChatStore.getLastMessageText(room['id'] ?? '');
+                          return Text(
+                            dynamicLast.isNotEmpty ? dynamicLast : room['lastMessage'],
+                            style: TextStyle(fontSize: 14, color: textSecondary, fontWeight: FontWeight.w500),
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                          );
+                        }),
                       ],
                     ),
                   ),
