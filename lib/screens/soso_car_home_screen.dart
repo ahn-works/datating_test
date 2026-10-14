@@ -378,7 +378,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               height: 180, // Taller image for magazine feel
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                image: DecorationImage(image: appImg(meetup['imageUrl']), fit: BoxFit.cover),
+                image: DecorationImage(image: appImg(meetup['imageUrl'] ?? 'assets/images/cover_food.jpg'), fit: BoxFit.cover),
               ),
               child: Stack(
                 children: [
@@ -397,9 +397,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(8)),
-                          child: Text(meetup['category'], style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
+                          child: Text(meetup['category'] ?? '모임', style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
                         ),
-                        if (meetup['isFemaleOnly'])
+                        if (meetup['isFemaleOnly'] == true)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(color: destructiveColor, borderRadius: BorderRadius.circular(8)),
@@ -416,17 +416,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(meetup['title'], style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(meetup['title'] ?? '취향 모임', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Icon(Icons.location_on_outlined, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Text(meetup['location'], style: TextStyle(fontSize: 13, color: textSecondary)),
+                      Text(meetup['location'] ?? '위치 협의', style: TextStyle(fontSize: 13, color: textSecondary)),
                       const SizedBox(width: 16),
                       Icon(Icons.access_time, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Text(meetup['date'], style: TextStyle(fontSize: 13, color: textSecondary)),
+                      Text(meetup['date'] ?? '일정 협의', style: TextStyle(fontSize: 13, color: textSecondary)),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -447,16 +447,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(meetup['host'], style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary)),
+                          Text(meetup['host'] ?? '호스트', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary)),
                           const SizedBox(width: 4),
                           Icon(Icons.local_fire_department, size: 14, color: destructiveColor),
-                          Text('${meetup['manner']}°C', style: TextStyle(fontSize: 12, color: textSecondary)),
+                          Text('${meetup['manner'] ?? 36.5}°C', style: TextStyle(fontSize: 12, color: textSecondary)),
                         ],
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(8)),
-                        child: Text('${meetup['members']} 참여', style: TextStyle(fontSize: 12, color: textPrimary, fontWeight: FontWeight.bold)),
+                        child: Text('${meetup['members'] ?? '1/4'} 참여', style: TextStyle(fontSize: 12, color: textPrimary, fontWeight: FontWeight.bold)),
                       )
                     ],
                   )
