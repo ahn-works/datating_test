@@ -21,7 +21,8 @@ class GlobalData {
     {
       'id': 'saved_01',
       'title': '성수동 감성 카페 & 디저트 투어 ☕',
-      'category': '카페/수다',
+      'mainCategory': '일상 & 푸드',
+      'category': '카페 & 디저트',
       'location': '성동구 성수동 카페거리',
       'date': '이번주 일요일 14:00',
       'imageUrl': 'assets/images/cover_cafe.jpg',
@@ -34,7 +35,8 @@ class GlobalData {
     {
       'id': 'saved_02',
       'title': '연남동 내추럴 와인바 소셜 다이닝 🍷',
-      'category': '술/맛집',
+      'mainCategory': '일상 & 푸드',
+      'category': '동네 술 한잔',
       'location': '마포구 연남동 미로길',
       'date': '금요일 저녁 7:30',
       'imageUrl': 'assets/images/cover_wine.jpg',

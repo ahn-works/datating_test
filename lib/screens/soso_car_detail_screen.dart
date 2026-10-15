@@ -430,7 +430,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(8)),
-                              child: Text((widget.meetup != null ? widget.meetup!['category'] : '술/맛집'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
+                              child: Text((widget.meetup != null ? (widget.meetup!['category'] ?? widget.meetup!['mainCategory'] ?? '일상 & 푸드') : '동네 맛집 & 소셜 다이닝'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                             const SizedBox(width: 8),
                             Container(

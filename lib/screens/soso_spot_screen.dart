@@ -18,7 +18,7 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
   final Color orangeAccent = const Color(0xFFFF8A3D);
 
   int _selectedFilterIndex = 0;
-  final List<String> _filters = ['전체 스팟', '⚡ 10분 이내', '☕ 카페/디저트', '🍻 치맥/한잔', '🌙 밤산책/야경'];
+  final List<String> _filters = ['전체 스팟', '⚡ 10분 이내', '☕ 카페 & 디저트', '🍻 동네 술 한잔', '🏃 야외 액티비티'];
 
   late Timer _ticker;
   int _secondsRemaining = 840; // 14 mins
@@ -30,12 +30,12 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
       'location': '마포구 홍대입구역 9번 출구 앞',
       'distance': '180m',
       'timeLeft': '8분 남음',
-      'category': '디저트/수다',
+      'category': '카페 & 디저트',
       'members': '2/4',
       'host': '달콤한와플',
       'hostAvatar': 'assets/images/kr_female_2.jpg',
       'manner': 42.1,
-      'tags': ['10분컷', '즉시합류', '인생네컷'],
+      'tags': ['10분컷', '즉시합류', '인생네컷', '디저트'],
       'image': 'assets/images/cover_cafe.jpg',
       'isJoined': false,
     },
@@ -45,7 +45,7 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
       'location': '마포구 경의선숲길 잔디광장',
       'distance': '350m',
       'timeLeft': '12분 남음',
-      'category': '치맥/한잔',
+      'category': '동네 술 한잔',
       'members': '3/4',
       'host': '연트럴피플',
       'hostAvatar': 'assets/images/kr_male_2.jpg',
@@ -60,7 +60,7 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
       'location': '성동구 서울숲 메인 출구',
       'distance': '520m',
       'timeLeft': '15분 남음',
-      'category': '카페/수다',
+      'category': '카페 & 디저트',
       'members': '1/3',
       'host': '성수동힙스터',
       'hostAvatar': 'assets/images/kr_female_3.jpg',
@@ -71,16 +71,16 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
     },
     {
       'id': 'spot_04',
-      'title': '망원 한강공원 야경 산책 & 라면 먹방 🍜',
+      'title': '망원 한강공원 야경 산책 & 라면 먹방 🏃',
       'location': '마포구 망원 한강공원 편의점 앞',
       'distance': '750m',
       'timeLeft': '22분 남음',
-      'category': '밤산책/야경',
+      'category': '야외 액티비티',
       'members': '2/4',
       'host': '망원라이더',
       'hostAvatar': 'assets/images/kr_male_1.jpg',
       'manner': 41.5,
-      'tags': ['한강라면', '야경산책', '힐링'],
+      'tags': ['한강라면', '야외 액티비티', '힐링'],
       'image': 'assets/images/cover_running.jpg',
       'isJoined': false,
     },
@@ -489,11 +489,38 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
 
           // Spots List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: _spots.length,
-              itemBuilder: (context, index) {
-                final spot = _spots[index];
+            child: Builder(
+              builder: (context) {
+                final filtered = _spots.where((spot) {
+                  if (_selectedFilterIndex == 0) return true;
+                  if (_selectedFilterIndex == 1) {
+                    final left = spot['timeLeft']?.toString() ?? '';
+                    final mins = int.tryParse(RegExp(r'\d+').firstMatch(left)?.group(0) ?? '99') ?? 99;
+                    return mins <= 10;
+                  }
+                  final filterClean = _filters[_selectedFilterIndex].replaceAll(RegExp(r'[^가-힣a-zA-Z0-9 &]'), '').trim();
+                  final cat = spot['category']?.toString() ?? '';
+                  return cat.contains(filterClean) || filterClean.contains(cat);
+                }).toList();
+
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search_off_rounded, size: 48, color: textSecondary.withOpacity(0.5)),
+                        const SizedBox(height: 12),
+                        Text('해당 카테고리의 진행 중인 스팟이 없습니다.', style: TextStyle(color: textSecondary, fontSize: 14, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final spot = filtered[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
@@ -594,8 +621,9 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
                   ),
                 );
               },
-            ),
-          ),
+            );
+          }),
+        ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(

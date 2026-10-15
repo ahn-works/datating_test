@@ -108,5 +108,35 @@ void main() {
       // ⚡ 놀줄아는 키워드 ('혼술바', '코노', '술', '노래') 매칭 성공
       expect(OOMUCategoryData.matchesVibe(partyMeetup, '놀줄아는'), isTrue);
     });
+
+    test('5. 6대 대분류 전수 필터링 커버리지 검증', () {
+      final allTestMeetups = [
+        {'category': '동네 맛집 & 소셜 다이닝', 'mainCategory': '일상 & 푸드', 'tags': ['주말 마라탕&엽떡 모임']},
+        {'category': '음악 & 노래방', 'mainCategory': '문화 & 엔터', 'tags': ['불금엔 역시 코노']},
+        {'category': '보드게임', 'mainCategory': '게임 & 오락', 'tags': ['전략 보드게임 모임']},
+        {'category': '야외 액티비티', 'mainCategory': '액티비티 & 스포츠', 'tags': ['한강 러닝 & 플로깅']},
+        {'category': '출사 & 사진', 'mainCategory': '여행 & 나들이', 'tags': ['동네 골목길 인생샷 투어']},
+        {'category': '원데이 클래스', 'mainCategory': '체험 & 취미', 'tags': ['향수/비누 만들기 공방']},
+      ];
+
+      for (final mainCat in OOMUCategoryData.mainCategories) {
+        final matches = allTestMeetups.where((m) => OOMUCategoryData.matchesFilter(m, mainCat.name, '전체')).toList();
+        expect(matches.isNotEmpty, isTrue, reason: '${mainCat.name} 대분류에 매칭되는 모임이 최소 1건 이상 존재해야 합니다.');
+      }
+    });
+
+    test('6. 4대 상황별 Vibe 전수 매칭 커버리지 검증', () {
+      final allTestMeetups = [
+        {'title': '불금 핫플 혼술바', 'category': '동네 술 한잔', 'tags': ['놀줄아는', '페스티벌']},
+        {'title': '주말 감성 북카페', 'category': '카페 & 디저트', 'tags': ['소소하게', '마라탕']},
+        {'title': '동네 헬스장 메이트', 'category': '운동 메이트', 'tags': ['메이트', '1인 가구']},
+        {'title': '자연스러운 2:2 미팅', 'category': '동네 술 한잔', 'tags': ['소개팅', '미팅']},
+      ];
+
+      for (final vibe in OOMUCategoryData.vibes) {
+        final matches = allTestMeetups.where((m) => OOMUCategoryData.matchesVibe(m, vibe.title)).toList();
+        expect(matches.isNotEmpty, isTrue, reason: '${vibe.title} 바이브에 매칭되는 모임이 최소 1건 이상 존재해야 합니다.');
+      }
+    });
   });
 }
