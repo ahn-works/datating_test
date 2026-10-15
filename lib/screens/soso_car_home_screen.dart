@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,14 +30,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   String _currentLocation = '마포구 서교동';
   String? _selectedVibe;
   int _selectedCategoryIndex = 0;
+  String _selectedSubCategory = '전체';
 
   final List<Map<String, dynamic>> _categories = [
     {'icon': '🔥', 'name': '전체'},
-    {'icon': '🎤', 'name': '코노/노래'},
-    {'icon': '🍻', 'name': '술/맛집'},
-    {'icon': '☕', 'name': '카페/수다'},
-    {'icon': '✈️', 'name': '여행/드라이브'},
-    {'icon': '🎳', 'name': '액티비티'},
+    {'icon': '🍲', 'name': '일상 & 푸드'},
+    {'icon': '🎭', 'name': '문화 & 엔터'},
+    {'icon': '🎲', 'name': '게임 & 오락'},
+    {'icon': '🏃', 'name': '액티비티 & 스포츠'},
+    {'icon': '✈️', 'name': '여행 & 나들이'},
+    {'icon': '🎨', 'name': '체험 & 취미'},
   ];
 
   // 전국 시·도 및 읍면동 핫스팟 리스트
@@ -472,34 +475,255 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
+  Widget _buildSubCategoryBar() {
+    final mainCatName = _categories[_selectedCategoryIndex]['name'] as String;
+    final mainCat = OOMUCategoryData.mainCategories.firstWhere(
+      (m) => m.name == mainCatName,
+      orElse: () => OOMUCategoryData.mainCategories.first,
+    );
+
+    final subList = ['전체', ...mainCat.subCategoryNames];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, left: 20),
+      child: SizedBox(
+        height: 32,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          itemCount: subList.length,
+          itemBuilder: (context, idx) {
+            final subName = subList[idx];
+            final isSubSelected = _selectedSubCategory == subName;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedSubCategory = subName),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSubSelected ? textPrimary : const Color(0xFFF9F9FB),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSubSelected ? textPrimary : const Color(0xFFE5E5EA),
+                  ),
+                ),
+                child: Text(
+                  subName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSubSelected ? FontWeight.bold : FontWeight.w600,
+                    color: isSubSelected ? Colors.white : textSecondary,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showFullCategoryBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE5E5EA),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'OOMU 카테고리 전체 체계도',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '대분류 ➔ 중분류 ➔ 소분류로 원하는 모임을 탐색하세요',
+                            style: TextStyle(fontSize: 12, color: textSecondary),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    children: [
+                      Text('📱 지금 내 상황 (분위기)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textPrimary)),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: OOMUCategoryData.vibes.map((v) {
+                          final isSelected = _selectedVibe == v.title;
+                          return ChoiceChip(
+                            label: Text('${v.emoji} ${v.title}'),
+                            selected: isSelected,
+                            selectedColor: const Color(0xFFFFECE5),
+                            labelStyle: TextStyle(
+                              color: isSelected ? coralAccent : textPrimary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                            onSelected: (val) {
+                              setState(() {
+                                _selectedVibe = val ? v.title : null;
+                              });
+                              Navigator.pop(ctx);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 24),
+                      Text('🏷️ 전체 카테고리 목록 (대 - 중 - 소)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textPrimary)),
+                      const SizedBox(height: 12),
+                      ...OOMUCategoryData.mainCategories.map((mainCat) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          decoration: BoxDecoration(
+                            color: surfaceColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFEBEBEF)),
+                          ),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                            child: ExpansionTile(
+                              initiallyExpanded: true,
+                              leading: Text(mainCat.icon, style: const TextStyle(fontSize: 22)),
+                              title: Text(
+                                mainCat.name,
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: textPrimary),
+                              ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: mainCat.subCategories.map((sub) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 12),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                final catIdx = _categories.indexWhere((c) => c['name'] == mainCat.name);
+                                                setState(() {
+                                                  if (catIdx != -1) _selectedCategoryIndex = catIdx;
+                                                  _selectedSubCategory = sub.name;
+                                                });
+                                                Navigator.pop(ctx);
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.subdirectory_arrow_right, size: 16, color: coralAccent),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    sub.name,
+                                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textPrimary),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Wrap(
+                                              spacing: 6,
+                                              runSpacing: 6,
+                                              children: sub.exampleTags.map((tag) {
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    final catIdx = _categories.indexWhere((c) => c['name'] == mainCat.name);
+                                                    setState(() {
+                                                      if (catIdx != -1) _selectedCategoryIndex = catIdx;
+                                                      _selectedSubCategory = sub.name;
+                                                    });
+                                                    Navigator.pop(ctx);
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      border: Border.all(color: const Color(0xFFE4E4EB)),
+                                                    ),
+                                                    child: Text('#$tag', style: TextStyle(fontSize: 11, color: textSecondary)),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   bool _matchesFilters(Map<String, dynamic> item) {
-    // 1. Category Filter
+    // 1. Category Filter (대분류 & 중분류)
     if (_selectedCategoryIndex > 0) {
       final selectedCat = _categories[_selectedCategoryIndex]['name'] as String;
-      final itemCat = (item['category'] ?? '').toString();
-      if (!itemCat.contains(selectedCat) && !selectedCat.contains(itemCat)) {
+      if (!OOMUCategoryData.matchesFilter(item, selectedCat, _selectedSubCategory)) {
+        return false;
+      }
+    } else if (_selectedSubCategory != '전체') {
+      if (!OOMUCategoryData.matchesFilter(item, '전체', _selectedSubCategory)) {
         return false;
       }
     }
 
-    // 2. Vibe Filter
+    // 2. Vibe Filter (상황별 필터)
     if (_selectedVibe != null) {
-      final cat = (item['category'] ?? '').toString();
-      final title = (item['title'] ?? '').toString();
-      final tags = (item['tags'] as List?)?.map((e) => e.toString()).toList() ?? [];
-
-      if (_selectedVibe == '놀줄아는') {
-        final matches = tags.contains('놀줄아는') || tags.contains('와인바') || cat.contains('술') || cat.contains('액티비티');
-        if (!matches) return false;
-      } else if (_selectedVibe == '소소하게') {
-        final matches = tags.contains('소소하게') || cat.contains('카페') || title.contains('카페') || tags.contains('디저트');
-        if (!matches) return false;
-      } else if (_selectedVibe == '메이트') {
-        final matches = tags.contains('메이트') || tags.contains('동네찐친') || cat.contains('맛집') || title.contains('러닝') || cat.contains('액티비티');
-        if (!matches) return false;
-      } else if (_selectedVibe == '소개팅') {
-        final matches = tags.contains('소개팅') || tags.contains('취향') || item['isFemaleOnly'] == false;
-        if (!matches) return false;
+      if (!OOMUCategoryData.matchesVibe(item, _selectedVibe!)) {
+        return false;
       }
     }
 
@@ -573,69 +797,102 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       ),
       body: CustomScrollView(
         slivers: [
-          // 1. Categories Tab (Horizontal Scroll) - High Contrast 2030 Hip Styling
+          // 1. Categories Tab (Horizontal Scroll) + Full Category Explorer Button
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 20, left: 20),
-              child: SizedBox(
-                height: 42,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    bool isSelected = _selectedCategoryIndex == index;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedCategoryIndex = index),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? const LinearGradient(
-                                  colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                )
-                              : null,
-                          color: isSelected ? null : const Color(0xFFF3F3F6),
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: isSelected ? Colors.transparent : const Color(0xFFE4E4EB),
-                            width: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 14, bottom: 8, left: 20, right: 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 42,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            clipBehavior: Clip.none,
+                            itemCount: _categories.length,
+                            itemBuilder: (context, index) {
+                              bool isSelected = _selectedCategoryIndex == index;
+                              return GestureDetector(
+                                onTap: () => setState(() {
+                                  _selectedCategoryIndex = index;
+                                  _selectedSubCategory = '전체';
+                                }),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  margin: const EdgeInsets.only(right: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    gradient: isSelected
+                                        ? const LinearGradient(
+                                            colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          )
+                                        : null,
+                                    color: isSelected ? null : const Color(0xFFF3F3F6),
+                                    borderRadius: BorderRadius.circular(22),
+                                    border: Border.all(
+                                      color: isSelected ? Colors.transparent : const Color(0xFFE4E4EB),
+                                      width: 1,
+                                    ),
+                                    boxShadow: isSelected
+                                        ? [
+                                            BoxShadow(
+                                              color: coralAccent.withOpacity(0.35),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 4),
+                                            )
+                                          ]
+                                        : [],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(_categories[index]['icon'], style: const TextStyle(fontSize: 14)),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        _categories[index]['name'],
+                                        style: TextStyle(
+                                          color: isSelected ? Colors.white : const Color(0xFF1E1E24),
+                                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: coralAccent.withOpacity(0.35),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ]
-                              : [],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(_categories[index]['icon'], style: const TextStyle(fontSize: 14)),
-                            const SizedBox(width: 6),
-                            Text(
-                              _categories[index]['name'],
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : const Color(0xFF1E1E24),
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
-                    );
-                  },
+                      const SizedBox(width: 8),
+                      // 전체 카테고리 체계도 바텀시트 열기 버튼
+                      GestureDetector(
+                        onTap: _showFullCategoryBottomSheet,
+                        child: Container(
+                          height: 42,
+                          width: 42,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F3F6),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(color: const Color(0xFFE4E4EB)),
+                          ),
+                          child: Icon(Icons.grid_view_rounded, size: 20, color: textPrimary),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+
+                // 1-1. 중분류 서브 칩 (대분류 선택 시 동적 표시)
+                if (_selectedCategoryIndex > 0)
+                  _buildSubCategoryBar(),
+              ],
             ),
           ),
 
@@ -800,8 +1057,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   Flexible(
                     child: Text(
                       _selectedVibe != null
-                          ? '$_selectedVibe 필터링 중'
-                          : (_selectedCategoryIndex > 0 ? '${_categories[_selectedCategoryIndex]['name']} 모임' : '진행 중인 모임'),
+                          ? '✨ \'$_selectedVibe\' 필터링 중'
+                          : (_selectedCategoryIndex > 0
+                              ? '${_categories[_selectedCategoryIndex]['name']}${_selectedSubCategory != '전체' ? ' > $_selectedSubCategory' : ''}'
+                              : (_selectedSubCategory != '전체' ? '$_selectedSubCategory 모임' : '진행 중인 모임')),
                       style: TextStyle(fontSize: 13, color: coralAccent, fontWeight: FontWeight.w700),
                       overflow: TextOverflow.ellipsis,
                     ),

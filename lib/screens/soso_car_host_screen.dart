@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/interactive_map_popup.dart';
@@ -23,7 +24,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final Color accentColor = const Color(0xFFF19E39);
   final Color destructiveColor = const Color(0xFFFF3B30);
 
-  String _selectedCategory = '맛집/카페';
+  String _selectedMainCategory = '일상 & 푸드';
+  String _selectedSubCategory = '동네 맛집 & 소셜 다이닝';
+  String _selectedVibe = '소소하게';
+  final List<String> _selectedCustomTags = [];
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
@@ -317,7 +322,15 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'location': _locationController.text.trim(),
-        'category': _selectedCategory,
+        'category': _selectedSubCategory,
+        'mainCategory': _selectedMainCategory,
+        'vibe': _selectedVibe,
+        'tags': [
+          _selectedMainCategory,
+          _selectedSubCategory,
+          _selectedVibe,
+          ..._selectedCustomTags,
+        ],
         'memberCount': _memberCount,
         'genderLimit': _genderLimit,
         'ageLimit': _ageLimit,
@@ -423,40 +436,99 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             ),
             const SizedBox(height: 32),
 
-            // 2. Category Selection (Horizontal Scroll Cards)
-            Text('어떤 모임인가요?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-            const SizedBox(height: 16),
+            // 2. Category Selection (대분류 ➔ 중분류 ➔ 추천 소분류 태그 & 분위기)
+            Text('어떤 취향의 모임인가요?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+            const SizedBox(height: 14),
+
+            // 2-1. 대분류 가로 스크롤 카드
             SizedBox(
-              height: 100,
+              height: 94,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
-                itemCount: _categories.length,
+                itemCount: OOMUCategoryData.mainCategories.length,
                 itemBuilder: (context, index) {
-                  final cat = _categories[index];
-                  final isSelected = _selectedCategory == cat['name'];
+                  final cat = OOMUCategoryData.mainCategories[index];
+                  final isSelected = _selectedMainCategory == cat.name;
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = cat['name']),
-                    child: Container(
-                      width: 88,
-                      margin: const EdgeInsets.only(right: 12),
+                    onTap: () {
+                      setState(() {
+                        _selectedMainCategory = cat.name;
+                        _selectedSubCategory = cat.subCategories.first.name;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 96,
+                      margin: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? accentColor.withOpacity(0.1) : Colors.white,
+                        color: isSelected ? const Color(0xFFFFF0EB) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isSelected ? accentColor : const Color(0xFFEBEBEF), width: isSelected ? 2 : 1),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFFFF5E36) : const Color(0xFFEBEBEF),
+                          width: isSelected ? 2 : 1,
+                        ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(cat['icon'], color: isSelected ? accentColor : textSecondary, size: 32),
-                          const SizedBox(height: 8),
-                          Text(cat['name'], style: TextStyle(color: isSelected ? accentColor : textPrimary, fontWeight: isSelected ? FontWeight.bold : FontWeight.w600, fontSize: 13)),
+                          Text(cat.icon, style: const TextStyle(fontSize: 26)),
+                          const SizedBox(height: 6),
+                          Text(
+                            cat.name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: isSelected ? const Color(0xFFFF5E36) : textPrimary,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
                   );
                 },
               ),
+            ),
+            const SizedBox(height: 18),
+
+            // 2-2. 중분류 선택 칩
+            Text('중분류 세부 선택', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+            const SizedBox(height: 8),
+            _buildHostSubCategoryChips(),
+            const SizedBox(height: 18),
+
+            // 2-3. 추천 소분류 예시 태그
+            Text('추천 태그 (터치하여 추가/해제)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+            const SizedBox(height: 8),
+            _buildHostExampleTagChips(),
+            const SizedBox(height: 18),
+
+            // 2-4. 분위기 (지금 내 상황 Vibe)
+            Text('모임 분위기 (상황)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: OOMUCategoryData.vibes.map((v) {
+                final isSelected = _selectedVibe == v.title;
+                return ChoiceChip(
+                  label: Text('${v.emoji} ${v.title}'),
+                  selected: isSelected,
+                  selectedColor: const Color(0xFFFFECE5),
+                  labelStyle: TextStyle(
+                    color: isSelected ? const Color(0xFFFF5E36) : textPrimary,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  onSelected: (val) {
+                    if (val) setState(() => _selectedVibe = v.title);
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 40),
 
@@ -615,6 +687,78 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHostSubCategoryChips() {
+    final mainCat = OOMUCategoryData.mainCategories.firstWhere(
+      (m) => m.name == _selectedMainCategory,
+      orElse: () => OOMUCategoryData.mainCategories.first,
+    );
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: mainCat.subCategories.map((sub) {
+        final isSelected = _selectedSubCategory == sub.name;
+        return ChoiceChip(
+          label: Text(sub.name),
+          selected: isSelected,
+          selectedColor: const Color(0xFFFF5E36),
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : textPrimary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+            fontSize: 13,
+          ),
+          onSelected: (val) {
+            if (val) setState(() => _selectedSubCategory = sub.name);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildHostExampleTagChips() {
+    final mainCat = OOMUCategoryData.mainCategories.firstWhere(
+      (m) => m.name == _selectedMainCategory,
+      orElse: () => OOMUCategoryData.mainCategories.first,
+    );
+
+    final currentSub = mainCat.subCategories.firstWhere(
+      (s) => s.name == _selectedSubCategory,
+      orElse: () => mainCat.subCategories.first,
+    );
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: currentSub.exampleTags.map((tag) {
+        final isAdded = _selectedCustomTags.contains(tag);
+        return ActionChip(
+          avatar: Icon(
+            isAdded ? Icons.check : Icons.add,
+            size: 14,
+            color: isAdded ? Colors.white : textSecondary,
+          ),
+          label: Text(tag),
+          backgroundColor: isAdded ? const Color(0xFF1E1E24) : Colors.white,
+          side: BorderSide(color: isAdded ? const Color(0xFF1E1E24) : const Color(0xFFE5E5EA)),
+          labelStyle: TextStyle(
+            color: isAdded ? Colors.white : textPrimary,
+            fontSize: 12,
+            fontWeight: isAdded ? FontWeight.bold : FontWeight.normal,
+          ),
+          onPressed: () {
+            setState(() {
+              if (isAdded) {
+                _selectedCustomTags.remove(tag);
+              } else {
+                _selectedCustomTags.add(tag);
+              }
+            });
+          },
+        );
+      }).toList(),
     );
   }
 }
