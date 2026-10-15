@@ -1,6 +1,20 @@
 # 🤖 Antigravity AI Agent Directive (OOMU / Spot10 Project)
 > **이 문서는 OOMU(우리 동네 취향 모임) 프로젝트를 다루는 모든 AI 에이전트(Antigravity 등)가 항상 첫 번째로 읽고 절대적으로 준수해야 하는 시스템 지침서입니다.**
 
+## 0. 🔒 필수 보안 및 3계층 분배 규칙 (Security Distribution Rules) — 필독!
+작업을 시작하기 전, 에이전트는 반드시 **`.antigravity/rules/security_distribution_rules.md`** 및 **`docs/SECURITY_AGENT_GUIDE.md`**를 최우선으로 읽고 다음 3단계 분배 원칙을 철저히 지켜야 합니다.
+
+1. **보안 파일 및 자격 증명 (Firebase Firestore ONLY)**:
+   - Cloudflare R2 S3 API Secret Access Key, Firebase 서비스 키, 민감 개인정보는 **절대 Git에 커밋하지 않습니다.**
+   - 모든 자격 증명은 Firestore `config/r2_storage`에 안전하게 보관되며, 런타임에 동적으로 로드됩니다.
+2. **사진 및 미디어 스토리지 (Cloudflare R2 ONLY)**:
+   - 프로필 사진, 모임 커버 사진, 채팅 사진은 모두 Cloudflare R2 (`oomu-spot` 버킷)에 저장됩니다.
+   - 깃허브에는 대용량 사용자 사진을 직접 올리지 않으며, 비이미지 파일 업로드는 차단합니다.
+   - 이미지는 AWS SigV4 Presigned GET URL 또는 R2 Public CDN URL을 통해 안전하게 표시합니다.
+3. **순수 소스코드, 문서, UI 및 지침 (GitHub ONLY)**:
+   - Flutter/Dart 소스코드, 마크다운 가이드 문서, 테스트 코드는 깃허브에서 투명하게 관리됩니다.
+   - 커밋 전 항상 `scripts/verify_security_rules.ps1` 또는 `scripts/verify_security_rules.sh`를 실행하여 제로 시크릿(Zero-Secret) 상태를 검증합니다.
+
 ## 1. 🎯 프로젝트 정체성 및 통합 명세서 확인
 - **프로젝트명:** OOMU (우리 동네 취향 모임 / Spot10 전면 개편)
 - **최고 우선순위 명세서:** `docs/OOMU_MASTER_SPEC.md`

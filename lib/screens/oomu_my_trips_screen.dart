@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_image.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
@@ -111,7 +112,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
                 height: 120,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  image: DecorationImage(image: NetworkImage(meetup['imageUrl']!), fit: BoxFit.cover),
+                  image: DecorationImage(image: appImg(meetup['imageUrl']), fit: BoxFit.cover),
                 ),
                 child: Container(
                   decoration: BoxDecoration(

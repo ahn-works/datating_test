@@ -23,6 +23,8 @@
 
 ## 🛠️ 주요 문서
 - [AI 지침서 (AI_INSTRUCTIONS.md)](AI_INSTRUCTIONS.md)
+- [보안 및 3계층 분배 규칙 (.antigravity/rules/security_distribution_rules.md)](.antigravity/rules/security_distribution_rules.md)
+- [보안 에이전트 가이드 (docs/SECURITY_AGENT_GUIDE.md)](docs/SECURITY_AGENT_GUIDE.md)
 - [OOMU 마스터 명세서 (docs/OOMU_MASTER_SPEC.md)](docs/OOMU_MASTER_SPEC.md)
 - [Cloudflare R2 연동 가이드 (docs/CLOUDFLARE_R2_SETUP.md)](docs/CLOUDFLARE_R2_SETUP.md)
 - [개발 로드맵 (TODO.md)](TODO.md)

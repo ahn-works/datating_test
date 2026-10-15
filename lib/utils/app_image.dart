@@ -1,8 +1,9 @@
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../services/r2_storage_service.dart';
 
-/// 로컬 에셋(assets/...), 로컬 파일 경로(File), 웹 Blob, 네트워크 URL을 모두 완벽 지원하는 이미지 헬퍼.
+/// 로컬 에셋(assets/...), 로컬 파일 경로(File), 웹 Blob, Cloudflare R2 및 네트워크 URL을 모두 완벽 지원하는 이미지 헬퍼.
 ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.jpg'}) {
   final target = (path != null && path.trim().isNotEmpty) ? path.trim() : fallback;
   if (target.contains('unsplash.com') || target.contains('pravatar.cc') || target.contains('picsum.photos')) {
@@ -36,8 +37,14 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     } catch (_) {}
   }
 
-  // 3. 웹 blob: 및 네트워크 URL
-  return NetworkImage(target);
+  // 3. Cloudflare R2 Presigned / Public URL 자동 변환
+  final resolvedUrl = r2Storage.getPublicViewUrl(target, defaultFallback: fallback);
+  if (resolvedUrl.startsWith('assets/')) {
+    return AssetImage(resolvedUrl);
+  }
+
+  // 4. 웹 blob: 및 네트워크 URL
+  return NetworkImage(resolvedUrl);
 }
 
 Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, String fallback = 'assets/images/cover_food.jpg'}) {

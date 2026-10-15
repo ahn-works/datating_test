@@ -204,7 +204,8 @@ class R2StorageService {
         .map((k) => '${Uri.encodeQueryComponent(k)}=${Uri.encodeQueryComponent(queryParams[k]!)}')
         .join('&');
 
-    final canonicalUri = '/$bucketName/$cleanKey';
+    final encodedKeySegments = cleanKey.split('/').map((s) => Uri.encodeComponent(s)).join('/');
+    final canonicalUri = '/$bucketName/$encodedKeySegments';
     const canonicalHeaders = 'host:$s3Host\n';
     const signedHeaders = 'host';
 
@@ -228,11 +229,38 @@ class R2StorageService {
   }
 
   /// 브라우저/앱 화면에서 직접 렌더링 가능한 공개 이미지 URL 반환
-  String getPublicViewUrl(String storedUrl) {
-    if (storedUrl.isEmpty) return '';
-    if (storedUrl.startsWith('assets/') || storedUrl.startsWith('blob:')) return storedUrl;
+  String getPublicViewUrl(String storedUrl, {String? defaultFallback}) {
+    if (storedUrl.isEmpty) {
+      return defaultFallback ?? 'assets/images/cover_food.jpg';
+    }
+    if (storedUrl.startsWith('assets/') || storedUrl.startsWith('blob:')) {
+      return storedUrl;
+    }
 
-    // R2 S3 엔드포인트 URL이 저장되어 있는 경우
+    // 1. R2 오브젝트 키 형태로 저장된 경우 (예: profiles/xxx.jpg, covers/xxx.jpg, chats/xxx.jpg)
+    if (storedUrl.startsWith('profiles/') ||
+        storedUrl.startsWith('covers/') ||
+        storedUrl.startsWith('chats/') ||
+        storedUrl.startsWith('/profiles/') ||
+        storedUrl.startsWith('/covers/') ||
+        storedUrl.startsWith('/chats/')) {
+      final cleanKey = storedUrl.startsWith('/') ? storedUrl.substring(1) : storedUrl;
+      if (publicBaseUrl.isNotEmpty) {
+        final base = publicBaseUrl.endsWith('/') ? publicBaseUrl : '$publicBaseUrl/';
+        return '$base$cleanKey';
+      }
+      if (accessKeyId.isNotEmpty && secretAccessKey.isNotEmpty) {
+        return generatePresignedGetUrl(cleanKey);
+      }
+      // 자격증명 미등록 시 카테고리별 안전 폴백
+      if (cleanKey.startsWith('profiles/')) return 'assets/images/kr_female_1.jpg';
+      if (cleanKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
+      if (cleanKey.contains('wine')) return 'assets/images/cover_wine.jpg';
+      if (cleanKey.contains('run')) return 'assets/images/cover_running.jpg';
+      return defaultFallback ?? 'assets/images/cover_food.jpg';
+    }
+
+    // 2. R2 S3 엔드포인트 URL이 저장되어 있는 경우 (이미 서명 쿼리가 있거나 만료되었을 때도 재서명)
     if (storedUrl.contains(s3Host)) {
       final uri = Uri.tryParse(storedUrl);
       if (uri != null) {
@@ -247,6 +275,12 @@ class R2StorageService {
           if (accessKeyId.isNotEmpty && secretAccessKey.isNotEmpty) {
             return generatePresignedGetUrl(objectKey);
           }
+          // 자격증명 미등록 시 안전 폴백
+          if (objectKey.startsWith('profiles/')) return 'assets/images/kr_female_1.jpg';
+          if (objectKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
+          if (objectKey.contains('wine')) return 'assets/images/cover_wine.jpg';
+          if (objectKey.contains('run')) return 'assets/images/cover_running.jpg';
+          return defaultFallback ?? 'assets/images/cover_food.jpg';
         }
       }
     }

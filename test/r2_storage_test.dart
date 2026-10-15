@@ -74,6 +74,20 @@ void main() {
       // 로컬 에셋 및 blob은 그대로 통과
       expect(r2.getPublicViewUrl('assets/images/cover.jpg'), 'assets/images/cover.jpg');
       expect(r2.getPublicViewUrl('blob:http://localhost/123'), 'blob:http://localhost/123');
+
+      // 상대 오브젝트 키(profiles/..., covers/...) 변환 테스트
+      final profileView = r2.getPublicViewUrl('profiles/avatar_123.jpg');
+      expect(profileView, 'https://pub-sample.r2.dev/profiles/avatar_123.jpg');
+
+      // 자격증명 및 공개 URL이 모두 없을 때의 안전 폴백 테스트
+      r2.publicBaseUrl = '';
+      r2.accessKeyId = '';
+      r2.secretAccessKey = '';
+      expect(r2.getPublicViewUrl('profiles/any.jpg'), 'assets/images/kr_female_1.jpg');
+      expect(r2.getPublicViewUrl('covers/cafe_spot.jpg'), 'assets/images/cover_cafe.jpg');
+      expect(r2.getPublicViewUrl('covers/wine_spot.jpg'), 'assets/images/cover_wine.jpg');
+      expect(r2.getPublicViewUrl('covers/run_spot.jpg'), 'assets/images/cover_running.jpg');
+      expect(r2.getPublicViewUrl(''), 'assets/images/cover_food.jpg');
     });
   });
 }
