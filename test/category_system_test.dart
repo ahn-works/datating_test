@@ -138,5 +138,38 @@ void main() {
         expect(matches.isNotEmpty, isTrue, reason: '${vibe.title} 바이브에 매칭되는 모임이 최소 1건 이상 존재해야 합니다.');
       }
     });
+
+    test('7. 기존 3개 시드 모임(코노, 엽떡마라탕, 북카페)의 상황(Vibe) 및 카테고리 필터링 정밀 검증', () {
+      final meetupKono = {
+        'title': '불금엔 역시 코노! 스트레스 풀 분 🎤',
+        'category': '코노/노래',
+        'tags': ['코노', '놀줄아는', '스트레스해소'],
+      };
+
+      final meetupMara = {
+        'title': '주말 엽떡+마라탕 조지실 분 🔥',
+        'category': '술/맛집',
+        'tags': ['소셜다이닝', '메이트', '홍대맛집', '동네찐친'],
+      };
+
+      final meetupCafe = {
+        'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
+        'category': '카페/수다',
+        'tags': ['카페/수다', '소소하게', '성수동'],
+      };
+
+      // 1. 코노 모임 검증: ⚡ '놀줄아는' Vibe 매칭 + '문화 & 엔터' 매칭
+      expect(OOMUCategoryData.matchesVibe(meetupKono, '놀줄아는'), isTrue);
+      expect(OOMUCategoryData.matchesFilter(meetupKono, '문화 & 엔터', '전체'), isTrue);
+
+      // 2. 엽떡+마라탕 모임 검증: ☕ '소소하게' (엽떡, 마라탕, 맛집) & 🍔 '메이트' Vibe 매칭 + '일상 & 푸드' 매칭
+      expect(OOMUCategoryData.matchesVibe(meetupMara, '소소하게'), isTrue);
+      expect(OOMUCategoryData.matchesVibe(meetupMara, '메이트'), isTrue);
+      expect(OOMUCategoryData.matchesFilter(meetupMara, '일상 & 푸드', '전체'), isTrue);
+
+      // 3. 북카페 모임 검증: ☕ '소소하게' (북카페, 카페) Vibe 매칭 + '일상 & 푸드' 매칭
+      expect(OOMUCategoryData.matchesVibe(meetupCafe, '소소하게'), isTrue);
+      expect(OOMUCategoryData.matchesFilter(meetupCafe, '일상 & 푸드', '전체'), isTrue);
+    });
   });
 }

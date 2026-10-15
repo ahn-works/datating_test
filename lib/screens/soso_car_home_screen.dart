@@ -346,7 +346,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         final dummyMeetups = [
           {
             'title': '불금엔 역시 코노! 스트레스 풀 분 🎤',
-            'category': '코노/노래',
+            'mainCategory': '문화 & 엔터',
+            'category': '음악 & 노래방',
             'location': '합정역 수코인노래방',
             'date': '오늘 저녁 8시',
             'host': '고음불가',
@@ -356,12 +357,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'isFemaleOnly': true,
             'transport': '각자 이동',
             'imageUrl': 'assets/images/cover_wine.jpg',
-            'tags': ['코노', '놀줄아는', '스트레스해소'],
+            'tags': ['불금엔 역시 코노', '음악 & 노래방', '놀줄아는', '스트레스해소', '코노'],
             'createdAt': FieldValue.serverTimestamp()
           },
           {
             'title': '주말 엽떡+마라탕 조지실 분 🔥',
-            'category': '술/맛집',
+            'mainCategory': '일상 & 푸드',
+            'category': '동네 맛집 & 소셜 다이닝',
             'location': '홍대입구역 9번 출구',
             'date': '이번주 토요일 18:00',
             'host': '매운맛킬러',
@@ -371,12 +373,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'isFemaleOnly': true,
             'transport': '각자 이동',
             'imageUrl': 'assets/images/cover_food.jpg',
-            'tags': ['소셜다이닝', '메이트', '홍대맛집', '동네찐친'],
+            'tags': ['주말 마라탕&엽떡 모임', '동네 핫플 메뉴 털기', '소셜다이닝', '소소하게', '메이트', '홍대맛집', '동네찐친'],
             'createdAt': FieldValue.serverTimestamp()
           },
           {
             'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
-            'category': '카페/수다',
+            'mainCategory': '일상 & 푸드',
+            'category': '카페 & 디저트',
             'location': '성동구 성수동 카페거리',
             'date': '일요일 14:00',
             'host': '성수동힙스터',
@@ -386,7 +389,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'isFemaleOnly': false,
             'transport': '성수역 집결',
             'imageUrl': 'assets/images/cover_cafe.jpg',
-            'tags': ['카페/수다', '소소하게', '성수동'],
+            'tags': ['북카페 겸 근교 드라이브', '동네 핫플 디저트 투어', '소소하게', '성수동', '디저트'],
             'createdAt': FieldValue.serverTimestamp()
           }
         ];

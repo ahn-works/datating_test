@@ -231,6 +231,25 @@ class OOMUCategoryData {
     ),
   ];
 
+  /// 이전 레거시 카테고리 명칭 호환성 별칭 매핑
+  static const Map<String, List<String>> legacyCategoryAliases = {
+    '일상 & 푸드': ['술/맛집', '카페/수다', '맛집', '술', '카페', '음식', '디저트', '푸드', '밥'],
+    '문화 & 엔터': ['코노/노래', '문화', '공연', '전시', '노래방', '코노', '콘서트', '뮤지컬'],
+    '게임 & 오락': ['보드게임', '방탈출', '게임', '오락'],
+    '액티비티 & 스포츠': ['액티비티', '스포츠', '운동', '러닝', '헬스', '클라이밍'],
+    '여행 & 나들이': ['여행/드라이브', '여행', '드라이브', '나들이', '출사', '캠핑'],
+    '체험 & 취미': ['체험', '취미', '원데이클래스', '공방', '클래스', '스터디'],
+  };
+
+  /// 이전 레거시 중분류 명칭 호환성 별칭 매핑
+  static const Map<String, List<String>> legacySubCategoryAliases = {
+    '동네 맛집 & 소셜 다이닝': ['술/맛집', '맛집', '식사', '밥', '소셜다이닝'],
+    '카페 & 디저트': ['카페/수다', '카페', '디저트', '커피'],
+    '동네 술 한잔': ['술/맛집', '술', '와인', '맥주', '혼술바'],
+    '음악 & 노래방': ['코노/노래', '코노', '노래방', '노래'],
+    '야외 액티비티': ['액티비티', '러닝', '운동'],
+  };
+
   /// 특정 키워드나 텍스트가 어떤 대분류/중분류에 속하는지 매칭 헬퍼
   static bool matchesFilter(Map<String, dynamic> meetup, String selectedCategory, String? selectedSubCategory) {
     if (selectedCategory == '전체' && (selectedSubCategory == null || selectedSubCategory == '전체')) {
@@ -238,18 +257,25 @@ class OOMUCategoryData {
     }
 
     final cat = (meetup['category'] ?? '').toString();
+    final mainCatField = (meetup['mainCategory'] ?? '').toString();
     final title = (meetup['title'] ?? '').toString();
     final desc = (meetup['description'] ?? '').toString();
     final tags = (meetup['tags'] as List?)?.map((t) => t.toString()).toList() ?? [];
-    final allText = '$cat $title $desc ${tags.join(' ')}'.toLowerCase();
+    final allText = '$cat $mainCatField $title $desc ${tags.join(' ')}'.toLowerCase();
 
     // 중분류 필터링이 지정된 경우
     if (selectedSubCategory != null && selectedSubCategory != '전체') {
       if (allText.contains(selectedSubCategory.toLowerCase())) return true;
+      final subAliases = legacySubCategoryAliases[selectedSubCategory] ?? [];
+      if (subAliases.any((alias) => allText.contains(alias.toLowerCase()))) return true;
     }
 
     // 대분류 필터링
     if (selectedCategory != '전체') {
+      if (mainCatField.toLowerCase().contains(selectedCategory.toLowerCase())) return true;
+      final aliases = legacyCategoryAliases[selectedCategory] ?? [];
+      if (aliases.any((alias) => allText.contains(alias.toLowerCase()))) return true;
+
       final mainCat = mainCategories.firstWhere(
         (m) => m.name == selectedCategory || m.id == selectedCategory,
         orElse: () => const OOMUMainCategory(
