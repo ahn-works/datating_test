@@ -30,6 +30,7 @@
 
 1. **보안 파일 및 API 자격 증명의 보관소:**
    - Cloudflare R2 S3 API 자격 증명(`accessKeyId`, `secretAccessKey`, `publicBaseUrl`)은 오직 **Firebase Firestore의 `config/r2_storage` 문서**에만 보관합니다.
+   - 외부 공공데이터 및 AI 인증키(KOPIS 공연예술전산망, 한국관광공사 TourAPI, Google Gemini API 키 등)는 오직 **Firebase Firestore의 `config/api_keys` 문서**에만 보관합니다.
    - 사용자 민감 개인정보(전화번호, 계좌번호 등)는 Firestore의 보안 규칙이 적용된 전용 컬렉션에만 저장합니다.
 2. **Git 노출 원천 금지 (Zero-Secret Policy):**
    - 소스코드(`lib/**`), 설정 파일, 테스트 코드, 커밋 메시지 등 Git에 커밋되는 어떠한 파일에도 실제 API 비밀키나 비밀번호를 하드코딩해서는 안 됩니다.

@@ -5,8 +5,8 @@
 작업을 시작하기 전, 에이전트는 반드시 **`.antigravity/rules/security_distribution_rules.md`** 및 **`docs/SECURITY_AGENT_GUIDE.md`**를 최우선으로 읽고 다음 3단계 분배 원칙을 철저히 지켜야 합니다.
 
 1. **보안 파일 및 자격 증명 (Firebase Firestore ONLY)**:
-   - Cloudflare R2 S3 API Secret Access Key, Firebase 서비스 키, 민감 개인정보는 **절대 Git에 커밋하지 않습니다.**
-   - 모든 자격 증명은 Firestore `config/r2_storage`에 안전하게 보관되며, 런타임에 동적으로 로드됩니다.
+   - Cloudflare R2 S3 API Secret Access Key, 공공데이터 API 키(KOPIS/TourAPI), AI 키(Gemini), Firebase 서비스 키, 민감 개인정보는 **절대 Git에 커밋하지 않습니다.**
+   - 모든 자격 증명은 Firestore `config/r2_storage` 및 `config/api_keys`에 안전하게 보관되며, 런타임에 동적으로 로드됩니다.
 2. **사진 및 미디어 스토리지 (Cloudflare R2 ONLY)**:
    - 프로필 사진, 모임 커버 사진, 채팅 사진은 모두 Cloudflare R2 (`oomu-spot` 버킷)에 저장됩니다.
    - 깃허브에는 대용량 사용자 사진을 직접 올리지 않으며, 비이미지 파일 업로드는 차단합니다.
