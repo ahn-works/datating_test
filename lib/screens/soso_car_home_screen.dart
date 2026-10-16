@@ -1692,11 +1692,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       '#마라탕릴레이',
     ];
 
-    final List<String> categories = ['전체', '공연/전시', '맛집/카페', '동네 토크', '질문/추천'];
+    final List<String> simpleTopics = ['전체', '☕ 일상·수다', '🎭 공연·핫플', '🍰 맛집·카페', '❓ 동네질문'];
 
     final filteredPosts = _communityPosts.where((post) {
-      if (_communityCategoryFilter != '전체' && post['category'] != _communityCategoryFilter) {
-        return false;
+      if (_communityCategoryFilter != '전체') {
+        if (_communityCategoryFilter == '☕ 일상·수다' && post['category'] != '동네 토크' && post['category'] != '일상') return false;
+        if (_communityCategoryFilter == '🎭 공연·핫플' && post['category'] != '공연/전시' && post['category'] != '공연') return false;
+        if (_communityCategoryFilter == '🍰 맛집·카페' && post['category'] != '맛집/카페' && post['category'] != '맛집') return false;
+        if (_communityCategoryFilter == '❓ 동네질문' && post['category'] != '질문/추천' && post['category'] != '질문') return false;
       }
       if (_communityKeywordFilter != null && post['tag'] != _communityKeywordFilter!.replaceAll('#', '')) {
         return false;
@@ -1705,31 +1708,77 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     }).toList();
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.only(bottom: 60),
       children: [
-        // 실시간 핫 트렌드 키워드 바
+        // 1. 당근마켓/스레드 스타일 심플 글쓰기 바 (원터치 빠른 글쓰기)
         Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+          margin: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF6F6F9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFECECF0)),
+          ),
+          child: InkWell(
+            onTap: _showCreateCommunityPostSheet,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundImage: appImg('assets/images/kr_female_1.jpg'),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '$_currentLocation 이웃들과 소소한 이야기를 나눠보세요...',
+                    style: TextStyle(color: textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: coralAccent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.edit, size: 13, color: Colors.white),
+                      SizedBox(width: 3),
+                      Text('글쓰기', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // 2. 실시간 핫 토크 키워드 바 (가로 스크롤)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text('🔥', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 6),
-                  Text('지금 뜨는 실시간 토크 키워드', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary)),
+                  const Text('🔥', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 5),
+                  Text('지금 뜨는 실시간 토크', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: textPrimary)),
                   if (_communityKeywordFilter != null) ...[
                     const Spacer(),
                     GestureDetector(
                       onTap: () => setState(() => _communityKeywordFilter = null),
-                      child: Text('필터 해제', style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.bold)),
+                      child: Text('필터 해제', style: TextStyle(fontSize: 11, color: coralAccent, fontWeight: FontWeight.bold)),
                     ),
-                  ]
+                  ],
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
                 child: Row(
                   children: trendKeywords.map((tag) {
                     final isSelected = _communityKeywordFilter == tag;
@@ -1740,11 +1789,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         });
                       },
                       child: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        margin: const EdgeInsets.only(right: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
                         decoration: BoxDecoration(
                           color: isSelected ? coralAccent : const Color(0xFFF3F3F6),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isSelected ? coralAccent : const Color(0xFFE5E5EA),
                           ),
@@ -1752,9 +1801,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         child: Text(
                           tag,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected ? Colors.white : const Color(0xFF333333),
+                            color: isSelected ? Colors.white : const Color(0xFF444444),
                           ),
                         ),
                       ),
@@ -1766,92 +1815,70 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
         ),
 
-        const Divider(height: 1, color: Color(0xFFEEEEEE)),
+        const SizedBox(height: 4),
 
-        // 카테고리 필터 탭
+        // 3. 심플 토픽 필터 (단독 가로 스크롤 - 절대 버튼과 겹치지 않음!)
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: categories.map((cat) {
-                      final isSelected = _communityCategoryFilter == cat;
-                      return GestureDetector(
-                        onTap: () => setState(() => _communityCategoryFilter = cat),
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF1E1E24) : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFF1E1E24) : const Color(0xFFE0E0E6),
-                            ),
-                          ),
-                          child: Text(
-                            cat,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                              color: isSelected ? Colors.white : textSecondary,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            child: Row(
+              children: simpleTopics.map((topic) {
+                final isSelected = _communityCategoryFilter == topic;
+                return GestureDetector(
+                  onTap: () => setState(() => _communityCategoryFilter = topic),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFF1E1E24) : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? const Color(0xFF1E1E24) : const Color(0xFFE4E4EB),
+                      ),
+                    ),
+                    child: Text(
+                      topic,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        color: isSelected ? Colors.white : textSecondary,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // 새 글 작성 버튼
-              GestureDetector(
-                onTap: _showCreateCommunityPostSheet,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF0EB),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: coralAccent.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.edit_outlined, size: 14, color: coralAccent),
-                      const SizedBox(width: 4),
-                      Text('글쓰기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+                );
+              }).toList(),
+            ),
           ),
         ),
 
-        // 커뮤니티 글 목록
+        const SizedBox(height: 6),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F4)),
+
+        // 4. 커뮤니티 피드 리스트
         if (filteredPosts.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.forum_outlined, size: 48, color: const Color(0xFFC7C7CC)),
+                  Icon(Icons.chat_bubble_outline_rounded, size: 44, color: const Color(0xFFC7C7CC)),
                   const SizedBox(height: 12),
-                  Text('해당 주제의 게시글이 아직 없어요', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary)),
+                  Text('아직 등록된 이야기가 없어요', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary)),
                   const SizedBox(height: 6),
-                  Text('첫 번째 이야기를 남겨보세요!', style: TextStyle(fontSize: 13, color: textSecondary)),
+                  Text('첫 번째 동네 소식을 가볍게 남겨보세요!', style: TextStyle(fontSize: 13, color: textSecondary)),
                 ],
               ),
             ),
           )
         else
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: filteredPosts.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               return _buildCommunityCard(filteredPosts[index]);
             },
@@ -1862,31 +1889,30 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
   Widget _buildCommunityCard(Map<String, dynamic> post) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFECECEF)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEEEEF2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Author & Metadata
+          // 작성자 헤더
           Row(
             children: [
               CircleAvatar(
-                radius: 18,
+                radius: 17,
                 backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 9),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1911,7 +1937,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1),
                     Text(
                       '${post['location']} · ${post['time']}',
                       style: TextStyle(fontSize: 11, color: textSecondary),
@@ -1919,48 +1945,51 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F3F6),
-                  borderRadius: BorderRadius.circular(8),
+              if (post['tag'] != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F8),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '#${post['tag']}',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF666666)),
+                  ),
                 ),
-                child: Text(
-                  '#${post['tag']}',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF555555)),
-                ),
-              ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Title
-          Text(
-            post['title'] ?? '',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textPrimary, height: 1.3),
-          ),
-          const SizedBox(height: 6),
+          // 제목 (있을 경우만 볼드 처리, 본문과 자연스럽게 연결)
+          if (post['title'] != null && (post['title'] as String).isNotEmpty) ...[
+            Text(
+              post['title'] ?? '',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary, height: 1.35),
+            ),
+            const SizedBox(height: 4),
+          ],
 
-          // Content
+          // 본문
           Text(
             post['content'] ?? '',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF444444), height: 1.45),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF333333), height: 1.45),
           ),
 
-          // Image if present
+          // 첨부 사진 (있을 경우만)
           if (post['image'] != null && (post['image'] as String).isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               child: SizedBox(
                 width: double.infinity,
-                height: 160,
+                height: 170,
                 child: Image(
                   image: appImg(post['image']),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    color: const Color(0xFFF0F0F3),
+                    color: const Color(0xFFF2F2F5),
                     alignment: Alignment.center,
                     child: const Icon(Icons.image_not_supported, color: Colors.grey),
                   ),
@@ -1969,12 +1998,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ],
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
-          // Bottom Action Bar: Likes / Comments / 이 주제로 모임 만들기 CTA
+          // 하단 인터랙션 바: 좋아요, 댓글, 연관 모임 바로 만들기 CTA
           Row(
             children: [
-              // Like Button
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1987,7 +2015,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   children: [
                     Icon(
                       post['isLiked'] == true ? Icons.favorite : Icons.favorite_border,
-                      size: 18,
+                      size: 17,
                       color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
                     ),
                     const SizedBox(width: 4),
@@ -2003,7 +2031,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 ),
               ),
               const SizedBox(width: 14),
-              // Comment Count
               Row(
                 children: [
                   Icon(Icons.chat_bubble_outline, size: 16, color: textSecondary),
@@ -2031,28 +2058,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: coralAccent.withOpacity(0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      color: const Color(0xFFFFF0EB),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: coralAccent.withOpacity(0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.add, size: 14, color: Colors.white),
-                        SizedBox(width: 2),
+                        Icon(Icons.bolt, size: 13, color: coralAccent),
+                        const SizedBox(width: 3),
                         Text(
-                          '이 주제로 모임 만들기',
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
+                          '모임 만들기',
+                          style: TextStyle(color: coralAccent, fontSize: 11, fontWeight: FontWeight.w800),
                         ),
                       ],
                     ),
@@ -2066,137 +2085,195 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   void _showCreateCommunityPostSheet() {
-    final titleController = TextEditingController();
-    final contentController = TextEditingController();
-    String selectedCategory = '공연/전시';
+    final textController = TextEditingController();
+    String selectedTag = '일상';
+    final List<String> quickTags = ['일상', '맛집', '공연', '동네질문'];
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
+            final hasText = textController.text.trim().isNotEmpty;
             return Padding(
               padding: EdgeInsets.only(
                 left: 20,
                 right: 20,
-                top: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                top: 14,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE5E5EA),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
+                  // 상단 바: 취소 | 동네 이야기 | 등록
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '💬 동네 커뮤니티 새 글 쓰기',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(ctx),
+                        child: Text('취소', style: TextStyle(color: textSecondary, fontSize: 14, fontWeight: FontWeight.w600)),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(ctx),
+                      Text(
+                        '동네 이야기 쓰기',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textPrimary),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          final text = textController.text.trim();
+                          if (text.isEmpty) return;
+
+                          final lines = text.split('\n');
+                          final postTitle = lines.first.length > 25 ? '${lines.first.substring(0, 25)}...' : lines.first;
+
+                          setState(() {
+                            _communityPosts.insert(0, {
+                              'id': 'post_${DateTime.now().millisecondsSinceEpoch}',
+                              'category': selectedTag == '공연' ? '공연/전시' : (selectedTag == '맛집' ? '맛집/카페' : (selectedTag == '동네질문' ? '질문/추천' : '동네 토크')),
+                              'tag': selectedTag,
+                              'title': postTitle,
+                              'content': text,
+                              'author': '나 (방금)',
+                              'authorAvatar': 'assets/images/kr_female_1.jpg',
+                              'location': _currentLocation,
+                              'time': '방금 전',
+                              'manner': 45.0,
+                              'likes': 0,
+                              'isLiked': false,
+                              'comments': 0,
+                              'image': null,
+                              'relatedMeetup': {
+                                'title': '$postTitle 같이 하실 분!',
+                                'location': _currentLocation,
+                                'category': '일상 & 푸드 > 카페 & 디저트',
+                                'poster': 'assets/images/cover_cafe.jpg',
+                              }
+                            });
+                          });
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('🎉 이야기가 동네 커뮤니티에 등록되었습니다!')),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: hasText ? coralAccent : const Color(0xFFE5E5EA),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            '등록',
+                            style: TextStyle(
+                              color: hasText ? Colors.white : const Color(0xFF999999),
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  // Category Selector
-                  Wrap(
-                    spacing: 8,
-                    children: ['공연/전시', '맛집/카페', '동네 토크', '질문/추천'].map((c) {
-                      final isSel = selectedCategory == c;
-                      return ChoiceChip(
-                        label: Text(c, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
-                        selected: isSel,
-                        selectedColor: const Color(0xFFFFECE5),
-                        labelStyle: TextStyle(color: isSel ? coralAccent : textPrimary),
-                        onSelected: (v) {
-                          if (v) setSheetState(() => selectedCategory = c);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 12),
-                  // Title Input
-                  TextField(
-                    controller: titleController,
-                    decoration: InputDecoration(
-                      hintText: '제목을 입력하세요 (예: 연남동 두쫀쿠 웨이팅 후기!)',
-                      hintStyle: TextStyle(color: textSecondary, fontSize: 14),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E5EA))),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Content Input
-                  TextField(
-                    controller: contentController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: '동네 이웃들과 나누고 싶은 공연/맛집 정보나 이야기를 자유롭게 작성해보세요 :)',
-                      hintStyle: TextStyle(color: textSecondary, fontSize: 13),
-                      contentPadding: const EdgeInsets.all(14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E5EA))),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: coralAccent,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+
+                  const Divider(height: 20, color: Color(0xFFEEEEEE)),
+
+                  // 작성자 정보 및 위치
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundImage: appImg('assets/images/kr_female_1.jpg'),
                       ),
-                      onPressed: () {
-                        if (titleController.text.trim().isEmpty) return;
-                        setState(() {
-                          _communityPosts.insert(0, {
-                            'id': 'post_${DateTime.now().millisecondsSinceEpoch}',
-                            'category': selectedCategory,
-                            'tag': selectedCategory == '공연/전시' ? '스위니토드' : '동네이야기',
-                            'title': titleController.text.trim(),
-                            'content': contentController.text.trim(),
-                            'author': '나 (방금)',
-                            'authorAvatar': 'assets/images/kr_female_1.jpg',
-                            'location': _currentLocation,
-                            'time': '방금 전',
-                            'manner': 45.0,
-                            'likes': 0,
-                            'isLiked': false,
-                            'comments': 0,
-                            'image': null,
-                            'relatedMeetup': {
-                              'title': '${titleController.text.trim()} 같이 가실 분!',
-                              'location': _currentLocation,
-                              'category': '일상 & 푸드 > 카페 & 디저트',
-                              'poster': 'assets/images/cover_cafe.jpg',
-                            }
-                          });
-                        });
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('🎉 커뮤니티에 글이 성공적으로 등록되었습니다!')),
-                        );
-                      },
-                      child: const Text('게시하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                      const SizedBox(width: 8),
+                      Text(
+                        '$_currentLocation 주민',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // 단일 통합 본문 텍스트필드 (카테고리/제목 강요 없음! Threads/당근 스타일)
+                  TextField(
+                    controller: textController,
+                    maxLines: 6,
+                    autofocus: true,
+                    style: TextStyle(fontSize: 14, color: textPrimary, height: 1.45),
+                    onChanged: (_) => setSheetState(() {}),
+                    decoration: InputDecoration(
+                      hintText: '공연/맛집 후기나 궁금한 동네 소식을 자유롭게 남겨보세요.\n사진이나 약속 장소도 함께 공유할 수 있어요 :)',
+                      hintStyle: TextStyle(color: textSecondary, fontSize: 13, height: 1.4),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
                     ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // 간편 태그 선택 (원터치 선택사항)
+                  Row(
+                    children: [
+                      Text('주제: ', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
+                      const SizedBox(width: 4),
+                      ...quickTags.map((tag) {
+                        final isSel = selectedTag == tag;
+                        return GestureDetector(
+                          onTap: () => setSheetState(() => selectedTag = tag),
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isSel ? const Color(0xFFFFF0EB) : const Color(0xFFF3F3F6),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSel ? coralAccent : Colors.transparent,
+                              ),
+                            ),
+                            child: Text(
+                              '#$tag',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                                color: isSel ? coralAccent : const Color(0xFF666666),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // 하단 툴바: 사진 추가 아이콘
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F7),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.photo_camera_outlined, size: 16, color: textSecondary),
+                            const SizedBox(width: 4),
+                            Text('사진 첨부', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${textController.text.length}자',
+                        style: TextStyle(fontSize: 11, color: textSecondary),
+                      ),
+                    ],
                   ),
                 ],
               ),
