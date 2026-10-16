@@ -478,6 +478,303 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
+  Widget _buildTrendCurationSection() {
+    final List<Map<String, dynamic>> fallbackTrends = [
+      {
+        'id': 'fallback_kopis_1',
+        'title': '스위니토드 (SWEENEY TODD)',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '디큐브 링크아트센터',
+        'tag': '뮤지컬 1위 🔥',
+        'vibe': '놀줄아는',
+        'poster': 'http://www.kopis.or.kr/upload/pfmPoster/PF_PF303043_261012_171201.gif',
+        'period': '2026.12.04~2027.05.02',
+        'rank': 1,
+      },
+      {
+        'id': 'fallback_trend_2',
+        'title': '두바이 쫀득 쿠키(두쫀쿠) 카페 탐방',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '서울 마포구 연남동',
+        'tag': '☕ SNS 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '상시 운영',
+        'rank': 2,
+      },
+      {
+        'id': 'fallback_kopis_3',
+        'title': 'TOMORROW X TOGETHER WORLD TOUR',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '올림픽공원 KSPO DOME',
+        'tag': '콘서트 1위 ⚡',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.11.01~2026.11.03',
+        'rank': 3,
+      },
+      {
+        'id': 'fallback_trend_4',
+        'title': '성수동 감성 팝업스토어 웨이팅 팟',
+        'category': '문화 & 엔터 > 전시 & 팝업스토어',
+        'location': '서울 성동구 성수동',
+        'tag': '⚡ 핫플 투어',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '주말 팟',
+        'rank': 4,
+      },
+    ];
+
+    Stream<QuerySnapshot>? trendStream;
+    try {
+      trendStream = FirebaseFirestore.instance.collection('trend_events').orderBy('rank').snapshots();
+    } catch (_) {}
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 32, bottom: 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    const Text('🎭', style: TextStyle(fontSize: 22)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '실시간 공연·뮤지컬 & 트렌드 핫플',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'KOPIS 공연 랭킹 & AI 트렌드로 바로 모임 만들기',
+                            style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w500),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0EB),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: coralAccent.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.bolt, size: 13, color: coralAccent),
+                    const SizedBox(width: 2),
+                    Text('LIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: coralAccent)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 325,
+          child: StreamBuilder<QuerySnapshot>(
+            stream: trendStream,
+            builder: (context, snapshot) {
+              List<Map<String, dynamic>> items = [];
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                items = snapshot.data!.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+              } else {
+                items = fallbackTrends;
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 14),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final title = item['title']?.toString() ?? '';
+                  final location = item['location']?.toString() ?? item['venue']?.toString() ?? '';
+                  final category = item['category']?.toString() ?? '문화 & 엔터';
+                  final tag = item['tag']?.toString() ?? '🔥 실시간 트렌드';
+                  final poster = item['poster']?.toString() ?? '';
+                  final period = item['period']?.toString() ?? '상시 운영';
+                  final rank = item['rank'] as int? ?? (index + 1);
+
+                  return Container(
+                    width: 250,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFEBEBF0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 포스터 / 핫플 이미지 + 순위 뱃지
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                          child: Stack(
+                            children: [
+                              SizedBox(
+                                height: 135,
+                                width: double.infinity,
+                                child: Image(
+                                  image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    color: const Color(0xFFF3F3F6),
+                                    child: const Center(
+                                      child: Icon(Icons.theater_comedy, color: Colors.grey, size: 36),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 10,
+                                left: 10,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: rank <= 3 ? coralAccent : const Color(0xFF1E1E24).withOpacity(0.85),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 정보 영역
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                category,
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: coralAccent),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                title,
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFFFF5E36)),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      location,
+                                      style: TextStyle(fontSize: 12, color: textSecondary),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  Icon(Icons.calendar_today_outlined, size: 12, color: textSecondary),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      period,
+                                      style: TextStyle(fontSize: 11, color: textSecondary),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const Spacer(),
+
+                        // 모임 만들기 원클릭 버튼
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 38,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFFF0EB),
+                                foregroundColor: coralAccent,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                              ),
+                              icon: const Icon(Icons.add_circle, size: 16),
+                              label: const Text(
+                                '이 이벤트로 모임 만들기',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                              ),
+                              onPressed: () {
+                                final mainCat = category.contains('>') ? category.split('>')[0].trim() : '문화 & 엔터';
+                                final subCat = category.contains('>') ? category.split('>')[1].trim() : '페스티벌 & 공연';
+                                final finalVibe = item['vibe']?.toString() ?? '놀줄아는';
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => OOMUHostScreen(
+                                      initialTitle: '$title 같이 가실 분!',
+                                      initialLocation: location,
+                                      initialMainCategory: mainCat,
+                                      initialSubCategory: subCat,
+                                      initialCoverImageUrl: poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg',
+                                      initialVibe: finalVibe,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSubCategoryBar() {
     final mainCatName = _categories[_selectedCategoryIndex]['name'] as String;
     final mainCat = OOMUCategoryData.mainCategories.firstWhere(
@@ -1047,7 +1344,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ),
 
-          // 4. 우리 동네 취향 모임 Header
+          // 4. 실시간 공연·뮤지컬 & 트렌드 핫플 (KOPIS & AI 큐레이션)
+          SliverToBoxAdapter(
+            child: _buildTrendCurationSection(),
+          ),
+
+          // 5. 우리 동네 취향 모임 Header
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 32, bottom: 16),

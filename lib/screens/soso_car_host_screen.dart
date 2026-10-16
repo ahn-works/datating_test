@@ -12,13 +12,51 @@ import 'soso_car_home_screen.dart';
 import 'soso_car_chat_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
-  const OOMUHostScreen({super.key});
+  final String? initialTitle;
+  final String? initialLocation;
+  final String? initialMainCategory;
+  final String? initialSubCategory;
+  final String? initialCoverImageUrl;
+  final String? initialVibe;
+
+  const OOMUHostScreen({
+    super.key,
+    this.initialTitle,
+    this.initialLocation,
+    this.initialMainCategory,
+    this.initialSubCategory,
+    this.initialCoverImageUrl,
+    this.initialVibe,
+  });
 
   @override
   State<OOMUHostScreen> createState() => _OOMUHostScreenState();
 }
 
 class _OOMUHostScreenState extends State<OOMUHostScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialTitle != null && widget.initialTitle!.isNotEmpty) {
+      _titleController.text = widget.initialTitle!;
+    }
+    if (widget.initialLocation != null && widget.initialLocation!.isNotEmpty) {
+      _locationController.text = widget.initialLocation!;
+    }
+    if (widget.initialMainCategory != null && widget.initialMainCategory!.isNotEmpty) {
+      _selectedMainCategory = widget.initialMainCategory!;
+    }
+    if (widget.initialSubCategory != null && widget.initialSubCategory!.isNotEmpty) {
+      _selectedSubCategory = widget.initialSubCategory!;
+    }
+    if (widget.initialCoverImageUrl != null && widget.initialCoverImageUrl!.isNotEmpty) {
+      _coverImageUrl = widget.initialCoverImageUrl!;
+    }
+    if (widget.initialVibe != null && widget.initialVibe!.isNotEmpty) {
+      _selectedVibe = widget.initialVibe!;
+    }
+  }
+
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
