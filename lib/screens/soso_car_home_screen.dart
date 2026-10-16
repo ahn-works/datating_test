@@ -11,6 +11,7 @@ import 'soso_car_detail_screen.dart';
 import 'filter_screen.dart';
 import 'soso_spot_screen.dart';
 import '../utils/location_helper.dart';
+import 'soso_car_chat_screen.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   const OOMUHomeScreen({super.key});
@@ -26,6 +27,170 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color accentColor = const Color(0xFFF19E39);
   final Color coralAccent = const Color(0xFFFF5E36);
   final Color destructiveColor = const Color(0xFFFF3B30);
+
+  int _homeDashboardTab = 0; // 0: 모임, 1: 커뮤니티, 2: 소개팅
+  String _communityCategoryFilter = '전체';
+  String? _communityKeywordFilter;
+  int _datingSubTab = 0; // 0: 1:1 취향 소개팅, 1: 2:2 / 3:3 동네 미팅
+
+  final List<Map<String, dynamic>> _communityPosts = [
+    {
+      'id': 'post_01',
+      'category': '공연/전시',
+      'tag': '스위니토드',
+      'title': '🎭 이번 주 스위니토드 샤롯데/디큐브 1차 예매 다녀왔습니다! 꿀자리 추천',
+      'content': '이번 시즌 스위니토드 캐스팅 역대급이네요... 1층 B구역 8열 시야 정말 완벽합니다. 혹시 다음 주 주말 회차 가시는 분 계시면 공연 전후로 커피나 한잔하며 극 얘기 나눠요!',
+      'author': '뮤지컬덕후',
+      'authorAvatar': 'assets/images/kr_female_1.jpg',
+      'location': '구로구 신도림동',
+      'time': '12분 전',
+      'manner': 42.5,
+      'likes': 28,
+      'isLiked': false,
+      'comments': 9,
+      'image': 'http://www.kopis.or.kr/upload/pfmPoster/PF_PF303043_261012_171201.gif',
+      'relatedMeetup': {
+        'title': '스위니토드 같이 보실 분!',
+        'location': '디큐브 링크아트센터',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'poster': 'http://www.kopis.or.kr/upload/pfmPoster/PF_PF303043_261012_171201.gif',
+      }
+    },
+    {
+      'id': 'post_02',
+      'category': '맛집/카페',
+      'tag': '두바이쫀득쿠키',
+      'title': '🍰 연남동 두바이 쫀득 쿠키(두쫀쿠) 실시간 웨이팅 상황 & 솔직 후기',
+      'content': '오늘 1시 오픈런 뛰어서 드디어 두쫀쿠 겟했습니다... 카다이프 바삭함이 미쳤네요ㅠㅠ 1인당 2개 한정이라 주말에 같이 가서 메뉴 여러 개 털어볼 메이트 구합니다!',
+      'author': '달콤빵순이',
+      'authorAvatar': 'assets/images/kr_female_2.jpg',
+      'location': '마포구 연남동',
+      'time': '35분 전',
+      'manner': 43.1,
+      'likes': 42,
+      'isLiked': false,
+      'comments': 16,
+      'image': 'assets/images/cover_cafe.jpg',
+      'relatedMeetup': {
+        'title': '두바이 쫀득 쿠키(두쫀쿠) 카페 탐방 같이 가실 분!',
+        'location': '서울 마포구 연남동',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'poster': 'assets/images/cover_cafe.jpg',
+      }
+    },
+    {
+      'id': 'post_03',
+      'category': '공연/전시',
+      'tag': 'TXT월드투어',
+      'title': '⚡ KSPO DOME 투모로우바이투게더 콘서트 티켓팅 성공하신 분 동행 구해요!',
+      'content': '체조경기장 막콘 좌석 잡았습니다! 콘서트 당일 올림픽공원에서 응원봉 배터리도 나누고 콘서트 끝나고 뒷풀이 감자탕/치맥 하실 분들 계실까요?',
+      'author': 'KPOP투게더',
+      'authorAvatar': 'assets/images/kr_male_2.jpg',
+      'location': '송파구 방이동',
+      'time': '1시간 전',
+      'manner': 41.2,
+      'likes': 51,
+      'isLiked': false,
+      'comments': 23,
+      'image': 'assets/images/cover_wine.jpg',
+      'relatedMeetup': {
+        'title': 'TOMORROW X TOGETHER WORLD TOUR 콘서트 동행 같이 가실 분!',
+        'location': '올림픽공원 KSPO DOME',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'poster': 'assets/images/cover_wine.jpg',
+      }
+    },
+    {
+      'id': 'post_04',
+      'category': '동네 토크',
+      'tag': '을지로혼술바',
+      'title': '🍷 을지로 골목길 조용하게 책 읽거나 와인 마시기 좋은 바 있나요?',
+      'content': '퇴근하고 시끄러운 술집 말고 잔잔하게 재즈 흘러나오는 바 찾고 있어요. 동네 주민분들만 아는 아지트 살짝 공유해주실 천사분 계실까요?',
+      'author': '심야산책러',
+      'authorAvatar': 'assets/images/kr_male_1.jpg',
+      'location': '중구 을지로동',
+      'time': '2시간 전',
+      'manner': 40.8,
+      'likes': 19,
+      'isLiked': false,
+      'comments': 11,
+      'image': 'assets/images/cover_food.jpg',
+      'relatedMeetup': {
+        'title': '을지로 감성 와인바 모임 같이 가실 분!',
+        'location': '서울 중구 을지로동',
+        'category': '일상 & 푸드 > 동네 술 한잔',
+        'poster': 'assets/images/cover_food.jpg',
+      }
+    },
+  ];
+
+  final List<Map<String, dynamic>> _datingProfiles = [
+    {
+      'id': 'dating_01',
+      'name': '이지우',
+      'age': 27,
+      'job': 'UX 디자이너',
+      'location': '마포구 서교동',
+      'manner': 42.8,
+      'bio': '주말엔 브런치 먹으며 미술관 도슨트 투어 다니는 걸 좋아해요. 대화가 잘 통하는 다정한 분 만나고 싶어요!',
+      'avatar': 'assets/images/kr_female_1.jpg',
+      'tags': ['전시회 투어 🎨', '주말 브런치 ☕', '필름 카메라 📸'],
+      'isHeartSent': false,
+    },
+    {
+      'id': 'dating_02',
+      'name': '박민우',
+      'age': 29,
+      'job': 'IT 개발자',
+      'location': '성동구 성수동',
+      'manner': 41.5,
+      'bio': '한강 러닝과 서울숲 산책을 즐깁니다. 가끔 맛있는 내추럴 와인 한잔하며 일상 얘기 나누는 소소한 연애를 꿈꿔요.',
+      'avatar': 'assets/images/kr_male_1.jpg',
+      'tags': ['한강 러닝 🏃', '내추럴 와인 🍷', '소소한 산책 🌿'],
+      'isHeartSent': false,
+    },
+    {
+      'id': 'dating_03',
+      'name': '정소희',
+      'age': 26,
+      'job': '콘텐츠 마케터',
+      'location': '영등포구 여의도동',
+      'manner': 43.2,
+      'bio': '새로 생긴 핫플 카페나 뮤지컬 보러 다니는 걸 좋아해요! 맛있는 음식 앞에서 행복해지는 사람입니다 :)',
+      'avatar': 'assets/images/kr_female_2.jpg',
+      'tags': ['뮤지컬 덕후 🎭', '디저트 카페 🍰', '웃음 많은 성향 ✨'],
+      'isHeartSent': false,
+    },
+  ];
+
+  final List<Map<String, dynamic>> _groupDatingPots = [
+    {
+      'id': 'group_dating_01',
+      'title': '🍷 불금 홍대 2:2 직장인 와인 & 타파스 미팅 (20대 중후반)',
+      'location': '마포구 연남동 와인바',
+      'time': '이번 주 금요일 저녁 7:30',
+      'members': '3/4 (여성 1자리 남음)',
+      'category': '동네 2:2 미팅',
+      'host': '매운맛킬러',
+      'hostAvatar': 'assets/images/kr_female_1.jpg',
+      'manner': 42.1,
+      'image': 'assets/images/cover_wine.jpg',
+      'desc': '어색하지 않고 편안한 분위기의 2:2 동네 미팅입니다! 직장인 20대 중후반 동네 친구도 사귀고 좋은 인연 만들어봐요.',
+    },
+    {
+      'id': 'group_dating_02',
+      'title': '☕ 주말 성수 3:3 자연스러운 카페 & 보드게임 미팅 🎲',
+      'location': '성동구 성수동 카페거리',
+      'time': '이번 주 토요일 오후 3:00',
+      'members': '4/6 (남2/여2 모집완료)',
+      'category': '동네 3:3 미팅',
+      'host': '성수러버',
+      'hostAvatar': 'assets/images/kr_male_2.jpg',
+      'manner': 41.8,
+      'image': 'assets/images/cover_cafe.jpg',
+      'desc': '술 없이 가볍게 보드게임과 커피 마시면서 자연스럽게 친해지는 3:3 미팅 팟입니다.',
+    },
+  ];
 
   String _currentLocation = '마포구 서교동';
   String? _selectedVibe;
@@ -1095,8 +1260,25 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           )
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
+      body: Column(
+        children: [
+          _buildDashboardTabSwitcher(),
+          Expanded(
+            child: _homeDashboardTab == 0
+                ? _buildMeetupDashboard()
+                : (_homeDashboardTab == 1
+                    ? _buildCommunityDashboard()
+                    : _buildDatingDashboard()),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildBottomNav(context),
+    );
+  }
+
+  Widget _buildMeetupDashboard() {
+    return CustomScrollView(
+      slivers: [
           // 1. Categories Tab (Horizontal Scroll) + Full Category Explorer Button
           SliverToBoxAdapter(
             child: Column(
@@ -1416,8 +1598,1050 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
+      );
+  }
+
+  Widget _buildDashboardTabSwitcher() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        height: 46,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF4F4F7),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            _buildDashboardTabItem(0, '👥 동네 모임', badge: null),
+            _buildDashboardTabItem(1, '💬 커뮤니티', badge: 'NEW'),
+            _buildDashboardTabItem(2, '💖 소개팅/미팅', badge: 'HOT'),
+          ],
+        ),
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+    );
+  }
+
+  Widget _buildDashboardTabItem(int index, String label, {String? badge}) {
+    final isSelected = _homeDashboardTab == index;
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => setState(() => _homeDashboardTab = index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected ? textPrimary : textSecondary,
+                ),
+              ),
+              if (badge != null) ...[
+                const SizedBox(width: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: isSelected ? coralAccent : const Color(0xFF999999),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommunityDashboard() {
+    final List<String> trendKeywords = [
+      '#스위니토드',
+      '#두바이쫀득쿠키',
+      '#TXT월드투어',
+      '#성수팝업웨이팅',
+      '#을지로혼술바',
+      '#마라탕릴레이',
+    ];
+
+    final List<String> categories = ['전체', '공연/전시', '맛집/카페', '동네 토크', '질문/추천'];
+
+    final filteredPosts = _communityPosts.where((post) {
+      if (_communityCategoryFilter != '전체' && post['category'] != _communityCategoryFilter) {
+        return false;
+      }
+      if (_communityKeywordFilter != null && post['tag'] != _communityKeywordFilter!.replaceAll('#', '')) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 40),
+      children: [
+        // 실시간 핫 트렌드 키워드 바
+        Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text('🔥', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 6),
+                  Text('지금 뜨는 실시간 토크 키워드', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary)),
+                  if (_communityKeywordFilter != null) ...[
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => setState(() => _communityKeywordFilter = null),
+                      child: Text('필터 해제', style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.bold)),
+                    ),
+                  ]
+                ],
+              ),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: trendKeywords.map((tag) {
+                    final isSelected = _communityKeywordFilter == tag;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _communityKeywordFilter = isSelected ? null : tag;
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isSelected ? coralAccent : const Color(0xFFF3F3F6),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? coralAccent : const Color(0xFFE5E5EA),
+                          ),
+                        ),
+                        child: Text(
+                          tag,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            color: isSelected ? Colors.white : const Color(0xFF333333),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const Divider(height: 1, color: Color(0xFFEEEEEE)),
+
+        // 카테고리 필터 탭
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: categories.map((cat) {
+                      final isSelected = _communityCategoryFilter == cat;
+                      return GestureDetector(
+                        onTap: () => setState(() => _communityCategoryFilter = cat),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF1E1E24) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF1E1E24) : const Color(0xFFE0E0E6),
+                            ),
+                          ),
+                          child: Text(
+                            cat,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? Colors.white : textSecondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 새 글 작성 버튼
+              GestureDetector(
+                onTap: _showCreateCommunityPostSheet,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF0EB),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: coralAccent.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.edit_outlined, size: 14, color: coralAccent),
+                      const SizedBox(width: 4),
+                      Text('글쓰기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // 커뮤니티 글 목록
+        if (filteredPosts.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(Icons.forum_outlined, size: 48, color: const Color(0xFFC7C7CC)),
+                  const SizedBox(height: 12),
+                  Text('해당 주제의 게시글이 아직 없어요', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary)),
+                  const SizedBox(height: 6),
+                  Text('첫 번째 이야기를 남겨보세요!', style: TextStyle(fontSize: 13, color: textSecondary)),
+                ],
+              ),
+            ),
+          )
+        else
+          ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: filteredPosts.length,
+            itemBuilder: (context, index) {
+              return _buildCommunityCard(filteredPosts[index]);
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCommunityCard(Map<String, dynamic> post) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFECECEF)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Author & Metadata
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          post['author'] ?? '동네주민',
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF0EB),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${post['manner']}°C',
+                            style: TextStyle(color: coralAccent, fontSize: 10, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${post['location']} · ${post['time']}',
+                      style: TextStyle(fontSize: 11, color: textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F3F6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '#${post['tag']}',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF555555)),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Title
+          Text(
+            post['title'] ?? '',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textPrimary, height: 1.3),
+          ),
+          const SizedBox(height: 6),
+
+          // Content
+          Text(
+            post['content'] ?? '',
+            style: const TextStyle(fontSize: 13, color: Color(0xFF444444), height: 1.45),
+          ),
+
+          // Image if present
+          if (post['image'] != null && (post['image'] as String).isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: SizedBox(
+                width: double.infinity,
+                height: 160,
+                child: Image(
+                  image: appImg(post['image']),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: const Color(0xFFF0F0F3),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 14),
+
+          // Bottom Action Bar: Likes / Comments / 이 주제로 모임 만들기 CTA
+          Row(
+            children: [
+              // Like Button
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    bool current = post['isLiked'] ?? false;
+                    post['isLiked'] = !current;
+                    post['likes'] = (post['likes'] ?? 0) + (current ? -1 : 1);
+                  });
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      post['isLiked'] == true ? Icons.favorite : Icons.favorite_border,
+                      size: 18,
+                      color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${post['likes'] ?? 0}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              // Comment Count
+              Row(
+                children: [
+                  Icon(Icons.chat_bubble_outline, size: 16, color: textSecondary),
+                  const SizedBox(width: 4),
+                  Text('${post['comments'] ?? 0}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary)),
+                ],
+              ),
+              const Spacer(),
+              // 연관 모임 바로 만들기 CTA
+              if (post['relatedMeetup'] != null)
+                GestureDetector(
+                  onTap: () {
+                    final related = post['relatedMeetup'] as Map<String, dynamic>;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OOMUHostScreen(
+                          initialTitle: related['title'],
+                          initialLocation: related['location'],
+                          initialMainCategory: related['category'],
+                          initialCoverImageUrl: related['poster'],
+                          initialVibe: '놀줄아는',
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: coralAccent.withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add, size: 14, color: Colors.white),
+                        SizedBox(width: 2),
+                        Text(
+                          '이 주제로 모임 만들기',
+                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreateCommunityPostSheet() {
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+    String selectedCategory = '공연/전시';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5E5EA),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '💬 동네 커뮤니티 새 글 쓰기',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Category Selector
+                  Wrap(
+                    spacing: 8,
+                    children: ['공연/전시', '맛집/카페', '동네 토크', '질문/추천'].map((c) {
+                      final isSel = selectedCategory == c;
+                      return ChoiceChip(
+                        label: Text(c, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
+                        selected: isSel,
+                        selectedColor: const Color(0xFFFFECE5),
+                        labelStyle: TextStyle(color: isSel ? coralAccent : textPrimary),
+                        onSelected: (v) {
+                          if (v) setSheetState(() => selectedCategory = c);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  // Title Input
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintText: '제목을 입력하세요 (예: 연남동 두쫀쿠 웨이팅 후기!)',
+                      hintStyle: TextStyle(color: textSecondary, fontSize: 14),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E5EA))),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Content Input
+                  TextField(
+                    controller: contentController,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      hintText: '동네 이웃들과 나누고 싶은 공연/맛집 정보나 이야기를 자유롭게 작성해보세요 :)',
+                      hintStyle: TextStyle(color: textSecondary, fontSize: 13),
+                      contentPadding: const EdgeInsets.all(14),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E5EA))),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: coralAccent,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      onPressed: () {
+                        if (titleController.text.trim().isEmpty) return;
+                        setState(() {
+                          _communityPosts.insert(0, {
+                            'id': 'post_${DateTime.now().millisecondsSinceEpoch}',
+                            'category': selectedCategory,
+                            'tag': selectedCategory == '공연/전시' ? '스위니토드' : '동네이야기',
+                            'title': titleController.text.trim(),
+                            'content': contentController.text.trim(),
+                            'author': '나 (방금)',
+                            'authorAvatar': 'assets/images/kr_female_1.jpg',
+                            'location': _currentLocation,
+                            'time': '방금 전',
+                            'manner': 45.0,
+                            'likes': 0,
+                            'isLiked': false,
+                            'comments': 0,
+                            'image': null,
+                            'relatedMeetup': {
+                              'title': '${titleController.text.trim()} 같이 가실 분!',
+                              'location': _currentLocation,
+                              'category': '일상 & 푸드 > 카페 & 디저트',
+                              'poster': 'assets/images/cover_cafe.jpg',
+                            }
+                          });
+                        });
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('🎉 커뮤니티에 글이 성공적으로 등록되었습니다!')),
+                        );
+                      },
+                      child: const Text('게시하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDatingDashboard() {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 40),
+      children: [
+        // Sub-Tab Switcher: 1:1 취향 소개팅 vs 2:2 / 3:3 동네 미팅 팟
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _datingSubTab = 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _datingSubTab == 0 ? coralAccent : const Color(0xFFF3F3F6),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      '💘 1:1 취향 소개팅',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: _datingSubTab == 0 ? FontWeight.w800 : FontWeight.w600,
+                        color: _datingSubTab == 0 ? Colors.white : textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _datingSubTab = 1),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _datingSubTab == 1 ? coralAccent : const Color(0xFFF3F3F6),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      '👥 2:2 / 3:3 미팅 팟',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: _datingSubTab == 1 ? FontWeight.w800 : FontWeight.w600,
+                        color: _datingSubTab == 1 ? Colors.white : textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        if (_datingSubTab == 0) ...[
+          // 1:1 Dating Banner
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFF0F5), Color(0xFFFFE4EC)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFFFD1DC)),
+              ),
+              child: Row(
+                children: [
+                  const Text('✨', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('취향과 라이프스타일이 통하는 인연', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
+                        const SizedBox(height: 2),
+                        Text('호감을 보내고 서로 매칭되면 1:1 안심 대화가 시작됩니다.', style: TextStyle(fontSize: 11, color: textSecondary)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Profile Cards List
+          ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _datingProfiles.length,
+            itemBuilder: (context, index) {
+              return _buildDatingProfileCard(_datingProfiles[index]);
+            },
+          ),
+        ] else ...[
+          // Group Dating Banner & Host CTA
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF0F4FF), Color(0xFFE8EFFF)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFD0DEFF)),
+              ),
+              child: Row(
+                children: [
+                  const Text('🎉', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('친구와 함께 나가는 동네 미팅 팟!', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
+                        const SizedBox(height: 2),
+                        Text('부담 없는 2:2 / 3:3 동네 친구 & 연인 만들기', style: TextStyle(fontSize: 11, color: textSecondary)),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const OOMUHostScreen(
+                            initialTitle: '홍대 2:2 직장인 미팅 팟',
+                            initialLocation: '서울 마포구 서교동',
+                            initialMainCategory: '소개팅 & 미팅 > 2:2 / 3:3 미팅',
+                            initialVibe: '소개팅',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B68FF),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text('+ 팟 만들기', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Group Dating Pots List
+          ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _groupDatingPots.length,
+            itemBuilder: (context, index) {
+              return _buildGroupDatingCard(_groupDatingPots[index]);
+            },
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDatingProfileCard(Map<String, dynamic> profile) {
+    bool isHeart = profile['isHeartSent'] ?? false;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFECECEF)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundImage: appImg(profile['avatar'] ?? 'assets/images/kr_female_1.jpg'),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '${profile['name']}, ${profile['age']}',
+                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textPrimary),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF0EB),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${profile['manner']}°C',
+                            style: TextStyle(color: coralAccent, fontSize: 10, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${profile['job']} · ${profile['location']}',
+                      style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            profile['bio'] ?? '',
+            style: const TextStyle(fontSize: 13, color: Color(0xFF333333), height: 1.4),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: (profile['tags'] as List).map<Widget>((tag) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF4F4F7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  tag,
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF555555)),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isHeart ? const Color(0xFF34C759) : const Color(0xFFFF5E36),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    icon: Icon(isHeart ? Icons.check : Icons.favorite, size: 16, color: Colors.white),
+                    label: Text(
+                      isHeart ? '호감 전송 완료' : '호감 보내기',
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        profile['isHeartSent'] = !isHeart;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isHeart ? '호감 전송을 취소했습니다.' : '💖 ${profile['name']}님에게 호감을 보냈습니다! 매칭 시 1:1 대화방이 열려요.'),
+                          backgroundColor: coralAccent,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFE5E5EA)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: Icon(Icons.chat_bubble_outline, size: 16, color: textPrimary),
+                    label: Text(
+                      '1:1 대화 신청',
+                      style: TextStyle(color: textPrimary, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OOMUChatScreen(
+                            title: '${profile['name']}님과의 1:1 대화',
+                            memberCount: 2,
+                            chatRoomId: 'dating_1on1_${profile['id']}',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGroupDatingCard(Map<String, dynamic> pot) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFECECEF)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: SizedBox(
+              height: 120,
+              width: double.infinity,
+              child: Image(
+                image: appImg(pot['image']),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF4FF),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        pot['category'],
+                        style: const TextStyle(color: Color(0xFF3B68FF), fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0EB),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        pot['members'],
+                        style: TextStyle(color: coralAccent, fontSize: 11, fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  pot['title'],
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textPrimary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  pot['desc'] ?? '',
+                  style: TextStyle(fontSize: 12, color: textSecondary, height: 1.35),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined, size: 13, color: textSecondary),
+                    const SizedBox(width: 4),
+                    Text(pot['time'], style: TextStyle(fontSize: 12, color: textSecondary)),
+                    const SizedBox(width: 12),
+                    Icon(Icons.location_on_outlined, size: 14, color: textSecondary),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Text(pot['location'], style: TextStyle(fontSize: 12, color: textSecondary), overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  height: 42,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: coralAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OOMUChatScreen(
+                            title: pot['title'],
+                            memberCount: 4,
+                            chatRoomId: 'group_dating_${pot['id']}',
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('미팅 팟 참여하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

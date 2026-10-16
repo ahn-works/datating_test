@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import 'chat_screen.dart';
+import 'soso_car_detail_screen.dart';
 
 class SoSoSpotScreen extends StatefulWidget {
   const SoSoSpotScreen({super.key});
@@ -112,6 +113,30 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
+  void _openSpotDetail(Map<String, dynamic> spot) {
+    final meetupData = {
+      'id': spot['id'] ?? 'spot_meetup_01',
+      'title': spot['title'],
+      'location': spot['location'],
+      'category': spot['category'] ?? '일상 & 푸드',
+      'time': spot['timeLeft'] ?? '방금',
+      'members': spot['members'] ?? '2/4',
+      'host': spot['host'] ?? '스팟호스트',
+      'hostAvatar': spot['hostAvatar'] ?? 'assets/images/kr_female_1.jpg',
+      'manner': spot['manner'] ?? 41.5,
+      'imageUrl': spot['image'] ?? 'assets/images/cover_cafe.jpg',
+      'photos': [spot['image'] ?? 'assets/images/cover_cafe.jpg'],
+      'description': '⚡ 소소스팟 10분 컷 실시간 번개 모임입니다!\n\n📍 장소: ${spot['location']}\n⏳ 남은 시간: ${spot['timeLeft']}\n거리: ${spot['distance']}\n태그: ${(spot['tags'] as List).map((t) => '#$t').join(' ')}\n\n지금 바로 합류하여 소소하고 즐거운 시간을 보내보세요!',
+      'tags': spot['tags'] ?? [],
+    };
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OOMUDetailScreen(meetup: meetupData),
+      ),
+    );
+  }
+
   void _showJoinModal(Map<String, dynamic> spot) {
     showModalBottomSheet(
       context: context,
@@ -208,6 +233,23 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
                     '지금 바로 참여하기 (채팅방 입장)',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFE5E5EA)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(Icons.info_outline, size: 18, color: Color(0xFF555555)),
+                  label: Text('모임 상세 페이지 보기', style: TextStyle(color: textPrimary, fontWeight: FontWeight.w700, fontSize: 14)),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _openSpotDetail(spot);
+                  },
                 ),
               ),
               const SizedBox(height: 10),
@@ -521,8 +563,11 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
                     final spot = filtered[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _openSpotDetail(spot),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -619,8 +664,9 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
                       ],
                     ),
                   ),
-                );
-              },
+                ),
+              );
+            },
             );
           }),
         ),
