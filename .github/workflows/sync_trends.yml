@@ -1,0 +1,23 @@
+name: OOMU Trend & Culture Events Auto-Sync
+
+on:
+  schedule:
+    # 매일 한국 시간 새벽 4시 (UTC 19:00) 자동 갱신
+    - cron: '0 19 * * *'
+  workflow_dispatch: # GitHub 웹에서 버튼 하나로 언제든 수동 즉시 실행 가능
+
+jobs:
+  sync-trends:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Execute Trend Auto-Sync Pipeline
+        run: |
+          python scripts/sync_trends.py
