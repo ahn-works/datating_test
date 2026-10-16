@@ -136,10 +136,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       onPressed: () {
                         Navigator.pop(ctx);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
-                        title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), 
-                        memberCount: 3,
-                        chatRoomId: widget.meetup?['id'] ?? 'meetup_chat_room_01',
-                      )));
+                          title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), 
+                          memberCount: 3,
+                          chatRoomId: oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'room_mala_01'),
+                        )));
                       },
                       child: const Text('채팅방 입장하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                     )
@@ -256,7 +256,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
                                     title: (widget.meetup != null ? widget.meetup!['title'] : '마라탕 & 탕후루 팟'), 
                                     memberCount: 4,
-                                    chatRoomId: widget.meetup?['id'] ?? 'meetup_chat_room_01',
+                                    chatRoomId: oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'room_mala_01'),
                                   )));
                                 },
                                 style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),

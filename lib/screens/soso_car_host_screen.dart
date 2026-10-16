@@ -3,6 +3,7 @@ import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/interactive_map_popup.dart';
+import '../widgets/place_search_map_modal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
@@ -318,8 +319,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     setState(() { _isSaving = true; });
 
     try {
-      await FirebaseFirestore.instance.collection('meetups').add({
-        'title': _titleController.text.trim(),
+      final title = _titleController.text.trim();
+      final docRef = await FirebaseFirestore.instance.collection('meetups').add({
+        'title': title,
         'description': _descController.text.trim(),
         'location': _locationController.text.trim(),
         'category': _selectedSubCategory,
@@ -347,6 +349,23 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
+      // 신규 모임용 실시간 채팅방 Firestore 생성
+      try {
+        await FirebaseFirestore.instance.collection('chatRooms').doc(docRef.id).set({
+          'id': docRef.id,
+          'title': title,
+          'lastMessage': '$title 모임 대화방이 개설되었습니다. 🎉',
+          'lastMessageTime': '방금',
+          'time': '방금',
+          'members': 1,
+          'imageUrl': _coverImageUrl,
+          'isGroup': true,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        debugPrint('Chat room init note: $e');
+      }
+
       if (mounted) {
         showDialog(
           context: context,
@@ -371,7 +390,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                       onPressed: () {
                         Navigator.pop(ctx); // close dialog
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(title: '새로 개설한 모임', memberCount: 1)));
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
+                          title: title, 
+                          memberCount: 1,
+                          chatRoomId: docRef.id,
+                        )));
                       },
                       child: const Text('채팅방으로 이동', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
@@ -580,56 +603,101 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     );
   }
 
+  Future<void> _openPlaceSearchModal() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => PlaceSearchMapModal(
+        initialQuery: _locationController.text.trim(),
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        _locationController.text = result;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('📍 \'$result\' (으)로 모임 장소가 설정되었습니다.'),
+          backgroundColor: const Color(0xFFFF5E36),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   Widget _buildLocationField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('모임 장소', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => const InteractiveMapPopup(
-                  initialCenter: LatLng(37.5665, 126.9780), // 서울 중심 또는 지정 위치
-                  locationName: '모임 장소 설정',
-                  kakaoLink: 'https://map.kakao.com/', // 임시
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('모임 장소', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+              GestureDetector(
+                onTap: _openPlaceSearchModal,
+                child: const Row(
+                  children: [
+                    Icon(Icons.search_rounded, size: 16, color: Color(0xFFFF5E36)),
+                    SizedBox(width: 4),
+                    Text('지도/키워드 검색', style: TextStyle(fontSize: 13, color: Color(0xFFFF5E36), fontWeight: FontWeight.bold)),
+                  ],
                 ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.location_on, color: textSecondary, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    _locationController.text.isEmpty ? '지도에서 모임 장소 선택' : _locationController.text,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: _locationController.text.isEmpty ? textSecondary : textPrimary,
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE5E5EA)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _locationController,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary),
+                    decoration: InputDecoration(
+                      hintText: '장소 직접 입력 (예: 스타벅스 홍대점, 맛집)',
+                      hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9E9EA7)),
+                      prefixIcon: const Icon(Icons.location_on, color: Color(0xFFFF5E36), size: 22),
+                      suffixIcon: _locationController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                              onPressed: () => setState(() => _locationController.clear()),
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
                     ),
+                    onChanged: (val) => setState(() {}),
                   ),
-                  const Spacer(),
-                  // 우측 작은 썸네일 (당근마켓 스타일)
-                  Container(
-                    width: 40, height: 40,
+                ),
+                GestureDetector(
+                  onTap: _openPlaceSearchModal,
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'),
-                        fit: BoxFit.cover,
-                      )
+                      color: const Color(0xFFFFECE5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.map_rounded, size: 16, color: Color(0xFFFF5E36)),
+                        SizedBox(width: 4),
+                        Text('지도 선택', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF5E36))),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

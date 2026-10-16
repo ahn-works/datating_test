@@ -11,16 +11,26 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/r2_storage_service.dart';
 /// 대화방 메시지 메모리/로컬 영구 캐시 저장소 (뒤로가기 후 재입장 시에도 메시지 및 사진 100% 보존)
-class OOMUChatStore {
+class OOMUChatStore extends ChangeNotifier {
   static final OOMUChatStore _instance = OOMUChatStore._internal();
   factory OOMUChatStore() => _instance;
   OOMUChatStore._internal();
 
   final Map<String, List<Map<String, dynamic>>> _messagesByRoom = {};
+  final Map<String, Map<String, dynamic>> _roomMetadata = {};
+
+  /// 더미 모임 ID와 채팅방 ID 간의 양방향 정규화 매퍼
+  String canonicalRoomId(String id) {
+    if (id == 'dummy_meetup_01' || id == 'meetup_chat_room_01') return 'room_mala_01';
+    if (id == 'dummy_meetup_02') return 'room_cafe_02';
+    if (id == 'dummy_meetup_03') return 'room_wine_03';
+    return id;
+  }
 
   List<Map<String, dynamic>> getRoomMessages(String roomId, String title) {
-    if (!_messagesByRoom.containsKey(roomId)) {
-      _messagesByRoom[roomId] = [
+    final cId = canonicalRoomId(roomId);
+    if (!_messagesByRoom.containsKey(cId)) {
+      _messagesByRoom[cId] = [
         {'type': 'system', 'text': '$title 모임 대화방이 개설되었습니다. 🎉', 'time': '오후 2:20'},
         {'type': 'system', 'text': '우리동네민우님이 참여 승인되어 합류했습니다! 🎉', 'time': '오후 2:25'},
         {'type': 'text', 'sender': '매운맛킬러', 'text': '안녕하세요! 다들 마라탕 좋아하시죠?', 'isMe': false, 'time': '오후 2:30'},
@@ -35,23 +45,63 @@ class OOMUChatStore {
         },
       ];
     }
-    return _messagesByRoom[roomId]!;
+    return _messagesByRoom[cId]!;
   }
 
-  void addMessage(String roomId, Map<String, dynamic> msg) {
-    final list = _messagesByRoom.putIfAbsent(roomId, () => []);
+  void addMessage(String roomId, Map<String, dynamic> msg, {String? roomTitle}) {
+    final cId = canonicalRoomId(roomId);
+    final list = _messagesByRoom.putIfAbsent(cId, () => []);
     list.add(msg);
+
+    final lastText = formatLastMessage(msg);
+    _roomMetadata[cId] = {
+      'id': cId,
+      'title': roomTitle,
+      'lastMessage': lastText,
+      'time': msg['time'] ?? '방금',
+      'updatedAt': DateTime.now(),
+    };
+
+    notifyListeners();
+  }
+
+  String formatLastMessage(Map<String, dynamic> msg) {
+    if (msg['type'] == 'image') return '📸 사진을 보냈습니다';
+    if (msg['type'] == 'location') return '📍 현재 위치를 공유했습니다';
+    if (msg['type'] == 'schedule') return '📅 상세 일정을 제안했습니다';
+    if (msg['type'] == 'settlement') return '💰 정산을 요청했습니다';
+    return (msg['text'] ?? '').toString();
   }
 
   String getLastMessageText(String roomId) {
-    final list = _messagesByRoom[roomId];
+    final cId = canonicalRoomId(roomId);
+    if (_roomMetadata.containsKey(cId) && _roomMetadata[cId]!['lastMessage'] != null) {
+      final text = _roomMetadata[cId]!['lastMessage'].toString();
+      if (text.isNotEmpty) return text;
+    }
+    final list = _messagesByRoom[cId];
     if (list == null || list.isEmpty) return '';
-    final last = list.last;
-    if (last['type'] == 'image') return '📸 사진';
-    if (last['type'] == 'location') return '📍 현재 위치 공유';
-    if (last['type'] == 'schedule') return '📅 상세 일정 제안';
-    if (last['type'] == 'settlement') return '💰 정산 요청';
-    return (last['text'] ?? '').toString();
+    return formatLastMessage(list.last);
+  }
+
+  String getLastMessageTime(String roomId, String defaultTime) {
+    final cId = canonicalRoomId(roomId);
+    if (_roomMetadata.containsKey(cId) && _roomMetadata[cId]!['time'] != null) {
+      return _roomMetadata[cId]!['time'].toString();
+    }
+    final list = _messagesByRoom[cId];
+    if (list != null && list.isNotEmpty) {
+      return (list.last['time'] ?? defaultTime).toString();
+    }
+    return defaultTime;
+  }
+
+  DateTime? getRoomUpdatedAt(String roomId) {
+    final cId = canonicalRoomId(roomId);
+    if (_roomMetadata.containsKey(cId) && _roomMetadata[cId]!['updatedAt'] != null) {
+      return _roomMetadata[cId]!['updatedAt'] as DateTime;
+    }
+    return null;
   }
 }
 
@@ -133,27 +183,39 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   }
 
   void _addMessage(Map<String, dynamic> msgData) {
+    final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId);
     final newMsg = {...msgData, 'time': '방금', 'isMe': true, 'sender': '우리동네민우'};
     setState(() {
-      oomuChatStore.addMessage(widget.chatRoomId, newMsg);
+      oomuChatStore.addMessage(cId, newMsg, roomTitle: widget.title);
       _messages = List<Map<String, dynamic>>.from(
-        oomuChatStore.getRoomMessages(widget.chatRoomId, widget.title)
+        oomuChatStore.getRoomMessages(cId, widget.title)
       );
     });
     _scrollToBottom();
     
     try {
-      FirebaseFirestore.instance
-          .collection('chatRooms')
-          .doc(widget.chatRoomId)
-          .collection('messages')
-          .add({
-            ...newMsg,
-            'createdAt': DateTime.now().toIso8601String(),
-            'timestamp': FieldValue.serverTimestamp(),
-          });
+      final roomDoc = FirebaseFirestore.instance.collection('chatRooms').doc(cId);
+      final lastPreview = oomuChatStore.formatLastMessage(newMsg);
+
+      // 1. 부모 채팅방 메타데이터 업데이트 (채팅 목록의 최근 메시지 및 최신순 정렬에 직결)
+      roomDoc.set({
+        'id': cId,
+        'title': widget.title,
+        'lastMessage': lastPreview,
+        'time': '방금',
+        'members': widget.memberCount,
+        'isGroup': widget.memberCount > 2,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 2. 메시지 서브컬렉션에 메시지 저장
+      roomDoc.collection('messages').add({
+        ...newMsg,
+        'createdAt': DateTime.now().toIso8601String(),
+        'timestamp': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
-      debugPrint('Firebase not connected. Saved to local UI only: $e');
+      debugPrint('Firebase chat update error: $e');
     }
   }
 
