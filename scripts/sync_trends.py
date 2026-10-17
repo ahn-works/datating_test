@@ -536,12 +536,25 @@ def fetch_custom_keywords(kopis_key, raw_keywords):
     return results
 
 
-def generate_trend_keywords_gemini(gemini_key):
-    """Gemini AI를 활용한 2030 SNS 핫플레이스 및 맛집/디저트 트렌드 생성"""
-    if not gemini_key:
-        print("[WARN] No Gemini key provided. Using fallback trends.")
-        return get_fallback_trends()
+LOCAL_AI_BASE_URL = os.environ.get("OOMU_LOCAL_LLM_BASE_URL", "http://127.0.0.1:1337/v1")
+LOCAL_AI_API_KEY = "pk-dummy"
+LOCAL_AI_MODELS = ("claude-3-haiku", "gpt-4o-mini", "claude-3-sonnet")
 
+
+def _strip_code_fence(raw_text):
+    text = (raw_text or "").strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    return text
+
+
+def generate_trend_keywords_gemini(gemini_key=""):
+    """로컬 g4f 우회 서버(claude-3-haiku / claude-3-sonnet)를 우선 호출하여 2030 SNS 핫플레이스 트렌드 생성 (실패 시 Gemini 및 기본 폴백)"""
     prompt = (
         "대한민국 2030 MZ세대가 소모임/동행으로 방문하기 좋은 최신 SNS 핫플, 디저트, 맛집, 팝업스토어 트렌드 4가지를 추천해줘.\n"
         "반드시 유효한 JSON 배열 형식으로만 응답해줘. 코드 블록(```json) 없이 순수 JSON만 반환해.\n"
@@ -558,6 +571,39 @@ def generate_trend_keywords_gemini(gemini_key):
         "]"
     )
 
+    # 1순위: 로컬 가상 API 서버 (http://127.0.0.1:1337/v1/chat/completions) - claude-3-haiku / claude-3-sonnet
+    local_url = f"{LOCAL_AI_BASE_URL.rstrip('/')}/chat/completions"
+    local_headers = {"Authorization": f"Bearer {LOCAL_AI_API_KEY}"}
+    for claude_model in LOCAL_AI_MODELS:
+        try:
+            local_body = {
+                "model": claude_model,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+            }
+            res = http_post_json(local_url, local_body, headers=local_headers)
+            raw_text = (
+                res.get("choices", [{}])[0]
+                .get("message", {})
+                .get("content", "")
+            )
+            cleaned = _strip_code_fence(raw_text)
+            start_idx = cleaned.find("[")
+            end_idx = cleaned.rfind("]")
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                cleaned = cleaned[start_idx : end_idx + 1]
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                print(f"[OK] Local Proxy ({claude_model}) generated {len(parsed)} trend keywords")
+                return parsed
+        except Exception as e:
+            print(f"[WARN] Local Proxy ({claude_model}) trend generation error: {e}")
+
+    # 2순위: Firestore Gemini 키가 있는 경우 폴백
+    if not gemini_key:
+        print("[WARN] No Gemini key provided. Using fallback trends.")
+        return get_fallback_trends()
+
     headers = {"x-goog-api-key": gemini_key}
     body = {"contents": [{"parts": [{"text": prompt}]}]}
 
@@ -570,17 +616,8 @@ def generate_trend_keywords_gemini(gemini_key):
                 .get("content", {})
                 .get("parts", [{}])[0]
                 .get("text", "")
-                .strip()
             )
-            if raw_text.startswith("```"):
-                lines = raw_text.splitlines()
-                if lines and lines[0].startswith("```"):
-                    lines = lines[1:]
-                if lines and lines[-1].startswith("```"):
-                    lines = lines[:-1]
-                raw_text = "\n".join(lines).strip()
-
-            parsed = json.loads(raw_text)
+            parsed = json.loads(_strip_code_fence(raw_text))
             if isinstance(parsed, list) and len(parsed) > 0:
                 print(f"[OK] Gemini ({model_name}) generated {len(parsed)} trend keywords")
                 return parsed
