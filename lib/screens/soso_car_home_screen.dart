@@ -1645,37 +1645,44 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ]
                 : null,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  color: isSelected ? textPrimary : textSecondary,
-                ),
-              ),
-              if (badge != null) ...[
-                const SizedBox(width: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: BoxDecoration(
-                    color: isSelected ? coralAccent : const Color(0xFF999999),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    badge,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      color: isSelected ? textPrimary : textSecondary,
                     ),
                   ),
-                ),
-              ],
-            ],
+                  if (badge != null) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isSelected ? coralAccent : const Color(0xFF999999),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        badge,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -2814,7 +2821,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Icon(Icons.location_on_outlined, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Flexible(
+                      Expanded(
                         child: Text(
                           meetup['location'] ?? '위치 협의',
                           style: TextStyle(fontSize: 13, color: textSecondary),
@@ -2824,7 +2831,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       const SizedBox(width: 12),
                       Icon(Icons.access_time, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Flexible(
+                      Expanded(
                         child: Text(
                           meetup['date'] ?? '일정 협의',
                           style: TextStyle(fontSize: 13, color: textSecondary),
@@ -2850,7 +2857,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Flexible(
+                            Expanded(
                               child: Text(
                                 meetup['host'] ?? '호스트',
                                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
