@@ -110,7 +110,7 @@ def ask_claude(
     prompt: str,
     system_prompt: Optional[str] = None,
     model: str = DEFAULT_MODEL,
-    timeout: int = 12,
+    timeout: int = 25,
 ) -> str:
     """단일 프롬프트를 전송하고 로컬 우회 Claude/GPT 모델의 응답 텍스트를 반환합니다 (타임아웃 시 자동 폴백)."""
     messages: List[Dict[str, str]] = []
