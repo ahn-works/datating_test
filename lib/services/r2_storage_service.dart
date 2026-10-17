@@ -237,13 +237,15 @@ class R2StorageService {
       return storedUrl;
     }
 
-    // 1. R2 오브젝트 키 형태로 저장된 경우 (예: profiles/xxx.jpg, covers/xxx.jpg, chats/xxx.jpg)
+    // 1. R2 오브젝트 키 형태로 저장된 경우 (예: profiles/xxx.jpg, covers/xxx.jpg, chats/xxx.jpg, posters/xxx.jpg)
     if (storedUrl.startsWith('profiles/') ||
         storedUrl.startsWith('covers/') ||
         storedUrl.startsWith('chats/') ||
+        storedUrl.startsWith('posters/') ||
         storedUrl.startsWith('/profiles/') ||
         storedUrl.startsWith('/covers/') ||
-        storedUrl.startsWith('/chats/')) {
+        storedUrl.startsWith('/chats/') ||
+        storedUrl.startsWith('/posters/')) {
       final cleanKey = storedUrl.startsWith('/') ? storedUrl.substring(1) : storedUrl;
       if (publicBaseUrl.isNotEmpty) {
         final base = publicBaseUrl.endsWith('/') ? publicBaseUrl : '$publicBaseUrl/';
@@ -255,12 +257,20 @@ class R2StorageService {
       // 자격증명 미등록 시 카테고리별 안전 폴백
       if (cleanKey.startsWith('profiles/')) return 'assets/images/kr_female_1.jpg';
       if (cleanKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
-      if (cleanKey.contains('wine')) return 'assets/images/cover_wine.jpg';
+      if (cleanKey.contains('wine') || cleanKey.startsWith('posters/')) return 'assets/images/cover_wine.jpg';
       if (cleanKey.contains('run')) return 'assets/images/cover_running.jpg';
       return defaultFallback ?? 'assets/images/cover_food.jpg';
     }
 
-    // 2. R2 S3 엔드포인트 URL이 저장되어 있는 경우 (이미 서명 쿼리가 있거나 만료되었을 때도 재서명)
+    // 2. KOPIS 원본 포스터 URL (http://www.kopis.or.kr/...) 인 경우 CORS/HTTP 차단 방지용 HTTPS 프록시 변환
+    if (storedUrl.contains('kopis.or.kr') && !storedUrl.contains('wsrv.nl')) {
+      final httpsKopis = storedUrl.startsWith('http://')
+          ? 'https://${storedUrl.substring('http://'.length)}'
+          : storedUrl;
+      return 'https://wsrv.nl/?url=${Uri.encodeComponent(httpsKopis)}&w=600&q=85&output=jpg';
+    }
+
+    // 3. R2 S3 엔드포인트 URL이 저장되어 있는 경우 (이미 서명 쿼리가 있거나 만료되었을 때도 재서명)
     if (storedUrl.contains(s3Host)) {
       final uri = Uri.tryParse(storedUrl);
       if (uri != null) {
@@ -278,7 +288,7 @@ class R2StorageService {
           // 자격증명 미등록 시 안전 폴백
           if (objectKey.startsWith('profiles/')) return 'assets/images/kr_female_1.jpg';
           if (objectKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
-          if (objectKey.contains('wine')) return 'assets/images/cover_wine.jpg';
+          if (objectKey.contains('wine') || objectKey.startsWith('posters/')) return 'assets/images/cover_wine.jpg';
           if (objectKey.contains('run')) return 'assets/images/cover_running.jpg';
           return defaultFallback ?? 'assets/images/cover_food.jpg';
         }

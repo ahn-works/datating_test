@@ -1,13 +1,18 @@
-name: OOMU Trend & Culture Events Auto-Sync
+name: OOMU Trend & KOPIS Poster Crawler Auto-Sync
 
 on:
   schedule:
-    # 매일 한국 시간 새벽 4시 (UTC 19:00) 자동 갱신
+    # 매일 한국 시간 새벽 4시 (UTC 19:00) KOPIS 공연/페스티벌 포스터 자동 크롤링 및 동기화
     - cron: '0 19 * * *'
-  workflow_dispatch: # GitHub 웹에서 버튼 하나로 언제든 수동 즉시 실행 가능
+  workflow_dispatch:
+    inputs:
+      keywords:
+        description: '추가로 포스터를 크롤링할 특정 페스티벌/공연/뮤지컬 키워드 (쉼표로 구분, 비워두면 KOPIS 박스오피스+축제 전체 자동 크롤링)'
+        required: false
+        default: '서울재즈페스티벌, 뷰티풀 민트 라이프, 워터밤 서울'
 
 jobs:
-  sync-trends:
+  sync-trends-and-posters:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,6 +23,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Execute Trend Auto-Sync Pipeline
+      - name: Crawl KOPIS / Festival Posters & Sync to R2 + Firestore
+        env:
+          INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
         run: |
           python scripts/sync_trends.py
+

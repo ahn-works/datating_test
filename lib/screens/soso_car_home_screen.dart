@@ -652,7 +652,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'location': '디큐브 링크아트센터',
         'tag': '뮤지컬 1위 🔥',
         'vibe': '놀줄아는',
-        'poster': 'http://www.kopis.or.kr/upload/pfmPoster/PF_PF303043_261012_171201.gif',
+        'poster': 'https://wsrv.nl/?url=https%3A%2F%2Fwww.kopis.or.kr%2Fupload%2FpfmPoster%2FPF_PF303043_261012_171201.gif&w=600&q=85&output=jpg',
         'period': '2026.12.04~2027.05.02',
         'rank': 1,
       },
@@ -669,13 +669,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'fallback_kopis_3',
-        'title': 'TOMORROW X TOGETHER WORLD TOUR',
+        'title': 'DAVICHI CONCERT: IN OUR SCENES',
         'category': '문화 & 엔터 > 페스티벌 & 공연',
         'location': '올림픽공원 KSPO DOME',
         'tag': '콘서트 1위 ⚡',
         'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_wine.jpg',
-        'period': '2026.11.01~2026.11.03',
+        'poster': 'https://wsrv.nl/?url=https%3A%2F%2Fwww.kopis.or.kr%2Fupload%2FpfmPoster%2FPF_PF302745_261007_145954.gif&w=600&q=85&output=jpg',
+        'period': '2026.12.12~2026.12.13',
         'rank': 3,
       },
       {
@@ -805,11 +805,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 child: Image(
                                   image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
-                                    color: const Color(0xFFF3F3F6),
-                                    child: const Center(
-                                      child: Icon(Icons.theater_comedy, color: Colors.grey, size: 36),
-                                    ),
+                                  errorBuilder: (_, __, ___) => Image.asset(
+                                    'assets/images/cover_wine.jpg',
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
