@@ -3,119 +3,130 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OOMU 4대 경쟁사 벤치마킹 UI/UX & 컬러 시안 스튜디오</title>
+<title>OOMU 컬러 후보 4종 &amp; 첫 로그인·홈(시안1+4 결합) UI 스튜디오</title>
 <style>
   :root {
-    --brand: #FF5A36;
-    --brand-ink: #D93814;
-    --brand-soft: #FFF1EC;
-    --accent: #15803D;
-    --accent-soft: #ECFDF5;
+    /* 기본값: 후보 A (추천 1⭐ 애프리콧 피치 & 웜 아이보리) */
+    --brand: #FF6B4A;
+    --brand-ink: #D94826;
+    --brand-soft: #FFF1ED;
+    --brand-grad: linear-gradient(135deg, #FF7E5F 0%, #FF5A36 100%);
+    --login-hero: linear-gradient(165deg, #FFEAE3 0%, #FAF8F5 58%, #FFFFFF 100%);
+    --trust: #0F9D58;
+    --trust-soft: #E8F8F0;
     --ink: #191F28;
     --sub: #4E5968;
     --mute: #8B95A1;
-    --line: #EAE3DA;
-    --bg: #F6F2EC;
-    --phone-bg: #F8F5F0;
+    --line: #ECE8E1;
+    --bg: #F4F1EC;
+    --phone-bg: #FAF8F5;
     --header-bg: #FFFFFF;
     --card: #FFFFFF;
-    --chip-bg: #EFEAE2;
+    --chip-bg: #F1EDE7;
     --active-tab: #191F28;
     --active-tab-text: #FFFFFF;
-    --strip-bg: #F1EAE0;
-    --pink: #E0457B;
-    --pink-soft: #FDEBF2;
+    --strip-bg: #F3EFE9;
+    --pink: #E84A7F;
+    --pink-soft: #FDECF2;
     --red: #E5484D;
     --badge-bg: rgba(255,255,255,0.95);
     --shadow: 0 6px 20px rgba(25, 31, 40, 0.05);
   }
 
-  /* 시안 1 (백업 원본): SPOT 클린 화이트 포털형 */
+  /* 후보 A (추천 1⭐): 애프리콧 피치 & 웜 아이보리 (에어비앤비 × 문토 × 힌지 감성) */
   [data-theme="v1"] {
-    --brand: #FF5E36;
-    --brand-ink: #E8470F;
-    --brand-soft: #FFF0EA;
-    --accent: #2563EB;
-    --accent-soft: #EFF6FF;
-    --ink: #111111;
-    --sub: #767676;
-    --mute: #9A9EAB;
-    --line: #EBEBEF;
-    --bg: #F5F5F7;
-    --phone-bg: #FFFFFF;
-    --header-bg: #FFFFFF;
-    --card: #FFFFFF;
-    --chip-bg: #F3F4F6;
-    --active-tab: #111111;
-    --active-tab-text: #FFFFFF;
-    --strip-bg: #F5F5F7;
-    --badge-bg: rgba(255,255,255,0.95);
-  }
-
-  /* 시안 2 (추천 1⭐): 문토(Munto) × 남의집 — 웜 크림 살롱 & 테라코타 코랄 + 세이지 그린 */
-  [data-theme="v2"] {
-    --brand: #FF5A36;
-    --brand-ink: #D93814;
-    --brand-soft: #FFF1EC;
-    --accent: #0F766E;
-    --accent-soft: #CCFBF1;
-    --ink: #221E1D;
-    --sub: #5C534E;
-    --mute: #948982;
-    --line: #EAE2D8;
-    --bg: #F3ECE2;
-    --phone-bg: #F8F5F0;
-    --header-bg: #FFFFFF;
-    --card: #FFFFFF;
-    --chip-bg: #EFE9E0;
-    --active-tab: #FF5A36;
-    --active-tab-text: #FFFFFF;
-    --strip-bg: #EFE7DC;
-    --badge-bg: #FFF9F5;
-  }
-
-  /* 시안 3 (추천 2🔥): 29CM × 프립(Frip) — 쿨 알라바스터 & 옵시디언 다크 + 일렉트릭 로즈 */
-  [data-theme="v3"] {
-    --brand: #FF2E63;
-    --brand-ink: #D81B4B;
-    --brand-soft: #FFE8EF;
-    --accent: #6366F1;
-    --accent-soft: #EEF2FF;
-    --ink: #12131A;
-    --sub: #5A5F72;
-    --mute: #8E94A8;
-    --line: #E4E6EE;
-    --bg: #EAECEF;
-    --phone-bg: #F4F5F8;
-    --header-bg: #14161F;
-    --card: #FFFFFF;
-    --chip-bg: #E6E8F0;
-    --active-tab: #14161F;
-    --active-tab-text: #FFFFFF;
-    --strip-bg: #14161F;
-    --badge-bg: rgba(20,22,31,0.88);
-  }
-
-  /* 시안 4 (추천 3🌿): 당근 모임 × 토스(Toss) — 소프트 세이지 미스트 & 포레스트 에메랄드 + 웜 앰버 */
-  [data-theme="v4"] {
-    --brand: #0D9488;
-    --brand-ink: #0F766E;
-    --brand-soft: #E6F7F5;
-    --accent: #D97706;
-    --accent-soft: #FEF3C7;
+    --brand: #FF6B4A;
+    --brand-ink: #D94826;
+    --brand-soft: #FFF1ED;
+    --brand-grad: linear-gradient(135deg, #FF7E5F 0%, #FF5838 100%);
+    --login-hero: linear-gradient(165deg, #FFEAE3 0%, #FAF8F5 58%, #FFFFFF 100%);
+    --trust: #0D9462;
+    --trust-soft: #E8F8F1;
     --ink: #191F28;
     --sub: #4E5968;
     --mute: #8B95A1;
-    --line: #E2ECE9;
-    --bg: #E8F0EE;
-    --phone-bg: #F4F8F7;
+    --line: #ECE8E1;
+    --bg: #F4F1EC;
+    --phone-bg: #FAF8F5;
     --header-bg: #FFFFFF;
     --card: #FFFFFF;
-    --chip-bg: #E6F0EE;
-    --active-tab: #0D9488;
+    --chip-bg: #F1EDE7;
+    --active-tab: #FF6B4A;
     --active-tab-text: #FFFFFF;
-    --strip-bg: #E8F3F1;
-    --badge-bg: #FFFFFF;
+    --strip-bg: #F3EFE9;
+    --badge-bg: rgba(255,255,255,0.96);
+  }
+
+  /* 후보 B (추천 2🌸): 로즈 테라코타 & 오트밀 크림 (범블 × 에어비앤비 × 자만추 설렘 감성) */
+  [data-theme="v2"] {
+    --brand: #F25767;
+    --brand-ink: #C83243;
+    --brand-soft: #FFF0F2;
+    --brand-grad: linear-gradient(135deg, #FF7582 0%, #E84558 100%);
+    --login-hero: linear-gradient(165deg, #FFE8EC 0%, #FAF6F5 58%, #FFFFFF 100%);
+    --trust: #D97706;
+    --trust-soft: #FEF3C7;
+    --ink: #221C1E;
+    --sub: #5E5256;
+    --mute: #96898D;
+    --line: #EDE5E7;
+    --bg: #F5EFF0;
+    --phone-bg: #FAF6F7;
+    --header-bg: #FFFFFF;
+    --card: #FFFFFF;
+    --chip-bg: #F2EAEB;
+    --active-tab: #221C1E;
+    --active-tab-text: #FFFFFF;
+    --strip-bg: #F4ECEE;
+    --badge-bg: rgba(255,255,255,0.96);
+  }
+
+  /* 후보 C (추천 3☀️): 코지 탄제린 & 소프트 버터 (당근 2.0 × 남의집 — 활발·친근·따뜻한 동네 라운지) */
+  [data-theme="v3"] {
+    --brand: #FF7A2F;
+    --brand-ink: #D45811;
+    --brand-soft: #FFF3EB;
+    --brand-grad: linear-gradient(135deg, #FF9248 0%, #FF6B1A 100%);
+    --login-hero: linear-gradient(165deg, #FFF0E0 0%, #FBF9F4 58%, #FFFFFF 100%);
+    --trust: #2563EB;
+    --trust-soft: #EFF6FF;
+    --ink: #231F1C;
+    --sub: #5C544E;
+    --mute: #948B84;
+    --line: #EBE4DC;
+    --bg: #F4EFE8;
+    --phone-bg: #FBF9F5;
+    --header-bg: #FFFFFF;
+    --card: #FFFFFF;
+    --chip-bg: #F1ECE4;
+    --active-tab: #FF7A2F;
+    --active-tab-text: #FFFFFF;
+    --strip-bg: #F3EDE3;
+    --badge-bg: rgba(255,255,255,0.96);
+  }
+
+  /* 후보 D (기존 시안 1 원본): 퓨어 화이트 & 시그니처 오렌지 (#FF5E36) */
+  [data-theme="v4"] {
+    --brand: #FF5E36;
+    --brand-ink: #E0431B;
+    --brand-soft: #FFF0EB;
+    --brand-grad: linear-gradient(135deg, #FF704D 0%, #FF5E36 100%);
+    --login-hero: linear-gradient(165deg, #FFEDE6 0%, #F8F9FA 58%, #FFFFFF 100%);
+    --trust: #16A34A;
+    --trust-soft: #DCFCE7;
+    --ink: #111111;
+    --sub: #666666;
+    --mute: #999999;
+    --line: #EBEBEF;
+    --bg: #F5F5F7;
+    --phone-bg: #F8F9FA;
+    --header-bg: #FFFFFF;
+    --card: #FFFFFF;
+    --chip-bg: #F1F3F5;
+    --active-tab: #111111;
+    --active-tab-text: #FFFFFF;
+    --strip-bg: #F2F4F7;
+    --badge-bg: rgba(255,255,255,0.96);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -123,17 +134,20 @@
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-  /* ===== 상단 12년 차 디자이너 시안 & 컬러 시스템 비교 컨트롤러 ===== */
-  .theme-bar{width:100%;max-width:410px;background:#161821;color:#fff;border-radius:18px;padding:10px 12px;margin-bottom:8px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
-  .theme-bar-top{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#9CA3AF;margin-bottom:7px}
-  .theme-bar-top b{color:#fff;font-size:12.5px}
+  /* ===== 상단 컬러 팔레트 & 화면 모드(로그인UI vs 홈UI) 컨트롤러 ===== */
+  .theme-bar{width:100%;max-width:410px;background:#181A24;color:#fff;border-radius:18px;padding:10px 12px;margin-bottom:8px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
+  .mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#252836;padding:4px;border-radius:12px;margin-bottom:8px}
+  .mbtn{padding:7px 8px;border-radius:9px;font-size:12px;font-weight:800;color:#A9B1C2;text-align:center;transition:.18s}
+  .mbtn.on{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-bar-top{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#9CA3AF;margin-bottom:6px}
+  .theme-bar-top b{color:#fff;font-size:12px}
   .theme-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-  .tbtn{padding:7px 4px;border-radius:10px;font-size:11.5px;font-weight:800;background:#252836;color:#B8BFCE;text-align:center;line-height:1.25;transition:.18s;border:1.5px solid transparent}
+  .tbtn{padding:6px 4px;border-radius:10px;font-size:11.5px;font-weight:800;background:#252836;color:#B8BFCE;text-align:center;line-height:1.25;transition:.18s;border:1.5px solid transparent}
   .tbtn.on{background:#fff;color:#111;border-color:var(--brand);box-shadow:0 3px 10px rgba(0,0,0,.3)}
   .tbtn small{display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:2px}
-  .spec-strip{margin-top:8px;padding-top:8px;border-top:1px solid #2D3142;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:#D1D5DB}
-  .swatches{display:flex;align-items:center;gap:5px;flex:none}
-  .sw{display:inline-flex;align-items:center;gap:4px;background:#252836;padding:3px 7px;border-radius:6px;font-size:10.5px;font-family:monospace;color:#E5E7EB}
+  .spec-strip{margin-top:8px;padding-top:7px;border-top:1px solid #2D3142;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:#D1D5DB}
+  .swatches{display:flex;align-items:center;gap:4px;flex:none}
+  .sw{display:inline-flex;align-items:center;gap:4px;background:#252836;padding:3px 6px;border-radius:6px;font-size:10.5px;font-family:monospace;color:#E5E7EB}
   .sw i{width:10px;height:10px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.25)}
 
   /* ===== 스마트폰 프레임 ===== */
@@ -141,7 +155,8 @@
   .top-wrap{background:var(--header-bg);border-bottom:1px solid var(--line);transition:background .25s;z-index:4}
   header.top{display:flex;align-items:center;justify-content:space-between;padding:11px 16px 6px}
   .loc{display:flex;align-items:center;gap:5px;font-weight:800;font-size:17.5px;min-height:38px}
-  .loc-pill{font-size:11px;font-weight:800;background:var(--brand-soft);color:var(--brand-ink);padding:3px 8px;border-radius:999px;margin-left:3px}
+  .loc-pill{font-size:11px;font-weight:800;background:var(--trust-soft);color:var(--trust);padding:3px 8px;border-radius:999px;margin-left:3px;display:inline-flex;align-items:center;gap:4px}
+  .loc-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--trust)}
   .icons{display:flex;gap:4px}
   .ibtn{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;position:relative}
   .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
@@ -150,116 +165,29 @@
   main::-webkit-scrollbar{display:none}
   .pagehead{padding:14px 16px 4px;font-size:20px;font-weight:800}
 
-  /* ===== 공통 서브태그 (+더보기 트레이: 절대 우측 짤림 없음) ===== */
-  .sub-wrap{padding:6px 16px 10px;background:var(--phone-bg)}
+  /* ===== 시안 1 + 시안 4 하이브리드 홈 상단 (실시간 동네 접속 티커 + 4열 클린 탭 + 서브태그 더보기) ===== */
+  .live-bar{margin:2px 16px 8px;padding:8px 12px;border-radius:12px;background:var(--brand-soft);border:1px solid rgba(255,107,74,.18);display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--brand-ink)}
+  .live-left{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+  .live-left span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px rgba(255,107,74,.2);flex:none}
+  .live-tag{background:#fff;color:var(--brand-ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;flex:none}
+
+  .vibes{display:grid;grid-template-columns:0.62fr 0.98fr 1.12fr 1.28fr;gap:6px;padding:2px 16px 8px}
+  .vibe{min-height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;letter-spacing:-0.4px;padding:0 4px;color:var(--sub);white-space:nowrap;transition:.16s}
+  .vibe.on{background:var(--active-tab);border-color:var(--active-tab);color:var(--active-tab-text);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .vibes.three{grid-template-columns:repeat(3,1fr)}
+  .vibes.three .vibe.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .vibe-desc{margin:0 16px 8px;padding:8px 12px;border-radius:10px;background:var(--brand-soft);color:var(--brand-ink);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+
+  .sub-wrap{padding:4px 16px 10px;background:var(--header-bg)}
   .chips-row1{display:flex;align-items:center;gap:6px;width:100%}
-  .chips-more-tray{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:0 4px 12px rgba(0,0,0,.04)}
+  .chips-more-tray{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;padding:10px;border-radius:14px;background:var(--phone-bg);border:1px solid var(--line)}
   .chip{min-height:33px;padding:0 11px;border-radius:999px;background:var(--chip-bg);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;letter-spacing:-0.3px;transition:.15s}
   .chip.on{background:var(--ink);color:#fff}
   .chip-more-btn{margin-left:auto;min-height:33px;padding:0 10px;border-radius:999px;background:var(--card);border:1.5px solid var(--brand);color:var(--brand-ink);font-size:11.5px;font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;flex:none}
   .chip-more-btn svg{width:13px;height:13px}
 
-  /* ===== 시안 1 전용 (원본 백업 스타일) ===== */
-  .vibes{display:grid;grid-template-columns:0.62fr 0.98fr 1.12fr 1.28fr;gap:6px;padding:4px 16px 8px}
-  .vibe{min-height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;letter-spacing:-0.4px;padding:0 4px;color:var(--sub);white-space:nowrap}
-  .vibe.on{background:var(--active-tab);border-color:var(--active-tab);color:var(--active-tab-text)}
-  .vibes.three{grid-template-columns:repeat(3,1fr)}
-  .vibes.three .vibe.on{background:var(--brand);border-color:var(--brand);color:#fff}
-  .vibe-desc{margin:0 16px 8px;padding:8px 12px;border-radius:10px;background:var(--brand-soft);color:var(--brand-ink);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
-
-  /* ===== 시안 2 전용 (문토 × 남의집: 에디토리얼 서치바 + 언더라인 카운트 탭 + 호스트 살롱 카드 + B2B 아지트) ===== */
-  .v2-search-bar{margin:2px 16px 10px;padding:9px 12px;border-radius:14px;background:#F5EFE6;border:1px solid #E6DEC8;display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .v2-search-left{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--sub);font-weight:600;min-width:0;flex:1}
-  .v2-search-left span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .v2-ai-btn{background:var(--brand);color:#fff;font-size:11px;font-weight:800;padding:5px 9px;border-radius:999px;white-space:nowrap;flex:none;box-shadow:0 2px 6px rgba(255,90,54,.25)}
-  .v2-tabs{display:grid;grid-template-columns:0.65fr 1fr 1.1fr 1.25fr;padding:0 12px;border-top:1px solid var(--line);background:#fff}
-  .v2-tab{padding:11px 2px 9px;font-size:12.5px;font-weight:800;color:var(--mute);border-bottom:3px solid transparent;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;letter-spacing:-0.4px}
-  .v2-tab.on{color:var(--brand-ink);border-bottom-color:var(--brand)}
-  .v2-tab i{font-style:normal;font-size:10.5px;padding:1px 5px;border-radius:999px;background:var(--chip-bg);color:var(--sub)}
-  .v2-tab.on i{background:var(--brand-soft);color:var(--brand-ink)}
-
-  /* B2B 공식 인증 아지트 스폰서십 카드 (네이티브 큐레이션) */
-  .b2b-card{margin:4px 16px 16px;padding:14px 15px;border-radius:20px;background:linear-gradient(135deg,#FFFDFB 0%,#FFF4EB 100%);border:1.5px solid #FFD8C2;box-shadow:0 6px 18px rgba(255,90,54,.07);text-align:left;width:calc(100% - 32px)}
-  .b2b-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px}
-  .b2b-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;color:#0F766E;background:#CCFBF1;padding:4px 9px;border-radius:999px}
-  .b2b-perk{font-size:11px;font-weight:800;color:#D93814;background:#FFE4D6;padding:4px 8px;border-radius:999px}
-  .b2b-body{display:flex;gap:12px;align-items:center}
-  .b2b-thumb{width:68px;height:68px;border-radius:14px;background-size:cover;background-position:center;flex:none;border:1px solid rgba(0,0,0,.06)}
-  .b2b-info{flex:1;min-width:0}
-  .b2b-info h4{font-size:14.5px;font-weight:800;color:#221E1D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .b2b-info p{font-size:12px;color:#5C534E;margin-top:3px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .b2b-foot{margin-top:10px;padding-top:9px;border-top:1px dashed #F3C6AD;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#7C5846;font-weight:700}
-  .b2b-cta{color:var(--brand-ink);font-weight:800}
-
-  /* 시안 2 살롱 카드 */
-  .v2-card{display:block;width:calc(100% - 32px);margin:0 16px 16px;background:#fff;border-radius:22px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(34,30,29,.05);overflow:hidden;text-align:left}
-  .v2-card-top{display:flex;gap:13px;padding:15px 15px 12px}
-  .v2-thumb{width:96px;height:106px;border-radius:16px;background-size:cover;background-position:center;position:relative;flex:none}
-  .v2-thumb-tag{position:absolute;top:6px;left:6px;background:rgba(25,22,20,.82);color:#fff;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:6px}
-  .v2-main{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between}
-  .v2-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
-  .v2-b1{font-size:11px;font-weight:800;background:var(--brand-soft);color:var(--brand-ink);padding:3px 8px;border-radius:6px}
-  .v2-b2{font-size:11px;font-weight:800;background:#ECFDF5;color:#0F766E;padding:3px 7px;border-radius:6px}
-  .v2-title{font-size:15.5px;font-weight:800;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .v2-meta{font-size:12px;color:var(--sub);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-  .v2-host-box{margin:0 15px 12px;padding:9px 12px;border-radius:12px;background:#F8F5F0;display:flex;align-items:center;gap:9px}
-  .v2-host-box .av2{width:28px;height:28px;border-radius:50%;background-size:cover;background-position:center;flex:none;border:1.5px solid #fff}
-  .v2-host-txt{flex:1;min-width:0;font-size:12px;color:#4A423E;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .v2-foot{padding:10px 15px 12px;background:#FDFBF9;border-top:1px solid #F1EAE2;display:flex;align-items:center;justify-content:space-between}
-  .av-stack{display:flex;align-items:center}
-  .av-stack i{width:22px;height:22px;border-radius:50%;background-size:cover;background-position:center;border:2px solid #fff;margin-left:-6px;display:inline-block}
-  .av-stack i:first-child{margin-left:0}
-  .av-stack span{font-size:11.5px;font-weight:700;color:var(--sub);margin-left:6px}
-  .v2-join{background:var(--brand-soft);color:var(--brand-ink);font-size:12px;font-weight:800;padding:5px 11px;border-radius:8px}
-
-  /* ===== 시안 3 전용 (29CM × 프립: 다크 헤더 + 매거진 쇼케이스 + 2열 포스터 그리드 & 티켓 스트립) ===== */
-  [data-theme="v3"] header.top{color:#fff}
-  [data-theme="v3"] .loc-pill{background:#FF2E63;color:#fff}
-  [data-theme="v3"] .ibtn{color:#fff}
-  .v3-hero{background:#14161F;color:#fff;padding:4px 16px 14px}
-  .v3-hero-card{border-radius:18px;padding:14px 16px;background:linear-gradient(135deg,#232738 0%,#181A26 100%);border:1px solid #2E3348;display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .v3-hero-tag{font-size:10.5px;font-weight:900;letter-spacing:0.8px;color:#FF2E63;text-transform:uppercase}
-  .v3-hero-title{font-size:15px;font-weight:800;line-height:1.35;margin-top:3px;color:#fff}
-  .v3-hero-sub{font-size:11.5px;color:#9CA3AF;margin-top:3px}
-  .v3-pills{display:grid;grid-template-columns:0.62fr 0.98fr 1.12fr 1.28fr;gap:5px;padding:10px 16px 8px;background:#14161F}
-  .v3-pill{min-height:36px;border-radius:999px;background:#232736;color:#9CA3AF;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;white-space:nowrap;letter-spacing:-0.4px}
-  .v3-pill.on{background:#FF2E63;color:#fff;box-shadow:0 4px 12px rgba(255,46,99,.35)}
-  .v3-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 14px}
-  .v3-mcard{background:#fff;border-radius:18px;overflow:hidden;border:1px solid var(--line);text-align:left;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(18,19,26,.05)}
-  .v3-mimg{height:152px;background-size:cover;background-position:center;position:relative;padding:8px;display:flex;flex-direction:column;justify-content:space-between}
-  .v3-mimg::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,transparent 45%,rgba(0,0,0,.78) 100%)}
-  .v3-mtop{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:4px}
-  .v3-mtag{background:rgba(18,19,26,.85);color:#fff;font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .v3-md2{background:#FF2E63;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;white-space:nowrap}
-  .v3-mbot{position:relative;z-index:1;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .v3-mbody{padding:10px 11px 12px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
-  .v3-mtitle{font-size:13.5px;font-weight:800;line-height:1.35;color:#12131A;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px}
-  .v3-mfoot{margin-top:8px;padding-top:7px;border-top:1px solid #ECEEF4;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-weight:700;color:#5A5F72}
-  [data-theme="v3"] .strip{background:#14161F;color:#fff;border-color:#262938}
-  [data-theme="v3"] .strip .sec h2.sm{color:#fff}
-  [data-theme="v3"] .strip .more{color:#9CA3AF}
-
-  /* ===== 시안 4 전용 (당근 모임 × 토스: 라이브 이웃 티커 + 4열 아이콘 타일 + 고밀도 수평 카드) ===== */
-  .v4-ticker{margin:4px 16px 8px;padding:8px 12px;border-radius:12px;background:#E6F7F5;border:1px solid #B2E8E2;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#0F766E}
-  .v4-pulse{width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 0 4px rgba(16,185,129,.2);flex:none}
-  .v4-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:2px 16px 10px}
-  .v4-tile{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:9px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.15s}
-  .v4-tile i{font-style:normal;width:34px;height:34px;border-radius:12px;background:#F0F7F6;display:grid;place-items:center;font-size:16px}
-  .v4-tile b{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:-0.4px;white-space:nowrap}
-  .v4-tile.on{border-color:#0D9488;background:#F0FDFB;box-shadow:0 4px 12px rgba(13,148,136,.12)}
-  .v4-tile.on i{background:#0D9488;color:#fff}
-  .v4-tile.on b{color:#0F766E}
-  .v4-row-card{display:flex;gap:13px;width:calc(100% - 32px);margin:0 16px 11px;padding:13px;background:#fff;border-radius:18px;border:1px solid var(--line);box-shadow:0 2px 10px rgba(15,118,110,.04);text-align:left;align-items:center}
-  .v4-rimg{width:88px;height:88px;border-radius:14px;background-size:cover;background-position:center;flex:none;position:relative}
-  .v4-rbody{flex:1;min-width:0}
-  .v4-rtags{display:flex;align-items:center;gap:5px;margin-bottom:4px}
-  .v4-rt1{font-size:11px;font-weight:800;background:#E6F7F5;color:#0F766E;padding:2px 7px;border-radius:6px;white-space:nowrap}
-  .v4-rt2{font-size:11px;font-weight:800;background:#FEF3C7;color:#B45309;padding:2px 7px;border-radius:6px;white-space:nowrap}
-  .v4-rtitle{font-size:15px;font-weight:800;line-height:1.35;color:#191F28;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .v4-rmeta{font-size:12px;color:#6B7684;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-  .v4-rfoot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-
-  /* ===== 섹션 타이틀 & 기존 카드 공통 ===== */
+  /* ===== 섹션 헤더 & 시안1+시안4 결합 모임 카드 ===== */
   .sec{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;gap:8px}
   .sec h2{font-size:18.5px;font-weight:800;line-height:1.25}
   .sec h2.sm{font-size:15.5px;display:flex;align-items:center;gap:6px}
@@ -271,32 +199,41 @@
   .vt button svg{width:16px;height:16px}
   .vt button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 
+  /* 블럭형 카드 (시안 1의 시원한 레이아웃 + 시안 4의 실시간 열람 인원·거리·동네인증 결합) */
   .bcard{display:block;width:calc(100% - 32px);margin:0 16px 16px;background:var(--card);border-radius:22px;border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;overflow:hidden}
-  .cover{height:164px;background-size:cover;background-position:center;position:relative}
-  .cover .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.48) 0%,transparent 55%,rgba(0,0,0,.35) 100%)}
+  .cover{height:162px;background-size:cover;background-position:center;position:relative}
+  .cover .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,transparent 52%,rgba(0,0,0,.48) 100%)}
   .cover .tl{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+  .cover .bl{position:absolute;bottom:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:6px}
   .cbadge{background:var(--badge-bg);color:var(--ink);font-weight:800;font-size:11.5px;padding:5px 10px;border-radius:8px}
-  .fbadge{background:var(--red);color:#fff;font-weight:800;font-size:11.5px;padding:5px 9px;border-radius:8px}
+  .fbadge{background:var(--pink);color:#fff;font-weight:800;font-size:11.5px;padding:5px 9px;border-radius:8px}
   .ubadge{background:var(--brand);color:#fff;font-weight:800;font-size:11px;padding:4px 8px;border-radius:7px}
-  .cbody{padding:15px 17px 17px}
+  .view-pill{background:rgba(20,22,28,0.78);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:4px}
+  .view-pill i{width:6px;height:6px;border-radius:50%;background:#4ADE80;display:inline-block}
+  .spot-pill{background:var(--brand-soft);color:var(--brand-ink);font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px}
+  .cbody{padding:15px 17px 16px}
   .ct{font-size:16.5px;font-weight:800;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .cquote{margin-top:8px;padding:7px 10px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cquote{margin-top:8px;padding:7px 10px;border-radius:10px;background:var(--phone-bg);color:var(--sub);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cinfo{display:flex;align-items:center;gap:5px;margin-top:9px;font-size:12.5px;color:var(--sub);min-width:0}
   .cinfo svg{width:15px;height:15px;color:var(--brand)}
   .cinfo span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cdiv{height:1px;background:var(--line);margin:12px 0 11px}
-  .chost{display:flex;align-items:center;gap:8px}
-  .chost .av2{width:26px;height:26px;border-radius:50%;background-size:cover;background-position:center;flex:none}
-  .chost b{font-size:13px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chost{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .av-stack{display:flex;align-items:center;min-width:0;flex:1}
+  .av-stack i{width:24px;height:24px;border-radius:50%;background-size:cover;background-position:center;border:2px solid #fff;margin-left:-6px;display:inline-block;flex:none}
+  .av-stack i:first-child{margin-left:0}
+  .av-stack b{font-size:12.5px;font-weight:700;margin-left:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mn{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--sub);font-weight:700;white-space:nowrap}
-  .mn svg{width:14px;height:14px;color:var(--red)}
+  .mn svg{width:14px;height:14px;color:var(--brand)}
   .pill{font-size:12px;font-weight:800;background:var(--brand-soft);color:var(--brand-ink);padding:5px 10px;border-radius:8px;white-space:nowrap}
 
-  .lrow{display:flex;gap:12px;width:calc(100% - 32px);margin:0 16px 10px;padding:12px;background:var(--card);border-radius:16px;border:1px solid var(--line);text-align:left;align-items:center}
-  .lth{width:78px;height:78px;border-radius:12px;background-size:cover;background-position:center;flex:none}
+  /* 목록형(시안 4 컴팩트 카드 스타일: 한 화면에 3~4개 + 실시간 열람 수 표시) */
+  .lrow{display:flex;gap:12px;width:calc(100% - 32px);margin:0 16px 10px;padding:12px;background:var(--card);border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;align-items:center}
+  .lth{width:84px;height:84px;border-radius:14px;background-size:cover;background-position:center;flex:none;position:relative}
   .lrow .ct{font-size:14.5px;margin-top:4px}
-  .lrow .cinfo{margin-top:5px}
-  .lbadge{font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:2px 7px;border-radius:6px;display:inline-block}
+  .lrow .cinfo{margin-top:4px}
+  .lbadge{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:2px 7px;border-radius:6px;display:inline-block}
+  .lview{font-size:11px;font-weight:700;color:var(--trust);background:var(--trust-soft);padding:2px 7px;border-radius:6px;display:inline-block;margin-left:4px}
   .lfoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:8px}
 
   /* ===== 피드 중간 삽입 트렌드 스트립 ===== */
@@ -317,8 +254,40 @@
   .hotm{display:inline-flex;margin-top:8px;font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:4px 8px;border-radius:8px}
   .hotm.none{color:var(--sub);background:var(--bg)}
 
+  /* ===== 첫 로그인 / 온보딩 UI 전용 스타일 ===== */
+  .login-screen{min-height:100%;background:var(--login-hero);padding:24px 22px 28px;display:flex;flex-direction:column;justify-content:space-between}
+  .login-badge-row{display:flex;align-items:center;justify-content:space-between}
+  .login-logo{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:900;color:var(--brand-ink);letter-spacing:-0.6px}
+  .login-logo-mark{width:34px;height:34px;border-radius:11px;background:var(--brand-grad);color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;box-shadow:0 6px 14px rgba(255,107,74,.3)}
+  .login-live-chip{font-size:11.5px;font-weight:800;background:#fff;color:var(--trust);padding:5px 11px;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:inline-flex;align-items:center;gap:5px}
+  .login-live-chip i{width:7px;height:7px;border-radius:50%;background:var(--trust);display:inline-block}
+  .login-hero-copy{margin-top:18px}
+  .login-kicker{display:inline-block;font-size:12px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:4px 10px;border-radius:999px;margin-bottom:10px}
+  .login-title{font-size:26px;font-weight:900;line-height:1.3;letter-spacing:-0.7px;color:var(--ink)}
+  .login-title em{font-style:normal;color:var(--brand)}
+  .login-sub{font-size:13.5px;color:var(--sub);margin-top:8px;line-height:1.5;font-weight:500}
+
+  .login-preview-stack{margin:16px 0;display:flex;flex-direction:column;gap:10px}
+  .lp-card{background:#fff;border-radius:18px;padding:12px 14px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(25,31,40,.06);display:flex;align-items:center;gap:12px}
+  .lp-av{width:46px;height:46px;border-radius:14px;background-size:cover;background-position:center;flex:none}
+  .lp-info{flex:1;min-width:0}
+  .lp-tag{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:2px 7px;border-radius:6px;display:inline-block}
+  .lp-tag.pink{color:#C83243;background:#FFF0F2}
+  .lp-info h4{font-size:14px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  .lp-info p{font-size:11.5px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lp-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:2px}
+  .lp-tbox{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
+  .lp-tbox b{display:block;font-size:12px;font-weight:800;color:var(--ink)}
+  .lp-tbox span{font-size:10.5px;color:var(--sub);font-weight:600}
+
+  .login-actions{display:flex;flex-direction:column;gap:8px}
+  .btn-primary-grad{width:100%;min-height:50px;border-radius:15px;background:var(--brand-grad);color:#fff;font-size:15px;font-weight:800;box-shadow:0 8px 20px rgba(255,107,74,.28);display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-kakao{width:100%;min-height:48px;border-radius:15px;background:#FEE500;color:#191919;font-size:14.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-outline{width:100%;min-height:46px;border-radius:15px;background:#fff;border:1.5px solid var(--line);color:var(--ink);font-size:13.5px;font-weight:800}
+  .login-foot-note{text-align:center;font-size:11.5px;color:var(--mute);margin-top:4px}
+
   /* FAB + 하단 5탭 내비 */
-  .fab{position:absolute;right:16px;bottom:76px;min-height:46px;padding:0 16px;border-radius:999px;background:var(--brand);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px;box-shadow:0 8px 22px rgba(0,0,0,.22);z-index:5}
+  .fab{position:absolute;right:16px;bottom:76px;min-height:46px;padding:0 16px;border-radius:999px;background:var(--brand-grad);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px;box-shadow:0 8px 22px rgba(255,107,74,.32);z-index:5}
   .fab svg{width:19px;height:19px}
   nav.bn{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--card);padding:4px 0 8px}
   .tab{min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;font-weight:700;color:var(--mute);position:relative}
@@ -341,7 +310,7 @@
 
   .seg{display:grid;grid-template-columns:1fr 1fr;margin:6px 16px 12px;background:var(--chip-bg);border-radius:14px;padding:4px}
   .seg button{min-height:42px;border-radius:11px;font-weight:800;color:var(--sub);font-size:13.5px}
-  .seg button.on{background:var(--card);color:var(--pink);box-shadow:0 2px 8px rgba(20,20,40,.08)}
+  .seg button.on{background:var(--card);color:var(--brand);box-shadow:0 2px 8px rgba(20,20,40,.08)}
   .dcard{margin:0 16px 14px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:var(--card);transition:.3s}
   .dcard.gone{opacity:0;transform:translateX(60px);height:0;margin:0;border:0}
   .dimg{height:148px;display:flex;align-items:flex-end;padding:12px;color:#fff;font-weight:700;font-size:13px;background-size:cover;background-position:center}
@@ -351,13 +320,13 @@
   .dbody h3{font-size:16.5px;font-weight:800;line-height:1.35;margin-top:10px}
   .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .tag{font-size:12px;font-weight:600;background:var(--chip-bg);color:var(--sub);padding:4px 10px;border-radius:999px}
-  .quote{margin-top:10px;font-size:12.5px;background:var(--pink-soft);color:#8C2C52;padding:10px 12px;border-radius:12px;line-height:1.45;font-weight:600}
+  .quote{margin-top:10px;font-size:12.5px;background:var(--brand-soft);color:var(--brand-ink);padding:10px 12px;border-radius:12px;line-height:1.45;font-weight:600}
   .dact{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:12px}
   .dact button{min-height:44px;border-radius:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
   .pass{background:var(--chip-bg);color:var(--sub)}
-  .like{background:var(--pink);color:#fff}
-  .like.on{background:#2F9E6B}
-  .hint{margin:0 16px 12px;font-size:12.5px;color:var(--sub);background:var(--pink-soft);padding:10px 12px;border-radius:12px;line-height:1.45}
+  .like{background:var(--brand-grad);color:#fff}
+  .like.on{background:var(--trust)}
+  .hint{margin:0 16px 12px;font-size:12.5px;color:var(--sub);background:var(--brand-soft);padding:10px 12px;border-radius:12px;line-height:1.45}
   .room{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card);width:100%;text-align:left;min-height:64px}
   .room .rt{flex:1;min-width:0}
   .room b{display:block;font-size:15px}
@@ -375,7 +344,7 @@
   .sh h2{font-size:18px;font-weight:800}
   .sb{overflow-y:auto;padding:4px 20px 20px}
   .foot{padding:12px 20px 18px;border-top:1px solid var(--line)}
-  .btn{width:100%;min-height:50px;border-radius:14px;background:var(--brand);color:#fff;font-weight:800;font-size:15.5px}
+  .btn{width:100%;min-height:50px;border-radius:14px;background:var(--brand-grad);color:#fff;font-weight:800;font-size:15.5px}
   .btn:disabled{background:#D9DBE3}
   .gl{font-size:13.5px;font-weight:800;margin:14px 0 8px}
   .wrap{display:flex;flex-wrap:wrap;gap:8px}
@@ -394,24 +363,28 @@
   #toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
-<body data-theme="v2">
+<body data-theme="v1">
 
 <div class="theme-bar">
+  <div class="mode-switch">
+    <button class="mbtn on" id="modeHome" onclick="setScreenMode('home')">🏠 홈 UI (시안1+4 결합)</button>
+    <button class="mbtn" id="modeLogin" onclick="setScreenMode('login')">🔐 첫 로그인·온보딩 UI</button>
+  </div>
   <div class="theme-bar-top">
-    <span>🎨 <b>경쟁사 벤치마킹 4대 UI 아키텍처 & 컬러 시안</b></span>
-    <span id="ref-label" style="color:#FFB09C;font-weight:700">벤치마킹: 문토 × 남의집</span>
+    <span>🎨 <b>친근·따뜻·깔끔한 컬러 후보 4선</b></span>
+    <span id="ref-label" style="color:#FFB09C;font-weight:700">추천 1⭐ 애프리콧 피치</span>
   </div>
   <div class="theme-btns">
-    <button class="tbtn" data-th="v1" onclick="setTheme('v1')">시안 1 (백업)<small>기존 클린화이트</small></button>
-    <button class="tbtn on" data-th="v2" onclick="setTheme('v2')">시안 2 (추천⭐)<small>문토·살롱 라운지</small></button>
-    <button class="tbtn" data-th="v3" onclick="setTheme('v3')">시안 3 (29CM풍)<small>다크·2열 매거진</small></button>
-    <button class="tbtn" data-th="v4" onclick="setTheme('v4')">시안 4 (당근·토스)<small>세이지·컴팩트형</small></button>
+    <button class="tbtn on" data-th="v1" onclick="setTheme('v1')">후보 A (추천1⭐)<small>애프리콧·아이보리</small></button>
+    <button class="tbtn" data-th="v2" onclick="setTheme('v2')">후보 B (설렘🌸)<small>로즈코랄·오트밀</small></button>
+    <button class="tbtn" data-th="v3" onclick="setTheme('v3')">후보 C (활발☀️)<small>코지탄제린·버터</small></button>
+    <button class="tbtn" data-th="v4" onclick="setTheme('v4')">후보 D (시안1)<small>클린화이트·오렌지</small></button>
   </div>
   <div class="spec-strip" id="spec-strip"></div>
 </div>
 
 <div id="phone">
-  <div class="top-wrap">
+  <div class="top-wrap" id="top-wrap">
     <header class="top" id="top"></header>
     <div id="cat-header"></div>
   </div>
@@ -452,24 +425,24 @@ const bg=k=>`background-image:url(${IMG[k]||IMG.cover_food});background-color:#d
 
 const THEME_SPECS = {
   v1: {
-    ref: '시안 1 원본 백업 (Baseline Clean White)',
-    desc: '기존 백업본: 1열 대형 커버 카드 + 플랫 탭 구조',
-    c1: ['#FFFFFF','배경'], c2: ['#FF5E36','Primary'], c3: ['#111111','탭강조']
+    ref: '후보 A (추천 1⭐): 에어비앤비 × 문토 감성',
+    desc: '애프리콧 피치(#FF6B4A) + 웜 아이보리(#FAF8F5) + 안전 민트(#0D9462)',
+    c1: ['#FAF8F5','아이보리'], c2: ['#FF6B4A','애프리콧'], c3: ['#0D9462','안전그린']
   },
   v2: {
-    ref: '벤치마킹: 문토(Munto) × 남의집 살롱형',
-    desc: 'AI 컨시어지 서치바 + 언더라인 카운트 탭 + 호스트 초대장 & B2B 아지트 카드',
-    c1: ['#F8F5F0','웜크림'], c2: ['#FF5A36','테라코타'], c3: ['#0F766E','세이지그린']
+    ref: '후보 B (추천 2🌸): 범블 × 에어비앤비 설렘 감성',
+    desc: '로즈 코랄(#F25767) + 오트밀 크림(#FAF6F7) + 썬셋 앰버(#D97706)',
+    c1: ['#FAF6F7','오트밀'], c2: ['#F25767','로즈코랄'], c3: ['#D97706','앰버']
   },
   v3: {
-    ref: '벤치마킹: 29CM × 프립(Frip) 매거진형',
-    desc: '옵시디언 다크 쇼케이스 헤더 + 플로팅 캡슐 탭 + 2열 매거진 그리드 카드',
-    c1: ['#14161F','다크헤더'], c2: ['#FF2E63','로즈핑크'], c3: ['#F4F5F8','쿨그레이']
+    ref: '후보 C (추천 3☀️): 당근 2.0 × 남의집 활기 감성',
+    desc: '코지 탄제린(#FF7A2F) + 버터 크림(#FBF9F5) + 트러스트 블루(#2563EB)',
+    c1: ['#FBF9F5','버터크림'], c2: ['#FF7A2F','탄제린'], c3: ['#2563EB','신뢰블루']
   },
   v4: {
-    ref: '벤치마킹: 당근 모임 × 토스(Toss) 트러스트형',
-    desc: '실시간 이웃 티커 + 4열 아이콘 타일 탭 + 한눈에 4개 보이는 컴팩트 수평 카드',
-    c1: ['#F4F8F7','세이지미스트'], c2: ['#0D9488','에메랄드'], c3: ['#F59E0B','앰버포인트']
+    ref: '후보 D (시안 1 기본): 클린 오프화이트 & 오렌지',
+    desc: '오프화이트(#F8F9FA) + 오렌지 레드(#FF5E36) + 에메랄드(#16A34A)',
+    c1: ['#F8F9FA','화이트'], c2: ['#FF5E36','오렌지'], c3: ['#16A34A','그린']
   }
 };
 
@@ -519,23 +492,23 @@ const TRENDS={
 TRENDS.all=[TRENDS.chill[0],TRENDS.chill[1],TRENDS.hot[0],TRENDS.chill[2],TRENDS.mate[0]];
 
 const MEET=[
- {id:1,v:'hot',sub:'맛집털기',tag:'#맛집털기 · 오늘 저녁',urgent:'오늘 19:00 번개',left:'마감임박 1자리',dist:'350m',fo:1,t:'오늘 저녁 홍대 엽떡+마라탕+꿔바로우 조지실 분 🔥',q:'"배고픈 동네 분들 모여요! 매운맛 단계 같이 정해요"',p:'마포구 홍대입구역 9번 출구',d:'오늘 저녁 7:00',n:'3/4',h:'매운맛킬러',av:'kr_female_1',mn:41.2,img:'cover_food',spot:'✨ 공식 아지트 10% 할인'},
- {id:2,v:'hot',sub:'혼술바동행',tag:'#혼술바동행 · 하이볼',urgent:'오늘 21:00 번개',left:'2자리 여유',dist:'520m',t:'연남동 조용한 LP바에서 신청곡 들으며 하이볼 한잔 🥃',q:'"혼자 가기 심심한 분들 편하게 와서 이야기 나눠요"',p:'마포구 연남동 미로길',d:'오늘 밤 9:00',n:'2/4',h:'연남동바이브',av:'kr_male_1',mn:40.5,img:'cover_wine',spot:'🍹 웰컴 하이볼 무료 스팟'},
- {id:3,v:'hot',sub:'불금코노·술',tag:'#불금코노·술 · 스트레스해소',urgent:'오늘 20:00 번개',left:'마감임박 1자리',dist:'680m',t:'퇴근 후 합정 코노 1시간 달리고 시원하게 생맥주 한잔! 🎤🍺',q:'"노래 실력 무관! 신나게 스트레스 풀 동네 친구 구해요"',p:'마포구 합정역 5번 출구',d:'오늘 저녁 8:00',n:'3/4',h:'고음불가대장',av:'kr_male_2',mn:39.8,img:'cover_wine'},
- {id:4,v:'hot',sub:'오늘번개',tag:'#오늘번개 · 카페수다',urgent:'오늘 20:30 번개',left:'1자리 남음',dist:'410m',t:'망원동 루프탑 카페에서 밤공기 마시며 수다 떠실 분 ⚡',q:'"급 심심해서 올리는 번개! 커피 한잔하며 동네 친구 해요"',p:'마포구 망원역 2번 출구',d:'오늘 저녁 8:30',n:'2/3',h:'망원동부엉이',av:'kr_female_2',mn:38.9,img:'cover_cafe'},
- {id:5,v:'hot',sub:'카페·수다',tag:'#카페·수다 · 주말번개',urgent:'내일 15:00 번개',left:'2자리 여유',dist:'290m',t:'토요일 오후 서교동 디저트 카페 급 번개 모임 ☕',q:'"주말에 집에만 있기 아쉬운 분들 가볍게 커피 마셔요"',p:'마포구 서교동 카페거리',d:'내일 오후 3:00',n:'2/4',h:'라떼는말이야',av:'kr_female_1',mn:39.2,img:'cover_cafe'},
- {id:6,v:'hot',sub:'야식·치맥',tag:'#야식·치맥 · 동네번개',urgent:'오늘 22:00 번개',left:'1자리 남음',dist:'450m',t:'연트럴파크 노상 치맥 & 타코야끼 야식 번개 🍗',q:'"산책 겸 가볍게 치맥 한잔하실 서교/연남 주민 환영!"',p:'마포구 동교동 연트럴파크',d:'오늘 밤 10:00',n:'3/4',h:'치맥요정',av:'kr_male_1',mn:40.1,img:'cover_food'},
+ {id:1,v:'hot',sub:'맛집털기',tag:'#맛집털기 · 오늘 저녁',urgent:'오늘 19:00 번개',viewing:14,dist:'350m',fo:1,t:'오늘 저녁 홍대 엽떡+마라탕+꿔바로우 조지실 분 🔥',q:'"배고픈 동네 분들 모여요! 매운맛 단계 같이 정해요"',p:'마포구 홍대입구역 9번 출구',d:'오늘 저녁 7:00',n:'3/4',h:'매운맛킬러',av:'kr_female_1',mn:41.2,img:'cover_food',spot:'✨ 공식 인증 아지트'},
+ {id:2,v:'hot',sub:'혼술바동행',tag:'#혼술바동행 · 하이볼',urgent:'오늘 21:00 번개',viewing:19,dist:'520m',t:'연남동 조용한 LP바에서 신청곡 들으며 하이볼 한잔 🥃',q:'"혼자 가기 심심한 분들 편하게 와서 이야기 나눠요"',p:'마포구 연남동 미로길',d:'오늘 밤 9:00',n:'2/4',h:'연남동바이브',av:'kr_male_1',mn:40.5,img:'cover_wine',spot:'🍹 웰컴 하이볼 무료'},
+ {id:3,v:'hot',sub:'불금코노·술',tag:'#불금코노·술 · 스트레스해소',urgent:'오늘 20:00 번개',viewing:11,dist:'680m',t:'퇴근 후 합정 코노 1시간 달리고 시원하게 생맥주 한잔! 🎤🍺',q:'"노래 실력 무관! 신나게 스트레스 풀 동네 친구 구해요"',p:'마포구 합정역 5번 출구',d:'오늘 저녁 8:00',n:'3/4',h:'고음불가대장',av:'kr_male_2',mn:39.8,img:'cover_wine'},
+ {id:4,v:'hot',sub:'오늘번개',tag:'#오늘번개 · 카페수다',urgent:'오늘 20:30 번개',viewing:9,dist:'410m',t:'망원동 루프탑 카페에서 밤공기 마시며 수다 떠실 분 ⚡',q:'"급 심심해서 올리는 번개! 커피 한잔하며 동네 친구 해요"',p:'마포구 망원역 2번 출구',d:'오늘 저녁 8:30',n:'2/3',h:'망원동부엉이',av:'kr_female_2',mn:38.9,img:'cover_cafe'},
+ {id:5,v:'hot',sub:'카페·수다',tag:'#카페·수다 · 주말번개',urgent:'내일 15:00 번개',viewing:7,dist:'290m',t:'토요일 오후 서교동 디저트 카페 급 번개 모임 ☕',q:'"주말에 집에만 있기 아쉬운 분들 가볍게 커피 마셔요"',p:'마포구 서교동 카페거리',d:'내일 오후 3:00',n:'2/4',h:'라떼는말이야',av:'kr_female_1',mn:39.2,img:'cover_cafe'},
+ {id:6,v:'hot',sub:'야식·치맥',tag:'#야식·치맥 · 동네번개',urgent:'오늘 22:00 번개',viewing:12,dist:'450m',t:'연트럴파크 노상 치맥 & 타코야끼 야식 번개 🍗',q:'"산책 겸 가볍게 치맥 한잔하실 서교/연남 주민 환영!"',p:'마포구 동교동 연트럴파크',d:'오늘 밤 10:00',n:'3/4',h:'치맥요정',av:'kr_male_1',mn:40.1,img:'cover_food'},
 
- {id:7,v:'chill',sub:'공연·전시',tag:'#공연·전시 · 사전모집',left:'1자리 남음',dist:'올림픽공원',t:'다비치 연말 콘서트 KSPO DOME 같이 관람하고 뒤풀이해요 🎶',q:'"콘서트 예매하신 분이나 같이 티켓팅해서 가실 다비치 팬 모여요!"',p:'올림픽공원 KSPO DOME',d:'12.12(토) 18:00',n:'3/4',h:'공연덕후민수',av:'kr_male_1',mn:42.1,img:'kopis_poster_1',spot:'🎫 티켓 인증 모임'},
- {id:8,v:'chill',sub:'카페·디저트',tag:'#카페·디저트 · 디저트투어',left:'1자리 남음',dist:'500m',t:'성수·연남 감성 에스프레소 바 & 두바이 쫀득 쿠키 탐방 ☕🍪',q:'"요즘 핫한 디저트 카페 2곳 도장깨기하고 인생샷 찍어요"',p:'마포구 연남동 경의선숲길',d:'이번주 일요일 14:00',n:'3/4',h:'디저트요정',av:'kr_female_2',mn:39.4,img:'cover_cafe',spot:'✨ 공식 아지트 디저트 혜택'},
- {id:9,v:'chill',sub:'보드게임·방탈출',tag:'#보드게임·방탈출 · 취미모임',left:'1자리 남음',dist:'1.1km',t:'신촌 레드버튼 전략 보드게임 & 추리 방탈출 4인 아지트 🎲',q:'"스플렌더, 클루, 방탈출 좋아하시는 분! 초보자도 친절히 알려드려요"',p:'서대문구 신촌역 2번 출구',d:'이번주 토요일 15:00',n:'3/4',h:'미플마스터',av:'kr_male_2',mn:41.0,img:'cover_cafe'},
- {id:10,v:'chill',sub:'북카페·독서',tag:'#북카페·독서 · 커피챗',left:'2자리 여유',dist:'620m',t:'합정 채광 좋은 북카페에서 각자 책 읽고 감상 나눠요 📚',q:'"1시간 반 자율 독서 후 30분 동안 인상 깊은 구절 편하게 이야기해요"',p:'마포구 합정동 북카페',d:'이번주 일요일 15:00',n:'4/6',h:'책읽는고양이',av:'kr_female_1',mn:43.2,img:'cover_cafe'},
- {id:11,v:'chill',sub:'공연·전시',tag:'#공연·전시 · 뮤지컬동행',left:'2자리 여유',dist:'신도림',t:'뮤지컬 <스위니토드> 주말 낮공연 관람 & 카페 토크 🎭',q:'"뮤지컬 좋아하시는 분들과 관람 후 여운을 함께 나누고 싶어요"',p:'디큐브링크아트센터',d:'12.19(토) 14:00',n:'2/4',h:'뮤지컬러버',av:'kr_female_2',mn:40.8,img:'kopis_poster_3'},
+ {id:7,v:'chill',sub:'공연·전시',tag:'#공연·전시 · 사전모집',viewing:23,dist:'올림픽공원',t:'다비치 연말 콘서트 KSPO DOME 같이 관람하고 뒤풀이해요 🎶',q:'"콘서트 예매하신 분이나 같이 티켓팅해서 가실 다비치 팬 모여요!"',p:'올림픽공원 KSPO DOME',d:'12.12(토) 18:00',n:'3/4',h:'공연덕후민수',av:'kr_male_1',mn:42.1,img:'kopis_poster_1',spot:'🎫 티켓 인증 모임'},
+ {id:8,v:'chill',sub:'카페·디저트',tag:'#카페·디저트 · 디저트투어',viewing:16,dist:'500m',t:'성수·연남 감성 에스프레소 바 & 두바이 쫀득 쿠키 탐방 ☕🍪',q:'"요즘 핫한 디저트 카페 2곳 도장깨기하고 인생샷 찍어요"',p:'마포구 연남동 경의선숲길',d:'이번주 일요일 14:00',n:'3/4',h:'디저트요정',av:'kr_female_2',mn:39.4,img:'cover_cafe',spot:'✨ 공식 아지트 혜택'},
+ {id:9,v:'chill',sub:'보드게임·방탈출',tag:'#보드게임·방탈출 · 취미모임',viewing:8,dist:'1.1km',t:'신촌 레드버튼 전략 보드게임 & 추리 방탈출 4인 아지트 🎲',q:'"스플렌더, 클루, 방탈출 좋아하시는 분! 초보자도 친절히 알려드려요"',p:'서대문구 신촌역 2번 출구',d:'이번주 토요일 15:00',n:'3/4',h:'미플마스터',av:'kr_male_2',mn:41.0,img:'cover_cafe'},
+ {id:10,v:'chill',sub:'북카페·독서',tag:'#북카페·독서 · 커피챗',viewing:6,dist:'620m',t:'합정 채광 좋은 북카페에서 각자 책 읽고 감상 나눠요 📚',q:'"1시간 반 자율 독서 후 30분 동안 인상 깊은 구절 편하게 이야기해요"',p:'마포구 합정동 북카페',d:'이번주 일요일 15:00',n:'4/6',h:'책읽는고양이',av:'kr_female_1',mn:43.2,img:'cover_cafe'},
+ {id:11,v:'chill',sub:'공연·전시',tag:'#공연·전시 · 뮤지컬동행',viewing:15,dist:'신도림',t:'뮤지컬 <스위니토드> 주말 낮공연 관람 & 카페 토크 🎭',q:'"뮤지컬 좋아하시는 분들과 관람 후 여운을 함께 나누고 싶어요"',p:'디큐브링크아트센터',d:'12.19(토) 14:00',n:'2/4',h:'뮤지컬러버',av:'kr_female_2',mn:40.8,img:'kopis_poster_3'},
 
- {id:12,v:'mate',sub:'러닝·운동',tag:'#러닝·운동 · 초보환영',left:'3자리 여유',dist:'800m',t:'망원 한강공원 야경 5km 슬로우 러닝 & 스트레칭 크루 🏃‍♀️',q:'"6분 30초 페이스로 대화하며 천천히 뛰어요! 러닝 초보 대환영"',p:'마포구 망원한강공원 입구',d:'수요일 저녁 8:00',n:'5/8',h:'한강러너준',av:'kr_male_1',mn:42.5,img:'cover_running'},
- {id:13,v:'mate',sub:'장보기·소분',tag:'#1인가구장보기/소분 · 알뜰생활',left:'마감임박 1자리',dist:'600m',t:'합정 홈플러스·코스트코 대용량 연어·과일·베이글 1/N 소분 🛒',q:'"1인 가구라 대용량 사기 부담스러웠던 분들! 같이 장보고 깔끔하게 나눠요"',p:'마포구 합정역 9번 출구',d:'이번주 토요일 15:00',n:'3/4',h:'자취9단지수',av:'kr_female_1',mn:44.1,img:'cover_food',spot:'🛡️ 1/N 에스크로 안심정산'},
- {id:14,v:'mate',sub:'동성캠핑',tag:'#동성캠핑 · 글램핑',left:'1자리 남음',dist:'2.4km',fo:1,t:'[여성전용] 상암 난지캠핑장 감성 바베큐 & 불멍 글램핑 메이트 ⛺',q:'"장비 없어도 몸만 오세요! 동성 친구끼리 안전하고 신나게 불멍해요"',p:'마포구 상암동 난지캠핑장',d:'이번주 토요일 17:00',n:'3/4',h:'캠핑요정소라',av:'kr_female_2',mn:41.8,img:'cover_running'},
- {id:15,v:'mate',sub:'동네산책',tag:'#동네산책 · 저녁산책',left:'2자리 여유',dist:'300m',t:'경의선숲길 연트럴파크 선선한 저녁 산책 & 테이크아웃 커피 🌿',q:'"식후 가볍게 40분 정도 산책하며 일상 수다 나누실 동네 메이트!"',p:'마포구 동교동 경의선숲길',d:'오늘 저녁 8:30',n:'2/4',h:'산책메이트현',av:'kr_male_2',mn:39.9,img:'cover_running'}
+ {id:12,v:'mate',sub:'러닝·운동',tag:'#러닝·운동 · 초보환영',viewing:13,dist:'800m',t:'망원 한강공원 야경 5km 슬로우 러닝 & 스트레칭 크루 🏃‍♀️',q:'"6분 30초 페이스로 대화하며 천천히 뛰어요! 러닝 초보 대환영"',p:'마포구 망원한강공원 입구',d:'수요일 저녁 8:00',n:'5/8',h:'한강러너준',av:'kr_male_1',mn:42.5,img:'cover_running'},
+ {id:13,v:'mate',sub:'장보기·소분',tag:'#1인가구장보기/소분 · 알뜰생활',viewing:18,dist:'600m',t:'합정 홈플러스·코스트코 대용량 연어·과일·베이글 1/N 소분 🛒',q:'"1인 가구라 대용량 사기 부담스러웠던 분들! 같이 장보고 깔끔하게 나눠요"',p:'마포구 합정역 9번 출구',d:'이번주 토요일 15:00',n:'3/4',h:'자취9단지수',av:'kr_female_1',mn:44.1,img:'cover_food',spot:'🛡️ 1/N 에스크로 정산'},
+ {id:14,v:'mate',sub:'동성캠핑',tag:'#동성캠핑 · 글램핑',viewing:10,dist:'2.4km',fo:1,t:'[여성전용] 상암 난지캠핑장 감성 바베큐 & 불멍 글램핑 메이트 ⛺',q:'"장비 없어도 몸만 오세요! 동성 친구끼리 안전하고 신나게 불멍해요"',p:'마포구 상암동 난지캠핑장',d:'이번주 토요일 17:00',n:'3/4',h:'캠핑요정소라',av:'kr_female_2',mn:41.8,img:'cover_running'},
+ {id:15,v:'mate',sub:'동네산책',tag:'#동네산책 · 저녁산책',viewing:9,dist:'300m',t:'경의선숲길 연트럴파크 선선한 저녁 산책 & 테이크아웃 커피 🌿',q:'"식후 가볍게 40분 정도 산책하며 일상 수다 나누실 동네 메이트!"',p:'마포구 동교동 경의선숲길',d:'오늘 저녁 8:30',n:'2/4',h:'산책메이트현',av:'kr_male_2',mn:39.9,img:'cover_running'}
 ];
 
 const POSTS=[
@@ -555,7 +528,7 @@ const POTS=[
 ];
 const ROOMS=[['마라탕 번개 모임','그럼 오늘 저녁 7시에 홍대 9번출구에서 봬요!','2','kr_female_1'],['망원 한강 러닝 크루','내일 저녁 8시 망원한강공원 집합!','','kr_male_1'],['합정 코스트코 소분 팟','연어랑 베이글 수량 체크해주세요','','kr_female_2']];
 
-const S={theme:'v2',tab:'meet',vibe:'all',sub:'전체',moreOpen:false,cat:'전체',seg:0,view:'block',interest:{},gone:{},posts:JSON.parse(JSON.stringify(POSTS)),w:{v:'hot',s:null}};
+const S={screenMode:'home',theme:'v1',tab:'meet',vibe:'all',sub:'전체',moreOpen:false,cat:'전체',seg:0,view:'block',interest:{},gone:{},posts:JSON.parse(JSON.stringify(POSTS)),w:{v:'hot',s:null}};
 
 function renderSpecBar(){
   const sp = THEME_SPECS[S.theme];
@@ -568,13 +541,20 @@ function renderSpecBar(){
   `;
 }
 
+function setScreenMode(mode){
+  S.screenMode = mode;
+  $('#modeHome').classList.toggle('on', mode==='home');
+  $('#modeLogin').classList.toggle('on', mode==='login');
+  render();
+}
+
 function setTheme(th){
   S.theme = th;
   document.body.setAttribute('data-theme', th);
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on', b.dataset.th===th));
   renderSpecBar();
   render(true);
-  toast(THEME_SPECS[th].ref + ' 디자인이 적용되었습니다');
+  toast(THEME_SPECS[th].ref + ' 적용 완료');
 }
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.k);toast.k=setTimeout(()=>t.classList.remove('on'),1800)}
 function openSheet(html){ $('#sheet').innerHTML='<div class="grab"></div>'+html; $('#ov').classList.add('on'); $('#sheet').classList.add('on')}
@@ -582,16 +562,19 @@ function closeSheet(){ $('#ov').classList.remove('on'); $('#sheet').classList.re
 $('#ov').onclick=closeSheet;
 
 function head(){
+  if(S.screenMode==='login'){
+    $('#top-wrap').style.display='none';
+    return;
+  }
+  $('#top-wrap').style.display='block';
   if(S.tab==='meet'||S.tab==='comm'){
-    const pillTxt = S.theme==='v2' ? '🌿 동네인증됨' : S.theme==='v3' ? 'MAPO LIVE' : S.theme==='v4' ? '이웃 54명 접속' : '동네인증';
-    $('#top').innerHTML=`<button class="loc">마포구 서교동 ${ic('down',18)}<span class="loc-pill">${pillTxt}</span></button><div class="icons"><button class="ibtn" aria-label="검색">${ic('search')}</button><button class="ibtn" aria-label="알림">${ic('bell')}<i class="dot"></i></button></div>`;
+    $('#top').innerHTML=`<button class="loc">마포구 서교동 ${ic('down',18)}<span class="loc-pill">이웃 54명 접속 중</span></button><div class="icons"><button class="ibtn" aria-label="검색">${ic('search')}</button><button class="ibtn" aria-label="알림">${ic('bell')}<i class="dot"></i></button></div>`;
   } else {
     $('#top').innerHTML='';
     $('#cat-header').innerHTML='';
   }
 }
 
-/* 서브태그 1줄 + '+N 더보기' 트레이 (모든 시안 공통 짤림 0%) */
 function buildSubChipsHtml(V){
   const hasSub = V.row1 && V.row1.length > 0;
   if(!hasSub) return '';
@@ -613,57 +596,20 @@ function buildSubChipsHtml(V){
 }
 
 function renderCatHeader(){
-  if(S.tab!=='meet'){ $('#cat-header').innerHTML=''; return; }
+  if(S.screenMode==='login' || S.tab!=='meet'){ $('#cat-header').innerHTML=''; return; }
   const V=VIBES[S.vibe];
-
-  if(S.theme==='v2'){
-    /* 시안 2: 문토 × 남의집 (AI 컨시어지 서치바 + 언더라인 카운트 탭바) */
-    $('#cat-header').innerHTML=`
-      <div class="v2-search-bar" id="aiConcierge">
-        <div class="v2-search-left">${ic('search',16)}<span>오늘 저녁, 누구와 어떤 취향을 나눌까요?</span></div>
-        <button class="v2-ai-btn">✨ AI 번개추천</button>
-      </div>
-      <div class="v2-tabs">
-        ${Object.entries(VIBES).map(([k,v])=>`<button class="v2-tab ${S.vibe===k?'on':''}" data-v="${k}">${v.name}<i>${v.cnt}</i></button>`).join('')}
-      </div>
-      ${buildSubChipsHtml(V)}
-    `;
-  } else if(S.theme==='v3'){
-    /* 시안 3: 29CM × 프립 (다크 매거진 쇼케이스 + 다크 플로팅 캡슐 탭) */
-    $('#cat-header').innerHTML=`
-      <div class="v3-hero">
-        <div class="v3-hero-card">
-          <div style="min-width:0;flex:1">
-            <div class="v3-hero-tag">CURATED FOR MAPO · 2030</div>
-            <div class="v3-hero-title">${V.name} 큐레이션 쇼케이스</div>
-            <div class="v3-hero-sub">${V.desc}</div>
-          </div>
-        </div>
-      </div>
-      <div class="v3-pills">
-        ${Object.entries(VIBES).map(([k,v])=>`<button class="v3-pill ${S.vibe===k?'on':''}" data-v="${k}">${v.name}</button>`).join('')}
-      </div>
-      ${buildSubChipsHtml(V)}
-    `;
-  } else if(S.theme==='v4'){
-    /* 시안 4: 당근 모임 × 토스 (실시간 동네 이웃 티커 + 4열 아이콘 타일 카드) */
-    $('#cat-header').innerHTML=`
-      <div class="v4-ticker"><span class="v4-pulse"></span><span>지금 서교·연남동 이웃 54명이 오늘 번개를 보고 있어요</span></div>
-      <div class="v4-tiles">
-        ${Object.entries(VIBES).map(([k,v])=>`<button class="v4-tile ${S.vibe===k?'on':''}" data-v="${k}"><i>${v.icon}</i><b>${v.short}</b></button>`).join('')}
-      </div>
-      ${buildSubChipsHtml(V)}
-    `;
-  } else {
-    /* 시안 1: 원본 백업 스타일 */
-    $('#cat-header').innerHTML=`
-      <div class="vibes">
-        ${Object.entries(VIBES).map(([k,v])=>`<button class="vibe ${S.vibe===k?'on':''}" data-v="${k}">${v.name}</button>`).join('')}
-      </div>
-      ${S.vibe!=='all'?`<div class="vibe-desc"><span>${V.desc}</span></div>`:''}
-      ${buildSubChipsHtml(V)}
-    `;
-  }
+  /* 시안 1(깔끔한 4열 대분류 탭) + 시안 4(실시간 동네 접속자 & 지금 몇 명이 보고 있는지 라이브 상태바) 결합! */
+  $('#cat-header').innerHTML=`
+    <div class="live-bar">
+      <div class="live-left"><span class="live-dot"></span><span>지금 서교·연남동 이웃 <b>54명</b>이 모임을 보고 있어요</span></div>
+      <span class="live-tag">안전인증 동네</span>
+    </div>
+    <div class="vibes">
+      ${Object.entries(VIBES).map(([k,v])=>`<button class="vibe ${S.vibe===k?'on':''}" data-v="${k}">${v.name}</button>`).join('')}
+    </div>
+    ${S.vibe!=='all'?`<div class="vibe-desc"><span>${V.desc}</span></div>`:''}
+    ${buildSubChipsHtml(V)}
+  `;
 
   document.querySelectorAll('#cat-header [data-v]').forEach(b=>b.onclick=()=>{
     S.vibe=b.dataset.v; S.sub='전체'; S.moreOpen=false; render();
@@ -673,35 +619,78 @@ function renderCatHeader(){
   });
   const tm=$('#toggleMore');
   if(tm) tm.onclick=()=>{ S.moreOpen=!S.moreOpen; render(true); };
-  const aic=$('#aiConcierge');
-  if(aic) aic.onclick=()=>aiRecommendSheet();
-}
-
-function aiRecommendSheet(){
-  openSheet(`<div class="sh"><h2>✨ OOMU 로컬 AI 맞춤 번개 추천</h2><button class="ibtn" onclick="closeSheet()">${ic('x')}</button></div>
-  <div class="sb">
-    <div style="padding:12px 14px;border-radius:14px;background:var(--brand-soft);color:var(--brand-ink);font-size:13px;font-weight:700;line-height:1.45">
-      🤖 <b>Claude-3.5-Sonnet 큐레이션</b><br>금요일 저녁 마포구 서교동 기준, 지금 바로 합류 가능한 매너온도 40°C+ 우수 호스트 번개 2곳을 찾았어요!
-    </div>
-    <div style="margin-top:12px">${MEET.slice(0,2).map(m=>listRow(m)).join('')}</div>
-  </div>`);
-  document.querySelectorAll('#sheet [data-m]').forEach(b=>b.onclick=()=>meetSheet(+b.dataset.m));
 }
 
 function nav(){
+  if(S.screenMode==='login'){
+    $('#bn').style.display='none';
+    return;
+  }
+  $('#bn').style.display='grid';
   const T=[['meet','모임','home'],['comm','커뮤니티','users'],['date','소개팅','heart'],['chat','채팅','chat'],['my','MY','user']];
   $('#bn').innerHTML=T.map(([k,l,i])=>`<button class="tab ${S.tab===k?'on':''}" data-k="${k}">${ic(i)}<span>${l}</span>${k==='chat'?'<i class="nb">2</i>':''}</button>`).join('');
   $('#bn').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.tab=b.dataset.k;render();$('#main').scrollTop=0});
 }
+
 function fab(){
   const f=$('#fab'),t=S.tab;
+  if(S.screenMode==='login'){ f.style.display='none'; return; }
   if(t==='meet'){f.style.display='flex';f.innerHTML=ic('plus')+'모임 만들기';f.onclick=()=>writeSheet()}
   else if(t==='comm'){f.style.display='flex';f.innerHTML=ic('pen')+'글쓰기';f.onclick=()=>postSheet()}
   else f.style.display='none';
 }
 
-/* ---------- 시안별 차별화된 MEET 카드 렌더러 ---------- */
-function blockCardV1(m){
+/* ---------- 첫 로그인 / 온보딩 UI 렌더러 (안전한 동네친구 + 설레는 자연스러운 소개팅 테마) ---------- */
+function renderLoginScreen(){
+  return `
+  <div class="login-screen">
+    <div>
+      <div class="login-badge-row">
+        <div class="login-logo"><span class="login-logo-mark">O</span>OOMU 오뮤</div>
+        <span class="login-live-chip"><i></i>서교동 54명 활동 중</span>
+      </div>
+      <div class="login-hero-copy">
+        <span class="login-kicker">✨ 안전한 동네 친구부터 설레는 자만추까지</span>
+        <h1 class="login-title">오늘 우리 동네에서<br><em>기분 좋은 인연</em>을<br>시작해 볼까요?</h1>
+        <p class="login-sub">본인·동네 인증을 마친 검증된 이웃들과<br>부담 없는 동네 번개부터 자연스러운 소개팅까지 함께해요.</p>
+      </div>
+
+      <div class="login-preview-stack">
+        <div class="lp-card">
+          <div class="lp-av" style="${bg('cover_wine')}"></div>
+          <div class="lp-info">
+            <span class="lp-tag">⚡ 오늘 번개 · 지금 19명 열람 중</span>
+            <h4>연남동 LP바에서 신청곡 들으며 하이볼 한잔</h4>
+            <p>서교동 520m · 호스트 매너온도 40.5°C · 2/4명 참여</p>
+          </div>
+        </div>
+        <div class="lp-card">
+          <div class="lp-av" style="${bg('kr_female_1')}"></div>
+          <div class="lp-info">
+            <span class="lp-tag pink">💓 지인 추천 소개팅 · 시크릿 매칭</span>
+            <h4>"리액션 좋고 대화 편한 마케터 친구 소개해요"</h4>
+            <p>성수·연남 카페투어 · 서로 호감일 때만 채팅 오픈</p>
+          </div>
+        </div>
+        <div class="lp-trust">
+          <div class="lp-tbox"><b>🛡️ 100% 인증</b><span>동네·본인 확인</span></div>
+          <div class="lp-tbox"><b>🌡️ 38.5°C+</b><span>매너온도 보장</span></div>
+          <div class="lp-tbox"><b>🤝 안심 정산</b><span>1/N 에스크로</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-actions">
+      <button class="btn-kakao" onclick="setScreenMode('home');toast('카카오로 3초 만에 시작했어요!')">💬 카카오로 3초 만에 시작하기</button>
+      <button class="btn-primary-grad" onclick="setScreenMode('home');toast('휴대폰 동네 인증으로 시작했어요!')">📱 휴대폰 번호로 안전하게 시작</button>
+      <button class="btn-outline" onclick="setScreenMode('home')">먼저 우리 동네 모임 둘러보기 ›</button>
+      <div class="login-foot-note">가입 시 동네 위치 인증 및 안심 커뮤니티 가이드에 동의하게 됩니다.</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 시안 1(클린 카드) + 시안 4(실시간 열람수·거리·아바타 스택) 하이브리드 카드 ---------- */
+function blockCardHybrid(m){
   return `<button class="bcard" data-m="${m.id}">
     <div class="cover" style="${bg(m.img)}">
       <div class="shade"></div>
@@ -712,113 +701,42 @@ function blockCardV1(m){
           ${m.fo?'<span class="fbadge">여성 전용</span>':''}
         </div>
       </div>
+      <div class="bl">
+        <span class="view-pill"><i></i>지금 ${m.viewing||12}명이 보고 있어요</span>
+        ${m.spot?`<span class="spot-pill">${m.spot}</span>`:''}
+      </div>
     </div>
     <div class="cbody">
       <div class="ct">${m.t}</div>
       ${m.q?`<div class="cquote">💬 ${m.q}</div>`:''}
-      <div class="cinfo">${ic('pin')}<span>${m.p}</span>${ic('clock')}<span>${m.d}</span></div>
+      <div class="cinfo">${ic('pin')}<span>${m.p} (${m.dist||'400m'})</span>${ic('clock')}<span>${m.d}</span></div>
       <div class="cdiv"></div>
-      <div class="chost"><i class="av2" style="${bg(m.av)}"></i><b>${m.h}</b><span class="mn">${ic('flame')}${m.mn}°C</span><span class="pill">${m.n} 참여</span></div>
+      <div class="chost">
+        <div class="av-stack">
+          <i style="${bg(m.av)}"></i><i style="${bg('kr_female_2')}"></i><i style="${bg('kr_male_1')}"></i>
+          <b>${m.h}</b>
+        </div>
+        <span class="mn">${ic('flame')}${m.mn}°C</span>
+        <span class="pill">${m.n} 참여</span>
+      </div>
     </div></button>`;
 }
 
-/* 시안 2: 문토 × 남의집 스타일 (좌측 라운드 포스터 + 우측 취향 배지 + 하단 호스트 초대장 & 멀티 아바타 스택) */
-function salonCardV2(m){
-  return `<button class="v2-card" data-m="${m.id}">
-    <div class="v2-card-top">
-      <div class="v2-thumb" style="${bg(m.img)}">
-        <span class="v2-thumb-tag">${m.left||'모집중'}</span>
+function listRowHybrid(m){
+  return `<button class="lrow" data-m="${m.id}">
+    <div class="lth" style="${bg(m.img)}"></div>
+    <div style="flex:1;min-width:0">
+      <div>
+        <span class="lbadge">${m.tag.split(' · ')[0]}</span>
+        <span class="lview">👀 ${m.viewing||11}명 열람 중</span>
       </div>
-      <div class="v2-main">
-        <div>
-          <div class="v2-badges">
-            <span class="v2-b1">${m.tag.split(' · ')[0]}</span>
-            ${m.spot?`<span class="v2-b2">${m.spot}</span>`:(m.urgent?`<span class="v2-b2">⚡ ${m.urgent}</span>`:'')}
-          </div>
-          <div class="v2-title">${m.t}</div>
-        </div>
-        <div class="v2-meta">📍 ${m.p} · ⏰ ${m.d}</div>
+      <div class="ct">${m.t}</div>
+      <div class="cinfo">${ic('pin')}<span>${m.p} (${m.dist||'400m'}) · ${m.d}</span></div>
+      <div class="lfoot">
+        <span class="mn" style="color:var(--sub)">${m.h} · ${ic('flame')}${m.mn}°C</span>
+        <span class="pill" style="padding:3px 9px;font-size:11.5px">${m.n}명 참여</span>
       </div>
-    </div>
-    ${m.q?`<div class="v2-host-box"><i class="av2" style="${bg(m.av)}"></i><span class="v2-host-txt"><b>${m.h}</b> (${m.mn}°C) ${m.q}</span></div>`:''}
-    <div class="v2-foot">
-      <div class="av-stack">
-        <i style="${bg('kr_female_1')}"></i><i style="${bg('kr_male_1')}"></i><i style="${bg('kr_female_2')}"></i>
-        <span>멤버 ${m.n}명 합류 중</span>
-      </div>
-      <span class="v2-join">살롱 참여하기 →</span>
-    </div>
-  </button>`;
-}
-
-/* 시안 2 전용: B2B 공식 인증 아지트 스폰서십 큐레이션 카드 */
-function b2bAgitBanner(){
-  return `<button class="b2b-card" id="b2bSpotBtn">
-    <div class="b2b-top">
-      <span class="b2b-badge">✨ OOMU 공식 인증 아지트</span>
-      <span class="b2b-perk">🍹 웰컴 하이볼 1잔 무료</span>
-    </div>
-    <div class="b2b-body">
-      <div class="b2b-thumb" style="${bg('cover_wine')}"></div>
-      <div class="b2b-info">
-        <h4>연남동 LP 라운지 '바이닐 포레스트'</h4>
-        <p>노쇼 걱정 없는 1/N 안심 에스크로 정산 매장 · 오늘 번개 모임 시 테이블 우선 예약 및 웰컴 드링크 제공</p>
-      </div>
-    </div>
-    <div class="b2b-foot">
-      <span>📍 서교·연남동 도보 5분 · 현재 3개 모임 예약됨</span>
-      <span class="b2b-cta">이 아지트로 모임 열기 ›</span>
-    </div>
-  </button>`;
-}
-
-/* 시안 3: 29CM × 프립 2열 매거진 포스터 카드 */
-function magazineCardV3(m){
-  return `<button class="v3-mcard" data-m="${m.id}">
-    <div class="v3-mimg" style="${bg(m.img)}">
-      <div class="v3-mtop">
-        <span class="v3-mtag">${m.tag.split(' · ')[0]}</span>
-        <span class="v3-md2">${m.n}명</span>
-      </div>
-      <div class="v3-mbot">📍 ${m.p.replace('마포구 ','')} · ${m.d}</div>
-    </div>
-    <div class="v3-mbody">
-      <div class="v3-mtitle">${m.t}</div>
-      <div class="v3-mfoot">
-        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.h}</span>
-        <span style="color:#FF2E63;flex:none">🔥 ${m.mn}°</span>
-      </div>
-    </div>
-  </button>`;
-}
-
-/* 시안 4: 당근 모임 × 토스 스타일 고밀도 수평 카드 (한 화면에 3~4개 노출) */
-function compactCardV4(m){
-  return `<button class="v4-row-card" data-m="${m.id}">
-    <div class="v4-rimg" style="${bg(m.img)}"></div>
-    <div class="v4-rbody">
-      <div class="v4-rtags">
-        <span class="v4-rt1">${m.tag.split(' · ')[0]}</span>
-        <span class="v4-rt2">${m.urgent || m.left || '모집중'}</span>
-      </div>
-      <div class="v4-rtitle">${m.t}</div>
-      <div class="v4-rmeta">${m.p} (${m.dist||'400m'}) · ${m.d}</div>
-      <div class="v4-rfoot">
-        <div class="av-stack">
-          <i style="${bg(m.av)}"></i><i style="${bg('kr_female_2')}"></i>
-          <span>${m.h} · 매너 ${m.mn}°C</span>
-        </div>
-        <span class="pill" style="padding:3px 8px;font-size:11px">${m.n}명</span>
-      </div>
-    </div>
-  </button>`;
-}
-
-function listRow(m){
-  return `<button class="lrow" data-m="${m.id}" style="width:100%;margin:0 0 8px"><div class="lth" style="${bg(m.img)}"></div>
-    <div style="flex:1;min-width:0"><span class="lbadge">${m.tag}${m.fo?' · 여성 전용':''}</span><div class="ct">${m.t}</div>
-    <div class="cinfo">${ic('pin')}<span>${m.p} · ${m.d}</span></div>
-    <div class="lfoot"><span class="mn" style="color:var(--sub)">${m.h} · ${ic('flame')}${m.mn}°C</span><span class="pill">${m.n} 참여</span></div></div></button>`;
+    </div></button>`;
 }
 
 function strip(){
@@ -848,28 +766,10 @@ function meet(){
     return `<div class="sec"><h2>${secTitle}</h2></div><div class="empty" style="padding:40px 16px;text-align:center;color:var(--sub)">아직 이 주제의 모임이 없어요.<br>첫 모임을 만들어 보세요.</div>`;
   }
 
-  let feed = '';
-  if(S.view==='list'){
-    const rows = list.map(m=>`<div style="padding:0 16px">${listRow(m)}</div>`);
-    feed = rows.slice(0,2).join('') + strip() + rows.slice(2).join('');
-  } else if(S.theme==='v2'){
-    /* 시안 2: 문토 × 남의집 살롱 카드 + B2B 공식 인증 아지트 큐레이션 */
-    const cards = list.map(m=>salonCardV2(m));
-    feed = b2bAgitBanner() + cards.slice(0,2).join('') + strip() + cards.slice(2).join('');
-  } else if(S.theme==='v3'){
-    /* 시안 3: 29CM × 프립 2열 포스터 매거진 그리드 */
-    const firstTwo = `<div class="v3-grid">${list.slice(0,2).map(m=>magazineCardV3(m)).join('')}</div>`;
-    const rest = list.length>2 ? `<div class="v3-grid">${list.slice(2).map(m=>magazineCardV3(m)).join('')}</div>` : '';
-    feed = (wantTop ? strip() + firstTwo : firstTwo + strip()) + rest;
-  } else if(S.theme==='v4'){
-    /* 시안 4: 당근 × 토스 고밀도 수평 컴팩트 리스트 (한 화면에 3~4개) */
-    const cards = list.map(m=>compactCardV4(m));
-    feed = cards.slice(0,3).join('') + strip() + cards.slice(3).join('');
-  } else {
-    /* 시안 1: 원본 백업 */
-    const cards = list.map(m=>blockCardV1(m));
-    feed = cards.slice(0,2).join('') + strip() + cards.slice(2).join('');
-  }
+  const cards = list.map(m=>S.view==='block'?blockCardHybrid(m):listRowHybrid(m));
+  const splitIdx = S.view==='block' ? 2 : 3;
+  let feed = cards.slice(0,splitIdx).join('') + (wantTop?'':strip()) + cards.slice(splitIdx).join('');
+  if(wantTop) feed = strip() + cards.join('');
 
   return `
   <div class="sec"><h2>${secTitle}</h2>
@@ -882,21 +782,6 @@ function bindMeet(){
   document.querySelectorAll('.tcard').forEach(b=>b.onclick=()=>trendSheet(+b.dataset.i));
   const a=$('#allT'); if(a)a.onclick=allTrends;
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>meetSheet(+b.dataset.m));
-  const b2b=$('#b2bSpotBtn');
-  if(b2b) b2b.onclick=()=>{
-    openSheet(`<div class="sh"><h2>✨ OOMU 공식 인증 아지트</h2><button class="ibtn" onclick="closeSheet()">${ic('x')}</button></div>
-    <div class="sb">
-      <div class="cover" style="${bg('cover_wine')};border-radius:18px;height:180px"></div>
-      <div style="margin-top:12px;display:flex;gap:6px">
-        <span class="b2b-badge">🛡️ 1/N 안심 에스크로 정산</span>
-        <span class="b2b-perk">🍹 웰컴 하이볼 1잔 무료</span>
-      </div>
-      <h3 style="font-size:19px;font-weight:800;margin-top:10px">연남동 LP 라운지 '바이닐 포레스트'</h3>
-      <p style="font-size:13.5px;color:var(--sub);margin-top:6px;line-height:1.5">OOMU가 엄선한 마포구 공식 제휴 아지트입니다. 모임 개설 시 예약금 노쇼 방지 에스크로가 자동 적용되며, 참여 멤버 전원에게 웰컴 하이볼을 무료로 제공합니다.</p>
-    </div>
-    <div class="foot"><button class="btn" id="b2bMake">이 아지트에서 번개 모임 열기</button></div>`);
-    $('#b2bMake').onclick=()=>{closeSheet();setTimeout(()=>writeSheet('hot'),220)};
-  };
 }
 
 function trendSheet(i){
@@ -919,10 +804,10 @@ function allTrends(){
 function meetSheet(id){
   const m=MEET.find(x=>x.id===id);
   openSheet(`<div class="sh"><h2>모임 상세</h2><button class="ibtn" onclick="closeSheet()" aria-label="닫기">${ic('x')}</button></div>
-  <div class="sb"><div class="cover" style="${bg(m.img)};border-radius:18px"><div class="shade" style="border-radius:18px"></div><div class="tl"><span class="cbadge">${m.tag}</span></div></div>
+  <div class="sb"><div class="cover" style="${bg(m.img)};border-radius:18px"><div class="shade" style="border-radius:18px"></div><div class="tl"><span class="cbadge">${m.tag}</span><span class="view-pill"><i></i>지금 ${m.viewing||12}명 열람 중</span></div></div>
   <h3 style="font-size:19px;margin-top:14px;line-height:1.35">${m.t}</h3>
   ${m.q?`<div class="cquote" style="white-space:normal;margin-top:10px">💬 ${m.q}</div>`:''}
-  <div class="meta" style="font-size:14px;margin-top:10px">${ic('pin')}<span>${m.p}</span></div>
+  <div class="meta" style="font-size:14px;margin-top:10px">${ic('pin')}<span>${m.p} (${m.dist||'400m'})</span></div>
   <div class="meta" style="font-size:14px">${ic('clock')}<span>${m.d}</span></div>
   <div class="meta" style="font-size:14px">${ic('users')}<span>${m.n} 참여 · 호스트 ${m.h} (${m.mn}°C)</span></div></div>
   <div class="foot"><button class="btn" id="jn">모임 참여 신청하기</button></div>`);
@@ -1021,6 +906,11 @@ function my(){
 function render(keep){
   const sc=$('#main').scrollTop;
   head();renderCatHeader();nav();fab();
+  if(S.screenMode==='login'){
+    $('#main').innerHTML = renderLoginScreen();
+    $('#main').scrollTop = 0;
+    return;
+  }
   $('#main').innerHTML={meet,comm,date,chat,my}[S.tab]();
   ({meet:bindMeet,comm:bindComm,date:bindDate}[S.tab]||(()=>{}))();
   if(keep)$('#main').scrollTop=sc;
