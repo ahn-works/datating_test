@@ -25,6 +25,26 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   bool _isFavorite = false;
   bool _hasCompletedProfile = false;
 
+  bool get _isLightning {
+    final m = widget.meetup;
+    if (m == null) return false;
+    if (m['isLightning'] == true) return true;
+    final id = (m['id'] ?? '').toString();
+    if (id.startsWith('spot_')) return true;
+    final cat = (m['category'] ?? '').toString();
+    final mainCat = (m['mainCategory'] ?? '').toString();
+    final date = (m['date'] ?? m['time'] ?? '').toString();
+    final title = (m['title'] ?? '').toString();
+    final tags = (m['tags'] as List?)?.join(' ') ?? '';
+    final combined = '$cat $mainCat $date $title $tags'.toLowerCase();
+    return combined.contains('오늘') ||
+        combined.contains('번개') ||
+        combined.contains('10분') ||
+        combined.contains('소소스팟') ||
+        combined.contains('코노') ||
+        combined.contains('즉시');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -441,17 +461,47 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       children: [
                         Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(8)),
-                              child: Text((widget.meetup != null ? (widget.meetup!['category'] ?? widget.meetup!['mainCategory'] ?? '일상 & 푸드') : '동네 맛집 & 소셜 다이닝'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(color: destructiveColor, borderRadius: BorderRadius.circular(8)),
-                              child: const Text('여성 전용', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                            ),
+                            if (_isLightning) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('⚡', style: TextStyle(fontSize: 12)),
+                                    SizedBox(width: 4),
+                                    Text('실시간 10분 컷 당일 번개', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)),
+                                  ],
+                                ),
+                              ),
+                            ] else ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(8)),
+                                child: Text((widget.meetup != null ? (widget.meetup!['category'] ?? widget.meetup!['mainCategory'] ?? '일상 & 푸드') : '동네 맛집 & 소셜 다이닝'), style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0F2),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFF8C6CD)),
+                                ),
+                                child: const Text('✨ 공식 인증 아지트', style: TextStyle(color: Color(0xFFC83243), fontWeight: FontWeight.bold, fontSize: 12)),
+                              ),
+                            ],
+                            if (widget.meetup?['isFemaleOnly'] == true) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(color: destructiveColor, borderRadius: BorderRadius.circular(8)),
+                                child: const Text('여성 전용', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -461,6 +511,42 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               : '주말 엽떡+마라탕\n조지실 분 구해요!',
                           style: TextStyle(color: textPrimary, fontSize: 24, fontWeight: FontWeight.w800, height: 1.3),
                         ),
+                        if (_isLightning) ...[
+                          const SizedBox(height: 14),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF4EB),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFFFD8A8)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFF5E36),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const Text('⚡', style: TextStyle(fontSize: 20)),
+                                ),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('오늘 바로 만나는 실시간 번개 모임', style: TextStyle(color: Color(0xFFD9480F), fontWeight: FontWeight.w800, fontSize: 13.5)),
+                                      SizedBox(height: 2),
+                                      Text('출발 전 빠른 합류를 위해 승인 없이 채팅방으로 바로 연결됩니다.', style: TextStyle(color: Color(0xFF8C3800), fontSize: 11.5)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -870,22 +956,55 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       bottomSheet: Container(
         padding: const EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 32),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withOpacity(0.95),
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, -10))],
         ),
         child: SizedBox(
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: _isApplying ? null : _showApplyToast,
+            onPressed: () {
+              if (_isLightning) {
+                // 실시간 번개: 승인 대기 없이 바로 채팅방 입장
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('⚡ 실시간 번개 모임에 합류했습니다! 채팅방으로 바로 이동합니다.'),
+                    backgroundColor: Color(0xFFFF5E36),
+                  ),
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => OOMUChatScreen(
+                      title: widget.meetup?['title'] ?? '실시간 번개 팟',
+                      memberCount: 3,
+                      chatRoomId: oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'lightning_room_01'),
+                    ),
+                  ),
+                );
+              } else {
+                if (!_isApplying) _showApplyToast();
+              }
+            },
             style: ElevatedButton.styleFrom(
-              backgroundColor: accentColor,
+              backgroundColor: _isLightning ? const Color(0xFFFF5E36) : accentColor,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: Text(
-              _isApplying ? '신청 확인 중' : '참여 신청하기',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_isLightning) ...[
+                  const Text('⚡', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 6),
+                ],
+                Text(
+                  _isLightning
+                      ? '지금 바로 번개 합류하기 (채팅방 바로 입장)'
+                      : (_isApplying ? '신청 확인 중' : '참여 신청하기 (1/N 안심 정산)'),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ],
             ),
           ),
         ),

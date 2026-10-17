@@ -192,6 +192,69 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     },
   ];
 
+  final List<Map<String, dynamic>> _liveSpots = [
+    {
+      'id': 'spot_01',
+      'title': '홍대입구역 9번 출구 인생네컷 & 와플 🧇',
+      'location': '마포구 홍대입구역 9번 출구 앞',
+      'distance': '도보 180m',
+      'timeLeft': '8분 남음',
+      'category': '오늘 번개',
+      'members': '2/4',
+      'host': '달콤한와플',
+      'hostAvatar': 'assets/images/kr_female_2.jpg',
+      'manner': 42.1,
+      'image': 'assets/images/cover_cafe.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (8분 후 집결)',
+    },
+    {
+      'id': 'spot_02',
+      'title': '연남동 연트럴파크 돗자리 캔맥주 급구 🍺',
+      'location': '마포구 경의선숲길 잔디광장',
+      'distance': '도보 350m',
+      'timeLeft': '12분 남음',
+      'category': '오늘 번개',
+      'members': '3/4',
+      'host': '연트럴피플',
+      'hostAvatar': 'assets/images/kr_male_2.jpg',
+      'manner': 39.4,
+      'image': 'assets/images/cover_wine.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (12분 후 집결)',
+    },
+    {
+      'id': 'spot_03',
+      'title': '성수동 서울숲 잔디마당 플랫화이트 번개 ☕',
+      'location': '성동구 서울숲 메인 출구',
+      'distance': '도보 520m',
+      'timeLeft': '15분 남음',
+      'category': '오늘 번개',
+      'members': '1/3',
+      'host': '성수동힙스터',
+      'hostAvatar': 'assets/images/kr_female_3.jpg',
+      'manner': 43.0,
+      'image': 'assets/images/cover_cafe.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (15분 후 집결)',
+    },
+    {
+      'id': 'spot_04',
+      'title': '망원 한강공원 야경 산책 & 라면 먹방 🏃',
+      'location': '마포구 망원 한강공원 편의점 앞',
+      'distance': '도보 750m',
+      'timeLeft': '22분 남음',
+      'category': '오늘 번개',
+      'members': '2/4',
+      'host': '망원라이더',
+      'hostAvatar': 'assets/images/kr_male_1.jpg',
+      'manner': 41.5,
+      'image': 'assets/images/cover_running.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (22분 후 집결)',
+    },
+  ];
+
   String _currentLocation = '마포구 서교동';
   String? _selectedVibe;
   int _selectedCategoryIndex = 0;
@@ -570,6 +633,218 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     } catch (e) {
       debugPrint("Seed error: $e");
     }
+  }
+
+  Widget _buildLiveSpotCarousel() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w900)),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            '지금 내 주변 10분 컷 번개',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      '⏱️ 10~30분 내 바로 만나는 실시간 즉석 팟',
+                      style: TextStyle(fontSize: 12, color: Color(0xFFFF5E36), fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SoSoSpotScreen())),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF4EB),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: const Color(0xFFFFD8A8)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('전체 지도', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFD9480F))),
+                      Icon(Icons.chevron_right, size: 14, color: Color(0xFFD9480F)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 168,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: _liveSpots.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final spot = _liveSpots[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: spot)));
+                },
+                child: Container(
+                  width: 220,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFFFD8A8), width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E36).withOpacity(0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 상단 썸네일 + 실시간 타이머 뱃지
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                            child: Image(
+                              image: appImg(spot['image']),
+                              width: 220,
+                              height: 84,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Container(
+                            height: 84,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              gradient: LinearGradient(
+                                colors: [Colors.black.withOpacity(0.55), Colors.transparent],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF5E36),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.alarm, size: 11, color: Colors.white),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    spot['timeLeft'],
+                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.65),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                spot['distance'],
+                                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // 하단 정보
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              spot['title'],
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: textPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 9,
+                                      backgroundImage: appImg(spot['hostAvatar']),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      spot['host'],
+                                      style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF4EB),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    '${spot['members']} 참여',
+                                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFD9480F)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildTrendCurationSection() {
@@ -1505,86 +1780,94 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
 
-          // 3. 소소스팟 (SoSo Spot) Real-Time Entry Banner
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 28),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SoSoSpotScreen()));
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF1F1F24), Color(0xFF2E2E3A)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+          // 3. 탭별 특화 큐레이션 섹션 (소소스팟 & 트렌드 큐레이션)
+          if (_selectedCategoryIndex == 0) ...[
+            // [전체 탭]: 소소스팟 슬림 엔트리 배너 + 실시간 공연·뮤지컬 & 트렌드 핫플
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SoSoSpotScreen()));
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1E1E24), Color(0xFF2C2C36)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 14, offset: const Offset(0, 4)),
+                      ],
                     ),
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 6)),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
-                          borderRadius: BorderRadius.circular(14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text('⚡', style: TextStyle(fontSize: 22)),
                         ),
-                        alignment: Alignment.center,
-                        child: const Text('⚡', style: TextStyle(fontSize: 26)),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(color: const Color(0xFF34C759), borderRadius: BorderRadius.circular(6)),
-                                  child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
-                                ),
-                                const SizedBox(width: 6),
-                                const Expanded(
-                                  child: Text(
-                                    '소소스팟 (SoSo Spot)',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
-                                    overflow: TextOverflow.ellipsis,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(color: const Color(0xFF34C759), borderRadius: BorderRadius.circular(5)),
+                                    child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              '내 주변 10분 컷 핫플! 실시간 번개 즉시 합류',
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
-                            ),
-                          ],
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    '소소스팟 실시간 번개',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                '내 주변 10분 컷 핫플! 실시간 번개 즉시 합류',
+                                style: TextStyle(color: Colors.white70, fontSize: 11.5),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
-                    ],
+                        const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 14),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            SliverToBoxAdapter(
+              child: _buildTrendCurationSection(),
+            ),
+          ] else if (_selectedCategoryIndex == 1) ...[
+            // [⚡ 오늘 번개 탭]: 중복 검은 배너 및 공연 섹션 제거! -> 10분 컷 실시간 번개 캐러셀 직접 노출!
+            SliverToBoxAdapter(
+              child: _buildLiveSpotCarousel(),
+            ),
+          ] else if (_selectedCategoryIndex == 2) ...[
+            // [☕ 취향 아지트 탭]: 공연·뮤지컬 & 트렌드 핫플 (KOPIS) 상단 배치!
+            SliverToBoxAdapter(
+              child: _buildTrendCurationSection(),
+            ),
+          ],
 
-          // 4. 실시간 공연·뮤지컬 & 트렌드 핫플 (KOPIS & AI 큐레이션)
-          SliverToBoxAdapter(
-            child: _buildTrendCurationSection(),
-          ),
-
-          // 5. 우리 동네 취향 모임 Header
+          // 4. 우리 동네 취향 모임 Header
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 32, bottom: 16),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 26, bottom: 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -1594,7 +1877,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${_currentLocation.split(' ')[0]}에서\n지금 뜨는 모임',
+                          _selectedCategoryIndex == 1
+                              ? '${_currentLocation.split(' ')[0]}에서\n오늘 만나는 당일 번개'
+                              : (_selectedCategoryIndex == 2
+                                  ? '${_currentLocation.split(' ')[0]}의\n감성 취향 아지트'
+                                  : (_selectedCategoryIndex == 3
+                                      ? '${_currentLocation.split(' ')[0]}의\n일상 라이프 메이트'
+                                      : '${_currentLocation.split(' ')[0]}에서\n지금 뜨는 모임')),
                           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2),
                         ),
                         const SizedBox(height: 6),
@@ -1603,8 +1892,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               ? '✨ \'$_selectedVibe\' 필터링 중'
                               : (_selectedCategoryIndex > 0
                                   ? '${_categories[_selectedCategoryIndex]['name']}${_selectedSubCategory != '전체' ? ' > #$_selectedSubCategory' : ''}'
-                                  : (_selectedSubCategory != '전체' ? '#$_selectedSubCategory 모임' : '실시간 참여 가능한 이웃 모임')),
-                          style: TextStyle(fontSize: 12.5, color: coralAccent, fontWeight: FontWeight.w700),
+                                  : (_selectedSubCategory != '전체'
+                                      ? '#$_selectedSubCategory 모임'
+                                      : (_selectedCategoryIndex == 1
+                                          ? '⚡ 오늘 바로 합류 가능한 동네 번개 팟'
+                                          : (_selectedCategoryIndex == 2
+                                              ? '☕ 공연·전시·취미를 함께하는 아지트'
+                                              : (_selectedCategoryIndex == 3
+                                                  ? '🏃‍♂️ 1인 가구 일상 생활 공유 메이트'
+                                                  : '실시간 참여 가능한 이웃 모임'))))),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: _selectedCategoryIndex == 1 ? const Color(0xFFFF5E36) : coralAccent,
+                            fontWeight: FontWeight.w700,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -2800,8 +3101,28 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
+  bool _isLightningMeetup(Map<String, dynamic> meetup) {
+    if (meetup['isLightning'] == true) return true;
+    final id = (meetup['id'] ?? '').toString();
+    if (id.startsWith('spot_')) return true;
+    final cat = (meetup['category'] ?? '').toString();
+    final mainCat = (meetup['mainCategory'] ?? '').toString();
+    final date = (meetup['date'] ?? meetup['time'] ?? '').toString();
+    final title = (meetup['title'] ?? '').toString();
+    final tags = (meetup['tags'] as List?)?.join(' ') ?? '';
+    final combined = '$cat $mainCat $date $title $tags'.toLowerCase();
+    return combined.contains('오늘') ||
+        combined.contains('번개') ||
+        combined.contains('10분') ||
+        combined.contains('소소스팟') ||
+        combined.contains('코노') ||
+        combined.contains('즉시');
+  }
+
   Widget _buildMeetupCard(Map<String, dynamic> meetup) {
     final int liveViewers = meetup['viewing'] ?? (11 + (meetup['title']?.toString().length ?? 5) % 9);
+    final bool isLightning = _isLightningMeetup(meetup);
+
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
       child: Container(
@@ -2809,8 +3130,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEFE4E6), width: 1.5),
-          boxShadow: [BoxShadow(color: const Color(0xFFF25767).withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8))],
+          border: Border.all(
+            color: isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFEFE4E6),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isLightning ? const Color(0xFFFF5E36).withOpacity(0.08) : const Color(0xFFF25767).withOpacity(0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -2842,19 +3172,47 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF8F9).withOpacity(0.96),
-                                  borderRadius: BorderRadius.circular(9),
-                                  border: Border.all(color: const Color(0xFFF8C6CD)),
-                                ),
-                                child: Text(
-                                  meetup['category'] ?? '동네모임',
-                                  style: const TextStyle(color: Color(0xFFC83243), fontWeight: FontWeight.w800, fontSize: 11.5),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                              child: isLightning
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
+                                        borderRadius: BorderRadius.circular(9),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(0xFFFF5E36).withOpacity(0.35),
+                                            blurRadius: 6,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text('⚡', style: TextStyle(fontSize: 12)),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              meetup['category'] ?? '오늘 번개',
+                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11.5),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFF8F9).withOpacity(0.96),
+                                        borderRadius: BorderRadius.circular(9),
+                                        border: Border.all(color: const Color(0xFFF8C6CD)),
+                                      ),
+                                      child: Text(
+                                        meetup['category'] ?? '동네모임',
+                                        style: const TextStyle(color: Color(0xFFC83243), fontWeight: FontWeight.w800, fontSize: 11.5),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
                             ),
                             if (meetup['isFemaleOnly'] == true)
                               Container(
@@ -2880,28 +3238,47 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   Container(
                                     width: 6,
                                     height: 6,
-                                    decoration: const BoxDecoration(color: Color(0xFF34D399), shape: BoxShape.circle),
+                                    decoration: BoxDecoration(
+                                      color: isLightning ? const Color(0xFFFF5E36) : const Color(0xFF34D399),
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    '지금 $liveViewers명이 보고 있어요',
+                                    isLightning ? '🔥 번개 $liveViewers명 참여 중' : '지금 $liveViewers명이 보고 있어요',
                                     style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF0F2),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(color: const Color(0xFFF8C6CD)),
-                              ),
-                              child: const Text(
-                                '✨ 공식 인증 아지트',
-                                style: TextStyle(color: Color(0xFFC83243), fontSize: 10.5, fontWeight: FontWeight.w800),
-                              ),
-                            ),
+                            isLightning
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF5E36).withOpacity(0.92),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.bolt, size: 12, color: Colors.white),
+                                        SizedBox(width: 2),
+                                        Text('즉시 합류', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w800)),
+                                      ],
+                                    ),
+                                  )
+                                : Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF0F2),
+                                      borderRadius: BorderRadius.circular(999),
+                                      border: Border.all(color: const Color(0xFFF8C6CD)),
+                                    ),
+                                    child: const Text(
+                                      '✨ 공식 인증 아지트',
+                                      style: TextStyle(color: Color(0xFFC83243), fontSize: 10.5, fontWeight: FontWeight.w800),
+                                    ),
+                                  ),
                           ],
                         ),
                       ],
@@ -2915,11 +3292,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(meetup['title'] ?? '취향 모임', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    meetup['title'] ?? '취향 모임',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, size: 15, color: coralAccent),
+                      Icon(Icons.location_on_outlined, size: 15, color: isLightning ? const Color(0xFFFF5E36) : coralAccent),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -2929,12 +3311,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Icon(Icons.access_time, size: 15, color: coralAccent),
+                      Icon(isLightning ? Icons.bolt : Icons.access_time, size: 15, color: isLightning ? const Color(0xFFFF5E36) : coralAccent),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          meetup['date'] ?? '일정 협의',
-                          style: TextStyle(fontSize: 12.5, color: textSecondary),
+                          meetup['date'] ?? (isLightning ? '오늘 즉시' : '일정 협의'),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: isLightning ? const Color(0xFFFF5E36) : textSecondary,
+                            fontWeight: isLightning ? FontWeight.w800 : FontWeight.w500,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -2986,11 +3372,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF0F2),
+                          color: isLightning ? const Color(0xFFFFF4EB) : const Color(0xFFFFF0F2),
                           borderRadius: BorderRadius.circular(9),
-                          border: Border.all(color: const Color(0xFFF8C6CD)),
+                          border: Border.all(color: isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFF8C6CD)),
                         ),
-                        child: Text('${meetup['members'] ?? '2/4'} 참여', style: const TextStyle(fontSize: 12, color: Color(0xFFC83243), fontWeight: FontWeight.w800)),
+                        child: Text(
+                          isLightning ? '⚡ 즉시 (${meetup['members'] ?? '2/4'})' : '${meetup['members'] ?? '2/4'} 참여',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isLightning ? const Color(0xFFD9480F) : const Color(0xFFC83243),
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -3009,14 +3402,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            '참여: ${meetup['host'] ?? '방장'}(방장) 외 참여 이웃',
+                            isLightning
+                                ? '⚡ 지금 ${meetup['host'] ?? '방장'} 님과 바로 만날 수 있어요'
+                                : '참여: ${meetup['host'] ?? '방장'}(방장) 외 참여 이웃',
                             style: const TextStyle(fontSize: 11.5, color: Color(0xFF555566), fontWeight: FontWeight.w600),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Text(
                           _calcRemainingSeats(meetup['members']?.toString() ?? '2/4'),
-                          style: TextStyle(fontSize: 11.5, color: coralAccent, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: isLightning ? const Color(0xFFFF5E36) : coralAccent,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ],
                     ),
@@ -3047,6 +3446,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   /// 컴팩트 목록형 뷰 카드 (Zero-Price & 기존 테마 준수)
   Widget _buildMeetupListRow(Map<String, dynamic> meetup) {
     final int liveViewers = meetup['viewing'] ?? (11 + (meetup['title']?.toString().length ?? 5) % 9);
+    final bool isLightning = _isLightningMeetup(meetup);
+
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
       child: Container(
@@ -3055,10 +3456,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFEFE4E6), width: 1.2),
+          border: Border.all(
+            color: isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFEFE4E6),
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFF25767).withOpacity(0.04),
+              color: isLightning ? const Color(0xFFFF5E36).withOpacity(0.06) : const Color(0xFFF25767).withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -3106,16 +3510,48 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Flexible(
-                        child: Text(
-                          meetup['category'] ?? '동네모임',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFC83243)),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        child: isLightning
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF4EB),
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: const Color(0xFFFFD8A8)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text('⚡', style: TextStyle(fontSize: 10)),
+                                    const SizedBox(width: 2),
+                                    Flexible(
+                                      child: Text(
+                                        meetup['category'] ?? '오늘 번개',
+                                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFD9480F)),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Text(
+                                meetup['category'] ?? '동네모임',
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFC83243)),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                       ),
-                      Text(
-                        '👀 $liveViewers명 조회',
-                        style: const TextStyle(fontSize: 10.5, color: Color(0xFF888899), fontWeight: FontWeight.w600),
-                      ),
+                      isLightning
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF5E36),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text('⚡ 즉시합류', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w800)),
+                            )
+                          : Text(
+                              '👀 $liveViewers명 조회',
+                              style: const TextStyle(fontSize: 10.5, color: Color(0xFF888899), fontWeight: FontWeight.w600),
+                            ),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -3128,12 +3564,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, size: 13, color: coralAccent),
+                      Icon(Icons.location_on_outlined, size: 13, color: isLightning ? const Color(0xFFFF5E36) : coralAccent),
                       const SizedBox(width: 3),
                       Expanded(
                         child: Text(
                           '${meetup['location'] ?? '위치 협의'} · ${meetup['date'] ?? '일정 협의'}',
-                          style: TextStyle(fontSize: 11.5, color: textSecondary),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: isLightning ? const Color(0xFFFF5E36) : textSecondary,
+                            fontWeight: isLightning ? FontWeight.w700 : FontWeight.normal,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -3163,12 +3603,19 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF0F2),
+                          color: isLightning ? const Color(0xFFFFF4EB) : const Color(0xFFFFF0F2),
                           borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFF8C6CD)),
                         ),
                         child: Text(
-                          '${meetup['members'] ?? '2/4'} (${_calcRemainingSeats(meetup['members']?.toString() ?? '2/4')})',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFC83243)),
+                          isLightning
+                              ? '⚡ 즉시 (${meetup['members'] ?? '2/4'})'
+                              : '${meetup['members'] ?? '2/4'} (${_calcRemainingSeats(meetup['members']?.toString() ?? '2/4')})',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isLightning ? const Color(0xFFD9480F) : const Color(0xFFC83243),
+                          ),
                         ),
                       ),
                     ],
