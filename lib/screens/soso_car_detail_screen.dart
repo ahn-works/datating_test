@@ -19,6 +19,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
   final Color accentColor = const Color(0xFFF19E39);
+  final Color coralAccent = const Color(0xFFF25767);
   final Color destructiveColor = const Color(0xFFFF3B30);
   
   bool _isFavorite = false;
@@ -194,37 +195,50 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 // [안전 장치] 동반 참석(+1) 시스템
+                bool withFriend = false;
                 StatefulBuilder(
                   builder: (BuildContext context, StateSetter setModalState) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF19E39).withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.group_add, color: const Color(0xFFF19E39)),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('지인 1명과 함께 가기 (+1)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                const SizedBox(height: 2),
-                                Text('낯선 모임이 처음이라면 지인과 함께 참석해 보세요!', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                              ],
+                    return GestureDetector(
+                      onTap: () {
+                        setModalState(() {
+                          withFriend = !withFriend;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: withFriend ? const Color(0xFFFFF0F2) : const Color(0xFFF19E39).withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: withFriend ? coralAccent : const Color(0xFFF19E39).withOpacity(0.2)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.group_add, color: withFriend ? coralAccent : const Color(0xFFF19E39)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('지인 1명과 함께 가기 (+1)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    withFriend ? '✨ 동반 참석(+1)이 신청되었습니다.' : '낯선 모임이 처음이라면 지인과 함께 참석해 보세요!',
+                                    style: TextStyle(color: withFriend ? coralAccent : Colors.grey, fontSize: 12, fontWeight: withFriend ? FontWeight.w700 : FontWeight.normal),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Checkbox(
-                            value: false, // UI Mock
-                            onChanged: (val) {
-                              setModalState(() {});
-                            },
-                            activeColor: const Color(0xFFF19E39),
-                          )
-                        ],
+                            Checkbox(
+                              value: withFriend,
+                              onChanged: (val) {
+                                setModalState(() {
+                                  withFriend = val ?? false;
+                                });
+                              },
+                              activeColor: coralAccent,
+                            )
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -526,11 +540,152 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         const SizedBox(height: 20),
                         _buildInfoRow(Icons.directions_subway_outlined, '방법', widget.meetup?['transport'] ?? '각자 이동'),
                         const SizedBox(height: 20),
-                        _buildInfoRow(Icons.payments_outlined, '비용', widget.meetup?['price'] ?? 'N빵'),
+                        _buildInfoRow(Icons.payments_outlined, '비용', '1/N 안심 정산'),
                       ],
                     ),
                   ),
                   
+                  const SizedBox(height: 36),
+
+                  // 🗺️ 모임 장소 & 길찾기 프리뷰 카드 (기존 패딩 horizontal: 24 유지)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('모임 장소 & 길찾기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE6F7F5),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                '내 위치에서 350m · 도보 5분',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFEFE4E6), width: 1.2),
+                            boxShadow: [
+                              BoxShadow(color: const Color(0xFFF25767).withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 지도 프리뷰 캔버스
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                child: Container(
+                                  height: 120,
+                                  width: double.infinity,
+                                  color: const Color(0xFFF2ECE9),
+                                  child: Stack(
+                                    children: [
+                                      Image(
+                                        image: appImg('assets/images/cover_cafe.jpg'),
+                                        width: double.infinity,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                        color: Colors.white.withOpacity(0.35),
+                                        colorBlendMode: BlendMode.srcOver,
+                                        errorBuilder: (_, __, ___) => const SizedBox(),
+                                      ),
+                                      Center(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: coralAccent,
+                                                shape: BoxShape.circle,
+                                                boxShadow: [
+                                                  BoxShadow(color: coralAccent.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 3)),
+                                                ],
+                                              ),
+                                              child: const Icon(Icons.location_on, color: Colors.white, size: 20),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.92),
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞',
+                                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: textPrimary),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞',
+                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textPrimary),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          const Text(
+                                            '모임 시간 10분 전 장소 도착을 권장합니다',
+                                            style: TextStyle(fontSize: 11.5, color: Color(0xFF888899)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFFFF0F2),
+                                        foregroundColor: coralAccent,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        side: const BorderSide(color: Color(0xFFF8C6CD)),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                      ),
+                                      icon: const Icon(Icons.directions, size: 16),
+                                      label: const Text('길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('🗺️ 길찾기 앱을 실행합니다: ${widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞'}'),
+                                            duration: const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 40),
 
                   // 📅 상세 일정 섹션 (Firestore schedule 필드 연동)
@@ -656,7 +811,52 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               ),
                             ),
                           ],
-                        )
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFAF6F7),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFFEFE4E6)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    '👑 방장: ${widget.meetup?['host'] ?? '매운맛킬러'}',
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text('·', style: TextStyle(color: textSecondary)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '✨ 참여 이웃: 민지 외 1명',
+                                      style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w600),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.check_circle_outline, size: 14, color: coralAccent),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      '💡 빈 자리가 2자리 남아있어요! 지금 신청하면 바로 함께할 수 있습니다.',
+                                      style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
