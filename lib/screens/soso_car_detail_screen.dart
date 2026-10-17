@@ -160,6 +160,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
+        bool withFriend = false;
         return Container(
           padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom, left: 24, right: 24, top: 24),
           decoration: const BoxDecoration(
@@ -195,7 +196,6 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 // [안전 장치] 동반 참석(+1) 시스템
-                bool withFriend = false;
                 StatefulBuilder(
                   builder: (BuildContext context, StateSetter setModalState) {
                     return GestureDetector(

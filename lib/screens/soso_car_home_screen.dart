@@ -5,7 +5,6 @@ import '../utils/global_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
-import 'oomu_my_trips_screen.dart';
 import 'my_page_screen.dart';
 import 'soso_car_detail_screen.dart';
 import 'filter_screen.dart';
@@ -573,82 +572,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     }
   }
 
-  Widget _buildVibeCard(String emoji, String title, String subtitle, Color bgColor) {
-    final isSelected = _selectedVibe == title;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            if (_selectedVibe == title) {
-              _selectedVibe = null;
-            } else {
-              _selectedVibe = title;
-            }
-          });
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isSelected ? coralAccent : Colors.transparent,
-              width: 2,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: coralAccent.withOpacity(0.22),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    )
-                  ]
-                : [],
-          ),
-          child: Stack(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(emoji, style: const TextStyle(fontSize: 24)),
-                  const SizedBox(height: 12),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: isSelected ? coralAccent : const Color(0xFF111111),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isSelected ? coralAccent.withOpacity(0.8) : const Color(0xFF767676),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              if (isSelected)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: CircleAvatar(
-                    radius: 9,
-                    backgroundColor: coralAccent,
-                    child: const Icon(Icons.check, size: 12, color: Colors.white),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildTrendCurationSection() {
     final List<Map<String, dynamic>> fallbackTrends = [
       {
@@ -946,7 +869,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
   Widget _buildSubCategoryBar() {
     final mainCatName = _categories[_selectedCategoryIndex]['name'] as String;
-    final subList = ['전체', ...(_officialSubCategories[mainCatName] ?? [])];
+    final List<String> subList;
+    if (_selectedCategoryIndex == 0) {
+      subList = ['전체', '오늘번개', '맛집털기', '카페·디저트', '공연·전시', '보드게임·방탈출', '러닝·운동', '1인가구장보기/소분'];
+    } else {
+      subList = ['전체', ...(_officialSubCategories[mainCatName] ?? [])];
+    }
     final desc = _categories[_selectedCategoryIndex]['desc'] as String? ?? '';
 
     return Padding(
@@ -1391,18 +1319,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          _buildDashboardTabSwitcher(),
-          Expanded(
-            child: _homeDashboardTab == 0
-                ? _buildMeetupDashboard()
-                : (_homeDashboardTab == 1
-                    ? _buildCommunityDashboard()
-                    : _buildDatingDashboard()),
-          ),
-        ],
-      ),
+      body: _homeDashboardTab == 0
+          ? _buildMeetupDashboard()
+          : (_homeDashboardTab == 1
+              ? _buildCommunityDashboard()
+              : _buildDatingDashboard()),
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
@@ -1502,89 +1423,87 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ),
                 ),
 
-                // 1-1. 중분류 서브 칩 (대분류 선택 시 동적 표시)
-                if (_selectedCategoryIndex > 0)
-                  _buildSubCategoryBar(),
+                // 1-1. 서브태그 트레이 (전체 탭 및 카테고리별 상시 노출)
+                _buildSubCategoryBar(),
               ],
             ),
           ),
 
-          // 2. 지금 내 상황 (My Current Situation — 공식 3대 카테고리 + 소개팅)
+          // 2. 실시간 참여 알림 배너 (Oomu Prototype 규격 일원화)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text('지금 내 상황', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: textPrimary)),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedVibe = null;
-                            _selectedCategoryIndex = 0;
-                          });
-                        },
-                        child: Text('전체 보기', style: TextStyle(fontSize: 13, color: coralAccent, fontWeight: FontWeight.w700)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      _buildVibeCard('⚡', '오늘 번개', '혼술바·코노·맛집', const Color(0xFFFFF0F2)),
-                      const SizedBox(width: 10),
-                      _buildVibeCard('☕', '취향 아지트', '공연·카페·보드게임', const Color(0xFFFFFFFF)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      _buildVibeCard('🏃‍♂️', '라이프 메이트', '러닝·소분·캠핑', const Color(0xFFFFFFFF)),
-                      const SizedBox(width: 10),
-                      _buildVibeCard('🌸', '소개팅', '설레는 동네 자만추', const Color(0xFFFFE4E8)),
-                    ],
-                  ),
-
-                  // 활성화된 Vibe 필터 바
-                  if (_selectedVibe != null)
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0F2),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFF8C6CD)),
+                ),
+                child: Row(
+                  children: [
                     Container(
-                      margin: const EdgeInsets.only(top: 14),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF0F2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: coralAccent.withOpacity(0.35)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Text('✨', style: TextStyle(fontSize: 15)),
-                          const SizedBox(width: 6),
-                          Text(
-                            '\'$_selectedVibe\' 분위기 모임 필터링 중',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: coralAccent, fontSize: 13),
-                          ),
-                          const Spacer(),
-                          GestureDetector(
-                            onTap: () => setState(() => _selectedVibe = null),
-                            child: Row(
-                              children: [
-                                Icon(Icons.close, size: 14, color: coralAccent),
-                                const SizedBox(width: 2),
-                                Text('필터 해제', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
-                              ],
-                            ),
-                          ),
-                        ],
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(color: Color(0xFFF25767), shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '지금 $_currentLocation 이웃 54명이 모임을 보고 있어요',
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFFC83243)),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text('실시간 인증', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFC83243))),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
+
+          if (_selectedVibe != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF0F2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: coralAccent.withOpacity(0.35)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('✨', style: TextStyle(fontSize: 15)),
+                      const SizedBox(width: 6),
+                      Text(
+                        '\'$_selectedVibe\' 분위기 모임 필터링 중',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: coralAccent, fontSize: 13),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedVibe = null),
+                        child: Row(
+                          children: [
+                            Icon(Icons.close, size: 14, color: coralAccent),
+                            const SizedBox(width: 2),
+                            Text('필터 해제', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // 3. 소소스팟 (SoSo Spot) Real-Time Entry Banner
           SliverToBoxAdapter(
@@ -1808,95 +1727,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       );
-  }
-
-  Widget _buildDashboardTabSwitcher() {
-    return Container(
-      color: const Color(0xFFFAF6F7),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        height: 46,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3EAEB),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFEFE4E6)),
-        ),
-        child: Row(
-          children: [
-            _buildDashboardTabItem(0, '👥 동네 모임', badge: null),
-            _buildDashboardTabItem(1, '💬 커뮤니티', badge: 'NEW'),
-            _buildDashboardTabItem(2, '🌸 소개팅/미팅', badge: 'HOT'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDashboardTabItem(int index, String label, {String? badge}) {
-    final isSelected = _homeDashboardTab == index;
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => setState(() => _homeDashboardTab = index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: coralAccent.withOpacity(0.12),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : null,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      color: isSelected ? coralAccent : textSecondary,
-                    ),
-                  ),
-                  if (badge != null) ...[
-                    const SizedBox(width: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: isSelected ? coralAccent : const Color(0xFF9A8B8F),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        badge,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildCommunityDashboard() {
@@ -3615,51 +3445,80 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: 0,
+      currentIndex: _homeDashboardTab.clamp(0, 4),
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: textPrimary,
-      unselectedItemColor: const Color(0xFFC7C7CC),
+      selectedItemColor: coralAccent,
+      unselectedItemColor: const Color(0xFF767676),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       elevation: 20,
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: Colors.white,
       onTap: (index) {
-        if (index == 0) {
-        } else if (index == 1) {
-          Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => const OOMUHostScreen(), transitionDuration: Duration.zero));
-        } else if (index == 2) {
-          Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => const ChatScreen(), transitionDuration: Duration.zero));
+        if (index <= 2) {
+          setState(() {
+            _homeDashboardTab = index;
+          });
         } else if (index == 3) {
-          Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => const OOMUMyTripsScreen(), transitionDuration: Duration.zero));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
         } else if (index == 4) {
-          Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => const MyPageScreen(), transitionDuration: Duration.zero));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
         }
       },
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined, size: 26), activeIcon: Icon(Icons.explore, size: 26), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 26), activeIcon: Icon(Icons.add_circle, size: 26), label: '모집하기'),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.home_outlined, size: 24),
+          activeIcon: Icon(Icons.home, size: 24, color: coralAccent),
+          label: '동네모임',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.group_outlined, size: 24),
+          activeIcon: Icon(Icons.group, size: 24, color: coralAccent),
+          label: '커뮤니티',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.favorite_border, size: 24),
+          activeIcon: Icon(Icons.favorite, size: 24, color: coralAccent),
+          label: '소개팅',
+        ),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.chat_bubble_outline, size: 24),
+              const Icon(Icons.chat_bubble_outline, size: 23),
               Positioned(
                 right: -6,
-                top: -6,
+                top: -4,
                 child: Container(
-                  padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                   decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle),
-                  child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
           ),
-          activeIcon: const Icon(Icons.chat_bubble, size: 24),
+          activeIcon: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(Icons.chat_bubble, size: 23, color: coralAccent),
+              Positioned(
+                right: -6,
+                top: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle),
+                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
           label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined, size: 26), activeIcon: Icon(Icons.directions_car, size: 26), label: '내 모임'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 26), activeIcon: Icon(Icons.person, size: 26), label: '마이'),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person_outline, size: 24),
+          activeIcon: Icon(Icons.person, size: 24, color: coralAccent),
+          label: 'MY',
+        ),
       ],
     );
   }
