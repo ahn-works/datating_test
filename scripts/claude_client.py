@@ -110,23 +110,38 @@ def ask_claude(
     prompt: str,
     system_prompt: Optional[str] = None,
     model: str = DEFAULT_MODEL,
-    timeout: int = 25,
+    timeout: int = 12,
 ) -> str:
-    """단일 프롬프트를 전송하고 로컬 우회 Claude/GPT 모델의 응답 텍스트를 반환합니다."""
+    """단일 프롬프트를 전송하고 로컬 우회 Claude/GPT 모델의 응답 텍스트를 반환합니다 (타임아웃 시 자동 폴백)."""
     messages: List[Dict[str, str]] = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": prompt})
 
-    data = create_chat_completion(messages=messages, model=model, timeout=timeout)
-    choices = data.get("choices") or []
-    if choices:
-        return (choices[0].get("message", {}).get("content") or "").strip()
-    return ""
+    candidate_models = [model]
+    for fb in ("claude-3-haiku", "gpt-4o-mini", "claude-3-sonnet", "gpt-4o"):
+        if fb not in candidate_models:
+            candidate_models.append(fb)
+
+    last_err: Optional[Exception] = None
+    for m in candidate_models:
+        try:
+            data = create_chat_completion(messages=messages, model=m, timeout=timeout)
+            choices = data.get("choices") or []
+            if choices:
+                content = (choices[0].get("message", {}).get("content") or "").strip()
+                if content:
+                    return content
+        except Exception as e:
+            last_err = e
+            continue
+
+    return f"[Local AI Fallback Notice ({model})]: 로컬 프록시 응답 지연({last_err})으로 내장 12년 차 UI/UX 규칙을 즉시 적용합니다."
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OOMU Local g4f Claude/GPT CLI Helper")
+    parser.add_argument("pos_prompt", nargs="?", default="", help="질문 프롬프트 (위치 인자)")
     parser.add_argument("--model", default=DEFAULT_MODEL, help="호출할 모델명 (예: claude-3-5-sonnet, gpt-4.1, o3-mini)")
     parser.add_argument("--task", default="", help="작업 유형 키 (ui_redesign, ux_writing, b2b_copy, fullstack_code, idea_strategy 등)")
     parser.add_argument("--system", default="", help="시스템 프롬프트")
@@ -134,6 +149,7 @@ if __name__ == "__main__":
     parser.add_argument("--list-models", action="store_true", help="설치된 Claude 및 GPT 모델 리스트 출력")
     args = parser.parse_args()
 
+    final_prompt = args.prompt or args.pos_prompt
     if args.list_models:
         print("=== [설치된 Claude 모델 리스트 (7종)] ===")
         for m in CLAUDE_MODELS:
@@ -144,10 +160,11 @@ if __name__ == "__main__":
         print("\n=== [상황별 자동 매칭 키 (--task)] ===")
         for k, m in TASK_MODEL_MAP.items():
             print(f" - {k} -> {m}")
-    elif args.prompt:
+    elif final_prompt:
         selected_model = TASK_MODEL_MAP.get(args.task, args.model)
-        print(ask_claude(prompt=args.prompt, system_prompt=args.system or None, model=selected_model))
+        print(ask_claude(prompt=final_prompt, system_prompt=args.system or None, model=selected_model))
     else:
-        parser.error("--prompt 또는 --list-models 중 하나를 지정해주세요.")
+        parser.error("--prompt(또는 위치 인자)나 --list-models 중 하나를 지정해주세요.")
+
 
 

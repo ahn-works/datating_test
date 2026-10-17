@@ -129,9 +129,13 @@
 - **방어적 코딩 (Defensive Coding):** 파이어베이스(Firestore, Cloud Functions) 및 로컬 AI 서버(`http://127.0.0.1:1337/v1`) 연동 시, 반드시 `try-catch` 블록을 작성하여 통신 에러를 방어하세요.
 - **우아한 실패 (Graceful Degradation):** 통신 지연(Loading)이나 에러 발생 시 앱이 멈추지 않고, 스켈레톤 로딩이나 Fallback UI가 부드럽게 렌더링되도록 처리하세요.
 
-## 5. 🚀 에이전트 행동 지침 (Action Item)
+## 5. 🚀 에이전트 행동 지침 & 완료 보고 전 필수 검증 게이트 (Action Item & Pre-Report Gate)
 - 이 프로젝트 레포지토리에 처음 접근한 AI는 사용자에게 **"안녕하세요! OOMU 프로젝트 지침(AI_INSTRUCTIONS.md)을 완벽히 숙지했습니다. 모든 디자인을 반응형으로 구성하고 동적 기능 연동을 준비했습니다."**라고 보고한 뒤 작업을 시작하세요.
 - 새로운 화면이나 컴포넌트를 생성할 때는 무조건 `docs/OOMU_MASTER_SPEC.md`의 기획 의도에 맞는지 자체 검증(Self-Correction) 과정을 거치세요.
+- **[절대 원칙] 완료 보고 전 오타·문법·화면 렌더링 사전 검증 필수**:
+  - 사용자에게 "수정 완료했습니다"라고 답변하기 전에, 에이전트는 반드시 아래 검증을 먼저 통과해야 합니다 (검증 전 완료 보고 엄금):
+    1. **HTML 시안 / 아티팩트(`oomu_prototype.html` 등) 수정 시**: `.\.venv\Scripts\python.exe scripts/verify_before_report.py --html "<HTML경로>"`를 실행하여 `<script>` 내 문자열 줄바꿈 깨짐(`SyntaxError`로 인한 백지 화면), 따옴표/괄호 오타, `render()` 호출 누락이 0건인지 확인하고 실제 화면 렌더링 무결성을 검증한 뒤에만 보고합니다.
+    2. **Flutter / Dart 코드 수정 시**: `flutter analyze` 및 `flutter test`를 실행하여 오타 및 에러 0건을 확인한 뒤에만 보고합니다.
 
 ## 6. REA(리버스 엔지니어링 MCP) 사용 지침 — 필독
 - 이 프로젝트는 Antigravity에 **REA MCP**(`rea`)가 연결되어 있습니다. 앱 빌드 산출물(APK/웹 빌드) 검증, UI/동작 확인, 로그 분석이 필요할 때 **반드시 `docs/REA_GUIDE.md`를 먼저 읽고** 그 규칙에 따라 사용하세요.

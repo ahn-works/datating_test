@@ -42,3 +42,12 @@ trigger: always_on
 3. **3계층 Zero-Secret 보안**:
    - 실제 외부 유료 API 키(`AIza...` 서버키, `sk-...`, R2 SecretKey)는 절대 코드에 하드코딩하지 않고 Firestore `config/api_keys`, `config/r2_storage`에서 런타임 로드합니다. (단, 로컬 프록시용 `'pk-dummy'`는 허용)
    - 커밋 전 `powershell -ExecutionPolicy Bypass -File .\scripts\verify_security_rules.ps1` 및 `flutter analyze` 통과를 원칙으로 합니다.
+
+---
+
+## 4. 완료 보고 전 필수 오타·문법·화면 렌더링 사전 검증 규칙 (Pre-Report Gate)
+- **사전 검증 없는 완료 보고 절대 금지**: 에이전트가 작업을 마쳤다고 판단하더라도, 실제 화면이 백지로 뜨거나 오타/문법 에러(`SyntaxError`, 따옴표 줄바꿈 깨짐, 괄호 불일치 등)가 남아있는 상태로 사용자에게 완료 보고하는 것을 엄격히 금지합니다.
+- **필수 실행 검증 절차**:
+  1. **HTML 시안(`oomu_prototype.html` 등) 및 Python 스크립트 수정 시**: 반드시 `.\.venv\Scripts\python.exe scripts/verify_before_report.py --html "<HTML경로>"`를 실행하여 `<script>` 내 JS 문자열 줄바꿈 깨짐·괄호 짝·`render()` 정상 호출 여부를 검증하고 `[SUCCESS]`를 확인한 뒤 보고합니다.
+  2. **Flutter(`lib/**`) 코드 수정 시**: 반드시 `flutter analyze` 및 `flutter test`를 실행하여 컴파일 에러 및 오타 0건을 확인한 뒤 보고합니다.
+

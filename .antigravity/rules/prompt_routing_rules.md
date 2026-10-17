@@ -29,7 +29,7 @@
   - UI/UX 디테일 & 2030/B2B 카피 생성: `.venv\Scripts\python.exe scripts/claude_client.py --model claude-3-5-sonnet` (또는 `claude-3-sonnet`, `claude-haiku-4.5`, `claude-opus-4`)
   - 레이아웃 겹침(Overflow) 0% & 풀스택/알고리즘 검증: `.venv\Scripts\python.exe scripts/claude_client.py --model o4-mini` (또는 `gpt-4.1`, `o3-mini`, `gpt-4o`)
   - 앱 내부 AI 연동 시: `lib/services/ai_service.dart` (`OomuAiService.instance`) 사용
-- 수정 완료 후 반드시 `flutter analyze` 및 `flutter test`로 에러 0건을 검증한다.
+- [완료 보고 전 필수 검증 게이트]: 사용자에게 완료했다고 말하기 전에 반드시 `.\.venv\Scripts\python.exe scripts/verify_before_report.py --html "<HTML시안경로>"` (HTML 시안 수정 시) 및 `flutter analyze` / `flutter test` (Dart 코드 수정 시)를 실행하여 오타·JS 문법 에러(백지 화면)·괄호 짝 불일치 0건을 확인한 후에만 완료 보고를 작성한다.
 ```
 
 ---
