@@ -3,349 +3,390 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OOMU 컬러 후보 4종 &amp; 첫 로그인·홈(시안1+4 결합) UI 스튜디오</title>
+<title>OOMU × SPOT앱 — 후보 B (로즈 테라코타 &amp; 오트밀 크림) 전면 반영</title>
 <style>
   :root {
-    /* 기본값: 후보 A (추천 1⭐ 애프리콧 피치 & 웜 아이보리) */
-    --brand: #FF6B4A;
-    --brand-ink: #D94826;
-    --brand-soft: #FFF1ED;
-    --brand-grad: linear-gradient(135deg, #FF7E5F 0%, #FF5A36 100%);
-    --login-hero: linear-gradient(165deg, #FFEAE3 0%, #FAF8F5 58%, #FFFFFF 100%);
-    --trust: #0F9D58;
-    --trust-soft: #E8F8F0;
-    --ink: #191F28;
-    --sub: #4E5968;
-    --mute: #8B95A1;
-    --line: #ECE8E1;
-    --bg: #F4F1EC;
-    --phone-bg: #FAF8F5;
-    --header-bg: #FFFFFF;
+    /* ===== 확정 메인 테마: 후보 B (로즈 테라코타 #F25767 & 오트밀 크림 #FAF6F7) ===== */
+    --brand: #F25767;
+    --brand-ink: #C83243;
+    --brand-soft: #FFF0F2;
+    --brand-tint: #FFE4E8;
+    --brand-border: #F8C6CD;
+    --brand-grad: linear-gradient(135deg, #FF707F 0%, #E84355 100%);
+    --brand-shadow: 0 6px 16px rgba(242, 87, 103, 0.26);
+    --login-hero: linear-gradient(165deg, #FFE4E8 0%, #FAF6F7 56%, #FFFFFF 100%);
+    --header-bg: linear-gradient(180deg, #FFF7F8 0%, #FAF6F7 100%);
+    --strip-bg: linear-gradient(180deg, #FFF0F2 0%, #F6EAEC 100%);
+    --trust: #0D9488;
+    --trust-soft: #E6F7F5;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
+    --ink: #221B1D;
+    --sub: #635559;
+    --mute: #9A8B8F;
+    --line: #EFE4E6;
+    --bg: #F5EDEE;
+    --phone-bg: #FAF6F7;
     --card: #FFFFFF;
-    --chip-bg: #F1EDE7;
-    --active-tab: #191F28;
+    --chip-bg: #F3EAEB;
+    --active-tab: linear-gradient(135deg, #FF707F 0%, #E84355 100%);
     --active-tab-text: #FFFFFF;
-    --strip-bg: #F3EFE9;
-    --pink: #E84A7F;
-    --pink-soft: #FDECF2;
+    --pink: #E11D48;
+    --pink-soft: #FFE4E8;
     --red: #E5484D;
-    --badge-bg: rgba(255,255,255,0.95);
-    --shadow: 0 6px 20px rgba(25, 31, 40, 0.05);
+    --badge-bg: rgba(255, 248, 249, 0.96);
+    --shadow: 0 8px 24px rgba(34, 27, 29, 0.055);
   }
 
-  /* 후보 A (추천 1⭐): 애프리콧 피치 & 웜 아이보리 (에어비앤비 × 문토 × 힌지 감성) */
-  [data-theme="v1"] {
-    --brand: #FF6B4A;
-    --brand-ink: #D94826;
-    --brand-soft: #FFF1ED;
-    --brand-grad: linear-gradient(135deg, #FF7E5F 0%, #FF5838 100%);
-    --login-hero: linear-gradient(165deg, #FFEAE3 0%, #FAF8F5 58%, #FFFFFF 100%);
-    --trust: #0D9462;
-    --trust-soft: #E8F8F1;
-    --ink: #191F28;
-    --sub: #4E5968;
-    --mute: #8B95A1;
-    --line: #ECE8E1;
-    --bg: #F4F1EC;
-    --phone-bg: #FAF8F5;
-    --header-bg: #FFFFFF;
-    --card: #FFFFFF;
-    --chip-bg: #F1EDE7;
-    --active-tab: #FF6B4A;
-    --active-tab-text: #FFFFFF;
-    --strip-bg: #F3EFE9;
-    --badge-bg: rgba(255,255,255,0.96);
-  }
-
-  /* 후보 B (추천 2🌸): 로즈 테라코타 & 오트밀 크림 (범블 × 에어비앤비 × 자만추 설렘 감성) */
+  /* 후보 B (확정 메인🌸): 로즈 테라코타 & 오트밀 크림 (범블 × 에어비앤비 × 자만추 설렘 감성) */
   [data-theme="v2"] {
     --brand: #F25767;
     --brand-ink: #C83243;
     --brand-soft: #FFF0F2;
-    --brand-grad: linear-gradient(135deg, #FF7582 0%, #E84558 100%);
-    --login-hero: linear-gradient(165deg, #FFE8EC 0%, #FAF6F5 58%, #FFFFFF 100%);
-    --trust: #D97706;
-    --trust-soft: #FEF3C7;
-    --ink: #221C1E;
-    --sub: #5E5256;
-    --mute: #96898D;
-    --line: #EDE5E7;
-    --bg: #F5EFF0;
+    --brand-tint: #FFE4E8;
+    --brand-border: #F8C6CD;
+    --brand-grad: linear-gradient(135deg, #FF707F 0%, #E84355 100%);
+    --brand-shadow: 0 6px 16px rgba(242, 87, 103, 0.26);
+    --login-hero: linear-gradient(165deg, #FFE4E8 0%, #FAF6F7 56%, #FFFFFF 100%);
+    --header-bg: linear-gradient(180deg, #FFF7F8 0%, #FAF6F7 100%);
+    --strip-bg: linear-gradient(180deg, #FFF0F2 0%, #F6EAEC 100%);
+    --trust: #0D9488;
+    --trust-soft: #E6F7F5;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
+    --ink: #221B1D;
+    --sub: #635559;
+    --mute: #9A8B8F;
+    --line: #EFE4E6;
+    --bg: #F5EDEE;
     --phone-bg: #FAF6F7;
-    --header-bg: #FFFFFF;
     --card: #FFFFFF;
-    --chip-bg: #F2EAEB;
-    --active-tab: #221C1E;
+    --chip-bg: #F3EAEB;
+    --active-tab: linear-gradient(135deg, #FF707F 0%, #E84355 100%);
     --active-tab-text: #FFFFFF;
-    --strip-bg: #F4ECEE;
+    --badge-bg: rgba(255, 248, 249, 0.96);
+  }
+
+  /* 후보 A (비교용): 애프리콧 피치 & 웜 아이보리 */
+  [data-theme="v1"] {
+    --brand: #FF6B4A;
+    --brand-ink: #D94826;
+    --brand-soft: #FFF1ED;
+    --brand-tint: #FFE4DC;
+    --brand-border: #FCD2C5;
+    --brand-grad: linear-gradient(135deg, #FF7E5F 0%, #FF5838 100%);
+    --brand-shadow: 0 6px 16px rgba(255, 107, 74, 0.25);
+    --login-hero: linear-gradient(165deg, #FFEAE3 0%, #FAF8F5 58%, #FFFFFF 100%);
+    --header-bg: linear-gradient(180deg, #FFF9F6 0%, #FAF8F5 100%);
+    --strip-bg: linear-gradient(180deg, #FFF2ED 0%, #F4EFE9 100%);
+    --trust: #0D9462;
+    --trust-soft: #E8F8F1;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
+    --ink: #191F28;
+    --sub: #4E5968;
+    --mute: #8B95A1;
+    --line: #ECE8E1;
+    --bg: #F4F1EC;
+    --phone-bg: #FAF8F5;
+    --card: #FFFFFF;
+    --chip-bg: #F1EDE7;
+    --active-tab: linear-gradient(135deg, #FF7E5F 0%, #FF5838 100%);
+    --active-tab-text: #FFFFFF;
     --badge-bg: rgba(255,255,255,0.96);
   }
 
-  /* 후보 C (추천 3☀️): 코지 탄제린 & 소프트 버터 (당근 2.0 × 남의집 — 활발·친근·따뜻한 동네 라운지) */
+  /* 후보 C (비교용): 코지 탄제린 & 소프트 버터 */
   [data-theme="v3"] {
     --brand: #FF7A2F;
     --brand-ink: #D45811;
     --brand-soft: #FFF3EB;
+    --brand-tint: #FFE6D4;
+    --brand-border: #FBD3B7;
     --brand-grad: linear-gradient(135deg, #FF9248 0%, #FF6B1A 100%);
+    --brand-shadow: 0 6px 16px rgba(255, 122, 47, 0.25);
     --login-hero: linear-gradient(165deg, #FFF0E0 0%, #FBF9F4 58%, #FFFFFF 100%);
+    --header-bg: linear-gradient(180deg, #FFF9F2 0%, #FBF9F5 100%);
+    --strip-bg: linear-gradient(180deg, #FFF4E8 0%, #F3EDE3 100%);
     --trust: #2563EB;
     --trust-soft: #EFF6FF;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
     --ink: #231F1C;
     --sub: #5C544E;
     --mute: #948B84;
     --line: #EBE4DC;
     --bg: #F4EFE8;
     --phone-bg: #FBF9F5;
-    --header-bg: #FFFFFF;
     --card: #FFFFFF;
     --chip-bg: #F1ECE4;
-    --active-tab: #FF7A2F;
+    --active-tab: linear-gradient(135deg, #FF9248 0%, #FF6B1A 100%);
     --active-tab-text: #FFFFFF;
-    --strip-bg: #F3EDE3;
     --badge-bg: rgba(255,255,255,0.96);
   }
 
-  /* 후보 D (기존 시안 1 원본): 퓨어 화이트 & 시그니처 오렌지 (#FF5E36) */
+  /* 후보 D (비교용): 클린 오프화이트 & 시그니처 오렌지 */
   [data-theme="v4"] {
     --brand: #FF5E36;
     --brand-ink: #E0431B;
     --brand-soft: #FFF0EB;
+    --brand-tint: #FFE2D9;
+    --brand-border: #F9C8B9;
     --brand-grad: linear-gradient(135deg, #FF704D 0%, #FF5E36 100%);
+    --brand-shadow: 0 6px 16px rgba(255, 94, 54, 0.24);
     --login-hero: linear-gradient(165deg, #FFEDE6 0%, #F8F9FA 58%, #FFFFFF 100%);
+    --header-bg: #FFFFFF;
+    --strip-bg: #F2F4F7;
     --trust: #16A34A;
     --trust-soft: #DCFCE7;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
     --ink: #111111;
     --sub: #666666;
     --mute: #999999;
     --line: #EBEBEF;
     --bg: #F5F5F7;
     --phone-bg: #F8F9FA;
-    --header-bg: #FFFFFF;
     --card: #FFFFFF;
     --chip-bg: #F1F3F5;
     --active-tab: #111111;
     --active-tab-text: #FFFFFF;
-    --strip-bg: #F2F4F7;
     --badge-bg: rgba(255,255,255,0.96);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;background:#CFD4DC;color:var(--ink);display:flex;flex-direction:column;align-items:center;padding:8px 10px 18px;font-size:14px}
+  body{font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;background:#D8CFD2;color:var(--ink);display:flex;flex-direction:column;align-items:center;padding:8px 10px 18px;font-size:14px}
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-  /* ===== 상단 컬러 팔레트 & 화면 모드(로그인UI vs 홈UI) 컨트롤러 ===== */
-  .theme-bar{width:100%;max-width:410px;background:#181A24;color:#fff;border-radius:18px;padding:10px 12px;margin-bottom:8px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
-  .mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#252836;padding:4px;border-radius:12px;margin-bottom:8px}
-  .mbtn{padding:7px 8px;border-radius:9px;font-size:12px;font-weight:800;color:#A9B1C2;text-align:center;transition:.18s}
-  .mbtn.on{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-  .theme-bar-top{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#9CA3AF;margin-bottom:6px}
+  /* ===== 상단 스튜디오 컨트롤러 바 ===== */
+  .theme-bar{width:100%;max-width:410px;background:#1F191C;color:#fff;border-radius:18px;padding:10px 12px;margin-bottom:8px;box-shadow:0 10px 26px rgba(34,20,25,.24);border:1px solid #352A2E}
+  .mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#2C2327;padding:4px;border-radius:12px;margin-bottom:8px}
+  .mbtn{padding:7px 8px;border-radius:9px;font-size:12px;font-weight:800;color:#C2B2B7;text-align:center;transition:.18s}
+  .mbtn.on{background:var(--brand-grad);color:#fff;box-shadow:0 2px 10px rgba(242,87,103,.35)}
+  .theme-bar-top{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#C2B2B7;margin-bottom:6px}
   .theme-bar-top b{color:#fff;font-size:12px}
   .theme-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-  .tbtn{padding:6px 4px;border-radius:10px;font-size:11.5px;font-weight:800;background:#252836;color:#B8BFCE;text-align:center;line-height:1.25;transition:.18s;border:1.5px solid transparent}
-  .tbtn.on{background:#fff;color:#111;border-color:var(--brand);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+  .tbtn{padding:6px 4px;border-radius:10px;font-size:11.5px;font-weight:800;background:#2C2327;color:#C2B2B7;text-align:center;line-height:1.25;transition:.18s;border:1.5px solid transparent}
+  .tbtn.on{background:#FFF5F6;color:#221B1D;border-color:var(--brand);box-shadow:0 3px 10px rgba(242,87,103,.32)}
   .tbtn small{display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:2px}
-  .spec-strip{margin-top:8px;padding-top:7px;border-top:1px solid #2D3142;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:#D1D5DB}
+  .spec-strip{margin-top:8px;padding-top:7px;border-top:1px solid #352A2E;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:#E6DADF}
   .swatches{display:flex;align-items:center;gap:4px;flex:none}
-  .sw{display:inline-flex;align-items:center;gap:4px;background:#252836;padding:3px 6px;border-radius:6px;font-size:10.5px;font-family:monospace;color:#E5E7EB}
+  .sw{display:inline-flex;align-items:center;gap:4px;background:#2C2327;padding:3px 6px;border-radius:6px;font-size:10.5px;font-family:monospace;color:#F5EBEF}
   .sw i{width:10px;height:10px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.25)}
 
   /* ===== 스마트폰 프레임 ===== */
-  #phone{width:100%;max-width:410px;height:810px;background:var(--phone-bg);border-radius:30px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 55px rgba(15,20,35,.25);border:4px solid #222530;transition:background .25s}
+  #phone{width:100%;max-width:410px;height:810px;background:var(--phone-bg);border-radius:30px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 22px 58px rgba(34,20,25,.28);border:4px solid #2A2124;transition:background .25s}
   .top-wrap{background:var(--header-bg);border-bottom:1px solid var(--line);transition:background .25s;z-index:4}
   header.top{display:flex;align-items:center;justify-content:space-between;padding:11px 16px 6px}
-  .loc{display:flex;align-items:center;gap:5px;font-weight:800;font-size:17.5px;min-height:38px}
-  .loc-pill{font-size:11px;font-weight:800;background:var(--trust-soft);color:var(--trust);padding:3px 8px;border-radius:999px;margin-left:3px;display:inline-flex;align-items:center;gap:4px}
+  .loc{display:flex;align-items:center;gap:5px;font-weight:800;font-size:17.5px;min-height:38px;color:var(--ink)}
+  .loc-pill{font-size:11px;font-weight:800;background:var(--trust-soft);color:var(--trust);padding:3px 8px;border-radius:999px;margin-left:3px;display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(13,148,136,.18)}
   .loc-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--trust)}
   .icons{display:flex;gap:4px}
-  .ibtn{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;position:relative}
-  .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+  .ibtn{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;position:relative;color:var(--ink)}
+  .ibtn:hover{background:var(--brand-soft)}
+  .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 2px #fff}
 
   main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:94px;scrollbar-width:none}
   main::-webkit-scrollbar{display:none}
-  .pagehead{padding:14px 16px 4px;font-size:20px;font-weight:800}
+  .pagehead{padding:14px 16px 6px;font-size:20px;font-weight:900;color:var(--ink);display:flex;align-items:center;justify-content:space-between}
+  .pagehead-sub{font-size:12px;font-weight:700;color:var(--brand-ink);background:var(--brand-soft);padding:4px 10px;border-radius:999px;border:1px solid var(--brand-border)}
 
-  /* ===== 시안 1 + 시안 4 하이브리드 홈 상단 (실시간 동네 접속 티커 + 4열 클린 탭 + 서브태그 더보기) ===== */
-  .live-bar{margin:2px 16px 8px;padding:8px 12px;border-radius:12px;background:var(--brand-soft);border:1px solid rgba(255,107,74,.18);display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--brand-ink)}
+  /* ===== 시안 1 + 시안 4 하이브리드 홈 상단 (후보 B 로즈 테라코타 전면 반영) ===== */
+  .live-bar{margin:2px 16px 8px;padding:8px 12px;border-radius:13px;background:var(--brand-soft);border:1px solid var(--brand-border);display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--brand-ink)}
   .live-left{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
   .live-left span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px rgba(255,107,74,.2);flex:none}
-  .live-tag{background:#fff;color:var(--brand-ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;flex:none}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px rgba(242,87,103,.22);flex:none}
+  .live-tag{background:#fff;color:var(--trust);border:1px solid rgba(13,148,136,.22);font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;flex:none}
 
   .vibes{display:grid;grid-template-columns:0.62fr 0.98fr 1.12fr 1.28fr;gap:6px;padding:2px 16px 8px}
   .vibe{min-height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;letter-spacing:-0.4px;padding:0 4px;color:var(--sub);white-space:nowrap;transition:.16s}
-  .vibe.on{background:var(--active-tab);border-color:var(--active-tab);color:var(--active-tab-text);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .vibe.on{background:var(--active-tab);border-color:var(--brand);color:var(--active-tab-text);box-shadow:var(--brand-shadow)}
   .vibes.three{grid-template-columns:repeat(3,1fr)}
-  .vibes.three .vibe.on{background:var(--brand);border-color:var(--brand);color:#fff}
-  .vibe-desc{margin:0 16px 8px;padding:8px 12px;border-radius:10px;background:var(--brand-soft);color:var(--brand-ink);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+  .vibes.three .vibe.on{background:var(--brand-grad);border-color:var(--brand);color:#fff}
+  .vibe-desc{margin:0 16px 8px;padding:8px 12px;border-radius:11px;background:var(--brand-soft);border:1px solid var(--brand-border);color:var(--brand-ink);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
 
-  .sub-wrap{padding:4px 16px 10px;background:var(--header-bg)}
+  .sub-wrap{padding:4px 16px 10px;background:transparent}
   .chips-row1{display:flex;align-items:center;gap:6px;width:100%}
-  .chips-more-tray{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;padding:10px;border-radius:14px;background:var(--phone-bg);border:1px solid var(--line)}
-  .chip{min-height:33px;padding:0 11px;border-radius:999px;background:var(--chip-bg);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;letter-spacing:-0.3px;transition:.15s}
-  .chip.on{background:var(--ink);color:#fff}
-  .chip-more-btn{margin-left:auto;min-height:33px;padding:0 10px;border-radius:999px;background:var(--card);border:1.5px solid var(--brand);color:var(--brand-ink);font-size:11.5px;font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;flex:none}
+  .chips-more-tray{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--brand-border);box-shadow:0 4px 14px rgba(242,87,103,.08)}
+  .chip{min-height:33px;padding:0 11px;border-radius:999px;background:var(--chip-bg);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;letter-spacing:-0.3px;transition:.15s;border:1px solid transparent}
+  .chip.on{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 3px 9px rgba(242,87,103,.24)}
+  .chip-more-btn{margin-left:auto;min-height:33px;padding:0 10px;border-radius:999px;background:var(--brand-soft);border:1.5px solid var(--brand);color:var(--brand-ink);font-size:11.5px;font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;flex:none}
   .chip-more-btn svg{width:13px;height:13px}
 
-  /* ===== 섹션 헤더 & 시안1+시안4 결합 모임 카드 ===== */
+  /* ===== 섹션 헤더 & 시안1+시안4 결합 모임 카드 (후보 B 로즈 테라코타 디테일) ===== */
   .sec{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;gap:8px}
-  .sec h2{font-size:18.5px;font-weight:800;line-height:1.25}
+  .sec h2{font-size:18.5px;font-weight:900;line-height:1.25;color:var(--ink)}
+  .sec h2 em{font-style:normal;color:var(--brand)}
   .sec h2.sm{font-size:15.5px;display:flex;align-items:center;gap:6px}
   .sec h2.sm svg{color:var(--brand);width:18px;height:18px}
-  .more{display:flex;align-items:center;font-size:12.5px;color:var(--sub);font-weight:700;min-height:36px;padding-left:8px;white-space:nowrap}
+  .more{display:flex;align-items:center;font-size:12.5px;color:var(--brand-ink);font-weight:800;min-height:36px;padding-left:8px;white-space:nowrap}
   .more svg{width:15px;height:15px}
-  .vt{display:flex;background:var(--chip-bg);border-radius:10px;padding:3px;flex:none}
+  .vt{display:flex;background:var(--chip-bg);border-radius:10px;padding:3px;flex:none;border:1px solid var(--line)}
   .vt button{width:36px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--mute)}
   .vt button svg{width:16px;height:16px}
-  .vt button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .vt button.on{background:var(--card);color:var(--brand);box-shadow:0 2px 6px rgba(242,87,103,.15)}
 
-  /* 블럭형 카드 (시안 1의 시원한 레이아웃 + 시안 4의 실시간 열람 인원·거리·동네인증 결합) */
-  .bcard{display:block;width:calc(100% - 32px);margin:0 16px 16px;background:var(--card);border-radius:22px;border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;overflow:hidden}
-  .cover{height:162px;background-size:cover;background-position:center;position:relative}
-  .cover .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,transparent 52%,rgba(0,0,0,.48) 100%)}
+  /* 블럭형 카드 (후보 B: 순백색 카드 + 로즈베이지 보더 + 소프트 로즈 인용구 + 앰버 매너온도) */
+  .bcard{display:block;width:calc(100% - 32px);margin:0 16px 16px;background:var(--card);border-radius:22px;border:1.5px solid var(--line);box-shadow:var(--shadow);text-align:left;overflow:hidden;transition:transform .15s}
+  .cover{height:164px;background-size:cover;background-position:center;position:relative}
+  .cover .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,16,20,.48) 0%,transparent 50%,rgba(28,16,20,.56) 100%)}
   .cover .tl{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
   .cover .bl{position:absolute;bottom:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:6px}
-  .cbadge{background:var(--badge-bg);color:var(--ink);font-weight:800;font-size:11.5px;padding:5px 10px;border-radius:8px}
+  .cbadge{background:var(--badge-bg);color:var(--brand-ink);font-weight:800;font-size:11.5px;padding:5px 10px;border-radius:9px;border:1px solid var(--brand-border)}
   .fbadge{background:var(--pink);color:#fff;font-weight:800;font-size:11.5px;padding:5px 9px;border-radius:8px}
-  .ubadge{background:var(--brand);color:#fff;font-weight:800;font-size:11px;padding:4px 8px;border-radius:7px}
-  .view-pill{background:rgba(20,22,28,0.78);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:4px}
-  .view-pill i{width:6px;height:6px;border-radius:50%;background:#4ADE80;display:inline-block}
-  .spot-pill{background:var(--brand-soft);color:var(--brand-ink);font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px}
+  .ubadge{background:var(--brand-grad);color:#fff;font-weight:800;font-size:11px;padding:4px 9px;border-radius:8px;box-shadow:0 2px 8px rgba(242,87,103,.35)}
+  .view-pill{background:rgba(28,18,21,0.80);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
+  .view-pill i{width:6px;height:6px;border-radius:50%;background:#34D399;display:inline-block;box-shadow:0 0 0 2px rgba(52,211,153,.3)}
+  .spot-pill{background:var(--brand-soft);color:var(--brand-ink);border:1px solid var(--brand-border);font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px}
   .cbody{padding:15px 17px 16px}
   .ct{font-size:16.5px;font-weight:800;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .cquote{margin-top:8px;padding:7px 10px;border-radius:10px;background:var(--phone-bg);color:var(--sub);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cinfo{display:flex;align-items:center;gap:5px;margin-top:9px;font-size:12.5px;color:var(--sub);min-width:0}
+  .cquote{margin-top:9px;padding:8px 11px;border-radius:10px;background:var(--brand-soft);border-left:3px solid var(--brand);color:var(--brand-ink);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cinfo{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:12.5px;color:var(--sub);min-width:0}
   .cinfo svg{width:15px;height:15px;color:var(--brand)}
   .cinfo span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cdiv{height:1px;background:var(--line);margin:12px 0 11px}
   .chost{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .av-stack{display:flex;align-items:center;min-width:0;flex:1}
-  .av-stack i{width:24px;height:24px;border-radius:50%;background-size:cover;background-position:center;border:2px solid #fff;margin-left:-6px;display:inline-block;flex:none}
+  .av-stack i{width:25px;height:25px;border-radius:50%;background-size:cover;background-position:center;border:2px solid #FFF0F2;margin-left:-6px;display:inline-block;flex:none}
   .av-stack i:first-child{margin-left:0}
-  .av-stack b{font-size:12.5px;font-weight:700;margin-left:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mn{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--sub);font-weight:700;white-space:nowrap}
-  .mn svg{width:14px;height:14px;color:var(--brand)}
-  .pill{font-size:12px;font-weight:800;background:var(--brand-soft);color:var(--brand-ink);padding:5px 10px;border-radius:8px;white-space:nowrap}
+  .av-stack b{font-size:12.5px;font-weight:800;margin-left:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  .mn{display:inline-flex;align-items:center;gap:2px;font-size:11.5px;color:var(--amber);background:var(--amber-soft);padding:3px 7px;border-radius:7px;font-weight:800;white-space:nowrap}
+  .mn svg{width:13px;height:13px;color:var(--amber)}
+  .pill{font-size:12px;font-weight:800;background:var(--brand-soft);color:var(--brand-ink);border:1px solid var(--brand-border);padding:5px 10px;border-radius:9px;white-space:nowrap}
 
-  /* 목록형(시안 4 컴팩트 카드 스타일: 한 화면에 3~4개 + 실시간 열람 수 표시) */
-  .lrow{display:flex;gap:12px;width:calc(100% - 32px);margin:0 16px 10px;padding:12px;background:var(--card);border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;align-items:center}
-  .lth{width:84px;height:84px;border-radius:14px;background-size:cover;background-position:center;flex:none;position:relative}
+  /* 목록형 카드 (시안 4 컴팩트 + 후보 B 로즈 테라코타) */
+  .lrow{display:flex;gap:12px;width:calc(100% - 32px);margin:0 16px 10px;padding:12px;background:var(--card);border-radius:18px;border:1.5px solid var(--line);box-shadow:var(--shadow);text-align:left;align-items:center}
+  .lth{width:84px;height:84px;border-radius:14px;background-size:cover;background-position:center;flex:none;position:relative;border:1px solid var(--line)}
   .lrow .ct{font-size:14.5px;margin-top:4px}
   .lrow .cinfo{margin-top:4px}
-  .lbadge{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:2px 7px;border-radius:6px;display:inline-block}
+  .lbadge{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border);padding:2px 7px;border-radius:6px;display:inline-block}
   .lview{font-size:11px;font-weight:700;color:var(--trust);background:var(--trust-soft);padding:2px 7px;border-radius:6px;display:inline-block;margin-left:4px}
   .lfoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:8px}
 
-  /* ===== 피드 중간 삽입 트렌드 스트립 ===== */
-  .strip{background:var(--strip-bg);padding:14px 0 14px;margin:4px 0 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  /* ===== 피드 중간 삽입 트렌드 스트립 (로즈 밀크 큐레이션 존) ===== */
+  .strip{background:var(--strip-bg);padding:14px 0 15px;margin:4px 0 18px;border-top:1.5px solid var(--brand-border);border-bottom:1.5px solid var(--brand-border)}
   .strip .sec{padding-top:0}
   .car{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px 4px;scroll-padding-left:16px;scrollbar-width:none}
   .car::-webkit-scrollbar{display:none}
-  .tcard{flex:none;width:58%;scroll-snap-align:start;border-radius:16px;background:var(--card);overflow:hidden;text-align:left;box-shadow:0 3px 10px rgba(20,20,40,.06);border:1px solid var(--line)}
+  .tcard{flex:none;width:58%;scroll-snap-align:start;border-radius:16px;background:var(--card);overflow:hidden;text-align:left;box-shadow:0 4px 14px rgba(242,87,103,.09);border:1px solid var(--brand-border)}
   .poster{height:132px;position:relative;display:flex;align-items:flex-end;padding:8px;color:#fff;background-size:cover;background-position:center top;background-color:#222}
-  .poster::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,transparent 45%,rgba(0,0,0,.6) 100%)}
-  .rank{position:absolute;top:8px;left:8px;z-index:1;width:25px;height:25px;border-radius:8px;background:rgba(0,0,0,.78);display:grid;place-items:center;font-weight:800;font-size:12.5px}
-  .ptag{position:relative;z-index:1;font-size:11px;font-weight:800;background:var(--brand);padding:3px 8px;border-radius:7px}
+  .poster::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,transparent 45%,rgba(0,0,0,.62) 100%)}
+  .rank{position:absolute;top:8px;left:8px;z-index:1;width:25px;height:25px;border-radius:8px;background:var(--brand-grad);color:#fff;display:grid;place-items:center;font-weight:900;font-size:12.5px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .ptag{position:relative;z-index:1;font-size:11px;font-weight:800;background:rgba(34,27,29,.82);backdrop-filter:blur(4px);padding:3px 8px;border-radius:7px}
   .tbody{padding:10px 12px 12px;color:var(--ink)}
   .tbody h3{font-size:13.5px;font-weight:800;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px}
   .meta{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--sub);margin-top:5px}
-  .meta svg{width:14px;height:14px;color:var(--mute)}
+  .meta svg{width:14px;height:14px;color:var(--brand)}
   .meta span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hotm{display:inline-flex;margin-top:8px;font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:4px 8px;border-radius:8px}
+  .hotm{display:inline-flex;margin-top:8px;font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border);padding:4px 8px;border-radius:8px}
   .hotm.none{color:var(--sub);background:var(--bg)}
 
-  /* ===== 첫 로그인 / 온보딩 UI 전용 스타일 ===== */
-  .login-screen{min-height:100%;background:var(--login-hero);padding:24px 22px 28px;display:flex;flex-direction:column;justify-content:space-between}
+  /* ===== 첫 로그인 / 온보딩 UI 전용 스타일 (후보 B 로즈 테라코타 & 오트밀) ===== */
+  .login-screen{min-height:100%;background:var(--login-hero);padding:24px 22px 26px;display:flex;flex-direction:column;justify-content:space-between}
   .login-badge-row{display:flex;align-items:center;justify-content:space-between}
   .login-logo{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:900;color:var(--brand-ink);letter-spacing:-0.6px}
-  .login-logo-mark{width:34px;height:34px;border-radius:11px;background:var(--brand-grad);color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;box-shadow:0 6px 14px rgba(255,107,74,.3)}
-  .login-live-chip{font-size:11.5px;font-weight:800;background:#fff;color:var(--trust);padding:5px 11px;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:inline-flex;align-items:center;gap:5px}
+  .login-logo-mark{width:35px;height:35px;border-radius:12px;background:var(--brand-grad);color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;box-shadow:var(--brand-shadow)}
+  .login-live-chip{font-size:11.5px;font-weight:800;background:#fff;color:var(--trust);border:1px solid rgba(13,148,136,.2);padding:5px 11px;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.04);display:inline-flex;align-items:center;gap:5px}
   .login-live-chip i{width:7px;height:7px;border-radius:50%;background:var(--trust);display:inline-block}
-  .login-hero-copy{margin-top:18px}
-  .login-kicker{display:inline-block;font-size:12px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:4px 10px;border-radius:999px;margin-bottom:10px}
-  .login-title{font-size:26px;font-weight:900;line-height:1.3;letter-spacing:-0.7px;color:var(--ink)}
+  .login-hero-copy{margin-top:16px}
+  .login-kicker{display:inline-block;font-size:12px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border);padding:4px 11px;border-radius:999px;margin-bottom:10px}
+  .login-title{font-size:25.5px;font-weight:900;line-height:1.3;letter-spacing:-0.7px;color:var(--ink)}
   .login-title em{font-style:normal;color:var(--brand)}
-  .login-sub{font-size:13.5px;color:var(--sub);margin-top:8px;line-height:1.5;font-weight:500}
+  .login-sub{font-size:13.5px;color:var(--sub);margin-top:8px;line-height:1.5;font-weight:600}
 
-  .login-preview-stack{margin:16px 0;display:flex;flex-direction:column;gap:10px}
-  .lp-card{background:#fff;border-radius:18px;padding:12px 14px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(25,31,40,.06);display:flex;align-items:center;gap:12px}
-  .lp-av{width:46px;height:46px;border-radius:14px;background-size:cover;background-position:center;flex:none}
+  .login-preview-stack{margin:14px 0;display:flex;flex-direction:column;gap:9px}
+  .lp-card{background:#fff;border-radius:18px;padding:12px 14px;border:1.5px solid var(--brand-border);box-shadow:0 8px 22px rgba(242,87,103,.08);display:flex;align-items:center;gap:12px}
+  .lp-av{width:48px;height:48px;border-radius:14px;background-size:cover;background-position:center;flex:none;border:1.5px solid var(--brand-soft)}
   .lp-info{flex:1;min-width:0}
-  .lp-tag{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:2px 7px;border-radius:6px;display:inline-block}
-  .lp-tag.pink{color:#C83243;background:#FFF0F2}
+  .lp-tag{font-size:11px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border);padding:2px 8px;border-radius:6px;display:inline-block}
+  .lp-tag.safe{color:var(--trust);background:var(--trust-soft);border-color:rgba(13,148,136,.2)}
   .lp-info h4{font-size:14px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
   .lp-info p{font-size:11.5px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lp-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:2px}
-  .lp-tbox{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
-  .lp-tbox b{display:block;font-size:12px;font-weight:800;color:var(--ink)}
+  .lp-tbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center;box-shadow:0 2px 8px rgba(34,27,29,.03)}
+  .lp-tbox b{display:block;font-size:12px;font-weight:800;color:var(--brand-ink)}
   .lp-tbox span{font-size:10.5px;color:var(--sub);font-weight:600}
 
   .login-actions{display:flex;flex-direction:column;gap:8px}
-  .btn-primary-grad{width:100%;min-height:50px;border-radius:15px;background:var(--brand-grad);color:#fff;font-size:15px;font-weight:800;box-shadow:0 8px 20px rgba(255,107,74,.28);display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary-grad{width:100%;min-height:50px;border-radius:15px;background:var(--brand-grad);color:#fff;font-size:15px;font-weight:800;box-shadow:var(--brand-shadow);display:flex;align-items:center;justify-content:center;gap:8px}
   .btn-kakao{width:100%;min-height:48px;border-radius:15px;background:#FEE500;color:#191919;font-size:14.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}
-  .btn-outline{width:100%;min-height:46px;border-radius:15px;background:#fff;border:1.5px solid var(--line);color:var(--ink);font-size:13.5px;font-weight:800}
+  .btn-outline{width:100%;min-height:46px;border-radius:15px;background:#fff;border:1.5px solid var(--brand-border);color:var(--brand-ink);font-size:13.5px;font-weight:800}
   .login-foot-note{text-align:center;font-size:11.5px;color:var(--mute);margin-top:4px}
 
   /* FAB + 하단 5탭 내비 */
-  .fab{position:absolute;right:16px;bottom:76px;min-height:46px;padding:0 16px;border-radius:999px;background:var(--brand-grad);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px;box-shadow:0 8px 22px rgba(255,107,74,.32);z-index:5}
+  .fab{position:absolute;right:16px;bottom:76px;min-height:46px;padding:0 17px;border-radius:999px;background:var(--brand-grad);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px;box-shadow:var(--brand-shadow);z-index:5}
   .fab svg{width:19px;height:19px}
-  nav.bn{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--card);padding:4px 0 8px}
+  nav.bn{display:grid;grid-template-columns:repeat(5,1fr);border-top:1.5px solid var(--line);background:var(--card);padding:4px 0 8px}
   .tab{min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;font-weight:700;color:var(--mute);position:relative}
-  .tab.on{color:var(--brand)}
-  .tab .nb{position:absolute;top:3px;left:calc(50% + 6px);min-width:17px;height:17px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 4px;font-style:normal}
+  .tab.on{color:var(--brand);font-weight:800}
+  .tab .nb{position:absolute;top:3px;left:calc(50% + 6px);min-width:17px;height:17px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 4px;font-style:normal;font-weight:800}
 
-  /* 커뮤니티 & 소개팅 & 채팅 */
-  .post{padding:14px 16px;background:var(--card);margin:0 16px 10px;border-radius:18px;border:1px solid var(--line)}
-  .post .cat{display:inline-block;font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);padding:3px 8px;border-radius:7px}
-  .post .pr{display:flex;gap:12px;margin-top:8px}
-  .post h3{font-size:15.5px;font-weight:800;line-height:1.35}
+  /* 커뮤니티 & 소개팅 & 채팅 & MY (후보 B 로즈 테라코타 & 오트밀 크림 전면 스타일링) */
+  .post{padding:15px 16px;background:var(--card);margin:0 16px 11px;border-radius:18px;border:1.5px solid var(--line);box-shadow:var(--shadow)}
+  .post-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .post .cat{display:inline-block;font-size:11.5px;font-weight:800;color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border);padding:3px 9px;border-radius:7px}
+  .post .pr{display:flex;gap:12px;margin-top:9px}
+  .post h3{font-size:15.5px;font-weight:800;line-height:1.35;color:var(--ink)}
   .post p{font-size:13.5px;color:var(--sub);margin-top:4px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .post .img{width:74px;height:74px;border-radius:12px;flex:none;background-size:cover;background-position:center}
-  .pf{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--mute)}
-  .acts{display:flex;gap:2px}
-  .act{min-height:38px;min-width:42px;padding:0 8px;display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--sub);font-weight:700;border-radius:10px}
-  .act svg{width:18px;height:18px}
-  .act.liked{color:var(--pink)}
-  .act.liked svg{fill:var(--pink)}
+  .post .img{width:76px;height:76px;border-radius:13px;flex:none;background-size:cover;background-position:center;border:1px solid var(--line)}
+  .pf{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:12.5px;color:var(--sub);font-weight:600}
+  .acts{display:flex;gap:4px}
+  .act{min-height:34px;min-width:42px;padding:0 9px;display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--sub);font-weight:700;border-radius:999px;background:var(--phone-bg)}
+  .act svg{width:16px;height:16px}
+  .act.liked{color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border)}
+  .act.liked svg{fill:var(--brand);stroke:var(--brand)}
 
-  .seg{display:grid;grid-template-columns:1fr 1fr;margin:6px 16px 12px;background:var(--chip-bg);border-radius:14px;padding:4px}
-  .seg button{min-height:42px;border-radius:11px;font-weight:800;color:var(--sub);font-size:13.5px}
-  .seg button.on{background:var(--card);color:var(--brand);box-shadow:0 2px 8px rgba(20,20,40,.08)}
-  .dcard{margin:0 16px 14px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:var(--card);transition:.3s}
+  .seg{display:grid;grid-template-columns:1fr 1fr;margin:6px 16px 12px;background:var(--chip-bg);border-radius:14px;padding:4px;border:1px solid var(--line)}
+  .seg button{min-height:42px;border-radius:11px;font-weight:800;color:var(--sub);font-size:13.5px;transition:.15s}
+  .seg button.on{background:var(--brand-grad);color:#fff;box-shadow:var(--brand-shadow)}
+  .dcard{margin:0 16px 14px;border-radius:22px;overflow:hidden;border:1.5px solid var(--line);background:var(--card);box-shadow:var(--shadow);transition:.3s}
   .dcard.gone{opacity:0;transform:translateX(60px);height:0;margin:0;border:0}
-  .dimg{height:148px;display:flex;align-items:flex-end;padding:12px;color:#fff;font-weight:700;font-size:13px;background-size:cover;background-position:center}
-  .dbody{padding:14px}
-  .who{display:flex;align-items:center;gap:10px}
-  .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;background-size:cover;background-position:center}
-  .dbody h3{font-size:16.5px;font-weight:800;line-height:1.35;margin-top:10px}
+  .dimg{height:152px;display:flex;align-items:flex-end;justify-content:space-between;padding:12px;color:#fff;font-weight:700;font-size:12.5px;background-size:cover;background-position:center;position:relative}
+  .dimg::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(28,16,20,.65) 100%)}
+  .dimg > *{position:relative;z-index:1}
+  .dbody{padding:15px 16px}
+  .who{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .who-left{display:flex;align-items:center;gap:10px}
+  .av{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;background-size:cover;background-position:center;border:2px solid var(--brand-soft)}
+  .dbody h3{font-size:16.5px;font-weight:800;line-height:1.35;margin-top:10px;color:var(--ink)}
   .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .tag{font-size:12px;font-weight:600;background:var(--chip-bg);color:var(--sub);padding:4px 10px;border-radius:999px}
-  .quote{margin-top:10px;font-size:12.5px;background:var(--brand-soft);color:var(--brand-ink);padding:10px 12px;border-radius:12px;line-height:1.45;font-weight:600}
+  .tag{font-size:12px;font-weight:700;background:var(--brand-soft);color:var(--brand-ink);border:1px solid var(--brand-border);padding:4px 10px;border-radius:999px}
+  .quote{margin-top:10px;font-size:12.5px;background:var(--phone-bg);border-left:3px solid var(--brand);color:var(--ink);padding:10px 12px;border-radius:10px;line-height:1.45;font-weight:700}
   .dact{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:12px}
   .dact button{min-height:44px;border-radius:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
   .pass{background:var(--chip-bg);color:var(--sub)}
-  .like{background:var(--brand-grad);color:#fff}
-  .like.on{background:var(--trust)}
-  .hint{margin:0 16px 12px;font-size:12.5px;color:var(--sub);background:var(--brand-soft);padding:10px 12px;border-radius:12px;line-height:1.45}
-  .room{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card);width:100%;text-align:left;min-height:64px}
-  .room .rt{flex:1;min-width:0}
-  .room b{display:block;font-size:15px}
-  .room span.l{display:block;font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-  .menu{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 16px;min-height:52px;border-bottom:1px solid var(--line);background:var(--card);font-weight:600}
-  .badge{font-size:12px;font-weight:700;padding:4px 8px;border-radius:8px;background:var(--brand-soft);color:var(--brand-ink);font-style:normal}
+  .like{background:var(--brand-grad);color:#fff;box-shadow:var(--brand-shadow)}
+  .like.on{background:var(--trust);box-shadow:none}
+  .hint{margin:0 16px 12px;font-size:12.5px;color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand-border);padding:10px 12px;border-radius:12px;line-height:1.45;font-weight:700}
+
+  .room-card{display:flex;gap:12px;align-items:center;margin:0 16px 10px;padding:13px 15px;border-radius:18px;border:1.5px solid var(--line);background:var(--card);box-shadow:var(--shadow);width:calc(100% - 32px);text-align:left}
+  .room-card .rt{flex:1;min-width:0}
+  .room-card b{display:block;font-size:15px;color:var(--ink)}
+  .room-card span.l{display:block;font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+  .badge{font-size:11.5px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--brand-grad);color:#fff;font-style:normal;box-shadow:0 2px 6px rgba(242,87,103,.3)}
+
+  .my-hero{margin:8px 16px 14px;padding:18px 16px;border-radius:22px;background:linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%);border:1.5px solid var(--brand-border);box-shadow:var(--shadow)}
+  .my-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--brand-border)}
+  .my-stat{text-align:center;background:#fff;padding:8px 4px;border-radius:12px;border:1px solid var(--line)}
+  .my-stat b{display:block;font-size:15px;font-weight:900;color:var(--brand-ink)}
+  .my-stat span{font-size:11px;color:var(--sub);font-weight:700}
+  .menu-card{margin:0 16px 12px;border-radius:18px;border:1.5px solid var(--line);background:var(--card);overflow:hidden;box-shadow:var(--shadow)}
+  .menu{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 16px;min-height:52px;border-bottom:1px solid var(--line);background:var(--card);font-weight:700;color:var(--ink)}
+  .menu:last-child{border-bottom:0}
 
   /* 바텀시트 */
-  #ov{position:absolute;inset:0;background:rgba(10,10,20,.45);opacity:0;pointer-events:none;transition:.25s;z-index:20}
+  #ov{position:absolute;inset:0;background:rgba(28,16,20,.48);opacity:0;pointer-events:none;transition:.25s;z-index:20}
   #ov.on{opacity:1;pointer-events:auto}
   #sheet{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:24px 24px 0 0;z-index:21;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);max-height:88%;display:flex;flex-direction:column}
   #sheet.on{transform:none}
-  .grab{width:40px;height:4px;border-radius:2px;background:#D5D7DF;margin:10px auto 0}
+  .grab{width:40px;height:4px;border-radius:2px;background:#E2D5D8;margin:10px auto 0}
   .sh{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 20px}
   .sh h2{font-size:18px;font-weight:800}
   .sb{overflow-y:auto;padding:4px 20px 20px}
   .foot{padding:12px 20px 18px;border-top:1px solid var(--line)}
-  .btn{width:100%;min-height:50px;border-radius:14px;background:var(--brand-grad);color:#fff;font-weight:800;font-size:15.5px}
-  .btn:disabled{background:#D9DBE3}
+  .btn{width:100%;min-height:50px;border-radius:14px;background:var(--brand-grad);color:#fff;font-weight:800;font-size:15.5px;box-shadow:var(--brand-shadow)}
+  .btn:disabled{background:#E2D5D8;box-shadow:none}
   .gl{font-size:13.5px;font-weight:800;margin:14px 0 8px}
   .wrap{display:flex;flex-wrap:wrap;gap:8px}
   .wchip{min-height:40px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);font-weight:700;font-size:13px;color:var(--sub)}
@@ -355,29 +396,29 @@
   .cm p{font-size:14px;color:var(--sub);margin-top:2px;line-height:1.45}
   .cin{display:flex;gap:8px}
   .cin input{flex:1;min-height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit}
-  .cin button{min-width:64px;border-radius:12px;background:var(--brand);color:#fff;font-weight:800}
+  .cin button{min-width:64px;border-radius:12px;background:var(--brand-grad);color:#fff;font-weight:800}
   .rk{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);width:100%;text-align:left;min-height:64px}
-  .rk .n{width:28px;font-weight:800;font-size:18px;color:var(--brand-ink);text-align:center}
+  .rk .n{width:28px;font-weight:900;font-size:18px;color:var(--brand);text-align:center}
   .rk .th{width:48px;height:60px;border-radius:10px;flex:none;background-size:cover;background-position:center top}
-  #toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,20px);background:#17181C;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;z-index:30;max-width:88%;text-align:center;pointer-events:none}
+  #toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,20px);background:#221B1D;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;z-index:30;max-width:88%;text-align:center;pointer-events:none;box-shadow:0 8px 20px rgba(0,0,0,.25)}
   #toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
-<body data-theme="v1">
+<body data-theme="v2">
 
 <div class="theme-bar">
   <div class="mode-switch">
-    <button class="mbtn on" id="modeHome" onclick="setScreenMode('home')">🏠 홈 UI (시안1+4 결합)</button>
+    <button class="mbtn on" id="modeHome" onclick="setScreenMode('home')">🏠 SPOT 홈 UI (후보 B 전면반영)</button>
     <button class="mbtn" id="modeLogin" onclick="setScreenMode('login')">🔐 첫 로그인·온보딩 UI</button>
   </div>
   <div class="theme-bar-top">
-    <span>🎨 <b>친근·따뜻·깔끔한 컬러 후보 4선</b></span>
-    <span id="ref-label" style="color:#FFB09C;font-weight:700">추천 1⭐ 애프리콧 피치</span>
+    <span>🌸 <b>후보 B (로즈 테라코타 &amp; 오트밀 크림) 기본 확정</b></span>
+    <span id="ref-label" style="color:#FF8FA0;font-weight:800">확정🌸 로즈코랄·오트밀</span>
   </div>
   <div class="theme-btns">
-    <button class="tbtn on" data-th="v1" onclick="setTheme('v1')">후보 A (추천1⭐)<small>애프리콧·아이보리</small></button>
-    <button class="tbtn" data-th="v2" onclick="setTheme('v2')">후보 B (설렘🌸)<small>로즈코랄·오트밀</small></button>
-    <button class="tbtn" data-th="v3" onclick="setTheme('v3')">후보 C (활발☀️)<small>코지탄제린·버터</small></button>
+    <button class="tbtn on" data-th="v2" onclick="setTheme('v2')">후보 B (확정🌸)<small>로즈코랄·오트밀</small></button>
+    <button class="tbtn" data-th="v1" onclick="setTheme('v1')">후보 A (비교)<small>애프리콧·아이보리</small></button>
+    <button class="tbtn" data-th="v3" onclick="setTheme('v3')">후보 C (비교)<small>코지탄제린·버터</small></button>
     <button class="tbtn" data-th="v4" onclick="setTheme('v4')">후보 D (시안1)<small>클린화이트·오렌지</small></button>
   </div>
   <div class="spec-strip" id="spec-strip"></div>
@@ -424,18 +465,18 @@ const $=s=>document.querySelector(s);
 const bg=k=>`background-image:url(${IMG[k]||IMG.cover_food});background-color:#ddd`;
 
 const THEME_SPECS = {
+  v2: {
+    ref: '후보 B (확정🌸): 범블 × 에어비앤비 설렘·자만추 감성',
+    desc: '로즈 코랄(#F25767) + 오트밀 크림(#FAF6F7) + 안심 틸(#0D9488)',
+    c1: ['#FAF6F7','오트밀'], c2: ['#F25767','로즈코랄'], c3: ['#0D9488','안심인증']
+  },
   v1: {
-    ref: '후보 A (추천 1⭐): 에어비앤비 × 문토 감성',
+    ref: '후보 A (비교): 에어비앤비 × 문토 감성',
     desc: '애프리콧 피치(#FF6B4A) + 웜 아이보리(#FAF8F5) + 안전 민트(#0D9462)',
     c1: ['#FAF8F5','아이보리'], c2: ['#FF6B4A','애프리콧'], c3: ['#0D9462','안전그린']
   },
-  v2: {
-    ref: '후보 B (추천 2🌸): 범블 × 에어비앤비 설렘 감성',
-    desc: '로즈 코랄(#F25767) + 오트밀 크림(#FAF6F7) + 썬셋 앰버(#D97706)',
-    c1: ['#FAF6F7','오트밀'], c2: ['#F25767','로즈코랄'], c3: ['#D97706','앰버']
-  },
   v3: {
-    ref: '후보 C (추천 3☀️): 당근 2.0 × 남의집 활기 감성',
+    ref: '후보 C (비교): 당근 2.0 × 남의집 활기 감성',
     desc: '코지 탄제린(#FF7A2F) + 버터 크림(#FBF9F5) + 트러스트 블루(#2563EB)',
     c1: ['#FBF9F5','버터크림'], c2: ['#FF7A2F','탄제린'], c3: ['#2563EB','신뢰블루']
   },
@@ -526,9 +567,10 @@ const POTS=[
  {id:1,img:'cover_wine',t:'홍대 2:2 직장인 와인 미팅',p:'마포구 서교동',d:'토 19:00',a:'남 2 · 여 1',need:'여 1명 모집'},
  {id:2,img:'cover_food',t:'합정 3:3 보드게임 & 치맥 미팅',p:'마포구 합정동',d:'일 15:00',a:'남 3 · 여 2',need:'여 1명 모집'}
 ];
-const ROOMS=[['마라탕 번개 모임','그럼 오늘 저녁 7시에 홍대 9번출구에서 봬요!','2','kr_female_1'],['망원 한강 러닝 크루','내일 저녁 8시 망원한강공원 집합!','','kr_male_1'],['합정 코스트코 소분 팟','연어랑 베이글 수량 체크해주세요','','kr_female_2']];
+const ROOMS=[['마라탕 번개 모임','그럼 오늘 저녁 7시에 홍대 9번출구에서 봬요!','2','kr_female_1','⚡ 오늘 번개'],['망원 한강 러닝 크루','내일 저녁 8시 망원한강공원 집합!','','kr_male_1','🏃 라이프 메이트'],['합정 코스트코 소분 팟','연어랑 베이글 수량 체크해주세요','1','kr_female_2','🛒 장보기·소분']];
 
-const S={screenMode:'home',theme:'v1',tab:'meet',vibe:'all',sub:'전체',moreOpen:false,cat:'전체',seg:0,view:'block',interest:{},gone:{},posts:JSON.parse(JSON.stringify(POSTS)),w:{v:'hot',s:null}};
+/* 기본 테마를 후보 B (v2: 로즈 테라코타 & 오트밀 크림)로 확정 */
+const S={screenMode:'home',theme:'v2',tab:'meet',vibe:'all',sub:'전체',moreOpen:false,cat:'전체',seg:0,view:'block',interest:{},gone:{},posts:JSON.parse(JSON.stringify(POSTS)),w:{v:'hot',s:null}};
 
 function renderSpecBar(){
   const sp = THEME_SPECS[S.theme];
@@ -570,7 +612,7 @@ function head(){
   if(S.tab==='meet'||S.tab==='comm'){
     $('#top').innerHTML=`<button class="loc">마포구 서교동 ${ic('down',18)}<span class="loc-pill">이웃 54명 접속 중</span></button><div class="icons"><button class="ibtn" aria-label="검색">${ic('search')}</button><button class="ibtn" aria-label="알림">${ic('bell')}<i class="dot"></i></button></div>`;
   } else {
-    $('#top').innerHTML='';
+    $('#top').innerHTML=`<button class="loc">마포구 서교동 ${ic('down',18)}<span class="loc-pill">안심인증 동네</span></button><div class="icons"><button class="ibtn" aria-label="알림">${ic('bell')}<i class="dot"></i></button></div>`;
     $('#cat-header').innerHTML='';
   }
 }
@@ -598,11 +640,10 @@ function buildSubChipsHtml(V){
 function renderCatHeader(){
   if(S.screenMode==='login' || S.tab!=='meet'){ $('#cat-header').innerHTML=''; return; }
   const V=VIBES[S.vibe];
-  /* 시안 1(깔끔한 4열 대분류 탭) + 시안 4(실시간 동네 접속자 & 지금 몇 명이 보고 있는지 라이브 상태바) 결합! */
   $('#cat-header').innerHTML=`
     <div class="live-bar">
       <div class="live-left"><span class="live-dot"></span><span>지금 서교·연남동 이웃 <b>54명</b>이 모임을 보고 있어요</span></div>
-      <span class="live-tag">안전인증 동네</span>
+      <span class="live-tag">🛡️ 안전인증</span>
     </div>
     <div class="vibes">
       ${Object.entries(VIBES).map(([k,v])=>`<button class="vibe ${S.vibe===k?'on':''}" data-v="${k}">${v.name}</button>`).join('')}
@@ -627,8 +668,8 @@ function nav(){
     return;
   }
   $('#bn').style.display='grid';
-  const T=[['meet','모임','home'],['comm','커뮤니티','users'],['date','소개팅','heart'],['chat','채팅','chat'],['my','MY','user']];
-  $('#bn').innerHTML=T.map(([k,l,i])=>`<button class="tab ${S.tab===k?'on':''}" data-k="${k}">${ic(i)}<span>${l}</span>${k==='chat'?'<i class="nb">2</i>':''}</button>`).join('');
+  const T=[['meet','동네모임','home'],['comm','커뮤니티','users'],['date','소개팅','heart'],['chat','채팅','chat'],['my','MY','user']];
+  $('#bn').innerHTML=T.map(([k,l,i])=>`<button class="tab ${S.tab===k?'on':''}" data-k="${k}">${ic(i)}<span>${l}</span>${k==='chat'?'<i class="nb">3</i>':''}</button>`).join('');
   $('#bn').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.tab=b.dataset.k;render();$('#main').scrollTop=0});
 }
 
@@ -640,7 +681,7 @@ function fab(){
   else f.style.display='none';
 }
 
-/* ---------- 첫 로그인 / 온보딩 UI 렌더러 (안전한 동네친구 + 설레는 자연스러운 소개팅 테마) ---------- */
+/* ---------- 첫 로그인 / 온보딩 UI 렌더러 (후보 B 로즈 테라코타 & 오트밀 크림) ---------- */
 function renderLoginScreen(){
   return `
   <div class="login-screen">
@@ -650,8 +691,8 @@ function renderLoginScreen(){
         <span class="login-live-chip"><i></i>서교동 54명 활동 중</span>
       </div>
       <div class="login-hero-copy">
-        <span class="login-kicker">✨ 안전한 동네 친구부터 설레는 자만추까지</span>
-        <h1 class="login-title">오늘 우리 동네에서<br><em>기분 좋은 인연</em>을<br>시작해 볼까요?</h1>
+        <span class="login-kicker">🌸 안전한 동네 친구부터 설레는 자만추까지</span>
+        <h1 class="login-title">오늘 우리 동네에서<br><em>설레는 첫 만남</em>을<br>시작해 볼까요?</h1>
         <p class="login-sub">본인·동네 인증을 마친 검증된 이웃들과<br>부담 없는 동네 번개부터 자연스러운 소개팅까지 함께해요.</p>
       </div>
 
@@ -659,7 +700,7 @@ function renderLoginScreen(){
         <div class="lp-card">
           <div class="lp-av" style="${bg('cover_wine')}"></div>
           <div class="lp-info">
-            <span class="lp-tag">⚡ 오늘 번개 · 지금 19명 열람 중</span>
+            <span class="lp-tag">⚡ 오늘 번개 · 👀 지금 19명이 보고 있어요</span>
             <h4>연남동 LP바에서 신청곡 들으며 하이볼 한잔</h4>
             <p>서교동 520m · 호스트 매너온도 40.5°C · 2/4명 참여</p>
           </div>
@@ -667,14 +708,14 @@ function renderLoginScreen(){
         <div class="lp-card">
           <div class="lp-av" style="${bg('kr_female_1')}"></div>
           <div class="lp-info">
-            <span class="lp-tag pink">💓 지인 추천 소개팅 · 시크릿 매칭</span>
+            <span class="lp-tag safe">💓 지인 추천 자만추 · 시크릿 매칭</span>
             <h4>"리액션 좋고 대화 편한 마케터 친구 소개해요"</h4>
             <p>성수·연남 카페투어 · 서로 호감일 때만 채팅 오픈</p>
           </div>
         </div>
         <div class="lp-trust">
           <div class="lp-tbox"><b>🛡️ 100% 인증</b><span>동네·본인 확인</span></div>
-          <div class="lp-tbox"><b>🌡️ 38.5°C+</b><span>매너온도 보장</span></div>
+          <div class="lp-tbox"><b>🌡️ 40.5°C+</b><span>따뜻한 매너온도</span></div>
           <div class="lp-tbox"><b>🤝 안심 정산</b><span>1/N 에스크로</span></div>
         </div>
       </div>
@@ -717,7 +758,7 @@ function blockCardHybrid(m){
           <b>${m.h}</b>
         </div>
         <span class="mn">${ic('flame')}${m.mn}°C</span>
-        <span class="pill">${m.n} 참여</span>
+        <span class="pill">${m.n}명 참여</span>
       </div>
     </div></button>`;
 }
@@ -733,7 +774,7 @@ function listRowHybrid(m){
       <div class="ct">${m.t}</div>
       <div class="cinfo">${ic('pin')}<span>${m.p} (${m.dist||'400m'}) · ${m.d}</span></div>
       <div class="lfoot">
-        <span class="mn" style="color:var(--sub)">${m.h} · ${ic('flame')}${m.mn}°C</span>
+        <span class="mn">${ic('flame')}${m.h} · ${m.mn}°C</span>
         <span class="pill" style="padding:3px 9px;font-size:11.5px">${m.n}명 참여</span>
       </div>
     </div></button>`;
@@ -757,10 +798,10 @@ function strip(){
 function meet(){
   const list=MEET.filter(m=>(S.vibe==='all'||m.v===S.vibe)&&(S.sub==='전체'||m.sub===S.sub));
   const wantTop=(S.vibe==='chill'&&S.sub==='공연·전시');
-  const secTitle = S.vibe==='hot' ? '오늘 바로 만나는<br>마포구 실시간 번개'
-                 : S.vibe==='chill' ? '취향으로 모이는<br>우리 동네 아지트'
-                 : S.vibe==='mate' ? '함께해서 든든한<br>우리 동네 라이프 메이트'
-                 : '마포구에서<br>지금 뜨는 모임';
+  const secTitle = S.vibe==='hot' ? '오늘 바로 만나는<br><em>마포구 실시간 번개</em>'
+                 : S.vibe==='chill' ? '취향으로 모이는<br><em>우리 동네 아지트</em>'
+                 : S.vibe==='mate' ? '함께해서 든든한<br><em>우리 동네 라이프 메이트</em>'
+                 : '마포구에서<br><em>지금 뜨는 모임</em>';
 
   if(!list.length){
     return `<div class="sec"><h2>${secTitle}</h2></div><div class="empty" style="padding:40px 16px;text-align:center;color:var(--sub)">아직 이 주제의 모임이 없어요.<br>첫 모임을 만들어 보세요.</div>`;
@@ -832,15 +873,23 @@ function writeSheet(v){
   openSheet(''); draw();
 }
 
-/* ---------- COMMUNITY ---------- */
+/* ---------- COMMUNITY (후보 B 로즈 테라코타 전면 반영) ---------- */
 const CATS=['전체','일상·수다','맛집·카페','공연·핫플','동네질문'];
 function comm(){
   const list=S.posts.filter(p=>S.cat==='전체'||p.cat===S.cat);
-  return `<div class="sub-wrap" style="padding-top:8px"><div class="chips-row1" style="flex-wrap:wrap">${CATS.map(c=>`<button class="chip ${S.cat===c?'on':''}" data-c="${c}">${c}</button>`).join('')}</div></div>
+  return `
+  <div class="live-bar" style="margin-top:8px">
+    <div class="live-left"><span class="live-dot"></span><span>서교·연남동 이웃들이 지금 따뜻한 동네 소식을 나누고 있어요</span></div>
+    <span class="live-tag">💬 실시간 토크</span>
+  </div>
+  <div class="sub-wrap" style="padding-top:4px"><div class="chips-row1" style="flex-wrap:wrap">${CATS.map(c=>`<button class="chip ${S.cat===c?'on':''}" data-c="${c}">${c}</button>`).join('')}</div></div>
   ${list.map(p=>`<article class="post">
-    <span class="cat">${p.cat}</span>
+    <div class="post-top">
+      <span class="cat">#${p.cat}</span>
+      <span class="mn">${ic('flame')}40.2°C</span>
+    </div>
     <div class="pr"><div style="flex:1;min-width:0"><h3>${p.t}</h3><p>${p.b}</p></div>${p.noimg?'':`<div class="img" style="${bg(p.img)}"></div>`}</div>
-    <div class="pf"><span>${p.u} · 서교동 · ${p.w}</span>
+    <div class="pf"><span><b>${p.u}</b> · 서교동 · ${p.w}</span>
       <div class="acts"><button class="act ${p.liked?'liked':''}" data-l="${p.id}" aria-label="좋아요">${ic('heart')}<span>${p.l}</span></button>
       <button class="act" data-cm="${p.id}" aria-label="댓글">${ic('msg')}<span>${p.c.length}</span></button></div></div>
   </article>`).join('')}`;
@@ -872,35 +921,59 @@ function postSheet(){
   document.querySelectorAll('#sheet .wchip').forEach(b=>b.onclick=()=>{document.querySelectorAll('#sheet .wchip').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
 }
 
-/* ---------- DATING ---------- */
+/* ---------- DATING (후보 B 설레는 자만추 & 동네 미팅) ---------- */
 function date(){
   const body=S.seg===0?`
-   <div class="hint">서로 관심이 있을 때만 대화가 열려요. 마음에 드는 분은 여러 명 골라도 되고, 아무도 아니면 패스해도 괜찮아요.</div>
+   <div class="hint">🌸 서로 호감을 표시했을 때만 채팅이 열려요. 동네·본인 인증이 완료된 분들과 부담 없이 설레는 만남을 시작해 보세요.</div>
    ${DATES.map(d=>`<div class="dcard ${S.gone[d.id]?'gone':''}" id="d${d.id}">
-     <div class="dimg" style="${bg(d.img)}">${ic('pin',16)}&nbsp;${d.spot}</div>
-     <div class="dbody"><div class="who"><div class="av" style="${bg(d.av)}"></div><div><b>${d.nm} (${d.age})</b><div style="font-size:13px;color:var(--sub)">${d.job}</div></div></div>
-     <h3>${d.t}</h3><div class="tags">${d.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
-     <div class="quote">${d.q}</div>
-     <div class="dact"><button class="pass" data-p="${d.id}">패스</button><button class="like ${S.interest[d.id]?'on':''}" data-i="${d.id}">${ic(S.interest[d.id]?'check':'heart')}${S.interest[d.id]?'관심 표시함':'관심 있어요'}</button></div></div></div>`).join('')}`
-  :`<div class="hint">친구와 함께 나가는 2:2 · 3:3 동네 미팅이에요. 부담 없이 시작해 보세요.</div>
-   ${POTS.map(p=>`<div class="dcard"><div class="dimg" style="${bg(p.img)};height:100px">${p.a}</div><div class="dbody"><h3 style="margin-top:0">${p.t}</h3>
-   <div class="meta" style="font-size:14px">${ic('pin')}<span>${p.p} · ${p.d}</span></div><div class="meta" style="font-size:14px">${ic('users')}<span>${p.need}</span></div>
-   <div class="dact" style="grid-template-columns:1fr"><button class="like" data-j="${p.id}">참여 신청</button></div></div></div>`).join('')}`;
-  return `<div class="pagehead">소개팅</div><div class="seg" style="margin-top:8px"><button class="${S.seg===0?'on':''}" data-g="0">데이트 코스 제안</button><button class="${S.seg===1?'on':''}" data-g="1">2:2 · 3:3 미팅 팟</button></div>${body}`;
+     <div class="dimg" style="${bg(d.img)}">
+       <span>${ic('pin',15)}&nbsp;${d.spot}</span>
+       <span class="view-pill"><i></i>본인·직장 인증완료</span>
+     </div>
+     <div class="dbody">
+       <div class="who">
+         <div class="who-left"><div class="av" style="${bg(d.av)}"></div><div><b style="font-size:15.5px">${d.nm} (${d.age})</b><div style="font-size:12.5px;color:var(--sub);margin-top:1px">${d.job} · 서교동 이웃</div></div></div>
+         <span class="mn">${ic('flame')}41.5°C</span>
+       </div>
+       <h3>${d.t}</h3><div class="tags">${d.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+       <div class="quote">💌 ${d.q}</div>
+       <div class="dact"><button class="pass" data-p="${d.id}">다음에 뵐게요</button><button class="like ${S.interest[d.id]?'on':''}" data-i="${d.id}">${ic(S.interest[d.id]?'check':'heart')}${S.interest[d.id]?'호감 전달 완료':'설레요 · 관심 보내기'}</button></div></div></div>`).join('')}`
+  :`<div class="hint">🥂 동네 친구와 함께 부담 없이 나가는 2:2 · 3:3 라운지 미팅이에요.</div>
+   ${POTS.map(p=>`<div class="dcard"><div class="dimg" style="${bg(p.img)};height:118px"><span>${p.a}</span><span class="spot-pill">✨ 공식 인증 라운지</span></div><div class="dbody"><h3 style="margin-top:0">${p.t}</h3>
+   <div class="meta" style="font-size:13.5px">${ic('pin')}<span>${p.p} · ${p.d}</span></div><div class="meta" style="font-size:13.5px">${ic('users')}<span>${p.need} (1/N 안심 정산)</span></div>
+   <div class="dact" style="grid-template-columns:1fr"><button class="like" data-j="${p.id}">친구와 함께 참여 신청하기</button></div></div></div>`).join('')}`;
+  return `<div class="pagehead"><span>설레는 소개팅</span><span class="pagehead-sub">🌸 시크릿 자만추</span></div><div class="seg" style="margin-top:8px"><button class="${S.seg===0?'on':''}" data-g="0">💓 데이트 코스 제안</button><button class="${S.seg===1?'on':''}" data-g="1">🥂 2:2 · 3:3 미팅 팟</button></div>${body}`;
 }
 function bindDate(){
   document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{S.seg=+b.dataset.g;render()});
-  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.gone[b.dataset.p]=1;document.getElementById('d'+b.dataset.p).classList.add('gone');toast('패스했어요')});
-  document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const k=b.dataset.i;S.interest[k]=!S.interest[k];render(true);toast(S.interest[k]?'관심을 표시했어요. 서로 관심이면 알려드려요':'관심 표시를 취소했어요')});
-  document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>toast('참여 신청을 보냈어요'));
+  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.gone[b.dataset.p]=1;document.getElementById('d'+b.dataset.p).classList.add('gone');toast('다음 인연을 추천해 드릴게요')});
+  document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const k=b.dataset.i;S.interest[k]=!S.interest[k];render(true);toast(S.interest[k]?'설레는 호감을 보냈어요! 서로 호감이면 채팅이 열려요':'호감 표시를 취소했어요')});
+  document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>toast('2:2 미팅 참여 신청을 보냈어요!'));
 }
 function chat(){
-  return `<div class="pagehead">채팅</div>${ROOMS.map(r=>`<button class="room"><div class="av" style="${bg(r[3])};width:48px;height:48px"></div><div class="rt"><b>${r[0]}</b><span class="l">${r[1]}</span></div>${r[2]?`<i class="badge">${r[2]}</i>`:''}</button>`).join('')}`;
+  return `<div class="pagehead"><span>채팅</span><span class="pagehead-sub">참여 모임 3</span></div>
+  <div class="hint">🛡️ 모든 채팅방은 동네·본인 인증을 마친 이웃들과 안전하게 운영돼요.</div>
+  ${ROOMS.map(r=>`<button class="room-card" onclick="toast('${r[0]} 채팅방으로 이동합니다')"><div class="av" style="${bg(r[3])};width:50px;height:50px"></div><div class="rt"><span class="lbadge" style="margin-bottom:3px">${r[4]}</span><b>${r[0]}</b><span class="l">${r[1]}</span></div>${r[2]?`<i class="badge">${r[2]}</i>`:''}</button>`).join('')}`;
 }
 function my(){
-  return `<div class="pagehead">MY</div>
-  <div style="display:flex;gap:14px;align-items:center;padding:12px 16px 18px"><div class="av" style="${bg('kr_male_2')};width:60px;height:60px"></div><div><b style="font-size:18px">우리동네민우</b><div style="font-size:13px;color:var(--sub);margin-top:2px">매너온도 38.2°C · 서교동</div></div></div>
-  ${['내 모임','신청 내역','관심 표시한 소개팅','설정'].map(m=>`<button class="menu">${m}${ic('right',18)}</button>`).join('')}`;
+  return `<div class="pagehead"><span>마이 오뮤</span><span class="pagehead-sub">🛡️ 동네·본인인증 완료</span></div>
+  <div class="my-hero">
+    <div style="display:flex;gap:14px;align-items:center">
+      <div class="av" style="${bg('kr_male_2')};width:64px;height:64px;border:3px solid #fff;box-shadow:0 4px 12px rgba(242,87,103,.2)"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px"><b style="font-size:18px">우리동네민우</b><span class="mn">${ic('flame')}39.8°C</span></div>
+        <div style="font-size:12.5px;color:var(--sub);margin-top:4px">마포구 서교동 · 동네모임 호스트 4회</div>
+      </div>
+    </div>
+    <div class="my-stats">
+      <div class="my-stat"><b>3건</b><span>참여 중인 모임</span></div>
+      <div class="my-stat"><b>5명</b><span>주고받은 호감</span></div>
+      <div class="my-stat"><b>2장</b><span>공식 아지트 쿠폰</span></div>
+    </div>
+  </div>
+  <div class="menu-card">
+    ${['내가 참여·개설한 동네모임','설레는 소개팅 · 호감 내역','OOMU 1/N 안심 에스크로 지갑','동네 인증 및 안심 설정'].map(m=>`<button class="menu" onclick="toast('${m} 화면으로 이동합니다')"><span>${m}</span>${ic('right',18)}</button>`).join('')}
+  </div>`;
 }
 
 function render(keep){

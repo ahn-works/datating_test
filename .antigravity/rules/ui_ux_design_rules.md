@@ -48,16 +48,18 @@
 
 ---
 
-## 2. 촌스러움 원천 차단 디자인 토큰 (Design Tokens)
+## 2. 촌스러움 원천 차단 디자인 토큰 (Design Tokens — 후보 B: 로즈 테라코타 & 오트밀 크림 공식 확정)
 - **배경/표면 대비 (Surface Hierarchy)**:
-  - 앱 기본 배경(Scaffold): 웜 오프화이트 `#F8F9FA` (절대 배경과 카드를 똑같은 `#FFFFFF`로 뭉개지 말 것)
-  - 카드/바텀시트 표면: 순백색 `#FFFFFF` + `1px` 소프트 보더(`#EFF1F5`) + 미세 그림자(`BoxShadow(color: Color(0x0A000000), blurRadius: 16, offset: Offset(0, 4))`)
-- **컬러 절제 (Anti-Garish Rule)**:
+  - 앱 기본 배경(Scaffold): **오트밀 로즈 크림 `#FAF6F7`** (절대 배경과 카드를 똑같은 `#FFFFFF`로 뭉개지 말 것)
+  - 카드/바텀시트 표면: **순백색 `#FFFFFF`** + `1.5px` 웜 로즈베이지 보더(`#EFE4E6`) + 소프트 로즈 그림자(`BoxShadow(color: Color(0x0FF25767), blurRadius: 20, offset: Offset(0, 8))`)
+- **컬러 절제 (Anti-Garish Rule & 후보 B 팔레트)**:
   - 쨍한 기본 원색(`Colors.orange`, `Colors.red`, `Colors.blue`) 직접 사용 금지.
-  - Primary Accent: `#F19E39` / `#FF6B35` (핵심 CTA 버튼 및 활성 인디케이터 전용)
-  - 뱃지/태그(Chip) 배경: 반드시 채도를 낮춘 파스텔 틴트(`#FFF4EB` 배경 + `#E85D04` 텍스트, 또는 `#F2F4F6` 배경 + `#4E5968` 텍스트) 사용.
-- **타이포그래피 위계 (Toss Grayscale & Spacing)**:
-  - 헤드라인/섹션 타이틀: `18~20sp`, `FontWeight.w700`, `#191F28` (순검정 `#000000` 지양), `letterSpacing: -0.5`
+  - **Primary Accent (설렘·자만추·동네모임 메인)**: **로즈 테라코타 코랄 `#F25767`** / 그라데이션 `#FF707F` → `#E84355` (핵심 CTA 버튼 및 활성 인디케이터 전용)
+  - **뱃지/태그(Chip) 배경**: 채도를 낮춘 **소프트 로즈 블라썸(`#FFF0F2` 배경 + `#F8C6CD` 보더 + `#C83243` 텍스트)** 또는 **오트밀 칩(`#F3EAEB` 배경 + `#635559` 텍스트)** 사용.
+  - **보조 안심 인증 & 매너온도 뱃지**: 동네·본인 안심 인증 및 실시간 접속자 표시는 **세이프 틸(`#E6F7F5` 배경 + `#0D9488` 텍스트)**, 매너온도는 **썬셋 앰버(`#FEF3C7` 배경 + `#D97706` 텍스트)**로 역할을 엄격히 분리.
+- **타이포그래피 위계 (Warm Espresso Grayscale & Spacing)**:
+  - 헤드라인/섹션 타이틀: `18~20sp`, `FontWeight.w800`, **`#221B1D` (웜 에스프레소 차콜, 순검정 `#000000` 지양)**, `letterSpacing: -0.5`
+  - 서브 텍스트/메타 정보: `#635559` (Warm Cocoa Gray), 비활성/캡션: `#9A8B8F` (Soft Mauve Gray)
   - 카드 타이틀: `15~16sp`, `FontWeight.w600`, `#191F28`, `letterSpacing: -0.3`
   - 본문/장소/설명: `13~14sp`, `FontWeight.w400`, `#4E5968`, `height: 1.4`
   - 메타/시간/인원 캡션: `12sp`, `FontWeight.w500`, `#8B95A1`

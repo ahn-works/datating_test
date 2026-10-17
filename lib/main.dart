@@ -33,20 +33,27 @@ class Spot10App extends StatelessWidget {
       title: 'OOMU', 
       debugShowCheckedModeBanner: false, 
       theme: ThemeData(
-        primaryColor: const Color(0xFFF19E39), 
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFF19E39), primary: const Color(0xFFF19E39)), 
-        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
-      ), 
+        primaryColor: const Color(0xFFF25767),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFF25767),
+          primary: const Color(0xFFF25767),
+          secondary: const Color(0xFF0D9488),
+          surface: const Color(0xFFFAF6F7),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFFAF6F7),
+        cardColor: const Color(0xFFFFFFFF),
+        dividerColor: const Color(0xFFEFE4E6),
+      ),
       builder: (context, child) => Container(
-        color: Colors.grey.shade300, 
+        color: const Color(0xFFD8CFD2),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480), 
-            child: Container(color: Colors.white, child: child!)
-          )
-        )
-      ), 
-      home: const OOMUHomeScreen()
-    ); 
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Container(color: const Color(0xFFFAF6F7), child: child!),
+          ),
+        ),
+      ),
+      home: const OOMUHomeScreen(),
+    );
   }
 }
