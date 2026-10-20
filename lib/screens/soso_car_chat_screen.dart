@@ -31,17 +31,77 @@ class OOMUChatStore extends ChangeNotifier {
     final cId = canonicalRoomId(roomId);
     if (!_messagesByRoom.containsKey(cId)) {
       _messagesByRoom[cId] = [
-        {'type': 'system', 'text': '$title 모임 대화방이 개설되었습니다. 🎉', 'time': '오후 2:20'},
-        {'type': 'system', 'text': '우리동네민우님이 참여 승인되어 합류했습니다! 🎉', 'time': '오후 2:25'},
-        {'type': 'text', 'sender': '매운맛킬러', 'text': '안녕하세요! 다들 마라탕 좋아하시죠?', 'isMe': false, 'time': '오후 2:30'},
-        {'type': 'text', 'sender': '우리동네민우', 'text': '완전완전 좋아합니다ㅎㅎ 잘 부탁드려요!', 'isMe': true, 'time': '오후 2:32'},
-        {'type': 'text', 'sender': '매운맛킬러', 'text': '그럼 이번주 토요일 6시에 홍대에서 봬요!', 'isMe': false, 'time': '오후 2:35'},
+        {'id': 'msg_sys_01', 'type': 'system', 'text': '$title 모임 대화방이 개설되었습니다. 🎉', 'time': '오후 2:20'},
+        {'id': 'msg_sys_02', 'type': 'system', 'text': '우리동네민우님이 참여 승인되어 합류했습니다! 🎉', 'time': '오후 2:25'},
+        {'id': 'msg_txt_01', 'type': 'text', 'sender': '매운맛킬러', 'text': '안녕하세요! 다들 마라탕 좋아하시죠?', 'isMe': false, 'time': '오후 2:30'},
+        {'id': 'msg_txt_02', 'type': 'text', 'sender': '우리동네민우', 'text': '완전완전 좋아합니다ㅎㅎ 잘 부탁드려요!', 'isMe': true, 'time': '오후 2:32'},
+        {'id': 'msg_txt_03', 'type': 'text', 'sender': '매운맛킬러', 'text': '그럼 이번주 토요일 6시에 홍대에서 봬요!', 'isMe': false, 'time': '오후 2:35'},
         {
+          'id': 'msg_sched_01',
+          'type': 'schedule',
+          'sender': '매운맛킬러',
+          'title': '이번 주 토요일 첫 정기 모임',
+          'date': '10월 24일 (토)',
+          'timeStr': '오후 6:00',
+          'location': '홍대입구역 9번 출구 앞 서교동 마라토끼',
+          'maxMembers': 4,
+          'attendees': ['매운맛킬러', '우리동네민우'],
+          'isMe': false,
+          'time': '오후 2:38'
+        },
+        {
+          'id': 'msg_poll_01',
+          'type': 'poll',
+          'sender': '매운맛킬러',
+          'title': '저녁 식사 후 2차 장소 투표 🍻',
+          'opt1': '분위기 좋은 성수 루프탑 펍',
+          'opt2': '조용하고 감성적인 디저트 카페',
+          'voters': {'매운맛킬러': 1},
+          'isMe': false,
+          'time': '오후 2:40'
+        },
+        {
+          'id': 'msg_settle_01',
+          'type': 'settlement',
+          'sender': '매운맛킬러',
+          'title': '1차 마라탕 & 꿔바로우 1/N 정산',
+          'total': 68000,
+          'perPerson': 17000,
+          'totalMembers': 4,
+          'accountBank': '카카오뱅크 3333-01-2345678 (예금주: 모임장)',
+          'paidMembers': ['매운맛킬러'],
+          'isMe': false,
+          'time': '오후 7:15'
+        },
+        {
+          'id': 'msg_safe_01',
+          'type': 'safe_return',
+          'sender': '매운맛킬러',
+          'title': '🏠 안전 귀가 알림',
+          'desc': '다들 오늘 너무 반가웠어요! 방금 집에 무사히 도착했습니다.',
+          'cheers': ['우리동네민우'],
+          'isMe': false,
+          'time': '오후 10:15'
+        },
+        {
+          'id': 'msg_profile_01',
+          'type': 'profile_exchange',
+          'sender': '매운맛킬러',
+          'title': '🤝 명함/프로필 교환 요청',
+          'desc': '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
+          'acceptedMembers': [],
+          'status': 'pending',
+          'isMe': false,
+          'time': '오후 10:20'
+        },
+        {
+          'id': 'msg_secret_01',
           'type': 'secret_after',
+          'sender': '매운맛킬러',
           'title': '💖 시크릿 애프터 1:1 호감 매칭',
           'desc': '오늘 모임은 어떠셨나요? 마음이 통했던 멤버 1~2명을 비공개로 선택해 보세요.',
           'isMe': false,
-          'time': '오후 6:30'
+          'time': '오후 10:30'
         },
       ];
     }
@@ -65,11 +125,29 @@ class OOMUChatStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateMessage(String roomId, String messageId, Map<String, dynamic> delta) {
+    final cId = canonicalRoomId(roomId);
+    final list = _messagesByRoom[cId];
+    if (list != null) {
+      final idx = list.indexWhere((m) => m['id'] == messageId);
+      if (idx >= 0) {
+        list[idx] = {...list[idx], ...delta};
+        notifyListeners();
+      }
+    }
+  }
+
   String formatLastMessage(Map<String, dynamic> msg) {
     if (msg['type'] == 'image') return '📸 사진을 보냈습니다';
     if (msg['type'] == 'location') return '📍 현재 위치를 공유했습니다';
     if (msg['type'] == 'schedule') return '📅 상세 일정을 제안했습니다';
-    if (msg['type'] == 'settlement') return '💰 정산을 요청했습니다';
+    if (msg['type'] == 'poll') return '📊 투표를 등록했습니다';
+    if (msg['type'] == 'settlement') return '💰 1/N 정산을 요청했습니다';
+    if (msg['type'] == 'safe_return') return '🏠 안심 귀가 알림이 도착했습니다';
+    if (msg['type'] == 'profile_exchange') return '🤝 프로필 교환을 요청했습니다';
+    if (msg['type'] == 'secret_after') return '💖 시크릿 애프터 호감 매칭이 오픈되었습니다';
+    if (msg['type'] == 'hotspot') return '☕ 핫플 정보를 공유했습니다';
+    if (msg['type'] == 'review') return '⭐ 모임 후기를 남겼습니다';
     return (msg['text'] ?? '').toString();
   }
 
@@ -138,13 +216,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   @override
   void initState() {
     super.initState();
+    final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId);
     _messages = List<Map<String, dynamic>>.from(
-      oomuChatStore.getRoomMessages(widget.chatRoomId, widget.title)
+      oomuChatStore.getRoomMessages(cId, widget.title)
     );
     try {
       _firebaseMessageStream = FirebaseFirestore.instance
           .collection('chatRooms')
-          .doc(widget.chatRoomId)
+          .doc(cId)
           .collection('messages')
           .orderBy('timestamp', descending: false)
           .snapshots();
@@ -156,26 +235,23 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
   Future<void> _seedInitialMessageIfEmpty() async {
     try {
+      final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId);
       final msgColl = FirebaseFirestore.instance
           .collection('chatRooms')
-          .doc(widget.chatRoomId)
+          .doc(cId)
           .collection('messages');
       final snap = await msgColl.limit(1).get();
       if (snap.docs.isEmpty) {
-        await msgColl.add({
-          'type': 'system',
-          'text': '${widget.title} 모임 대화방이 개설되었습니다. 🎉',
-          'time': '오후 2:25',
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        await msgColl.add({
-          'type': 'text',
-          'sender': '매운맛킬러',
-          'text': '안녕하세요! 다들 마라탕 좋아하시죠? 이번 주 모임에서 봬요! 😊',
-          'isMe': false,
-          'time': '오후 2:30',
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        final initialList = oomuChatStore.getRoomMessages(cId, widget.title);
+        for (final item in initialList) {
+          final id = item['id'] ?? 'seed_${DateTime.now().millisecondsSinceEpoch}';
+          await msgColl.doc(id).set({
+            ...item,
+            'id': id,
+            'createdAt': DateTime.now().toIso8601String(),
+            'timestamp': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
       }
     } catch (e) {
       debugPrint('Firestore seed message note: $e');
@@ -184,7 +260,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
   void _addMessage(Map<String, dynamic> msgData) {
     final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId);
-    final newMsg = {...msgData, 'time': '방금', 'isMe': true, 'sender': '우리동네민우'};
+    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final msgId = msgData['id'] ?? 'msg_${DateTime.now().millisecondsSinceEpoch}';
+    final newMsg = {
+      ...msgData,
+      'id': msgId,
+      'time': '방금',
+      'isMe': true,
+      'sender': currentNick,
+    };
     setState(() {
       oomuChatStore.addMessage(cId, newMsg, roomTitle: widget.title);
       _messages = List<Map<String, dynamic>>.from(
@@ -208,14 +292,41 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      // 2. 메시지 서브컬렉션에 메시지 저장
-      roomDoc.collection('messages').add({
+      // 2. 메시지 서브컬렉션에 메시지 저장 (deterministic document ID)
+      roomDoc.collection('messages').doc(msgId).set({
         ...newMsg,
         'createdAt': DateTime.now().toIso8601String(),
         'timestamp': FieldValue.serverTimestamp(),
-      });
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Firebase chat update error: $e');
+    }
+  }
+
+  Future<void> _updateMessageData(String messageId, Map<String, dynamic> delta) async {
+    final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId);
+    
+    // 1. In-memory update via oomuChatStore & local state immediately
+    oomuChatStore.updateMessage(cId, messageId, delta);
+    if (mounted) {
+      setState(() {
+        final idx = _messages.indexWhere((m) => m['id'] == messageId);
+        if (idx >= 0) {
+          _messages[idx] = {..._messages[idx], ...delta};
+        }
+      });
+    }
+
+    // 2. Persist to Firestore
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('chatRooms')
+          .doc(cId)
+          .collection('messages')
+          .doc(messageId);
+      await docRef.set(delta, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[Firestore Chat] _updateMessageData note: $e');
     }
   }
 
@@ -841,6 +952,150 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
+  void _showSettlementCreatorBottomSheet() {
+    Navigator.pop(context);
+    final TextEditingController titleCtrl = TextEditingController(text: '1차 모임 식비 정산');
+    final TextEditingController totalCtrl = TextEditingController();
+    final TextEditingController bankCtrl = TextEditingController(text: '카카오뱅크 3333-01-2345678 (예금주: 모임장)');
+    int memberCount = widget.memberCount > 0 ? widget.memberCount : 4;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          int parsedTotal = int.tryParse(totalCtrl.text.replaceAll(',', '').replaceAll('원', '').trim()) ?? 0;
+          int perPerson = memberCount > 0 && parsedTotal > 0 ? (parsedTotal / memberCount).ceil() : 0;
+          final formattedPerPerson = perPerson.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.15), shape: BoxShape.circle),
+                            child: const Icon(Icons.payments, color: Color(0xFFF19E39), size: 22),
+                          ),
+                          const SizedBox(width: 10),
+                          const Text('1/N 더치페이 정산 요청', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: titleCtrl,
+                        decoration: InputDecoration(
+                          labelText: '정산 항목 / 모임 내용',
+                          hintText: '예: 1차 마라탕 & 꿔바로우',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: totalCtrl,
+                        keyboardType: TextInputType.number,
+                        onChanged: (val) => setModalState(() {}),
+                        decoration: InputDecoration(
+                          labelText: '총 지출 금액 (원)',
+                          hintText: '예: 68000',
+                          suffixText: '원',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: bankCtrl,
+                        decoration: InputDecoration(
+                          labelText: '입금 계좌번호 (은행 + 계좌번호 + 예금주)',
+                          hintText: '예: 카카오뱅크 3333-01-2345678 (홍길동)',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7EE),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('정산 인원 ($memberCount명 1/N)', style: const TextStyle(fontSize: 13, color: Color(0xFF555555))),
+                                Text('${memberCount}명', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const Divider(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('1인당 보낼 금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                Text(
+                                  '${formattedPerPerson}원',
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFF19E39)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF19E39),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () {
+                            if (titleCtrl.text.trim().isEmpty || parsedTotal <= 0) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('정산 내용과 총 금액을 입력해주세요.')));
+                              return;
+                            }
+                            Navigator.pop(ctx);
+                            final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+                            _addMessage({
+                              'type': 'settlement',
+                              'title': titleCtrl.text.trim(),
+                              'total': parsedTotal,
+                              'perPerson': perPerson,
+                              'accountBank': bankCtrl.text.trim(),
+                              'totalMembers': memberCount,
+                              'paidMembers': [currentNick],
+                            });
+                          },
+                          child: const Text('1/N 정산 요청 등록', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   void _showAttachmentMenu() {
     showModalBottomSheet(
       context: context,
@@ -862,7 +1117,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               _buildAttachmentIcon(Icons.rate_review, '모임후기', Colors.orange, onTap: _showReviewBottomSheet),
               _buildAttachmentIcon(Icons.calendar_month, '일정', Colors.blue, onTap: _showScheduleCreatorBottomSheet),
               _buildAttachmentIcon(Icons.how_to_vote, '투표', Colors.purple, onTap: _showPollCreatorBottomSheet),
-              _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF19E39)), 
+              _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF19E39), onTap: _showSettlementCreatorBottomSheet), 
               _buildAttachmentIcon(Icons.local_cafe, '핫플 공유', Colors.brown, onTap: _showHotspotSearchBottomSheet),
               _buildAttachmentIcon(Icons.directions_car, '동행/드라이브', Colors.indigo, onTap: () {
                 Navigator.pop(ctx);
@@ -932,7 +1187,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       ),
       body: Column(
         children: [
-          const FixedPromiseHeader(),
+          FixedPromiseHeader(
+            chatRoomId: widget.chatRoomId,
+            currentUserName: globalData.userNickname.value,
+          ),
           Expanded(
             child: _firebaseMessageStream == null
                 ? _buildMessageList(_messages) 
@@ -941,7 +1199,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                         final docs = snapshot.data!.docs;
-                        final firestoreMsgs = docs.map((d) => d.data() as Map<String, dynamic>).toList();
+                        final currentNick = globalData.userNickname.value;
+                        final firestoreMsgs = docs.map((d) {
+                          final data = Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
+                          data['id'] = d.id;
+                          if (data['sender'] == currentNick || data['sender'] == '우리동네민우' || data['isMe'] == true) {
+                            data['isMe'] = true;
+                          }
+                          return data;
+                        }).toList();
                         return _buildMessageList(firestoreMsgs);
                       }
                       return _buildMessageList(_messages);
@@ -969,22 +1235,30 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
   Widget _buildDynamicMessage(Map<String, dynamic> data) {
     final type = data['type'] ?? 'text';
+    final msgId = (data['id'] ?? '').toString();
+    final isMe = data['isMe'] == true || data['sender'] == globalData.userNickname.value || data['sender'] == '우리동네민우';
+    
+    void updateThisMessage(Map<String, dynamic> delta) {
+      if (msgId.isNotEmpty) {
+        _updateMessageData(msgId, delta);
+      }
+    }
+
     if (type == 'system') return _buildSystemMessage(data['text'] ?? '');
-    if (type == 'settlement') return _buildSettlementMessage(data);
+    if (type == 'settlement') return InteractiveSettlementCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
     if (type == 'image') return _buildImageMessage(data);
     if (type == 'location') return _buildLocationMessage(data);
     
-    if (type == 'schedule') return InteractiveScheduleCard(msg: data, isMe: data['isMe'] == true);
-    if (type == 'poll') return InteractivePollCard(msg: data, isMe: data['isMe'] == true);
+    if (type == 'schedule') return InteractiveScheduleCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
+    if (type == 'poll') return InteractivePollCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
     
-    if (type == 'hotspot') return InteractiveHotspotCard(msg: data, isMe: data['isMe'] == true);
-    if (type == 'review') return InteractiveReviewCard(msg: data, isMe: data['isMe'] == true);
+    if (type == 'hotspot') return InteractiveHotspotCard(msg: data, isMe: isMe);
+    if (type == 'review') return InteractiveReviewCard(msg: data, isMe: isMe);
     
-    if (type == 'safe_return') return InteractiveSafeReturnCard(msg: data, isMe: data['isMe'] == true);
-    if (type == 'profile_exchange') return InteractiveProfileExchangeCard(msg: data, isMe: data['isMe'] == true);
-    if (type == 'secret_after') return InteractiveSecretAfterMatchCard(msg: data, isMe: data['isMe'] == true);
+    if (type == 'safe_return') return InteractiveSafeReturnCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
+    if (type == 'profile_exchange') return InteractiveProfileExchangeCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
+    if (type == 'secret_after') return InteractiveSecretAfterMatchCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
     if (['carpool'].contains(type)) {
-
       return _buildInteractiveCardMessage(data);
     }
     return _buildTextMessage(data);
@@ -1169,70 +1443,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-  Widget _buildSettlementMessage(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) _buildAvatar(),
-          if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
-          if (isMe) const SizedBox(width: 4),
-          Container(
-            width: 240,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: const Color(0xFFF19E39).withOpacity(0.05), blurRadius: 10)],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: const Color(0xFFFFEFE5), shape: BoxShape.circle), child: const Icon(Icons.payments, color: Color(0xFFF19E39), size: 16)),
-                    const SizedBox(width: 8),
-                    const Text('1/N 정산 요청', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(msg['title'] ?? '', style: TextStyle(fontSize: 13, color: textSecondary)),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [const Text('총 지출', style: TextStyle(fontSize: 14)), Text('${msg['total']}원', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold))],
-                ),
-                const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(height: 1)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('내가 보낼 금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    Text('${msg['perPerson']}원', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFFF19E39))),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity, height: 40,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF19E39), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                    child: const Text('보내기', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildTextMessage(Map<String, dynamic> msg) {
     final isMe = msg['isMe'] == true;
@@ -1317,20 +1528,31 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 class InteractiveScheduleCard extends StatefulWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
+  final String chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
 
-  const InteractiveScheduleCard({super.key, required this.msg, required this.isMe});
+  const InteractiveScheduleCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    required this.chatRoomId,
+    this.onUpdate,
+  });
 
   @override
   State<InteractiveScheduleCard> createState() => _InteractiveScheduleCardState();
 }
 
 class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
-  bool _isAttending = false;
-  int _attendCount = 1; // 기본적으로 제안자는 참석
-
   @override
   Widget build(BuildContext context) {
-    int maxMembers = widget.msg['maxMembers'] ?? 4;
+    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final int maxMembers = widget.msg['maxMembers'] ?? 4;
+    final List<String> attendees = List<String>.from(widget.msg['attendees'] ?? [widget.msg['sender'] ?? '우리동네민우']);
+    final bool isAttending = attendees.contains(currentNick);
+    final int attendCount = attendees.length;
+    final bool isFull = attendCount >= maxMembers && !isAttending;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -1341,77 +1563,141 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-          
+
           Container(
-            width: 260,
+            width: 270,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.blue.withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.05), blurRadius: 10)],
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.blue.withOpacity(0.35), width: 1.5),
+              boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.calendar_month, color: Colors.blue, size: 16)),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.12), shape: BoxShape.circle),
+                      child: const Icon(Icons.calendar_month, color: Colors.blue, size: 18),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(widget.msg['title'] ?? '일정 제안', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                      child: Text(
+                        widget.msg['title'] ?? '새로운 일정 제안',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (attendCount >= maxMembers)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(6)),
+                        child: const Text('마감됨', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: const Color(0xFFF5F7FA), borderRadius: BorderRadius.circular(10)),
                   child: Column(
                     children: [
-                      Row(children: [const Text('📅 날짜: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Text(widget.msg['date'] ?? '-', style: const TextStyle(fontSize: 12))]),
-                      const SizedBox(height: 4),
-                      Row(children: [const Text('⏰ 시간: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Text(widget.msg['timeStr'] ?? widget.msg['time'] ?? '-', style: const TextStyle(fontSize: 12))]),
-                      const SizedBox(height: 4),
-                      Row(children: [const Text('📍 장소: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Text(widget.msg['location'] ?? '-', style: const TextStyle(fontSize: 12))]),
+                      Row(children: [
+                        const Icon(Icons.event, size: 14, color: Colors.blue),
+                        const SizedBox(width: 6),
+                        const Text('날짜: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(widget.msg['date'] ?? '-', style: const TextStyle(fontSize: 12)),
+                      ]),
+                      const SizedBox(height: 6),
+                      Row(children: [
+                        const Icon(Icons.access_time, size: 14, color: Colors.blue),
+                        const SizedBox(width: 6),
+                        const Text('시간: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(widget.msg['timeStr'] ?? widget.msg['time'] ?? '-', style: const TextStyle(fontSize: 12)),
+                      ]),
+                      const SizedBox(height: 6),
+                      Row(children: [
+                        const Icon(Icons.place, size: 14, color: Colors.blue),
+                        const SizedBox(width: 6),
+                        const Text('장소: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: Text(widget.msg['location'] ?? '-', style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                        ),
+                      ]),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('🙋 참석 인원 현황', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
-                    Text('$_attendCount / $maxMembers 명', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    const Row(
+                      children: [
+                        Icon(Icons.group, size: 14, color: Color(0xFF767676)),
+                        SizedBox(width: 4),
+                        Text('참석 확정 현황', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                      ],
+                    ),
+                    Text('$attendCount / $maxMembers 명', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blue)),
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Progress Bar
-                LinearProgressIndicator(
-                  value: _attendCount / maxMembers,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: (attendCount / maxMembers).clamp(0.0, 1.0),
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(attendCount >= maxMembers ? Colors.green : Colors.blue),
+                    minHeight: 6,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                if (attendees.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: attendees.map((name) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.08), borderRadius: BorderRadius.circular(4)),
+                      child: Text('✓ $name', style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
+                    )).toList(),
+                  ),
+                ],
+                const SizedBox(height: 14),
                 SizedBox(
-                  width: double.infinity, height: 44,
+                  width: double.infinity,
+                  height: 42,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (!_isAttending && _attendCount >= maxMembers) {
+                      if (isFull) {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('모집 인원이 마감되었습니다!')));
                         return;
                       }
-                      setState(() {
-                        _isAttending = !_isAttending;
-                        _isAttending ? _attendCount++ : _attendCount--;
-                      });
+                      final newAttendees = List<String>.from(attendees);
+                      if (isAttending) {
+                        newAttendees.remove(currentNick);
+                      } else {
+                        newAttendees.add(currentNick);
+                      }
+                      if (widget.onUpdate != null) {
+                        widget.onUpdate!({'attendees': newAttendees});
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(!isAttending ? '👍 모임 참석이 확정되었습니다!' : '일정 참석을 취소했습니다.')),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isAttending ? Colors.grey[300] : Colors.blue,
+                      backgroundColor: isAttending ? const Color(0xFFF0F0F0) : (isFull ? Colors.grey[300] : Colors.blue),
+                      foregroundColor: isAttending ? Colors.black87 : Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     child: Text(
-                      _isAttending ? '참석 취소하기' : '👍 저도 참석할게요!',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: _isAttending ? Colors.black87 : Colors.white),
+                      isAttending ? '참석 취소하기' : (isFull ? '모집 마감' : '👍 저도 참석할게요!'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ),
                 ),
@@ -1426,8 +1712,6 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
     );
   }
 }
-
-
 
 // ===========================================================================
 // 동적 컴포넌트: 안건 투표 카드
@@ -1435,20 +1719,32 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
 class InteractivePollCard extends StatefulWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
+  final String chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
 
-  const InteractivePollCard({super.key, required this.msg, required this.isMe});
+  const InteractivePollCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    required this.chatRoomId,
+    this.onUpdate,
+  });
 
   @override
   State<InteractivePollCard> createState() => _InteractivePollCardState();
 }
 
 class _InteractivePollCardState extends State<InteractivePollCard> {
-  int? _selectedOption;
-  int _opt1Count = 0;
-  int _opt2Count = 0;
-
   @override
   Widget build(BuildContext context) {
+    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final voters = widget.msg['voters'] != null ? Map<String, dynamic>.from(widget.msg['voters']) : <String, dynamic>{};
+    final int? selectedOption = voters[currentNick] as int?;
+    
+    final int opt1Count = voters.values.where((v) => v == 1).length;
+    final int opt2Count = voters.values.where((v) => v == 2).length;
+    final int totalVotes = opt1Count + opt2Count;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -1459,30 +1755,48 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-          
+
           Container(
-            width: 240,
+            width: 260,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.purple.withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: Colors.purple.withOpacity(0.05), blurRadius: 10)],
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.purple.withOpacity(0.35), width: 1.5),
+              boxShadow: [BoxShadow(color: Colors.purple.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.purple.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.how_to_vote, color: Colors.purple, size: 16)),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: Colors.purple.withOpacity(0.12), shape: BoxShape.circle),
+                      child: const Icon(Icons.how_to_vote, color: Colors.purple, size: 18),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(widget.msg['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                      child: Text(
+                        widget.msg['title'] ?? '투표',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                _buildPollOption(1, widget.msg['opt1'] ?? '옵션 1', _opt1Count),
                 const SizedBox(height: 8),
-                _buildPollOption(2, widget.msg['opt2'] ?? '옵션 2', _opt2Count),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('실시간 실명 투표', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    Text('총 $totalVotes명 참여', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildPollOption(1, widget.msg['opt1'] ?? '옵션 1', opt1Count, totalVotes, selectedOption == 1, currentNick, voters),
+                const SizedBox(height: 8),
+                _buildPollOption(2, widget.msg['opt2'] ?? '옵션 2', opt2Count, totalVotes, selectedOption == 2, currentNick, voters),
               ],
             ),
           ),
@@ -1494,36 +1808,263 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
     );
   }
 
-  Widget _buildPollOption(int optionIndex, String text, int count) {
-    bool isSelected = _selectedOption == optionIndex;
+  Widget _buildPollOption(int optionIndex, String text, int count, int totalVotes, bool isSelected, String currentNick, Map<String, dynamic> voters) {
+    final double percent = totalVotes > 0 ? (count / totalVotes) : 0.0;
+
     return GestureDetector(
       onTap: () {
-        setState(() {
-          if (_selectedOption == optionIndex) {
-            _selectedOption = null;
-            if (optionIndex == 1) _opt1Count--; else _opt2Count--;
-          } else {
-            if (_selectedOption == 1) _opt1Count--;
-            if (_selectedOption == 2) _opt2Count--;
-            _selectedOption = optionIndex;
-            if (optionIndex == 1) _opt1Count++; else _opt2Count++;
-          }
-        });
+        final newVoters = Map<String, dynamic>.from(voters);
+        if (isSelected) {
+          newVoters.remove(currentNick);
+        } else {
+          newVoters[currentNick] = optionIndex;
+        }
+        if (widget.onUpdate != null) {
+          widget.onUpdate!({'voters': newVoters});
+        }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.purple.withOpacity(0.1) : const Color(0xFFF5F5F7),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isSelected ? Colors.purple : Colors.transparent),
+          color: isSelected ? Colors.purple.withOpacity(0.08) : const Color(0xFFF7F7F9),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: isSelected ? Colors.purple : Colors.grey.withOpacity(0.2), width: isSelected ? 1.5 : 1.0),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Text(text, style: TextStyle(fontSize: 13, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? Colors.purple : Colors.black87))),
-            Text('$count명', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.purple : Colors.grey)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, size: 16, color: isSelected ? Colors.purple : Colors.grey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          text,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? Colors.purple : const Color(0xFF222222),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text('$count명', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.purple : Colors.grey[700])),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: percent,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation<Color>(isSelected ? Colors.purple : Colors.purple.withOpacity(0.5)),
+                minHeight: 4,
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// 동적 컴포넌트: 1/N 더치페이 정산 카드
+// ===========================================================================
+class InteractiveSettlementCard extends StatefulWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+  final String chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
+
+  const InteractiveSettlementCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    required this.chatRoomId,
+    this.onUpdate,
+  });
+
+  @override
+  State<InteractiveSettlementCard> createState() => _InteractiveSettlementCardState();
+}
+
+class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
+  String _formatAmount(dynamic val) {
+    final num numVal = num.tryParse(val.toString().replaceAll(',', '').replaceAll('원', '')) ?? 0;
+    return numVal.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final List<String> paidMembers = List<String>.from(widget.msg['paidMembers'] ?? [widget.msg['sender'] ?? '우리동네민우']);
+    final bool hasPaid = paidMembers.contains(currentNick);
+    final int totalMembers = widget.msg['totalMembers'] ?? 4;
+    final int paidCount = paidMembers.length;
+    final String accountBank = widget.msg['accountBank'] ?? '카카오뱅크 3333-01-2345678 (예금주: 모임장)';
+
+    final formattedTotal = _formatAmount(widget.msg['total'] ?? 0);
+    final formattedPerPerson = _formatAmount(widget.msg['perPerson'] ?? 0);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+          if (!widget.isMe) const SizedBox(width: 8),
+          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe) const SizedBox(width: 4),
+
+          Container(
+            width: 270,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.35), width: 1.5),
+              boxShadow: [BoxShadow(color: const Color(0xFFF19E39).withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(color: Color(0xFFFFEFE5), shape: BoxShape.circle),
+                      child: const Icon(Icons.payments, color: Color(0xFFF19E39), size: 18),
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text('1/N 더치페이 정산 요청', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(widget.msg['title'] ?? '모임 정산', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF333333))),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('총 지출 금액', style: TextStyle(fontSize: 13, color: Color(0xFF767676))),
+                    Text('$formattedTotal원', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(height: 1)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('내가 보낼 금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text('$formattedPerPerson원', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFFF19E39))),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // 입금 계좌 영역 (터치 시 클립보드 복사)
+                InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: accountBank));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('💳 입금 계좌번호가 복사되었습니다! 카카오페이/토스에서 붙여넣기 하세요.')),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(color: const Color(0xFFF8F8FA), borderRadius: BorderRadius.circular(8)),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.account_balance, size: 14, color: Color(0xFF767676)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(accountBank, style: const TextStyle(fontSize: 11, color: Color(0xFF555555)), overflow: TextOverflow.ellipsis),
+                        ),
+                        const Icon(Icons.copy, size: 12, color: Color(0xFF999999)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // 실시간 송금 완료 현황 프로그레스 바
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('실시간 입금 현황', style: TextStyle(fontSize: 11, color: Color(0xFF767676))),
+                    Text('$paidCount / $totalMembers명 완료', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFF19E39))),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: (paidCount / totalMembers).clamp(0.0, 1.0),
+                    backgroundColor: Colors.grey[200],
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF19E39)),
+                    minHeight: 5,
+                  ),
+                ),
+                if (paidMembers.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text('완료: ${paidMembers.join(", ")}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                ],
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  height: 42,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final newPaid = List<String>.from(paidMembers);
+                      if (hasPaid) {
+                        newPaid.remove(currentNick);
+                      } else {
+                        newPaid.add(currentNick);
+                      }
+                      if (widget.onUpdate != null) {
+                        widget.onUpdate!({'paidMembers': newPaid});
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(!hasPaid ? '🎉 $formattedPerPerson원 송금 완료로 처리되었습니다!' : '송금 완료 상태를 취소했습니다.'),
+                          backgroundColor: !hasPaid ? const Color(0xFFF19E39) : Colors.black87,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: hasPaid ? const Color(0xFFE8F5E9) : const Color(0xFFF19E39),
+                      foregroundColor: hasPaid ? const Color(0xFF2E7D32) : Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      side: hasPaid ? const BorderSide(color: Color(0xFF81C784)) : BorderSide.none,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(hasPaid ? Icons.check_circle : Icons.send_rounded, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          hasPaid ? '송금 완료됨 (확인 완료) ✓' : '1/N 정산 송금 완료하기',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+        ],
       ),
     );
   }
@@ -1696,16 +2237,29 @@ class InteractiveReviewCard extends StatelessWidget {
 class InteractiveSafeReturnCard extends StatefulWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
-  const InteractiveSafeReturnCard({super.key, required this.msg, required this.isMe});
+  final String chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
+
+  const InteractiveSafeReturnCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    required this.chatRoomId,
+    this.onUpdate,
+  });
+
   @override
   State<InteractiveSafeReturnCard> createState() => _InteractiveSafeReturnCardState();
 }
-class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
-  int _likes = 0;
-  bool _isLiked = false;
 
+class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
   @override
   Widget build(BuildContext context) {
+    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final List<String> cheers = List<String>.from(widget.msg['cheers'] ?? []);
+    final bool isLiked = cheers.contains(currentNick);
+    final int likes = cheers.length;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -1716,56 +2270,81 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-          
+
           Container(
-            width: 250,
+            width: 260,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.pink.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.pink.withOpacity(0.3)),
+              color: const Color(0xFFFFF0F5),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.pink.withOpacity(0.35), width: 1.5),
+              boxShadow: [BoxShadow(color: Colors.pink.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.nightlight_round, color: Colors.pink, size: 20),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: Colors.pink.withOpacity(0.15), shape: BoxShape.circle),
+                      child: const Icon(Icons.nightlight_round, color: Colors.pink, size: 18),
+                    ),
                     const SizedBox(width: 8),
-                    Text(widget.msg['title'] ?? '안전 귀가', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.pink)),
+                    Expanded(
+                      child: Text(
+                        widget.msg['title'] ?? '🏠 안전 귀가 알림',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.pink),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Text(widget.msg['desc'] ?? '', style: const TextStyle(fontSize: 14)),
-                const SizedBox(height: 16),
+                Text(
+                  widget.msg['desc'] ?? '방금 집에 무사히 도착했습니다! 다들 조심히 들어가세요.',
+                  style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF333333)),
+                ),
+                const SizedBox(height: 14),
                 InkWell(
                   onTap: () {
-                    setState(() {
-                      _isLiked = !_isLiked;
-                      _isLiked ? _likes++ : _likes--;
-                    });
+                    final newCheers = List<String>.from(cheers);
+                    if (isLiked) {
+                      newCheers.remove(currentNick);
+                    } else {
+                      newCheers.add(currentNick);
+                    }
+                    if (widget.onUpdate != null) {
+                      widget.onUpdate!({'cheers': newCheers});
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(!isLiked ? '💖 무사 귀가를 축하해 주셨습니다!' : '안심 반응을 취소했습니다.'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
                   },
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: _isLiked ? Colors.pink : Colors.white,
+                      color: isLiked ? Colors.pink : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.pink),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.favorite, color: _isLiked ? Colors.white : Colors.pink, size: 16),
+                        Icon(Icons.favorite, color: isLiked ? Colors.white : Colors.pink, size: 16),
                         const SizedBox(width: 6),
-                        Text('다행이에요! $_likes', style: TextStyle(color: _isLiked ? Colors.white : Colors.pink, fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text('다행이에요! $likes', style: TextStyle(color: isLiked ? Colors.white : Colors.pink, fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
+
           if (!widget.isMe) const SizedBox(width: 4),
           if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
@@ -1780,15 +2359,84 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
 class InteractiveProfileExchangeCard extends StatefulWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
-  const InteractiveProfileExchangeCard({super.key, required this.msg, required this.isMe});
+  final String chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
+
+  const InteractiveProfileExchangeCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    required this.chatRoomId,
+    this.onUpdate,
+  });
+
   @override
   State<InteractiveProfileExchangeCard> createState() => _InteractiveProfileExchangeCardState();
 }
+
 class _InteractiveProfileExchangeCardState extends State<InteractiveProfileExchangeCard> {
-  bool _accepted = false;
+  void _showProfileModal(String nickname) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircleAvatar(
+                radius: 36,
+                backgroundImage: AssetImage('assets/images/kr_female_1.jpg'),
+              ),
+              const SizedBox(height: 12),
+              Text(nickname, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              const Text('인증된 직장인 · 매너온도 41.2℃ 🔥', style: TextStyle(fontSize: 13, color: Colors.teal, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12)),
+                child: const Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.verified_user, color: Colors.teal, size: 16),
+                        SizedBox(width: 6),
+                        Text('OOMU 본인 인증 및 매너 검증 완료', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.teal)),
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                    Text('관심사: 맛집 탐방, 주말 한강 러닝, 소셜 와인 다이닝', style: TextStyle(fontSize: 12, color: Color(0xFF555555))),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('닫기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final List<String> acceptedMembers = List<String>.from(widget.msg['acceptedMembers'] ?? []);
+    final bool isAccepted = acceptedMembers.isNotEmpty || widget.msg['status'] == 'accepted';
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -1799,49 +2447,62 @@ class _InteractiveProfileExchangeCardState extends State<InteractiveProfileExcha
           if (!widget.isMe) const SizedBox(width: 8),
           if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-          
+
           Container(
-            width: 250,
+            width: 260,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: const LinearGradient(colors: [Color(0xFFE0F2F1), Color(0xFFB2DFDB)]),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.teal.withOpacity(0.2), blurRadius: 10)],
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [BoxShadow(color: Colors.teal.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const CircleAvatar(radius: 24, backgroundColor: Colors.white, child: Icon(Icons.badge, color: Colors.teal, size: 28)),
-                const SizedBox(height: 12),
-                Text(widget.msg['title'] ?? '명함 교환', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.teal)),
-                const SizedBox(height: 8),
-                Text(widget.msg['desc'] ?? '', textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                const SizedBox(height: 16),
-                if (!widget.isMe)
+                const CircleAvatar(radius: 22, backgroundColor: Colors.white, child: Icon(Icons.badge, color: Colors.teal, size: 26)),
+                const SizedBox(height: 10),
+                Text(widget.msg['title'] ?? '명함/프로필 교환', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.teal)),
+                const SizedBox(height: 6),
+                Text(widget.msg['desc'] ?? '서로의 상세 프로필과 소셜 정보를 확인해볼까요?', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                const SizedBox(height: 14),
+                if (isAccepted)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showProfileModal(widget.msg['sender'] ?? '상대방'),
+                      icon: const Icon(Icons.person, size: 16, color: Colors.white),
+                      label: const Text('교환 완료 · 프로필 보기 🤝', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                    ),
+                  )
+                else if (!widget.isMe)
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _accepted ? null : () {
-                        setState(() => _accepted = true);
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프로필 교환을 수락했습니다! 이제 상대방의 상세 프로필을 볼 수 있습니다.')));
+                      onPressed: () {
+                        final newAccepted = List<String>.from(acceptedMembers)..add(currentNick);
+                        if (widget.onUpdate != null) {
+                          widget.onUpdate!({'acceptedMembers': newAccepted, 'status': 'accepted'});
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('🎉 프로필 교환을 수락했습니다! 상세 프로필이 공개됩니다.')),
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text(_accepted ? '교환 완료 🤝' : '수락하기', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      child: const Text('수락하기 🤝', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
-                  ),
-                if (widget.isMe)
+                  )
+                else
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(12)),
-                    child: const Center(child: Text('상대방의 수락을 대기중입니다...', style: TextStyle(fontSize: 12, color: Colors.teal))),
-                  )
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.6), borderRadius: BorderRadius.circular(10)),
+                    child: const Center(child: Text('상대방의 수락을 대기중입니다...', style: TextStyle(fontSize: 11, color: Colors.teal, fontWeight: FontWeight.bold))),
+                  ),
               ],
             ),
           ),
+
           if (!widget.isMe) const SizedBox(width: 4),
           if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
@@ -1855,7 +2516,14 @@ class _InteractiveProfileExchangeCardState extends State<InteractiveProfileExcha
 // [동적 컴포넌트 1] 📍 상단 고정 약속 카드 & 7일 시한폭탄 타이머 (FixedPromiseHeader)
 // ===========================================================================
 class FixedPromiseHeader extends StatefulWidget {
-  const FixedPromiseHeader({super.key});
+  final String? chatRoomId;
+  final String? currentUserName;
+
+  const FixedPromiseHeader({
+    super.key,
+    this.chatRoomId,
+    this.currentUserName,
+  });
 
   @override
   State<FixedPromiseHeader> createState() => _FixedPromiseHeaderState();
@@ -1866,12 +2534,26 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
   bool _isArrived = false; // 장소 도착 여부 Y/N
   int _arrivedCount = 2;   // 현재 도착 완료 인원 (2/4명)
   final int _totalMembers = 4;
+  Stream<DocumentSnapshot>? _roomStream;
   
   // 약속 정보
   final String _meetingTime = '2026. 10. 18 (일) 오후 6:00';
   final String _locationName = '홍대입구역 9번 출구 앞 (서교동 마라토끼)';
   final String _kakaoMapUrl = 'https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242';
   final String _naverMapUrl = 'https://map.naver.com/v5/search/홍대입구역 9번출구';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.chatRoomId != null) {
+      try {
+        final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId!);
+        _roomStream = FirebaseFirestore.instance.collection('chatRooms').doc(cId).snapshots();
+      } catch (e) {
+        debugPrint('[FixedPromiseHeader] Firestore stream init skipped/fallback: $e');
+      }
+    }
+  }
 
   void _showMapOptionsModal() {
     showModalBottomSheet(
@@ -1974,18 +2656,40 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
     );
   }
 
-  void _toggleArrival() {
+  void _toggleArrival(bool currentIsArrived, int currentCount) async {
+    final nextState = !currentIsArrived;
     setState(() {
-      _isArrived = !_isArrived;
-      if (_isArrived) {
-        _arrivedCount++;
-      } else {
-        _arrivedCount--;
-      }
+      _isArrived = nextState;
+      _arrivedCount = nextState ? (currentCount + 1) : (currentCount > 0 ? currentCount - 1 : 0);
     });
+
+    final cId = widget.chatRoomId != null ? oomuChatStore.canonicalRoomId(widget.chatRoomId!) : null;
+    final userName = (widget.currentUserName != null && widget.currentUserName!.isNotEmpty)
+        ? widget.currentUserName!
+        : (globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우');
+
+    if (cId != null) {
+      try {
+        final docRef = FirebaseFirestore.instance.collection('chatRooms').doc(cId);
+        if (nextState) {
+          await docRef.set({
+            'arrivedMembers': FieldValue.arrayUnion([userName]),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } else {
+          await docRef.set({
+            'arrivedMembers': FieldValue.arrayRemove([userName]),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
+      } catch (e) {
+        debugPrint('[FixedPromiseHeader] Firestore toggle arrival error: $e');
+      }
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isArrived ? '🎉 도착 완료로 변경되었습니다! (현재 $_arrivedCount/$_totalMembers명 도착)' : '📍 도착 상태를 [이동 중]으로 변경했습니다.'),
+        content: Text(nextState ? '🎉 도착 완료로 변경되었습니다! (현재 $_arrivedCount/$_totalMembers명 도착)' : '📍 도착 상태를 [이동 중]으로 변경했습니다.'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -1993,6 +2697,31 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
 
   @override
   Widget build(BuildContext context) {
+    if (_roomStream != null) {
+      return StreamBuilder<DocumentSnapshot>(
+        stream: _roomStream,
+        builder: (context, snapshot) {
+          int displayCount = _arrivedCount;
+          bool displayIsArrived = _isArrived;
+          if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>?;
+            if (data != null && data['arrivedMembers'] is List) {
+              final arrivedList = List<String>.from(data['arrivedMembers']);
+              final userName = (widget.currentUserName != null && widget.currentUserName!.isNotEmpty)
+                  ? widget.currentUserName!
+                  : (globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우');
+              displayIsArrived = arrivedList.contains(userName);
+              displayCount = arrivedList.length;
+            }
+          }
+          return _buildCard(displayIsArrived, displayCount);
+        },
+      );
+    }
+    return _buildCard(_isArrived, _arrivedCount);
+  }
+
+  Widget _buildCard(bool isArrived, int arrivedCount) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       decoration: BoxDecoration(
@@ -2149,8 +2878,8 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
                         Row(
                           children: [
                             Icon(
-                              _isArrived ? Icons.check_circle : Icons.directions_walk,
-                              color: _isArrived ? Colors.green : Colors.grey,
+                              isArrived ? Icons.check_circle : Icons.directions_walk,
+                              color: isArrived ? Colors.green : Colors.grey,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
@@ -2159,11 +2888,11 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
                               children: [
                                 const Text('현장 도착 여부', style: TextStyle(fontSize: 11, color: Colors.grey)),
                                 Text(
-                                  '현재 $_arrivedCount/$_totalMembers명 도착',
+                                  '현재 $arrivedCount/$_totalMembers명 도착',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: _arrivedCount >= _totalMembers ? Colors.green : const Color(0xFF333333),
+                                    color: arrivedCount >= _totalMembers ? Colors.green : const Color(0xFF333333),
                                   ),
                                 ),
                               ],
@@ -2172,18 +2901,18 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
                         ),
                         // 도착 상태 Y/N 토글 스위치 버튼
                         ElevatedButton(
-                          onPressed: _toggleArrival,
+                          onPressed: () => _toggleArrival(isArrived, arrivedCount),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isArrived ? Colors.green : Colors.white,
-                            foregroundColor: _isArrived ? Colors.white : const Color(0xFF555555),
+                            backgroundColor: isArrived ? Colors.green : Colors.white,
+                            foregroundColor: isArrived ? Colors.white : const Color(0xFF555555),
                             elevation: 0,
-                            side: BorderSide(color: _isArrived ? Colors.green : const Color(0xFFCCCCCC)),
+                            side: BorderSide(color: isArrived ? Colors.green : const Color(0xFFCCCCCC)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                             minimumSize: Size.zero,
                           ),
                           child: Text(
-                            _isArrived ? '도착 완료! (Y)' : '아직 이동 중 (N)',
+                            isArrived ? '도착 완료! (Y)' : '아직 이동 중 (N)',
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -2206,8 +2935,16 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
 class InteractiveSecretAfterMatchCard extends StatefulWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
+  final String? chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
 
-  const InteractiveSecretAfterMatchCard({super.key, required this.msg, required this.isMe});
+  const InteractiveSecretAfterMatchCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    this.chatRoomId,
+    this.onUpdate,
+  });
 
   @override
   State<InteractiveSecretAfterMatchCard> createState() => _InteractiveSecretAfterMatchCardState();
@@ -2223,6 +2960,18 @@ class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfter
 
   final Set<String> _selectedMembers = {};
   bool _isSubmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final choices = widget.msg['secretChoices'];
+    if (choices is List) {
+      _selectedMembers.addAll(choices.map((e) => e.toString()));
+      if (_selectedMembers.isNotEmpty) {
+        _isSubmitted = true;
+      }
+    }
+  }
 
   void _toggleMember(String name) {
     if (_isSubmitted) return;
@@ -2252,6 +3001,13 @@ class _InteractiveSecretAfterMatchCardState extends State<InteractiveSecretAfter
     setState(() {
       _isSubmitted = true;
     });
+
+    if (widget.onUpdate != null) {
+      widget.onUpdate!({
+        'secretChoices': _selectedMembers.toList(),
+        'submittedAt': DateTime.now().toIso8601String(),
+      });
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
