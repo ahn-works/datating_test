@@ -9,6 +9,7 @@ import 'profile_edit_screen.dart';
 import 'saved_meetups_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
+import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
 
 class MyPageScreen extends StatefulWidget {
@@ -19,11 +20,11 @@ class MyPageScreen extends StatefulWidget {
 }
 
 class _MyPageScreenState extends State<MyPageScreen> {
-  final Color textPrimary = const Color(0xFF111111);
-  final Color textSecondary = const Color(0xFF767676);
-  final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF19E39);
-  final Color coralAccent = const Color(0xFFFF5E36);
+  final Color textPrimary = const Color(0xFF221B1D);
+  final Color textSecondary = const Color(0xFF635559);
+  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color accentColor = const Color(0xFFF25767);
+  final Color coralAccent = const Color(0xFFF25767);
 
   void _showAvatarPickerBottomSheet() {
     final avatarList = [
@@ -740,13 +741,20 @@ class _MyPageScreenState extends State<MyPageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFAF6F7),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFAF6F7),
         elevation: 0,
-        title: Text('마이페이지', style: TextStyle(color: accentColor, fontSize: 24, fontWeight: FontWeight.w800)),
+        title: Text('마이페이지', style: TextStyle(color: accentColor, fontSize: 22, fontWeight: FontWeight.w800)),
         actions: [
+          IconButton(
+            icon: Icon(Icons.settings_outlined, color: textSecondary),
+            tooltip: '설정',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+            },
+          ),
           IconButton(
             icon: Icon(Icons.edit_outlined, color: accentColor),
             tooltip: '프로필 수정',
@@ -1084,6 +1092,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 title: '신고 내역 및 커뮤니티 가이드',
                 textPrimary: textPrimary,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportHistoryScreen())),
+              ),
+              _buildInteractiveMenuItem(
+                icon: Icons.settings_outlined,
+                iconColor: textSecondary,
+                title: '환경설정',
+                textPrimary: textPrimary,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
               ),
 
               const SizedBox(height: 40),

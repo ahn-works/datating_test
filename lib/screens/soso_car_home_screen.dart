@@ -12,6 +12,10 @@ import 'soso_spot_screen.dart';
 import '../utils/location_helper.dart';
 import 'soso_car_chat_screen.dart';
 import '../widgets/ugc_action_sheets.dart';
+import 'notification_screen.dart';
+import 'community_post_detail_screen.dart';
+import 'community_post_create_screen.dart';
+import 'event_detail_screen.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   const OOMUHomeScreen({super.key});
@@ -710,7 +714,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               final spot = _liveSpots[index];
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: spot)));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => SoSoSpotDetailScreen(spot: spot)));
                 },
                 child: Container(
                   width: 220,
@@ -982,156 +986,167 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   final period = item['period']?.toString() ?? '상시 운영';
                   final rank = item['rank'] as int? ?? (index + 1);
 
-                  return Container(
-                    width: 250,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFEBEBF0)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EventDetailScreen(event: item),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 포스터 / 핫플 이미지 + 순위 뱃지
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                          child: Stack(
-                            children: [
-                              SizedBox(
-                                height: 135,
-                                width: double.infinity,
-                                child: Image(
-                                  image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Image.asset(
-                                    'assets/images/cover_wine.jpg',
+                      );
+                    },
+                    child: Container(
+                      width: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFEBEBF0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 포스터 / 핫플 이미지 + 순위 뱃지
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                            child: Stack(
+                              children: [
+                                SizedBox(
+                                  height: 135,
+                                  width: double.infinity,
+                                  child: Image(
+                                    image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
                                     fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Image.asset(
+                                      'assets/images/cover_wine.jpg',
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                top: 10,
-                                left: 10,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: rank <= 3 ? coralAccent : const Color(0xFF1E1E24).withOpacity(0.85),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    tag,
-                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                Positioned(
+                                  top: 10,
+                                  left: 10,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: rank <= 3 ? coralAccent : const Color(0xFF1E1E24).withOpacity(0.85),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      tag,
+                                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // 정보 영역
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                category,
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: coralAccent),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                title,
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFFFF5E36)),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      location,
-                                      style: TextStyle(fontSize: 12, color: textSecondary),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 3),
-                              Row(
-                                children: [
-                                  Icon(Icons.calendar_today_outlined, size: 12, color: textSecondary),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      period,
-                                      style: TextStyle(fontSize: 11, color: textSecondary),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const Spacer(),
-
-                        // 모임 만들기 원클릭 버튼
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 38,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFFF0EB),
-                                foregroundColor: coralAccent,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                              ),
-                              icon: const Icon(Icons.add_circle, size: 16),
-                              label: const Text(
-                                '이 이벤트로 모임 만들기',
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-                              ),
-                              onPressed: () {
-                                final mainCat = category.contains('>') ? category.split('>')[0].trim() : '문화 & 엔터';
-                                final subCat = category.contains('>') ? category.split('>')[1].trim() : '페스티벌 & 공연';
-                                final finalVibe = item['vibe']?.toString() ?? '놀줄아는';
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => OOMUHostScreen(
-                                      initialTitle: '$title 같이 가실 분!',
-                                      initialLocation: location,
-                                      initialMainCategory: mainCat,
-                                      initialSubCategory: subCat,
-                                      initialCoverImageUrl: poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg',
-                                      initialVibe: finalVibe,
-                                    ),
-                                  ),
-                                );
-                              },
+                              ],
                             ),
                           ),
-                        ),
-                      ],
+
+                          // 정보 영역
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  category,
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: coralAccent),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  title,
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFFFF5E36)),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        location,
+                                        style: TextStyle(fontSize: 12, color: textSecondary),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    Icon(Icons.calendar_today_outlined, size: 12, color: textSecondary),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        period,
+                                        style: TextStyle(fontSize: 11, color: textSecondary),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const Spacer(),
+
+                          // 모임 만들기 원클릭 버튼
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 38,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFFF0EB),
+                                  foregroundColor: coralAccent,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                                icon: const Icon(Icons.add_circle, size: 16),
+                                label: const Text(
+                                  '이 이벤트로 모임 만들기',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                ),
+                                onPressed: () {
+                                  final mainCat = category.contains('>') ? category.split('>')[0].trim() : '문화 & 엔터';
+                                  final subCat = category.contains('>') ? category.split('>')[1].trim() : '페스티벌 & 공연';
+                                  final finalVibe = item['vibe']?.toString() ?? '놀줄아는';
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => OOMUHostScreen(
+                                        initialTitle: '$title 같이 가실 분!',
+                                        initialLocation: location,
+                                        initialMainCategory: mainCat,
+                                        initialSubCategory: subCat,
+                                        initialCoverImageUrl: poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg',
+                                        initialVibe: finalVibe,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -1558,13 +1573,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         ),
         actions: [
           GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('🔔 FCM 알림: [방장] 참여 승인이 완료되었습니다!'),
-                backgroundColor: Color(0xFFF25767),
-                duration: Duration(seconds: 3),
-              ));
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationScreen()),
+            ),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
               width: 40,
@@ -1622,8 +1634,33 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             clipBehavior: Clip.none,
-                            itemCount: _categories.length,
+                            itemCount: _categories.length + 1,
                             itemBuilder: (context, index) {
+                              if (index == _categories.length) {
+                                return GestureDetector(
+                                  onTap: _showFullCategoryBottomSheet,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF0F2),
+                                      borderRadius: BorderRadius.circular(22),
+                                      border: Border.all(color: const Color(0xFFF8C6CD)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.grid_view_rounded, size: 15, color: coralAccent),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          '전체보기',
+                                          style: TextStyle(color: coralAccent, fontWeight: FontWeight.w700, fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
                               bool isSelected = _selectedCategoryIndex == index;
                               return GestureDetector(
                                 onTap: () => setState(() {
@@ -1680,27 +1717,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      // 전체 카테고리 체계도 바텀시트 열기 버튼
-                      GestureDetector(
-                        onTap: _showFullCategoryBottomSheet,
-                        child: Container(
-                          height: 42,
-                          width: 42,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0F2),
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(color: const Color(0xFFF8C6CD)),
-                          ),
-                          child: Icon(Icons.grid_view_rounded, size: 20, color: coralAccent),
-                        ),
-                      ),
                     ],
                   ),
                 ),
 
-                // 1-1. 서브태그 트레이 (전체 탭 및 카테고리별 상시 노출)
-                _buildSubCategoryBar(),
+                // 1-1. 서브태그 트레이 (특정 카테고리 진입 시에만 표시하여 메인 탭 중복/겹침 해결!)
+                if (_selectedCategoryIndex > 0)
+                  _buildSubCategoryBar(),
               ],
             ),
           ),
@@ -2067,17 +2090,37 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 60),
       children: [
-        // 1. 당근마켓/스레드 스타일 심플 글쓰기 바 (원터치 빠른 글쓰기)
+        // 1. 심플 원터치 글쓰기 바
         Container(
-          margin: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+          margin: const EdgeInsets.fromLTRB(20, 14, 20, 12),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
-            color: const Color(0xFFF6F6F9),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFECECF0)),
+            border: Border.all(color: const Color(0xFFEFE4E6)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: InkWell(
-            onTap: _showCreateCommunityPostSheet,
+            onTap: () async {
+              final newPost = await Navigator.push<Map<String, dynamic>>(
+                context,
+                MaterialPageRoute(builder: (_) => CommunityPostCreateScreen(currentLocation: _currentLocation)),
+              );
+              if (newPost != null) {
+                setState(() {
+                  _communityPosts.insert(0, newPost);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('🎉 이야기가 동네 커뮤니티에 등록되었습니다!')),
+                );
+              }
+            },
             child: Row(
               children: [
                 CircleAvatar(
@@ -2093,7 +2136,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: coralAccent,
                     borderRadius: BorderRadius.circular(10),
@@ -2102,8 +2145,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.edit, size: 13, color: Colors.white),
-                      SizedBox(width: 3),
-                      Text('글쓰기', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      SizedBox(width: 4),
+                      Text('글쓰기', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -2112,69 +2155,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
         ),
 
-        // 2. 실시간 핫 토크 키워드 바 (가로 스크롤)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Text('🔥', style: TextStyle(fontSize: 14)),
-                  const SizedBox(width: 5),
-                  Text('지금 뜨는 실시간 토크', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: textPrimary)),
-                  if (_communityKeywordFilter != null) ...[
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () => setState(() => _communityKeywordFilter = null),
-                      child: Text('필터 해제', style: TextStyle(fontSize: 11, color: coralAccent, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                child: Row(
-                  children: trendKeywords.map((tag) {
-                    final isSelected = _communityKeywordFilter == tag;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _communityKeywordFilter = isSelected ? null : tag;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: isSelected ? coralAccent : const Color(0xFFF3F3F6),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isSelected ? coralAccent : const Color(0xFFE5E5EA),
-                          ),
-                        ),
-                        child: Text(
-                          tag,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected ? Colors.white : const Color(0xFF444444),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
-        // 3. 심플 토픽 필터 (단독 가로 스크롤 - 절대 버튼과 겹치지 않음!)
+        // 2. 단일 통합 심플 토픽 필터 (중복 태그 줄 완전히 제거하여 시원하고 깔끔한 UI 제공!)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
           child: SingleChildScrollView(
@@ -2185,22 +2166,39 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 final isSelected = _communityCategoryFilter == topic;
                 return GestureDetector(
                   onTap: () => setState(() => _communityCategoryFilter = topic),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF1E1E24) : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      gradient: isSelected
+                          ? const LinearGradient(
+                              colors: [Color(0xFFFF707F), Color(0xFFE84355)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      color: isSelected ? null : Colors.white,
+                      borderRadius: BorderRadius.circular(18),
                       border: Border.all(
-                        color: isSelected ? const Color(0xFF1E1E24) : const Color(0xFFE4E4EB),
+                        color: isSelected ? Colors.transparent : const Color(0xFFEFE4E6),
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: coralAccent.withOpacity(0.28),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              )
+                            ]
+                          : [],
                     ),
                     child: Text(
                       topic,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.5,
                         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                        color: isSelected ? Colors.white : textSecondary,
+                        color: isSelected ? Colors.white : textPrimary,
                       ),
                     ),
                   ),
@@ -2245,215 +2243,233 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildCommunityCard(Map<String, dynamic> post) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEEEEF2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 작성자 헤더
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 17,
-                backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
-              ),
-              const SizedBox(width: 9),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          post['author'] ?? '동네주민',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0EB),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '${post['manner']}°C',
-                            style: TextStyle(color: coralAccent, fontSize: 10, fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      '${post['location']} · ${post['time']}',
-                      style: TextStyle(fontSize: 11, color: textSecondary),
-                    ),
-                  ],
-                ),
-              ),
-              if (post['tag'] != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F8),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '#${post['tag']}',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF666666)),
-                  ),
-                ),
-              const SizedBox(width: 4),
-              InkWell(
-                onTap: () {
-                  UgcActionSheets.showContentOptions(
-                    context: context,
-                    contentType: '게시글',
-                    contentId: post['id'] ?? post['title'] ?? 'post_${post['author']}',
-                    author: post['author'] ?? '동네주민',
-                    onContentHidden: () => setState(() {}),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.more_vert, size: 18, color: Color(0xFF8E8E93)),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-
-          // 제목 (있을 경우만 볼드 처리, 본문과 자연스럽게 연결)
-          if (post['title'] != null && (post['title'] as String).isNotEmpty) ...[
-            Text(
-              post['title'] ?? '',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary, height: 1.35),
-            ),
-            const SizedBox(height: 4),
-          ],
-
-          // 본문
-          Text(
-            post['content'] ?? '',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF333333), height: 1.45),
-          ),
-
-          // 첨부 사진 (있을 경우만)
-          if (post['image'] != null && (post['image'] as String).isNotEmpty) ...[
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: double.infinity,
-                height: 170,
-                child: Image(
-                  image: appImg(post['image']),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: const Color(0xFFF2F2F5),
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                  ),
-                ),
-              ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => CommunityPostDetailScreen(post: post)),
+        ).then((_) => setState(() {}));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFEFE4E6)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
-
-          const SizedBox(height: 12),
-
-          // 하단 인터랙션 바: 좋아요, 댓글, 연관 모임 바로 만들기 CTA
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    bool current = post['isLiked'] ?? false;
-                    post['isLiked'] = !current;
-                    post['likes'] = (post['likes'] ?? 0) + (current ? -1 : 1);
-                  });
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      post['isLiked'] == true ? Icons.favorite : Icons.favorite_border,
-                      size: 17,
-                      color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${post['likes'] ?? 0}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 작성자 헤더
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 17,
+                  backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            post['author'] ?? '동네주민',
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFDE8EC),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${post['manner']}°C',
+                              style: TextStyle(color: coralAccent, fontSize: 10, fontWeight: FontWeight.w800),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 1),
+                      Text(
+                        '${post['location']} · ${post['time']}',
+                        style: TextStyle(fontSize: 11, color: textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Row(
-                children: [
-                  Icon(Icons.chat_bubble_outline, size: 16, color: textSecondary),
-                  const SizedBox(width: 4),
-                  Text('${post['comments'] ?? 0}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary)),
-                ],
-              ),
-              const Spacer(),
-              // 연관 모임 바로 만들기 CTA
-              if (post['relatedMeetup'] != null)
-                GestureDetector(
+                if (post['tag'] != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF6F7),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '#${post['tag']}',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textSecondary),
+                    ),
+                  ),
+                const SizedBox(width: 4),
+                InkWell(
                   onTap: () {
-                    final related = post['relatedMeetup'] as Map<String, dynamic>;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OOMUHostScreen(
-                          initialTitle: related['title'],
-                          initialLocation: related['location'],
-                          initialMainCategory: related['category'],
-                          initialCoverImageUrl: related['poster'],
-                          initialVibe: '놀줄아는',
-                        ),
-                      ),
+                    UgcActionSheets.showContentOptions(
+                      context: context,
+                      contentType: '게시글',
+                      contentId: post['id'] ?? post['title'] ?? 'post_${post['author']}',
+                      author: post['author'] ?? '동네주민',
+                      onContentHidden: () => setState(() {}),
                     );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF0EB),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: coralAccent.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.bolt, size: 13, color: coralAccent),
-                        const SizedBox(width: 3),
-                        Text(
-                          '모임 만들기',
-                          style: TextStyle(color: coralAccent, fontSize: 11, fontWeight: FontWeight.w800),
-                        ),
-                      ],
+                  borderRadius: BorderRadius.circular(16),
+                  child: const Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(Icons.more_vert, size: 18, color: Color(0xFF8E8E93)),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 10),
+
+            // 제목 (있을 경우만 볼드 처리, 본문과 자연스럽게 연결)
+            if (post['title'] != null && (post['title'] as String).isNotEmpty) ...[
+              Text(
+                post['title'] ?? '',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary, height: 1.35),
+              ),
+              const SizedBox(height: 4),
+            ],
+
+            // 본문
+            Text(
+              post['content'] ?? '',
+              style: TextStyle(fontSize: 13, color: textPrimary, height: 1.45),
+            ),
+
+            // 첨부 사진 (있을 경우만)
+            if (post['image'] != null && (post['image'] as String).isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 170,
+                  child: Image(
+                    image: appImg(post['image']),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: const Color(0xFFF2F2F5),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.image_not_supported, color: Colors.grey),
                     ),
                   ),
                 ),
+              ),
             ],
-          ),
-        ],
+
+            const SizedBox(height: 12),
+
+            // 하단 인터랙션 바: 좋아요, 댓글, 연관 모임 바로 만들기 CTA
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      bool current = post['isLiked'] ?? false;
+                      post['isLiked'] = !current;
+                      post['likes'] = (post['likes'] ?? 0) + (current ? -1 : 1);
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        post['isLiked'] == true ? Icons.favorite : Icons.favorite_border,
+                        size: 17,
+                        color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${post['likes'] ?? 0}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => CommunityPostDetailScreen(post: post)),
+                    ).then((_) => setState(() {}));
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.chat_bubble_outline, size: 16, color: textSecondary),
+                      const SizedBox(width: 4),
+                      Text('${post['comments'] ?? 0}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary)),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                // 연관 모임 바로 만들기 CTA
+                if (post['relatedMeetup'] != null)
+                  GestureDetector(
+                    onTap: () {
+                      final related = post['relatedMeetup'] as Map<String, dynamic>;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OOMUHostScreen(
+                            initialTitle: related['title'],
+                            initialLocation: related['location'],
+                            initialMainCategory: related['category'],
+                            initialCoverImageUrl: related['poster'],
+                            initialVibe: '놀줄아는',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDE8EC),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: coralAccent.withOpacity(0.25)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.bolt, size: 13, color: coralAccent),
+                          const SizedBox(width: 3),
+                          Text(
+                            '모임 만들기',
+                            style: TextStyle(color: coralAccent, fontSize: 11, fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

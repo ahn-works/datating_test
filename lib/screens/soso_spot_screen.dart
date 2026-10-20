@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import 'chat_screen.dart';
-import 'soso_car_detail_screen.dart';
+import 'soso_car_chat_screen.dart';
 
 class SoSoSpotScreen extends StatefulWidget {
   const SoSoSpotScreen({super.key});
@@ -12,10 +12,10 @@ class SoSoSpotScreen extends StatefulWidget {
 }
 
 class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
-  final Color textPrimary = const Color(0xFF111111);
-  final Color textSecondary = const Color(0xFF767676);
-  final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color coralAccent = const Color(0xFFFF5E36);
+  final Color textPrimary = const Color(0xFF221B1D);
+  final Color textSecondary = const Color(0xFF635559);
+  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color coralAccent = const Color(0xFFF25767);
   final Color orangeAccent = const Color(0xFFFF8A3D);
 
   int _selectedFilterIndex = 0;
@@ -114,25 +114,10 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
   }
 
   void _openSpotDetail(Map<String, dynamic> spot) {
-    final meetupData = {
-      'id': spot['id'] ?? 'spot_meetup_01',
-      'title': spot['title'],
-      'location': spot['location'],
-      'category': spot['category'] ?? '일상 & 푸드',
-      'time': spot['timeLeft'] ?? '방금',
-      'members': spot['members'] ?? '2/4',
-      'host': spot['host'] ?? '스팟호스트',
-      'hostAvatar': spot['hostAvatar'] ?? 'assets/images/kr_female_1.jpg',
-      'manner': spot['manner'] ?? 41.5,
-      'imageUrl': spot['image'] ?? 'assets/images/cover_cafe.jpg',
-      'photos': [spot['image'] ?? 'assets/images/cover_cafe.jpg'],
-      'description': '⚡ 소소스팟 10분 컷 실시간 번개 모임입니다!\n\n📍 장소: ${spot['location']}\n⏳ 남은 시간: ${spot['timeLeft']}\n거리: ${spot['distance']}\n태그: ${(spot['tags'] as List).map((t) => '#$t').join(' ')}\n\n지금 바로 합류하여 소소하고 즐거운 시간을 보내보세요!',
-      'tags': spot['tags'] ?? [],
-    };
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => OOMUDetailScreen(meetup: meetupData),
+        builder: (_) => SoSoSpotDetailScreen(spot: spot),
       ),
     );
   }
@@ -678,6 +663,378 @@ class _SoSoSpotScreenState extends State<SoSoSpotScreen> {
         icon: const Icon(Icons.bolt, color: Colors.white),
         label: const Text('번개 스팟 열기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         onPressed: _showCreateSpotModal,
+      ),
+    );
+  }
+}
+
+class SoSoSpotDetailScreen extends StatefulWidget {
+  final Map<String, dynamic> spot;
+
+  const SoSoSpotDetailScreen({super.key, required this.spot});
+
+  @override
+  State<SoSoSpotDetailScreen> createState() => _SoSoSpotDetailScreenState();
+}
+
+class _SoSoSpotDetailScreenState extends State<SoSoSpotDetailScreen> {
+  final Color textPrimary = const Color(0xFF221B1D);
+  final Color textSecondary = const Color(0xFF635559);
+  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color coralAccent = const Color(0xFFF25767);
+  final Color orangeAccent = const Color(0xFFFF8A3D);
+
+  bool _isJoined = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isJoined = widget.spot['isJoined'] == true;
+  }
+
+  void _joinSpot() {
+    setState(() {
+      _isJoined = true;
+      widget.spot['isJoined'] = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('🎉 [${widget.spot['title']}] 스팟에 즉시 합류했습니다!'),
+        backgroundColor: coralAccent,
+      ),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OOMUChatScreen(
+          title: widget.spot['title'] ?? '소소스팟 실시간 번개',
+          memberCount: 4,
+          chatRoomId: 'room_${widget.spot['id'] ?? 'spot_01'}',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final spot = widget.spot;
+    final title = spot['title'] ?? '소소스팟 실시간 번개';
+    final location = spot['location'] ?? '마포구 서교동';
+    final distance = spot['distance'] ?? '도보 180m';
+    final timeLeft = spot['timeLeft'] ?? '10분 남음';
+    final members = spot['members'] ?? '2/4';
+    final host = spot['host'] ?? '스팟호스트';
+    final hostAvatar = spot['hostAvatar'] ?? 'assets/images/kr_female_1.jpg';
+    final manner = spot['manner'] ?? 42.0;
+    final image = spot['image'] ?? 'assets/images/cover_cafe.jpg';
+    final List<dynamic> tags = spot['tags'] ?? ['10분컷', '즉시합류', '동네친구'];
+
+    return Scaffold(
+      backgroundColor: surfaceColor,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 260,
+            pinned: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withOpacity(0.4),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image(
+                    image: appImg(image),
+                    fit: BoxFit.cover,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.55),
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.75),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    left: 20,
+                    right: 20,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: coralAccent,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '⚡ $timeLeft',
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '📍 $distance',
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            height: 1.25,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Location Card with navigation
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFEFE4E6)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: coralAccent.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.place_rounded, color: coralAccent, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('실시간 집결 장소', style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 2),
+                              Text(location, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary)),
+                            ],
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('🗺️ $location 지도 및 길찾기로 이동합니다.')),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: coralAccent),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: Text('길찾기', style: TextStyle(fontSize: 11, color: coralAccent, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Host & Members Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFEFE4E6)),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundImage: appImg(hostAvatar),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '$host (호스트)',
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF0F2),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '$manner°C',
+                                          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: coralAccent),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text('현재 $members 참여 중 · 동네 이웃 인증 완료', style: TextStyle(fontSize: 11.5, color: textSecondary)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 20, color: Color(0xFFF3EAEB)),
+                        Row(
+                          children: [
+                            const Text('참여 중인 이웃:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF666666))),
+                            const SizedBox(width: 8),
+                            CircleAvatar(radius: 12, backgroundImage: appImg(hostAvatar)),
+                            const SizedBox(width: 4),
+                            CircleAvatar(radius: 12, backgroundImage: appImg('assets/images/kr_male_2.jpg')),
+                            const SizedBox(width: 4),
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: const BoxDecoration(color: Color(0xFFF3EAEB), shape: BoxShape.circle),
+                              child: const Icon(Icons.add, size: 14, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Tags Wrap
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: tags.map((t) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFEFE4E6)),
+                      ),
+                      child: Text(
+                        '#$t',
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
+                      ),
+                    )).toList(),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Realtime Spot Notice
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7F8),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFF8C6CD)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, size: 16, color: coralAccent),
+                            const SizedBox(width: 6),
+                            Text('소소스팟 이용 수칙', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: coralAccent)),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '• 10~30분 이내 즉시 모이는 실시간 번개 모임입니다.\n'
+                          '• 약속 장소에 도착 후 [체크인]을 눌러 출석을 인증해주세요.\n'
+                          '• N빵 더치페이 기능 및 안심귀가 서비스가 채팅방에서 지원됩니다.',
+                          style: TextStyle(fontSize: 12, height: 1.5, color: textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: _joinSpot,
+              icon: Icon(_isJoined ? Icons.chat_rounded : Icons.bolt_rounded, size: 18, color: Colors.white),
+              label: Text(
+                _isJoined ? '참여 중 (채팅방 입장)' : '지금 바로 참여하기 (채팅방 입장)',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isJoined ? const Color(0xFF34C759) : coralAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
