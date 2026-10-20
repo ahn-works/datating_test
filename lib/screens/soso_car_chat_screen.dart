@@ -207,7 +207,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF25767);
+  final Color accentColor = const Color(0xFFF19E39);
   
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -511,23 +511,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         }
       }
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('현재 위치를 가져오는 중입니다...')));
-      Position? position;
-      try {
-        position = await Geolocator.getLastKnownPosition().timeout(const Duration(milliseconds: 300));
-      } catch (_) {}
-      if (position == null) {
-        try {
-          position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.low,
-            timeLimit: const Duration(seconds: 2),
-          );
-        } catch (_) {}
-      }
-      final double lat = position?.latitude ?? 37.5550;
-      final double lon = position?.longitude ?? 126.9210;
-      final String kakaoMapUrl = 'https://map.kakao.com/link/map/내_현재_위치,$lat,$lon';
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final String kakaoMapUrl = 'https://map.kakao.com/link/map/내_현재_위치,${position.latitude},${position.longitude}';
       
-      _addMessage({'type': 'location', 'latitude': lat, 'longitude': lon, 'mapUrl': kakaoMapUrl});
+      _addMessage({'type': 'location', 'latitude': position.latitude, 'longitude': position.longitude, 'mapUrl': kakaoMapUrl});
     } catch (e) {
       _addMessage({'type': 'location', 'mapUrl': 'https://map.kakao.com/'});
     }
@@ -1031,8 +1018,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: const Color(0xFFF25767).withOpacity(0.15), shape: BoxShape.circle),
-                            child: const Icon(Icons.payments, color: Color(0xFFF25767), size: 22),
+                            decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.15), shape: BoxShape.circle),
+                            child: const Icon(Icons.payments, color: Color(0xFFF19E39), size: 22),
                           ),
                           const SizedBox(width: 10),
                           const Text('1/N 더치페이 정산 요청', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -1074,7 +1061,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF7EE),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFF25767).withOpacity(0.3)),
+                          border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
                         ),
                         child: Column(
                           children: [
@@ -1092,7 +1079,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                                 const Text('1인당 보낼 금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                                 Text(
                                   '${formattedPerPerson}원',
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFF25767)),
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFF19E39)),
                                 ),
                               ],
                             ),
@@ -1105,7 +1092,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFF25767),
+                            backgroundColor: const Color(0xFFF19E39),
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -1161,7 +1148,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               _buildAttachmentIcon(Icons.rate_review, '모임후기', Colors.orange, onTap: _showReviewBottomSheet),
               _buildAttachmentIcon(Icons.calendar_month, '일정', Colors.blue, onTap: _showScheduleCreatorBottomSheet),
               _buildAttachmentIcon(Icons.how_to_vote, '투표', Colors.purple, onTap: _showPollCreatorBottomSheet),
-              _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF25767), onTap: _showSettlementCreatorBottomSheet), 
+              _buildAttachmentIcon(Icons.payments, '더치페이', const Color(0xFFF19E39), onTap: _showSettlementCreatorBottomSheet), 
               _buildAttachmentIcon(Icons.local_cafe, '핫플 공유', Colors.brown, onTap: _showHotspotSearchBottomSheet),
               _buildAttachmentIcon(Icons.directions_car, '동행/드라이브', Colors.indigo, onTap: () {
                 Navigator.pop(ctx);
@@ -2924,8 +2911,8 @@ class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFF25767).withOpacity(0.35), width: 1.5),
-              boxShadow: [BoxShadow(color: const Color(0xFFF25767).withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+              border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.35), width: 1.5),
+              boxShadow: [BoxShadow(color: const Color(0xFFF19E39).withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2935,7 +2922,7 @@ class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(color: Color(0xFFFFEFE5), shape: BoxShape.circle),
-                      child: const Icon(Icons.payments, color: Color(0xFFF25767), size: 18),
+                      child: const Icon(Icons.payments, color: Color(0xFFF19E39), size: 18),
                     ),
                     const SizedBox(width: 8),
                     const Expanded(
@@ -2958,7 +2945,7 @@ class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('내가 보낼 금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    Text('$formattedPerPerson원', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFFF25767))),
+                    Text('$formattedPerPerson원', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFFF19E39))),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -2992,7 +2979,7 @@ class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('실시간 입금 현황', style: TextStyle(fontSize: 11, color: Color(0xFF767676))),
-                    Text('$paidCount / $totalMembers명 완료', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFF25767))),
+                    Text('$paidCount / $totalMembers명 완료', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFF19E39))),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -3001,7 +2988,7 @@ class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
                   child: LinearProgressIndicator(
                     value: (paidCount / totalMembers).clamp(0.0, 1.0),
                     backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF25767)),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF19E39)),
                     minHeight: 5,
                   ),
                 ),
@@ -3027,12 +3014,12 @@ class _InteractiveSettlementCardState extends State<InteractiveSettlementCard> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(!hasPaid ? '🎉 $formattedPerPerson원 송금 완료로 처리되었습니다!' : '송금 완료 상태를 취소했습니다.'),
-                          backgroundColor: !hasPaid ? const Color(0xFFF25767) : Colors.black87,
+                          backgroundColor: !hasPaid ? const Color(0xFFF19E39) : Colors.black87,
                         ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: hasPaid ? const Color(0xFFE8F5E9) : const Color(0xFFF25767),
+                      backgroundColor: hasPaid ? const Color(0xFFE8F5E9) : const Color(0xFFF19E39),
                       foregroundColor: hasPaid ? const Color(0xFF2E7D32) : Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -3564,7 +3551,7 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
           children: [
             Row(
               children: [
-                const Icon(Icons.location_on, color: Color(0xFFF25767)),
+                const Icon(Icons.location_on, color: Color(0xFFF19E39)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -3644,7 +3631,7 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('📅 약속 일정이 클립보드에 복사되었습니다! 카카오톡이나 캘린더에 공유하세요.'),
-        backgroundColor: Color(0xFFF25767),
+        backgroundColor: Color(0xFFF19E39),
       ),
     );
   }
@@ -3720,10 +3707,10 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFF25767).withOpacity(0.3), width: 1.5),
+        border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFF25767).withOpacity(0.08),
+            color: const Color(0xFFF19E39).withOpacity(0.08),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -3743,10 +3730,10 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF25767).withOpacity(0.12),
+                        color: const Color(0xFFF19E39).withOpacity(0.12),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.timer_outlined, color: Color(0xFFF25767), size: 18),
+                      child: const Icon(Icons.timer_outlined, color: Color(0xFFF19E39), size: 18),
                     ),
                     const SizedBox(width: 8),
                     const Text(

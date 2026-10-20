@@ -1,5 +1,3 @@
-import 'user_profile_screen.dart';
-import 'settings_screen.dart';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
@@ -20,8 +18,7 @@ import 'community_post_create_screen.dart';
 import 'event_detail_screen.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
-  final int initialTab;
-  const OOMUHomeScreen({super.key, this.initialTab = 0});
+  const OOMUHomeScreen({super.key});
 
   @override
   State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
@@ -577,7 +574,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _homeDashboardTab = widget.initialTab;
     _seedDatabase();
   }
 
@@ -591,7 +587,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'mainCategory': '문화 & 엔터',
             'category': '음악 & 노래방',
             'location': '합정역 수코인노래방',
-            'date': '오늘 저녁 8시 (2026.10.20)',
+            'date': '오늘 저녁 8시',
             'host': '고음불가',
             'manner': 38.5,
             'price': 'N빵',
@@ -599,39 +595,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'isFemaleOnly': true,
             'transport': '각자 이동',
             'imageUrl': 'assets/images/cover_wine.jpg',
-            'tags': ['불금엔 역시 코노', '음악 & 노래방', '놀줄아는', '스트레스해소', '코노', '오늘', '당일번개'],
-            'createdAt': FieldValue.serverTimestamp()
-          },
-          {
-            'title': '퇴근길 성수 감성 와인 & 치즈 번개 🍷',
-            'mainCategory': '일상 & 푸드',
-            'category': '동네 술 한잔',
-            'location': '성동구 성수동 미로길',
-            'date': '오늘 저녁 7:30 (2026.10.20)',
-            'host': '성수동준호',
-            'manner': 44.0,
-            'price': 'N빵',
-            'members': '3/4',
-            'isFemaleOnly': false,
-            'transport': '성수역 집결',
-            'imageUrl': 'assets/images/cover_food.jpg',
-            'tags': ['오늘', '당일번개', '성수동', '와인', '소셜다이닝'],
-            'createdAt': FieldValue.serverTimestamp()
-          },
-          {
-            'title': '서교동 골목 심야 보드게임 번개 🎲',
-            'mainCategory': '문화 & 엔터',
-            'category': '보드게임 & 방탈출',
-            'location': '마포구 서교동 카페',
-            'date': '오늘 밤 9:00 (2026.10.20)',
-            'host': '서교동민서',
-            'manner': 43.5,
-            'price': '각자 결제',
-            'members': '2/4',
-            'isFemaleOnly': false,
-            'transport': '홍대입구역 집결',
-            'imageUrl': 'assets/images/cover_cafe.jpg',
-            'tags': ['오늘', '당일번개', '보드게임', '서교동'],
+            'tags': ['불금엔 역시 코노', '음악 & 노래방', '놀줄아는', '스트레스해소', '코노'],
             'createdAt': FieldValue.serverTimestamp()
           },
           {
@@ -640,8 +604,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'category': '동네 맛집 & 소셜 다이닝',
             'location': '홍대입구역 9번 출구',
             'date': '이번주 토요일 18:00',
-            'host': '연남동지연',
-            'manner': 42.8,
+            'host': '매운맛킬러',
+            'manner': 41.2,
             'price': 'N빵',
             'members': '2/4',
             'isFemaleOnly': true,
@@ -656,8 +620,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             'category': '카페 & 디저트',
             'location': '성동구 성수동 카페거리',
             'date': '일요일 14:00',
-            'host': '성수동준호',
-            'manner': 44.0,
+            'host': '성수동힙스터',
+            'manner': 42.8,
             'price': '각자 결제',
             'members': '2/4',
             'isFemaleOnly': false,
@@ -669,90 +633,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         ];
         for (var m in dummyMeetups) {
           await FirebaseFirestore.instance.collection('meetups').add(m);
-        }
-      }
-
-      // 3인 유저 페르소나 및 커뮤니티 게시글 양방향 시딩
-      var postSnapshot = await FirebaseFirestore.instance.collection('community_posts').limit(1).get();
-      if (postSnapshot.docs.isEmpty) {
-        final seedCommunity = [
-          {
-            'id': 'post_minseo_01',
-            'author': '김민서',
-            'authorId': 'user_minseo',
-            'authorAvatar': 'assets/images/kr_female_1.jpg',
-            'location': '마포구 서교동',
-            'category': '맛집/카페',
-            'tag': '서교동카페',
-            'title': '🍰 서교동 망원시장 근처 숨은 에그타르트 & 핸드드립 카페 발견!',
-            'content': '서교동 골목에 새로 생긴 로스터리 카페 다녀왔는데, 겉바속촉 에그타르트가 인생 역대급입니다... 주말에 같이 커피 한 잔 하면서 수다 떠실 분 계신가요?',
-            'manner': 43.5,
-            'likedUserIds': ['user_junho', 'user_jiyeon'],
-            'likes': 2,
-            'comments': 2,
-            'image': 'assets/images/cover_cafe.jpg',
-            'time': '15분 전',
-            'createdAt': FieldValue.serverTimestamp()
-          },
-          {
-            'id': 'post_junho_02',
-            'author': '이준호',
-            'authorId': 'user_junho',
-            'authorAvatar': 'assets/images/kr_male_1.jpg',
-            'location': '성동구 성수동',
-            'category': '동네 토크',
-            'tag': '성수동러닝',
-            'title': '🏃 성수동 서울숲 야간 러닝 & 치맥 메이트 구해요',
-            'content': '오늘 저녁 8시에 서울숲 한 바퀴(5km 페이스 6:00) 가볍게 뛰고, 근처에서 시원한 맥주나 음료 한잔 하실 분들 계실까요? 초보분들도 대환영입니다!',
-            'manner': 44.0,
-            'likedUserIds': ['user_minseo'],
-            'likes': 1,
-            'comments': 1,
-            'image': 'assets/images/cover_wine.jpg',
-            'time': '35분 전',
-            'createdAt': FieldValue.serverTimestamp()
-          },
-          {
-            'id': 'post_jiyeon_03',
-            'author': '박지연',
-            'authorId': 'user_jiyeon',
-            'authorAvatar': 'assets/images/kr_female_2.jpg',
-            'location': '마포구 연남동',
-            'category': '맛집/카페',
-            'tag': '두바이쫀득쿠키',
-            'title': '⚡ 연남동 두바이 쫀득 쿠키(두쫀쿠) 실시간 웨이팅 상황 & 솔직 후기',
-            'content': '오늘 1시 오픈런 뛰어서 드디어 두쫀쿠 겟했습니다... 카다이프 바삭함이 미쳤네요ㅠㅠ 1인당 2개 한정이라 주말에 같이 가서 메뉴 여러 개 털어볼 메이트 구합니다!',
-            'manner': 42.8,
-            'likedUserIds': ['user_minseo', 'user_junho'],
-            'likes': 2,
-            'comments': 2,
-            'image': 'assets/images/cover_food.jpg',
-            'time': '1시간 전',
-            'createdAt': FieldValue.serverTimestamp()
-          }
-        ];
-        for (var p in seedCommunity) {
-          final docRef = FirebaseFirestore.instance.collection('community_posts').doc(p['id'] as String);
-          await docRef.set(p);
-          // Seed initial comments
-          if (p['id'] == 'post_minseo_01') {
-            await docRef.collection('comments').add({
-              'author': '이준호',
-              'authorAvatar': 'assets/images/kr_male_1.jpg',
-              'content': '성수동에서도 맛집 찾고 있었는데 서교동 가면 꼭 들러봐야겠네요!',
-              'time': '10분 전',
-              'likes': 2,
-              'createdAt': FieldValue.serverTimestamp(),
-            });
-            await docRef.collection('comments').add({
-              'author': '박지연',
-              'authorAvatar': 'assets/images/kr_female_2.jpg',
-              'content': '저 이번 주말에 시간 되는데 같이 디저트 뿌시러 가요!',
-              'time': '5분 전',
-              'likes': 1,
-              'createdAt': FieldValue.serverTimestamp(),
-            });
-          }
         }
       }
     } catch (e) {
@@ -1613,25 +1493,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   bool _matchesFilters(Map<String, dynamic> item) {
-    // [오늘 번개 기준]: 오늘 일정 (ex 26.10.20일 -> 오늘 날짜 기준 당일 만남 및 오늘 도래하는 번개)
-    if (_selectedCategoryIndex == 1) {
-      final dateStr = (item['date'] ?? '').toString();
-      final title = (item['title'] ?? '').toString();
-      final tags = (item['tags'] as List?)?.map((t) => t.toString()).toList() ?? [];
-      final combined = '$dateStr $title ${tags.join(' ')}'.toLowerCase();
-
-      final bool isToday = combined.contains('오늘') ||
-          combined.contains('당일') ||
-          combined.contains('10.20') ||
-          combined.contains('26.10.20') ||
-          combined.contains('2026.10.20') ||
-          combined.contains('방금') ||
-          combined.contains('즉석') ||
-          combined.contains('번개') ||
-          combined.contains('지금');
-      if (!isToday) return false;
-    }
-
     // 1. Category Filter (대분류 & 서브태그)
     if (_selectedCategoryIndex > 0) {
       final selectedCat = _categories[_selectedCategoryIndex]['name'] as String;
@@ -1640,7 +1501,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
       // 서브태그가 '전체'일 때는 바이브 매칭이나 필터 매칭 둘 중 하나라도 통과하면 OK
       if (_selectedSubCategory == '전체') {
-        if (!vibeMatch && !filterMatch && _selectedCategoryIndex != 1) return false;
+        if (!vibeMatch && !filterMatch) return false;
       } else {
         // 특정 서브태그 선택 시 해당 태그 매칭 검사
         final cat = (item['category'] ?? '').toString();
@@ -1675,33 +1536,49 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF6F7),
-      appBar: _buildTopAppBar(context),
-      body: _homeDashboardTab == 0
-          ? _buildMeetupDashboard()
-          : (_homeDashboardTab == 1
-              ? _buildCommunityDashboard()
-              : (_homeDashboardTab == 2
-                  ? _buildDatingDashboard()
-                  : (_homeDashboardTab == 3
-                      ? const ChatScreen(isEmbedded: true)
-                      : const MyPageScreen(isEmbedded: true)))),
-      bottomNavigationBar: _buildBottomNav(context),
-    );
-  }
-
-  PreferredSizeWidget _buildTopAppBar(BuildContext context) {
-    if (_homeDashboardTab == 3) {
-      return AppBar(
+      appBar: AppBar(
         backgroundColor: const Color(0xFFFAF6F7),
         elevation: 0,
         scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text('채팅', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22, color: textPrimary)),
+        title: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _showLocationPickerBottomSheet,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  _currentLocation,
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19, color: textPrimary),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.keyboard_arrow_down, size: 22, color: textPrimary),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F7F5),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.2)),
+                ),
+                child: const Text(
+                  '🟢 이웃 54명 접속 중',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF0D9488)),
+                ),
+              ),
+            ],
+          ),
+        ),
         actions: [
           GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationScreen()),
+            ),
             child: Container(
-              margin: const EdgeInsets.only(right: 16),
+              margin: const EdgeInsets.only(right: 8),
               width: 40,
               height: 40,
               decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
@@ -1718,96 +1595,24 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
           ),
-        ],
-      );
-    } else if (_homeDashboardTab == 4) {
-      return AppBar(
-        backgroundColor: const Color(0xFFFAF6F7),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text('마이페이지', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22, color: textPrimary)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings_outlined, color: textSecondary),
-            tooltip: '설정',
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          ),
-          const SizedBox(width: 8),
-        ],
-      );
-    }
-
-    return AppBar(
-      backgroundColor: const Color(0xFFFAF6F7),
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      title: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _showLocationPickerBottomSheet,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                _currentLocation,
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19, color: textPrimary),
-                overflow: TextOverflow.ellipsis,
-              ),
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen())),
+            child: Container(
+              margin: const EdgeInsets.only(right: 20),
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
+              child: Icon(Icons.tune, color: textPrimary, size: 20),
             ),
-            const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down, size: 22, color: textPrimary),
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE6F7F5),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.2)),
-              ),
-              child: const Text(
-                '🟢 이웃 54명 접속 중',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF0D9488)),
-              ),
-            ),
-          ],
-        ),
+          )
+        ],
       ),
-      actions: [
-        GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NotificationScreen()),
-          ),
-          child: Container(
-            margin: const EdgeInsets.only(right: 8),
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
-            child: const Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(Icons.notifications_outlined, color: Color(0xFF221B1D), size: 22),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: CircleAvatar(radius: 3.5, backgroundColor: Color(0xFFF25767)),
-                )
-              ],
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen())),
-          child: Container(
-            margin: const EdgeInsets.only(right: 20),
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
-            child: Icon(Icons.tune, color: textPrimary, size: 20),
-          ),
-        )
-      ],
+      body: _homeDashboardTab == 0
+          ? _buildMeetupDashboard()
+          : (_homeDashboardTab == 1
+              ? _buildCommunityDashboard()
+              : _buildDatingDashboard()),
+      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
@@ -2013,14 +1818,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFF0F2), Color(0xFFFFE3E7)],
+                        colors: [Color(0xFF1E1E24), Color(0xFF2C2C36)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFF8C6CD), width: 1.2),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFFF25767).withOpacity(0.06), blurRadius: 14, offset: const Offset(0, 4)),
+                        BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 14, offset: const Offset(0, 4)),
                       ],
                     ),
                     child: Row(
@@ -2029,7 +1833,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [Color(0xFFFF707F), Color(0xFFF25767)]),
+                            gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           alignment: Alignment.center,
@@ -2044,25 +1848,25 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(color: coralAccent, borderRadius: BorderRadius.circular(5)),
-                                    child: const Text('오늘 당일 번개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
+                                    decoration: BoxDecoration(color: const Color(0xFF34C759), borderRadius: BorderRadius.circular(5)),
+                                    child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
+                                  const Text(
                                     '소소스팟 실시간 번개',
-                                    style: TextStyle(color: textPrimary, fontWeight: FontWeight.w800, fontSize: 15),
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 3),
-                              Text(
-                                '오늘(10.20) 내 주변 10분 컷 핫플! 실시간 번개 즉시 합류',
-                                style: TextStyle(color: textSecondary, fontSize: 11.5, fontWeight: FontWeight.w500),
+                              const Text(
+                                '내 주변 10분 컷 핫플! 실시간 번개 즉시 합류',
+                                style: TextStyle(color: Colors.white70, fontSize: 11.5),
                               ),
                             ],
                           ),
                         ),
-                        Icon(Icons.arrow_forward_ios, color: coralAccent, size: 14),
+                        const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 14),
                       ],
                     ),
                   ),
@@ -2407,73 +2211,33 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         const SizedBox(height: 6),
         const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F4)),
 
-        // 4. 커뮤니티 피드 리스트 (양방향 실시간 Firestore 연동)
-        StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('community_posts').orderBy('createdAt', descending: true).snapshots(),
-          builder: (context, snapshot) {
-            List<Map<String, dynamic>> rawPosts = [];
-            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-              rawPosts = snapshot.data!.docs.map((doc) {
-                final d = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
-                d['id'] = doc.id;
-                return d;
-              }).toList();
-            } else {
-              rawPosts = _communityPosts;
-            }
-
-            final myUserId = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : 'test_user_1';
-            final posts = rawPosts.where((post) {
-              final author = post['author'] ?? '';
-              final postId = post['id'] ?? post['title'] ?? '';
-              if (blocked.contains(author)) return false;
-              if (hiddenPosts.contains(postId)) return false;
-
-              if (_communityCategoryFilter != '전체') {
-                if (_communityCategoryFilter == '☕ 일상·수다' && post['category'] != '동네 토크' && post['category'] != '일상') return false;
-                if (_communityCategoryFilter == '🎭 공연·핫플' && post['category'] != '공연/전시' && post['category'] != '공연') return false;
-                if (_communityCategoryFilter == '🍰 맛집·카페' && post['category'] != '맛집/카페' && post['category'] != '맛집') return false;
-                if (_communityCategoryFilter == '❓ 동네질문' && post['category'] != '질문/추천' && post['category'] != '질문') return false;
-              }
-              if (_communityKeywordFilter != null && post['tag'] != _communityKeywordFilter!.replaceAll('#', '')) {
-                return false;
-              }
-              return true;
-            }).toList();
-
-            if (posts.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.chat_bubble_outline_rounded, size: 44, color: const Color(0xFFC7C7CC)),
-                      const SizedBox(height: 12),
-                      Text('아직 등록된 이야기가 없어요', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary)),
-                      const SizedBox(height: 6),
-                      Text('첫 번째 동네 소식을 가볍게 남겨보세요!', style: TextStyle(fontSize: 13, color: textSecondary)),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: posts.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final p = posts[index];
-                final List<String> likedUsers = List<String>.from(p['likedUserIds'] ?? []);
-                p['isLiked'] = likedUsers.contains(myUserId) || (p['isLiked'] ?? false);
-                p['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (p['likes'] ?? 0);
-                return _buildCommunityCard(p);
-              },
-            );
-          },
-        ),
+        // 4. 커뮤니티 피드 리스트
+        if (filteredPosts.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(Icons.chat_bubble_outline_rounded, size: 44, color: const Color(0xFFC7C7CC)),
+                  const SizedBox(height: 12),
+                  Text('아직 등록된 이야기가 없어요', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary)),
+                  const SizedBox(height: 6),
+                  Text('첫 번째 동네 소식을 가볍게 남겨보세요!', style: TextStyle(fontSize: 13, color: textSecondary)),
+                ],
+              ),
+            ),
+          )
+        else
+          ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: filteredPosts.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              return _buildCommunityCard(filteredPosts[index]);
+            },
+          ),
       ],
     );
   }
@@ -2507,27 +2271,21 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             // 작성자 헤더
             Row(
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: post['author'] ?? '동네주민'))),
-                  child: CircleAvatar(
-                    radius: 17,
-                    backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
-                  ),
+                CircleAvatar(
+                  radius: 17,
+                  backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
                 ),
                 const SizedBox(width: 9),
                 Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: post['author'] ?? '동네주민'))),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              post['author'] ?? '동네주민',
-                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
-                            ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            post['author'] ?? '동네주민',
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                          ),
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
@@ -2627,32 +2385,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    final String myUserId = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : 'test_user_1';
-                    final List<String> likedUsers = List<String>.from(post['likedUserIds'] ?? []);
-                    final bool currentlyLiked = likedUsers.contains(myUserId);
-                    if (currentlyLiked) {
-                      likedUsers.remove(myUserId);
-                    } else {
-                      likedUsers.add(myUserId);
-                    }
-                    post['likedUserIds'] = likedUsers;
-                    post['likes'] = likedUsers.length;
-                    post['isLiked'] = !currentlyLiked;
-                    setState(() {});
-
-                    final String? postId = post['id'];
-                    if (postId != null && postId.isNotEmpty) {
-                      try {
-                        FirebaseFirestore.instance.collection('community_posts').doc(postId).update({
-                          'likedUserIds': currentlyLiked
-                              ? FieldValue.arrayRemove([myUserId])
-                              : FieldValue.arrayUnion([myUserId]),
-                          'likes': likedUsers.length,
-                        });
-                      } catch (e) {
-                        debugPrint('[Community] Like Firestore error: $e');
-                      }
-                    }
+                    setState(() {
+                      bool current = post['isLiked'] ?? false;
+                      post['isLiked'] = !current;
+                      post['likes'] = (post['likes'] ?? 0) + (current ? -1 : 1);
+                    });
                   },
                   child: Row(
                     children: [
@@ -4207,9 +3944,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
-        setState(() {
-          _homeDashboardTab = index;
-        });
+        if (index <= 2) {
+          setState(() {
+            _homeDashboardTab = index;
+          });
+        } else if (index == 3) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+        } else if (index == 4) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
+        }
       },
       items: [
         BottomNavigationBarItem(

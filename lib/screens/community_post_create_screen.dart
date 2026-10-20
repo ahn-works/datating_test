@@ -65,9 +65,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
 
     final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
 
-    final docRef = FirebaseFirestore.instance.collection('community_posts').doc();
     final newPost = {
-      'id': docRef.id,
+      'id': 'post_${DateTime.now().millisecondsSinceEpoch}',
       'category': _selectedCategory == '🎭 공연·핫플'
           ? '공연/전시'
           : (_selectedCategory == '🍰 맛집·카페'
@@ -77,11 +76,10 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
       'title': title,
       'content': content,
       'author': currentNick,
-      'authorAvatar': globalData.userAvatar.value.isNotEmpty ? globalData.userAvatar.value : 'assets/images/kr_female_1.jpg',
+      'authorAvatar': 'assets/images/kr_female_1.jpg',
       'location': widget.currentLocation,
       'time': '방금 전',
       'manner': 45.0,
-      'likedUserIds': <String>[],
       'likes': 0,
       'isLiked': false,
       'comments': 0,
@@ -92,11 +90,11 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         'category': '일상 & 푸드 > 카페 & 디저트',
         'poster': _selectedPhoto ?? 'assets/images/cover_cafe.jpg',
       },
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': DateTime.now().toIso8601String(),
     };
 
     try {
-      docRef.set(newPost);
+      FirebaseFirestore.instance.collection('community_posts').add(newPost);
     } catch (_) {}
 
     Navigator.pop(context, newPost);

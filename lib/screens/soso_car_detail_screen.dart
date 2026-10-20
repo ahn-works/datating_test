@@ -18,7 +18,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF25767);
+  final Color accentColor = const Color(0xFFF19E39);
   final Color coralAccent = const Color(0xFFF25767);
   final Color destructiveColor = const Color(0xFFFF3B30);
   
@@ -78,7 +78,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   children: [
                     Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFEBEBEF), borderRadius: BorderRadius.circular(2))),
                     const SizedBox(height: 32),
-                    const Icon(Icons.assignment_ind, size: 64, color: Color(0xFFF25767)),
+                    const Icon(Icons.assignment_ind, size: 64, color: Color(0xFFF19E39)),
                     const SizedBox(height: 16),
                     const Text('프로필 완성이 필요해요!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF111111))),
                     const SizedBox(height: 12),
@@ -88,7 +88,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF25767), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF19E39), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
                         onPressed: () {
                           Navigator.pop(ctx);
                           setState(() {
@@ -227,13 +227,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: withFriend ? const Color(0xFFFFF0F2) : const Color(0xFFF25767).withOpacity(0.05),
+                          color: withFriend ? const Color(0xFFFFF0F2) : const Color(0xFFF19E39).withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: withFriend ? coralAccent : const Color(0xFFF25767).withOpacity(0.2)),
+                          border: Border.all(color: withFriend ? coralAccent : const Color(0xFFF19E39).withOpacity(0.2)),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.group_add, color: withFriend ? coralAccent : const Color(0xFFF25767)),
+                            Icon(Icons.group_add, color: withFriend ? coralAccent : const Color(0xFFF19E39)),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -783,12 +783,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF9F2),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFF25767).withOpacity(0.3)),
+                          border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.event_note, color: Color(0xFFF25767), size: 22),
+                            const Icon(Icons.event_note, color: Color(0xFFF19E39), size: 22),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(

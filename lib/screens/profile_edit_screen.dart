@@ -14,7 +14,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF25767);
+  final Color accentColor = const Color(0xFFF19E39);
 
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();

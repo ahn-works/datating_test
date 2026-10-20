@@ -1,5 +1,3 @@
-import 'user_profile_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
@@ -32,60 +30,39 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   @override
   void initState() {
     super.initState();
-    final String myUserId = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : 'test_user_1';
-    final List<String> likedUsers = List<String>.from(widget.post['likedUserIds'] ?? []);
-    _isLiked = likedUsers.contains(myUserId) || (widget.post['isLiked'] ?? false);
-    _likeCount = likedUsers.isNotEmpty ? likedUsers.length : (widget.post['likes'] ?? 0);
+    _isLiked = widget.post['isLiked'] ?? false;
+    _likeCount = widget.post['likes'] ?? 0;
 
+    // Initial realistic dummy comments
     _comments = [
       {
         'id': 'comm_01',
-        'author': '이준호',
-        'authorAvatar': 'assets/images/kr_male_1.jpg',
-        'content': '성수동에서도 맛집 찾고 있었는데 서교동 가면 꼭 들러봐야겠네요!',
+        'author': '공연러버',
+        'authorAvatar': 'assets/images/kr_female_2.jpg',
+        'content': '저도 1차 티켓팅 성공해서 갑니다! 후기 보니까 8열 시야 진짜 기대되네요 ㅎㅎ',
         'time': '10분 전',
-        'likes': 2,
+        'likes': 3,
         'isLiked': false,
       },
       {
         'id': 'comm_02',
-        'author': '박지연',
-        'authorAvatar': 'assets/images/kr_female_2.jpg',
-        'content': '저 이번 주말에 시간 되는데 같이 디저트 뿌시러 가실 분!',
+        'author': '성수동산책러',
+        'authorAvatar': 'assets/images/kr_male_1.jpg',
+        'content': '혹시 캐스팅 누구 회차로 예매하셨나요? 이번 시즌 전원 레전드라 고민되네요!',
         'time': '25분 전',
-        'likes': 3,
+        'likes': 2,
+        'isLiked': false,
+      },
+      {
+        'id': 'comm_03',
+        'author': '달콤빵순이',
+        'authorAvatar': 'assets/images/kr_female_3.jpg',
+        'content': '공연 끝나고 근처 감성 카페에서 극 얘기 나누는 모임 열어주시면 무조건 참석할게요!',
+        'time': '1시간 전',
+        'likes': 5,
         'isLiked': false,
       },
     ];
-
-    final String postId = widget.post['id']?.toString() ?? widget.post['title']?.toString() ?? 'post_default';
-    try {
-      FirebaseFirestore.instance
-          .collection('community_posts')
-          .doc(postId)
-          .collection('comments')
-          .orderBy('createdAt', descending: false)
-          .snapshots()
-          .listen((snapshot) {
-        if (snapshot.docs.isNotEmpty && mounted) {
-          setState(() {
-            _comments = snapshot.docs.map((doc) {
-              final data = doc.data();
-              return {
-                'id': doc.id,
-                'author': data['author'] ?? '이웃',
-                'authorAvatar': data['authorAvatar'] ?? 'assets/images/kr_female_1.jpg',
-                'content': data['content'] ?? '',
-                'time': data['time'] ?? '방금',
-                'likes': data['likes'] ?? 0,
-                'isLiked': false,
-              };
-            }).toList();
-            widget.post['comments'] = _comments.length;
-          });
-        }
-      });
-    } catch (_) {}
   }
 
   void _addComment() {
@@ -93,34 +70,18 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     if (text.isEmpty) return;
 
     final myNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
-    final myAvatar = globalData.userAvatar.value.isNotEmpty ? globalData.userAvatar.value : 'assets/images/kr_female_1.jpg';
-    final myLocation = globalData.userLocation.value.isNotEmpty ? globalData.userLocation.value : '마포구 서교동';
-
-    final newComment = {
-      'id': 'comm_${DateTime.now().millisecondsSinceEpoch}',
-      'author': myNick,
-      'authorAvatar': myAvatar,
-      'content': text,
-      'location': myLocation,
-      'time': '방금 전',
-      'likes': 0,
-      'isLiked': false,
-      'createdAt': FieldValue.serverTimestamp(),
-    };
-
     setState(() {
-      _comments.add(newComment);
-      widget.post['comments'] = _comments.length;
+      _comments.add({
+        'id': 'comm_${DateTime.now().millisecondsSinceEpoch}',
+        'author': myNick,
+        'authorAvatar': 'assets/images/kr_male_1.jpg',
+        'content': text,
+        'time': '방금 전',
+        'likes': 0,
+        'isLiked': false,
+      });
+      widget.post['comments'] = (_comments.length);
     });
-
-    final String postId = widget.post['id']?.toString() ?? widget.post['title']?.toString() ?? 'post_default';
-    try {
-      final postRef = FirebaseFirestore.instance.collection('community_posts').doc(postId);
-      postRef.collection('comments').add(newComment);
-      postRef.update({'comments': FieldValue.increment(1)});
-    } catch (e) {
-      debugPrint('[PostDetail] Firestore comment error: $e');
-    }
 
     _commentController.clear();
     FocusScope.of(context).unfocus();
@@ -141,37 +102,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   }
 
   void _toggleLike() {
-    final String myUserId = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : 'test_user_1';
-    final List<String> likedUsers = List<String>.from(widget.post['likedUserIds'] ?? []);
-    final bool currentlyLiked = likedUsers.contains(myUserId);
-
-    if (currentlyLiked) {
-      likedUsers.remove(myUserId);
-    } else {
-      likedUsers.add(myUserId);
-    }
-
-    final int newCount = likedUsers.length;
     setState(() {
-      _isLiked = !currentlyLiked;
-      _likeCount = newCount;
-      widget.post['likedUserIds'] = likedUsers;
-      widget.post['isLiked'] = !currentlyLiked;
-      widget.post['likes'] = newCount;
+      _isLiked = !_isLiked;
+      _likeCount += _isLiked ? 1 : -1;
+      widget.post['isLiked'] = _isLiked;
+      widget.post['likes'] = _likeCount;
     });
-
-    final String postId = widget.post['id']?.toString() ?? widget.post['title']?.toString() ?? 'post_default';
-    try {
-      final docRef = FirebaseFirestore.instance.collection('community_posts').doc(postId);
-      docRef.update({
-        'likedUserIds': currentlyLiked
-            ? FieldValue.arrayRemove([myUserId])
-            : FieldValue.arrayUnion([myUserId]),
-        'likes': newCount,
-      });
-    } catch (e) {
-      debugPrint('[PostDetail] Firestore like error: $e');
-    }
   }
 
   @override
@@ -233,27 +169,21 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       // Author Row
                       Row(
                         children: [
-                          GestureDetector(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: author))),
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
-                            ),
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: author))),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        author,
-                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
-                                      ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      author,
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                    ),
                                     const SizedBox(width: 6),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
