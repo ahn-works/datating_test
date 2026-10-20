@@ -11,6 +11,41 @@ class GlobalData {
   final ValueNotifier<int> reviewCount = ValueNotifier<int>(24);
   final ValueNotifier<List<Map<String, dynamic>>> recentReviews = ValueNotifier<List<Map<String, dynamic>>>([]);
 
+
+  // 3인 유저 페르소나 및 동네 데이터 (김민서: 서교동, 이준호: 성수동, 박지연: 연남동)
+  static final List<Map<String, dynamic>> exampleUsers = [
+    {
+      'id': 'user_minseo',
+      'name': '김민서',
+      'nickname': '김민서',
+      'location': '마포구 서교동',
+      'avatar': 'assets/images/kr_female_1.jpg',
+      'manner': 43.5,
+      'bio': '서교동 골목 카페와 에그타르트 투어 진심러 🍰 조용하고 감성 있는 공간을 좋아해요.',
+      'interests': ['디저트투어', '보드게임', '전시회', '소셜다이닝'],
+    },
+    {
+      'id': 'user_junho',
+      'name': '이준호',
+      'nickname': '이준호',
+      'location': '성동구 성수동',
+      'avatar': 'assets/images/kr_male_1.jpg',
+      'manner': 44.0,
+      'bio': '성수동 서울숲 야간 러닝과 팝업스토어 탐방을 즐깁니다 🏃 편하게 모여요!',
+      'interests': ['서울숲러닝', '팝업스토어', 'LP청음', '야간산책'],
+    },
+    {
+      'id': 'user_jiyeon',
+      'name': '박지연',
+      'nickname': '박지연',
+      'location': '마포구 연남동',
+      'avatar': 'assets/images/kr_female_2.jpg',
+      'manner': 42.8,
+      'bio': '연남동 경의선 숲길 산책과 두쫀쿠 오픈런 메이트 환영해요 🥐 맛집 뿌시기 팟!',
+      'interests': ['두바이쿠키', '카페투어', '내추럴와인', '맛집웨이팅'],
+    },
+  ];
+
   // 사용자 프로필 및 위치
   final ValueNotifier<String> userAvatar = ValueNotifier<String>('assets/images/kr_female_1.jpg');
   final ValueNotifier<String> userLocation = ValueNotifier<String>('마포구 서교동');

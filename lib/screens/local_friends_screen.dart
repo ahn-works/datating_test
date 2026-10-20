@@ -13,7 +13,7 @@ class LocalFriendsScreen extends StatefulWidget {
 }
 
 class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
-  final Color primaryColor = const Color(0xFFF19E39);
+  final Color primaryColor = const Color(0xFFF25767);
   int _selectedFilterIndex = 0;
   
   final List<String> _filters = ['전체', '동네 산책', '밥친구', '카공', '러닝', '급벙'];
@@ -28,7 +28,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       'hostTemp': 38.5,
       'currentMembers': 2,
       'maxMembers': 4,
-      'color': const Color(0xFFF19E39),
+      'color': const Color(0xFFF25767),
       'image': 'assets/images/cover_running.jpg',
       'likes': 12,
       'comments': 5,
@@ -263,12 +263,12 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.how_to_vote, size: 16, color: Color(0xFFF19E39)),
+                        const Icon(Icons.how_to_vote, size: 16, color: Color(0xFFF25767)),
                         const SizedBox(width: 8),
                         const Expanded(child: Text('현재 만남 장소 (스팟) 투표 진행 중!', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87))),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: const Color(0xFFF19E39), borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: const Color(0xFFF25767), borderRadius: BorderRadius.circular(12)),
                           child: const Text('투표하기', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
                         )
                       ],
@@ -344,21 +344,18 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       onTap: (index) {
-        if (index == 0) {
-          Navigator.popUntil(context, (route) => route.isFirst);
-        } else if (index == 1) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHostScreen()));
-        } else if (index == 2) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+        if (index < 3) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OOMUHomeScreen(initialTab: index)));
         } else if (index == 3) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
         } else if (index == 4) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPageScreen()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MyPageScreen()));
         }
       },
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
+        const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: '동네모임'),
+        const BottomNavigationBarItem(icon: Icon(Icons.group_outlined), activeIcon: Icon(Icons.group), label: '커뮤니티'),
+        const BottomNavigationBarItem(icon: Icon(Icons.favorite_border), activeIcon: Icon(Icons.favorite), label: '소개팅'),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
@@ -367,16 +364,15 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
               Positioned(
                 right: -4, top: -4,
                 child: Container(
-                  padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFB53D25), shape: BoxShape.circle),
-                  child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFF25767), shape: BoxShape.circle),
+                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
               )
             ],
           ),
           label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내 여행'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: '마이'),
+        const BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'MY'),
       ],
     );
   }

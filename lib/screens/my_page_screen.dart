@@ -3,6 +3,7 @@ import '../utils/global_data.dart';
 import '../utils/app_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
+import 'chat_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'profile_edit_screen.dart';
@@ -13,7 +14,8 @@ import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
 
 class MyPageScreen extends StatefulWidget {
-  const MyPageScreen({super.key});
+  final bool isEmbedded;
+  const MyPageScreen({super.key, this.isEmbedded = false});
 
   @override
   State<MyPageScreen> createState() => _MyPageScreenState();
@@ -740,31 +742,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF6F7),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFFAF6F7),
-        elevation: 0,
-        title: Text('마이페이지', style: TextStyle(color: accentColor, fontSize: 22, fontWeight: FontWeight.w800)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings_outlined, color: textSecondary),
-            tooltip: '설정',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.edit_outlined, color: accentColor),
-            tooltip: '프로필 수정',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
+    final bodyContent = StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('users').doc('test_user_1').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -926,11 +904,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('OOMU Plus', style: TextStyle(color: Color(0xFFF19E39), fontWeight: FontWeight.w900, fontSize: 18, fontStyle: FontStyle.italic)),
+                              const Text('OOMU Plus', style: TextStyle(color: Color(0xFFF25767), fontWeight: FontWeight.w900, fontSize: 18, fontStyle: FontStyle.italic)),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                                child: const Text('무료 체험하기', style: TextStyle(color: Color(0xFFF19E39), fontSize: 12, fontWeight: FontWeight.bold)),
+                                decoration: BoxDecoration(color: const Color(0xFFF25767).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                                child: const Text('무료 체험하기', style: TextStyle(color: Color(0xFFF25767), fontSize: 12, fontWeight: FontWeight.bold)),
                               )
                             ],
                           ),
@@ -1193,39 +1171,77 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: 3,
+      currentIndex: 4,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF111111),
-      unselectedItemColor: const Color(0xFFC7C7CC),
+      selectedItemColor: accentColor,
+      unselectedItemColor: const Color(0xFF767676),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
-        if (index == 0) {
-          Navigator.pushReplacement(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHomeScreen(), transitionDuration: Duration.zero));
-        } else if (index == 1) { 
-          Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHostScreen(), transitionDuration: Duration.zero)); 
-        } else if (index == 2) {
-          Navigator.pushReplacement(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUMyTripsScreen(), transitionDuration: Duration.zero));
+        if (index == 4) return;
+        if (index < 3) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUHomeScreen(initialTab: index)));
+        } else if (index == 3) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
         }
       },
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined, size: 26), activeIcon: Icon(Icons.explore, size: 26), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 26), activeIcon: Icon(Icons.add_circle, size: 26), label: '만들기'),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined, size: 24),
+          activeIcon: Icon(Icons.home, size: 24),
+          label: '동네모임',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.group_outlined, size: 24),
+          activeIcon: Icon(Icons.group, size: 24),
+          label: '커뮤니티',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_border, size: 24),
+          activeIcon: Icon(Icons.favorite, size: 24),
+          label: '소개팅',
+        ),
         BottomNavigationBarItem(
           icon: Stack(
             clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.chat_bubble_outline, size: 24),
-              Positioned(right: -6, top: -6, child: Container(padding: const EdgeInsets.all(5), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
+              const Icon(Icons.chat_bubble_outline, size: 23),
+              Positioned(
+                right: -6,
+                top: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  decoration: const BoxDecoration(color: Color(0xFFF25767), shape: BoxShape.circle),
+                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                ),
+              ),
             ],
           ),
-          activeIcon: const Icon(Icons.chat_bubble, size: 24),
-          label: '내 모임',
+          activeIcon: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(Icons.chat_bubble, size: 23),
+              Positioned(
+                right: -6,
+                top: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  decoration: const BoxDecoration(color: Color(0xFFF25767), shape: BoxShape.circle),
+                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+          label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 26), activeIcon: Icon(Icons.person, size: 26), label: 'MY'),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline, size: 24),
+          activeIcon: Icon(Icons.person, size: 24),
+          label: 'MY',
+        ),
       ],
     );
   }

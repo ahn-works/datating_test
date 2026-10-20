@@ -79,13 +79,13 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border.all(color: const Color(0xFFF19E39).withOpacity(0.3)),
+                border: Border.all(color: const Color(0xFFF25767).withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: const Color(0xFFF19E39).withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))]
+                boxShadow: [BoxShadow(color: const Color(0xFFF25767).withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))]
               ),
               child: Row(
                 children: [
-                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.people_alt, color: Color(0xFFF19E39), size: 28)),
+                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: const Color(0xFFF25767).withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.people_alt, color: Color(0xFFF25767), size: 28)),
                   const SizedBox(width: 16),
                   const Expanded(
                     child: Column(

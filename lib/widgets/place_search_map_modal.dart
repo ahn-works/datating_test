@@ -266,10 +266,24 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         return;
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5),
-      );
+      Position? position;
+      try {
+        position = await Geolocator.getLastKnownPosition().timeout(const Duration(milliseconds: 300));
+      } catch (_) {}
+      if (position == null) {
+        try {
+          position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.low,
+            timeLimit: const Duration(seconds: 2),
+          );
+        } catch (_) {}
+      }
+      if (position == null) {
+        position = Position(
+          longitude: 126.9210, latitude: 37.5550, timestamp: DateTime.now(),
+          accuracy: 0, altitude: 0, heading: 0, speed: 0, speedAccuracy: 0, altitudeAccuracy: 0, headingAccuracy: 0
+        );
+      }
 
       final newLatLng = LatLng(position.latitude, position.longitude);
       _selectLocation(

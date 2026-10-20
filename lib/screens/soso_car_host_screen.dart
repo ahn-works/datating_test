@@ -60,7 +60,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF19E39);
+  final Color accentColor = const Color(0xFFF25767);
   final Color destructiveColor = const Color(0xFFFF3B30);
 
   String _selectedMainCategory = '일상 & 푸드';
@@ -415,7 +415,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.celebration, color: Color(0xFFF19E39), size: 64),
+                  const Icon(Icons.celebration, color: Color(0xFFF25767), size: 64),
                   const SizedBox(height: 24),
                   Text('모임이 개설되었습니다!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textPrimary)),
                   const SizedBox(height: 12),
