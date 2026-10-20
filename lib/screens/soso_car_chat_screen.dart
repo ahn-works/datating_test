@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/r2_storage_service.dart';
 import '../widgets/ugc_action_sheets.dart';
+import '../services/ai_service.dart';
 /// 대화방 메시지 메모리/로컬 영구 캐시 저장소 (뒤로가기 후 재입장 시에도 메시지 및 사진 100% 보존)
 class OOMUChatStore extends ChangeNotifier {
   static final OOMUChatStore _instance = OOMUChatStore._internal();
@@ -214,9 +215,35 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   Stream<QuerySnapshot>? _firebaseMessageStream;
   late List<Map<String, dynamic>> _messages;
 
+  // AI 소셜 인텔리전스 어시스턴트 상태
+  bool _showAiIcebreakerBanner = true;
+  bool _isLoadingAiTopics = false;
+  List<Map<String, String>> _aiTopics = [];
+
+  Future<void> _loadAiTopics({int offset = 0}) async {
+    setState(() => _isLoadingAiTopics = true);
+    try {
+      final topics = await oomuAi.generateIcebreakerTopics(
+        meetingTitle: widget.title,
+        seedOffset: offset,
+      );
+      if (mounted) {
+        setState(() {
+          _aiTopics = topics;
+          _isLoadingAiTopics = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isLoadingAiTopics = false);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadAiTopics();
     final cId = oomuChatStore.canonicalRoomId(widget.chatRoomId);
     _messages = List<Map<String, dynamic>>.from(
       oomuChatStore.getRoomMessages(cId, widget.title)
@@ -331,10 +358,13 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     }
   }
 
-  void _sendMessage() {
-    if (_controller.text.trim().isEmpty) return;
-    _addMessage({'type': 'text', 'text': _controller.text.trim()});
-    _controller.clear();
+  void _sendMessage({String? customText}) {
+    final textToSend = (customText ?? _controller.text).trim();
+    if (textToSend.isEmpty) return;
+    _addMessage({'type': 'text', 'text': textToSend});
+    if (customText == null) {
+      _controller.clear();
+    }
   }
 
   void _scrollToBottom() {
@@ -1134,6 +1164,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   'desc': '모임 종료 후 비공개 호감 매칭이 오픈되었습니다! 마음에 드는 멤버를 선택해 보세요.',
                 });
               }),
+              _buildAttachmentIcon(Icons.auto_awesome, 'AI 대화추천', const Color(0xFF6366F1), onTap: () {
+                Navigator.pop(ctx);
+                _showAiTopicsBottomSheet();
+              }),
+              _buildAttachmentIcon(Icons.summarize_rounded, '1분 맛집요약', const Color(0xFF0D9488), onTap: () {
+                Navigator.pop(ctx);
+                _sendAiSpotSummaryAction();
+              }),
             ],
           ),
         ),
@@ -1192,6 +1230,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             chatRoomId: widget.chatRoomId,
             currentUserName: globalData.userNickname.value,
           ),
+          if (_showAiIcebreakerBanner) _buildAiIcebreakerBanner(),
           Expanded(
             child: _firebaseMessageStream == null
                 ? _buildMessageList(_messages) 
@@ -1252,6 +1291,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     }
 
     if (type == 'system') return _buildSystemMessage(data['text'] ?? '');
+    if (type == 'ai_spot_summary') return _buildAiSpotSummaryCard(data);
     if (type == 'settlement') return InteractiveSettlementCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
     if (type == 'image') return _buildImageMessage(data);
     if (type == 'location') return _buildLocationMessage(data);
@@ -1851,6 +1891,612 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAiIcebreakerBanner() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEEF2FF), Color(0xFFFDF4FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFC7D2FE), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6366F1).withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Banner Top Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 8, 4),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.auto_awesome, color: Color(0xFF6366F1), size: 14),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'AI 대화 어시스턴트 · 오늘의 추천 토픽',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4338CA),
+                    ),
+                  ),
+                ),
+                if (_isLoadingAiTopics)
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6366F1)),
+                  )
+                else
+                  InkWell(
+                    onTap: () => _loadAiTopics(offset: DateTime.now().millisecond),
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(Icons.refresh_rounded, size: 16, color: Color(0xFF6366F1)),
+                    ),
+                  ),
+                const SizedBox(width: 4),
+                InkWell(
+                  onTap: () => setState(() => _showAiIcebreakerBanner = false),
+                  borderRadius: BorderRadius.circular(12),
+                  child: const Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(Icons.close_rounded, size: 16, color: Colors.grey),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 3 Topic Questions
+          if (_aiTopics.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: _aiTopics.map((topic) {
+                    final badge = topic['badge'] ?? '💡 대화주제';
+                    final question = topic['question'] ?? '';
+                    final reason = topic['reason'] ?? '';
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            _sendMessage(customText: question);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('💡 "$badge" 질문을 대화창에 보냈습니다!'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 240),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFE0E7FF)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      badge,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF4F46E5),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.touch_app_rounded, size: 11, color: Color(0xFF818CF8)),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  question,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1E293B),
+                                    height: 1.25,
+                                  ),
+                                ),
+                                if (reason.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    reason,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+
+          // Quick Action Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: _sendAiSpotSummaryAction,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0D9488).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.3)),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.restaurant_rounded, size: 13, color: Color(0xFF0D9488)),
+                          SizedBox(width: 4),
+                          Text(
+                            '📍 맛집 1분 요약 공유',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0F766E)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _loadAiTopics(offset: DateTime.now().millisecond),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.refresh_rounded, size: 13, color: Color(0xFF6366F1)),
+                          SizedBox(width: 4),
+                          Text(
+                            '🔄 다른 주제 추천',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF4338CA)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAiTopicsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6366F1).withOpacity(0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.auto_awesome, color: Color(0xFF6366F1), size: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'AI 대화 아이스브레이킹 추천',
+                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '원하는 질문을 누르면 대화창에 즉시 전송됩니다',
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ..._aiTopics.map((topic) {
+                      final badge = topic['badge'] ?? '💡 대화주제';
+                      final question = topic['question'] ?? '';
+                      final reason = topic['reason'] ?? '';
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          title: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEEF2FF),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  badge,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF4F46E5),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  question,
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                ),
+                                if (reason.isNotEmpty) ...[
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '🎯 의도: $reason',
+                                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          trailing: const Icon(Icons.send_rounded, color: Color(0xFF6366F1), size: 20),
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _sendMessage(customText: question);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('💡 "$badge" 질문을 대화창에 전송했습니다!'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }).toList(),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 44,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          await _loadAiTopics(offset: DateTime.now().millisecond);
+                          setModalState(() {});
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 18, color: Color(0xFF6366F1)),
+                        label: const Text(
+                          '새로운 질문 추천받기',
+                          style: TextStyle(color: Color(0xFF6366F1), fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF6366F1)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _sendAiSpotSummaryAction() {
+    String spot = widget.title;
+    if (spot.contains('성수') || spot.contains('맛집') || spot.contains('다이닝')) {
+      spot = '성수 소소스팟 비스트로';
+    } else if (spot.contains('카페') || spot.contains('커피')) {
+      spot = '성수 아틀리에 카페';
+    } else if (spot.contains('러닝') || spot.contains('한강')) {
+      spot = '뚝섬 한강공원 러닝코스';
+    } else if (spot.contains('콘서트') || spot.contains('공연')) {
+      spot = '올림픽공원 KSPO DOME';
+    } else {
+      spot = '성수 소소스팟 핫플레이스';
+    }
+
+    final summary = oomuAi.getSpotQuickSummary(spot);
+
+    _addMessage({
+      'type': 'ai_spot_summary',
+      'title': '📍 AI 1분 스팟/맛집 브리핑',
+      'spotName': summary['spotName'] ?? spot,
+      'summary': summary['summary'] ?? '',
+      'parkingTip': summary['parkingTip'] ?? '',
+      'popularMenu': summary['popularMenu'] ?? '',
+      'vibe': summary['vibe'] ?? '',
+      'tags': summary['tags'] ?? ['#인기스팟', '#소소플레이스'],
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('📍 AI 1분 맛집 요약 카드가 채팅방에 공유되었습니다!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildAiSpotSummaryCard(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final spotName = msg['spotName'] ?? '소소스팟';
+    final summary = msg['summary'] ?? '';
+    final parkingTip = msg['parkingTip'] ?? '';
+    final popularMenu = msg['popularMenu'] ?? '';
+    final vibe = msg['vibe'] ?? '';
+    final List<dynamic> tags = msg['tags'] ?? [];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) _buildAvatar(name: msg['sender']),
+          if (!isMe) const SizedBox(width: 8),
+          if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe) const SizedBox(width: 4),
+
+          Container(
+            width: 275,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.35), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0D9488).withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top header
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0D9488).withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.auto_awesome, color: Color(0xFF0D9488), size: 16),
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'AI 1분 맛집 · 스팟 브리핑',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F766E),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCCFBF1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'AI 요약',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0F766E)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Spot Name
+                Text(
+                  spotName,
+                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                ),
+                const SizedBox(height: 6),
+
+                // Briefing text
+                Text(
+                  summary,
+                  style: const TextStyle(fontSize: 12.5, height: 1.4, color: Color(0xFF334155)),
+                ),
+                const SizedBox(height: 10),
+
+                // Details container
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDFA),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFCCFBF1)),
+                  ),
+                  child: Column(
+                    children: [
+                      if (popularMenu.isNotEmpty)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('🍽️ ', style: TextStyle(fontSize: 11)),
+                            const Text('대표메뉴: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF134E4A))),
+                            Expanded(
+                              child: Text(popularMenu, style: const TextStyle(fontSize: 11, color: Color(0xFF134E4A))),
+                            ),
+                          ],
+                        ),
+                      if (parkingTip.isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('🚗 ', style: TextStyle(fontSize: 11)),
+                            const Text('주차꿀팁: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF134E4A))),
+                            Expanded(
+                              child: Text(parkingTip, style: const TextStyle(fontSize: 11, color: Color(0xFF134E4A))),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (vibe.isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('✨ ', style: TextStyle(fontSize: 11)),
+                            const Text('분위기: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF134E4A))),
+                            Expanded(
+                              child: Text(vibe, style: const TextStyle(fontSize: 11, color: Color(0xFF134E4A))),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                if (tags.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: tags.map((t) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        t.toString(),
+                        style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                      ),
+                    )).toList(),
+                  ),
+                ],
+
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 36,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('🗺️ $spotName 지도 및 길찾기로 연결합니다.')),
+                      );
+                    },
+                    icon: const Icon(Icons.map_rounded, size: 14, color: Colors.white),
+                    label: const Text('지도 · 길찾기 연동', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0D9488),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (!isMe) const SizedBox(width: 4),
+          if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+        ],
       ),
     );
   }
