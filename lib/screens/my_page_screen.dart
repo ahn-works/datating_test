@@ -9,6 +9,7 @@ import 'profile_edit_screen.dart';
 import 'saved_meetups_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
+import 'my_page_sub_screens.dart';
 
 class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});
@@ -1068,6 +1069,21 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 badge: '안전 보관',
                 textPrimary: textPrimary,
                 onTap: _showR2SettingsBottomSheet,
+              ),
+              _buildInteractiveMenuItem(
+                icon: Icons.block,
+                iconColor: const Color(0xFFE11D48),
+                title: '차단 사용자 관리',
+                badge: '${globalData.blockedUsers.value.length}명',
+                textPrimary: textPrimary,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BlockManageScreen())),
+              ),
+              _buildInteractiveMenuItem(
+                icon: Icons.shield_outlined,
+                iconColor: const Color(0xFF0D9488),
+                title: '신고 내역 및 커뮤니티 가이드',
+                textPrimary: textPrimary,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportHistoryScreen())),
               ),
 
               const SizedBox(height: 40),

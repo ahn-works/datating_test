@@ -11,6 +11,7 @@ import 'filter_screen.dart';
 import 'soso_spot_screen.dart';
 import '../utils/location_helper.dart';
 import 'soso_car_chat_screen.dart';
+import '../widgets/ugc_action_sheets.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   const OOMUHomeScreen({super.key});
@@ -2042,7 +2043,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
     final List<String> simpleTopics = ['전체', '☕ 일상·수다', '🎭 공연·핫플', '🍰 맛집·카페', '❓ 동네질문'];
 
+    final blocked = globalData.blockedUsers.value;
+    final hiddenPosts = globalData.hiddenPostIds.value;
+
     final filteredPosts = _communityPosts.where((post) {
+      final author = post['author'] ?? '';
+      final postId = post['id'] ?? post['title'] ?? '';
+      if (blocked.contains(author)) return false;
+      if (hiddenPosts.contains(postId)) return false;
+
       if (_communityCategoryFilter != '전체') {
         if (_communityCategoryFilter == '☕ 일상·수다' && post['category'] != '동네 토크' && post['category'] != '일상') return false;
         if (_communityCategoryFilter == '🎭 공연·핫플' && post['category'] != '공연/전시' && post['category'] != '공연') return false;
@@ -2305,6 +2314,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF666666)),
                   ),
                 ),
+              const SizedBox(width: 4),
+              InkWell(
+                onTap: () {
+                  UgcActionSheets.showContentOptions(
+                    context: context,
+                    contentType: '게시글',
+                    contentId: post['id'] ?? post['title'] ?? 'post_${post['author']}',
+                    author: post['author'] ?? '동네주민',
+                    onContentHidden: () => setState(() {}),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(Icons.more_vert, size: 18, color: Color(0xFF8E8E93)),
+                ),
+              ),
             ],
           ),
 

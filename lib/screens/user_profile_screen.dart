@@ -44,18 +44,31 @@ class UserProfileScreen extends StatelessWidget {
   }
 
   void _showReportReasonDialog(BuildContext context, String targetType) {
-    final reasons = ['불쾌한 언어 사용', '스팸 및 광고', '부적절한 프로필/사진', '노쇼 (약속 미이행)', '안전 위협 및 기타'];
+    final reasons = ['🔞 음란물 / 선정적인 콘텐츠', '🤬 욕설 / 혐오 / 비방 발언', '📢 스팸 및 불법 광고', '💸 사기 / 금전 요구 / 계정 사칭', '⚠️ 만남 노쇼 / 비매너 행위', '📝 기타 부적절한 사유'];
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('$targetType 신고 사유 선택'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('$targetType 신고 사유 선택', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: reasons.map((r) => ListTile(
-            title: Text(r),
+            dense: true,
+            title: Text(r, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             onTap: () {
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('운영진에게 신고 접수되었습니다. 빠른 시일 내에 검토 후 조치됩니다.')));
+              globalData.submitReport(
+                targetType: targetType,
+                targetId: 'user_$userName',
+                targetUser: userName,
+                reason: r,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('🚨 운영진에게 신고 접수되었습니다. 24시간 이내에 검토 후 조치됩니다.'),
+                  backgroundColor: Colors.black87,
+                ),
+              );
             },
           )).toList(),
         ),
@@ -67,17 +80,20 @@ class UserProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('사용자 차단'),
-        content: const Text('이 사용자를 차단하시겠습니까?\n더 이상 동네 모임과 채팅에서 서로 노출되지 않으며 매칭에서 제외됩니다.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('사용자 차단', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('$userName님을 차단하시겠습니까?\n\n• 차단 즉시 서로의 모든 게시글, 댓글, 채팅 메시지가 숨겨집니다.\n• 모임 및 소개팅 추천 매칭에서 영구 제외됩니다.\n• 설정 > 차단 관리 메뉴에서 언제든지 차단을 해제할 수 있습니다.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('취소', style: TextStyle(color: Colors.grey))),
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0),
             onPressed: () {
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('차단 및 매칭 제외 처리가 완료되었습니다.')));
+              globalData.blockUser(userName);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('🚫 $userName님이 차단되었습니다. 모든 게시글과 대화가 즉시 숨김 처리됩니다.'), backgroundColor: Colors.redAccent));
               Navigator.pop(context); 
             }, 
-            child: const Text('차단하기', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold))
+            child: const Text('차단하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
           ),
         ]
       )

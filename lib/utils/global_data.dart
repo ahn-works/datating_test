@@ -57,6 +57,117 @@ class GlobalData {
     'marketing': false,
   });
 
+  // UGC 차단 사용자 목록 (앱스토어 Guideline 1.2 대응)
+  final ValueNotifier<List<String>> blockedUsers = ValueNotifier<List<String>>([
+    '불량회원99',
+  ]);
+
+  // 신고 및 숨김 처리된 콘텐츠 ID 목록
+  final ValueNotifier<List<String>> hiddenPostIds = ValueNotifier<List<String>>([]);
+
+  // 내가 접수한 신고 내역
+  final ValueNotifier<List<Map<String, dynamic>>> reportHistory = ValueNotifier<List<Map<String, dynamic>>>([
+    {
+      'id': 'rep_init_01',
+      'targetType': '사용자',
+      'targetUser': '불량회원99',
+      'reason': '스팸 및 불법 광고 홍보',
+      'status': '조치 완료 (이용 정지)',
+      'date': '2026. 10. 15',
+    },
+  ]);
+
+  bool isUserBlocked(String? nickname) {
+    if (nickname == null || nickname.isEmpty) return false;
+    return blockedUsers.value.contains(nickname);
+  }
+
+  void blockUser(String nickname, {String? reason}) {
+    if (nickname.isEmpty) return;
+    final current = List<String>.from(blockedUsers.value);
+    if (!current.contains(nickname)) {
+      current.add(nickname);
+      blockedUsers.value = current;
+
+      // Firestore 비동기 저장
+      try {
+        FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+          'blockedUsers': FieldValue.arrayUnion([nickname]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('[GlobalData] Firestore blockUser sync error: $e');
+      }
+    }
+  }
+
+  void unblockUser(String nickname) {
+    final current = List<String>.from(blockedUsers.value);
+    if (current.contains(nickname)) {
+      current.remove(nickname);
+      blockedUsers.value = current;
+
+      // Firestore 비동기 삭제
+      try {
+        FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+          'blockedUsers': FieldValue.arrayRemove([nickname]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('[GlobalData] Firestore unblockUser sync error: $e');
+      }
+    }
+  }
+
+  Future<void> submitReport({
+    required String targetType,
+    required String targetId,
+    required String targetUser,
+    required String reason,
+    String? detail,
+  }) async {
+    // 1. 숨김 콘텐츠에 즉시 추가하여 로컬에서 바로 보이지 않게 처리
+    if (targetId.isNotEmpty) {
+      final hidden = List<String>.from(hiddenPostIds.value);
+      if (!hidden.contains(targetId)) {
+        hidden.add(targetId);
+        hiddenPostIds.value = hidden;
+      }
+    }
+
+    // 2. 신고 내역 목록에 추가
+    final history = List<Map<String, dynamic>>.from(reportHistory.value);
+    final reportEntry = {
+      'id': 'rep_${DateTime.now().millisecondsSinceEpoch}',
+      'targetType': targetType,
+      'targetId': targetId,
+      'targetUser': targetUser,
+      'reason': reason,
+      'detail': detail ?? '',
+      'status': '접수됨 (24시간 내 검토)',
+      'date': '방금 전',
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    history.insert(0, reportEntry);
+    reportHistory.value = history;
+
+    // 3. Firestore reports 컬렉션에 실시간 저장 (운영진 검토 파이프라인)
+    try {
+      await FirebaseFirestore.instance.collection('reports').add({
+        'targetType': targetType,
+        'targetId': targetId,
+        'targetUser': targetUser,
+        'reporterUser': userNickname.value,
+        'reason': reason,
+        'detail': detail ?? '',
+        'status': 'pending_review',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('[GlobalData] Firestore submitReport error: $e');
+    }
+  }
+
   bool isFavorite(String? id) {
     if (id == null) return false;
     return savedMeetups.value.any((m) => m['id'] == id);

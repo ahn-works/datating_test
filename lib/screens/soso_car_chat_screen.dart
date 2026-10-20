@@ -10,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/r2_storage_service.dart';
+import '../widgets/ugc_action_sheets.dart';
 /// 대화방 메시지 메모리/로컬 영구 캐시 저장소 (뒤로가기 후 재입장 시에도 메시지 및 사진 100% 보존)
 class OOMUChatStore extends ChangeNotifier {
   static final OOMUChatStore _instance = OOMUChatStore._internal();
@@ -1182,7 +1183,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           ],
         ),
         actions: [
-          IconButton(icon: Icon(Icons.menu, color: textPrimary), onPressed: () {}),
+          IconButton(icon: Icon(Icons.menu, color: textPrimary), onPressed: _showChatRoomSafetyDrawer),
         ],
       ),
       body: Column(
@@ -1237,6 +1238,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     final type = data['type'] ?? 'text';
     final msgId = (data['id'] ?? '').toString();
     final isMe = data['isMe'] == true || data['sender'] == globalData.userNickname.value || data['sender'] == '우리동네민우';
+    final sender = (data['sender'] ?? '상대방').toString();
+
+    // 차단된 사용자의 메시지는 보호 뷰(차단 안내 바)로 대체 표시
+    if (!isMe && globalData.isUserBlocked(sender)) {
+      return _buildBlockedMessagePlaceholder(sender);
+    }
     
     void updateThisMessage(Map<String, dynamic> delta) {
       if (msgId.isNotEmpty) {
@@ -1445,32 +1452,348 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
 
 
+  Widget _buildBlockedMessagePlaceholder(String sender) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F2F7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E5EA)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.block, size: 14, color: Colors.grey),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              '차단된 사용자($sender)의 메시지입니다.',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              globalData.unblockUser(sender);
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('🎉 $sender님의 차단이 해제되었습니다.')),
+              );
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              child: Text(
+                '차단 해제',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChatRoomSafetyDrawer() {
+    final participants = [
+      {'name': '우리동네민우', 'avatar': 'assets/images/kr_male_1.jpg', 'role': '방장', 'manner': '42.5°C'},
+      {'name': '매운맛킬러', 'avatar': 'assets/images/kr_female_1.jpg', 'role': '참여자', 'manner': '41.2°C'},
+      {'name': '러닝조아', 'avatar': 'assets/images/kr_female_3.jpg', 'role': '참여자', 'manner': '39.8°C'},
+      {'name': '카페탐방러', 'avatar': 'assets/images/kr_male_2.jpg', 'role': '참여자', 'manner': '40.5°C'},
+    ];
+    final currentNick = globalData.userNickname.value;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.72,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 16),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          const Row(
+                            children: [
+                              Icon(Icons.shield_outlined, size: 14, color: Colors.teal),
+                              SizedBox(width: 4),
+                              Text('24시간 AI & 운영진 실시간 보호 중', style: TextStyle(fontSize: 12, color: Colors.teal, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('대화 참여자 (${participants.length}명)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const Text('불쾌한 상대는 차단/신고하세요', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+                
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: participants.length,
+                    itemBuilder: (context, index) {
+                      final p = participants[index];
+                      final name = p['name']!;
+                      final isMe = name == currentNick || (name == '우리동네민우' && currentNick.isEmpty);
+                      final isBlocked = globalData.isUserBlocked(name);
+
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: appImg(p['avatar']!),
+                        ),
+                        title: Row(
+                          children: [
+                            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            if (isMe)
+                              Container(
+                                margin: const EdgeInsets.only(left: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                                child: const Text('나', style: TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.bold)),
+                              ),
+                            const Spacer(),
+                            Text(p['manner']!, style: const TextStyle(fontSize: 12, color: Colors.deepOrange, fontWeight: FontWeight.w700)),
+                          ],
+                        ),
+                        subtitle: Text(p['role']!, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        trailing: isMe
+                            ? null
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed: () {
+                                      if (isBlocked) {
+                                        globalData.unblockUser(name);
+                                        setSheetState(() {});
+                                        setState(() {});
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('🎉 $name님의 차단이 해제되었습니다.')),
+                                        );
+                                      } else {
+                                        UgcActionSheets.showBlockConfirmDialog(
+                                          context: context,
+                                          userName: name,
+                                          onUserBlocked: () {
+                                            setSheetState(() {});
+                                            setState(() {});
+                                          },
+                                        );
+                                      }
+                                    },
+                                    child: Text(
+                                      isBlocked ? '차단 해제' : '차단',
+                                      style: TextStyle(
+                                        color: isBlocked ? Colors.grey : Colors.redAccent,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    icon: const Icon(Icons.flag_outlined, size: 18, color: Colors.grey),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () {
+                                      UgcActionSheets.showReportDialog(
+                                        context: context,
+                                        targetType: '사용자',
+                                        targetId: 'chat_user_$name',
+                                        targetUser: name,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                      );
+                    },
+                  ),
+                ),
+                
+                const Divider(height: 1),
+                
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.report_problem_outlined, size: 16, color: Colors.red),
+                          label: const Text('대화방 신고', style: TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.bold)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.redAccent),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            UgcActionSheets.showReportDialog(
+                              context: context,
+                              targetType: '채팅방',
+                              targetId: widget.chatRoomId,
+                              targetUser: '모임 대화방',
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.exit_to_app, size: 16, color: Colors.white),
+                          label: const Text('대화방 나가기', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black87,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showMessageActionSheet(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final text = msg['text'] ?? '';
+    final sender = (msg['sender'] ?? '상대방').toString();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.copy, color: Colors.black87),
+                title: const Text('메시지 내용 복사', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Clipboard.setData(ClipboardData(text: text));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('📋 메시지가 클립보드에 복사되었습니다.')),
+                  );
+                },
+              ),
+              if (!isMe) ...[
+                ListTile(
+                  leading: const Icon(Icons.flag_outlined, color: Colors.red),
+                  title: const Text('이 메시지 신고하기', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('부적절한 언어, 스팸, 혐오 표현 등', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    UgcActionSheets.showReportDialog(
+                      context: context,
+                      targetType: '채팅 메시지',
+                      targetId: msg['id'] ?? 'msg_${DateTime.now().millisecondsSinceEpoch}',
+                      targetUser: sender,
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.block, color: Colors.deepOrange),
+                  title: Text('$sender님 차단하기', style: const TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('이 사용자의 모든 메시지가 즉시 가려집니다', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    UgcActionSheets.showBlockConfirmDialog(
+                      context: context,
+                      userName: sender,
+                      onUserBlocked: () => setState(() {}),
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildTextMessage(Map<String, dynamic> msg) {
     final isMe = msg['isMe'] == true;
+    final sender = (msg['sender'] ?? '상대방').toString();
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMe) _buildAvatar(),
+          if (!isMe) _buildAvatar(name: sender),
           if (!isMe) const SizedBox(width: 8),
           if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
           if (isMe) const SizedBox(width: 4),
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isMe ? accentColor : Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
-                  bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
+            child: GestureDetector(
+              onLongPress: () => _showMessageActionSheet(msg),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isMe ? accentColor : Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(16),
+                    topRight: const Radius.circular(16),
+                    bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
+                    bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
+                  ),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
                 ),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
+                child: Text(msg['text'] ?? '', style: TextStyle(color: isMe ? Colors.white : textPrimary, fontSize: 15, height: 1.4)),
               ),
-              child: Text(msg['text'] ?? '', style: TextStyle(color: isMe ? Colors.white : textPrimary, fontSize: 15, height: 1.4)),
             ),
           ),
           if (!isMe) const SizedBox(width: 4),
@@ -1480,8 +1803,19 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-  Widget _buildAvatar() {
-    return const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg'));
+  Widget _buildAvatar({String? name}) {
+    return GestureDetector(
+      onTap: () {
+        if (name != null && name != globalData.userNickname.value && name != '우리동네민우') {
+          UgcActionSheets.showUserOptions(
+            context: context,
+            userName: name,
+            onUserBlocked: () => setState(() {}),
+          );
+        }
+      },
+      child: const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+    );
   }
 
   Widget _buildMessageInput() {
