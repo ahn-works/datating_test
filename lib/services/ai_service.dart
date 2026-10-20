@@ -294,6 +294,48 @@ class OomuAiService {
     return fallbackTopics;
   }
 
+  /// [OOMU P3] 장소/맛집 1분 상세 요약 구조체 반환
+  Map<String, dynamic> getSpotDetailedSummary(String locationName) {
+    if (locationName.contains('마라') || locationName.contains('홍대')) {
+      return {
+        'spotName': '서교동 마라토끼',
+        'summary': '홍대입구역 9번 출구 도보 3분 거리의 인기 맛집입니다.',
+        'parkingTip': '인근 서교프라자 민영주차장 도보 2분 (유료)',
+        'popularMenu': '진한 사골 육수 마라탕 & 바삭 쫄깃 꿔바로우',
+        'vibe': '활기차고 캐주얼한 분위기',
+        'tags': ['#홍대맛집', '#마라탕성지', '#웨이팅맛집'],
+      };
+    }
+    if (locationName.contains('카페') || locationName.contains('성수')) {
+      return {
+        'spotName': '성수동 감성 아틀리에 카페',
+        'summary': '성수역 3번 출구 카페거리 중심에 위치한 조용한 공간입니다.',
+        'parkingTip': '성수2가1동 공영주차장 도보 5분',
+        'popularMenu': '쫀득 버터바 & 피스타치오 크림 라떼',
+        'vibe': '대화 나누기 좋은 조용한 테라스 좌석',
+        'tags': ['#성수카페', '#감성공간', '#디저트맛집'],
+      };
+    }
+    if (locationName.contains('와인') || locationName.contains('연남')) {
+      return {
+        'spotName': '연남동 내추럴 와인바',
+        'summary': '홍대입구역 3번 출구 연남 미로길의 아늑한 와인바입니다.',
+        'parkingTip': '연남동 공영주차장 이용 권장 (주차공간 협소)',
+        'popularMenu': '부담 없는 글라스 와인 & 생치즈 플래터 페어링',
+        'vibe': '은은한 조명으로 첫 만남 대화 몰입도 최상',
+        'tags': ['#연남와인', '#분위기맛집', '#데이트스팟'],
+      };
+    }
+    return {
+      'spotName': locationName,
+      'summary': '$locationName 인근의 참여자 추천 인기 장소입니다.',
+      'parkingTip': '지하철역 및 대중교통 도보 이용 편리',
+      'popularMenu': '시그니처 대표 메뉴 및 계절 음료',
+      'vibe': '소모임 및 대화에 적합한 쾌적한 공간',
+      'tags': ['#추천스팟', '#동네모임', '#소소플레이스'],
+    };
+  }
+
   /// [OOMU P3] 장소/맛집 1분 핵심 요약 브리핑 정보 생성
   String getSpotQuickSummary(String locationName) {
     if (locationName.contains('마라') || locationName.contains('홍대')) {

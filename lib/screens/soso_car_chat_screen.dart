@@ -2291,7 +2291,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       spot = '성수 소소스팟 핫플레이스';
     }
 
-    final summary = oomuAi.getSpotQuickSummary(spot);
+    final summary = oomuAi.getSpotDetailedSummary(spot);
 
     _addMessage({
       'type': 'ai_spot_summary',

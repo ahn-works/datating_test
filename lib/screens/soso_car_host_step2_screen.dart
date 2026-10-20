@@ -77,7 +77,7 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
         'type': 'return',
         'time': '복귀',
         'title': '출발지로 복귀 및 해산',
-        'desc': '1/N 실비 자동 정산 완료',
+        'desc': '1/N 모임 실비 분담 완료',
         'lat': widget.meetingLat ?? 37.5638,
         'lng': widget.meetingLng ?? 126.9037,
       }

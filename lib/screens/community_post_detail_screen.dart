@@ -252,17 +252,19 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         const SizedBox(height: 16),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: SizedBox(
-                            width: double.infinity,
+                          child: ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 340),
-                            child: Image(
-                              image: appImg(image),
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
-                                height: 160,
-                                color: const Color(0xFFF2F2F5),
-                                alignment: Alignment.center,
-                                child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Image(
+                                image: appImg(image),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  height: 160,
+                                  color: const Color(0xFFF2F2F5),
+                                  alignment: Alignment.center,
+                                  child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                                ),
                               ),
                             ),
                           ),

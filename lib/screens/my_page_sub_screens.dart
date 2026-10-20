@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../utils/global_data.dart';
 
 class SimpleListScreen extends StatelessWidget {
