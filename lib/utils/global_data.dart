@@ -11,6 +11,14 @@ class GlobalData {
   final ValueNotifier<int> reviewCount = ValueNotifier<int>(24);
   final ValueNotifier<List<Map<String, dynamic>>> recentReviews = ValueNotifier<List<Map<String, dynamic>>>([]);
 
+  // 현재 활성 사용자 ID (기본값: admin_user)
+  final ValueNotifier<String> currentUserId = ValueNotifier<String>('admin_user');
+  String get activeUserId => currentUserId.value;
+
+  void switchUser(String uid) {
+    currentUserId.value = uid;
+  }
+
   // 사용자 프로필 및 위치
   final ValueNotifier<String> userAvatar = ValueNotifier<String>('assets/images/kr_female_1.jpg');
   final ValueNotifier<String> userLocation = ValueNotifier<String>('마포구 서교동');
@@ -91,7 +99,7 @@ class GlobalData {
 
       // Firestore 비동기 저장
       try {
-        FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
           'blockedUsers': FieldValue.arrayUnion([nickname]),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
@@ -109,7 +117,7 @@ class GlobalData {
 
       // Firestore 비동기 삭제
       try {
-        FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
           'blockedUsers': FieldValue.arrayRemove([nickname]),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
@@ -186,7 +194,7 @@ class GlobalData {
 
     // Firestore 비동기 동기화
     try {
-      FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+      FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
         'savedMeetupCount': list.length,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -196,7 +204,7 @@ class GlobalData {
   void updateAvatar(String newAvatar) {
     userAvatar.value = newAvatar;
     try {
-      FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+      FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
         'avatarUrl': newAvatar,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -206,7 +214,7 @@ class GlobalData {
   void updateLocation(String newLocation) {
     userLocation.value = newLocation;
     try {
-      FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+      FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
         'location': newLocation,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));

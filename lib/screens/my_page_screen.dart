@@ -80,7 +80,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         globalData.updateAvatar(finalAvatar);
 
         try {
-          await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+          await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
             'photoUrl': finalAvatar,
             'avatarUrl': finalAvatar,
             'updatedAt': FieldValue.serverTimestamp(),
@@ -252,7 +252,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           onTap: () async {
                             globalData.updateAvatar(item['path']!);
                             try {
-                              await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                              await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
                                 'photoUrl': item['path']!,
                                 'updatedAt': FieldValue.serverTimestamp(),
                               }, SetOptions(merge: true));
@@ -334,7 +334,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           if (url.isNotEmpty) {
                             globalData.updateAvatar(url);
                             try {
-                              await FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                              await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
                                 'photoUrl': url,
                                 'updatedAt': FieldValue.serverTimestamp(),
                               }, SetOptions(merge: true));
@@ -766,58 +766,121 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').doc('test_user_1').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator(color: accentColor));
-          }
+      body: ValueListenableBuilder<String>(
+        valueListenable: globalData.currentUserId,
+        builder: (context, activeUid, _) {
+          return StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection('users').doc(activeUid).snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator(color: accentColor));
+              }
 
-          String nickname = '매운맛킬러';
-          String location = '마포구 서교동';
-          String bio = '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
-          String jobAndMbti = 'IT/개발 • ENFP';
-          List<String> hobbies = ['맛집탐방', '코노'];
-          List<String> closeFriendPersonalities = [];
-          List<String> values = [];
-          List<String> personalities = ['리액션 요정', '친화력 갑'];
-          List<String> drinking = ['가볍게 한잔'];
+              String role = activeUid == 'admin_user' ? 'admin' : 'user';
+              String nickname = activeUid == 'admin_user' ? '오오무 운영팀' : (activeUid == 'test_user_2' ? '달리는민서' : '매운맛킬러');
+              String name = activeUid == 'admin_user' ? '총괄관리자' : (activeUid == 'test_user_2' ? '이지은' : '김민우');
+              int age = activeUid == 'admin_user' ? 29 : (activeUid == 'test_user_2' ? 25 : 27);
+              String gender = activeUid == 'test_user_1' ? '남성' : '여성';
+              String location = '서울 마포구 연남동';
+              String bio = '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
+              String job = activeUid == 'admin_user' ? '오오무 서비스 기획/운영' : 'IT/개발';
+              String mbti = activeUid == 'admin_user' ? 'ENFJ' : 'ENFP';
+              String jobAndMbti = '$job • $mbti';
+              List<String> hobbies = ['맛집탐방', '보드게임'];
+              List<String> closeFriendPersonalities = [];
+              List<String> values = [];
+              List<String> personalities = ['리액션 요정', '친화력 갑'];
+              List<String> drinking = ['가볍게 한잔'];
 
-          if (snapshot.hasData && snapshot.data!.exists) {
-            final data = snapshot.data!.data() as Map<String, dynamic>;
-            nickname = data['nickname'] ?? nickname;
-            location = data['location'] ?? location;
-            bio = data['bio'] ?? bio;
-            final job = data['job'] ?? 'IT/개발';
-            final mbti = data['mbti'] ?? 'ENFP';
-            jobAndMbti = '$job • $mbti';
-            if (data['hobbies'] != null) hobbies = List<String>.from(data['hobbies']);
-            if (data['personalities'] != null) personalities = List<String>.from(data['personalities']);
-            if (data['drinking'] != null) drinking = List<String>.from(data['drinking']);
-            if (data['closeFriendPersonalities'] != null) closeFriendPersonalities = List<String>.from(data['closeFriendPersonalities']);
-            if (data['values'] != null) values = List<String>.from(data['values']);
+              if (snapshot.hasData && snapshot.data!.exists) {
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+                role = data['role'] ?? role;
+                nickname = data['nickname'] ?? nickname;
+                name = data['name'] ?? name;
+                if (data['age'] != null) {
+                  age = data['age'] is int ? data['age'] : (int.tryParse(data['age'].toString()) ?? age);
+                }
+                gender = data['gender'] ?? gender;
+                location = data['location'] ?? location;
+                bio = data['bio'] ?? bio;
+                job = data['job'] ?? job;
+                mbti = data['mbti'] ?? mbti;
+                jobAndMbti = '${age > 0 ? '$age세 • ' : ''}${gender.isNotEmpty ? '$gender • ' : ''}$job • $mbti';
+                if (data['hobbies'] != null) hobbies = List<String>.from(data['hobbies']);
+                if (data['personalities'] != null) personalities = List<String>.from(data['personalities']);
+                if (data['drinking'] != null) drinking = List<String>.from(data['drinking']);
+                if (data['closeFriendPersonalities'] != null) closeFriendPersonalities = List<String>.from(data['closeFriendPersonalities']);
+                if (data['values'] != null) values = List<String>.from(data['values']);
 
-            final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
-            if (loadedAvatar != null && loadedAvatar.isNotEmpty && globalData.userAvatar.value != loadedAvatar) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) globalData.userAvatar.value = loadedAvatar;
-              });
-            }
-            if (globalData.userNickname.value != nickname) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) globalData.userNickname.value = nickname;
-              });
-            }
-            if (globalData.userLocation.value != location) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) globalData.userLocation.value = location;
-              });
-            }
-          }
+                final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
+                if (loadedAvatar != null && loadedAvatar.isNotEmpty && globalData.userAvatar.value != loadedAvatar) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) globalData.userAvatar.value = loadedAvatar;
+                  });
+                }
+                if (globalData.userNickname.value != nickname) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) globalData.userNickname.value = nickname;
+                  });
+                }
+                if (globalData.userLocation.value != location) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) globalData.userLocation.value = location;
+                  });
+                }
+              } else {
+                jobAndMbti = '${age > 0 ? '$age세 • ' : ''}${gender.isNotEmpty ? '$gender • ' : ''}$job • $mbti';
+              }
 
-          return ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
+              return ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  // 계정 전환 바 (관리자 / 테스트 모드 즉시 스위칭)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF7F7FA),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE5E5EA)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.switch_account_outlined, size: 20, color: Color(0xFF8E8E93)),
+                        const SizedBox(width: 8),
+                        Text('계정 모드: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textSecondary)),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                _buildAccountBadge(
+                                  context: context,
+                                  uid: 'admin_user',
+                                  label: '👑 관리자 (운영팀)',
+                                  isSelected: activeUid == 'admin_user',
+                                ),
+                                const SizedBox(width: 8),
+                                _buildAccountBadge(
+                                  context: context,
+                                  uid: 'test_user_1',
+                                  label: '👤 김민우 (호스트)',
+                                  isSelected: activeUid == 'test_user_1',
+                                ),
+                                const SizedBox(width: 8),
+                                _buildAccountBadge(
+                                  context: context,
+                                  uid: 'test_user_2',
+                                  label: '🌸 이지은 (참가자)',
+                                  isSelected: activeUid == 'test_user_2',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               // User Profile Card (Rich Style)
               Container(
                 padding: const EdgeInsets.all(24),
@@ -871,7 +934,19 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary)),
+                                    Flexible(
+                                      child: Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary), overflow: TextOverflow.ellipsis),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    if (role == 'admin')
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Text('👑 총괄 관리자', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                                      ),
                                     const SizedBox(width: 4),
                                     const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFC7C7CC)),
                                   ],
@@ -1178,8 +1253,10 @@ class _MyPageScreenState extends State<MyPageScreen> {
             ],
           );
         },
-      ),
-      bottomNavigationBar: widget.isEmbedded ? null : _buildBottomNav(context),
+      );
+    },
+  ),
+  bottomNavigationBar: widget.isEmbedded ? null : _buildBottomNav(context),
     );
   }
 
@@ -1492,6 +1569,46 @@ class _MyPageScreenState extends State<MyPageScreen> {
           label: 'MY',
         ),
       ],
+    );
+  }
+
+  Widget _buildAccountBadge({
+    required BuildContext context,
+    required String uid,
+    required String label,
+    required bool isSelected,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        globalData.switchUser(uid);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🔄 [$label] 계정으로 전환되었습니다.'),
+            duration: const Duration(seconds: 1),
+            backgroundColor: isSelected ? coralAccent : const Color(0xFF111111),
+          ),
+        );
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? coralAccent : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? coralAccent : const Color(0xFFD1D1D6)),
+          boxShadow: isSelected
+              ? [BoxShadow(color: coralAccent.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]
+              : [],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : const Color(0xFF333333),
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ),
     );
   }
 }

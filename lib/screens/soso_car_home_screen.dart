@@ -432,7 +432,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 });
                                 globalData.updateLocation(detected);
                                 try {
-                                  FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                                  FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
                                     'location': detected,
                                     'updatedAt': FieldValue.serverTimestamp(),
                                   }, SetOptions(merge: true));
@@ -580,7 +580,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                     setState(() => _currentLocation = dong);
                                     globalData.updateLocation(dong);
                                     try {
-                                      FirebaseFirestore.instance.collection('users').doc('test_user_1').set({
+                                      FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
                                         'location': dong,
                                         'updatedAt': FieldValue.serverTimestamp(),
                                       }, SetOptions(merge: true));
