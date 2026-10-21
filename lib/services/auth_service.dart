@@ -266,6 +266,7 @@ class AuthService {
         'avatarUrl': isAdminEmail ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg',
         'mannerTemp': isAdminEmail ? 48.5 : 36.5,
         'isVerified': isAdminEmail,
+        'isProfileComplete': isAdminEmail,
         'provider': provider,
         'isGuest': isGuest,
         if (extraData != null) ...extraData,
@@ -281,6 +282,80 @@ class AuthService {
       if (data['nickname'] != null) globalData.userNickname.value = data['nickname'];
       if (data['location'] != null) globalData.userLocation.value = data['location'];
       if (data['photoUrl'] != null) globalData.userAvatar.value = data['photoUrl'];
+    }
+  }
+
+  /// 사용자가 초기 프로필 설정을 완료했는지 검사
+  Future<bool> isUserProfileComplete([String? targetUid]) async {
+    final uid = targetUid ?? currentUser?.uid;
+    if (uid == null) return false;
+    if (isAdmin) return true;
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (!doc.exists) return false;
+      final data = doc.data()!;
+      if (data['role'] == 'admin') return true;
+      return data['isProfileComplete'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 신규 회원 프로필 등록 및 마이페이지 동기화
+  Future<void> updateUserProfile({
+    String? targetUid,
+    required String nickname,
+    required String gender,
+    required String birthDate,
+    required String phone,
+    required String location,
+    String? detailAddress,
+    required String job,
+    required String mbti,
+    required List<String> hobbies,
+    required String bio,
+    required List<String> photoUrls,
+  }) async {
+    final uid = targetUid ?? currentUser?.uid ?? globalData.activeUserId;
+    int calculatedAge = 25;
+    try {
+      final yearDigits = birthDate.replaceAll(RegExp(r'[^0-9]'), '');
+      if (yearDigits.length >= 4) {
+        final birthYear = int.tryParse(yearDigits.substring(0, 4)) ?? 1999;
+        calculatedAge = DateTime.now().year - birthYear + 1;
+      }
+    } catch (_) {}
+
+    final Map<String, dynamic> updateData = {
+      'nickname': nickname,
+      'name': nickname,
+      'gender': gender,
+      'birthDate': birthDate,
+      'age': calculatedAge,
+      'phone': phone,
+      'isPhoneVerified': true,
+      'location': location,
+      'address': location,
+      if (detailAddress != null && detailAddress.isNotEmpty) 'detailAddress': detailAddress,
+      'job': job,
+      'mbti': mbti,
+      'hobbies': hobbies,
+      'bio': bio,
+      'photoUrls': photoUrls,
+      if (photoUrls.isNotEmpty) 'photoUrl': photoUrls.first,
+      if (photoUrls.isNotEmpty) 'avatarUrl': photoUrls.first,
+      'isProfileComplete': true,
+      'isVerified': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    await _firestore.collection('users').doc(uid).set(updateData, SetOptions(merge: true));
+
+    // 글로벌 상태 즉시 동기화
+    globalData.userNickname.value = nickname;
+    globalData.userLocation.value = location;
+    if (photoUrls.isNotEmpty) {
+      globalData.userAvatar.value = photoUrls.first;
     }
   }
 }

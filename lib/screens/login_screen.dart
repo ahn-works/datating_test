@@ -1,3 +1,4 @@
+import 'profile_setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'soso_car_home_screen.dart';
@@ -79,13 +80,32 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted) setState(() => _isLoading = false);
   }
 
-  void _navigateHome() {
+    Future<void> _navigateHome() async {
     _hideLoading();
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const OOMUHomeScreen()),
-    );
+
+    try {
+      final user = authService.currentUser;
+      if (user != null && !authService.isAdmin) {
+        final isComplete = await authService.isUserProfileComplete(user.uid);
+        if (!isComplete && mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileSetupScreen()),
+          );
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('[LoginScreen] Check profile complete fallback: $e');
+    }
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const OOMUHomeScreen()),
+      );
+    }
   }
 
   // 1. 카카오 로그인 (공식 OAuth 화면 열기 + 내 실제 카카오 계정 연동)

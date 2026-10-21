@@ -1,3 +1,4 @@
+import 'profile_setup_screen.dart';
 import 'login_screen.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -858,7 +859,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
               return ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  // 계정 전환 바 (관리자 / 테스트 모드 즉시 스위칭)
+                  // 계정 전환 바 (총괄 관리자 및 관리자 권한만 표시)
+                  if (authService.isAdmin || role == 'admin' || activeUid == 'admin_user')
                   Container(
                     margin: const EdgeInsets.only(bottom: 20),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -951,7 +953,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         Expanded(
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -995,9 +997,53 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    // 3~4장 등록된 프로필 사진 갤러리 스트립 (위피·글램 스타일)
+                    if (data != null && data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 94,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: (data['photoUrls'] as List).length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (ctx, idx) {
+                            final pUrl = (data['photoUrls'] as List)[idx].toString();
+                            return GestureDetector(
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Stack(
+                                  children: [
+                                    Image(
+                                      image: appImg(pUrl),
+                                      width: 76,
+                                      height: 94,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    if (idx == 0)
+                                      Positioned(
+                                        top: 6,
+                                        left: 6,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: accentColor,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: const Text('대표', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
