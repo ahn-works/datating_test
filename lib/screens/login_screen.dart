@@ -352,7 +352,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 14),
 
-                  // 4. 하단 텍스트 링크 (이미 계정이 있나요? 로그인 & 관리자 빠른 접속)
+                  // 4. 하단 텍스트 링크 (이미 계정이 있나요? 로그인)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -368,32 +368,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontSize: 13.5,
                             fontWeight: FontWeight.bold,
                             color: brandCoral,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(width: 1, height: 12, color: const Color(0xFFE5E5EA)),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: _isLoading ? null : _handleAdminDirectLogin,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E1E24),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Row(
-                            children: [
-                              Text('👑 ', style: TextStyle(fontSize: 11)),
-                              Text(
-                                '관리자 접속',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                       ),
@@ -537,11 +511,6 @@ class _EmailAuthSheetState extends State<_EmailAuthSheet> {
                       color: _isSignUp ? brandCoral : const Color(0xFF8E8E93),
                     ),
                   ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: _fillAdminAccount,
-                  child: const Text('관리자 자동입력', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93))),
                 ),
               ],
             ),
