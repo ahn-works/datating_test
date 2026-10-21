@@ -863,82 +863,98 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary)),
-                                  const SizedBox(width: 4),
-                                  IconButton(
-                                    constraints: const BoxConstraints(),
-                                    padding: EdgeInsets.zero,
-                                    icon: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFC7C7CC)),
-                                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(jobAndMbti, style: TextStyle(color: accentColor, fontSize: 14, fontWeight: FontWeight.w700)),
-                              const SizedBox(height: 4),
-                              ValueListenableBuilder<String>(
-                                valueListenable: globalData.userLocation,
-                                builder: (context, loc, _) {
-                                  return Row(
-                                    children: [
-                                      Icon(Icons.location_on, size: 13, color: textSecondary),
-                                      const SizedBox(width: 2),
-                                      Text(loc.isNotEmpty ? loc : location, style: TextStyle(color: textSecondary, fontSize: 13)),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary)),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFC7C7CC)),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(jobAndMbti, style: TextStyle(color: accentColor, fontSize: 14, fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 4),
+                                ValueListenableBuilder<String>(
+                                  valueListenable: globalData.userLocation,
+                                  builder: (context, loc, _) {
+                                    return Row(
+                                      children: [
+                                        Icon(Icons.location_on, size: 13, color: textSecondary),
+                                        const SizedBox(width: 2),
+                                        Text(loc.isNotEmpty ? loc : location, style: TextStyle(color: textSecondary, fontSize: 13)),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(16)),
-                      child: Text('"$bio"', style: TextStyle(fontSize: 14, color: textSecondary, fontStyle: FontStyle.italic)),
+                    GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: surfaceColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFEFE4E6)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text('"$bio"', style: TextStyle(fontSize: 14, color: textSecondary, fontStyle: FontStyle.italic)),
+                            ),
+                            Icon(Icons.edit_outlined, size: 14, color: coralAccent.withOpacity(0.7)),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Container(height: 1, color: const Color(0xFFEBEBEF)),
                     const SizedBox(height: 20),
-                    // Freemium Banner
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 24),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF333333), Color(0xFF111111)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 5))],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('OOMU Plus', style: TextStyle(color: Color(0xFFF19E39), fontWeight: FontWeight.w900, fontSize: 18, fontStyle: FontStyle.italic)),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                                child: const Text('무료 체험하기', style: TextStyle(color: Color(0xFFF19E39), fontSize: 12, fontWeight: FontWeight.bold)),
-                              )
-                            ],
+                    // Freemium Banner (Interactive)
+                    GestureDetector(
+                      onTap: () => _showOomuPlusModal(context),
+                      child: Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 24),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF333333), Color(0xFF111111)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          const SizedBox(height: 12),
-                          const Text('시크릿 프로필 열람 및 프리미엄 필터로 나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-                        ],
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 5))],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('OOMU Plus', style: TextStyle(color: Color(0xFFF19E39), fontWeight: FontWeight.w900, fontSize: 18, fontStyle: FontStyle.italic)),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                                  child: const Text('무료 체험하기', style: TextStyle(color: Color(0xFFF19E39), fontSize: 12, fontWeight: FontWeight.bold)),
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            const Text('시크릿 프로필 열람 및 프리미엄 필터로 나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
+                          ],
+                        ),
                       ),
                     ),
                     Row(
@@ -962,12 +978,74 @@ class _MyPageScreenState extends State<MyPageScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Lifestyle Tags
-              Text('성향 및 라이프스타일', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-              const SizedBox(height: 16),
-              _buildInfoRow('성격', personalities, surfaceColor, textPrimary),
-              const SizedBox(height: 12),
-              _buildInfoRow('음주', drinking, surfaceColor, textPrimary),
+              // 성향 및 라이프스타일 (OOMU 로즈 코랄 카드 스타일)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFF1E6E8), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: coralAccent.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF0F2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.auto_awesome, color: coralAccent, size: 16),
+                            ),
+                            const SizedBox(width: 8),
+                            Text('성향 및 라이프스타일', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+                          ],
+                        ),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF0F2),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFF8C6CD)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined, size: 13, color: coralAccent),
+                                const SizedBox(width: 4),
+                                Text('수정', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    _buildLifestyleRow('성격', '✨', personalities, coralAccent, textPrimary),
+                    if (drinking.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      const Divider(height: 1, color: Color(0xFFF6ECEE)),
+                      const SizedBox(height: 14),
+                      _buildLifestyleRow('음주', '🍷', drinking, const Color(0xFF8B5CF6), textPrimary),
+                    ],
+                  ],
+                ),
+              ),
               const SizedBox(height: 32),
 
               if (hobbies.isNotEmpty) ...[
@@ -1072,14 +1150,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 textPrimary: textPrimary,
                 onTap: _showCustomerCenterModal,
               ),
-              _buildInteractiveMenuItem(
-                icon: Icons.cloud_done_outlined,
-                iconColor: const Color(0xFFF38020),
-                title: 'Cloudflare R2 스토리지 설정',
-                badge: '안전 보관',
-                textPrimary: textPrimary,
-                onTap: _showR2SettingsBottomSheet,
-              ),
+
               _buildInteractiveMenuItem(
                 icon: Icons.block,
                 iconColor: const Color(0xFFE11D48),
@@ -1112,6 +1183,55 @@ class _MyPageScreenState extends State<MyPageScreen> {
     );
   }
 
+  Widget _buildLifestyleRow(String label, String emoji, List<String> tags, Color accent, Color textPrimary) {
+    if (tags.isEmpty) return const SizedBox.shrink();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 66,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          decoration: BoxDecoration(
+            color: accent.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 12)),
+              const SizedBox(width: 3),
+              Text(label, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: accent)),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags.map((t) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF5F6),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFF9CCD4), width: 1.1),
+              ),
+              child: Text(
+                '# $t',
+                style: const TextStyle(
+                  color: Color(0xFFE11D48),
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            )).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildInfoRow(String title, List<String> tags, Color surfaceColor, Color textPrimary) {
     if (tags.isEmpty) return const SizedBox.shrink();
     return Row(
@@ -1133,22 +1253,154 @@ class _MyPageScreenState extends State<MyPageScreen> {
     );
   }
 
-  Widget _buildBadge(String emoji, String title, String subtitle, Color textPrimary) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F7),
-        borderRadius: BorderRadius.circular(20),
+  void _showOomuPlusModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.65,
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 30),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFF333333), Color(0xFF111111)]),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.star, color: Color(0xFFF19E39), size: 36),
+                  SizedBox(width: 14),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('OOMU Plus 멤버십', style: TextStyle(color: Color(0xFFF19E39), fontWeight: FontWeight.w900, fontSize: 18, fontStyle: FontStyle.italic)),
+                      SizedBox(height: 4),
+                      Text('나만의 특별한 동네 라이프스타일', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                children: const [
+                  ListTile(
+                    leading: Icon(Icons.visibility_outlined, color: Color(0xFFF25767)),
+                    title: Text('시크릿 프로필 무제한 열람', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text('내 프로필을 열람한 사람을 실시간 확인', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.favorite, color: Color(0xFFF25767)),
+                    title: Text('매일 슈퍼라이크 5개 증정', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text('더 빠르고 확실한 1:1 취향 매칭', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.bolt, color: Color(0xFFF19E39)),
+                    title: Text('실시간 번개 우선 노출', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text('내가 주최한 번개 모임이 동네 상단에 고정', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: coralAccent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('🎉 OOMU Plus 7일 무료 체험이 활성화되었습니다!')),
+                  );
+                },
+                child: const Text('7일 무료 체험 시작하기', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 28)),
-          const SizedBox(height: 8),
-          Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
-          const SizedBox(height: 2),
-          Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF767676))),
-        ],
+    );
+  }
+
+  void _showBadgeDetailModal(String title, String subtitle, String emoji) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 24),
+            Text(emoji, style: const TextStyle(fontSize: 52)),
+            const SizedBox(height: 12),
+            Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: textPrimary)),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(color: const Color(0xFFFFF0F2), borderRadius: BorderRadius.circular(12)),
+              child: Text(subtitle, style: TextStyle(color: coralAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 16),
+            Text('활동 조건을 충족하여 인증된 공식 배지입니다.\n모임 참여자들에게 프로필 배지로 노출됩니다.', textAlign: TextAlign.center, style: TextStyle(color: textSecondary, fontSize: 13, height: 1.4)),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF221B1D),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('확인', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(String emoji, String title, String subtitle, Color textPrimary) {
+    return GestureDetector(
+      onTap: () => _showBadgeDetailModal(title, subtitle, emoji),
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F5F6),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFECE4E6)),
+        ),
+        child: Column(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 8),
+            Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
+            const SizedBox(height: 2),
+            Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF767676))),
+          ],
+        ),
       ),
     );
   }

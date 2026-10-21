@@ -20,6 +20,26 @@ class OOMUChatStore extends ChangeNotifier {
 
   final Map<String, List<Map<String, dynamic>>> _messagesByRoom = {};
   final Map<String, Map<String, dynamic>> _roomMetadata = {};
+  final Set<String> _leftRoomIds = {};
+
+  bool isRoomLeft(String roomId) {
+    return _leftRoomIds.contains(canonicalRoomId(roomId));
+  }
+
+  void leaveRoom(String roomId) {
+    final cId = canonicalRoomId(roomId);
+    _leftRoomIds.add(cId);
+    final list = _messagesByRoom[cId];
+    if (list != null) {
+      list.add({
+        'id': 'msg_sys_left_${DateTime.now().millisecondsSinceEpoch}',
+        'type': 'system',
+        'text': '대화방을 나갔습니다.',
+        'time': '방금',
+      });
+    }
+    notifyListeners();
+  }
 
   /// 더미 모임 ID와 채팅방 ID 간의 양방향 정규화 매퍼
   String canonicalRoomId(String id) {
@@ -1726,13 +1746,56 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                           icon: const Icon(Icons.exit_to_app, size: 16, color: Colors.white),
                           label: const Text('대화방 나가기', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black87,
+                            backgroundColor: const Color(0xFFE11D48),
+                            elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           onPressed: () {
-                            Navigator.pop(ctx);
-                            Navigator.pop(context);
+                            showDialog(
+                              context: context,
+                              builder: (dialogCtx) => AlertDialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                title: const Row(
+                                  children: [
+                                    Icon(Icons.exit_to_app, color: Color(0xFFE11D48)),
+                                    SizedBox(width: 8),
+                                    Text('대화방 나가기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                                  ],
+                                ),
+                                content: Text(
+                                  '\'${widget.title}\' 대화방을 나가시겠습니까?\n\n대화방을 나가면 채팅 목록에서 삭제되며 대화 내용과 참여 내역이 모두 초기화됩니다.',
+                                  style: const TextStyle(fontSize: 14, color: Color(0xFF635559), height: 1.5),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(dialogCtx),
+                                    child: const Text('취소', style: TextStyle(color: Color(0xFF767676), fontWeight: FontWeight.w600)),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFE11D48),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      elevation: 0,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(dialogCtx);
+                                      Navigator.pop(ctx);
+                                      oomuChatStore.leaveRoom(widget.chatRoomId);
+                                      Navigator.pop(context, true);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('\'${widget.title}\' 대화방을 나갔습니다.'),
+                                          backgroundColor: const Color(0xFF221B1D),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('나가기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                         ),
                       ),

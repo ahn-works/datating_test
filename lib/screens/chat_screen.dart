@@ -168,8 +168,8 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
 
-    // 4. 최신 메시지 발송 시간 기준 내림차순(최신순) 정렬 -> 최신 메시지 대화방이 항상 맨 위(0번 인덱스)로 이동
-    final list = map.values.toList();
+    // 4. 최신 메시지 발송 시간 기준 내림차순(최신순) 정렬 (나간 방 제외)
+    final list = map.values.where((r) => !oomuChatStore.isRoomLeft(r['id']?.toString() ?? '')).toList();
     list.sort((a, b) {
       final aDate = a['updatedAt'] as DateTime?;
       final bDate = b['updatedAt'] as DateTime?;
@@ -244,6 +244,94 @@ class _ChatScreenState extends State<ChatScreen> {
                   ).then((_) {
                     if (mounted) setState(() {});
                   });
+                },
+                onLongPress: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (sheetCtx) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: appImg(room['imageUrl'] ?? 'assets/images/cover_food.jpg'),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(room['title'] ?? '대화방', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(Icons.notifications_off_outlined, color: Color(0xFF767676)),
+                            title: const Text('채팅방 알림 끄기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                            onTap: () {
+                              Navigator.pop(sheetCtx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('채팅방 알림이 꺼졌습니다.')),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.exit_to_app, color: Color(0xFFE11D48)),
+                            title: const Text('대화방 나가기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFE11D48))),
+                            onTap: () {
+                              Navigator.pop(sheetCtx);
+                              showDialog(
+                                context: context,
+                                builder: (dialogCtx) => AlertDialog(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  title: const Row(
+                                    children: [
+                                      Icon(Icons.exit_to_app, color: Color(0xFFE11D48)),
+                                      SizedBox(width: 8),
+                                      Text('대화방 나가기', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  content: Text('\'${room['title']}\' 대화방을 나가시겠습니까?\n나가기를 하면 목록에서 즉시 삭제됩니다.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(dialogCtx),
+                                      child: const Text('취소', style: TextStyle(color: Color(0xFF767676))),
+                                    ),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFE11D48),
+                                        elevation: 0,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(dialogCtx);
+                                        oomuChatStore.leaveRoom(room['id'] ?? '');
+                                        setState(() {});
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('\'${room['title']}\' 대화방을 나갔습니다.'),
+                                            backgroundColor: const Color(0xFF221B1D),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('나가기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(16),
