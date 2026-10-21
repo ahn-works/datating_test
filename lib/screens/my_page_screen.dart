@@ -807,6 +807,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
               List<String> values = [];
               List<String> personalities = ['리액션 요정', '친화력 갑'];
               List<String> drinking = ['가볍게 한잔'];
+              List<String> userPhotos = [];
 
               try {
                 if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
@@ -830,6 +831,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     drinking = _parseSafeList(data['drinking'], drinking);
                     closeFriendPersonalities = _parseSafeList(data['closeFriendPersonalities'], closeFriendPersonalities);
                     values = _parseSafeList(data['values'], values);
+                    if (data['photoUrls'] is List) {
+                      userPhotos = List<String>.from((data['photoUrls'] as List).map((e) => e.toString()));
+                    } else if (data['photoUrl'] != null && data['photoUrl'].toString().isNotEmpty) {
+                      userPhotos = [data['photoUrl'].toString()];
+                    }
 
                     final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
                     if (loadedAvatar != null && loadedAvatar.isNotEmpty && globalData.userAvatar.value != loadedAvatar) {
@@ -998,16 +1004,16 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       ],
                     ),
                     // 3~4장 등록된 프로필 사진 갤러리 스트립 (위피·글램 스타일)
-                    if (data != null && data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) ...[
+                    if (userPhotos.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       SizedBox(
                         height: 94,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          itemCount: (data['photoUrls'] as List).length,
+                          itemCount: userPhotos.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (ctx, idx) {
-                            final pUrl = (data['photoUrls'] as List)[idx].toString();
+                            final pUrl = userPhotos[idx];
                             return GestureDetector(
                               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
                               child: ClipRRect(
