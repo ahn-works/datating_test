@@ -4095,19 +4095,19 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         });
       },
       items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.home_outlined, size: 24),
-          activeIcon: Icon(Icons.home, size: 24, color: coralAccent),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined, size: 24),
+          activeIcon: Icon(Icons.home, size: 24),
           label: '동네모임',
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.group_outlined, size: 24),
-          activeIcon: Icon(Icons.group, size: 24, color: coralAccent),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.group_outlined, size: 24),
+          activeIcon: Icon(Icons.group, size: 24),
           label: '커뮤니티',
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.favorite_border, size: 24),
-          activeIcon: Icon(Icons.favorite, size: 24, color: coralAccent),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_border, size: 24),
+          activeIcon: Icon(Icons.favorite, size: 24),
           label: '소개팅',
         ),
         BottomNavigationBarItem(
@@ -4129,7 +4129,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           activeIcon: Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(Icons.chat_bubble, size: 23, color: coralAccent),
+              const Icon(Icons.chat_bubble, size: 23),
               Positioned(
                 right: -6,
                 top: -4,
@@ -4143,9 +4143,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
           label: '채팅',
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person_outline, size: 24),
-          activeIcon: Icon(Icons.person, size: 24, color: coralAccent),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline, size: 24),
+          activeIcon: Icon(Icons.person, size: 24),
           label: 'MY',
         ),
       ],
