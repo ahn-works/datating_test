@@ -2163,26 +2163,68 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
     final List<String> simpleTopics = ['전체', '☕ 일상·수다', '🎭 공연·핫플', '🍰 맛집·카페', '❓ 동네질문'];
 
-    final blocked = globalData.blockedUsers.value;
-    final hiddenPosts = globalData.hiddenPostIds.value;
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('community_posts').snapshots(),
+      builder: (context, snapshot) {
+        final Map<String, Map<String, dynamic>> postMap = {};
 
-    final filteredPosts = _communityPosts.where((post) {
-      final author = post['author'] ?? '';
-      final postId = post['id'] ?? post['title'] ?? '';
-      if (blocked.contains(author)) return false;
-      if (hiddenPosts.contains(postId)) return false;
+        // 1. Initial 3-persona and preset posts
+        for (var p in _communityPosts) {
+          final pid = p['id']?.toString() ?? '';
+          postMap[pid] = Map<String, dynamic>.from(p);
+        }
 
-      if (_communityCategoryFilter != '전체') {
-        if (_communityCategoryFilter == '☕ 일상·수다' && post['category'] != '동네 토크' && post['category'] != '일상') return false;
-        if (_communityCategoryFilter == '🎭 공연·핫플' && post['category'] != '공연/전시' && post['category'] != '공연') return false;
-        if (_communityCategoryFilter == '🍰 맛집·카페' && post['category'] != '맛집/카페' && post['category'] != '맛집') return false;
-        if (_communityCategoryFilter == '❓ 동네질문' && post['category'] != '질문/추천' && post['category'] != '질문') return false;
-      }
-      if (_communityKeywordFilter != null && post['tag'] != _communityKeywordFilter!.replaceAll('#', '')) {
-        return false;
-      }
-      return true;
-    }).toList();
+        // 2. Real-time Firestore posts overlay & new user posts
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          for (var doc in snapshot.data!.docs) {
+            final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+            final pid = data['id']?.toString() ?? doc.id;
+            data['id'] = pid;
+
+            final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
+            data['isLiked'] = likedUsers.contains('user_me_01');
+            data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
+
+            if (postMap.containsKey(pid)) {
+              postMap[pid]!.addAll(data);
+            } else {
+              postMap[pid] = data;
+            }
+          }
+        }
+
+        final allPosts = postMap.values.toList();
+        allPosts.sort((a, b) {
+          final aTime = a['createdAt'];
+          final bTime = b['createdAt'];
+          if (aTime is Timestamp && bTime is Timestamp) {
+            return bTime.compareTo(aTime);
+          }
+          if (aTime is Timestamp) return -1;
+          if (bTime is Timestamp) return 1;
+          return 0;
+        });
+
+        final blocked = globalData.blockedUsers.value;
+        final hiddenPosts = globalData.hiddenPostIds.value;
+
+        final filteredPosts = allPosts.where((post) {
+          final author = post['author'] ?? '';
+          final postId = post['id'] ?? post['title'] ?? '';
+          if (blocked.contains(author)) return false;
+          if (hiddenPosts.contains(postId)) return false;
+
+          if (_communityCategoryFilter != '전체') {
+            if (_communityCategoryFilter == '☕ 일상·수다' && post['category'] != '동네 토크' && post['category'] != '일상') return false;
+            if (_communityCategoryFilter == '🎭 공연·핫플' && post['category'] != '공연/전시' && post['category'] != '공연') return false;
+            if (_communityCategoryFilter == '🍰 맛집·카페' && post['category'] != '맛집/카페' && post['category'] != '맛집') return false;
+            if (_communityCategoryFilter == '❓ 동네질문' && post['category'] != '질문/추천' && post['category'] != '질문') return false;
+          }
+          if (_communityKeywordFilter != null && post['tag'] != _communityKeywordFilter!.replaceAll('#', '')) {
+            return false;
+          }
+          return true;
+        }).toList();
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 60),
@@ -2336,6 +2378,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             },
           ),
       ],
+    );
+      },
     );
   }
 

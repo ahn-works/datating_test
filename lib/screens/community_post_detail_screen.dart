@@ -29,57 +29,61 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   late List<Map<String, dynamic>> _comments;
 
+  static final List<Map<String, dynamic>> _initialDummyComments = [
+    {
+      'id': 'comm_01',
+      'author': '공연러버',
+      'authorAvatar': 'assets/images/kr_female_2.jpg',
+      'content': '저도 1차 티켓팅 성공해서 갑니다! 후기 보니까 8열 시야 진짜 기대되네요 ㅎㅎ',
+      'time': '10분 전',
+      'likes': 3,
+      'likedUserIds': ['dummy_u1', 'dummy_u2', 'dummy_u3'],
+    },
+    {
+      'id': 'comm_02',
+      'author': '성수동산책러',
+      'authorAvatar': 'assets/images/kr_male_1.jpg',
+      'content': '혹시 캐스팅 누구 회차로 예매하셨나요? 이번 시즌 전원 레전드라 고민되네요!',
+      'time': '25분 전',
+      'likes': 2,
+      'likedUserIds': ['dummy_u4', 'dummy_u5'],
+    },
+    {
+      'id': 'comm_03',
+      'author': '달콤빵순이',
+      'authorAvatar': 'assets/images/kr_female_3.jpg',
+      'content': '공연 끝나고 근처 감성 카페에서 극 얘기 나누는 모임 열어주시면 무조건 참석할게요!',
+      'time': '1시간 전',
+      'likes': 5,
+      'likedUserIds': ['dummy_u1', 'dummy_u2', 'dummy_u6', 'dummy_u7', 'dummy_u8'],
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
     _isLiked = widget.post['isLiked'] ?? false;
     _likeCount = widget.post['likes'] ?? 0;
 
-    // Initial realistic dummy comments
-    _comments = [
-      {
-        'id': 'comm_01',
-        'author': '공연러버',
-        'authorAvatar': 'assets/images/kr_female_2.jpg',
-        'content': '저도 1차 티켓팅 성공해서 갑니다! 후기 보니까 8열 시야 진짜 기대되네요 ㅎㅎ',
-        'time': '10분 전',
-        'likes': 3,
-        'isLiked': false,
-      },
-      {
-        'id': 'comm_02',
-        'author': '성수동산책러',
-        'authorAvatar': 'assets/images/kr_male_1.jpg',
-        'content': '혹시 캐스팅 누구 회차로 예매하셨나요? 이번 시즌 전원 레전드라 고민되네요!',
-        'time': '25분 전',
-        'likes': 2,
-        'isLiked': false,
-      },
-      {
-        'id': 'comm_03',
-        'author': '달콤빵순이',
-        'authorAvatar': 'assets/images/kr_female_3.jpg',
-        'content': '공연 끝나고 근처 감성 카페에서 극 얘기 나누는 모임 열어주시면 무조건 참석할게요!',
-        'time': '1시간 전',
-        'likes': 5,
-        'isLiked': false,
-      },
-    ];
+    _comments = List<Map<String, dynamic>>.from(_initialDummyComments);
   }
 
-  void _addComment() {
+  Future<void> _addComment() async {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
 
     final myNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final myAvatar = globalData.userAvatar.value.isNotEmpty ? globalData.userAvatar.value : 'assets/images/kr_male_1.jpg';
+    final postId = widget.post['id']?.toString() ?? 'post_01';
+
     final newComm = {
-      'id': 'comm_${DateTime.now().millisecondsSinceEpoch}',
       'author': myNick,
-      'authorAvatar': 'assets/images/kr_male_1.jpg',
+      'authorAvatar': myAvatar,
       'content': text,
       'time': '방금 전',
       'likes': 0,
-      'isLiked': false,
+      'likedUserIds': <String>[],
+      'createdAt': FieldValue.serverTimestamp(),
     };
 
     setState(() {
@@ -87,33 +91,78 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       widget.post['comments'] = _comments.length;
     });
 
-    final postId = widget.post['id']?.toString();
-    if (postId != null && postId.isNotEmpty) {
-      try {
-        FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(postId)
-            .collection('comments')
-            .add({
-          'author': myNick,
-          'authorAvatar': 'assets/images/kr_male_1.jpg',
-          'content': text,
-          'time': '방금 전',
-          'createdAt': FieldValue.serverTimestamp(),
-          'likes': 0,
-        });
-        FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(postId)
-            .set({
-          'comments': _comments.length,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (_) {}
-    }
-
     _commentController.clear();
     FocusScope.of(context).unfocus();
+
+    try {
+      // 1. Ensure the parent post doc exists in Firestore
+      await FirebaseFirestore.instance.collection('community_posts').doc(postId).set({
+        'id': postId,
+        'title': widget.post['title'] ?? '동네 소식',
+        'content': widget.post['content'] ?? '',
+        'author': widget.post['author'] ?? '동네주민',
+        'authorAvatar': widget.post['authorAvatar'] ?? myAvatar,
+        'location': widget.post['location'] ?? '마포구 서교동',
+        'category': widget.post['category'] ?? '동네 토크',
+        'tag': widget.post['tag'] ?? '일상',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 2. If this post's comments subcollection is empty, seed initial dummy comments
+      final existingDocs = await FirebaseFirestore.instance
+          .collection('community_posts')
+          .doc(postId)
+          .collection('comments')
+          .limit(1)
+          .get();
+
+      if (existingDocs.docs.isEmpty) {
+        for (var c in _initialDummyComments) {
+          await FirebaseFirestore.instance
+              .collection('community_posts')
+              .doc(postId)
+              .collection('comments')
+              .add({
+            'author': c['author'],
+            'authorAvatar': c['authorAvatar'],
+            'content': c['content'],
+            'time': c['time'],
+            'likes': c['likes'] ?? 0,
+            'likedUserIds': c['likedUserIds'] ?? <String>[],
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+      }
+
+      // 3. Add the new comment
+      await FirebaseFirestore.instance
+          .collection('community_posts')
+          .doc(postId)
+          .collection('comments')
+          .add(newComm);
+
+      // 4. Update the total comments count
+      final countSnap = await FirebaseFirestore.instance
+          .collection('community_posts')
+          .doc(postId)
+          .collection('comments')
+          .count()
+          .get();
+      final totalComments = countSnap.count ?? _comments.length;
+
+      await FirebaseFirestore.instance.collection('community_posts').doc(postId).set({
+        'comments': totalComments,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (mounted) {
+        setState(() {
+          widget.post['comments'] = totalComments;
+        });
+      }
+    } catch (e) {
+      debugPrint('Firestore add comment error: $e');
+    }
 
     Future.delayed(const Duration(milliseconds: 150), () {
       if (_scrollController.hasClients) {
@@ -481,122 +530,177 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
                 const SizedBox(height: 8),
 
-                // Comments Header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-                  child: Row(
-                    children: [
-                      Text(
-                        '댓글 ${_comments.length}',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
-                      ),
-                      const SizedBox(width: 6),
-                      Text('실시간 동네 주민 토크', style: TextStyle(fontSize: 11.5, color: textSecondary)),
-                    ],
-                  ),
-                ),
+                // Comments StreamBuilder from Firestore
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('community_posts')
+                      .doc(widget.post['id']?.toString() ?? 'post_01')
+                      .collection('comments')
+                      .orderBy('createdAt', descending: false)
+                      .snapshots(),
+                  builder: (context, commentSnap) {
+                    List<Map<String, dynamic>> displayComments = [];
+                    if (commentSnap.hasData && commentSnap.data!.docs.isNotEmpty) {
+                      displayComments = commentSnap.data!.docs.map((d) {
+                        final data = Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
+                        data['id'] = d.id;
+                        final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
+                        data['isLiked'] = likedUsers.contains('user_me_01');
+                        data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
+                        return data;
+                      }).toList();
+                    } else {
+                      displayComments = List<Map<String, dynamic>>.from(_comments);
+                    }
 
-                // Comments List
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _comments.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF3EAEB)),
-                  itemBuilder: (context, index) {
-                    final comm = _comments[index];
-                    final isCommLiked = comm['isLiked'] ?? false;
-                    final commLikes = comm['likes'] ?? 0;
-
-                    return Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => UserProfileScreen(
-                                    userName: comm['author'] ?? '이웃',
-                                    userAvatar: comm['authorAvatar'],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: CircleAvatar(
-                              radius: 16,
-                              backgroundImage: appImg(comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
-                            ),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Comments Header
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                          child: Row(
+                            children: [
+                              Text(
+                                '댓글 ${displayComments.length}',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                              ),
+                              const SizedBox(width: 6),
+                              Text('실시간 동네 주민 토크', style: TextStyle(fontSize: 11.5, color: textSecondary)),
+                            ],
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => UserProfileScreen(
-                                              userName: comm['author'] ?? '이웃',
-                                              userAvatar: comm['authorAvatar'],
-                                            ),
+                        ),
+
+                        // Comments List
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: displayComments.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF3EAEB)),
+                          itemBuilder: (context, index) {
+                            final comm = displayComments[index];
+                            final isCommLiked = comm['isLiked'] ?? false;
+                            final commLikes = comm['likes'] ?? 0;
+                            final commId = comm['id']?.toString();
+                            final postId = widget.post['id']?.toString() ?? 'post_01';
+
+                            return Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => UserProfileScreen(
+                                            userName: comm['author'] ?? '이웃',
+                                            userAvatar: comm['authorAvatar'],
                                           ),
-                                        );
-                                      },
-                                      child: Text(
-                                        comm['author'] ?? '이웃',
-                                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
+                                        ),
+                                      );
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 16,
+                                      backgroundImage: appImg(comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) => UserProfileScreen(
+                                                      userName: comm['author'] ?? '이웃',
+                                                      userAvatar: comm['authorAvatar'],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Text(
+                                                comm['author'] ?? '이웃',
+                                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              comm['time'] ?? '방금',
+                                              style: TextStyle(fontSize: 10.5, color: textSecondary),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          comm['content'] ?? '',
+                                          style: const TextStyle(fontSize: 13, height: 1.35, color: Color(0xFF333333)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Comment like button with Firestore sync
+                                  InkWell(
+                                    onTap: () async {
+                                      final myId = 'user_me_01';
+                                      List<dynamic> likedUsers = List<dynamic>.from(comm['likedUserIds'] ?? []);
+                                      bool currentlyLiked = likedUsers.contains(myId);
+                                      if (currentlyLiked) {
+                                        likedUsers.remove(myId);
+                                      } else {
+                                        likedUsers.add(myId);
+                                      }
+                                      setState(() {
+                                        comm['isLiked'] = !currentlyLiked;
+                                        comm['likes'] = likedUsers.length;
+                                        comm['likedUserIds'] = likedUsers;
+                                      });
+
+                                      if (commId != null && postId.isNotEmpty) {
+                                        try {
+                                          await FirebaseFirestore.instance
+                                              .collection('community_posts')
+                                              .doc(postId)
+                                              .collection('comments')
+                                              .doc(commId)
+                                              .set({
+                                            'likedUserIds': likedUsers,
+                                            'likes': likedUsers.length,
+                                          }, SetOptions(merge: true));
+                                        } catch (_) {}
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            isCommLiked ? Icons.favorite : Icons.favorite_border,
+                                            size: 14,
+                                            color: isCommLiked ? const Color(0xFFFF3B30) : textSecondary,
+                                          ),
+                                          if (commLikes > 0)
+                                            Text(
+                                              '$commLikes',
+                                              style: TextStyle(fontSize: 10, color: textSecondary),
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      comm['time'] ?? '방금',
-                                      style: TextStyle(fontSize: 10.5, color: textSecondary),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  comm['content'] ?? '',
-                                  style: const TextStyle(fontSize: 13, height: 1.35, color: Color(0xFF333333)),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Comment like button
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                comm['isLiked'] = !isCommLiked;
-                                comm['likes'] = commLikes + (!isCommLiked ? 1 : -1);
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    isCommLiked ? Icons.favorite : Icons.favorite_border,
-                                    size: 14,
-                                    color: isCommLiked ? const Color(0xFFFF3B30) : textSecondary,
                                   ),
-                                  if (comm['likes'] > 0)
-                                    Text(
-                                      '${comm['likes']}',
-                                      style: TextStyle(fontSize: 10, color: textSecondary),
-                                    ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                            );
+                          },
+                        ),
+                      ],
                     );
                   },
                 ),
