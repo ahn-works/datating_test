@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
+import '../utils/global_data.dart';
 import 'soso_car_chat_screen.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
@@ -77,13 +78,23 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _syncUserStates() {
     try {
+      final myUid = globalData.activeUserId;
       FirebaseFirestore.instance
           .collection('user_states')
-          .doc('user_me_01')
+          .doc(myUid)
           .snapshots()
           .listen((snap) {
         if (mounted) setState(() {});
       });
+      if (myUid != 'user_me_01') {
+        FirebaseFirestore.instance
+            .collection('user_states')
+            .doc('user_me_01')
+            .snapshots()
+            .listen((snap) {
+          if (mounted) setState(() {});
+        });
+      }
     } catch (_) {}
   }
 
@@ -186,7 +197,8 @@ class _ChatScreenState extends State<ChatScreen> {
       final rid = r['id']?.toString() ?? '';
       if (oomuChatStore.isRoomLeft(rid)) return false;
       final leftUsers = List<dynamic>.from(r['leftUserIds'] ?? []);
-      if (leftUsers.contains('user_me_01')) return false;
+      final myUid = globalData.activeUserId;
+      if (leftUsers.contains(myUid) || leftUsers.contains('user_me_01')) return false;
       return true;
     }).toList();
     list.sort((a, b) {

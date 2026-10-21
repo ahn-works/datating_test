@@ -84,10 +84,105 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
     ];
   }
   
+  static const List<Map<String, String>> _koreanPoiDatabase = [
+    {'place_name': '가평휴게소 (춘천방향)', 'address_name': '경기 가평군 설악면 미원리 1-1', 'category_group_name': '휴게소', 'x': '127.4988', 'y': '37.7126'},
+    {'place_name': '덕평자연휴게소', 'address_name': '경기 이천시 마장면 덕이로154번길 287-76', 'category_group_name': '휴게소', 'x': '127.3688', 'y': '37.2173'},
+    {'place_name': '행담도휴게소', 'address_name': '충남 당진시 신평면 서해안고속도로 275', 'category_group_name': '휴게소', 'x': '126.8174', 'y': '36.9442'},
+    {'place_name': '망향휴게소 (부산방향)', 'address_name': '충남 천안시 서북구 입장면 망향로 501', 'category_group_name': '휴게소', 'x': '127.1852', 'y': '36.8624'},
+    {'place_name': '안성맞춤휴게소', 'address_name': '경기 안성시 평택제천고속도로 42', 'category_group_name': '휴게소', 'x': '127.3195', 'y': '37.0392'},
+    {'place_name': '스타벅스 더북한강R점', 'address_name': '경기 남양주시 화도읍 북한강로 1098', 'category_group_name': '카페', 'x': '127.3481', 'y': '37.6493'},
+    {'place_name': '스타벅스 더양평DTR점', 'address_name': '경기 양평군 양평읍 양근로 76', 'category_group_name': '카페', 'x': '127.4812', 'y': '37.4921'},
+    {'place_name': '스타벅스 홍대입구역사거리점', 'address_name': '서울 마포구 양화로 165', 'category_group_name': '카페', 'x': '126.9238', 'y': '37.5568'},
+    {'place_name': '성수동 블루보틀 카페', 'address_name': '서울 성동구 아차산로 7', 'category_group_name': '카페', 'x': '127.0456', 'y': '37.5478'},
+    {'place_name': '동대문엽기떡볶이 홍대점', 'address_name': '서울 마포구 어울마당로 112', 'category_group_name': '맛집', 'x': '126.9228', 'y': '37.5545'},
+    {'place_name': '하이디라오 홍대점', 'address_name': '서울 마포구 양화로 176', 'category_group_name': '맛집', 'x': '126.9255', 'y': '37.5574'},
+    {'place_name': '여수 학동 낭만식당', 'address_name': '전남 여수시 시청동1길 15', 'category_group_name': '맛집', 'x': '127.6605', 'y': '34.7620'},
+    {'place_name': '여수 학동 감성 오션뷰 카페', 'address_name': '전남 여수시 시청서1길 23', 'category_group_name': '카페', 'x': '127.6622', 'y': '34.7604'},
+  ];
+
   Future<void> _searchAndAddRestStop() async {
     TextEditingController searchController = TextEditingController();
-    List<dynamic> searchResults = [];
+    List<dynamic> searchResults = List.from(_koreanPoiDatabase);
     bool isSearching = false;
+
+    Future<void> executeSearch(String query, StateSetter setModalState) async {
+      final clean = query.trim();
+      if (clean.isEmpty) {
+        setModalState(() {
+          searchResults = List.from(_koreanPoiDatabase);
+          isSearching = false;
+        });
+        return;
+      }
+      setModalState(() => isSearching = true);
+
+      List<Map<String, dynamic>> results = [];
+
+      // 1. Try Kakao API
+      try {
+        final response = await http.get(
+          Uri.parse('https://dapi.kakao.com/v2/local/search/keyword.json?query=${Uri.encodeComponent(clean)}'),
+          headers: {'Authorization': 'KakaoAK 3f91399ac9b6731d96f6d4b9ac13c502'},
+        ).timeout(const Duration(seconds: 2));
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          if (data['documents'] is List && (data['documents'] as List).isNotEmpty) {
+            results.addAll(List<Map<String, dynamic>>.from(data['documents']));
+          }
+        }
+      } catch (_) {}
+
+      // 2. OpenStreetMap Nominatim Fallback if Kakao fails or CORS
+      if (results.isEmpty) {
+        try {
+          final uri = Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(clean)}&countrycodes=kr&format=json&limit=6&addressdetails=1');
+          final osmRes = await http.get(uri, headers: {'User-Agent': 'OOMU_Spot_App/1.0'}).timeout(const Duration(seconds: 3));
+          if (osmRes.statusCode == 200) {
+            final List<dynamic> osmData = json.decode(osmRes.body);
+            for (var item in osmData) {
+              final parts = (item['display_name'] ?? '').toString().split(',');
+              final name = parts.isNotEmpty ? parts.first.trim() : clean;
+              final addr = parts.skip(1).take(3).join(', ').trim();
+              results.add({
+                'place_name': name.isNotEmpty ? name : clean,
+                'address_name': addr.isNotEmpty ? addr : (item['display_name'] ?? ''),
+                'category_group_name': '경유지',
+                'x': item['lon']?.toString() ?? '127.0',
+                'y': item['lat']?.toString() ?? '37.5',
+              });
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 3. Curated Database matches
+      final lower = clean.toLowerCase();
+      final matchedPoi = _koreanPoiDatabase.where((p) =>
+        p['place_name']!.toLowerCase().contains(lower) ||
+        p['address_name']!.toLowerCase().contains(lower)
+      ).toList();
+      for (var p in matchedPoi) {
+        if (!results.any((r) => r['place_name'] == p['place_name'])) {
+          results.add(Map<String, dynamic>.from(p));
+        }
+      }
+
+      // 4. Direct Entry fallback
+      if (!results.any((r) => r['place_name'] == clean)) {
+        results.insert(0, {
+          'place_name': clean,
+          'address_name': '직접 입력한 장소',
+          'category_group_name': '직접입력',
+          'x': '126.9780',
+          'y': '37.5665',
+        });
+      }
+
+      setModalState(() {
+        searchResults = results;
+        isSearching = false;
+      });
+    }
 
     await showModalBottomSheet(
       context: context,
@@ -107,31 +202,12 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: searchController,
+                    onSubmitted: (q) => executeSearch(q, setModalState),
                     decoration: InputDecoration(
-                      hintText: '카페, 휴게소, 명소 검색 (예: 가평휴게소)',
+                      hintText: '카페, 휴게소, 명소 검색 (예: 가평휴게소, 스타벅스)',
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.search),
-                        onPressed: () async {
-                          if (searchController.text.isEmpty) return;
-                          setModalState(() => isSearching = true);
-                          try {
-                            final response = await http.get(
-                              Uri.parse('https://dapi.kakao.com/v2/local/search/keyword.json?query=$searchController.text'),
-                              headers: {'Authorization': 'KakaoAK 3f91399ac9b6731d96f6d4b9ac13c502'},
-                            );
-                            if (response.statusCode == 200) {
-                              final data = json.decode(response.body);
-                              setModalState(() {
-                                searchResults = data['documents'];
-                                isSearching = false;
-                              });
-                            } else {
-                              setModalState(() => isSearching = false);
-                            }
-                          } catch (e) {
-                            setModalState(() => isSearching = false);
-                          }
-                        },
+                        onPressed: () => executeSearch(searchController.text, setModalState),
                       ),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -144,13 +220,22 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (ctx, index) {
                         final item = searchResults[index];
+                        final isCustom = item['category_group_name'] == '직접입력';
                         return ListTile(
-                          title: Text(item['place_name'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                          leading: Icon(
+                            isCustom ? Icons.add_location_alt_rounded : Icons.place_rounded,
+                            color: isCustom ? const Color(0xFFFF5E36) : const Color(0xFF767676),
+                          ),
+                          title: Text(
+                            item['place_name'].toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isCustom ? const Color(0xFFFF5E36) : null,
+                            ),
+                          ),
                           subtitle: Text(item['address_name'].toString()),
                           onTap: () {
                             setState(() {
-                              // Insert before the destination if it's the first rest stop, etc.
-                              // Let's just insert it right before the destination drive connector.
                               int destIdx = _timelineItems.indexWhere((e) => e['type'] == 'destination');
                               _timelineItems.insert(destIdx - 1, {
                                 'type': 'rest',

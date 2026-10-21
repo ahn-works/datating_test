@@ -2143,7 +2143,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             data['id'] = pid;
 
             final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
-            data['isLiked'] = likedUsers.contains('user_me_01');
+            final currentUid = globalData.activeUserId;
+            data['isLiked'] = likedUsers.contains(currentUid) || likedUsers.contains('user_me_01');
             data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
 
             if (postMap.containsKey(pid)) {
@@ -2518,11 +2519,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 GestureDetector(
                   onTap: () {
                     setState(() {
-                      final myUserId = 'user_me_01';
+                      final myUserId = globalData.activeUserId;
                       List<dynamic> likedUsers = List<dynamic>.from(post['likedUserIds'] ?? []);
-                      bool currentlyLiked = likedUsers.contains(myUserId);
+                      bool currentlyLiked = likedUsers.contains(myUserId) || likedUsers.contains('user_me_01');
                       if (currentlyLiked) {
                         likedUsers.remove(myUserId);
+                        likedUsers.remove('user_me_01');
                       } else {
                         likedUsers.add(myUserId);
                       }

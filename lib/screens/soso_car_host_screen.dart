@@ -72,7 +72,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   
-  String _memberCount = '2~4명';
+  String _memberCount = '2~4명 (2:2 소셜)';
   String _genderLimit = '성별 무관';
   String _ageLimit = '20대~30대';
 
@@ -606,7 +606,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             Text('참여 조건 설정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
             const SizedBox(height: 16),
             _buildSettingRow('참여 인원', _memberCount, () {
-              _showBottomSheetPicker('참여 인원', ['2명 (1:1)', '2~4명', '3~6명', '인원 제한 없음'], _memberCount, (val) => setState(() => _memberCount = val));
+              _showBottomSheetPicker('참여 인원', ['2~4명 (2:2 소셜)', '4~6명 (3:3 미팅)', '인원 제한 없음'], _memberCount, (val) => setState(() => _memberCount = val));
             }),
             _buildSettingRow('성별 제한', _genderLimit, () {
               _showBottomSheetPicker('성별 제한', ['성별 무관', '여성만', '남성만'], _genderLimit, (val) => setState(() => _genderLimit = val));

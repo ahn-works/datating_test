@@ -181,10 +181,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   void _toggleLike() {
     setState(() {
-      final myUserId = 'user_me_01';
+      final myUserId = globalData.activeUserId;
       List<dynamic> likedUsers = List<dynamic>.from(widget.post['likedUserIds'] ?? []);
       if (_isLiked) {
         likedUsers.remove(myUserId);
+        likedUsers.remove('user_me_01');
       } else {
         if (!likedUsers.contains(myUserId)) {
           likedUsers.add(myUserId);
@@ -545,7 +546,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         final data = Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
                         data['id'] = d.id;
                         final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
-                        data['isLiked'] = likedUsers.contains('user_me_01');
+                        final currentUid = globalData.activeUserId;
+                        data['isLiked'] = likedUsers.contains(currentUid) || likedUsers.contains('user_me_01');
                         data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
                         return data;
                       }).toList();
@@ -649,11 +651,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                   // Comment like button with Firestore sync
                                   InkWell(
                                     onTap: () async {
-                                      final myId = 'user_me_01';
+                                      final myId = globalData.activeUserId;
                                       List<dynamic> likedUsers = List<dynamic>.from(comm['likedUserIds'] ?? []);
-                                      bool currentlyLiked = likedUsers.contains(myId);
+                                      bool currentlyLiked = likedUsers.contains(myId) || likedUsers.contains('user_me_01');
                                       if (currentlyLiked) {
                                         likedUsers.remove(myId);
+                                        likedUsers.remove('user_me_01');
                                       } else {
                                         likedUsers.add(myId);
                                       }

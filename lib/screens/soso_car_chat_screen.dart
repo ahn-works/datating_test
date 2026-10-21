@@ -30,45 +30,52 @@ class OOMUChatStore extends ChangeNotifier {
     if (_persistenceInitialized) return;
     _persistenceInitialized = true;
     try {
-      // 1. Initial immediate fetch
-      FirebaseFirestore.instance
-          .collection('user_states')
-          .doc('user_me_01')
-          .get()
-          .then((snap) {
-        if (snap.exists && snap.data() != null) {
-          final data = snap.data()!;
-          if (data['leftRoomIds'] is List) {
-            final List<dynamic> list = data['leftRoomIds'];
-            for (var id in list) {
-              final str = id.toString();
-              _leftRoomIds.add(str);
-              _leftRoomIds.add(canonicalRoomId(str));
+      final myUid = globalData.activeUserId;
+      void loadFromDoc(String docId) {
+        FirebaseFirestore.instance
+            .collection('user_states')
+            .doc(docId)
+            .get()
+            .then((snap) {
+          if (snap.exists && snap.data() != null) {
+            final data = snap.data()!;
+            if (data['leftRoomIds'] is List) {
+              final List<dynamic> list = data['leftRoomIds'];
+              for (var id in list) {
+                final str = id.toString();
+                _leftRoomIds.add(str);
+                _leftRoomIds.add(canonicalRoomId(str));
+              }
+              notifyListeners();
             }
-            notifyListeners();
           }
-        }
-      }).catchError((_) {});
+        }).catchError((_) {});
+      }
+      loadFromDoc(myUid);
+      if (myUid != 'user_me_01') loadFromDoc('user_me_01');
 
-      // 2. Real-time stream listener for multi-device / instant sync
-      FirebaseFirestore.instance
-          .collection('user_states')
-          .doc('user_me_01')
-          .snapshots()
-          .listen((snap) {
-        if (snap.exists && snap.data() != null) {
-          final data = snap.data()!;
-          if (data['leftRoomIds'] is List) {
-            final List<dynamic> list = data['leftRoomIds'];
-            for (var id in list) {
-              final str = id.toString();
-              _leftRoomIds.add(str);
-              _leftRoomIds.add(canonicalRoomId(str));
+      void listenToDoc(String docId) {
+        FirebaseFirestore.instance
+            .collection('user_states')
+            .doc(docId)
+            .snapshots()
+            .listen((snap) {
+          if (snap.exists && snap.data() != null) {
+            final data = snap.data()!;
+            if (data['leftRoomIds'] is List) {
+              final List<dynamic> list = data['leftRoomIds'];
+              for (var id in list) {
+                final str = id.toString();
+                _leftRoomIds.add(str);
+                _leftRoomIds.add(canonicalRoomId(str));
+              }
+              notifyListeners();
             }
-            notifyListeners();
           }
-        }
-      }, onError: (_) {});
+        }, onError: (_) {});
+      }
+      listenToDoc(myUid);
+      if (myUid != 'user_me_01') listenToDoc('user_me_01');
     } catch (_) {}
   }
 
@@ -95,15 +102,22 @@ class OOMUChatStore extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final myUid = globalData.activeUserId;
       // 1. Persist to current user's state in Firestore
-      await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
+      await FirebaseFirestore.instance.collection('user_states').doc(myUid).set({
         'leftRoomIds': FieldValue.arrayUnion([cId, roomId]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+      if (myUid != 'user_me_01') {
+        await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
+          'leftRoomIds': FieldValue.arrayUnion([cId, roomId]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
 
       // 2. Mark user in chatRooms collection
       await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
-        'leftUserIds': FieldValue.arrayUnion(['user_me_01']),
+        'leftUserIds': FieldValue.arrayUnion([myUid, 'user_me_01']),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -111,7 +125,7 @@ class OOMUChatStore extends ChangeNotifier {
       final meetupDoc = await FirebaseFirestore.instance.collection('meetups').doc(cId).get();
       if (meetupDoc.exists) {
         await FirebaseFirestore.instance.collection('meetups').doc(cId).update({
-          'participants': FieldValue.arrayRemove(['user_me_01']),
+          'participants': FieldValue.arrayRemove([myUid, 'user_me_01']),
         });
       }
     } catch (e) {
@@ -126,13 +140,20 @@ class OOMUChatStore extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
+      final myUid = globalData.activeUserId;
+      await FirebaseFirestore.instance.collection('user_states').doc(myUid).set({
         'leftRoomIds': FieldValue.arrayRemove([cId, roomId]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+      if (myUid != 'user_me_01') {
+        await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
+          'leftRoomIds': FieldValue.arrayRemove([cId, roomId]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
 
       await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
-        'leftUserIds': FieldValue.arrayRemove(['user_me_01']),
+        'leftUserIds': FieldValue.arrayRemove([myUid, 'user_me_01']),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {

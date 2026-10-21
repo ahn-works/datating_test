@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
+import '../services/r2_storage_service.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -96,6 +98,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'age': parsedAge,
         'gender': _gender,
         'role': _role,
+        'photoUrl': _avatarUrl,
+        'avatarUrl': _avatarUrl,
         'location': _locationController.text.trim(),
         'bio': _bioController.text.trim(),
         'job': _jobController.text.trim(),
@@ -118,6 +122,203 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     } finally {
       if (mounted) setState(() { _isSaving = false; });
     }
+  }
+
+  bool _isUploadingPhoto = false;
+
+  Future<void> _pickAndUploadPhoto(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final file = await picker.pickImage(
+        source: source,
+        maxWidth: 1080,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      if (file == null) return;
+
+      setState(() => _isUploadingPhoto = true);
+      final bytes = await file.readAsBytes();
+      String uploadedUrl = '';
+      try {
+        uploadedUrl = await r2Storage.uploadImageBytes(
+          bytes: bytes,
+          fileName: file.name,
+          category: R2UploadCategory.profile,
+        );
+      } catch (e) {
+        debugPrint('[R2 Storage] Upload fallback: $e');
+        uploadedUrl = file.path;
+      }
+
+      final finalAvatar = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+      setState(() {
+        _avatarUrl = finalAvatar;
+        _isUploadingPhoto = false;
+      });
+      globalData.updateAvatar(finalAvatar);
+
+      // Immediately sync to active user doc
+      await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
+        'photoUrl': finalAvatar,
+        'avatarUrl': finalAvatar,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(source == ImageSource.camera
+                ? '📸 카메라로 촬영한 새 프로필 사진이 설정되었습니다!'
+                : '🖼️ 갤러리에서 선택한 새 프로필 사진이 설정되었습니다!'),
+            backgroundColor: const Color(0xFFF38020),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingPhoto = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사진 업로드 실패: $e')),
+        );
+      }
+    }
+  }
+
+  void _showAvatarPickerModal(BuildContext context) {
+    final presetAvatars = [
+      'assets/images/kr_female_1.jpg',
+      'assets/images/kr_female_2.jpg',
+      'assets/images/kr_female_3.jpg',
+      'assets/images/kr_male_1.jpg',
+      'assets/images/kr_male_2.jpg',
+      'assets/images/kr_male_3.jpg',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(color: const Color(0xFFE5E5EA), borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text('프로필 사진 변경', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _pickAndUploadPhoto(ImageSource.camera);
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF5F0),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.3)),
+                          ),
+                          child: const Column(
+                            children: [
+                              Icon(Icons.photo_camera_rounded, color: Color(0xFFFF5E36), size: 28),
+                              SizedBox(height: 8),
+                              Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _pickAndUploadPhoto(ImageSource.gallery);
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF7EE),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFF38020).withOpacity(0.3)),
+                          ),
+                          child: const Column(
+                            children: [
+                              Icon(Icons.photo_library_rounded, color: Color(0xFFF38020), size: 28),
+                              SizedBox(height: 8),
+                              Text('앨범에서 선택', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text('기본 캐릭터 아바타', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF767676))),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 60,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: presetAvatars.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, idx) {
+                      final pAvatar = presetAvatars[idx];
+                      final isSelected = _avatarUrl == pAvatar;
+                      return GestureDetector(
+                        onTap: () async {
+                          Navigator.pop(ctx);
+                          setState(() => _avatarUrl = pAvatar);
+                          globalData.updateAvatar(pAvatar);
+                          await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
+                            'photoUrl': pAvatar,
+                            'avatarUrl': pAvatar,
+                            'updatedAt': FieldValue.serverTimestamp(),
+                          }, SetOptions(merge: true));
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('✨ 프로필 캐릭터가 설정되었습니다.')),
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: 56, height: 56,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFFFF5E36) : const Color(0xFFE5E5EA),
+                              width: isSelected ? 3 : 1.5,
+                            ),
+                            image: DecorationImage(image: AssetImage(pAvatar), fit: BoxFit.cover),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   ImageProvider _getAvatarProvider(String url) {
@@ -271,30 +472,60 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 100, height: 100,
-                        decoration: BoxDecoration(
-                          color: surfaceColor,
-                          shape: BoxShape.circle,
-                          image: DecorationImage(image: _getAvatarProvider(_avatarUrl), fit: BoxFit.cover),
+                  child: GestureDetector(
+                    onTap: _isUploadingPhoto ? null : () => _showAvatarPickerModal(context),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 104, height: 104,
+                          decoration: BoxDecoration(
+                            color: surfaceColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFE5E5EA), width: 2),
+                            image: DecorationImage(image: _getAvatarProvider(_avatarUrl), fit: BoxFit.cover),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4)),
+                            ],
+                          ),
+                          child: _isUploadingPhoto
+                              ? Container(
+                                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+                                  child: const Center(child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
+                                )
+                              : null,
                         ),
-                      ),
-                      if (_role == 'admin')
                         Positioned(
-                          top: 0, right: 0,
+                          bottom: 0,
+                          right: 0,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.all(7),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
-                              borderRadius: BorderRadius.circular(10),
+                              color: accentColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
                             ),
-                            child: const Text('👑 Admin', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                            child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 16),
                           ),
                         ),
-                    ],
+                        if (_role == 'admin')
+                          Positioned(
+                            top: 0, right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Text('👑 Admin', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
+                ),
+                const SizedBox(height: 6),
+                Center(
+                  child: Text('사진을 탭하여 변경', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 32),
                 

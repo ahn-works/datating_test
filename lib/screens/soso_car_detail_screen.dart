@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:latlong2/latlong.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../widgets/interactive_map_popup.dart';
 import "soso_car_chat_screen.dart";
 import "user_profile_screen.dart";
 
@@ -674,55 +677,90 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 지도 프리뷰 캔버스
+                              // 지도 프리뷰 캔버스 (인터랙티브 팝업 연동)
                               ClipRRect(
                                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                child: Container(
-                                  height: 120,
-                                  width: double.infinity,
-                                  color: const Color(0xFFF2ECE9),
-                                  child: Stack(
-                                    children: [
-                                      Image(
-                                        image: appImg('assets/images/cover_cafe.jpg'),
-                                        width: double.infinity,
-                                        height: 120,
-                                        fit: BoxFit.cover,
-                                        color: Colors.white.withOpacity(0.35),
-                                        colorBlendMode: BlendMode.srcOver,
-                                        errorBuilder: (_, __, ___) => const SizedBox(),
+                                child: InkWell(
+                                  onTap: () {
+                                    final loc = widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞';
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => InteractiveMapPopup(
+                                        initialCenter: const LatLng(37.5568, 126.9238),
+                                        locationName: loc,
+                                        kakaoLink: 'https://map.kakao.com/link/search/${Uri.encodeComponent(loc)}',
                                       ),
-                                      Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color: coralAccent,
-                                                shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(color: coralAccent.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 3)),
-                                                ],
-                                              ),
-                                              child: const Icon(Icons.location_on, color: Colors.white, size: 20),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withOpacity(0.92),
-                                                borderRadius: BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞',
-                                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: textPrimary),
-                                              ),
-                                            ),
-                                          ],
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 130,
+                                    width: double.infinity,
+                                    color: const Color(0xFFF2ECE9),
+                                    child: Stack(
+                                      children: [
+                                        Image(
+                                          image: appImg('assets/images/cover_cafe.jpg'),
+                                          width: double.infinity,
+                                          height: 130,
+                                          fit: BoxFit.cover,
+                                          color: Colors.white.withOpacity(0.35),
+                                          colorBlendMode: BlendMode.srcOver,
+                                          errorBuilder: (_, __, ___) => const SizedBox(),
                                         ),
-                                      ),
-                                    ],
+                                        Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  color: coralAccent,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(color: coralAccent.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 3)),
+                                                  ],
+                                                ),
+                                                child: const Icon(Icons.location_on, color: Colors.white, size: 22),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white.withOpacity(0.95),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  boxShadow: [
+                                                    BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 6),
+                                                  ],
+                                                ),
+                                                child: Text(
+                                                  widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞',
+                                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: textPrimary),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Positioned(
+                                          right: 10,
+                                          top: 10,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(0.6),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.touch_app, size: 12, color: Colors.white),
+                                                SizedBox(width: 4),
+                                                Text('지도 크게보기', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -757,13 +795,24 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                       ),
                                       icon: const Icon(Icons.directions, size: 16),
                                       label: const Text('길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('🗺️ 길찾기 앱을 실행합니다: ${widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞'}'),
-                                            duration: const Duration(seconds: 2),
-                                          ),
-                                        );
+                                      onPressed: () async {
+                                        final loc = widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞';
+                                        final uri = Uri.parse('https://map.kakao.com/link/search/${Uri.encodeComponent(loc)}');
+                                        try {
+                                          if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text('🗺️ 지도 검색: $loc')),
+                                              );
+                                            }
+                                          }
+                                        } catch (_) {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('🗺️ 지도 검색: $loc')),
+                                            );
+                                          }
+                                        }
                                       },
                                     ),
                                   ],

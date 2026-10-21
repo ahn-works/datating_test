@@ -1421,7 +1421,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   ListTile(
                     leading: Icon(Icons.favorite, color: Color(0xFFF25767)),
                     title: Text('매일 슈퍼라이크 5개 증정', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text('더 빠르고 확실한 1:1 취향 매칭', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                    subtitle: Text('더 빠르고 확실한 호감 매칭', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
                   ),
                   ListTile(
                     leading: Icon(Icons.bolt, color: Color(0xFFF19E39)),
