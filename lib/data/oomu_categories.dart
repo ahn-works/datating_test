@@ -93,7 +93,7 @@ class OOMUCategoryData {
       id: 'dating',
       title: '소개팅',
       emoji: '🌸',
-      subtitle: '1:1 데이트 코스 제안, 2:2 / 3:3 설레는 동네 자만추 미팅',
+      subtitle: '2:2 / 3:3 설레는 동네 자만추 미팅',
       matchKeywords: [
         '소개팅', '미팅', '2:2', '3:3', '소셜다이닝', '인연', '자만추', '취향'
       ],

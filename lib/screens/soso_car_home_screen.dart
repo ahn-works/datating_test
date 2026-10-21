@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
@@ -38,7 +38,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   late int _homeDashboardTab; // 0: 모임, 1: 커뮤니티, 2: 소개팅, 3: 채팅, 4: MY
   String _communityCategoryFilter = '전체';
   String? _communityKeywordFilter;
-  int _datingSubTab = 0; // 0: 1:1 취향 소개팅, 1: 2:2 / 3:3 동네 미팅
 
   final List<Map<String, dynamic>> _communityPosts = [
     {
@@ -201,44 +200,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> _datingProfiles = [
-    {
-      'id': 'dating_01',
-      'name': '이지우',
-      'age': 27,
-      'job': 'UX 디자이너',
-      'location': '마포구 서교동',
-      'manner': 42.8,
-      'bio': '주말엔 브런치 먹으며 미술관 도슨트 투어 다니는 걸 좋아해요. 대화가 잘 통하는 다정한 분 만나고 싶어요!',
-      'avatar': 'assets/images/kr_female_1.jpg',
-      'tags': ['전시회 투어 🎨', '주말 브런치 ☕', '필름 카메라 📸'],
-      'isHeartSent': false,
-    },
-    {
-      'id': 'dating_02',
-      'name': '박민우',
-      'age': 29,
-      'job': 'IT 개발자',
-      'location': '성동구 성수동',
-      'manner': 41.5,
-      'bio': '한강 러닝과 서울숲 산책을 즐깁니다. 가끔 맛있는 내추럴 와인 한잔하며 일상 얘기 나누는 소소한 연애를 꿈꿔요.',
-      'avatar': 'assets/images/kr_male_1.jpg',
-      'tags': ['한강 러닝 🏃', '내추럴 와인 🍷', '소소한 산책 🌿'],
-      'isHeartSent': false,
-    },
-    {
-      'id': 'dating_03',
-      'name': '정소희',
-      'age': 26,
-      'job': '콘텐츠 마케터',
-      'location': '영등포구 여의도동',
-      'manner': 43.2,
-      'bio': '새로 생긴 핫플 카페나 뮤지컬 보러 다니는 걸 좋아해요! 맛있는 음식 앞에서 행복해지는 사람입니다 :)',
-      'avatar': 'assets/images/kr_female_2.jpg',
-      'tags': ['뮤지컬 덕후 🎭', '디저트 카페 🍰', '웃음 많은 성향 ✨'],
-      'isHeartSent': false,
-    },
-  ];
 
   final List<Map<String, dynamic>> _groupDatingPots = [
     {
@@ -2868,101 +2829,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 40),
       children: [
-        // Sub-Tab Switcher: 1:1 취향 소개팅 vs 2:2 / 3:3 동네 미팅 팟
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _datingSubTab = 0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _datingSubTab == 0 ? coralAccent : const Color(0xFFF3F3F6),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      '💘 1:1 취향 소개팅',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: _datingSubTab == 0 ? FontWeight.w800 : FontWeight.w600,
-                        color: _datingSubTab == 0 ? Colors.white : textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _datingSubTab = 1),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _datingSubTab == 1 ? coralAccent : const Color(0xFFF3F3F6),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      '👥 2:2 / 3:3 미팅 팟',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: _datingSubTab == 1 ? FontWeight.w800 : FontWeight.w600,
-                        color: _datingSubTab == 1 ? Colors.white : textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        if (_datingSubTab == 0) ...[
-          // 1:1 Dating Banner
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFF0F5), Color(0xFFFFE4EC)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFD1DC)),
-              ),
-              child: Row(
-                children: [
-                  const Text('✨', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('취향과 라이프스타일이 통하는 인연', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
-                        const SizedBox(height: 2),
-                        Text('호감을 보내고 서로 매칭되면 1:1 안심 대화가 시작됩니다.', style: TextStyle(fontSize: 11, color: textSecondary)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Profile Cards List
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _datingProfiles.length,
-            itemBuilder: (context, index) {
-              return _buildDatingProfileCard(_datingProfiles[index]);
-            },
-          ),
-        ] else ...[
           // Group Dating Banner & Host CTA
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
@@ -3027,160 +2893,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               return _buildGroupDatingCard(_groupDatingPots[index]);
             },
           ),
-        ],
       ],
-    );
-  }
-
-  Widget _buildDatingProfileCard(Map<String, dynamic> profile) {
-    bool isHeart = profile['isHeartSent'] ?? false;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFECECEF)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundImage: appImg(profile['avatar'] ?? 'assets/images/kr_female_1.jpg'),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          '${profile['name']}, ${profile['age']}',
-                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textPrimary),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0EB),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${profile['manner']}°C',
-                            style: TextStyle(color: coralAccent, fontSize: 10, fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${profile['job']} · ${profile['location']}',
-                      style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            profile['bio'] ?? '',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF333333), height: 1.4),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: (profile['tags'] as List).map<Widget>((tag) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F4F7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  tag,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF555555)),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isHeart ? const Color(0xFF34C759) : const Color(0xFFFF5E36),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
-                    ),
-                    icon: Icon(isHeart ? Icons.check : Icons.favorite, size: 16, color: Colors.white),
-                    label: Text(
-                      isHeart ? '호감 전송 완료' : '호감 보내기',
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        profile['isHeartSent'] = !isHeart;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(isHeart ? '호감 전송을 취소했습니다.' : '💖 ${profile['name']}님에게 호감을 보냈습니다! 매칭 시 1:1 대화방이 열려요.'),
-                          backgroundColor: coralAccent,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFE5E5EA)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: Icon(Icons.chat_bubble_outline, size: 16, color: textPrimary),
-                    label: Text(
-                      '1:1 대화 신청',
-                      style: TextStyle(color: textPrimary, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OOMUChatScreen(
-                            title: '${profile['name']}님과의 1:1 대화',
-                            memberCount: 2,
-                            chatRoomId: 'dating_1on1_${profile['id']}',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
