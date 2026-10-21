@@ -11,6 +11,13 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // 대표님께서 발급해주신 공식 카카오 앱 키 (우무 OOMU)
+  static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
+  static const String kakaoRedirectUri = 'https://ahn-works.github.io/datating_test/';
+
+  String get kakaoOAuthUrl =>
+      'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoRestApiKey&redirect_uri=$kakaoRedirectUri&response_type=code';
+
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
@@ -104,9 +111,13 @@ class AuthService {
 
     await _syncUserWithFirestore(
       credential.user!,
-      customNickname: kakaoNickname ?? '노란무지',
+      customNickname: kakaoNickname ?? '카카오이웃',
       customName: '카카오 사용자',
       provider: 'kakao',
+      extraData: {
+        'kakaoApp': '우무(OOMU)',
+        'kakaoRestApiKey': kakaoRestApiKey,
+      },
     );
     return credential;
   }
@@ -139,6 +150,7 @@ class AuthService {
     int? customAge,
     String provider = 'email',
     bool isGuest = false,
+    Map<String, dynamic>? extraData,
   }) async {
     final uid = user.uid;
     final email = user.email ?? '';
@@ -175,6 +187,7 @@ class AuthService {
         'isVerified': isAdminEmail,
         'provider': provider,
         'isGuest': isGuest,
+        if (extraData != null) ...extraData,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
