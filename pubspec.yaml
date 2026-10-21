@@ -9,6 +9,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   firebase_core: any
+  firebase_auth: any
   cloud_firestore: any
   kpostal: ^2.0.0
   http: any

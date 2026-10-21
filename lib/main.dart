@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/soso_car_home_screen.dart';
+import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
+import 'utils/global_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +56,26 @@ class Spot10App extends StatelessWidget {
           ),
         ),
       ),
-      home: const OOMUHomeScreen(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              backgroundColor: Color(0xFFFAF6F7),
+              body: Center(
+                child: CircularProgressIndicator(color: Color(0xFFF25767)),
+              ),
+            );
+          }
+          if (snapshot.hasData && snapshot.data != null) {
+            final user = snapshot.data!;
+            // Set global active user
+            globalData.currentUserId.value = user.uid;
+            return const OOMUHomeScreen();
+          }
+          return const LoginScreen();
+        },
+      ),
     );
   }
 }

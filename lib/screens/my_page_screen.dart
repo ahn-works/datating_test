@@ -1,3 +1,5 @@
+import 'login_screen.dart';
+import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
@@ -1247,6 +1249,46 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 title: '환경설정',
                 textPrimary: textPrimary,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+              ),
+              _buildInteractiveMenuItem(
+                icon: Icons.logout_rounded,
+                iconColor: const Color(0xFFE53935),
+                title: '로그아웃',
+                textPrimary: const Color(0xFFE53935),
+                onTap: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      title: const Text('로그아웃', style: TextStyle(fontWeight: FontWeight.bold)),
+                      content: const Text('현재 계정에서 로그아웃하고 첫 화면으로 돌아가시겠습니까?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('취소', style: TextStyle(color: Colors.grey)),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: coralAccent,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('로그아웃', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await authService.signOut();
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    }
+                  }
+                },
               ),
 
               const SizedBox(height: 40),

@@ -1,250 +1,626 @@
 import 'package:flutter/material.dart';
 import 'soso_car_home_screen.dart';
-import '../utils/app_image.dart';
+import '../services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const Color brandRose = Color(0xFFF25767);
-    const Color brandInk = Color(0xFFC83243);
-    const Color brandSoft = Color(0xFFFFF0F2);
-    const Color brandBorder = Color(0xFFF8C6CD);
-    const Color trustTeal = Color(0xFF0D9488);
-    const Color trustSoft = Color(0xFFE6F7F5);
-    const Color inkColor = Color(0xFF221B1D);
-    const Color subColor = Color(0xFF635559);
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFFE4E8),
-              Color(0xFFFAF6F7),
-              Color(0xFFFFFFFF),
-            ],
-            stops: [0.0, 0.56, 1.0],
-          ),
+class _LoginScreenState extends State<LoginScreen> {
+  final Color brandCoral = const Color(0xFFF25767);
+  final Color textPrimary = const Color(0xFF111111);
+  final Color textSecondary = const Color(0xFF767676);
+  final Color surfaceColor = const Color(0xFFF7F7FA);
+
+  bool _isLoading = false;
+
+  void _showLoading(String message) {
+    setState(() => _isLoading = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+            ),
+            const SizedBox(width: 12),
+            Text(message),
+          ],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. 상단 브랜드 로고 & 실시간 동네 접속 칩
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF707F), Color(0xFFE84355)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: brandRose.withOpacity(0.28),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            'O',
-                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'OOMU 오뮤',
-                          style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900, color: brandInk, letterSpacing: -0.5),
+        duration: const Duration(seconds: 2),
+        backgroundColor: brandCoral,
+      ),
+    );
+  }
+
+  void _hideLoading() {
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  void _navigateHome() {
+    _hideLoading();
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const OOMUHomeScreen()),
+    );
+  }
+
+  // 1. 카카오 로그인
+  Future<void> _handleKakaoLogin() async {
+    _showLoading('💬 카카오 계정으로 동적 로그인 중...');
+    try {
+      await authService.signInWithKakao(
+        kakaoNickname: '카카오이웃',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🎉 카카오 계정으로 성공적으로 시작했습니다!')),
+        );
+        _navigateHome();
+      }
+    } catch (e) {
+      _hideLoading();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('카카오 로그인 실패: $e')),
+        );
+      }
+    }
+  }
+
+  // 2. 구글 로그인
+  Future<void> _handleGoogleLogin() async {
+    _showLoading('🌐 Google 계정으로 로그인 중...');
+    try {
+      final credential = await authService.signInWithGoogle();
+      if (credential != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🎉 Google 계정으로 로그인되었습니다!')),
+        );
+        _navigateHome();
+      }
+    } catch (e) {
+      _hideLoading();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Google 로그인 실패: $e')),
+        );
+      }
+    }
+  }
+
+  // 3. 관리자 직접 빠른 접속
+  Future<void> _handleAdminDirectLogin() async {
+    _showLoading('👑 총괄 관리자 계정(ansimhyang60@naver.com) 인증 중...');
+    try {
+      await authService.signInAsAdmin();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('👑 총괄 관리자 권한으로 로그인되었습니다!'),
+            backgroundColor: Color(0xFF1E1E24),
+          ),
+        );
+        _navigateHome();
+      }
+    } catch (e) {
+      _hideLoading();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('관리자 로그인 실패: $e')),
+        );
+      }
+    }
+  }
+
+  // 4. 게스트 둘러보기
+  Future<void> _handleGuestLogin() async {
+    _showLoading('동네 모임 둘러보기 입장 중...');
+    try {
+      await authService.signInAsGuest();
+      _navigateHome();
+    } catch (_) {
+      _navigateHome();
+    }
+  }
+
+  // 5. 이메일 로그인 / 회원가입 바텀시트
+  void _showEmailAuthModal({bool isSignUp = false}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => _EmailAuthSheet(
+        initialIsSignUp: isSignUp,
+        onSuccess: () {
+          Navigator.pop(ctx);
+          _navigateHome();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 상단 우측 둘러보기
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  onPressed: _isLoading ? null : _handleGuestLogin,
+                  child: Text(
+                    '둘러보기 ›',
+                    style: TextStyle(
+                      color: textSecondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+
+              // 중앙 브랜드 소개 영역 (당근마켓 스타일)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 앱 로고 아이콘
+                  Container(
+                    width: 108,
+                    height: 108,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [brandCoral, const Color(0xFFFF7E8B)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: brandCoral.withOpacity(0.32),
+                          blurRadius: 28,
+                          offset: const Offset(0, 12),
                         ),
                       ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: trustTeal.withOpacity(0.2)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: const BoxDecoration(color: trustTeal, shape: BoxShape.circle),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(width: 5),
-                          const Text(
-                            '서교동 54명 활동 중',
-                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: trustTeal),
+                          child: Icon(
+                            Icons.favorite_rounded,
+                            color: brandCoral,
+                            size: 28,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // 앱 이름
+                  Text(
+                    'OOMU',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: textPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+
+                  // 우리 동네 무드
+                  Text(
+                    '우리 동네 무드',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: brandCoral,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 모임 소개 문구
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      '어색한 1:1 만남 대신 재밌는 모임에서 시작해\n자연스러운 동네 친구이자 연인을 만들어 보세요.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        color: textSecondary,
+                        height: 1.6,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // 하단 로그인 및 가입 액션 버튼군
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 1. 카카오로 시작하기 (실제 작동하는 동적 로그인)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _handleKakaoLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFEE500),
+                        foregroundColor: const Color(0xFF191919),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chat_bubble_rounded, size: 18, color: Color(0xFF191919)),
+                          SizedBox(width: 8),
+                          Text(
+                            '카카오계정으로 시작하기',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 18),
+                  ),
+                  const SizedBox(height: 10),
 
-                // 2. 히어로 타이틀 & 설레는 자만추 철학 문구
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: brandSoft,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: brandBorder),
-                    ),
-                    child: const Text(
-                      '🌸 안전한 동네 친구부터 설레는 자만추까지',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: brandInk),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: inkColor, height: 1.3, letterSpacing: -0.7),
-                    children: [
-                      TextSpan(text: '오늘 우리 동네에서\n'),
-                      TextSpan(text: '설레는 첫 만남', style: TextStyle(color: brandRose)),
-                      TextSpan(text: '을\n시작해 볼까요?'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '본인·동네 인증을 마친 검증된 이웃들과\n부담 없는 동네 번개부터 자연스러운 소개팅까지 함께해요.',
-                  style: TextStyle(fontSize: 13.5, color: subColor, height: 1.5, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-
-                // 3. 실시간 모임 & 자만추 프리뷰 카드 2종
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: brandBorder, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(color: brandRose.withOpacity(0.08), blurRadius: 18, offset: const Offset(0, 6)),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(13),
-                        child: Image(image: appImg('assets/images/cover_wine.jpg'), width: 48, height: 48, fit: BoxFit.cover),
+                  // 2. Google 계정으로 시작하기
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _handleGoogleLogin,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: textPrimary,
+                        side: const BorderSide(color: Color(0xFFE5E5EA), width: 1.2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                              decoration: BoxDecoration(color: brandSoft, borderRadius: BorderRadius.circular(6)),
-                              child: const Text('⚡ 오늘 번개 · 👀 지금 19명이 보고 있어요', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: brandInk)),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text('연남동 LP바에서 신청곡 들으며 하이볼 한잔', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: inkColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                            const Text('서교동 520m · 호스트 40.5°C · 2/4명 참여', style: TextStyle(fontSize: 11.5, color: subColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ],
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('G', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: Color(0xFF4285F4))),
+                          SizedBox(width: 8),
+                          Text(
+                            'Google 계정으로 시작하기',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 3. 이메일로 가입 / 시작하기
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : () => _showEmailAuthModal(isSignUp: true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: brandCoral,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.mail_outline_rounded, size: 19, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            '이메일로 직접 시작하기',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 4. 하단 텍스트 링크 (이미 계정이 있나요? 로그인 & 관리자 빠른 접속)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '이미 계정이 있나요?',
+                        style: TextStyle(fontSize: 13.5, color: textSecondary),
+                      ),
+                      TextButton(
+                        onPressed: _isLoading ? null : () => _showEmailAuthModal(isSignUp: false),
+                        child: Text(
+                          '로그인',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.bold,
+                            color: brandCoral,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(width: 1, height: 12, color: const Color(0xFFE5E5EA)),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: _isLoading ? null : _handleAdminDirectLogin,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E1E24),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            children: [
+                              Text('👑 ', style: TextStyle(fontSize: 11)),
+                              Text(
+                                '관리자 접속',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmailAuthSheet extends StatefulWidget {
+  final bool initialIsSignUp;
+  final VoidCallback onSuccess;
+
+  const _EmailAuthSheet({
+    required this.initialIsSignUp,
+    required this.onSuccess,
+  });
+
+  @override
+  State<_EmailAuthSheet> createState() => _EmailAuthSheetState();
+}
+
+class _EmailAuthSheetState extends State<_EmailAuthSheet> {
+  late bool _isSignUp;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _nicknameController = TextEditingController();
+  bool _isLoading = false;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _isSignUp = widget.initialIsSignUp;
+  }
+
+  void _fillAdminAccount() {
+    setState(() {
+      _isSignUp = false;
+      _emailController.text = 'ansimhyang60@naver.com';
+      _passwordController.text = 'test_simhyang99';
+      _errorMessage = '';
+    });
+  }
+
+  Future<void> _submit() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _errorMessage = '이메일과 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      if (_isSignUp) {
+        await authService.signUpWithEmail(
+          email: email,
+          password: password,
+          name: _nameController.text.trim(),
+          nickname: _nicknameController.text.trim(),
+        );
+      } else {
+        await authService.signInWithEmail(email, password);
+      }
+      widget.onSuccess();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString().replaceAll('Exception:', '').trim();
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const Color brandCoral = Color(0xFFF25767);
+    const Color textPrimary = Color(0xFF111111);
+    const Color surfaceColor = Color(0xFFF7F7FA);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E5EA),
+                  borderRadius: BorderRadius.circular(999),
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: brandBorder, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(color: brandRose.withOpacity(0.08), blurRadius: 18, offset: const Offset(0, 6)),
-                    ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 상단 탭 (로그인 / 회원가입)
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _isSignUp = false),
+                  child: Text(
+                    '로그인',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: !_isSignUp ? brandCoral : const Color(0xFF8E8E93),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(13),
-                        child: Image(image: appImg('assets/images/kr_female_1.jpg'), width: 48, height: 48, fit: BoxFit.cover),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                              decoration: BoxDecoration(color: trustSoft, borderRadius: BorderRadius.circular(6)),
-                              child: const Text('💓 지인 추천 자만추 · 시크릿 매칭', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: trustTeal)),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text('"리액션 좋고 대화 편한 마케터 친구 소개해요"', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: inkColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                            const Text('성수·연남 카페투어 · 서로 호감일 때만 채팅 오픈', style: TextStyle(fontSize: 11.5, color: subColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ],
-                        ),
-                      ),
-                    ],
+                ),
+                const SizedBox(width: 16),
+                GestureDetector(
+                  onTap: () => setState(() => _isSignUp = true),
+                  child: Text(
+                    '회원가입',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: _isSignUp ? brandCoral : const Color(0xFF8E8E93),
+                    ),
                   ),
                 ),
                 const Spacer(),
-
-                // 4. 하단 시작 액션 버튼 3종
-                ElevatedButton(
-                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFEE500),
-                    foregroundColor: const Color(0xFF191919),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: const Text('💬 카카오로 3초 만에 시작하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: brandRose,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: const Text('📱 휴대폰 번호로 안전하게 시작', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: brandInk,
-                    side: const BorderSide(color: brandBorder, width: 1.5),
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: const Text('먼저 우리 동네 모임 둘러보기 ›', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800)),
+                TextButton(
+                  onPressed: _fillAdminAccount,
+                  child: const Text('관리자 자동입력', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93))),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 20),
+
+            if (_isSignUp) ...[
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: '이름 (실명)',
+                  filled: true,
+                  fillColor: surfaceColor,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _nicknameController,
+                decoration: InputDecoration(
+                  labelText: '닉네임 (활동명)',
+                  filled: true,
+                  fillColor: surfaceColor,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: '이메일 주소',
+                filled: true,
+                fillColor: surfaceColor,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: '비밀번호',
+                filled: true,
+                fillColor: surfaceColor,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+              ),
+            ),
+
+            if (_errorMessage.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                _errorMessage,
+                style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ],
+
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: brandCoral,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: _isLoading
+                    ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(
+                        _isSignUp ? '가입 완료하고 시작하기' : '로그인하기',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+              ),
+            ),
+          ],
         ),
       ),
     );
