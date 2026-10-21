@@ -30,6 +30,17 @@ class _MyPageScreenState extends State<MyPageScreen> {
   final Color accentColor = const Color(0xFFF25767);
   final Color coralAccent = const Color(0xFFF25767);
 
+  List<String> _parseSafeList(dynamic value, List<String> defaultValue) {
+    if (value == null) return defaultValue;
+    if (value is List) {
+      return value.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList();
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      return [value.trim()];
+    }
+    return defaultValue;
+  }
+
   void _showAvatarPickerBottomSheet() {
     final avatarList = [
       {'name': '여성 1 (기본)', 'path': 'assets/images/kr_female_1.jpg'},
@@ -772,7 +783,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
         valueListenable: globalData.currentUserId,
         builder: (context, activeUid, _) {
           return StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance.collection('users').doc(activeUid).snapshots(),
+            stream: (activeUid.isNotEmpty)
+                ? FirebaseFirestore.instance.collection('users').doc(activeUid).snapshots()
+                : null,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator(color: accentColor));
@@ -794,43 +807,51 @@ class _MyPageScreenState extends State<MyPageScreen> {
               List<String> personalities = ['리액션 요정', '친화력 갑'];
               List<String> drinking = ['가볍게 한잔'];
 
-              if (snapshot.hasData && snapshot.data!.exists) {
-                final data = snapshot.data!.data() as Map<String, dynamic>;
-                role = data['role'] ?? role;
-                nickname = data['nickname'] ?? nickname;
-                name = data['name'] ?? name;
-                if (data['age'] != null) {
-                  age = data['age'] is int ? data['age'] : (int.tryParse(data['age'].toString()) ?? age);
-                }
-                gender = data['gender'] ?? gender;
-                location = data['location'] ?? location;
-                bio = data['bio'] ?? bio;
-                job = data['job'] ?? job;
-                mbti = data['mbti'] ?? mbti;
-                jobAndMbti = '${age > 0 ? '$age세 • ' : ''}${gender.isNotEmpty ? '$gender • ' : ''}$job • $mbti';
-                if (data['hobbies'] != null) hobbies = List<String>.from(data['hobbies']);
-                if (data['personalities'] != null) personalities = List<String>.from(data['personalities']);
-                if (data['drinking'] != null) drinking = List<String>.from(data['drinking']);
-                if (data['closeFriendPersonalities'] != null) closeFriendPersonalities = List<String>.from(data['closeFriendPersonalities']);
-                if (data['values'] != null) values = List<String>.from(data['values']);
+              try {
+                if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
+                  final rawData = snapshot.data!.data();
+                  if (rawData is Map<String, dynamic>) {
+                    final data = rawData;
+                    role = data['role']?.toString() ?? role;
+                    nickname = data['nickname']?.toString() ?? nickname;
+                    name = data['name']?.toString() ?? name;
+                    if (data['age'] != null) {
+                      age = data['age'] is int ? data['age'] : (int.tryParse(data['age'].toString()) ?? age);
+                    }
+                    gender = data['gender']?.toString() ?? gender;
+                    location = data['location']?.toString() ?? location;
+                    bio = data['bio']?.toString() ?? bio;
+                    job = data['job']?.toString() ?? job;
+                    mbti = data['mbti']?.toString() ?? mbti;
+                    jobAndMbti = '${age > 0 ? '$age세 • ' : ''}${gender.isNotEmpty ? '$gender • ' : ''}$job • $mbti';
+                    hobbies = _parseSafeList(data['hobbies'], hobbies);
+                    personalities = _parseSafeList(data['personalities'], personalities);
+                    drinking = _parseSafeList(data['drinking'], drinking);
+                    closeFriendPersonalities = _parseSafeList(data['closeFriendPersonalities'], closeFriendPersonalities);
+                    values = _parseSafeList(data['values'], values);
 
-                final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
-                if (loadedAvatar != null && loadedAvatar.isNotEmpty && globalData.userAvatar.value != loadedAvatar) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) globalData.userAvatar.value = loadedAvatar;
-                  });
+                    final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
+                    if (loadedAvatar != null && loadedAvatar.isNotEmpty && globalData.userAvatar.value != loadedAvatar) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) globalData.userAvatar.value = loadedAvatar;
+                      });
+                    }
+                    if (globalData.userNickname.value != nickname) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) globalData.userNickname.value = nickname;
+                      });
+                    }
+                    if (globalData.userLocation.value != location) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) globalData.userLocation.value = location;
+                      });
+                    }
+                  }
+                } else {
+                  jobAndMbti = '${age > 0 ? '$age세 • ' : ''}${gender.isNotEmpty ? '$gender • ' : ''}$job • $mbti';
                 }
-                if (globalData.userNickname.value != nickname) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) globalData.userNickname.value = nickname;
-                  });
-                }
-                if (globalData.userLocation.value != location) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) globalData.userLocation.value = location;
-                  });
-                }
-              } else {
+              } catch (e) {
+                debugPrint('MyPage data parse error: $e');
                 jobAndMbti = '${age > 0 ? '$age세 • ' : ''}${gender.isNotEmpty ? '$gender • ' : ''}$job • $mbti';
               }
 

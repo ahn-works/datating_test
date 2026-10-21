@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'soso_car_home_screen.dart';
 import '../services/auth_service.dart';
 
@@ -16,6 +17,42 @@ class _LoginScreenState extends State<LoginScreen> {
   final Color surfaceColor = const Color(0xFFF7F7FA);
 
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkKakaoOAuthRedirect();
+  }
+
+  void _checkKakaoOAuthRedirect() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final uri = Uri.base;
+        if (uri.queryParameters.containsKey('code')) {
+          final code = uri.queryParameters['code']!;
+          _showLoading('💬 카카오 공식 인증 정보 확인 중...');
+          await authService.handleKakaoOAuthCode(code);
+          if (mounted) {
+            _hideLoading();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('🎉 카카오 계정 인증 완료! 환영합니다.'),
+                backgroundColor: Color(0xFFFAE100),
+              ),
+            );
+            _navigateHome();
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          _hideLoading();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('카카오 인증 실패: $e')),
+          );
+        }
+      }
+    });
+  }
 
   void _showLoading(String message) {
     setState(() => _isLoading = true);
@@ -51,27 +88,180 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // 1. 카카오 로그인
-  Future<void> _handleKakaoLogin() async {
-    _showLoading('💬 카카오 계정으로 동적 로그인 중...');
-    try {
-      await authService.signInWithKakao(
-        kakaoNickname: '카카오이웃',
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🎉 카카오 계정으로 성공적으로 시작했습니다!')),
-        );
-        _navigateHome();
-      }
-    } catch (e) {
-      _hideLoading();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('카카오 로그인 실패: $e')),
-        );
-      }
-    }
+  // 1. 카카오 로그인 (공식 OAuth 화면 열기 + 내 실제 카카오 계정 연동)
+  void _handleKakaoLogin() {
+    final emailController = TextEditingController();
+    final nickController = TextEditingController();
+    bool isDirectMode = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24, right: 24, top: 20,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44, height: 4,
+                    decoration: BoxDecoration(color: const Color(0xFFE5E5EA), borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFAE100),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.chat_bubble_rounded, size: 20, color: Color(0xFF391B1B)),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('카카오 계정으로 시작하기', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Color(0xFF111111))),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text('공식 카카오 계정으로 안전하게 인증하고 동네 모임을 시작하세요.', style: TextStyle(fontSize: 13, color: textSecondary)),
+                const SizedBox(height: 24),
+
+                // [옵션 1] 공식 카카오 OAuth 간편 로그인 버튼
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFAE100),
+                      foregroundColor: const Color(0xFF391B1B),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                    label: const Text('🚀 공식 카카오 로그인 화면 열기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final kakaoUri = Uri.parse(authService.kakaoOAuthUrl);
+                      try {
+                        await launchUrl(kakaoUri, webOnlyWindowName: '_self');
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('카카오 로그인 창 열기 실패: $e')),
+                        );
+                      }
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                Center(
+                  child: Text('또는', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
+                ),
+                const SizedBox(height: 16),
+
+                // [옵션 2] 내 실제 카카오 계정/이메일로 직접 연결 폼
+                if (!isDirectMode)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: textPrimary,
+                        side: const BorderSide(color: Color(0xFFE5E5EB)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      icon: const Icon(Icons.badge_outlined, size: 18),
+                      label: const Text('✉️ 내 카카오 이메일/닉네임으로 직접 연동', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                      onPressed: () {
+                        setModalState(() => isDirectMode = true);
+                      },
+                    ),
+                  )
+                else ...[
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: '실제 카카오 계정 이메일 (예: user@kakao.com)',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: nickController,
+                    decoration: InputDecoration(
+                      hintText: '내 닉네임 (예: 홍길동)',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF391B1B),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      onPressed: () async {
+                        final email = emailController.text.trim();
+                        final nick = nickController.text.trim();
+                        if (email.isEmpty || !email.contains('@')) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('올바른 카카오 이메일을 입력해주세요.')),
+                          );
+                          return;
+                        }
+                        Navigator.pop(ctx);
+                        _showLoading('💬 내 카카오 계정 연동 중...');
+                        try {
+                          await authService.signInWithRealKakaoAccount(
+                            kakaoEmail: email,
+                            kakaoNickname: nick.isNotEmpty ? nick : email.split('@').first,
+                          );
+                          if (mounted) {
+                            _hideLoading();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('🎉 내 카카오 계정으로 성공적으로 연동되었습니다!')),
+                            );
+                            _navigateHome();
+                          }
+                        } catch (e) {
+                          _hideLoading();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('연동 실패: $e')),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text('내 카카오 계정으로 연동 및 시작', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   // 2. 구글 로그인

@@ -41,6 +41,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
 
+  List<String> _parseSafeList(dynamic value, List<String> defaultValue) {
+    if (value == null) return defaultValue;
+    if (value is List) {
+      return value.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList();
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      return [value.trim()];
+    }
+    return defaultValue;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -61,9 +72,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _bioController.text = data['bio'] ?? '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
         _jobController.text = data['job'] ?? 'IT/개발';
         _mbtiController.text = data['mbti'] ?? 'ENFP';
-        _selectedHobbies = List<String>.from(data['hobbies'] ?? ['맛집탐방', '보드게임']);
-        _selectedPersonalities = List<String>.from(data['personalities'] ?? ['리액션 요정', '친화력 갑']);
-        _selectedDrinking = List<String>.from(data['drinking'] ?? ['가볍게 한잔']);
+        _selectedHobbies = _parseSafeList(data['hobbies'], ['맛집탐방', '보드게임']);
+        _selectedPersonalities = _parseSafeList(data['personalities'], ['리액션 요정', '친화력 갑']);
+        _selectedDrinking = _parseSafeList(data['drinking'], ['가볍게 한잔']);
         _avatarUrl = (data['photoUrl'] ?? data['avatarUrl'] ?? 'assets/images/kr_female_1.jpg').toString();
       } else {
         _nicknameController.text = '오오무 운영팀';
