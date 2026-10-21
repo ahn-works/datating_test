@@ -24,6 +24,23 @@ class AuthService {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   bool get isAuthenticated => _auth.currentUser != null;
+
+  /// 카카오 개발자 센터 공식 API 키 및 설정 정보 Firestore(config/kakao_auth)에 안전 백업
+  Future<void> syncKakaoConfigToFirestore() async {
+    try {
+      await _firestore.collection('config').doc('kakao_auth').set({
+        'appName': '우무(OOMU)',
+        'kakaoRestApiKey': kakaoRestApiKey,
+        'kakaoRedirectUri': kakaoRedirectUri,
+        'kakaoOAuthUrl': kakaoOAuthUrl,
+        'provider': 'kakao',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      debugPrint('[AuthService] Kakao config synced to Firestore (config/kakao_auth)');
+    } catch (e) {
+      debugPrint('[AuthService] Kakao config Firestore sync: $e');
+    }
+  }
   bool get isAdmin =>
       _auth.currentUser?.email == 'ansimhyang60@naver.com' ||
       globalData.activeUserId == 'udr2AlH3YIX7LEnyHdWGGFcOu2g1';
@@ -104,6 +121,7 @@ class AuthService {
     String? kakaoProfileImg,
   }) async {
     final cleanEmail = kakaoEmail.trim();
+    syncKakaoConfigToFirestore();
     final cleanNick = kakaoNickname.trim();
     const String tempPw = 'kakao_pass_oomu_2026!';
 
