@@ -3,6 +3,7 @@ import '../utils/global_data.dart';
 import '../utils/app_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
+import 'chat_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'profile_edit_screen.dart';
