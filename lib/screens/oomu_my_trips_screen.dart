@@ -206,28 +206,28 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
         }
       },
-      items: const [
-        BottomNavigationBarItem(
+      items: [
+        const BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined, size: 24),
-          activeIcon: Icon(Icons.home, size: 24, color: coralAccent),
+          activeIcon: Icon(Icons.home, size: 24, color: Color(0xFFF25767)),
           label: '동네모임',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.group_outlined, size: 24),
           activeIcon: Icon(Icons.group, size: 24),
           label: '커뮤니티',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.favorite_border, size: 24),
           activeIcon: Icon(Icons.favorite, size: 24),
           label: '소개팅',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.chat_bubble_outline, size: 23),
           activeIcon: Icon(Icons.chat_bubble, size: 23),
           label: '채팅',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.person_outline, size: 24),
           activeIcon: Icon(Icons.person, size: 24),
           label: 'MY',
