@@ -18,6 +18,16 @@ class R2InvalidFileTypeException implements Exception {
   String toString() => message;
 }
 
+class R2FileSizeExceededException implements Exception {
+  final int sizeInBytes;
+  final int maxBytes;
+  R2FileSizeExceededException(this.sizeInBytes, this.maxBytes);
+
+  @override
+  String toString() => '사진 파일 크기가 너무 큽니다 (${(sizeInBytes / (1024 * 1024)).toStringAsFixed(1)}MB). '
+      'Cloudflare 무료 요금제 용량 관리를 위해 ${(maxBytes / (1024 * 1024)).toStringAsFixed(0)}MB 이하의 사진만 업로드 가능합니다.';
+}
+
 /// Cloudflare R2 고성능 사진 스토리지 서비스
 /// - Bucket: oomu-spot
 /// - Account ID: 81ffd88f0a14642f94a0c4206e160925
@@ -307,6 +317,12 @@ class R2StorageService {
     // 1. 사진 파일 검증 (jpg, png, webp 등만 허용)
     if (!isImageFile(fileName, bytes)) {
       throw R2InvalidFileTypeException('사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.');
+    }
+
+    // 2. 파일 용량 제한 (Cloudflare 무료 요금제 10GB 한도 보호를 위해 5MB 초과 시 차단)
+    const int maxUploadBytes = 5 * 1024 * 1024; // 5MB
+    if (bytes.length > maxUploadBytes) {
+      throw R2FileSizeExceededException(bytes.length, maxUploadBytes);
     }
 
     // 초기화 보장
