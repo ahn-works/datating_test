@@ -65,8 +65,9 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
 
     final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
 
+    final postId = 'post_${DateTime.now().millisecondsSinceEpoch}';
     final newPost = {
-      'id': 'post_${DateTime.now().millisecondsSinceEpoch}',
+      'id': postId,
       'category': _selectedCategory == '🎭 공연·핫플'
           ? '공연/전시'
           : (_selectedCategory == '🍰 맛집·카페'
@@ -80,6 +81,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
       'location': widget.currentLocation,
       'time': '방금 전',
       'manner': 45.0,
+      'likedUserIds': <String>[],
       'likes': 0,
       'isLiked': false,
       'comments': 0,
@@ -94,7 +96,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     };
 
     try {
-      FirebaseFirestore.instance.collection('community_posts').add(newPost);
+      FirebaseFirestore.instance.collection('community_posts').doc(postId).set(newPost);
     } catch (_) {}
 
     Navigator.pop(context, newPost);

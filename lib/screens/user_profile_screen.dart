@@ -4,7 +4,23 @@ import '../utils/global_data.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final String userName;
-  const UserProfileScreen({super.key, required this.userName});
+  final String? userAge;
+  final String? userLocation;
+  final String? userBio;
+  final String? userAvatar;
+  final double? userManner;
+  final List<String>? userTags;
+
+  const UserProfileScreen({
+    super.key,
+    required this.userName,
+    this.userAge,
+    this.userLocation,
+    this.userBio,
+    this.userAvatar,
+    this.userManner,
+    this.userTags,
+  });
 
 
   void _showReportBottomSheet(BuildContext context) {
@@ -104,8 +120,48 @@ class UserProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color textPrimary = const Color(0xFF111111);
     final Color textSecondary = const Color(0xFF767676);
-    final Color surfaceColor = const Color(0xFFF5F5F7);
-    final Color accentColor = const Color(0xFFF19E39);
+    final Color surfaceColor = const Color(0xFFFAF6F7);
+    final Color accentColor = const Color(0xFFF25767);
+
+    // 3인 페르소나 데이터 사전 정의
+    final personaMap = {
+      '김민서': {
+        'age': '24',
+        'location': '마포구 서교동',
+        'manner': 37.2,
+        'avatar': 'assets/images/kr_female_1.jpg',
+        'job': '콘텐츠 디자이너',
+        'bio': '연트럴파크 산책 & 전시회·디저트 탐방 좋아해요 ✨ 동네에서 편하게 볼 수 있는 좋은 친구 사귀고 싶어요!',
+        'tags': ['산책메이트', '감성전시', '디저트덕후', '연트럴파크'],
+      },
+      '이준호': {
+        'age': '28',
+        'location': '성동구 성수동',
+        'manner': 38.5,
+        'avatar': 'assets/images/kr_male_1.jpg',
+        'job': '브랜드 마케터',
+        'bio': '성수동 스페셜티 커피 & 주말 저녁 한강 러닝 크루 🏃‍♂️ 퇴근 후 가벼운 맥주나 러닝 함께해요!',
+        'tags': ['러닝크루', '에스프레소', '헬스', '성수동'],
+      },
+      '박지연': {
+        'age': '26',
+        'location': '마포구 연남동',
+        'manner': 36.8,
+        'avatar': 'assets/images/kr_female_2.jpg',
+        'job': '파티시에 & 베이킹',
+        'bio': '동네 숨은 베이킹 카페 탐방 & 반려견 산책 🐶 주말에 조용한 북카페에서 같이 책 읽으실 분 환영해요!',
+        'tags': ['베이킹', '댕댕이', '북카페', '연남동'],
+      },
+    };
+
+    final resolvedData = personaMap[userName] ?? {};
+    final displayAge = userAge ?? (resolvedData['age'] as String?) ?? '26';
+    final displayLocation = userLocation ?? (resolvedData['location'] as String?) ?? '마포구 서교동';
+    final displayBio = userBio ?? (resolvedData['bio'] as String?) ?? '안녕하세요! OOMU에서 취향이 맞는 동네 친구들을 만나고 싶어요 ✨';
+    final displayAvatar = userAvatar ?? (resolvedData['avatar'] as String?) ?? 'assets/images/kr_female_1.jpg';
+    final displayManner = userManner ?? (resolvedData['manner'] as double?) ?? 37.0;
+    final displayJob = (resolvedData['job'] as String?) ?? 'IT/콘텐츠 기획';
+    final displayTags = userTags ?? (resolvedData['tags'] as List<String>?) ?? ['#동네친구', '#취향공유', '#소소한일상'];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -135,7 +191,7 @@ class UserProfileScreen extends StatelessWidget {
                 children: [
                   PageView(
                     children: [
-                      appNetImage('assets/images/kr_female_2.jpg', fit: BoxFit.cover),
+                      appNetImage(displayAvatar, fit: BoxFit.cover),
                       appNetImage('assets/images/kr_female_1.jpg', fit: BoxFit.cover),
                     ],
                   ),
@@ -163,7 +219,7 @@ class UserProfileScreen extends StatelessWidget {
                           children: [
                             Text(userName, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
                             const SizedBox(width: 8),
-                            Text('28', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w400, color: Colors.white)),
+                            Text(displayAge, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w400, color: Colors.white)),
                             const SizedBox(width: 12),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -207,7 +263,7 @@ class UserProfileScreen extends StatelessWidget {
                           children: [
                             const Icon(Icons.location_on, color: Colors.white, size: 16),
                             const SizedBox(width: 4),
-                            const Text('마포구 연남동 · 1.2km', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500)),
+                            Text('$displayLocation · 동네 이웃', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500)),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -215,7 +271,7 @@ class UserProfileScreen extends StatelessWidget {
                           children: [
                             const Icon(Icons.work, color: Colors.white70, size: 16),
                             const SizedBox(width: 4),
-                            const Text('IT/개발기획', style: TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w500)),
+                            Text(displayJob, style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w500)),
                           ],
                         ),
                       ],
@@ -248,7 +304,7 @@ class UserProfileScreen extends StatelessWidget {
                         Text('매너 온도', style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 16)),
                         Row(
                           children: [
-                            ValueListenableBuilder<double>(valueListenable: globalData.temperature, builder: (context, temp, _) => Text('${temp.toStringAsFixed(1)}°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: accentColor))),
+                            Text('${displayManner.toStringAsFixed(1)}°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: accentColor)),
                             const SizedBox(width: 4),
                             Icon(Icons.thermostat, color: accentColor, size: 20),
                           ],
@@ -277,7 +333,7 @@ class UserProfileScreen extends StatelessWidget {
                   // Prompts (Self Interview - Hinge Style)
                   Text('나의 이야기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
                   const SizedBox(height: 16),
-                  _buildPromptCard('쉬는 날에는 주로...', '보통 한강에서 러닝을 하거나, 예쁜 카페에 가서 책 읽는 걸 좋아해요! 요즘은 테니스도 배우고 있습니다 🎾', surfaceColor, textPrimary, accentColor),
+                  _buildPromptCard('쉬는 날에는 주로...', displayBio, surfaceColor, textPrimary, accentColor),
                   const SizedBox(height: 12),
                   _buildPromptCard('내가 찾고 있는 사람은...', '서로 긍정적인 에너지를 주고받을 수 있는 사람! 티키타카가 잘 맞으면 좋겠어요.', surfaceColor, textPrimary, accentColor),
                   const SizedBox(height: 40),
@@ -287,7 +343,7 @@ class UserProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8, runSpacing: 10,
-                    children: ['#맛집탐방', '#러닝', '#전시회', '#와인', '#드라이브'].map((hobby) => Container(
+                    children: displayTags.map((hobby) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
                         color: Colors.white, 

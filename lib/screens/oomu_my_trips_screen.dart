@@ -186,39 +186,52 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
   }
 
   Widget _buildBottomNav(BuildContext context) {
+    const coralAccent = Color(0xFFF25767);
     return BottomNavigationBar(
-      currentIndex: 3,
+      currentIndex: 0,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: textPrimary,
-      unselectedItemColor: const Color(0xFFC7C7CC),
+      selectedItemColor: coralAccent,
+      unselectedItemColor: const Color(0xFF767676),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
-        if (index == 0) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHomeScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 1) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const OOMUHostScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 2) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const ChatScreen(), transitionDuration: Duration.zero)); }
-        else if (index == 3) { }
-        else if (index == 4) { Navigator.push(context, PageRouteBuilder(pageBuilder: (_,__,___) => const MyPageScreen(), transitionDuration: Duration.zero)); }
+        if (index <= 2) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUHomeScreen(initialTab: index)));
+        } else if (index == 3) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+        } else if (index == 4) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
+        }
       },
-      items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined, size: 26), activeIcon: Icon(Icons.explore, size: 26), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 26), activeIcon: Icon(Icons.add_circle, size: 26), label: '모집하기'),
+      items: const [
         BottomNavigationBarItem(
-          icon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.chat_bubble_outline, size: 24),
-              Positioned(right: -6, top: -6, child: Container(padding: const EdgeInsets.all(5), decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle), child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
-            ],
-          ),
-          activeIcon: const Icon(Icons.chat_bubble, size: 24),
+          icon: Icon(Icons.home_outlined, size: 24),
+          activeIcon: Icon(Icons.home, size: 24, color: coralAccent),
+          label: '동네모임',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.group_outlined, size: 24),
+          activeIcon: Icon(Icons.group, size: 24),
+          label: '커뮤니티',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_border, size: 24),
+          activeIcon: Icon(Icons.favorite, size: 24),
+          label: '소개팅',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble_outline, size: 23),
+          activeIcon: Icon(Icons.chat_bubble, size: 23),
           label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined, size: 26), activeIcon: Icon(Icons.directions_car, size: 26), label: '내 모임'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 26), activeIcon: Icon(Icons.person, size: 26), label: '마이'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline, size: 24),
+          activeIcon: Icon(Icons.person, size: 24),
+          label: 'MY',
+        ),
       ],
     );
   }

@@ -16,9 +16,11 @@ import 'notification_screen.dart';
 import 'community_post_detail_screen.dart';
 import 'community_post_create_screen.dart';
 import 'event_detail_screen.dart';
+import 'user_profile_screen.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
-  const OOMUHomeScreen({super.key});
+  final int initialTab;
+  const OOMUHomeScreen({super.key, this.initialTab = 0});
 
   @override
   State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
@@ -33,12 +35,81 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color destructiveColor = const Color(0xFFE11D48);
   final Color trustColor = const Color(0xFF0D9488);
 
-  int _homeDashboardTab = 0; // 0: 모임, 1: 커뮤니티, 2: 소개팅
+  late int _homeDashboardTab; // 0: 모임, 1: 커뮤니티, 2: 소개팅, 3: 채팅, 4: MY
   String _communityCategoryFilter = '전체';
   String? _communityKeywordFilter;
   int _datingSubTab = 0; // 0: 1:1 취향 소개팅, 1: 2:2 / 3:3 동네 미팅
 
   final List<Map<String, dynamic>> _communityPosts = [
+    {
+      'id': 'post_minseo_01',
+      'category': '동네 토크',
+      'tag': '산책메이트',
+      'title': '🐕 오늘 저녁 연트럴파크 강아지 산책 같이 하실 분 계신가요?',
+      'content': '날씨가 너무 선선하고 좋아서 저녁 7시쯤 비숑 데리고 산책 나가려구요! 댕댕이 없으셔도 가볍게 산책하고 대화 나누실 이웃분 환영합니다 ✨',
+      'author': '김민서',
+      'authorAvatar': 'assets/images/kr_female_1.jpg',
+      'location': '마포구 서교동',
+      'time': '10분 전',
+      'manner': 37.2,
+      'likedUserIds': ['user_demo_1', 'user_demo_2'],
+      'likes': 2,
+      'isLiked': false,
+      'comments': 4,
+      'image': 'assets/images/cover_running.jpg',
+      'relatedMeetup': {
+        'title': '연트럴파크 저녁 산책 같이 하실 분!',
+        'location': '마포구 연트럴파크 잔디광장',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'poster': 'assets/images/cover_running.jpg',
+      }
+    },
+    {
+      'id': 'post_junho_02',
+      'category': '맛집/카페',
+      'tag': '성수에스프레소',
+      'title': '☕ 성수동 새로 오픈한 에스프레소 바 다녀왔는데 인생 커피 찾았습니다',
+      'content': '성수역 뒤쪽 골목에 새로 생긴 곳인데 스트라파짜토랑 크림 에스프레소 진짜 미쳤네요... 이번 주말에 커피 좋아하시는 분들과 같이 가서 메뉴 도장깨기 하고 싶어요!',
+      'author': '이준호',
+      'authorAvatar': 'assets/images/kr_male_1.jpg',
+      'location': '성동구 성수동',
+      'time': '25분 전',
+      'manner': 38.5,
+      'likedUserIds': ['user_demo_1'],
+      'likes': 1,
+      'isLiked': false,
+      'comments': 6,
+      'image': 'assets/images/cover_cafe.jpg',
+      'relatedMeetup': {
+        'title': '성수동 에스프레소 바 투어 같이 가실 분!',
+        'location': '성동구 성수동 카페거리',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'poster': 'assets/images/cover_cafe.jpg',
+      }
+    },
+    {
+      'id': 'post_jiyeon_03',
+      'category': '맛집/카페',
+      'tag': '연남베이킹',
+      'title': '🥐 연남동 골목에 조용하고 소금빵 맛있는 북카페 찾았어요',
+      'content': '겉바속촉 쌀 소금빵 나오자마자 먹었는데 진짜 최고예요ㅠㅠ 자리도 넓고 채광 좋아서 주말 오후에 책 읽거나 노트북 작업하기 딱입니다. 동네 분들 같이 가요!',
+      'author': '박지연',
+      'authorAvatar': 'assets/images/kr_female_2.jpg',
+      'location': '마포구 연남동',
+      'time': '40분 전',
+      'manner': 36.8,
+      'likedUserIds': ['user_demo_2', 'user_demo_3'],
+      'likes': 2,
+      'isLiked': false,
+      'comments': 3,
+      'image': 'assets/images/cover_food.jpg',
+      'relatedMeetup': {
+        'title': '연남동 소금빵 & 북카페 나들이 같이 가실 분!',
+        'location': '마포구 연남동 미로길',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'poster': 'assets/images/cover_food.jpg',
+      }
+    },
     {
       'id': 'post_01',
       'category': '공연/전시',
@@ -50,6 +121,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'location': '구로구 신도림동',
       'time': '12분 전',
       'manner': 42.5,
+      'likedUserIds': ['user_demo_1', 'user_demo_2', 'user_demo_3'],
       'likes': 28,
       'isLiked': false,
       'comments': 9,
@@ -574,6 +646,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _homeDashboardTab = widget.initialTab;
     _seedDatabase();
   }
 
@@ -658,7 +731,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
+                            gradient: const LinearGradient(colors: [Color(0xFFF25767), Color(0xFFFF707F)]),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w900)),
@@ -674,9 +747,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 3),
-                    const Text(
+                    Text(
                       '⏱️ 10~30분 내 바로 만나는 실시간 즉석 팟',
-                      style: TextStyle(fontSize: 12, color: Color(0xFFFF5E36), fontWeight: FontWeight.w700),
+                      style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -687,15 +760,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF4EB),
+                    color: const Color(0xFFFFF0F2),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: const Color(0xFFFFD8A8)),
+                    border: Border.all(color: const Color(0xFFF8C6CD)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('전체 지도', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFD9480F))),
-                      Icon(Icons.chevron_right, size: 14, color: Color(0xFFD9480F)),
+                      Text('전체 지도', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: coralAccent)),
+                      Icon(Icons.chevron_right, size: 14, color: coralAccent),
                     ],
                   ),
                 ),
@@ -721,10 +794,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFFFD8A8), width: 1.2),
+                    border: Border.all(color: const Color(0xFFF8C6CD), width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E36).withOpacity(0.08),
+                        color: coralAccent.withOpacity(0.08),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -1496,6 +1569,24 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     // 1. Category Filter (대분류 & 서브태그)
     if (_selectedCategoryIndex > 0) {
       final selectedCat = _categories[_selectedCategoryIndex]['name'] as String;
+
+      // [오늘 번개 기준]: 오늘 일정 (당일 만남, 오늘 날짜 기준 번개에 도래하는 것)
+      if (selectedCat == '오늘 번개') {
+        final dateStr = (item['date'] ?? '').toString();
+        final bool isTodayDate = dateStr.contains('오늘') ||
+                                 dateStr.contains('당일') ||
+                                 dateStr.contains('즉시') ||
+                                 dateStr.contains('26.10.20') ||
+                                 dateStr.contains('2026.10.20') ||
+                                 item['isLightning'] == true;
+        final bool hasLightningKeyword = (item['category'] ?? '').toString().contains('번개') ||
+                                         (item['title'] ?? '').toString().contains('번개') ||
+                                         ((item['tags'] as List?)?.any((t) => t.toString().contains('번개')) ?? false);
+        if (!isTodayDate && !hasLightningKeyword) {
+          return false;
+        }
+      }
+
       final bool vibeMatch = OOMUCategoryData.matchesVibe(item, selectedCat);
       final bool filterMatch = OOMUCategoryData.matchesFilter(item, selectedCat, _selectedSubCategory);
 
@@ -1536,7 +1627,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF6F7),
-      appBar: AppBar(
+      appBar: (_homeDashboardTab == 3 || _homeDashboardTab == 4)
+          ? null
+          : AppBar(
         backgroundColor: const Color(0xFFFAF6F7),
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -1611,7 +1704,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ? _buildMeetupDashboard()
           : (_homeDashboardTab == 1
               ? _buildCommunityDashboard()
-              : _buildDatingDashboard()),
+              : (_homeDashboardTab == 2
+                  ? _buildDatingDashboard()
+                  : (_homeDashboardTab == 3
+                      ? const ChatScreen(isEmbedded: true)
+                      : const MyPageScreen(isEmbedded: true)))),
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
@@ -1818,13 +1915,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF1E1E24), Color(0xFF2C2C36)],
+                        colors: [Color(0xFFF25767), Color(0xFFFF707F)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 14, offset: const Offset(0, 4)),
+                        BoxShadow(color: coralAccent.withOpacity(0.25), blurRadius: 14, offset: const Offset(0, 4)),
                       ],
                     ),
                     child: Row(
@@ -1833,7 +1930,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [Color(0xFFFF5E36), Color(0xFFFF8A3D)]),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           alignment: Alignment.center,
@@ -1848,7 +1945,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(color: const Color(0xFF34C759), borderRadius: BorderRadius.circular(5)),
+                                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.25), borderRadius: BorderRadius.circular(5)),
                                     child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                                   ),
                                   const SizedBox(width: 6),
@@ -1860,13 +1957,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               ),
                               const SizedBox(height: 3),
                               const Text(
-                                '내 주변 10분 컷 핫플! 실시간 번개 즉시 합류',
-                                style: TextStyle(color: Colors.white70, fontSize: 11.5),
+                                '내 주변 10분 컷 핫플! 실시간 당일 번개 즉시 합류',
+                                style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 14),
+                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
                       ],
                     ),
                   ),
@@ -2271,9 +2368,24 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             // 작성자 헤더
             Row(
               children: [
-                CircleAvatar(
-                  radius: 17,
-                  backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => UserProfileScreen(
+                          userName: post['author'] ?? '김민서',
+                          userAvatar: post['authorAvatar'],
+                          userLocation: post['location'],
+                          userManner: post['manner'] is num ? (post['manner'] as num).toDouble() : 37.0,
+                        ),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 17,
+                    backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                  ),
                 ),
                 const SizedBox(width: 9),
                 Expanded(
@@ -2282,9 +2394,24 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            post['author'] ?? '동네주민',
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => UserProfileScreen(
+                                    userName: post['author'] ?? '김민서',
+                                    userAvatar: post['authorAvatar'],
+                                    userLocation: post['location'],
+                                    userManner: post['manner'] is num ? (post['manner'] as num).toDouble() : 37.0,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              post['author'] ?? '동네주민',
+                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                            ),
                           ),
                           const SizedBox(width: 6),
                           Container(
@@ -2386,9 +2513,28 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 GestureDetector(
                   onTap: () {
                     setState(() {
-                      bool current = post['isLiked'] ?? false;
-                      post['isLiked'] = !current;
-                      post['likes'] = (post['likes'] ?? 0) + (current ? -1 : 1);
+                      final myUserId = 'user_me_01';
+                      List<dynamic> likedUsers = List<dynamic>.from(post['likedUserIds'] ?? []);
+                      bool currentlyLiked = likedUsers.contains(myUserId);
+                      if (currentlyLiked) {
+                        likedUsers.remove(myUserId);
+                      } else {
+                        likedUsers.add(myUserId);
+                      }
+                      post['likedUserIds'] = likedUsers;
+                      post['likes'] = likedUsers.length;
+                      post['isLiked'] = !currentlyLiked;
+
+                      final postId = post['id']?.toString();
+                      if (postId != null && postId.isNotEmpty) {
+                        try {
+                          FirebaseFirestore.instance.collection('community_posts').doc(postId).set({
+                            'likedUserIds': likedUsers,
+                            'likes': likedUsers.length,
+                            'updatedAt': FieldValue.serverTimestamp(),
+                          }, SetOptions(merge: true));
+                        } catch (_) {}
+                      }
                     });
                   },
                   child: Row(
@@ -3944,15 +4090,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
-        if (index <= 2) {
-          setState(() {
-            _homeDashboardTab = index;
-          });
-        } else if (index == 3) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
-        } else if (index == 4) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
-        }
+        setState(() {
+          _homeDashboardTab = index;
+        });
       },
       items: [
         BottomNavigationBarItem(

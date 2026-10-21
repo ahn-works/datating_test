@@ -266,9 +266,16 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         return;
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5),
+      Position? position;
+      try {
+        position = await Geolocator.getLastKnownPosition().timeout(
+          const Duration(milliseconds: 400),
+          onTimeout: () => null,
+        );
+      } catch (_) {}
+      position ??= await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+        timeLimit: const Duration(milliseconds: 1800),
       );
 
       final newLatLng = LatLng(position.latitude, position.longitude);

@@ -335,48 +335,56 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
   }
 
   Widget _buildBottomNav() {
+    const coralAccent = Color(0xFFF25767);
     return BottomNavigationBar(
-      currentIndex: 0,
+      currentIndex: 1,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF14422D),
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: coralAccent,
+      unselectedItemColor: const Color(0xFF767676),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+      elevation: 20,
+      backgroundColor: Colors.white,
       onTap: (index) {
         if (index == 0) {
-          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 0)));
         } else if (index == 1) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUHostScreen()));
+          // current tab
         } else if (index == 2) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 2)));
         } else if (index == 3) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const OOMUMyTripsScreen()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
         } else if (index == 4) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPageScreen()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
         }
       },
-      items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore), label: '탐색'),
-        const BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: '모집하기'),
+      items: const [
         BottomNavigationBarItem(
-          icon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.chat_bubble_outline),
-              Positioned(
-                right: -4, top: -4,
-                child: Container(
-                  padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Color(0xFFB53D25), shape: BoxShape.circle),
-                  child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-              )
-            ],
-          ),
+          icon: Icon(Icons.home_outlined, size: 24),
+          activeIcon: Icon(Icons.home, size: 24),
+          label: '동네모임',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.group_outlined, size: 24),
+          activeIcon: Icon(Icons.group, size: 24, color: coralAccent),
+          label: '커뮤니티',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_border, size: 24),
+          activeIcon: Icon(Icons.favorite, size: 24),
+          label: '소개팅',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble_outline, size: 23),
+          activeIcon: Icon(Icons.chat_bubble, size: 23),
           label: '채팅',
         ),
-        const BottomNavigationBarItem(icon: Icon(Icons.directions_car_outlined), activeIcon: Icon(Icons.directions_car), label: '내 여행'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: '마이'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline, size: 24),
+          activeIcon: Icon(Icons.person, size: 24),
+          label: 'MY',
+        ),
       ],
     );
   }

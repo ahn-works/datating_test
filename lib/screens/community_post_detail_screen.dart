@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../widgets/ugc_action_sheets.dart';
 import 'soso_car_host_screen.dart';
+import 'user_profile_screen.dart';
 
 class CommunityPostDetailScreen extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -70,18 +72,45 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     if (text.isEmpty) return;
 
     final myNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final newComm = {
+      'id': 'comm_${DateTime.now().millisecondsSinceEpoch}',
+      'author': myNick,
+      'authorAvatar': 'assets/images/kr_male_1.jpg',
+      'content': text,
+      'time': '방금 전',
+      'likes': 0,
+      'isLiked': false,
+    };
+
     setState(() {
-      _comments.add({
-        'id': 'comm_${DateTime.now().millisecondsSinceEpoch}',
-        'author': myNick,
-        'authorAvatar': 'assets/images/kr_male_1.jpg',
-        'content': text,
-        'time': '방금 전',
-        'likes': 0,
-        'isLiked': false,
-      });
-      widget.post['comments'] = (_comments.length);
+      _comments.add(newComm);
+      widget.post['comments'] = _comments.length;
     });
+
+    final postId = widget.post['id']?.toString();
+    if (postId != null && postId.isNotEmpty) {
+      try {
+        FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(postId)
+            .collection('comments')
+            .add({
+          'author': myNick,
+          'authorAvatar': 'assets/images/kr_male_1.jpg',
+          'content': text,
+          'time': '방금 전',
+          'createdAt': FieldValue.serverTimestamp(),
+          'likes': 0,
+        });
+        FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(postId)
+            .set({
+          'comments': _comments.length,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
 
     _commentController.clear();
     FocusScope.of(context).unfocus();
@@ -103,10 +132,34 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   void _toggleLike() {
     setState(() {
+      final myUserId = 'user_me_01';
+      List<dynamic> likedUsers = List<dynamic>.from(widget.post['likedUserIds'] ?? []);
+      if (_isLiked) {
+        likedUsers.remove(myUserId);
+      } else {
+        if (!likedUsers.contains(myUserId)) {
+          likedUsers.add(myUserId);
+        }
+      }
       _isLiked = !_isLiked;
-      _likeCount += _isLiked ? 1 : -1;
-      widget.post['isLiked'] = _isLiked;
+      _likeCount = likedUsers.length;
+      widget.post['likedUserIds'] = likedUsers;
       widget.post['likes'] = _likeCount;
+      widget.post['isLiked'] = _isLiked;
+
+      final postId = widget.post['id']?.toString();
+      if (postId != null && postId.isNotEmpty) {
+        try {
+          FirebaseFirestore.instance
+              .collection('community_posts')
+              .doc(postId)
+              .set({
+            'likedUserIds': likedUsers,
+            'likes': _likeCount,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
+      }
     });
   }
 
@@ -169,9 +222,24 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       // Author Row
                       Row(
                         children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => UserProfileScreen(
+                                    userName: author,
+                                    userAvatar: post['authorAvatar'],
+                                    userLocation: location,
+                                    userManner: manner is num ? (manner as num).toDouble() : 37.0,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 20,
+                              backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                            ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -180,9 +248,24 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      author,
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => UserProfileScreen(
+                                              userName: author,
+                                              userAvatar: post['authorAvatar'],
+                                              userLocation: location,
+                                              userManner: manner is num ? (manner as num).toDouble() : 37.0,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        author,
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                      ),
                                     ),
                                     const SizedBox(width: 6),
                                     Container(
@@ -430,9 +513,22 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundImage: appImg(comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => UserProfileScreen(
+                                    userName: comm['author'] ?? '이웃',
+                                    userAvatar: comm['authorAvatar'],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundImage: appImg(comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
+                            ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -441,9 +537,22 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      comm['author'] ?? '이웃',
-                                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => UserProfileScreen(
+                                              userName: comm['author'] ?? '이웃',
+                                              userAvatar: comm['authorAvatar'],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        comm['author'] ?? '이웃',
+                                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
+                                      ),
                                     ),
                                     const SizedBox(width: 6),
                                     Text(

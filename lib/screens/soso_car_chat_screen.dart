@@ -510,8 +510,18 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           return;
         }
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('현재 위치를 가져오는 중입니다...')));
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('현재 위치를 빠르게 가져오는 중입니다...')));
+      Position? position;
+      try {
+        position = await Geolocator.getLastKnownPosition().timeout(
+          const Duration(milliseconds: 400),
+          onTimeout: () => null,
+        );
+      } catch (_) {}
+      position ??= await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+        timeLimit: const Duration(milliseconds: 1800),
+      );
       final String kakaoMapUrl = 'https://map.kakao.com/link/map/내_현재_위치,${position.latitude},${position.longitude}';
       
       _addMessage({'type': 'location', 'latitude': position.latitude, 'longitude': position.longitude, 'mapUrl': kakaoMapUrl});

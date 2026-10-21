@@ -8,60 +8,61 @@ import 'oomu_my_trips_screen.dart';
 import 'my_page_screen.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final bool isEmbedded;
+  const ChatScreen({super.key, this.isEmbedded = false});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final Color textPrimary = const Color(0xFF111111);
-  final Color textSecondary = const Color(0xFF767676);
-  final Color accentColor = const Color(0xFFF19E39);
-  final Color backgroundColor = const Color(0xFFF7F8FA);
+  final Color textPrimary = const Color(0xFF221B1D);
+  final Color textSecondary = const Color(0xFF635559);
+  final Color accentColor = const Color(0xFFF25767);
+  final Color backgroundColor = const Color(0xFFFAF6F7);
 
   final List<Map<String, dynamic>> _defaultChatRooms = [
     {
-      'id': 'room_mala_01',
-      'title': '주말 엽떡+마라탕 조지실 분 🔥',
-      'lastMessage': '홍대입구역 9번 출구 앞에서 봬요!',
-      'time': '오후 2:30',
-      'unread': 3,
-      'members': 4,
-      'imageUrl': 'assets/images/cover_food.jpg',
+      'id': 'room_minseo_01',
+      'title': '서교동 연트럴파크 산책 팟 🐕 (김민서)',
+      'lastMessage': '저녁 7시에 광장 분수대 앞에서 봬요!',
+      'time': '방금',
+      'unread': 2,
+      'members': 3,
+      'imageUrl': 'assets/images/kr_female_1.jpg',
       'isGroup': true,
       'defaultOrder': 1,
     },
     {
-      'id': 'room_bowling_02',
-      'title': '볼링 에버리지 100 쪼렙팟 🎳',
-      'lastMessage': '저 볼링화 240이요~',
-      'time': '오전 11:15',
-      'unread': 0,
-      'members': 6,
-      'imageUrl': 'assets/images/cover_wine.jpg',
+      'id': 'room_junho_02',
+      'title': '성수동 에스프레소 & 러닝 크루 ☕ (이준호)',
+      'lastMessage': '이번 주말 카페거리 투어 코스 공유드립니다~',
+      'time': '오후 2:30',
+      'unread': 1,
+      'members': 4,
+      'imageUrl': 'assets/images/kr_male_1.jpg',
       'isGroup': true,
       'defaultOrder': 2,
     },
     {
-      'id': 'room_direct_03',
-      'title': '매운맛킬러 (호스트)',
-      'lastMessage': '혹시 마라탕 알러지 있으신가요?',
-      'time': '어제',
-      'unread': 1,
+      'id': 'room_jiyeon_03',
+      'title': '연남동 숨은 베이킹 투어 🥐 (박지연)',
+      'lastMessage': '소금빵 갓 구워져 나왔대요 ㅎㅎ',
+      'time': '오전 11:15',
+      'unread': 0,
       'members': 2,
-      'imageUrl': 'assets/images/kr_female_1.jpg',
+      'imageUrl': 'assets/images/kr_female_2.jpg',
       'isGroup': false,
       'defaultOrder': 3,
     },
     {
-      'id': 'room_cafe_02',
-      'title': '성수 카페 투어 & 디저트 🍰',
-      'lastMessage': '이번 주 일요일 2시에 만나요!',
-      'time': '오전 10:00',
+      'id': 'room_mala_01',
+      'title': '주말 엽떡+마라탕 조지실 분 🔥',
+      'lastMessage': '홍대입구역 9번 출구 앞에서 봬요!',
+      'time': '어제',
       'unread': 0,
       'members': 4,
-      'imageUrl': 'assets/images/cover_cafe.jpg',
+      'imageUrl': 'assets/images/cover_food.jpg',
       'isGroup': true,
       'defaultOrder': 4,
     },
@@ -353,38 +354,58 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         },
       ),
-      bottomNavigationBar: SafeArea(
+      bottomNavigationBar: widget.isEmbedded ? null : SafeArea(
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
           ),
           child: BottomNavigationBar(
-            currentIndex: 2,
+            currentIndex: 3,
             type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.white,
             selectedItemColor: accentColor,
-            unselectedItemColor: const Color(0xFFC7C7CC),
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            elevation: 0,
+            unselectedItemColor: const Color(0xFF767676),
+            selectedFontSize: 11,
+            unselectedFontSize: 11,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+            elevation: 20,
             onTap: (index) {
-              if (index == 0) {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen()));
-              } else if (index == 1) {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHostScreen()));
+              if (index <= 2) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUHomeScreen(initialTab: index)));
               } else if (index == 3) {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUMyTripsScreen()));
+                // current chat tab
               } else if (index == 4) {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
               }
             },
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.explore), label: '탐색'),
-              BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: '모집하기'),
-              BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: '채팅'),
-              BottomNavigationBarItem(icon: Icon(Icons.directions_car), label: '내 모임'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이'),
+            items: [
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, size: 24),
+                activeIcon: Icon(Icons.home, size: 24),
+                label: '동네모임',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.group_outlined, size: 24),
+                activeIcon: Icon(Icons.group, size: 24),
+                label: '커뮤니티',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.favorite_border, size: 24),
+                activeIcon: Icon(Icons.favorite, size: 24),
+                label: '소개팅',
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.chat_bubble_outline, size: 23),
+                activeIcon: Icon(Icons.chat_bubble, size: 23, color: accentColor),
+                label: '채팅',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline, size: 24),
+                activeIcon: Icon(Icons.person, size: 24),
+                label: 'MY',
+              ),
             ],
           ),
         ),

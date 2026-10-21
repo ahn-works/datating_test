@@ -5,56 +5,87 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
 class LocationHelper {
-  /// GPS 권한 확인 및 요청 후 현재 위치 읍·면·동 반환
+  static String? _cachedDongName;
+  static DateTime? _cachedDongTime;
+
+  /// GPS 권한 확인 및 요청 후 현재 위치 읍·면·동 반환 (초고속 캐시 + 1.8초 엄격 타임아웃)
   static Future<String?> getCurrentDongName() async {
+    // 0. 30초 이내 캐시된 동네 이름 즉시 반환
+    if (_cachedDongName != null && _cachedDongTime != null) {
+      if (DateTime.now().difference(_cachedDongTime!).inSeconds < 30) {
+        return _cachedDongName;
+      }
+    }
+
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled().timeout(
+        const Duration(milliseconds: 500),
+        onTimeout: () => true,
+      );
       if (!serviceEnabled) {
         debugPrint('[LocationHelper] Location services are disabled.');
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      LocationPermission permission = await Geolocator.checkPermission().timeout(
+        const Duration(milliseconds: 500),
+        onTimeout: () => LocationPermission.denied,
+      );
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission().timeout(
+          const Duration(milliseconds: 1500),
+          onTimeout: () => LocationPermission.denied,
+        );
+        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
           debugPrint('[LocationHelper] Location permission denied.');
-          return null;
+          return _cachedDongName ?? '마포구 서교동';
         }
       }
 
-      if (permission == LocationPermission.deniedForever) {
-        debugPrint('[LocationHelper] Location permission permanently denied.');
-        return null;
-      }
+      // 1. 기기 마지막 캐시 좌표 우선 조회 (0.1초 내 즉시 반환)
+      Position? position;
+      try {
+        position = await Geolocator.getLastKnownPosition().timeout(
+          const Duration(milliseconds: 400),
+          onTimeout: () => null,
+        );
+      } catch (_) {}
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-        timeLimit: const Duration(seconds: 7),
-      );
+      // 2. 캐시 없으면 최대 1.8초 이내 빠른 측정 (low accuracy로 즉각 락온)
+      if (position == null) {
+        position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low,
+          timeLimit: const Duration(milliseconds: 1800),
+        );
+      }
 
       debugPrint('[LocationHelper] Got coordinates: ${position.latitude}, ${position.longitude}');
 
-      // 1. 역지오코딩 시도 (Nominatim OpenStreetMap)
+      // 3. 역지오코딩 시도 (Nominatim OpenStreetMap - 최대 1.2초 타임아웃)
       final reverseName = await _reverseGeocode(position.latitude, position.longitude);
       if (reverseName != null && reverseName.trim().isNotEmpty) {
+        _cachedDongName = reverseName;
+        _cachedDongTime = DateTime.now();
         return reverseName;
       }
 
-      // 2. 오프라인 좌표 거리 매칭 (여수, 순천, 광주, 서울, 판교, 부산 등 정밀 매핑)
-      return _matchNearestKoreanDong(position.latitude, position.longitude);
+      // 4. 오프라인 좌표 거리 매칭 (서울, 경기, 전남, 부산 등 정밀 매핑 - 0.01초 즉시 계산)
+      final matched = _matchNearestKoreanDong(position.latitude, position.longitude);
+      _cachedDongName = matched;
+      _cachedDongTime = DateTime.now();
+      return matched;
     } catch (e) {
       debugPrint('[LocationHelper] Error fetching location: $e');
-      return null;
+      return _cachedDongName ?? '마포구 서교동';
     }
   }
 
-  /// 역지오코딩 API 호출 (3초 타임아웃)
+  /// 역지오코딩 API 호출 (1.2초 타임아웃)
   static Future<String?> _reverseGeocode(double lat, double lon) async {
     try {
       final url = Uri.parse(
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=16&addressdetails=1&accept-language=ko',
       );
-      final res = await http.get(url, headers: {'User-Agent': 'OOMUSpotApp/1.0'}).timeout(const Duration(seconds: 3));
+      final res = await http.get(url, headers: {'User-Agent': 'OOMUSpotApp/1.0'}).timeout(const Duration(milliseconds: 1200));
 
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
