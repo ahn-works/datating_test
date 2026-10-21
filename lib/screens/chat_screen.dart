@@ -72,6 +72,19 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     oomuChatStore.addListener(_onStoreUpdate);
+    _syncUserStates();
+  }
+
+  void _syncUserStates() {
+    try {
+      FirebaseFirestore.instance
+          .collection('user_states')
+          .doc('user_me_01')
+          .snapshots()
+          .listen((snap) {
+        if (mounted) setState(() {});
+      });
+    } catch (_) {}
   }
 
   @override
@@ -169,7 +182,13 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     // 4. 최신 메시지 발송 시간 기준 내림차순(최신순) 정렬 (나간 방 제외)
-    final list = map.values.where((r) => !oomuChatStore.isRoomLeft(r['id']?.toString() ?? '')).toList();
+    final list = map.values.where((r) {
+      final rid = r['id']?.toString() ?? '';
+      if (oomuChatStore.isRoomLeft(rid)) return false;
+      final leftUsers = List<dynamic>.from(r['leftUserIds'] ?? []);
+      if (leftUsers.contains('user_me_01')) return false;
+      return true;
+    }).toList();
     list.sort((a, b) {
       final aDate = a['updatedAt'] as DateTime?;
       final bDate = b['updatedAt'] as DateTime?;

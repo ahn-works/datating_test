@@ -156,10 +156,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       ),
                       onPressed: () {
                         Navigator.pop(ctx);
+                        final rId = oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'room_mala_01');
+                        oomuChatStore.rejoinRoom(rId);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
                           title: (widget.meetup != null ? widget.meetup!['title'] : '주말 엽떡+마라탕 조지실 분'), 
                           memberCount: 3,
-                          chatRoomId: oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'room_mala_01'),
+                          chatRoomId: rId,
                         )));
                       },
                       child: const Text('채팅방 입장하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -287,10 +289,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
+                                  final rId = oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'room_mala_01');
+                                  oomuChatStore.rejoinRoom(rId);
                                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
                                     title: (widget.meetup != null ? widget.meetup!['title'] : '마라탕 & 탕후루 팟'), 
                                     memberCount: 4,
-                                    chatRoomId: oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'room_mala_01'),
+                                    chatRoomId: rId,
                                   )));
                                 },
                                 style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
@@ -972,13 +976,15 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     backgroundColor: Color(0xFFFF5E36),
                   ),
                 );
+                final rId = oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'lightning_room_01');
+                oomuChatStore.rejoinRoom(rId);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => OOMUChatScreen(
                       title: widget.meetup?['title'] ?? '실시간 번개 팟',
                       memberCount: 3,
-                      chatRoomId: oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'lightning_room_01'),
+                      chatRoomId: rId,
                     ),
                   ),
                 );

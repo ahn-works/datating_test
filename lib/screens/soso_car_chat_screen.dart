@@ -16,19 +16,73 @@ import '../services/ai_service.dart';
 class OOMUChatStore extends ChangeNotifier {
   static final OOMUChatStore _instance = OOMUChatStore._internal();
   factory OOMUChatStore() => _instance;
-  OOMUChatStore._internal();
 
   final Map<String, List<Map<String, dynamic>>> _messagesByRoom = {};
   final Map<String, Map<String, dynamic>> _roomMetadata = {};
   final Set<String> _leftRoomIds = {};
+  bool _persistenceInitialized = false;
 
-  bool isRoomLeft(String roomId) {
-    return _leftRoomIds.contains(canonicalRoomId(roomId));
+  OOMUChatStore._internal() {
+    _initPersistence();
   }
 
-  void leaveRoom(String roomId) {
+  void _initPersistence() {
+    if (_persistenceInitialized) return;
+    _persistenceInitialized = true;
+    try {
+      // 1. Initial immediate fetch
+      FirebaseFirestore.instance
+          .collection('user_states')
+          .doc('user_me_01')
+          .get()
+          .then((snap) {
+        if (snap.exists && snap.data() != null) {
+          final data = snap.data()!;
+          if (data['leftRoomIds'] is List) {
+            final List<dynamic> list = data['leftRoomIds'];
+            for (var id in list) {
+              final str = id.toString();
+              _leftRoomIds.add(str);
+              _leftRoomIds.add(canonicalRoomId(str));
+            }
+            notifyListeners();
+          }
+        }
+      }).catchError((_) {});
+
+      // 2. Real-time stream listener for multi-device / instant sync
+      FirebaseFirestore.instance
+          .collection('user_states')
+          .doc('user_me_01')
+          .snapshots()
+          .listen((snap) {
+        if (snap.exists && snap.data() != null) {
+          final data = snap.data()!;
+          if (data['leftRoomIds'] is List) {
+            final List<dynamic> list = data['leftRoomIds'];
+            for (var id in list) {
+              final str = id.toString();
+              _leftRoomIds.add(str);
+              _leftRoomIds.add(canonicalRoomId(str));
+            }
+            notifyListeners();
+          }
+        }
+      }, onError: (_) {});
+    } catch (_) {}
+  }
+
+  bool isRoomLeft(String roomId) {
+    _initPersistence();
+    final cId = canonicalRoomId(roomId);
+    return _leftRoomIds.contains(cId) || _leftRoomIds.contains(roomId);
+  }
+
+  Future<void> leaveRoom(String roomId) async {
     final cId = canonicalRoomId(roomId);
     _leftRoomIds.add(cId);
+    _leftRoomIds.add(roomId);
+
     final list = _messagesByRoom[cId];
     if (list != null) {
       list.add({
@@ -39,6 +93,51 @@ class OOMUChatStore extends ChangeNotifier {
       });
     }
     notifyListeners();
+
+    try {
+      // 1. Persist to current user's state in Firestore
+      await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
+        'leftRoomIds': FieldValue.arrayUnion([cId, roomId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 2. Mark user in chatRooms collection
+      await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
+        'leftUserIds': FieldValue.arrayUnion(['user_me_01']),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 3. If it is a meetup in meetups collection, update participants
+      final meetupDoc = await FirebaseFirestore.instance.collection('meetups').doc(cId).get();
+      if (meetupDoc.exists) {
+        await FirebaseFirestore.instance.collection('meetups').doc(cId).update({
+          'participants': FieldValue.arrayRemove(['user_me_01']),
+        });
+      }
+    } catch (e) {
+      debugPrint('Firestore leaveRoom persist error: $e');
+    }
+  }
+
+  Future<void> rejoinRoom(String roomId) async {
+    final cId = canonicalRoomId(roomId);
+    _leftRoomIds.remove(cId);
+    _leftRoomIds.remove(roomId);
+    notifyListeners();
+
+    try {
+      await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
+        'leftRoomIds': FieldValue.arrayRemove([cId, roomId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
+        'leftUserIds': FieldValue.arrayRemove(['user_me_01']),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Firestore rejoinRoom error: $e');
+    }
   }
 
   /// 더미 모임 ID와 채팅방 ID 간의 양방향 정규화 매퍼

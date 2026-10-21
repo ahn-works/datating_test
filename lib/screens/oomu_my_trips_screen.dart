@@ -5,6 +5,7 @@ import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
 import 'my_page_screen.dart';
 import 'soso_car_detail_screen.dart';
+import 'soso_car_chat_screen.dart';
 
 class OOMUMyTripsScreen extends StatefulWidget {
   const OOMUMyTripsScreen({super.key});
@@ -26,12 +27,18 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    oomuChatStore.addListener(_onStoreUpdate);
   }
 
   @override
   void dispose() {
+    oomuChatStore.removeListener(_onStoreUpdate);
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _onStoreUpdate() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -69,9 +76,9 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
   }
 
   Widget _buildMyMeetupList({required bool isHosting}) {
-    // Dummy Data specifically for "My Meetups"
-    final meetups = isHosting ? [
+    final allMeetups = isHosting ? [
       {
+        'id': 'room_mala_01',
         'title': '주말 엽떡+마라탕 조지실 분',
         'category': '술/맛집',
         'location': '홍대입구역 9번 출구',
@@ -82,6 +89,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
       }
     ] : [
       {
+        'id': 'room_cafe_02',
         'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
         'category': '카페/수다',
         'location': '성동구 성수동 카페거리',
@@ -91,6 +99,46 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
         'imageUrl': 'assets/images/cover_cafe.jpg'
       }
     ];
+
+    final meetups = allMeetups.where((m) => !oomuChatStore.isRoomLeft(m['id'] ?? '')).toList();
+
+    if (meetups.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.event_available_outlined, size: 56, color: textSecondary.withOpacity(0.4)),
+              const SizedBox(height: 16),
+              Text(
+                isHosting ? '개설한 모임이 없습니다.' : '참여 중인 모임이 없습니다.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '동네 이웃들과 함께할 새로운 모임을 찾아보세요!',
+                style: TextStyle(fontSize: 13, color: textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 0)));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF25767),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('모임 둘러보기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(24),
