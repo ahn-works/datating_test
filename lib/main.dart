@@ -1,3 +1,5 @@
+import 'screens/profile_setup_screen.dart';
+import 'services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -69,13 +71,41 @@ class Spot10App extends StatelessWidget {
           }
           if (snapshot.hasData && snapshot.data != null) {
             final user = snapshot.data!;
-            // Set global active user
             globalData.currentUserId.value = user.uid;
-            return const OOMUHomeScreen();
+            return _AuthGate(user: user);
           }
           return const LoginScreen();
         },
       ),
+    );
+  }
+}
+
+class _AuthGate extends StatelessWidget {
+  final User user;
+  const _AuthGate({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    if (user.email == 'ansimhyang60@naver.com' || authService.isAdmin) {
+      return const OOMUHomeScreen();
+    }
+    return FutureBuilder<bool>(
+      future: authService.isUserProfileComplete(user.uid),
+      builder: (context, profileSnapshot) {
+        if (profileSnapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFFFAF6F7),
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFFF25767)),
+            ),
+          );
+        }
+        if (profileSnapshot.data == false) {
+          return const ProfileSetupScreen();
+        }
+        return const OOMUHomeScreen();
+      },
     );
   }
 }
