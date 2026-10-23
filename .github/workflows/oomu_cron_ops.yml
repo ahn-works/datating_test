@@ -1,0 +1,95 @@
+name: OOMU 24/7 B2B Operations & Cron Automation
+
+on:
+  schedule:
+    # 1. 아침 08:30 KST (UTC 23:30) - 연애 밸런스 게임 투표 배달 & 휴면 유저 컴백 체크
+    - cron: '30 23 * * *'
+    # 2. 저녁 18:00 KST (UTC 09:00) - 콜드스타트 번개 모임 생성 & 악성 게시글 모니터링
+    - cron: '0 9 * * *'
+    # 3. 자정 23:59 KST (UTC 14:59) - 유령 모임 청소 & 노션 일일 경영 보고서 전송
+    - cron: '59 14 * * *'
+    # 4. 매주 일요일 새벽 04:00 KST (UTC 토요일 19:00) - 파이어베이스 DB 정기 백업
+    - cron: '0 19 * * 6'
+
+  workflow_dispatch:
+    inputs:
+      task:
+        description: '실행할 자동화 작업 선택'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all (전체 자동화 일괄 순차 실행)'
+          - 'seed_meetups (동네 번개 모임 즉시 생성)'
+          - 'balance_game (연애 밸런스 게임 투표 즉시 배달)'
+          - 'cleanup (유령 모임 청소)'
+          - 'daily_report (노션 일일 경영 보고서 즉시 발송)'
+          - 'moderator (악성 게시글 검사)'
+          - 'retention (휴면 유저 컴백 유도)'
+          - 'backup (DB 즉시 백업)'
+
+jobs:
+  run-oomu-automation:
+    runs-on: ubuntu-latest
+    name: OOMU Automated Operations Engine
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 1. 아침 작업 (08:30 KST) 또는 수동 전체/밸런스게임
+      - name: 🗳️ Post Daily Romance Balance Game
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'balance_game') }}
+        run: |
+          python scripts/daily_balance_game.py
+
+      - name: 📉 Check Dormant Users & Grant Retention Bonus
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'retention') }}
+        run: |
+          python scripts/retention_booster.py
+
+      # 2. 저녁 작업 (18:00 KST) 또는 수동 전체/모임생성/모더레이터
+      - name: 🧊 Generate Cold-Start Neighborhood Meetups
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'seed_meetups') }}
+        run: |
+          python scripts/seed_meetups.py
+
+      - name: 🚨 Scan Malicious Content & Abusive Keywords
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'moderator') }}
+        run: |
+          python scripts/content_moderator.py
+
+      # 3. 자정 작업 (23:59 KST) 또는 수동 전체/청소/경영보고서
+      - name: 🧹 Cleanup Stale & Ghost Meetups
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'cleanup') }}
+        run: |
+          python scripts/cleanup_stale_data.py
+
+      - name: 📱 Generate Executive Daily Business Report & Sync to Notion
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'daily_report') }}
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python scripts/daily_ops_report.py
+
+      # 4. 정기 DB 백업 (일요일 새벽) 또는 수동 백업
+      - name: 🛡️ Backup Firestore Database
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'backup') }}
+        run: |
+          python scripts/backup_firestore.py
+
+      - name: 📦 Upload Database Backup Artifact
+        if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'backup') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: oomu-db-backup
+          path: backups/
+          retention-days: 30
