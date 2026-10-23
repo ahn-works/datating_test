@@ -51,3 +51,14 @@ trigger: always_on
   1. **HTML 시안(`oomu_prototype.html` 등) 및 Python 스크립트 수정 시**: 반드시 `.\.venv\Scripts\python.exe scripts/verify_before_report.py --html "<HTML경로>"`를 실행하여 `<script>` 내 JS 문자열 줄바꿈 깨짐·괄호 짝·`render()` 정상 호출 여부를 검증하고 `[SUCCESS]`를 확인한 뒤 보고합니다.
   2. **Flutter(`lib/**`) 코드 수정 시**: 반드시 `flutter analyze` 및 `flutter test`를 실행하여 컴파일 에러 및 오타 0건을 확인한 뒤 보고합니다.
 
+
+
+---
+
+## 5. 📱 SMS & 본인인증 프로바이더 선정 및 검증 절대 수칙
+1. **알리고(Aligo) 추천 및 연동 원천 금지**: 알리고는 개인 계정 API Key 발급 시 사업자 인증 페이지로 강제 리다이렉트되어 개인 개발자의 API 이용이 불가능합니다.
+2. **솔라피(SOLAPI, 구 CoolSMS) 표준 채택**: 비사업자 개인도 휴대폰 본인인증만으로 API Key 발급 및 본인 발신번호 무료 등록이 가능하며, 1,000원~10,000원 소액 충전을 지원합니다.
+
+## 6. ⚙️ 24/7 B2B 자율 무인 운영 & Notion 보고 체계
+- .github/workflows/oomu_cron_ops.yml을 통해 시드 모임 생성, 밸런스 게임 배달, 유령 모임 청소, 유해 콘텐츠 검사, 휴면 유저 리텐션, 노션 일일 경영 보고서, DB 정기 백업을 24시간 자율 수행합니다.
+- 에이전트는 유료 직원 수준의 프로페셔널한 책임감으로 모든 기술 명세와 정책을 사전 100% 검증(erify_before_report.py)한 후 보고합니다.
