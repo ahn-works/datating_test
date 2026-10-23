@@ -28,3 +28,5 @@
 - [OOMU 마스터 명세서 (docs/OOMU_MASTER_SPEC.md)](docs/OOMU_MASTER_SPEC.md)
 - [Cloudflare R2 연동 가이드 (docs/CLOUDFLARE_R2_SETUP.md)](docs/CLOUDFLARE_R2_SETUP.md)
 - [개발 로드맵 (TODO.md)](TODO.md)
+- [안드로이드 플레이스토어 출시 마스터 로드맵 (docs/OOMU_MASTER_LAUNCH_ROADMAP.md)](docs/OOMU_MASTER_LAUNCH_ROADMAP.md)
+- [36대 통합 마스터 기능 인벤토리 (docs/OOMU_TOTAL_SOURCE_INTEGRATION_MASTER.md)](docs/OOMU_TOTAL_SOURCE_INTEGRATION_MASTER.md)
