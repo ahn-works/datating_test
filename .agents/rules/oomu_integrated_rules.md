@@ -3,12 +3,24 @@ trigger: always_on
 ---
 # 🏛️ OOMU (오뮤) 통합 마스터 지침 & 로컬 AI 16종 (Claude 7종 / GPT 9종) 상시 자동 발동 규칙
 
-본 규칙(`trigger: always_on`)은 OOMU 워크스페이스의 모든 대화 턴에서 **사용자가 별도의 세팅 프롬프트나 머리말을 붙여넣지 않아도 에이전트가 자동으로 100% 선행 적용**하는 최상위 통합 지침입니다.
+본 규칙(`trigger: always_on`)은 OOMU 워크스페이스의 모든 대화 턴에서 **사용자가 별도의 세팅 프롬프트나 머리말을 붙여넣지 않아도 에이전트가 자동으로 가장 먼저 읽고 100% 선행 적용**하는 최상위 통합 지침입니다.
+
+## 🏆 0. [최우선 제0원칙 — 모든 작업 시작 전 가장 먼저 읽을 것] 대기업 경쟁 앱 상시 벤치마킹 & 네이티브 모바일 UX 절대 준수 규칙
+에이전트는 모든 UI/UX·모임 리스트·배너·상세 화면·버튼을 작업할 때 **반드시 먼저 당근마켓(동네모임), 위피(WIPPY), 문토(MUNTO), 소모임, 오늘의집, 무신사(MUSINSA), 29CM 등 대기업/1티어 경쟁 앱의 실제 네이티브 모바일 패턴을 참고하여 설계·구현**합니다.
+1. **모임·큐레이션 리스트 다량 노출 시 표준 모바일 패턴 3원칙**:
+   - **절대 금지**: 안드로이드/iOS 앱에 없는 PC 웹 게시판형 `< 이전  1 / N 페이지  다음 >` 하단 바 사용 절대 금지.
+   - **필수 적용**: ① 좌우 100 : 100 대칭 2열 스냅 `PageView` + **미니멀 슬림 도트 인디케이터(`━━ • • •`)**, ② 섹션 하단 인피드 아코디언 풀와이드 버튼(**`더보기 +N ▾` / `접기 ▴`**), ③ 섹션 헤더 우측 심플 **`전체보기 >` 텍스트 액션**(클릭 시 바텀시트)으로 구현합니다.
+2. **좌우 100 : 100 대칭 & 우측 화면 경계 짤림(Clipping) 0% 원칙**:
+   - 모바일 뷰포트(`480px` 프레임 포함) 안에서 두 번째 카드가 65%만 보이고 나머지 35%나 제목 글자가 우측 화면 끝에 잘리는 현상을 원천 금지합니다 (`Row` + `Expanded` : `Expanded` 1:1 분할 및 `MediaQuery` 폭 동기화 필수).
+3. **금액 미표시(`1/N 안심 정산`) 원칙**:
+   - 원화 숫자(`원`, `₩`) 표기를 전면 배제하고 모든 모임/상세/신청 UI에서 `1/N 안심 정산` 또는 `무료 참여`로 통일합니다.
+
+---
 
 ## 1. 상시 동기화 필수 지침 문서 체계 (6대 핵심 파일)
 에이전트는 모든 작업 시 아래 분리·통합된 문서들을 기준(Single Source of Truth)으로 삼아 동작합니다:
 1. **`AI_INSTRUCTIONS.md`**: 질문 키워드별 자동 프롬프트 트리거 & 로컬 설치 Claude 7종 / GPT 9종 모델 매핑 통합 지침
-2. **`.antigravity/rules/ui_ux_design_rules.md`**: 12년 차 수석 프로덕트 디자이너 UI/UX 토큰 (배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리 또는 선택 테마 토큰, `1px solid #EFF1F5` 보더, 파스텔 틴트 뱃지 `#FFF4EB`, UX 겹침/Overflow 0%, `+더보기 ▾` 트레이, 2030/B2B UX Writing)
+2. **`.antigravity/rules/ui_ux_design_rules.md`**: 경쟁 앱 벤치마킹 기준 및 12년 차 수석 프로덕트 디자이너 UI/UX 토큰 (배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리 또는 선택 테마 토큰, `1px solid #EFF1F5` 보더, 파스텔 틴트 뱃지 `#FFF4EB`, UX 겹침/Overflow 0%, `+더보기 ▾` 트레이, 2030/B2B UX Writing)
 3. **`.antigravity/rules/prompt_routing_rules.md` & `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`**: 고정 머리말 및 `[상황 1]~[상황 5]`·화면 경로별(`home_screen.dart`, `party_screen.dart`, `venue_screen.dart`, `b2b_settlement_screen.dart`, `chat_screen.dart`, `match_controller.dart`) 실전 프롬프트 템플릿
 4. **`ddg_proxy.py` & `scripts/claude_client.py`**: 로컬 `http://127.0.0.1:1337/v1`, API Key `'pk-dummy'`로 구동되는 무료 Claude 7종 / GPT 9종 브릿지
 5. **`lib/services/ai_service.dart` & `lib/features/matching/match_controller.dart`**: Flutter 앱 내 `OomuAiService.instance` 로컬 AI 연동 서비스 및 하이브리드 매칭 컨트롤러
@@ -51,8 +63,6 @@ trigger: always_on
   1. **HTML 시안(`oomu_prototype.html` 등) 및 Python 스크립트 수정 시**: 반드시 `.\.venv\Scripts\python.exe scripts/verify_before_report.py --html "<HTML경로>"`를 실행하여 `<script>` 내 JS 문자열 줄바꿈 깨짐·괄호 짝·`render()` 정상 호출 여부를 검증하고 `[SUCCESS]`를 확인한 뒤 보고합니다.
   2. **Flutter(`lib/**`) 코드 수정 시**: 반드시 `flutter analyze` 및 `flutter test`를 실행하여 컴파일 에러 및 오타 0건을 확인한 뒤 보고합니다.
 
-
-
 ---
 
 ## 5. 📱 SMS & 본인인증 프로바이더 선정 및 검증 절대 수칙
@@ -61,4 +71,4 @@ trigger: always_on
 
 ## 6. ⚙️ 24/7 B2B 자율 무인 운영 & Notion 보고 체계
 - .github/workflows/oomu_cron_ops.yml을 통해 시드 모임 생성, 밸런스 게임 배달, 유령 모임 청소, 유해 콘텐츠 검사, 휴면 유저 리텐션, 노션 일일 경영 보고서, DB 정기 백업을 24시간 자율 수행합니다.
-- 에이전트는 유료 직원 수준의 프로페셔널한 책임감으로 모든 기술 명세와 정책을 사전 100% 검증(erify_before_report.py)한 후 보고합니다.
+- 에이전트는 유료 직원 수준의 프로페셔널한 책임감으로 모든 기술 명세와 정책을 사전 100% 검증(verify_before_report.py)한 후 보고합니다.

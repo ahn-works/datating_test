@@ -1,6 +1,28 @@
 # 🏛️ OOMU (오뮤) 통합 에이전트 지침서 (AGENTS.md)
 
-> **자동 로드 안내**: 본 파일(`AGENTS.md`)은 Antigravity 에이전트가 세션 시작 및 매 작업 턴마다 자동으로 읽어들여 메모리에 상주시키는 **최상위 통합 지침**입니다. 사용자가 매번 긴 프롬프트 머리말을 복사·붙여넣지 않아도 아래의 모든 지침과 로컬 AI 모델(Claude 7종 / GPT 9종) 라우팅이 자동 적용됩니다.
+> **자동 로드 안내**: 본 파일(`AGENTS.md`)은 Antigravity 에이전트가 세션 시작 및 매 작업 턴마다 자동으로 가장 먼저 읽어들여 메모리에 상주시키는 **최상위 통합 지침**입니다. 사용자가 매번 긴 프롬프트 머리말을 복사·붙여넣지 않아도 아래의 모든 지침과 로컬 AI 모델(Claude 7종 / GPT 9종) 라우팅이 자동 적용됩니다.
+
+---
+
+## 🏆 0. [최우선 제0원칙 — 모든 작업 시작 전 가장 먼저 읽고 적용할 것] 대기업 경쟁 앱 상시 벤치마킹 & 네이티브 모바일 UX 절대 준수 규칙
+
+에이전트는 어떤 화면·컴포넌트·리스트·모달을 디자인하거나 수정할 때든 **코드를 한 줄이라도 작성하기 전에 반드시 아래 국내 1티어 경쟁 앱들의 실제 모바일 네이티브 UX/UI 패턴을 먼저 참고(벤치마킹)하여 결과물을 도출**해야 합니다.
+
+### 0-1. 도메인별 필수 참고(벤치마킹) 경쟁 서비스
+1. **동네모임·번개·피드 리스트 구조**: **당근마켓(동네모임)**, **문토(MUNTO)**, **소모임**
+   - 좌측 정방형/라운드 썸네일(`88×88px`) + 우측 핵심 정보(지역/카테고리 칩 → 2줄 타이틀 → 일정·장소 → 호스트·멤버 아바타 스택 & 정원 현황) 위계 준수.
+2. **자만추·친목·프로필·실시간 번개 인터랙션**: **위피(WIPPY)**, **글램(GLAM)**
+   - 촌스러운 원색 남발을 배제하고, 감각적인 파스텔 틴트 뱃지·매너온도·본인인증 뱃지·호스트 신뢰도 카드로 자연스러운 참여 유도.
+3. **인피드 큐레이션(트렌드·공연·전시·핫플) & 다중 아이템 노출 방식**: **오늘의집**, **무신사(MUSINSA)**, **29CM**, **크림(KREAM)**
+   - 모임이나 큐레이션 리스트가 많을 때 절대 웹 게시판처럼 만들지 않고 아래 **3대 네이티브 모바일 패턴**만 사용합니다:
+     - **패턴 A (인피드 스냅 페이징)**: 좌우 100 : 100 완벽 대칭 2열 카드(`Row` + `Expanded` : `Expanded`)를 `PageView`로 스냅 스와이프 + 하단 **미니멀 슬림 필 도트 인디케이터(`━━ • • •`)** 적용.
+     - **패턴 B (인피드 아코디언 풀와이드 더보기)**: 섹션 하단에 **`트렌드 이벤트 더보기 +N ▾` / `접기 ▴` 풀와이드 라운드 버튼**을 두어 화면 이동 없이 그 자리에서 2열 그리드로 부드럽게 펼쳐보기 지원.
+     - **패턴 C (헤드라인 우측 `전체보기 >`)**: 섹션 타이틀 우측에는 군더더기 없는 **`전체보기 >` 텍스트 액션**만 배치하고, 클릭 시 바텀시트(`showModalBottomSheet`)로 전체 목록 탐색.
+
+### 0-2. 절대 금지 안티패턴 (Anti-Patterns — 위반 시 즉시 재작업)
+- ❌ **PC 웹 게시판형 페이지네이션 바 금지**: 안드로이드/iOS 네이티브 앱에 존재하지 않는 `< 이전  1 / N 페이지  다음 >` 형태의 하단 페이지 전환 바는 절대 사용 금지.
+- ❌ **우측 카드 65% 지점 짤림(Clipping) 및 비대칭 배치 금지**: 모바일 뷰포트(`480px` 프레임 포함) 안에서 첫 번째 카드와 두 번째 카드의 크기가 다르거나(예: 100% vs 65%), 우측 화면 경계에 걸려 제목·버튼 글자가 잘리는 레이아웃 절대 금지 (`MediaQuery` 폭 동기화 및 `Expanded` 1:1 분할 필수).
+- ❌ **원화 금액(`원`, `₩`, 구체적 참가비 숫자) 노출 금지**: 모든 모임·상세·신청·큐레이션 카드는 가격 대신 **`1/N 안심 정산`** 또는 **`무료 참여`**로만 표기.
 
 ---
 
@@ -10,7 +32,7 @@
 | :--- | :--- | :--- |
 | **통합 프롬프트 트리거** | [`AI_INSTRUCTIONS.md`](file:///c:/Users/developersim/Desktop/datating_test/AI_INSTRUCTIONS.md) | 질문 키워드별 자동 프롬프트 트리거 & 4대 핵심 도메인 통합 지침 |
 | **프롬프트 & 모델 라우팅** | [`.antigravity/rules/prompt_routing_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/prompt_routing_rules.md) | 고정 머리말 규칙, 화면 경로별 실전 프롬프트 3선, 로컬 Claude 7종/GPT 9종 자동 매칭표 |
-| **12년 차 UI/UX 디자인 규칙** | [`.antigravity/rules/ui_ux_design_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/ui_ux_design_rules.md) | 배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, Overflow 0%, 2030/B2B UX Writing |
+| **12년 차 UI/UX 디자인 규칙** | [`.antigravity/rules/ui_ux_design_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/ui_ux_design_rules.md) | 경쟁 앱 벤치마킹 기준, 배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, Overflow 0%, 2030/B2B UX Writing |
 | **3계층 Zero-Secret 보안** | [`.antigravity/rules/security_distribution_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/security_distribution_rules.md) | Git/APK API 키 하드코딩 금지 (`pk-dummy` 예외), Firestore `config/*` 런타임 로드 |
 | **상황별 프롬프트 플레이북** | [`docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`](file:///c:/Users/developersim/Desktop/datating_test/docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md) | `[상황 1]~[상황 5]` 시나리오별 프롬프트 및 로컬 AI 모델 호출 가이드 |
 | **통합 마스터 스펙** | [`docs/OOMU_MASTER_SPEC.md`](file:///c:/Users/developersim/Desktop/datating_test/docs/OOMU_MASTER_SPEC.md) | 하이브리드 아키텍처, B2B 아지트 & 정산, 에스크로, 트렌드 파이프라인 명세 |
@@ -27,10 +49,10 @@
 ### 작업 요청별 자동 매칭 모델
 1. **"디자인 수정해줘" / "문구·B2B 다듬어줘"**
    - **주력 모델**: `claude-3-5-sonnet`, `claude-3-sonnet`, `claude-haiku-4.5`, `claude-opus-4`
-   - **적용 기준**: `.antigravity/rules/ui_ux_design_rules.md`의 12년 차 수석 프로덕트 디자이너 토큰(배경/카드 명도 분리, `1px solid #EFF1F5`, 파스텔 틴트 뱃지 `#FFF4EB`, 2030/B2B 큐레이션 카피 `"✨ OOMU 공식 인증 아지트"`) 100% 반영.
+   - **적용 기준**: **제0원칙(당근·위피·문토·오늘의집·무신사 벤치마킹)** 및 `.antigravity/rules/ui_ux_design_rules.md`의 12년 차 수석 프로덕트 디자이너 토큰(배경/카드 명도 분리, `1px solid #EFF1F5`, 파스텔 틴트 뱃지 `#FFF4EB`, 2030/B2B 큐레이션 카피 `"✨ OOMU 공식 인증 아지트"`) 100% 반영.
 2. **"짤림/겹침 해결해줘" / "레이아웃 수정해줘"**
    - **주력 모델**: `o4-mini`, `o3-mini`, `gpt-4.1`
-   - **적용 기준**: `Row` 내부 `Expanded`/`Flexible` 필수, `maxLines` + `TextOverflow.ellipsis`, 고정 `height` 금지, 서브태그 우측 짤림 방지를 위한 `+N 더보기 ▾` / `접기 ▴` 트레이 구조 적용.
+   - **적용 기준**: 좌우 100:100 대칭(`Expanded` 1:1 분할), `Row` 내부 `Expanded`/`Flexible` 필수, `maxLines` + `TextOverflow.ellipsis`, 고정 `height` 금지, 서브태그 및 인피드 카드 우측 짤림 방지를 위한 `+N 더보기 ▾` / `접기 ▴` 트레이 구조 적용.
 3. **"풀스택 연동해줘" / "기능 구현해줘"**
    - **주력 모델**: `gpt-4.1`, `gpt-4o`, `claude-sonnet-4`, `claude-opus-4`
    - **적용 기준**: Flutter ↔ Firestore ↔ Cloudflare R2 실시간 연동, `OomuAiService`(`claude-3-haiku` / `gpt-4o-mini` / `claude-3-5-sonnet` / `o4-mini`) 및 폴백 안전성 보장.
@@ -74,7 +96,7 @@
 ## 📱 5. SMS & 본인인증 프로바이더 선정 절대 수칙 (알리고 금지 & 솔라피 표준화)
 
 > **[필독 경고] 알리고(Aligo) 연동 절대 금지**:
-> 알리고는 웹 회원가입 시 '개인' 유형이 있더라도, **API Key 발급 페이지(dmin/api/auth.html)에서 자바스크립트 checkCert() 검사를 통해 강제로 사업자등록 인증 페이지(/admin/account.html)로 튕겨내므로 사업자등록증이 없는 개인 개발자는 API Key 발급이 물리적으로 불가능**합니다.
+> 알리고는 웹 회원가입 시 '개인' 유형이 있더라도, **API Key 발급 페이지( dmin/api/auth.html)에서 자바스크립트 checkCert() 검사를 통해 강제로 사업자등록 인증 페이지(/admin/account.html)로 튕겨내므로 사업자등록증이 없는 개인 개발자는 API Key 발급이 물리적으로 불가능**합니다.
 > 비사업자 개인 대표님/개발자 프로젝트에 알리고를 추천하거나 연동을 시도하는 행위를 절대 엄금합니다.
 
 ### 🌟 비사업자 개인 공식 인증 솔루션: 솔라피 (SOLAPI, 구 CoolSMS)

@@ -1,6 +1,18 @@
 # 🤖 Antigravity AI Agent Directive (OOMU / Spot10 Project)
 > **이 문서는 OOMU(우리 동네 취향 모임) 프로젝트를 다루는 모든 AI 에이전트(Antigravity 등)가 항상 첫 번째로 읽고 절대적으로 준수해야 하는 시스템 지침서입니다.**
 
+## 🏆 00. [최우선 제0원칙 — 모든 작업 시작 전 가장 먼저 읽을 것] 대기업 경쟁 앱 상시 벤치마킹 & 네이티브 모바일 UX 절대 준수 규칙
+에이전트는 모든 화면·컴포넌트·리스트를 작업하기 전에 **반드시 먼저 당근마켓(동네모임), 위피(WIPPY), 문토(MUNTO), 소모임, 오늘의집, 무신사(MUSINSA), 29CM 등 대기업/1티어 경쟁 앱의 실제 모바일 네이티브 UX를 기준점으로 삼아 디자인하고 결과물을 도출**해야 합니다.
+1. **모임·큐레이션 리스트 다량 노출 시 네이티브 모바일 패턴 적용 (웹 게시판 UI 금지)**:
+   - 안드로이드/iOS 앱에 없는 PC 웹 게시판형 `< 이전  1 / N 페이지  다음 >` 하단 바는 절대 사용하지 않습니다.
+   - 대신 ① 좌우 100 : 100 대칭 2열 스냅 `PageView` + **미니멀 슬림 도트 인디케이터(`━━ • • •`)**, ② 섹션 하단 인피드 아코디언 풀와이드 버튼(**`더보기 +N ▾` / `접기 ▴`**), ③ 섹션 헤더 우측 심플 **`전체보기 >` 텍스트 액션**(클릭 시 바텀시트)으로 구현합니다.
+2. **좌우 100 : 100 대칭 & 우측 화면 경계 짤림(Clipping) 0% 보장**:
+   - 모바일 뷰포트(`480px` 프레임 포함) 안에서 두 번째 카드가 65%만 보이고 우측 35%나 제목 글자가 잘리는 현상을 원천 차단합니다 (`Row` + `Expanded` : `Expanded` 1:1 분할 및 `MediaQuery` 폭 동기화 필수).
+3. **금액 미표시(`1/N 안심 정산`) 원칙**:
+   - 모든 모임/상세/신청 UI에서 원화 금액(`원`, `₩`)을 배제하고 `1/N 안심 정산` 또는 `무료 참여`로 표기합니다.
+
+---
+
 ## 0. 🔒 필수 보안 및 3계층 분배 규칙 (Security Distribution Rules) — 필독!
 작업을 시작하기 전, 에이전트는 반드시 **`.antigravity/rules/security_distribution_rules.md`** 및 **`docs/SECURITY_AGENT_GUIDE.md`**를 최우선으로 읽고 다음 3단계 분배 원칙을 철저히 지켜야 합니다.
 
@@ -40,7 +52,7 @@
 | **"아이디어 추천해줘"**, **"기획/수익화 모델 추천해줘"**, **"차별화 포인트 뽑아줘"** | `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`<br>`docs/OOMU_MASTER_SPEC.md` | **`[상황 4] 서비스 아이디어 & B2C/B2B 수익화 기획 추천`** | **Claude**: `claude-3-opus`, `claude-opus-4`<br>**GPT**: `gpt-4.5`, `o3-mini` |
 | **"전체 화면 감사해줘"**, **"출시 전 디자인/UX 점검해줘"** | `.antigravity/rules/ui_ux_design_rules.md`<br>`docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md` | **`[상황 5] 로컬 무료 AI 브릿지 연동 & 출시 전 UX 감사`** | **Claude**: `claude-3-opus`, `claude-3-5-sonnet`<br>**GPT**: `gpt-4.1`, `o4-mini` |
 
-> **필수 실행 규칙**: 특히 사용자가 **"디자인 수정해줘"**라고만 짧게 말하더라도, 에이전트는 절대 임의로 단순 색상만 바꾸지 말고 **반드시 `.antigravity/rules/ui_ux_design_rules.md`와 `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 `[상황 1]` 및 `[상황 2]` 프롬프트를 읽은 뒤**, 12년 차 수석 디자이너 기준(배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, `Expanded`/`Flexible`을 통한 겹침 0%, 2030/B2B UX Writing)을 100% 적용하여 코드를 수정해야 합니다.
+> **필수 실행 규칙**: 특히 사용자가 **"디자인 수정해줘"**라고만 짧게 말하더라도, 에이전트는 절대 임의로 단순 색상만 바꾸지 말고 **반드시 `.antigravity/rules/ui_ux_design_rules.md`(제0원칙 경쟁사 벤치마킹 포함)와 `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 `[상황 1]` 및 `[상황 2]` 프롬프트를 읽은 뒤**, 12년 차 수석 디자이너 기준(배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, `Expanded`/`Flexible`을 통한 겹침 0%, 2030/B2B UX Writing)을 100% 적용하여 코드를 수정해야 합니다.
 
 ---
 
@@ -156,8 +168,7 @@
   2. daily_balance_game.py: 연애 밸런스 게임 투표 자동 배달 (매일 09:00)
   3. cleanup_stale_data.py: 만료된 번개/카풀 자동 종료 및 청소 (매일 자정)
   4. content_moderator.py: 불법/성매매/도박 키워드 블라인드 (상시 및 자정)
-  5. 
-etention_booster.py: 3일 미접속 휴면 유저 하트 보상 컴백 유도 (매일 09:00)
+  5. retention_booster.py: 3일 미접속 휴면 유저 하트 보상 컴백 유도 (매일 09:00)
   6. daily_ops_report.py: 일일 경영 지표 집계, **Notion Database Row 자동 추가** 및 텔레그램 알림 (매일 23:59)
-  7. ackup_firestore.py: Firestore 핵심 6대 컬렉션 Gzip 압축 백업 (매주 일 04:00)
+  7. backup_firestore.py: Firestore 핵심 6대 컬렉션 Gzip 압축 백업 (매주 일 04:00)
 - **엔지니어 책임감**: 에이전트는 유료 직원처럼 임하며, 모든 외부 연동 및 정책은 100% 팩트체크 후 안내합니다.
