@@ -890,7 +890,533 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
+  List<Map<String, dynamic>> _buildMyNeighborhoodEvents(String currentLoc) {
+    final cleanLoc = currentLoc.trim();
+    final parts = cleanLoc.replaceAll('(', ' ').replaceAll(')', ' ').split(' ').where((s) => s.isNotEmpty).toList();
+    final cityOrGu = parts.isNotEmpty ? parts[0] : cleanLoc;
+    final dongName = parts.length >= 2 ? parts[1] : cityOrGu;
+
+    if (cleanLoc.contains('여수')) {
+      return [
+        {
+          'id': 'my_yeosu_01',
+          'title': '$cleanLoc 수제 소금빵 & 신상 대형 베이커리 카페 오픈런',
+          'category': '일상 & 푸드 > 카페 & 디저트',
+          'location': '전남 $cleanLoc 카페거리',
+          'tag': '🥐 $dongName 소금빵 핫플',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_cafe.jpg',
+          'period': '상시 · 주말 오전 오픈런',
+          'rank': 1,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_02',
+          'title': '여수 이순신광장 원조 딸기모찌 & 돌산 갓버터도나스 디저트 투어',
+          'category': '일상 & 푸드 > 카페 & 디저트',
+          'location': '전남 여수시 교동 이순신광장 ($cleanLoc 출발)',
+          'tag': '🍓 여수 디저트 1위',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_food.jpg',
+          'period': '이번 주말 오후 2시',
+          'rank': 2,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_03',
+          'title': '여수 웅천해변 오션뷰 루프탑 브런치 & 카이막 카페 탐방',
+          'category': '일상 & 푸드 > 카페 & 디저트',
+          'location': '전남 여수시 웅천동 해변문화공원',
+          'tag': '🌊 웅천 오션뷰 핫플',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_cafe.jpg',
+          'period': '상시 · 주말 브런치',
+          'rank': 3,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_04',
+          'title': '$cleanLoc 두바이 쫀득 쿠키(두쫀쿠) & 피스타치오 디저트 도장깨기',
+          'category': '일상 & 푸드 > 카페 & 디저트',
+          'location': '전남 $cleanLoc 디저트 골목',
+          'tag': '🍪 $dongName 두쫀쿠',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_cafe.jpg',
+          'period': '상시 운영',
+          'rank': 4,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_05',
+          'title': '여수 소호동동다리 밤바다 야경 산책 & 5km 나이트 러닝 크루',
+          'category': '문화 & 엔터 > 러닝 & 피트니스',
+          'location': '전남 여수시 소호동 동동다리 ($cleanLoc 집결)',
+          'tag': '🏃 여수 밤바다러닝',
+          'vibe': '열정적인',
+          'poster': 'assets/images/cover_running.jpg',
+          'period': '매주 금·토 저녁 8시',
+          'rank': 5,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_06',
+          'title': '여수 학동·화장동·여서동 로컬 숙성회 & 하이볼 이자카야 미식 팟',
+          'category': '일상 & 푸드 > 동네 술 한잔',
+          'location': '전남 $cleanLoc 중심상가',
+          'tag': '🍶 $dongName 로컬맛집',
+          'vibe': '놀줄아는',
+          'poster': 'assets/images/cover_wine.jpg',
+          'period': '오늘·주말 저녁 7시 30분',
+          'rank': 6,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_07',
+          'title': '여수 해양공원 낭만포차 해물삼합 & 밤바다 거리 버스킹 직관',
+          'category': '문화 & 엔터 > 페스티벌 & 공연',
+          'location': '전남 여수시 중앙동 해양공원',
+          'tag': '🎶 여수 밤바다버스킹',
+          'vibe': '놀줄아는',
+          'poster': 'assets/images/cover_wine.jpg',
+          'period': '매주 금·토·일 밤',
+          'rank': 7,
+          'isMyNeighborhood': true,
+        },
+        {
+          'id': 'my_yeosu_08',
+          'title': '여수 봉산동 원조 간장·양념게장 정식 & 바다뷰 디저트 코스',
+          'category': '일상 & 푸드 > 동네 맛집 & 소셜 다이닝',
+          'location': '전남 여수시 봉산동 게장거리',
+          'tag': '🦀 여수 미식투어',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_food.jpg',
+          'period': '주말 점심 12시',
+          'rank': 8,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_09',
+          'title': '여수 돌산읍 무슬목 감성 오션뷰 카페 & 일몰 사진 출사 모임',
+          'category': '문화 & 엔터 > 전시 & 팝업스토어',
+          'location': '전남 여수시 돌산읍 무슬목',
+          'tag': '📸 돌산 오션뷰출사',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_cafe.jpg',
+          'period': '이번 주 토요일 오후 4시',
+          'rank': 9,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_10',
+          'title': '여수 예울마루 현대미술 전시 관람 & 장도 예술의섬 산책',
+          'category': '문화 & 엔터 > 전시 & 팝업스토어',
+          'location': '전남 여수시 시전동 예울마루 ($cleanLoc 인접)',
+          'tag': '🖼️ 예울마루 전시',
+          'vibe': '소소하게',
+          'poster': 'assets/images/cover_cafe.jpg',
+          'period': '상시 전시 · 주말 모임',
+          'rank': 10,
+          'isMyNeighborhood': true,
+          'isHotspot': true,
+        },
+        {
+          'id': 'my_yeosu_11',
+          'title': '$cleanLoc 신상 보드게임 카페 & 추리 방탈출 도장깨기 팟',
+          'category': '문화 & 엔터 > 보드게임·방탈출',
+          'location': '전남 $cleanLoc 보드게임 아지트',
+          'tag': '🎲 $dongName 보드게임',
+          'vibe': '놀줄아는',
+          'poster': 'assets/images/cover_food.jpg',
+          'period': '주말 오후 3시',
+          'rank': 11,
+          'isMyNeighborhood': true,
+        },
+        {
+          'id': 'my_yeosu_12',
+          'title': '2026 여수 밤바다 불꽃축제 & 문화의 달 페스티벌 동행 메이트',
+          'category': '문화 & 엔터 > 페스티벌 & 공연',
+          'location': '전남 여수시 이순신광장·박람회장 일대',
+          'tag': '🎆 여수 대표축제',
+          'vibe': '놀줄아는',
+          'poster': 'assets/images/cover_wine.jpg',
+          'period': '여수 문화축제 시즌',
+          'rank': 12,
+          'isMyNeighborhood': true,
+        },
+      ];
+    }
+
+    return [
+      {
+        'id': 'my_loc_01_$cleanLoc',
+        'title': '망원·$dongName 겉바속촉 수제 소금빵 & 화덕 쌀베이글 오픈런 투어',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '$cleanLoc 베이커리 거리',
+        'tag': '🥐 $dongName 소금빵 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '상시 · 주말 오픈런',
+        'rank': 1,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_02_$cleanLoc',
+        'title': '$cleanLoc 두바이 쫀득 쿠키(두쫀쿠) & 피스타치오 디저트 카페 탐방',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '$cleanLoc 카페거리',
+        'tag': '🍪 $dongName 두쫀쿠 1위',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '상시 운영',
+        'rank': 2,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_03_$cleanLoc',
+        'title': '$cleanLoc 신상 브랜드 팝업스토어 & 플리마켓 주말 도장깨기',
+        'category': '문화 & 엔터 > 전시 & 팝업스토어',
+        'location': '$cleanLoc 메인 스트리트',
+        'tag': '✨ $dongName 팝업·핫플',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '이번 주말 오후 2시',
+        'rank': 3,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_04_$cleanLoc',
+        'title': '$cleanLoc 골목 감성 LP 바이닐 바 & 내추럴 와인 시음 모임',
+        'category': '일상 & 푸드 > 동네 술 한잔',
+        'location': '$cleanLoc 로데오·문화거리',
+        'tag': '🍷 $dongName LP·와인바',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '매주 금·토 저녁 7시 30분',
+        'rank': 4,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_05_$cleanLoc',
+        'title': '$cleanLoc 저녁 노을 5km 러닝 크루 & 야간 산책 번개',
+        'category': '문화 & 엔터 > 러닝 & 피트니스',
+        'location': '$cleanLoc 근린공원·산책로',
+        'tag': '🏃 $dongName 나이트런',
+        'vibe': '열정적인',
+        'poster': 'assets/images/cover_running.jpg',
+        'period': '매주 수·일 저녁 8시',
+        'rank': 5,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_06_$cleanLoc',
+        'title': '$cleanLoc 카이막·그리스요거트 & 유럽풍 테라스 브런치 모임',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '$cleanLoc 브런치 골목',
+        'tag': '🥞 $dongName 브런치 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '주말 오전 11시 30분',
+        'rank': 6,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_07_$cleanLoc',
+        'title': '$cleanLoc 줄 서서 먹는 로컬 노포 & 숯불 화로구이 미식 팟',
+        'category': '일상 & 푸드 > 동네 맛집 & 소셜 다이닝',
+        'location': '$cleanLoc 먹자골목',
+        'tag': '🍲 $dongName 노포맛집',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '금요일 저녁 7시',
+        'rank': 7,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_08_$cleanLoc',
+        'title': '$cleanLoc 독립서점 심야 책맥 & 스페셜티 핸드드립 커피 모임',
+        'category': '문화 & 엔터 > 북카페·독서',
+        'location': '$cleanLoc 북카페 거리',
+        'tag': '📚 $dongName 독립서점',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '토요일 오후 4시',
+        'rank': 8,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_09_$cleanLoc',
+        'title': '$cleanLoc 공방 시그니처 향수 조향 & 터프팅 주말 원데이 클래스',
+        'category': '문화 & 엔터 > 원데이 클래스',
+        'location': '$cleanLoc 공방거리',
+        'tag': '🎨 $dongName 원데이클래스',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '주말 오후 2시',
+        'rank': 9,
+        'isMyNeighborhood': true,
+        'isHotspot': true,
+      },
+      {
+        'id': 'my_loc_10_$cleanLoc',
+        'title': '$cleanLoc 야외 거리 버스킹 공연 직관 & 수제맥주 피크닉',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '$cleanLoc 문화광장',
+        'tag': '🎶 $dongName 거리버스킹',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '주말 저녁 6시',
+        'rank': 10,
+        'isMyNeighborhood': true,
+      },
+      {
+        'id': 'my_loc_11_$cleanLoc',
+        'title': '$cleanLoc 전략 보드게임 & 공포/추리 방탈출 도장깨기 모임',
+        'category': '문화 & 엔터 > 보드게임·방탈출',
+        'location': '$cleanLoc 중심상가',
+        'tag': '🎲 $dongName 보드게임',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '토·일 오후 3시',
+        'rank': 11,
+        'isMyNeighborhood': true,
+      },
+      {
+        'id': 'my_loc_12_$cleanLoc',
+        'title': '$cityOrGu 청년 로컬 페스티벌 & 야시장 푸드트럭 야식 투어',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '$cleanLoc 중앙광장 일원',
+        'tag': '🎪 $cityOrGu 지역축제',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '이번 달 주말 상시',
+        'rank': 12,
+        'isMyNeighborhood': true,
+      },
+    ];
+  }
+
+  List<Map<String, dynamic>> _getGuaranteedRichCategoryPool() {
+    return [
+      // 뮤지컬 10개 보장용 시드
+      {
+        'id': 'mus_guaranteed_01',
+        'title': '뮤지컬 지킬앤하이드 (Jekyll & Hyde) 20주년 스페셜',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '블루스퀘어 신한카드홀',
+        'tag': '뮤지컬 TOP 🔥',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.11.20~2027.05.10',
+        'rank': 11,
+      },
+      {
+        'id': 'mus_guaranteed_02',
+        'title': '뮤지컬 알라딘 (ALADDIN) 한국 초연 오리지널 스케일',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '샤롯데씨어터 (잠실)',
+        'tag': '뮤지컬 예매 1위 ✨',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.11.22~2027.06.22',
+        'rank': 12,
+      },
+      {
+        'id': 'mus_guaranteed_03',
+        'title': '뮤지컬 시카고 (CHICAGO) 브로드웨이 명작 관람 팟',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '디큐브 링크아트센터',
+        'tag': '뮤지컬 명작 🎭',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.10.15~2027.02.28',
+        'rank': 13,
+      },
+      {
+        'id': 'mus_guaranteed_04',
+        'title': '뮤지컬 킹키부츠 (KINKY BOOTS) 텐션 폭발 커튼콜 동행',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '블루스퀘어 신한카드홀',
+        'tag': '뮤지컬 인기 👠',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.10.10~2027.01.15',
+        'rank': 14,
+      },
+      {
+        'id': 'mus_guaranteed_05',
+        'title': '뮤지컬 위키드 (WICKED) 내한 & 한국어 시즌 관람 모임',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '예술의전당 오페라극장',
+        'tag': '뮤지컬 대작 💚',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.12.01~2027.03.30',
+        'rank': 15,
+      },
+      {
+        'id': 'mus_guaranteed_06',
+        'title': '뮤지컬 프랑켄슈타인 10주년 기념 공연 동행 모집',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '블루스퀘어 신한카드홀',
+        'tag': '뮤지컬 화제작 ⚡',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.10.05~2026.12.28',
+        'rank': 16,
+      },
+      {
+        'id': 'mus_guaranteed_07',
+        'title': '뮤지컬 오페라의 유령 (The Phantom of the Opera) 전국 투어',
+        'category': '문화 & 엔터 > 뮤지컬 & 오페라',
+        'location': '샤롯데씨어터 / 부산 드림씨어터',
+        'tag': '뮤지컬 레전드 🌹',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.11.01~2027.04.15',
+        'rank': 17,
+      },
+      // 핫플·팝업 (트렌드 음식 & 지역 대표 핫플) 10개 이상 보장용 시드
+      {
+        'id': 'hot_guaranteed_01',
+        'title': '망원동 겉바속촉 소금빵 & 수제 베이글 베이커리 오픈런 투어',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '서울 마포구 망원동',
+        'tag': '🥐 망원 소금빵 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '상시 · 주말 오픈런',
+        'rank': 18,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_02',
+        'title': '연남동 두바이 쫀득 쿠키(두쫀쿠) & 피스타치오 디저트 도장깨기',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '서울 마포구 연남동',
+        'tag': '🍪 연남 두쫀쿠 1위',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '상시 운영',
+        'rank': 19,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_03',
+        'title': '성수동 연무장길 뷰티·패션 신상 팝업스토어 주말 투어',
+        'category': '문화 & 엔터 > 전시 & 팝업스토어',
+        'location': '서울 성동구 성수동 연무장길',
+        'tag': '✨ 성수 팝업 1위',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '이번 주말 오후 2시',
+        'rank': 20,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_04',
+        'title': '성수 자연도 소금빵 & 카이막 스페셜티 카페 웨이팅 팟',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '서울 성동구 성수동 카페거리',
+        'tag': '🥐 성수 디저트 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '상시 운영',
+        'rank': 21,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_05',
+        'title': '여의도 더현대 서울 지하1층 신상 디저트 팝업 도장깨기',
+        'category': '문화 & 엔터 > 전시 & 팝업스토어',
+        'location': '서울 영등포구 여의도 더현대 서울',
+        'tag': '🍰 더현대 디저트팝업',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '상시 · 주말 모임',
+        'rank': 22,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_06',
+        'title': '을지로 힙당동 감성 LP 바이닐 바 & 수제 하이볼 투어',
+        'category': '일상 & 푸드 > 동네 술 한잔',
+        'location': '서울 중구 을지로3가',
+        'tag': '🍷 을지로 LP·하이볼',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '금·토 저녁 7시 30분',
+        'rank': 23,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_07',
+        'title': '한남동·이태원 루프탑 에스프레소 바 & 수제 타르트 모임',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '서울 용산구 한남동 카페거리',
+        'tag': '☕ 한남동 루프탑 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '주말 오후 3시',
+        'rank': 24,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_08',
+        'title': '여수 이순신광장 원조 딸기모찌 & 갓버터도나스 로컬 핫플 투어',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '전남 여수시 교동 이순신광장',
+        'tag': '🍓 여수 디저트 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_food.jpg',
+        'period': '상시 · 주말 투어',
+        'rank': 25,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_09',
+        'title': '해운대 해리단길 카이막·소금빵 & 오션뷰 브런치 카페 투어',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '부산 해운대구 우동 해리단길',
+        'tag': '🌊 해운대 해리단길',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '상시 · 주말 모임',
+        'rank': 26,
+        'isHotspot': true,
+      },
+      {
+        'id': 'hot_guaranteed_10',
+        'title': '판교 아브뉴프랑 & 정자동 카페거리 유럽풍 브런치 모임',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'location': '경기 성남시 분당구 판교·정자동',
+        'tag': '🥞 판교·분당 핫플',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_cafe.jpg',
+        'period': '주말 브런치',
+        'rank': 27,
+        'isHotspot': true,
+      },
+    ];
+  }
+
   bool _isMyNeighborhoodEvent(Map<String, dynamic> item) {
+    if (item['isMyNeighborhood'] == true) return true;
     final locTokens = _currentLocation
         .replaceAll('(', ' ')
         .replaceAll(')', ' ')
@@ -899,6 +1425,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         .where((s) => s.length >= 2)
         .toList();
     if (locTokens.isEmpty) return false;
+
+    final primaryCity = locTokens.first;
+    final basePrimary = (primaryCity.endsWith('시') || primaryCity.endsWith('구')) && primaryCity.length > 2
+        ? primaryCity.substring(0, primaryCity.length - 1)
+        : primaryCity;
 
     final combined = [
       item['location'] ?? '',
@@ -910,15 +1441,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       ...(item['regionAliases'] is List ? (item['regionAliases'] as List) : const []),
     ].join(' ');
 
-    for (final tk in locTokens) {
-      final base = (tk.endsWith('시') || tk.endsWith('구') || tk.endsWith('동')) && tk.length > 2
-          ? tk.substring(0, tk.length - 1)
-          : tk;
-      if (combined.contains(tk) || (base.length >= 2 && combined.contains(base))) {
-        return true;
-      }
-    }
-    return false;
+    return combined.contains(primaryCity) || (basePrimary.length >= 2 && combined.contains(basePrimary));
   }
 
   bool _matchesTrendFilter(Map<String, dynamic> item, String filter) {
@@ -926,19 +1449,19 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     final cat = (item['category'] ?? '').toString();
     final tag = (item['tag'] ?? '').toString();
     final title = (item['title'] ?? '').toString();
-    final genre = (item['genre'] ?? '').toString();
-    final isLocalCrawled = item['isLocalCrawled'] == true;
+    final isHotspot = item['isHotspot'] == true;
 
     if (filter == '📍 우리동네') {
-      return _isMyNeighborhoodEvent(item) || isLocalCrawled || genre == '우리동네';
+      // 타 지역(예: 여수시인데 경기도 영통/일산)이 절대 섞이지 않도록 오직 내 동네(_currentLocation) 매칭 이벤트만 엄격 노출!
+      return _isMyNeighborhoodEvent(item);
     } else if (filter == '콘서트') {
-      return cat.contains('콘서트') || tag.contains('콘서트') || title.toUpperCase().contains('CONCERT');
+      return cat.contains('콘서트') || tag.contains('콘서트') || title.toUpperCase().contains('CONCERT') || title.contains('투어 콘서트');
     } else if (filter == '뮤지컬') {
-      return cat.contains('뮤지컬') || tag.contains('뮤지컬') || title.contains('스위니토드') || title.contains('지킬') || title.contains('오페라');
+      return cat.contains('뮤지컬') || tag.contains('뮤지컬') || title.contains('스위니토드') || title.contains('지킬') || title.contains('오페라') || title.contains('알라딘') || title.contains('시카고') || title.contains('위키드');
     } else if (filter == '페스티벌') {
-      return cat.contains('페스티벌') || tag.contains('페스티벌') || cat.contains('지역축제') || tag.contains('지역축제') || title.toUpperCase().contains('FESTIVAL') || title.contains('범음악제') || title.contains('축제');
+      return cat.contains('페스티벌') || tag.contains('페스티벌') || tag.contains('대표축제') || tag.contains('지역축제') || title.toUpperCase().contains('FESTIVAL') || title.contains('범음악제') || title.contains('페스티벌') || title.contains('불꽃축제');
     } else if (filter == '핫플·팝업') {
-      return cat.contains('다이닝') || cat.contains('팝업') || cat.contains('LP') || cat.contains('러닝') || cat.contains('카페') || cat.contains('원데이') || tag.contains('핫플') || tag.contains('SNS') || isLocalCrawled;
+      return isHotspot || cat.contains('다이닝') || cat.contains('팝업') || cat.contains('LP') || cat.contains('카페') || tag.contains('핫플') || tag.contains('소금빵') || tag.contains('두쫀쿠') || tag.contains('SNS');
     }
     return true;
   }
@@ -1559,21 +2082,44 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: trendStream,
       builder: (context, snapshot) {
-        List<Map<String, dynamic>> items = [];
+        List<Map<String, dynamic>> rawItems = [];
         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-          items = snapshot.data!.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+          rawItems = snapshot.data!.docs
+              .map((doc) => doc.data() as Map<String, dynamic>)
+              .where((d) => d['isLocalCrawled'] != true)
+              .toList();
         } else {
-          items = fallbackTrends;
+          rawItems = List<Map<String, dynamic>>.from(fallbackTrends);
         }
 
-        final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList()
-          ..sort((a, b) {
-            final aLocal = _isMyNeighborhoodEvent(a) ? 0 : 1;
-            final bLocal = _isMyNeighborhoodEvent(b) ? 0 : 1;
-            if (aLocal != bLocal) return aLocal.compareTo(bLocal);
-            final aRank = (a['rank'] as num?)?.toInt() ?? 999;
-            final bRank = (b['rank'] as num?)?.toInt() ?? 999;
-            return aRank.compareTo(bRank);
+        final myLocalItems = _buildMyNeighborhoodEvents(_currentLocation);
+        final guaranteedPool = _getGuaranteedRichCategoryPool();
+        final Set<String> seenTitles = {};
+        final List<Map<String, dynamic>> items = [];
+
+        for (final it in [...myLocalItems, ...rawItems, ...guaranteedPool]) {
+          final t = (it['title'] ?? '').toString().trim();
+          if (t.isEmpty || seenTitles.contains(t)) continue;
+          seenTitles.add(t);
+          items.add(it);
+        }
+
+        final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList()
+
+          ..sort((a, b) {
+
+            final aLocal = _isMyNeighborhoodEvent(a) ? 0 : 1;
+
+            final bLocal = _isMyNeighborhoodEvent(b) ? 0 : 1;
+
+            if (aLocal != bLocal) return aLocal.compareTo(bLocal);
+
+            final aRank = (a['rank'] as num?)?.toInt() ?? 999;
+
+            final bRank = (b['rank'] as num?)?.toInt() ?? 999;
+
+            return aRank.compareTo(bRank);
+
           });
         final int totalPages = (filteredItems.length / 2).ceil().clamp(1, 99);
         final int safePage = _trendPageIndex.clamp(0, totalPages - 1);
@@ -2575,73 +3121,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
           // 3. 탭별 특화 큐레이션 섹션 (소소스팟 & 트렌드 큐레이션)
           if (_selectedCategoryIndex == 0) ...[
-            // [전체 탭]: 소소스팟 슬림 엔트리 배너 + 실시간 공연·뮤지컬 & 트렌드 핫플
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 16),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SoSoSpotScreen()));
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFF25767), Color(0xFFFF707F)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(color: coralAccent.withOpacity(0.25), blurRadius: 14, offset: const Offset(0, 4)),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text('⚡', style: TextStyle(fontSize: 22)),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.25), borderRadius: BorderRadius.circular(5)),
-                                    child: const Text('LIVE 4개', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  const Text(
-                                    '소소스팟 실시간 번개',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 3),
-                              const Text(
-                                '내 주변 10분 컷 핫플! 실시간 당일 번개 즉시 합류',
-                                style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // [전체 탭]: 내 동네 맞춤 핫플 & 실시간 공연·뮤지컬 큐레이션 바로 노출
             SliverToBoxAdapter(
               child: _buildTrendCurationSection(),
             ),
