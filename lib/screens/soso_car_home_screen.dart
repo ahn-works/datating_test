@@ -299,6 +299,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   String _selectedSubCategory = '전체';
   String _selectedTrendCategory = '전체';
   int _trendPageIndex = 0;
+  bool _isTrendExpanded = false;
+  final PageController _trendPageController = PageController();
   bool _isListView = false;
   bool _isSubCategoryExpanded = false;
 
@@ -1532,18 +1534,19 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList();
         final int totalPages = (filteredItems.length / 2).ceil().clamp(1, 99);
         final int safePage = _trendPageIndex.clamp(0, totalPages - 1);
-        final int startIndex = safePage * 2;
-        final Map<String, dynamic>? leftItem = startIndex < filteredItems.length ? filteredItems[startIndex] : null;
-        final Map<String, dynamic>? rightItem = (startIndex + 1) < filteredItems.length ? filteredItems[startIndex + 1] : null;
+
+        // 펼침 모드일 때 보여줄 행(Row) 개수 계산
+        final int expandedRowCount = (filteredItems.length / 2).ceil();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. 헤더 영역 (더보기 버튼 포함)
+            // 1. 헤더 영역 (당근/문토/오늘의집 스타일의 심플한 '전체보기 >' 텍스트 액션)
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 28, bottom: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Row(
@@ -1597,33 +1600,21 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () => _showAllTrendsBottomSheet(context, items),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFEBEBF0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '더보기 (${items.length})',
+                            '전체보기',
                             style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w800,
-                              color: coralAccent,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: textSecondary,
                             ),
                           ),
-                          const SizedBox(width: 2),
-                          Icon(Icons.chevron_right, size: 14, color: coralAccent),
+                          const SizedBox(width: 1),
+                          Icon(Icons.chevron_right_rounded, size: 17, color: textSecondary),
                         ],
                       ),
                     ),
@@ -1650,7 +1641,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           setState(() {
                             _selectedTrendCategory = c;
                             _trendPageIndex = 0;
+                            _isTrendExpanded = false;
                           });
+                          if (_trendPageController.hasClients) {
+                            _trendPageController.jumpToPage(0);
+                          }
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
@@ -1704,140 +1699,159 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
 
-            // 3. 좌우 100 : 100 완벽 대칭 2열 카드 배치 (오른쪽 35% 짤림 0% 원천 해결!)
-            GestureDetector(
-              onHorizontalDragEnd: (details) {
-                if (details.primaryVelocity == null) return;
-                if (details.primaryVelocity! < -150 && safePage < totalPages - 1) {
-                  setState(() => _trendPageIndex = safePage + 1);
-                } else if (details.primaryVelocity! > 150 && safePage > 0) {
-                  setState(() => _trendPageIndex = safePage - 1);
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: leftItem != null
-                          ? _buildSingleTrendCard(context, leftItem, startIndex)
-                          : _buildTrendMoreCard(context, items.length, items),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: rightItem != null
-                          ? _buildSingleTrendCard(context, rightItem, startIndex + 1)
-                          : _buildTrendMoreCard(context, items.length, items),
-                    ),
-                  ],
+            // 3. 본문: 기본 상태는 스냅 PageView (좌우 100:100 대칭 2열) + 슬림 도트 인디케이터,
+            //    '더보기 ▾' 클릭 시 당근/오늘의집/무신사처럼 인피드 2열 그리드로 즉시 펼쳐짐!
+            if (!_isTrendExpanded) ...[
+              SizedBox(
+                height: 342,
+                child: PageView.builder(
+                  controller: _trendPageController,
+                  itemCount: totalPages,
+                  onPageChanged: (page) {
+                    setState(() => _trendPageIndex = page);
+                  },
+                  itemBuilder: (context, pageIdx) {
+                    final int sIdx = pageIdx * 2;
+                    final Map<String, dynamic>? lItem = sIdx < filteredItems.length ? filteredItems[sIdx] : null;
+                    final Map<String, dynamic>? rItem = (sIdx + 1) < filteredItems.length ? filteredItems[sIdx + 1] : null;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: lItem != null
+                                ? _buildSingleTrendCard(context, lItem, sIdx)
+                                : _buildTrendMoreCard(context, items.length, items),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: rItem != null
+                                ? _buildSingleTrendCard(context, rItem, sIdx + 1)
+                                : _buildTrendMoreCard(context, items.length, items),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
-            ),
+              // 위피 / 문토 / 당근 스타일 미니멀 슬림 도트 인디케이터
+              if (totalPages > 1)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(totalPages, (dotIdx) {
+                      final bool isActive = dotIdx == safePage;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() => _trendPageIndex = dotIdx);
+                          if (_trendPageController.hasClients) {
+                            _trendPageController.animateToPage(
+                              dotIdx,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOutCubic,
+                            );
+                          }
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          width: isActive ? 18 : 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: isActive ? coralAccent : const Color(0xFFE0D8DA),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+            ] else ...[
+              // 인라인 펼침 상태: 당근/무신사 스타일 2열 대칭 그리드 전체 노출
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: List.generate(expandedRowCount, (rowIdx) {
+                    final int sIdx = rowIdx * 2;
+                    final Map<String, dynamic>? lItem = sIdx < filteredItems.length ? filteredItems[sIdx] : null;
+                    final Map<String, dynamic>? rItem = (sIdx + 1) < filteredItems.length ? filteredItems[sIdx + 1] : null;
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: rowIdx < expandedRowCount - 1 ? 12 : 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: lItem != null
+                                ? _buildSingleTrendCard(context, lItem, sIdx)
+                                : const SizedBox.shrink(),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: rItem != null
+                                ? _buildSingleTrendCard(context, rItem, sIdx + 1)
+                                : _buildTrendMoreCard(context, items.length, items),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
 
-            // 4. 하단 페이지 넘김 & 전체보기 컨트롤 바
-            if (totalPages > 1)
+            // 4. 당근마켓 / 무신사 / 오늘의집 표준 풀와이드 '더보기 ▾ / 접기 ▴' 버튼
+            if (filteredItems.length > 2)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // 이전 페이지 버튼
-                    InkWell(
-                      onTap: safePage > 0
-                          ? () => setState(() => _trendPageIndex = safePage - 1)
-                          : null,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: safePage > 0 ? Colors.white : const Color(0xFFF3EFF0),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFEBEBF0)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.chevron_left,
-                              size: 16,
-                              color: safePage > 0 ? textPrimary : const Color(0xFFBCBAC4),
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '이전',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
-                                color: safePage > 0 ? textPrimary : const Color(0xFFBCBAC4),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _isTrendExpanded = !_isTrendExpanded;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: double.infinity,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFEAE2E4), width: 1.1),
                     ),
-                    // 페이지 표시 및 인디케이터
-                    GestureDetector(
-                      onTap: () => _showAllTrendsBottomSheet(context, items),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${safePage + 1} / $totalPages 페이지',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: textSecondary,
-                            ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _isTrendExpanded
+                              ? '${_selectedTrendCategory == '전체' ? '트렌드 이벤트' : _selectedTrendCategory} 접기'
+                              : '${_selectedTrendCategory == '전체' ? '트렌드 이벤트' : _selectedTrendCategory} 더보기',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: textPrimary,
                           ),
-                          const SizedBox(width: 8),
+                        ),
+                        if (!_isTrendExpanded) ...[
+                          const SizedBox(width: 5),
                           Text(
-                            '전체 목록 >',
+                            '+${filteredItems.length - 2}',
                             style: TextStyle(
-                              fontSize: 11.5,
+                              fontSize: 12.5,
                               fontWeight: FontWeight.w800,
                               color: coralAccent,
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    // 다음 페이지 버튼
-                    InkWell(
-                      onTap: safePage < totalPages - 1
-                          ? () => setState(() => _trendPageIndex = safePage + 1)
-                          : () => _showAllTrendsBottomSheet(context, items),
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: safePage < totalPages - 1 ? coralAccent.withOpacity(0.4) : const Color(0xFFEBEBF0),
-                          ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          _isTrendExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                          size: 18,
+                          color: textSecondary,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              safePage < totalPages - 1 ? '다음' : '전체보기',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w800,
-                                color: coralAccent,
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            Icon(
-                              Icons.chevron_right,
-                              size: 16,
-                              color: coralAccent,
-                            ),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
           ],
