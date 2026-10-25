@@ -1,0 +1,34 @@
+{
+  "province": "서울특별시",
+  "city": "마포구",
+  "slug": "seoul_mapo",
+  "aliases": [
+    "서교동",
+    "연남동",
+    "망원동",
+    "합정동",
+    "홍대",
+    "연트럴파크",
+    "망원한강공원"
+  ],
+  "count": 1,
+  "events": [
+    {
+      "event_id": "b3b9bba1064458ea",
+      "province": "서울특별시",
+      "city": "마포구",
+      "category": "원데이클래스 소모임",
+      "title": "[홍대/공간대여]모임을 위한 홍대 독립 공간 5 - 브런치",
+      "summary": "[홍대/공간대여]모임을 위한 홍대 독립 공간 5 브런치",
+      "url": "https://news.google.com/rss/articles/CBMiR0FVX3lxTFBMMlVOSUdfWkc1M2o0OFl4UUtqV3BjRVZ4SW03XzBPUVdlWWRyRjdFN0hPalhCQWdfZndrLUl3dHJEcnBwVmln?oc=5",
+      "source": "google_rss",
+      "published_at": "Sun, 06 Mar 2022 20:20:34 GMT",
+      "crawled_at": "2026-10-25T15:44:45+09:00",
+      "location_hint": "서울특별시 서교동",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNjA3MDVfMjIg%252FMDAxNzgzMjIwMzgzODI5.oyn4CfCwx5uMgBw-3rDIR-DWd1ztez4MxNOhLfK8JnEg.IYCuVHg3ySjbUK7Rp98TtUbk82fF44MKk513gP-HmmAg.JPEG%252FKakaoTalk_20260705_115815565_03.jpg%2523994x1583%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 원데이 클래스",
+      "app_tag": "🎨 서교동 원데이·클래스",
+      "vibe": "소소하게"
+    }
+  ]
+}

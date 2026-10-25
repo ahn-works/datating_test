@@ -1,0 +1,53 @@
+{
+  "province": "경기도",
+  "city": "용인·하남·안양",
+  "slug": "gyeonggi_yongin_hanam",
+  "aliases": [
+    "용인시",
+    "수지구",
+    "풍덕천동",
+    "기흥",
+    "하남시",
+    "미사동",
+    "안양시",
+    "평촌동",
+    "부천시"
+  ],
+  "count": 2,
+  "events": [
+    {
+      "event_id": "53814c11d4e0344e",
+      "province": "경기도",
+      "city": "용인·하남·안양",
+      "category": "문화행사 축제 페스티벌",
+      "title": "용인시청 광장이 거대한 야외도서관으로…책과 함께한 가을날의 독서 축제 - 용인신문",
+      "summary": "용인시청 광장이 거대한 야외도서관으로…책과 함께한 가을날의 독서 축제 용인신문",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5oV0VhdzJKOGpFOFBhc0J4R0JhWVJUQy1sTkZtU0dhQm9ZalZFMGJKbVhPUDBySzJvaTlRY2RFUl9IU3RDSGFFR0IzWmVGUUhtSy1pV3pJUWgyaktlc2ttMkE3UnI?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 19 Oct 2026 08:14:43 GMT",
+      "crawled_at": "2026-10-25T15:45:09+09:00",
+      "location_hint": "경기도 용인시",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNjA4MjlfMjkx%252FMDAxNzg3OTUyMDI2MDQw.DSchd1hXnSzP1ulGlULijt1MgAbtYQDTKMW1W6yA450g.CCppQSg3c1I60-psa_D8sU6LgCxqWnubGBu1gNtNbJ4g.JPEG%252Fcover.jpg%2523128x198%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "일상 & 푸드 > 카페 & 디저트",
+      "app_tag": "📚 용인시 북카페·모임",
+      "vibe": "소소하게"
+    },
+    {
+      "event_id": "546ab5dfa414ff43",
+      "province": "경기도",
+      "city": "용인·하남·안양",
+      "category": "청년 커뮤니티 모임",
+      "title": "용인시, 내달 18일까지 청년 커뮤니티 지원사업 참여자 모집 - 뉴스1",
+      "summary": "용인시, 내달 18일까지 청년 커뮤니티 지원사업 참여자 모집 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE8tcGMzaUZ0MDU1dlJqdmpDY2F1bGE2dHpkUTZvRXZPeDl5cndKZjNSY1hQazk0d1VvVjh6QnJSS2NMODN0RTdTVVc0UnQ5QW4zZVZHUFhn?oc=5",
+      "source": "google_rss",
+      "published_at": "Thu, 29 Jan 2026 08:00:00 GMT",
+      "crawled_at": "2026-10-25T15:45:11+09:00",
+      "location_hint": "경기도 용인시",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNTA5MTlfMiAg%252FMDAxNzU4Mjg4MzUwNjk4.uvvXZe_0bGDOs1LU6gt28NmS-57Vgl2juJR-oe0KL78g.x2lORHYM0SlgalAvi0JXCy5k8sCLtqPHB58hYRrGRX0g.PNG%252Fimage.png%2523542x766%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 용인시 지역축제·행사",
+      "vibe": "놀줄아는"
+    }
+  ]
+}

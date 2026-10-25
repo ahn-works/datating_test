@@ -1,0 +1,55 @@
+{
+  "province": "강원·제주",
+  "city": "강릉·춘천·제주시",
+  "slug": "gangwon_jeju",
+  "aliases": [
+    "강릉시",
+    "강릉",
+    "춘천시",
+    "춘천",
+    "속초시",
+    "제주시",
+    "제주",
+    "노형동",
+    "연동",
+    "서귀포시",
+    "중문동"
+  ],
+  "count": 2,
+  "events": [
+    {
+      "event_id": "9201fec4fd3c22c9",
+      "province": "강원·제주",
+      "city": "강릉·춘천·제주시",
+      "category": "문화행사 축제 페스티벌",
+      "title": "축제를 한 눈에! 이번 주(10.23.~10.29.) 축제 일정 ‘전라/경상/충청남북 및 강원/제주’ [인포그래픽] - 시선뉴스",
+      "summary": "축제를 한 눈에! 이번 주(10.23.~10.29.) 축제 일정 ‘전라/경상/충청남북 및 강원/제주’ [인포그래픽] 시선뉴스",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE0zMDY1bURFQjFSQWpRVW1LTXJRamRaSjF1SHNHamoyT1lwUDB3MlQxX3U1ZFpGaXplN2FaRjNQcURtalJTcnNfUmFtUHh5RnI5T1dkdU94M0licGFNYzlVYmZPM1NKT2c5S2FUdUM3RdIBckFVX3lxTE8teEZrQk9SLXZNeTc2SktVSDVNdFE5aXhvWk5NX0dyam1Ca3FCdnRucHE1T2wtQ0NubUFPRUZ5b3RHbGYzUEhyand3ejZTR3ZOTmZfSFFNYmNBcWhZNUFyMUpGWlB2LVAtakdqMHhidUdMZw?oc=5",
+      "source": "google_rss",
+      "published_at": "Sat, 24 Oct 2026 01:57:00 GMT",
+      "crawled_at": "2026-10-25T15:45:42+09:00",
+      "location_hint": "강원·제주 강릉시",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fcafefiles.naver.net%252FMjAyNjA4MjdfNDcg%252FMDAxNzg3ODM5Mzc5Mzg2.3Mdj1Ew3_lEUEdQJXIVnkr6CqdLL4i70RiNgWO32p2cg.z87uUr1bmLQChvx_v0yQXVc91eUzzkxDRst35RdW5BYg.PNG%252FimageSrc.png%257C800x533%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 강릉시 지역축제·행사",
+      "vibe": "놀줄아는"
+    },
+    {
+      "event_id": "3842f425528ba5d4",
+      "province": "강원·제주",
+      "city": "강릉·춘천·제주시",
+      "category": "문화행사 축제 페스티벌",
+      "title": "[지역축제] 2026년 10월 - '강릉커피축제’ 外 - 숙박매거진",
+      "summary": "[지역축제] 2026년 10월 - '강릉커피축제’ 外 숙박매거진",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE1FVkRTM1JJLVVrd3VCY2pvb09jb21xQVE3YUd0YXNnamN3Z2x5clVoRlFzMDYyaFlqZHFfcFRRYm1ycm13S29ZMkxQa0NlZThZeEJXWjBYVng1c1VHQlVjZk9GNUtBcEFpLWFVZzVRWTY0dw?oc=5",
+      "source": "google_rss",
+      "published_at": "Fri, 02 Oct 2026 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:45:42+09:00",
+      "location_hint": "강원·제주 강릉시",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttps%253A%252F%252Fimgnews.pstatic.net%252Fimage%252Forigin%252F5090%252F2025%252F10%252F30%252F2529972.jpg%26type%3Dw750%26expire%3D2%26refresh%3Dtrue&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 강릉시 지역축제·행사",
+      "vibe": "놀줄아는"
+    }
+  ]
+}

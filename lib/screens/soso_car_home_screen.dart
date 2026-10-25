@@ -890,20 +890,55 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
+  bool _isMyNeighborhoodEvent(Map<String, dynamic> item) {
+    final locTokens = _currentLocation
+        .replaceAll('(', ' ')
+        .replaceAll(')', ' ')
+        .split(' ')
+        .map((s) => s.trim())
+        .where((s) => s.length >= 2)
+        .toList();
+    if (locTokens.isEmpty) return false;
+
+    final combined = [
+      item['location'] ?? '',
+      item['venue'] ?? '',
+      item['city'] ?? '',
+      item['province'] ?? '',
+      item['tag'] ?? '',
+      item['title'] ?? '',
+      ...(item['regionAliases'] is List ? (item['regionAliases'] as List) : const []),
+    ].join(' ');
+
+    for (final tk in locTokens) {
+      final base = (tk.endsWith('시') || tk.endsWith('구') || tk.endsWith('동')) && tk.length > 2
+          ? tk.substring(0, tk.length - 1)
+          : tk;
+      if (combined.contains(tk) || (base.length >= 2 && combined.contains(base))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool _matchesTrendFilter(Map<String, dynamic> item, String filter) {
     if (filter == '전체') return true;
     final cat = (item['category'] ?? '').toString();
     final tag = (item['tag'] ?? '').toString();
     final title = (item['title'] ?? '').toString();
+    final genre = (item['genre'] ?? '').toString();
+    final isLocalCrawled = item['isLocalCrawled'] == true;
 
-    if (filter == '콘서트') {
+    if (filter == '📍 우리동네') {
+      return _isMyNeighborhoodEvent(item) || isLocalCrawled || genre == '우리동네';
+    } else if (filter == '콘서트') {
       return cat.contains('콘서트') || tag.contains('콘서트') || title.toUpperCase().contains('CONCERT');
     } else if (filter == '뮤지컬') {
       return cat.contains('뮤지컬') || tag.contains('뮤지컬') || title.contains('스위니토드') || title.contains('지킬') || title.contains('오페라');
     } else if (filter == '페스티벌') {
-      return cat.contains('페스티벌') || tag.contains('페스티벌') || title.toUpperCase().contains('FESTIVAL') || title.contains('범음악제');
+      return cat.contains('페스티벌') || tag.contains('페스티벌') || cat.contains('지역축제') || tag.contains('지역축제') || title.toUpperCase().contains('FESTIVAL') || title.contains('범음악제') || title.contains('축제');
     } else if (filter == '핫플·팝업') {
-      return cat.contains('다이닝') || cat.contains('팝업') || cat.contains('LP') || cat.contains('러닝') || cat.contains('카페') || tag.contains('핫플') || tag.contains('SNS');
+      return cat.contains('다이닝') || cat.contains('팝업') || cat.contains('LP') || cat.contains('러닝') || cat.contains('카페') || cat.contains('원데이') || tag.contains('핫플') || tag.contains('SNS') || isLocalCrawled;
     }
     return true;
   }
@@ -982,7 +1017,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: ['전체', '콘서트', '뮤지컬', '페스티벌', '핫플·팝업'].map((c) {
+                      children: ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '핫플·팝업'].map((c) {
                         final isSel = modalFilter == c;
                         final count = items.where((it) => _matchesTrendFilter(it, c)).length;
                         return Padding(
@@ -1531,7 +1566,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           items = fallbackTrends;
         }
 
-        final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList();
+        final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList()
+          ..sort((a, b) {
+            final aLocal = _isMyNeighborhoodEvent(a) ? 0 : 1;
+            final bLocal = _isMyNeighborhoodEvent(b) ? 0 : 1;
+            if (aLocal != bLocal) return aLocal.compareTo(bLocal);
+            final aRank = (a['rank'] as num?)?.toInt() ?? 999;
+            final bRank = (b['rank'] as num?)?.toInt() ?? 999;
+            return aRank.compareTo(bRank);
+          });
         final int totalPages = (filteredItems.length / 2).ceil().clamp(1, 99);
         final int safePage = _trendPageIndex.clamp(0, totalPages - 1);
 
@@ -1587,7 +1630,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'KOPIS 공연 랭킹 & AI 트렌드로 바로 모임 만들기',
+                                '📍 내 동네($_currentLocation) 맞춤 행사 & 전국 트렌드로 모임 만들기',
                                 style: TextStyle(fontSize: 11.5, color: textSecondary, fontWeight: FontWeight.w500),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -1631,7 +1674,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: ['전체', '콘서트', '뮤지컬', '페스티벌', '핫플·팝업'].map((c) {
+                  children: ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '핫플·팝업'].map((c) {
                     final bool isSel = _selectedTrendCategory == c;
                     final int count = items.where((it) => _matchesTrendFilter(it, c)).length;
                     return Padding(

@@ -1,0 +1,73 @@
+{
+  "province": "전라남도",
+  "city": "순천·광양·목포",
+  "slug": "jeonnam_suncheon_mokpo",
+  "aliases": [
+    "순천시",
+    "순천",
+    "조례동",
+    "신대지구",
+    "연향동",
+    "광양시",
+    "중마동",
+    "목포시",
+    "하당동",
+    "평화광장",
+    "나주시",
+    "빛가람동"
+  ],
+  "count": 3,
+  "events": [
+    {
+      "event_id": "8ffb3492d6fa46a6",
+      "province": "전라남도",
+      "city": "순천·광양·목포",
+      "category": "문화행사 축제 페스티벌",
+      "title": "은빛 갈대 물결 따라 걷는 힐링 여정, 2026 순천 남파랑길 천천히 걷기 개최 - 이트레블뉴스",
+      "summary": "은빛 갈대 물결 따라 걷는 힐링 여정, 2026 순천 남파랑길 천천히 걷기 개최 이트레블뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiREFVX3lxTE1QYXZYU2pjWFRQQ29VTGRONll4S01YYWphSlIyUEU5RkZ6Y3dBTlRGUmRxN2VqYklkbHZfZ1ZHb2xjTnFB?oc=5",
+      "source": "google_rss",
+      "published_at": "Sat, 24 Oct 2026 22:54:00 GMT",
+      "crawled_at": "2026-10-25T15:45:34+09:00",
+      "location_hint": "전라남도 순천시",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNjEwMjJfMTUx%252FMDAxNzkyNjc4MjIxNDk1.jkAgqaPH63EWno41WAEX3D3e2w2vwriSYFuFVOCJhpsg.RW7CPF26TW-1n8Nc7oZD-4MTVQc52SanZeWumL6A5W4g.JPEG%252Fb_poster_260907_01.jpg%25236154x8669%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 순천시 지역축제·행사",
+      "vibe": "놀줄아는"
+    },
+    {
+      "event_id": "835b5a55260d24c1",
+      "province": "전라남도",
+      "city": "순천·광양·목포",
+      "category": "문화행사 축제 페스티벌",
+      "title": "원도심 초록빛 매료시킨 '순천 푸드앤아트페스티벌' 10주년 성황리 폐막 - 작은뉴스",
+      "summary": "원도심 초록빛 매료시킨 '순천 푸드앤아트페스티벌' 10주년 성황리 폐막 작은뉴스",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFAzaS1ad2dqWWJVWDJOYmxndjd1UDg4TzhGMTFOeXE1YXZGTjZYZmVIYzZYckRkR0hOV2o1MVNZSkhwQl9ELVNBTFRmZkJuTUl6ZGotTjExcGtWdUdHVzFZNEtwcHV6c2tjVUlFcQ?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 19 Oct 2026 10:48:46 GMT",
+      "crawled_at": "2026-10-25T15:45:34+09:00",
+      "location_hint": "전라남도 순천시",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fcafefiles.naver.net%252FMjAyNTEwMDJfMzQg%252FMDAxNzU5MzY4MDcxODY5.e3TOUm06WcdVm7lt_D3pZz-5M2h8qHyHNwC7ZxrtN6Ug.bNuq0stDu_oY-vktdJPO2L4QecjBFPqP3VktRh1xrAsg.PNG%252F30.png%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 순천시 지역축제·행사",
+      "vibe": "놀줄아는"
+    },
+    {
+      "event_id": "acf19976eb899077",
+      "province": "전라남도",
+      "city": "순천·광양·목포",
+      "category": "문화행사 축제 페스티벌",
+      "title": "순천시, ‘푸드앤아트페스티벌’ 16일 개막 - 전남인뉴스",
+      "summary": "순천시, ‘푸드앤아트페스티벌’ 16일 개막 전남인뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBoa0JnNjRpdkNxTHoxX3FRd19HTC1DVHBRSENFRHFYTXQxUmRnWjBOUW9hMVdPTUNTSlhYUFBXWUVtZ09XNVU0bWdHd2lIdHNrd09ZYjNjZXU2WG44SVB5SDROeUE3NU9RNmc?oc=5",
+      "source": "google_rss",
+      "published_at": "Thu, 15 Oct 2026 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:45:34+09:00",
+      "location_hint": "전라남도 순천시",
+      "poster": "assets/images/cover_wine.jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 순천시 지역축제·행사",
+      "vibe": "놀줄아는"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "province": "서울특별시",
+  "city": "성동구",
+  "slug": "seoul_seongdong",
+  "aliases": [
+    "성수동",
+    "성수",
+    "서울숲",
+    "뚝섬",
+    "왕십리"
+  ],
+  "count": 3,
+  "events": [
+    {
+      "event_id": "73c52a5741cc4fa0",
+      "province": "서울특별시",
+      "city": "성동구",
+      "category": "전시회 팝업스토어 핫플",
+      "title": "'팝업 천국' 성수동 지겹다면…요즘 뜨는 그 옆 골목 [비크닉] - 중앙일보",
+      "summary": "'팝업 천국' 성수동 지겹다면…요즘 뜨는 그 옆 골목 [비크닉] 중앙일보",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBqT0xCOVo2RThEWl93cXROUU9IVGdES0Q1cUUyRnFuYkc0UFE2TDhUOUZPaE1veFBET3R4VUFOM2JraGVreUNvYlVNV2RHbHJ6Ujc3Mm93?oc=5",
+      "source": "google_rss",
+      "published_at": "Fri, 21 Feb 2025 08:00:00 GMT",
+      "crawled_at": "2026-10-25T15:44:50+09:00",
+      "location_hint": "서울특별시 성수동",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNTA2MjZfMjc4%252FMDAxNzUwOTE2MDU2MzQw.VZsO7wP4ljV_tcsuNvJoUzI5vrfqXw4JLAN6_f6I3ZIg.bfUwUnTv8ZgWUXI9QpVhCirjs6KMOwiXYZDkjEgk7csg.JPEG%252Ftitle1.jpg%25231280x1601%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 전시 & 팝업스토어",
+      "app_tag": "✨ 성수동 핫플·팝업",
+      "vibe": "놀줄아는"
+    },
+    {
+      "event_id": "97052be1aa09b8fb",
+      "province": "서울특별시",
+      "city": "성동구",
+      "category": "전시회 팝업스토어 핫플",
+      "title": "11월에 꼭 가봐야 할 성수동 팝업스토어 추천 BEST9 - 여행톡톡",
+      "summary": "11월에 꼭 가봐야 할 성수동 팝업스토어 추천 BEST9 여행톡톡",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFB3aW1CaVZaUHhqdkxNaXlZYUJFMUFmODZLNlFZQkU1dXkydV9FU3JneUNhSTBLa3hMRVR4azlnVTRoZXlXSzNxbzc5ejRrcTloZElPTE02YXVHWjZTXzV0TUVuNGpXc3p0SWhr0gFvQVVfeXFMT2Q0NUk2RW8xX1llMi1mTTBfNzZNeWtqaHdjc2o1R2NPb0dCTmpKR0xEMmJmWHowZ2VuVG1WbkE2TXBUWmVoZFRJcVZzT1Q5cmc4YW9VY3owUGhfTlRaRU5HdXVlUnRvdjhXWmJiSjJF?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 06 Nov 2023 08:00:00 GMT",
+      "crawled_at": "2026-10-25T15:44:50+09:00",
+      "location_hint": "서울특별시 성수동",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fcafefiles.naver.net%252FMjAyNTEwMDJfMzQg%252FMDAxNzU5MzY4MDcxODY5.e3TOUm06WcdVm7lt_D3pZz-5M2h8qHyHNwC7ZxrtN6Ug.bNuq0stDu_oY-vktdJPO2L4QecjBFPqP3VktRh1xrAsg.PNG%252F30.png%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 전시 & 팝업스토어",
+      "app_tag": "✨ 성수동 핫플·팝업",
+      "vibe": "놀줄아는"
+    },
+    {
+      "event_id": "1a395528d6193dd0",
+      "province": "서울특별시",
+      "city": "성동구",
+      "category": "전시회 팝업스토어 핫플",
+      "title": "‘핫플의 핫플’, 성수에 가면 무조건 EQL을 찾는 이유 - 소비자평가",
+      "summary": "‘핫플의 핫플’, 성수에 가면 무조건 EQL을 찾는 이유 소비자평가",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5iVTlaQjBIMEdQY1BMRk1MQlBtVmh5b2t3MHV2NGtFaWc4OG9DVFlwQzlCdjZRVHF6TWoyRlRNallaVTJraHFGalpSa3RPSVQ4c0ZNM1NPOW1VSXV6Qk9nMVNBSER0cm0wYzhXQVZ30gFyQVVfeXFMT3J3N3pHa3djUGkyUy1PUUxHVlNhX3hWU1ZmZ1dWb0FYdXlCUEIyaDZSdTdKWVhDS3B0cEhKWHFqV2ZOcW5xZU1PRmtpYXRGUjdPb3lIS01FUlpkUkR1TnNsbHFsUHlaSVJRcF9OckU3dGhR?oc=5",
+      "source": "google_rss",
+      "published_at": "Sun, 25 Aug 2024 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:44:50+09:00",
+      "location_hint": "서울특별시 성수동",
+      "poster": "assets/images/cover_food.jpg",
+      "app_category": "문화 & 엔터 > 전시 & 팝업스토어",
+      "app_tag": "✨ 성수동 핫플·팝업",
+      "vibe": "놀줄아는"
+    }
+  ]
+}

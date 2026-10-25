@@ -1,0 +1,39 @@
+{
+  "province": "광주·전북",
+  "city": "광주·전주시",
+  "slug": "gwangju_jeonju",
+  "aliases": [
+    "광주",
+    "상무동",
+    "동명동",
+    "수완동",
+    "봉선동",
+    "전주시",
+    "전주",
+    "효자동",
+    "송천동",
+    "객사",
+    "익산시",
+    "군산시"
+  ],
+  "count": 1,
+  "events": [
+    {
+      "event_id": "b2952c5a21f837c3",
+      "province": "광주·전북",
+      "city": "광주·전주시",
+      "category": "문화행사 축제 페스티벌",
+      "title": "넬·신인류·더픽스 광주 온다…사직공원서 이틀간 음악축제 - 진일보 | 전남일보",
+      "summary": "넬·신인류·더픽스 광주 온다…사직공원서 이틀간 음악축제 진일보 | 전남일보",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5WNXpVQ3ozVWJMTjUyeXhEVnpZenU4eEF0cng1TFBGbmRoRmNDbVlHOGxkRUlsbWdRMjlIWW4zVG1VeDRXSFAtNDZrU3NGRjdndklKX05TcFB5MnFqWEp2VUVTT0xGTHJPay1zN1BYVQ?oc=5",
+      "source": "google_rss",
+      "published_at": "Tue, 15 Sep 2026 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:45:39+09:00",
+      "location_hint": "광주·전북 광주",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNjEwMDVfMjA5%252FMDAxNzkxMjEwMjYwMzE5.gCt5HQWELocM_6jZ7aL4GSiRcmKXTooFQNqyGwxrJZwg.MeTgTi-OK4WwtNmEI3Wps-eSW-nb5r2C6LoUcsjzVEEg.PNG%252Fimage.png%2523443x627%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 광주 지역축제·행사",
+      "vibe": "놀줄아는"
+    }
+  ]
+}

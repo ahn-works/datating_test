@@ -1,0 +1,57 @@
+{
+  "province": "서울특별시",
+  "city": "강남·송파·용산",
+  "slug": "seoul_gangnam_songpa_yongsan",
+  "aliases": [
+    "강남구",
+    "신사동",
+    "역삼동",
+    "송파구",
+    "잠실동",
+    "잠실",
+    "용산구",
+    "한남동",
+    "이태원동",
+    "여의도동",
+    "을지로",
+    "익선동",
+    "건대"
+  ],
+  "count": 2,
+  "events": [
+    {
+      "event_id": "c496180388932999",
+      "province": "서울특별시",
+      "city": "강남·송파·용산",
+      "category": "원데이클래스 소모임",
+      "title": "유관기관소식 - 강남구청",
+      "summary": "유관기관소식 강남구청",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQYVNjMnV0UHlqNzhDVDNXZ2pkcHNVT19KZFJkLVpNUDZlc21fc3hZY1NzbVQ4akV6LWxzV2hKSnNqcGotR2NmRm42WWpyMDFaS1FQVXZyWUtlVWxLUm1UcVZidEtaODNXXzh4Tm05NnB6S1ZscjBJSDZZaHF0YTY0NTJ6bEdDSGN4d2duVmRLaEhfeGw5UGF4eGVJUlBteEFWZF92RjZ3?oc=5",
+      "source": "google_rss",
+      "published_at": "Thu, 22 Oct 2026 06:58:13 GMT",
+      "crawled_at": "2026-10-25T15:44:54+09:00",
+      "location_hint": "서울특별시 강남구",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNjEwMDZfMTMz%252FMDAxNzkxMjc3MDkzODA0.L5mEjDgmC0omdbPyCS9ssBMTFpsN-lIibc-DIrzTP78g.eA2TsJgBi_cxyIiDFSrDua6vGXOrNP1vFK3vfv79YVEg.PNG%252FKakaoTalk_20261006_151429905.png%25231080x1080%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 원데이 클래스",
+      "app_tag": "🎨 강남구 원데이·클래스",
+      "vibe": "소소하게"
+    },
+    {
+      "event_id": "bcfb5627b31334b3",
+      "province": "서울특별시",
+      "city": "강남·송파·용산",
+      "category": "청년 커뮤니티 모임",
+      "title": "산하기관 > 강남청년누리 > 커뮤니티 > 공지사항 - 강남구청",
+      "summary": "산하기관 > 강남청년누리 > 커뮤니티 > 공지사항 강남구청",
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNVk5FbFFYUjlxZ3hHRWxlMFJZeE1yRmNFZG5PUUVrT2RMbE5fc3IwcFowazh5b2VYZkY1SnVNLTZ6ZFNkN2l3eGQ3SkFVWUc3c0xTYl9zeEMwcE83UHphcW9xa2ZXdFg2Y21pTEtaYjNTVFptNURfTDBMVDNJZlU4NmNYbkRObGU4WUZFTDRJSERCcGdsb2NZ?oc=5",
+      "source": "google_rss",
+      "published_at": "Thu, 06 Aug 2026 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:44:56+09:00",
+      "location_hint": "서울특별시 강남구",
+      "poster": "https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%2F%3Fsrc%3Dhttp%253A%252F%252Fblogfiles.naver.net%252FMjAyNjAxMTNfMTQw%252FMDAxNzY4MjY5MjA4MDk2.NHoUMw2flRyaLMEoURPloBf3Kg7SToRmJvurtuCAXE4g.74x50lTaS2GxPMZ_M5Qb-VLTYGNfhMGHnLYTCCvx1gIg.JPEG%252F900%2525A3%2525DFse%2525A3%2525DFone%2525A3%2525DF20260113%2525A3%2525DF105222%2525A3%2525DFa.jpg%2523900x1200%26type%3Dw750&w=600&q=85&output=jpg",
+      "app_category": "문화 & 엔터 > 페스티벌 & 공연",
+      "app_tag": "🎪 강남구 지역축제·행사",
+      "vibe": "놀줄아는"
+    }
+  ]
+}

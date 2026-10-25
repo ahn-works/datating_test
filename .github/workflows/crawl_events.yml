@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       target_cities:
-        description: '크롤링할 시 목록 (비워두면 기본값: 고양시, 성남시, 수원시, 용인시, 여수시)'
+        description: '크롤링할 시·구 목록 (비워두면 전국 6대 권역 + 앱 내 활성 유저 거주지 전체 자동 감지)'
         required: false
         default: ''
       max_per_query:
-        description: '도시·카테고리별 최대 수집 건수'
+        description: '권역·카테고리별 최대 수집 건수'
         required: false
-        default: '5'
+        default: '3'
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ permissions:
 jobs:
   crawl-and-commit:
     runs-on: ubuntu-latest
-    name: Crawl City Events & Sync to GitHub + Firestore
+    name: Crawl Nationwide & User-Region Events -> GitHub + Spot App Firestore
 
     steps:
       - name: Checkout repository
@@ -32,14 +32,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run Multi-City Event Crawler (Goyang, Seongnam, Suwon, Yongin, Yeosu)
+      - name: Run Nationwide & Active-User Region Event Crawler
         env:
           TARGET_CITIES: ${{ github.event.inputs.target_cities || '' }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           APP_WEBHOOK_URL: ${{ secrets.APP_WEBHOOK_URL }}
         run: |
-          python scripts/crawl_local_events.py --output-dir data --max-per-query ${{ github.event.inputs.max_per_query || '5' }}
+          python scripts/crawl_local_events.py --output-dir data --max-per-query ${{ github.event.inputs.max_per_query || '3' }}
 
       - name: Commit and Push Updated Event Data
         run: |
@@ -49,7 +49,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "변경된 모임·이벤트 데이터가 없습니다."
           else
-            git commit -m "chore(data): update daily local city events (고양·성남·수원·용인·여수) [skip ci]"
+            git commit -m "chore(data): update daily nationwide & user-region events [skip ci]"
             git pull --rebase origin main
             git push origin main
           fi
