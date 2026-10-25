@@ -298,6 +298,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   int _selectedCategoryIndex = 0;
   String _selectedSubCategory = '전체';
   String _selectedTrendCategory = '전체';
+  int _trendPageIndex = 0;
   bool _isListView = false;
   bool _isSubCategoryExpanded = false;
 
@@ -752,7 +753,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => SoSoSpotDetailScreen(spot: spot)));
                 },
                 child: Container(
-                  width: 220,
+                  width: (MediaQuery.of(context).size.width - 52) / 2,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
@@ -775,7 +776,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                             child: Image(
                               image: appImg(spot['image']),
-                              width: 220,
+                              width: (MediaQuery.of(context).size.width - 52) / 2,
                               height: 84,
                               fit: BoxFit.cover,
                             ),
@@ -1224,11 +1225,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildTrendMoreCard(BuildContext context, int totalCount, List<Map<String, dynamic>> items) {
-    final double cardWidth = (MediaQuery.of(context).size.width * 0.42).clamp(150.0, 180.0);
     return GestureDetector(
       onTap: () => _showAllTrendsBottomSheet(context, items),
       child: Container(
-        width: cardWidth,
+        height: 340,
         decoration: BoxDecoration(
           color: const Color(0xFFFAF6F7),
           borderRadius: BorderRadius.circular(20),
@@ -1238,18 +1238,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF0EB),
                 shape: BoxShape.circle,
                 border: Border.all(color: coralAccent.withOpacity(0.3)),
               ),
-              child: Icon(Icons.arrow_forward, color: coralAccent, size: 22),
+              child: Icon(Icons.grid_view_rounded, color: coralAccent, size: 22),
             ),
             const SizedBox(height: 12),
             Text(
-              '전체 $totalCount개\n모두보기',
+              '전체 $totalCount개 이벤트\n한눈에 모두보기',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -1258,10 +1258,207 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 height: 1.3,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'KOPIS & AI 핫플',
-              style: TextStyle(fontSize: 10.5, color: textSecondary, fontWeight: FontWeight.w600),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFEBEBF0)),
+              ),
+              child: Text(
+                '더보기 열기 >',
+                style: TextStyle(fontSize: 11, color: coralAccent, fontWeight: FontWeight.w800),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSingleTrendCard(BuildContext context, Map<String, dynamic> item, int index) {
+    final title = item['title']?.toString() ?? '';
+    final location = item['location']?.toString() ?? item['venue']?.toString() ?? '';
+    final category = item['category']?.toString() ?? '문화 & 엔터';
+    final tag = item['tag']?.toString() ?? '🔥 실시간 트렌드';
+    final poster = item['poster']?.toString() ?? '';
+    final period = item['period']?.toString() ?? '상시 운영';
+    final rank = item['rank'] as int? ?? (index + 1);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EventDetailScreen(event: item),
+          ),
+        );
+      },
+      child: Container(
+        height: 340,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFEBEBF0), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 상단 포스터 영역
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 132,
+                    width: double.infinity,
+                    child: Image(
+                      image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Image.asset(
+                        'assets/images/cover_wine.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: rank <= 3 ? coralAccent : const Color(0xFF1E1E24).withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: Text(
+                        tag,
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 중단 텍스트 영역 (좌우 100:100 대칭 카드 내부에 제목 2줄 완전 노출)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category,
+                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: coralAccent),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    height: 36,
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: textPrimary,
+                        height: 1.28,
+                        letterSpacing: -0.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 12, color: Color(0xFFFF5E36)),
+                      const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          location,
+                          style: TextStyle(fontSize: 11, color: textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today_outlined, size: 11, color: textSecondary),
+                      const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          period,
+                          style: TextStyle(fontSize: 10.5, color: textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            // 하단 버튼 영역 (좌우 대칭 카드 폭 안에 100% 온전히 들어감)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              child: SizedBox(
+                width: double.infinity,
+                height: 36,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFF0EB),
+                    foregroundColor: coralAccent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                  ),
+                  onPressed: () {
+                    final mainCat = category.contains('>') ? category.split('>')[0].trim() : '문화 & 엔터';
+                    final subCat = category.contains('>') ? category.split('>')[1].trim() : '페스티벌 & 공연';
+                    final finalVibe = item['vibe']?.toString() ?? '놀줄아는';
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OOMUHostScreen(
+                          initialTitle: '$title 같이 가실 분!',
+                          initialLocation: location,
+                          initialMainCategory: mainCat,
+                          initialSubCategory: subCat,
+                          initialCoverImageUrl: poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg',
+                          initialVibe: finalVibe,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_circle, size: 14),
+                        SizedBox(width: 4),
+                        Text(
+                          '이 이벤트로 모임 만들기',
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -1333,7 +1530,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         }
 
         final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList();
-        final double cardWidth = (MediaQuery.of(context).size.width * 0.68).clamp(240.0, 270.0);
+        final int totalPages = (filteredItems.length / 2).ceil().clamp(1, 99);
+        final int safePage = _trendPageIndex.clamp(0, totalPages - 1);
+        final int startIndex = safePage * 2;
+        final Map<String, dynamic>? leftItem = startIndex < filteredItems.length ? filteredItems[startIndex] : null;
+        final Map<String, dynamic>? rightItem = (startIndex + 1) < filteredItems.length ? filteredItems[startIndex + 1] : null;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1448,6 +1649,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         onTap: () {
                           setState(() {
                             _selectedTrendCategory = c;
+                            _trendPageIndex = 0;
                           });
                         },
                         child: AnimatedContainer(
@@ -1502,205 +1704,142 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
 
-            // 3. 가로 스크롤 카드 캐러셀
-            SizedBox(
-              height: 345,
-              child: ListView.separated(
+            // 3. 좌우 100 : 100 완벽 대칭 2열 카드 배치 (오른쪽 35% 짤림 0% 원천 해결!)
+            GestureDetector(
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity == null) return;
+                if (details.primaryVelocity! < -150 && safePage < totalPages - 1) {
+                  setState(() => _trendPageIndex = safePage + 1);
+                } else if (details.primaryVelocity! > 150 && safePage > 0) {
+                  setState(() => _trendPageIndex = safePage - 1);
+                }
+              },
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: filteredItems.length + 1,
-                separatorBuilder: (_, __) => const SizedBox(width: 14),
-                itemBuilder: (context, index) {
-                  if (index == filteredItems.length) {
-                    return _buildTrendMoreCard(context, items.length, items);
-                  }
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: leftItem != null
+                          ? _buildSingleTrendCard(context, leftItem, startIndex)
+                          : _buildTrendMoreCard(context, items.length, items),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: rightItem != null
+                          ? _buildSingleTrendCard(context, rightItem, startIndex + 1)
+                          : _buildTrendMoreCard(context, items.length, items),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
-                  final item = filteredItems[index];
-                  final title = item['title']?.toString() ?? '';
-                  final location = item['location']?.toString() ?? item['venue']?.toString() ?? '';
-                  final category = item['category']?.toString() ?? '문화 & 엔터';
-                  final tag = item['tag']?.toString() ?? '🔥 실시간 트렌드';
-                  final poster = item['poster']?.toString() ?? '';
-                  final period = item['period']?.toString() ?? '상시 운영';
-                  final rank = item['rank'] as int? ?? (index + 1);
-
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => EventDetailScreen(event: item),
+            // 4. 하단 페이지 넘김 & 전체보기 컨트롤 바
+            if (totalPages > 1)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 이전 페이지 버튼
+                    InkWell(
+                      onTap: safePage > 0
+                          ? () => setState(() => _trendPageIndex = safePage - 1)
+                          : null,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: safePage > 0 ? Colors.white : const Color(0xFFF3EFF0),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFEBEBF0)),
                         ),
-                      );
-                    },
-                    child: Container(
-                      width: cardWidth,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFEBEBF0), width: 1.2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
-                            child: Stack(
-                              children: [
-                                SizedBox(
-                                  height: 138,
-                                  width: double.infinity,
-                                  child: Image(
-                                    image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Image.asset(
-                                      'assets/images/cover_wine.jpg',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 10,
-                                  left: 10,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: rank <= 3 ? coralAccent : const Color(0xFF1E1E24).withOpacity(0.85),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      tag,
-                                      style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.chevron_left,
+                              size: 16,
+                              color: safePage > 0 ? textPrimary : const Color(0xFFBCBAC4),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  category,
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: coralAccent),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                SizedBox(
-                                  height: 38,
-                                  child: Text(
-                                    title,
-                                    style: TextStyle(
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w800,
-                                      color: textPrimary,
-                                      height: 1.3,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.location_on_outlined, size: 13, color: Color(0xFFFF5E36)),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        location,
-                                        style: TextStyle(fontSize: 11.5, color: textSecondary),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 3),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today_outlined, size: 12, color: textSecondary),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        period,
-                                        style: TextStyle(fontSize: 11, color: textSecondary),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 38,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFFF0EB),
-                                  foregroundColor: coralAccent,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                ),
-                                onPressed: () {
-                                  final mainCat = category.contains('>') ? category.split('>')[0].trim() : '문화 & 엔터';
-                                  final subCat = category.contains('>') ? category.split('>')[1].trim() : '페스티벌 & 공연';
-                                  final finalVibe = item['vibe']?.toString() ?? '놀줄아는';
-
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => OOMUHostScreen(
-                                        initialTitle: '$title 같이 가실 분!',
-                                        initialLocation: location,
-                                        initialMainCategory: mainCat,
-                                        initialSubCategory: subCat,
-                                        initialCoverImageUrl: poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg',
-                                        initialVibe: finalVibe,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: const FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add_circle, size: 15),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        '이 이벤트로 모임 만들기',
-                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            const SizedBox(width: 2),
+                            Text(
+                              '이전',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: safePage > 0 ? textPrimary : const Color(0xFFBCBAC4),
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // 페이지 표시 및 인디케이터
+                    GestureDetector(
+                      onTap: () => _showAllTrendsBottomSheet(context, items),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${safePage + 1} / $totalPages 페이지',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: textSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '전체 목록 >',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: coralAccent,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  );
-                },
+                    // 다음 페이지 버튼
+                    InkWell(
+                      onTap: safePage < totalPages - 1
+                          ? () => setState(() => _trendPageIndex = safePage + 1)
+                          : () => _showAllTrendsBottomSheet(context, items),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: safePage < totalPages - 1 ? coralAccent.withOpacity(0.4) : const Color(0xFFEBEBF0),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              safePage < totalPages - 1 ? '다음' : '전체보기',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: coralAccent,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: coralAccent,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         );
       },

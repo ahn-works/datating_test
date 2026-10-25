@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'screens/profile_setup_screen.dart';
 import 'services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,15 @@ class Spot10App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'OOMU', 
-      debugShowCheckedModeBanner: false, 
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.stylus,
+        },
+      ),
       theme: ThemeData(
         primaryColor: const Color(0xFFF25767),
         colorScheme: ColorScheme.fromSeed(
@@ -54,7 +63,15 @@ class Spot10App extends StatelessWidget {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: Container(color: const Color(0xFFFAF6F7), child: child!),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                size: Size(
+                  MediaQuery.of(context).size.width > 480 ? 480 : MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height,
+                ),
+              ),
+              child: Container(color: const Color(0xFFFAF6F7), child: child!),
+            ),
           ),
         ),
       ),
