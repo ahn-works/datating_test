@@ -2,6 +2,10 @@ name: Flutter Web Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'data/**'
+      - 'docs/**'
+      - '**.md'
   workflow_dispatch:
 permissions:
   contents: write

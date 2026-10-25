@@ -1,0 +1,112 @@
+{
+  "province": "경기도",
+  "city": "용인시",
+  "slug": "gyeonggi_yongin",
+  "count": 8,
+  "events": [
+    {
+      "event_id": "7573d8779b11674d",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "원데이클래스 모임",
+      "title": "엄마들의 덕질이 만든 동네책방, 용인 북살롱벗 - 브런치",
+      "summary": "엄마들의 덕질이 만든 동네책방, 용인 북살롱벗 브런치",
+      "url": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE9Ndzg4ZWI0Zl9pLUd5d2kyWWw0dE11RkJyMlg5ZUpITjh1dFZWamVzbDVpdnVva2pyYkUxSVExYWJjc3BkLUdTTWZR?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 09 Sep 2024 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:32+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "4c6bba63c193b5f5",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "독서모임 스터디",
+      "title": "성복역 롯데캐슬골드타운 아파트 ‘문화사랑방’ - 용인신문",
+      "summary": "성복역 롯데캐슬골드타운 아파트 ‘문화사랑방’ 용인신문",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1aN2JoaEhwMGMzS3pvUGVTR3pOZ0JoaHZ0Y2RBTDR1NktXTlVtcnRORDJ4Zjc3aloyUF9vcEd4SzdUZlk5VC1rOE9JZ05wUW1pdWg5TVlaaVN1NFhMUGlFZTZMcnY?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 22 Sep 2025 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:33+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "9e8855c5f440a369",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "독서모임 스터디",
+      "title": "용인카페 라임그라스 용인 브런치 베이커리 카페 - 네이트뷰",
+      "summary": "용인카페 라임그라스 용인 브런치 베이커리 카페 네이트뷰",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE9Rck5TVmRtWmtIOWtoTm10N3RJNlc1aUxWUDJuU1Z3cUlRMmJIS291R1dpeUIwbU9Ma1JrWjQzTmRnVXZOTnBHNTRJdjlucnJvOGfSAVdBVV95cUxNYWh6ZGstUE5sMG5rM2U2ZjdWd2lLb040VE5LWXB6YWhLRHcycFl4d1RpalYyRWowakpIRzNFZWI0enJQT3BwUmtFNVF2YUNxazRnbVY5TFk?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 17 Jul 2023 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:33+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "2644b2845953d1c7",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "문화행사 축제",
+      "title": "이상일 용인특례시장 \"제6회 소실봉 문화축제’ 행사 참석...문화·체육시설 확충 최선 다 할것\" - 수도권지역뉴스",
+      "summary": "이상일 용인특례시장 \"제6회 소실봉 문화축제’ 행사 참석...문화·체육시설 확충 최선 다 할것\" 수도권지역뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBoMTdhNGM3VHBkajNrYUVnQ3FtSHJqck1uVHQwZUdZajZ3TDE0YTVwUUtYUjFjTzEtQ3ZkbE5LRmxjRzZxQjZJMUotMjRfVjJxNUI0bFVVV0dJanhCTFVGTW1fb2NieXQ3?oc=5",
+      "source": "google_rss",
+      "published_at": "Sun, 18 Oct 2026 11:06:23 GMT",
+      "crawled_at": "2026-10-25T15:36:34+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "9b9a93faa877aef1",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "문화행사 축제",
+      "title": "2026 대한민국 조아용 페스티벌 10월 3~4일 용인서 개최 - m.culturegb.com",
+      "summary": "2026 대한민국 조아용 페스티벌 10월 3~4일 용인서 개최 m.culturegb.com",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1qb25sWDA5Y2dwdGtla3pyQTVyLVNiRVQ2UnFIcDdRMHNXTVFLRHJhcnJvZEQ4TW40aEp0U0xEUEdQWXNDTGcwdTNMVThSUVNCbi0w?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 28 Sep 2026 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:34+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "64dd4390e0634803",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "문화행사 축제",
+      "title": "이상일 용인시장 “반려가족 지원 확대”…반려동물 문화축제 개최 - 내외뉴스통신",
+      "summary": "이상일 용인시장 “반려가족 지원 확대”…반려동물 문화축제 개최 내외뉴스통신",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE0tTUo0SlNtY3E0eGJ6aDRfSUptNVVWdHpzd0RIeVdJTkpjSlM4R2pmUFhiYlN4dEhrN2NYSC0wcGxMTWNMQ1QxbXRvRlR4QjNyZnl6WHBzZ0xua0tvYV9BZThHSEtoN3NIaUVYU0hR0gFwQVVfeXFMUHVYMFR5VHZMN3A5NVdBaGtsdmtIeGJ6TElyQ1pWUkFXNDBGa1RwSXlOdTZNa2g2Y1dVNkthVDV4U2NfVzBKTGRQV2xDNmFmM2NCbDRrZTdpZUpra3BCZjFFb3RYQnlyUmtORHU4NU8wYw?oc=5",
+      "source": "google_rss",
+      "published_at": "Sun, 18 Oct 2026 12:53:44 GMT",
+      "crawled_at": "2026-10-25T15:36:34+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "4c7862fbb59e3e03",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "청년 커뮤니티 행사",
+      "title": "용인시, 내달 18일까지 청년 커뮤니티 지원사업 참여자 모집 - 뉴스1",
+      "summary": "용인시, 내달 18일까지 청년 커뮤니티 지원사업 참여자 모집 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE8tcGMzaUZ0MDU1dlJqdmpDY2F1bGE2dHpkUTZvRXZPeDl5cndKZjNSY1hQazk0d1VvVjh6QnJSS2NMODN0RTdTVVc0UnQ5QW4zZVZHUFhn?oc=5",
+      "source": "google_rss",
+      "published_at": "Thu, 29 Jan 2026 08:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:34+09:00",
+      "location_hint": "경기도 용인시"
+    },
+    {
+      "event_id": "6280e5b8bbb1873d",
+      "province": "경기도",
+      "city": "용인시",
+      "category": "청년 커뮤니티 행사",
+      "title": "[느린人터뷰] 용인 느린학습자 커뮤니티 '다가감' 손혜경 대표를 만나다 - 느린인뉴스",
+      "summary": "[느린人터뷰] 용인 느린학습자 커뮤니티 '다가감' 손혜경 대표를 만나다 느린인뉴스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1BYldkLVZmdVd2aVNPS3lzUHQybmlQYU9BRkxmUXVnbzZGS0hwWEtzazVnTWY2NlM4UWRjTWdYbm5yZDcxYTA1SC1SMzQ2a1FDUjVRR01HbG5fRVhZRnhfUTlEbGVBSU5MNXgwZlR3dTg?oc=5",
+      "source": "google_rss",
+      "published_at": "Tue, 18 Feb 2025 08:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:34+09:00",
+      "location_hint": "경기도 용인시"
+    }
+  ]
+}

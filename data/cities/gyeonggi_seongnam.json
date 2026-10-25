@@ -1,0 +1,47 @@
+{
+  "province": "경기도",
+  "city": "성남시",
+  "slug": "gyeonggi_seongnam",
+  "count": 3,
+  "events": [
+    {
+      "event_id": "ead1ca471c21f70c",
+      "province": "경기도",
+      "city": "성남시",
+      "category": "러닝크루 운동모임",
+      "title": "성남시, 목요일마다 종합운동장·탄천 일대서 달리기 프로그램 운영 - 기호일보",
+      "summary": "성남시, 목요일마다 종합운동장·탄천 일대서 달리기 프로그램 운영 기호일보",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5RZ05sUklsYWNyaHZIc0toSEdpUTFBcFN0Tm8wbDItTkNBVm45S3BXQWpXb3llMlJHd0Zhb1lxMUk3MWtqTUhtVHZPU29Qemw4eFB2VjI1blc0MF91MS1IVlFQV2c4c2ltRXdZRDVTYw?oc=5",
+      "source": "google_rss",
+      "published_at": "Wed, 29 May 2024 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:26+09:00",
+      "location_hint": "경기도 성남시"
+    },
+    {
+      "event_id": "5507cf8342594ef6",
+      "province": "경기도",
+      "city": "성남시",
+      "category": "청년 커뮤니티 행사",
+      "title": "성남중앙 하나님의교회 신축 완료… 중원구 생활권 새 종교·커뮤니티 거점 부상 - 핀포인트뉴스",
+      "summary": "성남중앙 하나님의교회 신축 완료… 중원구 생활권 새 종교·커뮤니티 거점 부상 핀포인트뉴스",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9nMmNURFR0T0JIRmdGeHNrbWpZWUwzTzJONTA2Q2xJU25MZDFFdHdZcG9KNS1mb2ZxRTlXdHpZSUxnRVJtN09nQ3c3Nm5qWmIzcmNVY1hqSjBrUTF2RUdQMmtnOEhRYlVoMkdSeUk0MGR2dHfSAXdBVV95cUxPUU5BTU4zS0JLUEZrNy1jeV9tTmNIOFk0S2t4MlY2ZUUybFo2X2VWN3hGay1TT2tCVjR2Y2hjSDQzQmkxZHhrTkZHQXNjRk9tVmQ2cmtTdmZGYl9MNmM4U2dsTS1SRzZBZ1kwRC1ONmdEUUVNZzZJTQ?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 26 Jan 2026 08:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:28+09:00",
+      "location_hint": "경기도 성남시"
+    },
+    {
+      "event_id": "732cf3792438b3dd",
+      "province": "경기도",
+      "city": "성남시",
+      "category": "청년 커뮤니티 행사",
+      "title": "성남시청소년청년재단 야탑유스센터, 청년 자율성·커뮤니티 중심 `청년이봄 야탑` 개관 - 성남포커스",
+      "summary": "성남시청소년청년재단 야탑유스센터, 청년 자율성·커뮤니티 중심 `청년이봄 야탑` 개관 성남포커스",
+      "url": "https://news.google.com/rss/articles/CBMiQkFVX3lxTE5aa3dzWTZkR19abUs4cFdnZ09rTzdoblUzOHZTbldFMVVaZHd2MVBtR0duOExqb0c1aldzX0hGdkFQQQ?oc=5",
+      "source": "google_rss",
+      "published_at": "Mon, 22 Sep 2025 07:00:00 GMT",
+      "crawled_at": "2026-10-25T15:36:28+09:00",
+      "location_hint": "경기도 성남시"
+    }
+  ]
+}
