@@ -414,8 +414,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       final isSelected = _currentSpotName.contains(spot['name'] as String);
                       return GestureDetector(
                         onTap: () => _moveToLocation(
-                          spot['lat'] as double,
-                          spot['lng'] as double,
+                          (spot['lat'] as num).toDouble(),
+                          (spot['lng'] as num).toDouble(),
                           spot['dong'] as String,
                         ),
                         child: Container(
@@ -734,44 +734,42 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     const textSecondary = Color(0xFF64748B);
     final isLightning = m['isLightning'] == true;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+    void openDetail() {
+      HapticFeedback.lightImpact();
+      final double? lat = (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
+      final double? lng = (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
+      if (lat != null && lng != null) {
+        setState(() {
+          _currentLat = lat;
+          _currentLng = lng;
+          _currentSpotName = (m['location'] ?? '').toString();
+        });
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OOMUDetailScreen(meetup: m),
+        ),
+      );
+    }
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: openDetail,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            // 지도 중심 해당 모임 위치로 맞추기
-            final double? lat = m['lat'] as double?;
-            final double? lng = m['lng'] as double?;
-            if (lat != null && lng != null) {
-              setState(() {
-                _currentLat = lat;
-                _currentLng = lng;
-                _currentSpotName = (m['location'] ?? '').toString();
-              });
-            }
-            // 상세 화면 열기
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => OOMUDetailScreen(meetup: m),
-              ),
-            );
-          },
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -912,7 +910,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               ],
             ),
           ),
-        ),
       ),
     );
   }
