@@ -694,7 +694,14 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                       }
                                     } catch (_) {}
                                     if (!mounted) return;
-                                    await KakaoMapService.launchMap(loc, lat: targetLat, lng: targetLng);
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => InteractiveMapPopup(
+                                        initialCenter: LatLng(targetLat, targetLng),
+                                        locationName: loc,
+                                        kakaoLink: KakaoMapService.getKakaoRouteUrl(loc, lat: targetLat, lng: targetLng),
+                                      ),
+                                    );
                                   },
                                   child: Container(
                                     height: 130,
