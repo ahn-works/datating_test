@@ -54,7 +54,14 @@ class KakaoPlace {
 /// 카카오맵 & 카카오 로컬 REST API 통합 서비스 (Single Source of Truth)
 class KakaoMapService {
   /// 카카오 공식 REST API 키 (일일 300,000회 무료 호출)
+  /// 카카오 공식 REST API 키 (일 300,000회 무료 호출)
   static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
+
+  /// 카카오 공식 JavaScript 키 (웹/인앱 지도 렌더링용)
+  static const String kakaoJsApiKey = '277e860aee05a0dd1504f70ce7ac8e74';
+
+  /// 카카오 공식 어드민 키
+  static const String kakaoAdminKey = '831cb7442067257f17f9a5111a281ce5';
 
   static Map<String, String> get _authHeaders => {
     'Authorization': 'KakaoAK $kakaoRestApiKey',
