@@ -1,71 +1,112 @@
 ---
 name: frontend-design
-description: Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.
-license: Complete terms in LICENSE.txt
+description: OOMU (우무 / Spot10) 전용 모바일 UI/UX 프론트엔드 디자인 지침. 30대 자연스러운 찐친·동네 모임·여성 안심 철학을 구현하고, Flutter 네이티브 모바일 환경에서 템플릿형 AI 클리셰를 배제한 독창적이고 세련된 비주얼을 제작할 때 사용합니다.
 ---
 
-# Frontend Design
+# OOMU (우무 / Spot10) 프론트엔드 디자인 가이드
 
-Approach this as the design lead at a design studio known for giving every client a distinct visual identity that is not mistaken for anyone else's. This client has already rejected proposals that felt cliché or templated, and is paying for a distinctive point of view: make deliberate, opinionated choices about palette, typography, and layout that are specific to this brief, and take aesthetic risk if justified.
+당신은 국내 1위 소셜 디스커버리 및 하이퍼로컬 커뮤니티(당근, 위피, 29CM 등)의 디자인 디렉터입니다.
+우무(OOMU)는 **"30대 자연스러운 찐친 사귀기(자만추), 동네 모임, 액티비티, 단체 소개팅, 단체 여행"**을 표방하는 서비스이며, 핵심 철학은 **"여성이 안심하고 편안하게 활동해야 매너 있는 남성이 모이고 건강한 커뮤니티가 완성된다"**입니다.
 
-## Ground your designs in the subject matter
+흔하고 가벼운 데이팅앱 클리셰(스와이프 넘기기, 선정적인 네온 컬러, 무차별 1:1 대화 신청)나 딱딱한 관공서 게시판 같은 지루한 UI를 단호히 거부하고, 30대의 세련된 감성과 높은 심리적 안전감을 주는 차별화된 Flutter 모바일 UI를 설계합니다.
 
-If the brief does not identify what the product or subject matter is, identify it yourself before designing, and confirm with the client. You can come up with one concrete subject, the design's audience, and the design's primary job, as a proposal. If there's any information in your memory about the client's preferences or context about what they're building, use that as a hint. The subject's industry, subject matter, materials, and vernacular are where distinctive visual choices come from — a design for a toy for girls aged 8–11 will be very aesthetically different from a dashboard for financial analysts. Build with the brief's real content and subject matter throughout.
+---
 
-## Design principles
+## 1. OOMU 브랜드 아이덴티티 및 핵심 원칙
 
-For web designs, the hero is the first thing viewers will see. Open with the most characteristic thing in the subject's world, in the form that is most appropriate: a headline, an image, an animation, a live demo, an interactive moment, or other treatments. Be deliberate with your choice: a big number with a small label, supporting stats, and a gradient accent is the default treatment, so only use it if that's truly the best option.
+### ① 30대 찐친 & 자만추 무드 (Natural & Tasteful)
+- 20대의 자극적이고 가벼운 만남이 아니라, **취향·동네·라이프스타일·가치관이 맞는 30대 직장인/싱글**이 편안하게 대화하고 모일 수 있는 분위기를 만듭니다.
+- 프로필 카드는 사람을 '평가'하는 스와이프 카드가 아니라, **"이 사람과 대화하면 주말이 즐겁겠다"**는 생각이 드는 감성적인 스토리형 프로필(반려동물, 주말 취미, 동네 단골 스팟, 가치관 질문 등)로 구성합니다.
 
-Typography carries the personality of the page. You don't need a different typeface for display or headline text and body content: use one family or two, and if two, make them clearly distinct.
+### ② 여성 안심 우선주의 (Women-First & Anti-Creep)
+- **무차별 1:1 DM 금지**: 방장 승인제 그룹 모임 기반으로 설계하며, UI에서 불쾌한 침해를 사전에 차단하는 안전장치(여성 전용 필터, 지인 차단, 1-Click 신고/차단)를 가장 찾기 쉬운 위치에 배치합니다.
+- **심리적 안전감(Psychological Safety)**: 시각적으로 불안감을 주거나 지나치게 은밀해 보이는 다크 UI보다는, 밝고 투명하며 신뢰를 주는 소프트 웜(Soft Warm) 톤을 기본으로 합니다.
 
-Choose your typefaces deliberately, not the default families you would reach for on any other project, and set a clear type scale following the default guidance of The Elements of Typographic Style with intentional weights, widths, and spacing. When type is used as a headline or visual element, use the type treatment itself as an active part of the design, not a neutral delivery vehicle for the content.
+### ③ 하이퍼로컬 & 액티비티 생동감 (Neighborhood Vibe)
+- 동네 인증 배지, 거리 표시(500m~1km 가우시안 노이즈 안심 반경), 모임 장소 맵 연동, 동네 질문/답변 피드가 자연스럽게 연결되는 레이아웃을 사용합니다.
 
-Default to line lengths of less than 80 characters. Serif typefaces can have slightly longer line lengths; give serif body text slightly more line-height than a sans-serif.
+---
 
-Avoid these default typographic treatments; they are the commonest tells of a generated page:
-- Accenting just a single word or phrase in a headline, like putting one word in italic/bold or a different color.
-- Using all caps for labels.
-- Adding unnecessary typographic labels above content.
+## 2. 디자인 시스템 및 토큰 (Flutter Token System)
 
-Visual structure is information. Structural devices like outlines, borders, numbering, eyebrows, dividers, labels, etc., encode useful information about the content rather than decorate it. Many generic designs use numbered markers (01 / 02 / 03), but that's only appropriate if the content actually is a sequence — like a stepped process or a timeline. Before adding numbered markers, check the content really is a sequence.
+### 컬러 팔레트 (Color Palette)
+- **Primary Brand (선셋 코랄 / 무드 피치)**: `#FF6B4A` ~ `#FF5A5F`  
+  - 따뜻하고 생동감 넘치며 친근한 활력을 부여하는 시그니처 컬러 (선정적이거나 차가운 핑크/레드 지양).
+- **Secondary (트러스트 네이비 / 딥 슬레이트)**: `#0F172A` ~ `#1E293B`  
+  - 또렷한 헤드라인, 신뢰를 주는 본인인증/안전 배지, 깊이감 있는 텍스트.
+- **Background (클린 웜 화이트)**: `#FAFAFA` ~ `#F8F9FA` (카드 표면: `#FFFFFF`)  
+  - 칙칙한 회색이나 누런 빈티지가 아닌, 깔끔하고 화사한 온기를 머금은 화이트.
+- **Card Surface & Border**: `#FFFFFF`, Border: `#E2E8F0` / `#F1F5F9` (1.0dp 미세 스트로크)
+- **Status & Safety (에메랄드 세이지)**: `#10B981` (실시간 접속, 인증 완료, 안심 동행 상태 표시).
+- **Sub / Neutral Text**: `#64748B` (서브 정보, 날짜, 작성 시간).
 
-Use non-user-triggered motion sparingly and deliberately, only to draw attention. A single orchestrated moment — one page-load sequence or one reveal — lands better than scattered effects; fade-and-slide-up entrances on each section and hover transitions on every card are the generic default and read as AI-generated. Motion that answers a person's action (opening, expanding, confirming) is welcome when it shows what changed.
+### 타이포그래피 (Typography - Pretendard 기반)
+- **기본 폰트**: Pretendard (한글 최적화 Sans-serif).
+- **텍스트 줄바꿈 필수 규칙**: `wordBreak: WordBreak.keepAll` 적용하여 한글 단어가 어색하게 음절 단위로 짤리지 않도록 보장합니다.
+- **계층 구조 (Scale)**:
+  - **Display / Top Header**: 22~24sp / FontWeight.w700 / letterSpacing: -0.5
+  - **Section Title**: 18~20sp / FontWeight.w700 / letterSpacing: -0.3
+  - **Card Title / Subtitle**: 15~16sp / FontWeight.w600
+  - **Body / Content**: 13~14sp / FontWeight.w400 / lineHeight: 1.4~1.5
+  - **Caption / Meta / Chips**: 11~12sp / FontWeight.w500
 
-Consider written content carefully. Often a design brief may not contain real content, and it's up to you to come up with copy and placeholder content. Copy can make a design feel as templated as the design itself. See the below section on writing for more guidance.
+---
 
-## Process: plan, review against the brief, build, critique
+## 3. Flutter 구현 시 지켜야 할 모바일 UX 규칙
 
-For calibration, AI-generated design right now clusters around some traits:
-1. a warm cream background (near #F4F1EA) with a high-contrast serif display and a terracotta or warm-clay accent (often near #D97757 — Anthropic's own Claude-interaction accent, so on a user's brief it reads as a tell);
-2. a near-black background with a single bright acid-green or vermilion accent;
-3. a broadsheet-style layout with hairline rules, zero border-radius, and dense newspaper-like columns;
-4. the SaaS-card kit: content chopped into identical rounded cards, one border-radius on everything regardless of hierarchy, the same soft grey shadow (rgba(0,0,0,.1)) under each, and gradient washes as decoration;
-5. template chrome that appears whatever the subject: a tracked-out ALL-CAPS eyebrow label above every heading; meta strings joined with middle dots ('A · B · C'); labels built as 'WORD — fragment' with a spaced em dash; tinted near-black (#0B0B0B, #111) standing in for black; a monospace face for small data labels; a '→' appended to link and button text.
+### ① RenderFlex Overflow 절대 방지 (반응형 레이아웃)
+- 화면 크기(360dp ~ 428dp)에 상관없이 텍스트 길이나 디바이스 폰트 크기 확대 시 오버플로가 발생하지 않도록 합니다:
+  - `Row` 내부의 텍스트나 가변 컨텐츠는 반드시 `Flexible` 또는 `Expanded`로 감쌉니다.
+  - 리스트나 상세 페이지는 `SingleChildScrollView` 또는 `CustomScrollView` (Slivers)를 사용합니다.
+  - 가변 높이 컨테이너에 고정 `height` 하드코딩을 지양하고, `IntrinsicHeight` 또는 패딩 기반 확장을 사용합니다.
 
-All traits are legitimate for some briefs, but they are defaults rather than choices, and they appear regardless of subject. Where the brief pins down a visual direction, follow it exactly — the brief's own words always win, including when it asks for one of these looks. Where it leaves an axis free, don't spend that freedom on one of these defaults. As with a hired human designer, there's often a careful balance between doing what you're good at and taking each project as a chance to experiment and learn.
+### ② 터치 타깃 및 모바일 인체공학
+- 모든 탭 가능한 요소(아이콘 버튼, 칩, 액션 버튼)는 최소 **$48 \times 48\text{dp}$** 터치 타깃을 확보합니다.
+- 하단 네비게이션 및 핵심 CTA(모임 참여하기, 신청하기)는 한 손 엄지손가락으로 쉽게 닿을 수 있는 하단 고정 영역(`bottomNavigationBar` 또는 `bottomSheet`)에 배치합니다.
+- `SafeArea`를 상·하단에 완벽히 적용하여 노치 및 홈 인디케이터 간섭을 방지합니다.
 
-Work in two passes. First, brainstorm a short design plan based on the client's design brief: create a compact token system with color, type, layout, and principles.
-- Color: describe the core base palette as 4–6 named hex values.
-- Type: the typefaces and their roles.
-- Layout: a layout concept, using one-sentence prose descriptions and ASCII wireframes to ideate and compare. Include alignment guidance; should the content be left aligned, center aligned, justified?
-- Principles: the high-level guidance for what makes this page unique.
+### ③ 모달 다이얼로그 대신 바텀 시트 (Bottom Sheet)
+- 화면 중앙을 가로막는 딱딱한 `AlertDialog` 대신, 손가락으로 가볍게 스와이프해 닫을 수 있는 `showModalBottomSheet` (둥근 상단 코너 20~24dp, 드래그 핸들 바)를 기본 인터랙션으로 사용합니다.
 
-Then review that plan against the brief before building: if any part of it reads like the generic default you would produce for any similar page (work through a similar prompt to see if you arrive somewhere similar) rather than a choice made for this specific brief — revise that part, say what you changed and why. Only after you've confirmed the relative uniqueness of your design plan should you start to write the code, following the revised plan.
+### ④ 햅틱 & 마이크로 인터랙션
+- 탭 피드백: 중요 버튼 클릭, 필터 토글, 좋아요/북마크 시 `HapticFeedback.lightImpact()`를 호출하여 손끝에서 느껴지는 완성도를 높입니다.
+- 캐러셀/피드: 끊김 없는 부드러운 스크롤과 스냅 페이징(`PageView(pageSnapping: true)`) 및 미려한 인디케이터(Pill dot)를 사용합니다.
 
-When writing the code, be careful of structuring your CSS selector specificities. It's easy to generate CSS classes that cancel each other out (especially with a type-based selector like .section and an element-based selector like .cta). This can happen often with padding/margin between sections.
+---
 
-## Restraint and self-critique
+## 4. OOMU에서 단호히 배제해야 할 5가지 안티패턴 (AI 클리셰)
 
-Spend your boldness in one place. Let one element be the memorable thing, keep everything around it quiet and disciplined, and cut any decoration that does not serve the brief. Build to a quality floor without announcing it: responsive down to mobile, visible keyboard focus, reduced motion respected, visually accessible, harmonious color palettes. Critique your own work as you build, taking screenshots to review if your environment supports it — a picture is worth 1000 tokens. Consider Chanel's advice: before leaving the house, take a look in the mirror and remove one accessory. Human creatives have memory and always try to do something new, so if you have a space to quickly jot down notes about what you've tried, it can help you in future passes.
+1. **스와이프 데이팅앱 클리셰**: 좌우로 넘겨 사람을 버리는 Tinder식 스와이프 UI (30대 찐친 신뢰도 하락의 주원인).
+2. **무미건조한 행정/게시판 스타일**: 텍스트만 빽빽하고 썸네일 없는 삭막한 테이블 리스트.
+3. **템플릿 카드 세트**: 계층 구조 없이 모든 컨텐츠를 똑같은 둥근 모서리(16dp)와 밋밋한 회색 그림자(`rgba(0,0,0,0.1)`)로 복붙한 화면.
+4. **선정적/가벼운 멘트**: "오늘 밤 짜릿한 만남", "지금 바로 대화 신청" 등의 자극적인 카피 (여성 유저 즉시 이탈 유발).
+5. **의미 없는 번호 매기기 (01, 02, 03)**: 순차 프로세스가 아님에도 겉멋으로 붙인 숫자 라벨이나 대문자 트래킹 영문 배지.
 
-## More on writing in design
+---
 
-Words appear in a design for one reason: to make it easier to understand and use. They are design content, not decoration. Bring the same intentionality and minimalism to copywriting that you would bring to spacing and color. Before writing anything, ask what the design needs to say, and how it can best be said to help the person navigate the experience.
+## 5. 30대 공감 UX 카피라이팅 가이드
 
-Write from the end user's perspective. Name things by what users will understand in simple language, not by how the system is built. A user manages notifications, not webhook config. Describe what something is or does in plain terms rather than selling it. Being specific and legible to new users is always better than being clever.
+- **친근하고 품격 있는 경어체**: 반말이나 과도한 유행어, 억지 밈을 피하고, 30대 동네 이웃에게 건네는 다정하고 단정한 어조를 유지합니다.
+  - Bad: "지금 바로 번따 성공해봐!" / "채팅 고고"
+  - Good: "이번 주말, 동네에서 가볍게 커피 한잔 어때요?" / "방장님이 프로필을 확인한 후 승인해 드려요."
+- **명확한 액션 레이블**:
+  - Bad: "확인", "제출", "클릭"
+  - Good: "모임 참여 신청하기", "동네 인증 완료하기", "일정 캘린더에 추가"
+- **빈 상태(Empty State)의 따뜻한 안내**:
+  - 데이터가 없을 때 텅 빈 화면 대신, 귀여운 일러스트와 함께 자연스러운 다음 행동을 제안합니다:
+  - 예: "아직 개설된 주말 브런치 모임이 없어요. 내가 먼저 첫 번째 모임을 만들어볼까요?" (모임 만들기 버튼)
 
-Use active voice as default. A CTA says exactly what happens when it is used: "Save changes," not "Submit." An action keeps the same name through the whole flow, so the button that says "Publish" produces a toast that says "Published." The vocabulary of an interface is the signposting for someone navigating the product. Cohesion and consistency are how people learn their way around.
+---
 
-Treat failure and emptiness as moments for direction, not mood. Explain what went wrong and how to fix it, in the interface's voice rather than a person's. Errors don't apologize, and they are never vague about what happened. An empty screen is an invitation to act.
+## 6. 디자인 프로세스: 2-Pass Workflow
 
-Keep the tone conversational: plain verbs, sentence case, no filler, with tone matched to the brand and the audience. Let each written element do exactly one job.
+새로운 화면이나 위젯을 작성할 때는 다음 2단계를 반드시 거칩니다:
+
+1. **Pass 1: 기획 & 토큰 정의 (Brief & Token Check)**
+   - 화면의 목적(30대 찐친/모임/안심 기능 중 어디에 해당하는가?)
+   - 컬러(선셋 코랄 + 트러스트 네이비 + 웜 화이트 기반)와 여백 규칙 수립
+   - 카피라이팅이 여성 유저 기준에서 편안하고 정중한지 사전 검토
+2. **Pass 2: Flutter 코드 작성 및 반응형 검증**
+   - 위젯 트리 구성 (Sliver, LayoutBuilder, FittedBox 등 활용)
+   - 모바일 뷰포트 너비(360~412dp)에서 줄바꿈 및 폰트 스케일 이상 유무 검토
+   - 햅틱 피드백 및 터치 영역 48dp 확보 확인
