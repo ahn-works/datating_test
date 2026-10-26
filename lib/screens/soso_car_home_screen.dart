@@ -741,48 +741,51 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ],
           ),
         ),
-        SizedBox(
-          height: 168,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            scrollDirection: Axis.horizontal,
-            itemCount: _liveSpots.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final spot = _liveSpots[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => SoSoSpotDetailScreen(spot: spot)));
-                },
-                child: Container(
-                  width: (MediaQuery.of(context).size.width - 52) / 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFF8C6CD), width: 1.2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: coralAccent.withOpacity(0.08),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 상단 썸네일 + 실시간 타이머 뱃지
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Image(
-                              image: appImg(spot['image']),
-                              width: (MediaQuery.of(context).size.width - 52) / 2,
-                              height: 84,
-                              fit: BoxFit.cover,
-                            ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final double cardWidth = ((constraints.maxWidth - 52) / 2).clamp(150.0, 260.0);
+            return SizedBox(
+              height: 168,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                itemCount: _liveSpots.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final spot = _liveSpots[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => SoSoSpotDetailScreen(spot: spot)));
+                    },
+                    child: Container(
+                      width: cardWidth,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: const Color(0xFFF8C6CD), width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: coralAccent.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 상단 썸네일 + 실시간 타이머 뱃지
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                child: Image(
+                                  image: appImg(spot['image']),
+                                  width: cardWidth,
+                                  height: 84,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                           Container(
                             height: 84,
                             decoration: BoxDecoration(
@@ -885,7 +888,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               );
             },
           ),
-        ),
+        );
+      },
+    ),
       ],
     );
   }
@@ -1290,6 +1295,73 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'poster': 'assets/images/cover_wine.jpg',
         'period': '2026.11.01~2027.04.15',
         'rank': 17,
+      },
+      // 콘서트 6개 보장용 시드 (2번째 카드 짤림 방지 및 100:100 대칭 페어 보장)
+      {
+        'id': 'con_guaranteed_01',
+        'title': 'TOMORROW X TOGETHER WORLD TOUR 콘서트 동행 팟',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': 'KSPO DOME (올림픽체조경기장)',
+        'tag': '콘서트 1위 ⚡',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.11.14~2026.11.16',
+        'rank': 3,
+      },
+      {
+        'id': 'con_guaranteed_02',
+        'title': 'DAVICHI CONCERT: IN OUR SCENES 감성 라이브 관람',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '올림픽공원 KSPO DOME',
+        'tag': '콘서트 인기 🎤',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.12.12~2026.12.13',
+        'rank': 4,
+      },
+      {
+        'id': 'con_guaranteed_03',
+        'title': 'DAY6 (데이식스) 3RD WORLD TOUR 잠실 콘서트 팟',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '잠실실내체육관',
+        'tag': '콘서트 화제 🎸',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.12.20~2026.12.22',
+        'rank': 5,
+      },
+      {
+        'id': 'con_guaranteed_04',
+        'title': '성시경 연말 콘서트 따뜻한 발라드 귀호강 동행',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': 'KSPO DOME (올림픽공원)',
+        'tag': '콘서트 추천 🎶',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.12.27~2026.12.29',
+        'rank': 6,
+      },
+      {
+        'id': 'con_guaranteed_05',
+        'title': '10CM 단독 콘서트 겨울밤 힐링 어쿠스틱 라이브',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '올림픽홀',
+        'tag': '콘서트 힐링 ☕',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.11.28~2026.11.30',
+        'rank': 7,
+      },
+      {
+        'id': 'con_guaranteed_06',
+        'title': '아이유 (IU) 월드투어 앙코르 콘서트 상암 동행 모임',
+        'category': '문화 & 엔터 > 페스티벌 & 공연',
+        'location': '서울월드컵경기장',
+        'tag': '콘서트 레전드 ✨',
+        'vibe': '놀줄아는',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '2026.10.20~2026.10.22',
+        'rank': 8,
       },
       // 핫플·팝업 (트렌드 음식 & 지역 대표 핫플) 10개 이상 보장용 시드
       {
@@ -1790,9 +1862,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       child: Container(
         height: 340,
         decoration: BoxDecoration(
-          color: const Color(0xFFFAF6F7),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFE5D7DB), width: 1.5),
+          border: Border.all(color: const Color(0xFFEBEBF0), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1922,14 +2001,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ),
                   const SizedBox(height: 4),
                   SizedBox(
-                    height: 36,
+                    height: 38,
                     child: Text(
                       title,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: textPrimary,
-                        height: 1.28,
+                        height: 1.32,
                         letterSpacing: -0.3,
                       ),
                       maxLines: 2,
@@ -2003,19 +2082,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       ),
                     );
                   },
-                  child: const FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_circle, size: 14),
-                        SizedBox(width: 4),
-                        Text(
-                          '이 이벤트로 모임 만들기',
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
-                        ),
-                      ],
-                    ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_circle_outline, size: 14),
+                      SizedBox(width: 4),
+                      Text(
+                        '+ 모임 만들기',
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -4432,7 +4508,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 children: [
                   Text(
                     meetup['title'] ?? '취향 모임',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: textPrimary,
+                      height: 1.35,
+                      letterSpacing: -0.4,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -4609,18 +4691,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 썸네일 (84x84)
+            // 썸네일 (88x88 당근/Karrot 표준)
             ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: SizedBox(
-                width: 84,
-                height: 84,
+                width: 88,
+                height: 88,
                 child: Stack(
                   children: [
                     Image(
                       image: appImg(meetup['imageUrl'] ?? 'assets/images/cover_food.jpg'),
-                      width: 84,
-                      height: 84,
+                      width: 88,
+                      height: 88,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Image.asset('assets/images/cover_food.jpg', fit: BoxFit.cover),
                     ),
@@ -4695,8 +4777,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 4),
                   Text(
                     meetup['title'] ?? '취향 모임',
-                    style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: textPrimary),
-                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w800,
+                      color: textPrimary,
+                      height: 1.32,
+                      letterSpacing: -0.3,
+                    ),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 5),
