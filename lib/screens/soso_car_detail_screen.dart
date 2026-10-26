@@ -224,7 +224,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 const SizedBox(height: 14),
                 const Text(
                   '💡 OOMU는 선입금 사기 및 불필요한 마찰을 방지하기 위해 오프라인 만남 후 영수증 사진을 공유하고 카카오페이/토스로 1/N 송금하는 문화를 엄격히 지향합니다.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.45, wordBreak: WordBreak.keepAll),
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.45),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
@@ -285,7 +285,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     const SizedBox(height: 6),
                     Text(
                       '모임장에게 간단한 자기소개나 인사말을 남겨주세요!',
-                      style: TextStyle(fontSize: 13.5, color: textSecondary, fontWeight: FontWeight.w500, wordBreak: WordBreak.keepAll),
+                      style: TextStyle(fontSize: 13.5, color: textSecondary, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 18),
                     Container(
@@ -337,7 +337,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                       color: withFriend ? coralAccent : textSecondary,
                                       fontSize: 11.5,
                                       fontWeight: withFriend ? FontWeight.w700 : FontWeight.normal,
-                                      wordBreak: WordBreak.keepAll,
+                                      
                                     ),
                                   ),
                                 ],
@@ -650,7 +650,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     ),
                     const SizedBox(height: 14),
 
-                    // B. 모임 메인 타이틀 (29CM 에디토리얼 폰트 + wordBreak: WordBreak.keepAll)
+                    // B. 모임 메인 타이틀 (29CM 에디토리얼 폰트 + )
                     Text(
                       (widget.meetup != null && widget.meetup!['title'] != null)
                           ? widget.meetup!['title']
@@ -660,7 +660,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         height: 1.35,
-                        wordBreak: WordBreak.keepAll,
+                        
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -698,7 +698,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                   SizedBox(height: 2),
                                   Text(
                                     '대기 시간 없이 즉시 채팅방으로 연결되어 바로 합류할 수 있습니다.',
-                                    style: TextStyle(color: Color(0xFF8C3800), fontSize: 11.5, wordBreak: WordBreak.keepAll),
+                                    style: TextStyle(color: Color(0xFF8C3800), fontSize: 11.5),
                                   ),
                                 ],
                               ),
@@ -977,7 +977,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       child: Text(
                         (widget.meetup?['description'] ??
                             "스트레스 팍팍 받는 주말엔 역시 매운 음식과 기분 좋은 대화 아니겠습니까? 🔥\n\n취향과 라이프스타일이 통하는 동네 이웃과 편안하게 이야기 나누며 스트레스 풀 분 구해요!\n\n식사 후에는 근처 감성 카페에서 커피 한 잔 하며 주말을 여유롭게 마무리해요 :)"),
-                        style: TextStyle(fontSize: 14.5, height: 1.6, color: textPrimary, wordBreak: WordBreak.keepAll),
+                        style: TextStyle(fontSize: 14.5, height: 1.6, color: textPrimary),
                       ),
                     ),
                     const SizedBox(height: 26),
@@ -1051,7 +1051,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           Expanded(
                             child: Text(
                               '💡 현재 2자리가 남아있어요! 지금 신청하면 바로 함께할 수 있습니다.',
-                              style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700, wordBreak: WordBreak.keepAll),
+                              style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700),
                             ),
                           ),
                         ],
@@ -1179,7 +1179,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         Expanded(
           child: Text(
             value,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPrimary, wordBreak: WordBreak.keepAll),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPrimary),
           ),
         ),
       ],

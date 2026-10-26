@@ -301,7 +301,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
             color: textPrimary,
             fontWeight: FontWeight.w800,
             fontSize: 17,
-            wordBreak: WordBreak.keepAll,
+            
           ),
         ),
         actions: [
@@ -611,7 +611,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.w800,
                                             color: textPrimary,
-                                            wordBreak: WordBreak.keepAll,
+                                            
                                           ),
                                         ),
                                       ],
@@ -666,14 +666,14 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                       color: textPrimary,
-                                      wordBreak: WordBreak.keepAll,
+                                      
                                     ),
                                   ),
                                   const SizedBox(height: 6),
                                   const Text(
                                     '반경을 넓히거나 다른 카테고리를 선택해 보세요.\n이 동네의 첫 번째 호스트가 되어볼 수도 있어요!',
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 13, color: textSecondary, height: 1.4, wordBreak: WordBreak.keepAll),
+                                    style: TextStyle(fontSize: 13, color: textSecondary, height: 1.4),
                                   ),
                                   const SizedBox(height: 20),
                                   ElevatedButton.icon(
@@ -847,7 +847,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       ),
                       const SizedBox(height: 6),
 
-                      // 제목 (wordBreak: WordBreak.keepAll)
+                      // 제목 ()
                       Text(
                         (m['title'] ?? '').toString(),
                         maxLines: 2,
@@ -857,7 +857,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           fontWeight: FontWeight.w700,
                           color: textPrimary,
                           height: 1.3,
-                          wordBreak: WordBreak.keepAll,
+                          
                         ),
                       ),
                       const SizedBox(height: 6),
