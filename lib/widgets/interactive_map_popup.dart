@@ -1,9 +1,9 @@
+import '../services/kakao_map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-class InteractiveMapPopup extends StatelessWidget {
+class InteractiveMapPopup extends StatefulWidget {
   final LatLng initialCenter;
   final String locationName;
   final String kakaoLink;
@@ -16,6 +16,29 @@ class InteractiveMapPopup extends StatelessWidget {
   });
 
   @override
+  State<InteractiveMapPopup> createState() => _InteractiveMapPopupState();
+}
+
+class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
+  String _distanceText = '거리 계산 중...';
+
+  @override
+  void initState() {
+    super.initState();
+    _calcDistance();
+  }
+
+  Future<void> _calcDistance() async {
+    final text = await KakaoMapService.getDistanceTextFromCurrent(
+      widget.initialCenter.latitude,
+      widget.initialCenter.longitude,
+    );
+    if (mounted) {
+      setState(() => _distanceText = text);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
@@ -23,15 +46,14 @@ class InteractiveMapPopup extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
         width: double.infinity,
-        height: MediaQuery.of(context).size.height * 0.7,
+        height: MediaQuery.of(context).size.height * 0.72,
         child: Stack(
           children: [
             // Map
             FlutterMap(
               options: MapOptions(
-                initialCenter: initialCenter,
+                initialCenter: widget.initialCenter,
                 initialZoom: 16.0,
-                
               ),
               children: [
                 TileLayer(
@@ -41,29 +63,48 @@ class InteractiveMapPopup extends StatelessWidget {
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: initialCenter,
-                      width: 50,
-                      height: 50,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.redAccent,
-                        size: 40,
+                      point: widget.initialCenter,
+                      width: 52,
+                      height: 52,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF191919),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              '약속장소',
+                              style: TextStyle(color: Color(0xFFFEE500), fontSize: 9.5, fontWeight: FontWeight.w900),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.location_on,
+                            color: Color(0xFFF25767),
+                            size: 32,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            
-            // Header (Back button & Title)
+
+            // Header (Back button & Title & Distance)
             Positioned(
-              top: 0, left: 0, right: 0,
+              top: 0,
+              left: 0,
+              right: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
                   ),
                 ),
                 child: Row(
@@ -74,36 +115,88 @@ class InteractiveMapPopup extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        locationName,
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.locationName,
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEE500),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  '카카오맵 연동',
+                                  style: TextStyle(color: Color(0xFF191919), fontSize: 9.5, fontWeight: FontWeight.w900),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                _distanceText,
+                                style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            
-            // External App Launch Button
+
+            // Kakao Map & Directions Launch Buttons
             Positioned(
-              bottom: 24, left: 24, right: 24,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final Uri url = Uri.parse(kakaoLink);
-                  if (!await launchUrl(url)) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('지도를 열 수 없습니다.')));
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFAE100), // Kakao Yellow
-                  foregroundColor: const Color(0xFF391B1B), // Kakao Text
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 4,
-                ),
-                icon: const Icon(Icons.map, size: 20),
-                label: const Text('카카오맵에서 열기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              bottom: 20,
+              left: 16,
+              right: 16,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => KakaoMapService.launchMap(
+                        widget.locationName,
+                        lat: widget.initialCenter.latitude,
+                        lng: widget.initialCenter.longitude,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFEE500), // Kakao Yellow
+                        foregroundColor: const Color(0xFF191919), // Kakao Black
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 3,
+                      ),
+                      icon: const Icon(Icons.map_rounded, size: 18),
+                      label: const Text('카카오맵 보기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => KakaoMapService.launchDirections(
+                        widget.locationName,
+                        lat: widget.initialCenter.latitude,
+                        lng: widget.initialCenter.longitude,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF191919), // Midnight Black
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 3,
+                      ),
+                      icon: const Icon(Icons.directions_rounded, size: 18, color: Color(0xFFFEE500)),
+                      label: const Text('카카오 길찾기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

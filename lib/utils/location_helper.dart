@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
@@ -60,7 +61,7 @@ class LocationHelper {
 
       debugPrint('[LocationHelper] Got coordinates: ${position.latitude}, ${position.longitude}');
 
-      // 3. 역지오코딩 시도 (Nominatim OpenStreetMap - 최대 1.2초 타임아웃)
+      // 3. 역지오코딩 시도 (카카오 로컬 API coord2regioncode - 최대 1.5초 타임아웃)
       final reverseName = await _reverseGeocode(position.latitude, position.longitude);
       if (reverseName != null && reverseName.trim().isNotEmpty) {
         _cachedDongName = reverseName;
@@ -79,40 +80,15 @@ class LocationHelper {
     }
   }
 
-  /// 역지오코딩 API 호출 (1.2초 타임아웃)
+  /// 카카오 공식 역지오코딩 로컬 API 호출 (행정동/법정동 동네명 반환)
   static Future<String?> _reverseGeocode(double lat, double lon) async {
     try {
-      final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=16&addressdetails=1&accept-language=ko',
-      );
-      final res = await http.get(url, headers: {'User-Agent': 'OOMUSpotApp/1.0'}).timeout(const Duration(milliseconds: 1200));
-
-      if (res.statusCode == 200) {
-        final data = json.decode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
-        final address = data['address'] as Map<String, dynamic>?;
-        if (address != null) {
-          final city = address['city'] ?? address['county'] ?? address['province'] ?? '';
-          final district = address['borough'] ?? address['city_district'] ?? '';
-          final dong = address['suburb'] ?? address['neighbourhood'] ?? address['quarter'] ?? address['village'] ?? address['town'] ?? '';
-
-          String result = '';
-          if (city.toString().isNotEmpty) {
-            result += '${city.toString()} ';
-          }
-          if (district.toString().isNotEmpty && district.toString() != city.toString()) {
-            result += '${district.toString()} ';
-          }
-          if (dong.toString().isNotEmpty) {
-            result += dong.toString();
-          }
-
-          if (result.trim().isNotEmpty) {
-            return result.trim();
-          }
-        }
+      final dongName = await KakaoMapService.coordToRegionName(lat, lon);
+      if (dongName != null && dongName.trim().isNotEmpty) {
+        return dongName.trim();
       }
     } catch (e) {
-      debugPrint('[LocationHelper] Reverse geocode error: $e');
+      debugPrint('[LocationHelper] Kakao reverse geocode error: $e');
     }
     return null;
   }

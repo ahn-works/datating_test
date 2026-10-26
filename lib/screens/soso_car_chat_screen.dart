@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -910,20 +911,17 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               });
 
               try {
-                // OpenStreetMap Nominatim API (CORS Free, 전국 검색 가능)
-                final url = Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&countrycodes=kr');
-                final response = await http.get(url, headers: {'User-Agent': 'OOMU_Flutter_Web_App'});
-                
-                if (response.statusCode == 200) {
-                  final List<dynamic> data = json.decode(response.body);
+                // 카카오 공식 장소 검색 (KakaoMapService)
+                final places = await KakaoMapService.searchKeyword(query, size: 10);
+                if (mounted) {
                   setState(() {
-                    searchResults = data.map((item) {
+                    searchResults = places.map((item) {
                       return {
-                        'name': item['name'] ?? item['display_name'].split(',')[0],
-                        'category': selectedCategory == '전체' ? '핫플' : selectedCategory,
-                        'address': item['display_name'] ?? '주소 정보 없음',
-                        'lat': double.tryParse(item['lat'] ?? '37.5665') ?? 37.5665,
-                        'lng': double.tryParse(item['lon'] ?? '126.9780') ?? 126.9780,
+                        'name': item.name,
+                        'category': item.category.isNotEmpty ? item.category : (selectedCategory == '전체' ? '모임장소' : selectedCategory),
+                        'address': item.roadAddress.isNotEmpty ? item.roadAddress : item.address,
+                        'lat': item.lat,
+                        'lng': item.lng,
                       };
                     }).toList();
                   });
@@ -1602,17 +1600,30 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    height: 100, width: double.infinity,
+                    height: 90, width: double.infinity,
                     decoration: BoxDecoration(
-                      color: surfaceColor,
-                      borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'), fit: BoxFit.cover),
+                      color: const Color(0xFFFFFBE6),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFFEE500), width: 1.2),
                     ),
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(12)),
-                        child: const Text('카카오맵 열기', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEE500),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.location_on, size: 14, color: Color(0xFF191919)),
+                            SizedBox(width: 4),
+                            Text('카카오맵에서 위치 보기', style: TextStyle(color: Color(0xFF191919), fontSize: 12, fontWeight: FontWeight.w800)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -3307,15 +3318,28 @@ class InteractiveHotspotCard extends StatelessWidget {
                   child: Container(
                     height: 90, width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F7),
-                      borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(image: NetworkImage('https://tile.openstreetmap.org/16/55865/25398.png'), fit: BoxFit.cover),
+                      color: const Color(0xFFFFFBE6),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFFEE500), width: 1.2),
                     ),
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(12)),
-                        child: const Text('카카오맵 열기', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEE500),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.location_on, size: 14, color: Color(0xFF191919)),
+                            SizedBox(width: 4),
+                            Text('카카오맵에서 위치 보기', style: TextStyle(color: Color(0xFF191919), fontSize: 12, fontWeight: FontWeight.w800)),
+                          ],
+                        ),
                       ),
                     ),
                   ),

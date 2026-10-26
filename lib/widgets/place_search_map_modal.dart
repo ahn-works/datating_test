@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -201,49 +202,38 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
       }
     });
 
-    // 외부 온라인 검색 (OpenStreetMap Nominatim) 디바운스 지원
+    // 카카오 공식 키워드 검색 (Kakao Local API) 디바운스 지원
     if (clean.length >= 2) {
-      _searchOnlineNominatim(clean);
+      _searchOnlineKakao(clean);
     }
   }
 
-  Future<void> _searchOnlineNominatim(String query) async {
+  Future<void> _searchOnlineKakao(String query) async {
     try {
-      final uri = Uri.parse(
-        'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&countrycodes=kr&format=json&limit=5&addressdetails=1',
+      final places = await KakaoMapService.searchKeyword(
+        query,
+        lat: _selectedLatLng.latitude,
+        lng: _selectedLatLng.longitude,
+        size: 10,
       );
-      final response = await http.get(uri, headers: {
-        'User-Agent': 'OOMU_Spot_App_Place_Search/1.0',
-      }).timeout(const Duration(seconds: 3));
+      if (places.isNotEmpty && mounted) {
+        final onlineList = places.map((item) {
+          return PlaceSearchResult(
+            name: item.name,
+            address: item.roadAddress.isNotEmpty ? item.roadAddress : item.address,
+            category: item.category.isNotEmpty ? item.category : '카카오맵 검색',
+            latLng: LatLng(item.lat, item.lng),
+          );
+        }).toList();
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        if (data.isNotEmpty && mounted) {
-          final onlineList = data.map((item) {
-            final double lat = double.tryParse(item['lat']?.toString() ?? '0') ?? 37.5665;
-            final double lon = double.tryParse(item['lon']?.toString() ?? '0') ?? 126.9780;
-            final String dName = item['display_name'] ?? query;
-            final parts = dName.split(',');
-            final title = parts.first.trim();
-            final addr = parts.skip(1).take(3).join(', ').trim();
-            return PlaceSearchResult(
-              name: title.isNotEmpty ? title : query,
-              address: addr.isNotEmpty ? addr : dName,
-              category: '검색결과',
-              latLng: LatLng(lat, lon),
-            );
-          }).toList();
-
-          setState(() {
-            // 기존 목록 앞에 병합하여 표시
-            final existingNames = _searchResults.map((r) => r.name).toSet();
-            for (final item in onlineList) {
-              if (!existingNames.contains(item.name)) {
-                _searchResults.insert(0, item);
-              }
+        setState(() {
+          final existingNames = _searchResults.map((r) => r.name).toSet();
+          for (final item in onlineList) {
+            if (!existingNames.contains(item.name)) {
+              _searchResults.insert(0, item);
             }
-          });
-        }
+          }
+        });
       }
     } catch (_) {
       // 온라인 검색 실패 시 내장 데이터베이스 결과 계속 사용
@@ -424,14 +414,20 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                   options: MapOptions(
                     initialCenter: _selectedLatLng,
                     initialZoom: 16.0,
-                    onTap: (tapPosition, point) {
+                    onTap: (tapPosition, point) async {
                       _selectLocation(
                         point,
                         _searchController.text.trim().isNotEmpty
                             ? _searchController.text.trim()
                             : '지도에서 선택한 위치',
-                        '위도: ${point.latitude.toStringAsFixed(4)}, 경도: ${point.longitude.toStringAsFixed(4)}',
+                        '카카오맵 주소 확인 중...',
                       );
+                      final kakaoAddr = await KakaoMapService.coordToRoadAddress(point.latitude, point.longitude);
+                      if (kakaoAddr != null && mounted) {
+                        setState(() {
+                          _selectedAddress = kakaoAddr;
+                        });
+                      }
                     },
                   ),
                   children: [

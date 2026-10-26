@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -118,41 +119,21 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
 
       List<Map<String, dynamic>> results = [];
 
-      // 1. Try Kakao API
+      // 1. 카카오맵 공식 키워드 장소 검색 (Single Source of Truth)
       try {
-        final response = await http.get(
-          Uri.parse('https://dapi.kakao.com/v2/local/search/keyword.json?query=${Uri.encodeComponent(clean)}'),
-          headers: {'Authorization': 'KakaoAK 3f91399ac9b6731d96f6d4b9ac13c502'},
-        ).timeout(const Duration(seconds: 2));
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          if (data['documents'] is List && (data['documents'] as List).isNotEmpty) {
-            results.addAll(List<Map<String, dynamic>>.from(data['documents']));
-          }
+        final places = await KakaoMapService.searchKeyword(clean, size: 10);
+        for (var p in places) {
+          results.add({
+            'place_name': p.name,
+            'address_name': p.roadAddress.isNotEmpty ? p.roadAddress : p.address,
+            'category_group_name': p.category,
+            'x': p.lng.toString(),
+            'y': p.lat.toString(),
+            'place_url': p.placeUrl,
+          });
         }
-      } catch (_) {}
-
-      // 2. OpenStreetMap Nominatim Fallback if Kakao fails or CORS
-      if (results.isEmpty) {
-        try {
-          final uri = Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(clean)}&countrycodes=kr&format=json&limit=6&addressdetails=1');
-          final osmRes = await http.get(uri, headers: {'User-Agent': 'OOMU_Spot_App/1.0'}).timeout(const Duration(seconds: 3));
-          if (osmRes.statusCode == 200) {
-            final List<dynamic> osmData = json.decode(osmRes.body);
-            for (var item in osmData) {
-              final parts = (item['display_name'] ?? '').toString().split(',');
-              final name = parts.isNotEmpty ? parts.first.trim() : clean;
-              final addr = parts.skip(1).take(3).join(', ').trim();
-              results.add({
-                'place_name': name.isNotEmpty ? name : clean,
-                'address_name': addr.isNotEmpty ? addr : (item['display_name'] ?? ''),
-                'category_group_name': '경유지',
-                'x': item['lon']?.toString() ?? '127.0',
-                'y': item['lat']?.toString() ?? '37.5',
-              });
-            }
-          }
-        } catch (_) {}
+      } catch (e) {
+        debugPrint('[HostStep2] Kakao search error: $e');
       }
 
       // 3. Curated Database matches

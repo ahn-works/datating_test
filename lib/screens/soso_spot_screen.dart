@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
@@ -859,11 +860,7 @@ class _SoSoSpotDetailScreenState extends State<SoSoSpotDetailScreen> {
                           ),
                         ),
                         OutlinedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('🗺️ $location 지도 및 길찾기로 이동합니다.')),
-                            );
-                          },
+                          onPressed: () => KakaoMapService.launchDirections(location),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: coralAccent),
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

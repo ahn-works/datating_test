@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong2/latlong.dart';
@@ -732,9 +733,19 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                                     BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 6),
                                                   ],
                                                 ),
-                                                child: Text(
-                                                  widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞',
-                                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: textPrimary),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFFFEE500), shape: BoxShape.circle)),
+                                                    const SizedBox(width: 5),
+                                                    Flexible(
+                                                      child: Text(
+                                                        widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞',
+                                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: textPrimary),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
@@ -786,33 +797,17 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                     ),
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFFFF0F2),
-                                        foregroundColor: coralAccent,
+                                        backgroundColor: const Color(0xFFFEE500),
+                                        foregroundColor: const Color(0xFF191919),
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                        side: const BorderSide(color: Color(0xFFF8C6CD)),
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                       ),
-                                      icon: const Icon(Icons.directions, size: 16),
-                                      label: const Text('길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      icon: const Icon(Icons.directions_rounded, size: 16),
+                                      label: const Text('카카오 길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                       onPressed: () async {
                                         final loc = widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞';
-                                        final uri = Uri.parse('https://map.kakao.com/link/search/${Uri.encodeComponent(loc)}');
-                                        try {
-                                          if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                                            if (mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text('🗺️ 지도 검색: $loc')),
-                                              );
-                                            }
-                                          }
-                                        } catch (_) {
-                                          if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('🗺️ 지도 검색: $loc')),
-                                            );
-                                          }
-                                        }
+                                        await KakaoMapService.launchDirections(loc);
                                       },
                                     ),
                                   ],
