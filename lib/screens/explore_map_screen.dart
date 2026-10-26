@@ -711,7 +711,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   final m = filtered[index];
                                   return _buildMeetupCard(context, m);
                                 },
-                                itemCount: filtered.length,
+                                childCount: filtered.length,
                               ),
                             ),
                           ),
