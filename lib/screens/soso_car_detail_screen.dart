@@ -699,7 +699,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                       builder: (_) => InteractiveMapPopup(
                                         initialCenter: LatLng(targetLat, targetLng),
                                         locationName: loc,
-                                        kakaoLink: KakaoMapService.getKakaoRouteUrl(loc, lat: targetLat, lng: targetLng),
+                                        kakaoLink: KakaoMapService.getKakaoRouteUrl(loc, targetLat, targetLng),
                                       ),
                                     );
                                   },
