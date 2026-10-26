@@ -1,3 +1,4 @@
+import 'explore_map_screen.dart';
 ﻿import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
@@ -2960,6 +2961,21 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         ),
         actions: [
           GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ExploreMapScreen()),
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
+              child: const Icon(Icons.map_rounded, color: Color(0xFFF25767), size: 21),
+            ),
+          ),
+          GestureDetector(
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const NotificationScreen()),
@@ -3116,6 +3132,69 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 if (_selectedCategoryIndex > 0)
                   _buildSubCategoryBar(),
               ],
+            ),
+          ),
+
+          // 2-0. 카카오맵 동네 실시간 지도 탐색 배너
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ExploreMapScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: coralAccent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text('내 주변 동네 지도 탐색', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13.5)),
+                                SizedBox(width: 6),
+                                Text('카카오맵', style: TextStyle(color: Color(0xFFFEE500), fontWeight: FontWeight.bold, fontSize: 11)),
+                              ],
+                            ),
+                            SizedBox(height: 2),
+                            Text('반경 1km 내 열려있는 번개 & 모임 한눈에 보기', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5)),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 14),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
 

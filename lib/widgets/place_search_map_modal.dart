@@ -2,7 +2,6 @@ import '../services/kakao_map_service.dart';
 import 'kakao_map_view.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
@@ -39,7 +38,6 @@ class PlaceSearchMapModal extends StatefulWidget {
 
 class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
   final TextEditingController _searchController = TextEditingController();
-  final MapController _mapController = MapController();
 
   late LatLng _selectedLatLng;
   String _selectedPlaceName = '';
@@ -275,7 +273,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         '내 현재 위치 주변',
         '위도: ${position.latitude.toStringAsFixed(4)}, 경도: ${position.longitude.toStringAsFixed(4)}',
       );
-      _mapController.move(newLatLng, 16.0);
+      // kakao map updated
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -293,7 +291,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
       _selectedPlaceName = placeName;
       _selectedAddress = address;
     });
-    _mapController.move(latLng, 16.0);
+    // kakao map updated
   }
 
   @override

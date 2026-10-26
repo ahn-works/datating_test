@@ -1,3 +1,5 @@
+import '../services/kakao_map_service.dart';
+import '../widgets/kakao_map_view.dart';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
@@ -57,6 +59,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     }
   }
 
+  double? _selectedPlaceLat;
+  double? _selectedPlaceLng;
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
@@ -652,16 +656,30 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     );
 
     if (result != null && result.isNotEmpty) {
+      double? lat;
+      double? lng;
+      try {
+        final places = await KakaoMapService.searchKeyword(result, size: 1);
+        if (places.isNotEmpty) {
+          lat = places.first.lat;
+          lng = places.first.lng;
+        }
+      } catch (_) {}
+
       setState(() {
         _locationController.text = result;
+        _selectedPlaceLat = lat;
+        _selectedPlaceLng = lng;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('📍 \'$result\' (으)로 모임 장소가 설정되었습니다.'),
-          backgroundColor: const Color(0xFFFF5E36),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('📍 \'$result\' 카카오 지도 위치가 지정되었습니다.'),
+            backgroundColor: const Color(0xFFFF5E36),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -738,6 +756,26 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               ],
             ),
           ),
+          if (_locationController.text.trim().isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              height: 140,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: KakaoMapView(
+                  locationName: _locationController.text.trim(),
+                  lat: _selectedPlaceLat ?? 37.5665,
+                  lng: _selectedPlaceLng ?? 126.9780,
+                  height: 140,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

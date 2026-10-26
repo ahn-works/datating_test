@@ -1,30 +1,155 @@
 import 'package:flutter/material.dart';
+import '../services/kakao_map_service.dart';
+import '../widgets/kakao_map_view.dart';
 import 'travel_room_screen.dart';
-class TravelGpsCheckinScreen extends StatefulWidget { const TravelGpsCheckinScreen({super.key}); @override State<TravelGpsCheckinScreen> createState() => _TravelGpsCheckinScreenState(); }
-class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _anim;
-  @override void initState() { super.initState(); _anim = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(); }
-  @override void dispose() { _anim.dispose(); super.dispose(); }
 
-  @override Widget build(BuildContext context) => Scaffold(backgroundColor: Colors.white, appBar: AppBar(title: const Text('목포역 광장 미팅 포인트', style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0, iconTheme: const IconThemeData(color: Colors.black)), body: Stack(children: [
-    Positioned.fill(child: CustomPaint(painter: MapGridPainter())),
-    Positioned.fill(child: Center(child: AnimatedBuilder(animation: _anim, builder: (ctx, child) => Container(width: 80 + (_anim.value * 120), height: 80 + (_anim.value * 120), decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue.withOpacity(0.4 * (1 - _anim.value))), child: Center(child: Container(width: 24, height: 24, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue, border: Border.all(color: Colors.white, width: 3), boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8)]))))))),
-    Positioned(right: 20, bottom: 220, child: FloatingActionButton(backgroundColor: Colors.white, onPressed: (){}, child: const Icon(Icons.my_location, color: Colors.blue))),
-    Positioned(left: 0, right: 0, bottom: 0, child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))], borderRadius: const BorderRadius.vertical(top: Radius.circular(32))), child: SafeArea(child: Column(children: [Row(mainAxisAlignment: MainAxisAlignment.center, children: [Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(20)), child: const Row(children: [Icon(Icons.check_circle, color: Colors.green, size: 16), SizedBox(width: 4), Text('GPS 연동 완료', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12))]))]), const SizedBox(height: 16), const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.location_on, color: Color(0xFFFF3B30)), SizedBox(width: 8), Text('현재 내 위치: 목포역 광장 (정상)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))]), const SizedBox(height: 24), ElevatedButton(onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const TravelRoomScreen())), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30), minimumSize: const Size(double.infinity, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('보증금 환불 받고 단톡방 입장', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)))]))))
-  ]));
+class TravelGpsCheckinScreen extends StatefulWidget {
+  const TravelGpsCheckinScreen({super.key});
+
+  @override
+  State<TravelGpsCheckinScreen> createState() => _TravelGpsCheckinScreenState();
 }
-class MapGridPainter extends CustomPainter {
-  @override void paint(Canvas canvas, Size size) {
-    final bgPaint = Paint()..color = const Color(0xFFF4F1EA); canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
-    final roadPaint = Paint()..color = Colors.white..strokeWidth = 12..style = PaintingStyle.stroke;
-    final thinRoadPaint = Paint()..color = Colors.white..strokeWidth = 6..style = PaintingStyle.stroke;
-    canvas.drawLine(Offset(0, size.height*0.3), Offset(size.width, size.height*0.4), roadPaint);
-    canvas.drawLine(Offset(size.width*0.4, 0), Offset(size.width*0.5, size.height), roadPaint);
-    canvas.drawLine(Offset(0, size.height*0.6), Offset(size.width, size.height*0.8), thinRoadPaint);
-    canvas.drawLine(Offset(size.width*0.7, 0), Offset(size.width*0.8, size.height), thinRoadPaint);
-    // Google mark text
-    final textPainter = TextPainter(text: const TextSpan(text: 'Google Maps API 연동 준비됨', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)), textDirection: TextDirection.ltr)..layout();
-    textPainter.paint(canvas, Offset(20, size.height - 250));
+
+class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
+  static const double mokpoLat = 34.7912;
+  static const double mokpoLng = 126.3868;
+  static const String placeName = '목포역 광장 시계탑 앞';
+
+  @override
+  Widget build(BuildContext context) {
+    const coralAccent = Color(0xFFFF5E36);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          '목포역 광장 카카오 GPS 체크인',
+          style: TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 17),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF111111)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: const Color(0xFFF0F0F3), height: 1),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // 1. 카카오 공식 지도 뷰
+          Positioned.fill(
+            child: KakaoMapView(
+              lat: mokpoLat,
+              lng: mokpoLng,
+              locationName: placeName,
+            ),
+          ),
+
+          // 2. 우측 하단 카카오 길찾기 FAB
+          Positioned(
+            right: 20,
+            bottom: 230,
+            child: FloatingActionButton.extended(
+              backgroundColor: const Color(0xFFFEE500),
+              foregroundColor: const Color(0xFF191919),
+              elevation: 4,
+              onPressed: () => KakaoMapService.launchDirections(placeName, lat: mokpoLat, lng: mokpoLng),
+              icon: const Icon(Icons.directions_rounded, size: 20),
+              label: const Text('카카오 길찾기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
+          ),
+
+          // 3. 하단 GPS 안심 인증 카드 & 환불 확정
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFECFDF5),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFA7F3D0)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                              SizedBox(width: 6),
+                              Text(
+                                '카카오 위치 인증 완료 (오차 10m 이내)',
+                                style: TextStyle(
+                                  color: Color(0xFF047857),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.location_on, color: coralAccent, size: 22),
+                        SizedBox(width: 6),
+                        Text(
+                          '현재 위치: 목포역 광장 (체크인 정상)',
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '모임 장소 도착이 확인되었습니다. 보증금이 안심 환불 처리됩니다.',
+                      style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const TravelRoomScreen()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: coralAccent,
+                        minimumSize: const Size(double.infinity, 54),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text(
+                        '보증금 환불 받고 단톡방 입장',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
