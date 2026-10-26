@@ -1,7 +1,7 @@
 import '../services/kakao_map_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'kakao_map_view.dart';
 
 class InteractiveMapPopup extends StatefulWidget {
   final LatLng initialCenter;
@@ -41,7 +41,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.all(16),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
@@ -49,51 +49,18 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
         height: MediaQuery.of(context).size.height * 0.72,
         child: Stack(
           children: [
-            // Map
-            FlutterMap(
-              options: MapOptions(
-                initialCenter: widget.initialCenter,
-                initialZoom: 16.0,
+            // 1. Genuine Kakao Map View (Official Kakao Maps SDK & Tiles)
+            Positioned.fill(
+              child: KakaoMapView(
+                lat: widget.initialCenter.latitude,
+                lng: widget.initialCenter.longitude,
+                locationName: widget.locationName,
+                height: double.infinity,
+                width: double.infinity,
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
-                ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: widget.initialCenter,
-                      width: 52,
-                      height: 52,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF191919),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text(
-                              '약속장소',
-                              style: TextStyle(color: Color(0xFFFEE500), fontSize: 9.5, fontWeight: FontWeight.w900),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.location_on,
-                            color: Color(0xFFF25767),
-                            size: 32,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
 
-            // Header (Back button & Title & Distance)
+            // 2. Header (Back button & Title & Real-time Distance)
             Positioned(
               top: 0,
               left: 0,
@@ -104,7 +71,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                    colors: [Colors.black.withOpacity(0.75), Colors.transparent],
                   ),
                 ),
                 child: Row(
@@ -133,7 +100,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
-                                  '카카오맵 연동',
+                                  '카카오 지도',
                                   style: TextStyle(color: Color(0xFF191919), fontSize: 9.5, fontWeight: FontWeight.w900),
                                 ),
                               ),
@@ -152,7 +119,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
               ),
             ),
 
-            // Kakao Map & Directions Launch Buttons
+            // 3. Kakao Map & Directions Launch Buttons
             Positioned(
               bottom: 20,
               left: 16,

@@ -1,4 +1,5 @@
 import '../services/kakao_map_service.dart';
+import 'kakao_map_view.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -405,81 +406,17 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
           const SizedBox(height: 6),
 
           // 4. 지도 뷰 (FlutterMap)
+          // 4. 카카오 공식 지도 뷰 (KakaoMapView)
           SizedBox(
             height: 200,
-            child: Stack(
-              children: [
-                FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: _selectedLatLng,
-                    initialZoom: 16.0,
-                    onTap: (tapPosition, point) async {
-                      _selectLocation(
-                        point,
-                        _searchController.text.trim().isNotEmpty
-                            ? _searchController.text.trim()
-                            : '지도에서 선택한 위치',
-                        '카카오맵 주소 확인 중...',
-                      );
-                      final kakaoAddr = await KakaoMapService.coordToRoadAddress(point.latitude, point.longitude);
-                      if (kakaoAddr != null && mounted) {
-                        setState(() {
-                          _selectedAddress = kakaoAddr;
-                        });
-                      }
-                    },
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.example.app',
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: _selectedLatLng,
-                          width: 48,
-                          height: 48,
-                          child: const Icon(
-                            Icons.location_on,
-                            color: coralAccent,
-                            size: 42,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                // 현재 내 GPS 위치 버튼
-                Positioned(
-                  right: 14,
-                  bottom: 14,
-                  child: FloatingActionButton.small(
-                    heroTag: 'gps_place_picker',
-                    backgroundColor: Colors.white,
-                    foregroundColor: coralAccent,
-                    elevation: 3,
-                    onPressed: _isLoading ? null : _moveToCurrentGpsLocation,
-                    child: _isLoading
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.my_location_rounded, size: 20),
-                  ),
-                ),
-                // 지도 터치 안내 뱃지
-                Positioned(
-                  left: 14,
-                  top: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text('💡 지도를 터치하여 핀을 이동할 수 있습니다', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-              ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: KakaoMapView(
+                lat: _selectedLatLng.latitude,
+                lng: _selectedLatLng.longitude,
+                locationName: _selectedPlaceName,
+                height: 200,
+              ),
             ),
           ),
 

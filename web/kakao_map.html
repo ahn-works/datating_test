@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>카카오 지도</title>
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=277e860aee05a0dd1504f70ce7ac8e74"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, Roboto, sans-serif; }
+    #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .overlay-box {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+    }
+    .btn-kakao-action {
+      flex: 1;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.1s;
+    }
+    .btn-kakao-action:active { transform: scale(0.97); }
+    .btn-map { background: #FEE500; color: #191919; }
+    .btn-navi { background: #191919; color: #FFFFFF; }
+    .custom-marker {
+      background: #191919;
+      color: #FEE500;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      white-space: nowrap;
+      border: 1.5px solid #FEE500;
+      transform: translate(-50%, -100%);
+      margin-top: -38px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="overlay-box">
+    <button class="btn-kakao-action btn-map" id="btnMap" type="button">
+      <span>카카오맵 보기</span>
+    </button>
+    <button class="btn-kakao-action btn-navi" id="btnNavi" type="button">
+      <span>카카오 길찾기</span>
+    </button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const lat = parseFloat(params.get('lat') || '37.4988');
+    const lng = parseFloat(params.get('lng') || '127.0279');
+    const name = decodeURIComponent(params.get('name') || '모임 장소');
+
+    const container = document.getElementById('map');
+    const options = {
+      center: new kakao.maps.LatLng(lat, lng),
+      level: 3
+    };
+
+    const map = new kakao.maps.Map(container, options);
+
+    // Zoom control
+    const zoomControl = new kakao.maps.ZoomControl();
+    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+    // Default Marker
+    const markerPosition = new kakao.maps.LatLng(lat, lng);
+    const marker = new kakao.maps.Marker({
+      position: markerPosition
+    });
+    marker.setMap(map);
+
+    // Custom Overlay (Place Name Label)
+    const overlayContent = `<div class="custom-marker">${name}</div>`;
+    const customOverlay = new kakao.maps.CustomOverlay({
+      position: markerPosition,
+      content: overlayContent,
+      yAnchor: 1
+    });
+    customOverlay.setMap(map);
+
+    // Button actions
+    document.getElementById('btnMap').onclick = function() {
+      window.open(`https://map.kakao.com/link/map/${encodeURIComponent(name)},${lat},${lng}`, '_blank');
+    };
+    document.getElementById('btnNavi').onclick = function() {
+      window.open(`https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`, '_blank');
+    };
+  </script>
+</body>
+</html>
