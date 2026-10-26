@@ -682,16 +682,19 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               ClipRRect(
                                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                                 child: InkWell(
-                                  onTap: () {
+                                  onTap: () async {
                                     final loc = widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞';
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => InteractiveMapPopup(
-                                        initialCenter: const LatLng(37.5568, 126.9238),
-                                        locationName: loc,
-                                        kakaoLink: 'https://map.kakao.com/link/search/${Uri.encodeComponent(loc)}',
-                                      ),
-                                    );
+                                    double targetLat = 37.5568;
+                                    double targetLng = 126.9238;
+                                    try {
+                                      final places = await KakaoMapService.searchKeyword(loc, size: 1);
+                                      if (places.isNotEmpty) {
+                                        targetLat = places.first.lat;
+                                        targetLng = places.first.lng;
+                                      }
+                                    } catch (_) {}
+                                    if (!mounted) return;
+                                    await KakaoMapService.launchMap(loc, lat: targetLat, lng: targetLng);
                                   },
                                   child: Container(
                                     height: 130,
@@ -807,7 +810,16 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                       label: const Text('카카오 길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                       onPressed: () async {
                                         final loc = widget.meetup?['location'] ?? '홍대입구역 9번 출구 앞';
-                                        await KakaoMapService.launchDirections(loc);
+                                        double targetLat = 37.5568;
+                                        double targetLng = 126.9238;
+                                        try {
+                                          final places = await KakaoMapService.searchKeyword(loc, size: 1);
+                                          if (places.isNotEmpty) {
+                                            targetLat = places.first.lat;
+                                            targetLng = places.first.lng;
+                                          }
+                                        } catch (_) {}
+                                        await KakaoMapService.launchDirections(loc, lat: targetLat, lng: targetLng);
                                       },
                                     ),
                                   ],
