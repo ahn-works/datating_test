@@ -31,6 +31,7 @@
 | 구분 | 파일 경로 | 핵심 역할 |
 | :--- | :--- | :--- |
 | **통합 프롬프트 트리거** | [`AI_INSTRUCTIONS.md`](file:///c:/Users/developersim/Desktop/datating_test/AI_INSTRUCTIONS.md) | 질문 키워드별 자동 프롬프트 트리거 & 4대 핵심 도메인 통합 지침 |
+| **OOMU 프론트엔드 디자인 스킬** | [.agents/skills/frontend-design/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/frontend-design/SKILL.md) | 30대 찐친·여성안심 철학, 5대 AI 클리셰 배제, Flutter 모바일 인체공학 터치/바텀시트, 2-Pass 디자인 검증 |
 | **프롬프트 & 모델 라우팅** | [`.antigravity/rules/prompt_routing_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/prompt_routing_rules.md) | 고정 머리말 규칙, 화면 경로별 실전 프롬프트 3선, 로컬 Claude 7종/GPT 9종 자동 매칭표 |
 | **12년 차 UI/UX 디자인 규칙** | [`.antigravity/rules/ui_ux_design_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/ui_ux_design_rules.md) | 경쟁 앱 벤치마킹 기준, 배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, Overflow 0%, 2030/B2B UX Writing |
 | **3계층 Zero-Secret 보안** | [`.antigravity/rules/security_distribution_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/security_distribution_rules.md) | Git/APK API 키 하드코딩 금지 (`pk-dummy` 예외), Firestore `config/*` 런타임 로드 |
