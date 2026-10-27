@@ -67,6 +67,14 @@
     const lat = parseFloat(params.get('lat') || '37.4988');
     const lng = parseFloat(params.get('lng') || '127.0279');
     const name = decodeURIComponent(params.get('name') || '모임 장소');
+    const hideActions = params.get('hideActions') === 'true' || params.get('preview') === 'true';
+
+    if (hideActions) {
+      const overlayBox = document.querySelector('.overlay-box');
+      if (overlayBox) {
+        overlayBox.style.display = 'none';
+      }
+    }
 
     const container = document.getElementById('map');
     const options = {
