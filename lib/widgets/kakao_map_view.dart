@@ -8,6 +8,7 @@ class KakaoMapView extends StatelessWidget {
   final String locationName;
   final double height;
   final double width;
+  final bool hideActions;
 
   const KakaoMapView({
     super.key,
@@ -16,6 +17,7 @@ class KakaoMapView extends StatelessWidget {
     required this.locationName,
     this.height = 300,
     this.width = double.infinity,
+    this.hideActions = false,
   });
 
   @override
@@ -26,6 +28,7 @@ class KakaoMapView extends StatelessWidget {
       locationName: locationName,
       height: height,
       width: width,
+      hideActions: hideActions,
     );
   }
 }

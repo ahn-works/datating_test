@@ -863,12 +863,12 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       // 위치 및 거리 표시
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined, size: 14, color: coralAccent),
-                          const SizedBox(width: 3),
+                          const Icon(Icons.location_on_rounded, size: 14.5, color: coralAccent),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               '${m['location'] ?? '위치 미지정'} · ${m['distance'] ?? '도보 350m'}',
-                              style: const TextStyle(fontSize: 11.5, color: textSecondary, fontWeight: FontWeight.w500),
+                              style: const TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),

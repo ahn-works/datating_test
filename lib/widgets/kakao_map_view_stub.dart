@@ -7,6 +7,7 @@ Widget buildKakaoMapWidget({
   required String locationName,
   required double height,
   required double width,
+  bool hideActions = false,
 }) {
   return Container(
     width: width,

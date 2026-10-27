@@ -10,15 +10,17 @@ Widget buildKakaoMapWidget({
   required String locationName,
   required double height,
   required double width,
+  bool hideActions = false,
 }) {
-  // Use unique viewId based on coordinates and clean name
+  // Use unique viewId based on coordinates, clean name, and hideActions flag
   final cleanName = locationName.replaceAll(RegExp(r'[^a-zA-Z0-9가-힣]'), '');
-  final viewType = 'kakao-map-${lat.toStringAsFixed(4)}-${lng.toStringAsFixed(4)}-$cleanName';
+  final actionSuffix = hideActions ? '-clean' : '';
+  final viewType = 'kakao-map-${lat.toStringAsFixed(4)}-${lng.toStringAsFixed(4)}-$cleanName$actionSuffix';
   
   try {
     ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
       final iframe = html.IFrameElement()
-        ..src = 'kakao_map.html?lat=$lat&lng=$lng&name=${Uri.encodeComponent(locationName)}'
+        ..src = 'kakao_map.html?lat=$lat&lng=$lng&name=${Uri.encodeComponent(locationName)}${hideActions ? '&hideActions=true' : ''}'
         ..style.border = 'none'
         ..style.width = '100%'
         ..style.height = '100%'

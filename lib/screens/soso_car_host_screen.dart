@@ -757,24 +757,156 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             ),
           ),
           if (_locationController.text.trim().isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Container(
-              height: 140,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: KakaoMapView(
-                  locationName: _locationController.text.trim(),
-                  lat: _selectedPlaceLat ?? 37.5665,
-                  lng: _selectedPlaceLng ?? 126.9780,
-                  height: 140,
+            const SizedBox(height: 12),
+            if (_selectedPlaceLat != null && _selectedPlaceLng != null)
+              // 1티어 카카오맵 정밀 위치 카드 (불필요한 내비 버튼 배제한 100점 클린 프리뷰)
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFECFDF5),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: const Color(0xFFA7F3D0)),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF059669)),
+                                SizedBox(width: 4),
+                                Text(
+                                  '카카오 지도 핀 위치 확인됨',
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF059669)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _openPlaceSearchModal,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.tune_rounded, size: 13, color: Color(0xFFFF5E36)),
+                                SizedBox(width: 3),
+                                Text(
+                                  '위치 변경',
+                                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFFF5E36)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.zero,
+                      child: SizedBox(
+                        height: 160,
+                        width: double.infinity,
+                        child: KakaoMapView(
+                          locationName: _locationController.text.trim(),
+                          lat: _selectedPlaceLat!,
+                          lng: _selectedPlaceLng!,
+                          height: 160,
+                          hideActions: true,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.place_rounded, size: 14, color: Color(0xFFFF5E36)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              _locationController.text.trim(),
+                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9F8),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFFFE0D6)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFECE5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.map_rounded, size: 16, color: Color(0xFFFF5E36)),
+                    ),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '지도에서 정확한 위치를 지정해 보세요',
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                          ),
+                          SizedBox(height: 1),
+                          Text(
+                            '참여 이웃들이 헤매지 않고 쉽게 찾아올 수 있어요.',
+                            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: _openPlaceSearchModal,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5E36),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '지도 선택',
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
           ],
         ],
       ),
