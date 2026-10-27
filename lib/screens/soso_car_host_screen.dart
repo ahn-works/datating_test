@@ -20,6 +20,8 @@ class OOMUHostScreen extends StatefulWidget {
   final String? initialSubCategory;
   final String? initialCoverImageUrl;
   final String? initialVibe;
+  final double? initialLat;
+  final double? initialLng;
 
   const OOMUHostScreen({
     super.key,
@@ -29,6 +31,8 @@ class OOMUHostScreen extends StatefulWidget {
     this.initialSubCategory,
     this.initialCoverImageUrl,
     this.initialVibe,
+    this.initialLat,
+    this.initialLng,
   });
 
   @override
@@ -57,6 +61,24 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     if (widget.initialVibe != null && widget.initialVibe!.isNotEmpty) {
       _selectedVibe = widget.initialVibe!;
     }
+    if (widget.initialLat != null && widget.initialLng != null) {
+      _selectedPlaceLat = widget.initialLat;
+      _selectedPlaceLng = widget.initialLng;
+    } else if (widget.initialLocation != null && widget.initialLocation!.isNotEmpty) {
+      _autoResolveLocation(widget.initialLocation!);
+    }
+  }
+
+  Future<void> _autoResolveLocation(String query) async {
+    try {
+      final results = await KakaoMapService.searchKeyword(query, size: 1);
+      if (results.isNotEmpty && mounted) {
+        setState(() {
+          _selectedPlaceLat = results.first.lat;
+          _selectedPlaceLng = results.first.lng;
+        });
+      }
+    } catch (_) {}
   }
 
   double? _selectedPlaceLat;

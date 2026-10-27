@@ -319,6 +319,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                 MaterialPageRoute(
                   builder: (_) => OOMUHostScreen(
                     initialLocation: _currentSpotName,
+                    initialLat: _currentLat,
+                    initialLng: _currentLng,
                   ),
                 ),
               );
@@ -683,6 +685,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                         MaterialPageRoute(
                                           builder: (_) => OOMUHostScreen(
                                             initialLocation: _currentSpotName,
+                                            initialLat: _currentLat,
+                                            initialLng: _currentLng,
                                           ),
                                         ),
                                       );
@@ -757,159 +761,231 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       behavior: HitTestBehavior.opaque,
       onTap: openDetail,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFE2E8F0),
+            width: 1.0,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
+              blurRadius: 12,
               offset: const Offset(0, 3),
             ),
           ],
         ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. 88x88 정방형 썸네일 (Mobbin 1티어)
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: SizedBox(
-                        width: 88,
-                        height: 88,
-                        child: appNetImage(
-                          (m['imageUrl'] ?? m['image'] ?? 'assets/images/cover_cafe.jpg').toString(),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    if (isLightning)
-                      Positioned(
-                        top: 6,
-                        left: 6,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E36),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text(
-                            '⚡번개',
-                            style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(width: 14),
-
-                // 2. 모임 정보 컨텐츠
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. 88x88 정방형 썸네일
+                  Stack(
                     children: [
-                      // 카테고리 태그 & 안심 정산 뱃지
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: SizedBox(
+                          width: 88,
+                          height: 88,
+                          child: appNetImage(
+                            (m['imageUrl'] ?? m['image'] ?? 'assets/images/cover_cafe.jpg').toString(),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      if (isLightning)
+                        Positioned(
+                          top: 6,
+                          left: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              color: const Color(0xFFFF5E36),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: Text(
-                              (m['category'] ?? m['mainCategory'] ?? '일상 & 소통').toString(),
-                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
+                            child: const Text(
+                              '⚡번개',
+                              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(width: 14),
+
+                  // 2. 모임 정보 컨텐츠
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 카테고리 태그 & 안심 정산 뱃지
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                (m['category'] ?? m['mainCategory'] ?? '일상 & 소통').toString(),
+                                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFECFDF5),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFFA7F3D0)),
+                              ),
+                              child: const Text(
+                                '1/N 안심 정산',
+                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF047857)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        // 제목
+                        Text(
+                          (m['title'] ?? '').toString(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: textPrimary,
+                            height: 1.32,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // 호스트 정보 & 매너온도
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 10,
+                                  backgroundImage: appImg((m['hostAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  '${m['host'] ?? '호스트'}',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textPrimary),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFFBEB),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: const Color(0xFFFDE68A)),
+                                  ),
+                                  child: Text(
+                                    '${m['manner'] ?? 41.2}°C 🔥',
+                                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFB45309)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '${m['members'] ?? '2/4'}명 참여',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              // 🌟 1티어 에디토리얼 위치 & 일정 하이라이트 박스
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  children: [
+                    // 1) 위치 정보 (눈에 띄는 15px 라운드 핀 아이콘 + 볼드 텍스트 + 거리 칩)
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded, size: 15, color: Color(0xFFFF5E36)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            (m['location'] ?? '위치 미지정').toString(),
+                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (m['distance'] != null)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFECFDF5),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFFA7F3D0)),
+                              color: const Color(0xFFFFECE5),
+                              borderRadius: BorderRadius.circular(5),
                             ),
-                            child: const Text(
-                              '1/N 안심 정산',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF047857)),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-
-                      // 제목 ()
-                      Text(
-                        (m['title'] ?? '').toString(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                          height: 1.3,
-                          
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-
-                      // 위치 및 거리 표시
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_rounded, size: 14.5, color: coralAccent),
-                          const SizedBox(width: 4),
-                          Expanded(
                             child: Text(
-                              '${m['location'] ?? '위치 미지정'} · ${m['distance'] ?? '도보 350m'}',
-                              style: const TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600),
-                              overflow: TextOverflow.ellipsis,
+                              m['distance'].toString(),
+                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFFF5E36)),
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-
-                      // 참여 멤버 & 매너온도
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 10,
-                                backgroundImage: appImg((m['hostAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                '${m['host'] ?? '호스트'}',
-                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: textPrimary),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${m['members'] ?? '2/4'}명 참여 중',
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                              ),
-                            ],
+                      ],
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      child: Divider(height: 1, color: Color(0xFFEDF2F7)),
+                    ),
+                    // 2) 일정 및 시간 정보 (또렷한 14.5px 캘린더 아이콘 + 볼드 텍스트 + 카카오 지도 뱃지)
+                    Row(
+                      children: [
+                        Icon(
+                          isLightning ? Icons.bolt_rounded : Icons.calendar_month_rounded,
+                          size: 14.5,
+                          color: isLightning ? const Color(0xFFFF5E36) : const Color(0xFF2563EB),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            (m['date'] ?? (isLightning ? '오늘 번개' : '이번 주말')).toString(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isLightning ? const Color(0xFFFF5E36) : const Color(0xFF334155),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          Text(
-                            '${m['manner'] ?? 41.2}°C 🔥',
-                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: coralAccent),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                        const Text(
+                          '카카오 지도 연결',
+                          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF059669)),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
       ),
     );
   }
