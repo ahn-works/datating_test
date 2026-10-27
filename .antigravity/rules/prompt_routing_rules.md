@@ -50,28 +50,27 @@
 
 ---
 
-## 4️⃣ 화면 경로별 실전 프롬프트 템플릿 3선 (작업 시 자동 매핑)
+## 4️⃣ 화면 경로별 실전 프롬프트 템플릿 3선 (실제 lib/screens 경로 매핑)
 
-해당 파일 경로(`lib/features/...`)를 수정할 때 에이전트는 아래 각 시나리오의 상세 지침을 자동으로 결합하여 수행합니다.
+> **경로 안내**: 과거 지침의 `lib/features/...` 경로는 실존하지 않으며, `main.dart` 기준 실제 앱 화면인 `lib/screens/...` 파일에 적용합니다.
 
-### ① 홈 & 파티 화면 (`lib/features/home/home_screen.dart`, `lib/features/party/party_screen.dart`, `oomu_prototype.html`)
-- **적용 규칙**: `.antigravity/rules/ui_ux_design_rules.md` + `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 **`[상황 1]` & `[상황 2]`**
+### ① 홈 & 모임 화면 (`lib/screens/soso_car_home_screen.dart`, `lib/screens/soso_car_detail_screen.dart`)
+- **적용 규칙**: [docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) + `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 **`[상황 1]` & `[상황 2]`**
 - **필수 체크리스트**:
-  1. **카테고리 체계**: 기본 진입 탭은 `전체`이며, 3대 대분류 탭(`⚡ 오늘 번개`, `☕ 취향 아지트`, `🏃‍♂️ 라이프 메이트`)과 각 서브태그(`+더보기 ▾` / `접기 ▴` 트레이 방식으로 우측 짤림 0% 보장)를 정확히 유지할 것.
-  2. **배경 & 카드 위계**: 전체 Scaffold 배경(`#F8F9FA` 또는 선택된 OOMU 테마 배경)과 모임 카드 표면(`#FFFFFF`)을 명확히 분리하고, 카드 테두리 `1px solid #EFF1F5` 및 초미세 그림자(`rgba(17, 24, 39, 0.04)`)를 적용할 것.
-  3. **Overflow 0% 보장**: 카드 내부 `Row`의 제목/서브텍스트/태그가 작은 스마트폰 화면(320px~375px)에서도 절대 겹치거나 우측으로 잘리지 않도록 `Expanded`, `Flexible`, `maxLines`, `TextOverflow.ellipsis`를 완벽히 적용할 것 (`o4-mini` / `gpt-4.1` 기준 검증).
-  4. **트렌드 & 동네모임 피드 배치**: 상단 히어로 배너 아래에 실시간 모임 피드를 배치하고, 피드 중간(인피드)에 KOPIS/R2 실사 포스터 기반 트렌드 큐레이션을 자연스럽게 결합하며, 블럭형(`⊞`)·목록형(`☰`) 뷰 토글을 지원할 것.
+  1. **카테고리 체계**: 기본 진입 탭은 `전체`이며, 3대 대분류 탭(`⚡ 오늘 번개`, `☕ 취향 아지트`, `🏃‍♂️ 라이프 메이트`)과 각 서브태그를 유지하고 우측 짤림 없는 레이아웃 보장.
+  2. **배경 & 카드 위계**: Scaffold 배경 `#FAF6F7`과 모임 카드 표면 `#FFFFFF`을 명확히 분리하고, 8dp 여백 시스템과 1px 미세 보더 적용.
+  3. **유연한 텍스트 렌더링**: 주소·시간·모임 소개 등 주요 정보가 작은 화면(360~390px)에서도 읽기 쉽게 적절히 줄바꿈되도록 처리하며, 비대칭 짤림 방지.
+  4. **금액 미표시 원칙**: 모든 모임 목록 및 상세에서 원화 금액 숫자 대신 `1/N 안심 정산` 또는 `무료 참여` 표기.
 
-### ② 아지트 스팟 & B2B 정산 화면 (`lib/features/venue/venue_screen.dart`, `lib/features/admin/b2b_settlement_screen.dart`)
-- **적용 규칙**: `.antigravity/rules/ui_ux_design_rules.md` + `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 **`[상황 3]`**
+### ② 아지트 스팟 화면 (`lib/screens/soso_spot_screen.dart`, `lib/screens/explore_map_screen.dart`)
+- **적용 규칙**: [docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) + `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 **`[상황 3]`**
 - **필수 체크리스트**:
-  1. **2030 네이티브 큐레이션 UX Writing**: 로컬 설치된 `claude-3-5-sonnet` / `claude-opus-4`를 활용하여 공급자 중심의 투박한 문구(*"수수료 차감"*, *"B2B 광고 매장"*)를 **"✨ OOMU 공식 인증 아지트"**, **"🔥 오늘 번개 웰컴 드링크 혜택 스팟"**, **"안심 에스크로 정산 내역"** 등 세련된 큐레이션 언어로 다듬을 것.
-  2. **파스텔 틴트 뱃지 & 레이아웃**: 혜택 뱃지는 파스텔 틴트(`배경 #FFF4EB + 텍스트 #FF6B35`)로 처리하고, 금액 숫자 및 상태 뱃지가 한 줄에서 겹치지 않도록 `Expanded`와 `TextAlign.end`로 정렬할 것.
+  1. **2030 네이티브 큐레이션 UX Writing**: 공급자 중심 투박한 문구를 **"✨ OOMU 공식 인증 아지트"**, **"🔥 오늘 번개 웰컴 혜택 스팟"** 등 세련된 라이프스타일 언어로 다듬을 것.
+  2. **파스텔 틴트 뱃지 & 레이아웃**: 혜택 뱃지는 파스텔 틴트(`배경 #FFF4EB + 텍스트 #FF6B35`)로 처리하고, 상태 뱃지가 한 줄에서 겹치지 않도록 `Expanded` 정렬.
 
-### ③ 채팅방 아이스브레이킹 & 자만추 매칭 화면 (`lib/features/chat/chat_screen.dart`, `lib/features/matching/match_controller.dart`)
+### ③ 채팅방 & 알림 화면 (`lib/screens/chat_screen.dart`, `lib/screens/soso_car_chat_screen.dart`, `lib/screens/notification_screen.dart`)
 - **적용 규칙**: `lib/services/ai_service.dart` (`OomuAiService.instance`) + `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`의 **`[상황 4]`**
 - **필수 체크리스트**:
-  1. **로컬 AI 모델 실시간 연동**:
-     - `chat_screen.dart`: `OomuAiService.instance.generateIcebreakerTopics()` (`claude-3-haiku` / `claude-3-5-sonnet` 연동)를 호출하는 **'✨ AI 대화 주제 추천'** 칩 버튼과 깔끔한 바텀시트/배너 UI를 제공할 것.
-     - `match_controller.dart`: `OomuAiService.instance.generateSecretMatchCompatibility()` (`o4-mini` / `gpt-4.1` / `claude-3-5-sonnet` 연동)로 매칭 궁합 코멘트를 생성할 것.
-  2. **폴백 안전성 및 레이아웃**: 로컬 프록시(`127.0.0.1:1337`) 미구동 환경에서도 기본 추천 멘트로 우아하게 폴백(Fallback)되도록 예외 처리를 유지하고, 추천 문구 박스에 고정 `height`를 주지 말 것.
+  1. **로컬 AI 모델 실시간 연동**: `chat_screen.dart`에서 `OomuAiService.instance.generateIcebreakerTopics()` 연동 칩 버튼과 바텀시트 UI 제공.
+  2. **폴백 안전성 및 레이아웃**: 로컬 프록시 미구동 환경에서도 기본 추천 멘트로 우아하게 폴백되도록 예외 처리를 유지하고, 추천 문구 컨테이너에 고정 `height`를 주지 말 것.
+

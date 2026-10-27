@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'soso_car_chat_screen.dart';
 import 'chat_screen.dart';
 
@@ -44,13 +45,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
     },
     {
       'id': 'noti_03',
-      'category': '소개팅/매칭',
-      'title': '💖 새로운 호감 시그널이 도착했습니다!',
-      'body': '마포구 서교동의 이웃이 회원님에게 호감을 보냈습니다. 프로필을 확인하고 시크릿 매칭을 이어가보세요.',
+      'category': '취향 매칭',
+      'title': '✨ 새로운 취향 궁합 시그널이 도착했습니다!',
+      'body': '마포구 연남동 이웃과 [와인 & 전시회] 취향이 94% 일치합니다. 프로필을 확인하고 동네 친구를 맺어보세요.',
       'time': '1시간 전',
       'isRead': false,
-      'icon': Icons.favorite_rounded,
-      'iconColor': Color(0xFFEC4899),
+      'icon': Icons.auto_awesome_rounded,
+      'iconColor': Color(0xFFF25767),
       'targetType': 'dating',
     },
     {
@@ -158,7 +159,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 const SizedBox(width: 8),
                 _buildTabChip('커뮤니티', 2),
                 const SizedBox(width: 8),
-                _buildTabChip('소개팅/매칭', 3),
+                _buildTabChip('취향 매칭', 3),
               ],
             ),
           ),
@@ -292,7 +293,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget _buildTabChip(String label, int index) {
     final isSelected = _selectedTab == index;
     return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedTab = index);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(

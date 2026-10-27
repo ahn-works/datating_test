@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
@@ -98,13 +99,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> _saveProfile() async {
-    if (_nicknameController.text.trim().isEmpty) return;
+    final nick = _nicknameController.text.trim();
+    if (nick.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('닉네임을 1자 이상 입력해주세요.'), behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
     
+    int parsedAge = int.tryParse(_ageController.text.trim()) ?? 0;
+    if (parsedAge < 19 || parsedAge > 99) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('올바른 나이를 입력해주세요 (20세 이상).'), behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
+
     setState(() { _isSaving = true; });
     try {
-      final int parsedAge = int.tryParse(_ageController.text.trim()) ?? 28;
       await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
-        'nickname': _nicknameController.text.trim(),
+        'nickname': nick,
         'name': _nameController.text.trim(),
         'age': parsedAge,
         'gender': _gender,
@@ -339,7 +353,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return AssetImage(url);
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, String hint = '', TextInputType? keyboardType}) {
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, String hint = '', TextInputType? keyboardType, TextInputAction? textInputAction}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -349,6 +363,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
+          textInputAction: textInputAction ?? (maxLines > 1 ? TextInputAction.newline : TextInputAction.next),
           style: TextStyle(fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             hintText: hint,
@@ -374,7 +389,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () => setState(() => _gender = '여성'),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _gender = '여성');
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
@@ -398,7 +416,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: GestureDetector(
-                onTap: () => setState(() => _gender = '남성'),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _gender = '남성');
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
@@ -478,6 +499,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       body: _isLoading 
         ? Center(child: CircularProgressIndicator(color: accentColor))
         : SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

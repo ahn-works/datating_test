@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/app_image.dart';
 import 'chat_screen.dart';
 import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'my_page_screen.dart';
+import 'party_detail_screen.dart';
+import 'party_host_screen.dart';
+import 'empty_state_screen.dart';
 
 class LocalFriendsScreen extends StatefulWidget {
   const LocalFriendsScreen({super.key});
@@ -111,6 +115,7 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                   bool isSelected = _selectedFilterIndex == index;
                   return GestureDetector(
                     onTap: () {
+                      HapticFeedback.selectionClick();
                       setState(() {
                         _selectedFilterIndex = index;
                       });
@@ -138,25 +143,44 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _meetups.length,
-              itemBuilder: (context, index) {
-                final meetup = _meetups[index];
-                if (_selectedFilterIndex != 0 && meetup['type'] != _filters[_selectedFilterIndex]) {
-                  return const SizedBox.shrink();
+            child: Builder(
+              builder: (context) {
+                final displayed = _selectedFilterIndex == 0
+                    ? _meetups
+                    : _meetups.where((m) => m['type'] == _filters[_selectedFilterIndex]).toList();
+
+                if (displayed.isEmpty) {
+                  return EmptyStateScreen(
+                    icon: Icons.person_search_rounded,
+                    title: '해당 조건의 동네 친구 모임이 없어요',
+                    message: '첫 번째로 모임을 열고\n가까운 동네 이웃과 소소한 일상을 함께해보세요!',
+                    actionLabel: '새 모임 직접 열기',
+                    onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyHostScreen())),
+                  );
                 }
-                return _buildRichMeetupCard(meetup);
+
+                return ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  itemCount: displayed.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    return _buildRichMeetupCard(displayed[index]);
+                  },
+                );
               },
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyHostScreen()));
+        },
         backgroundColor: primaryColor,
-        icon: const Icon(Icons.edit, color: Colors.white),
-        label: const Text('모임 열기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        icon: const Icon(Icons.edit_note_rounded, color: Colors.white, size: 22),
+        label: const Text('모임 열기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -315,13 +339,35 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                       children: [
                         Text('참여 ${meetup['currentMembers']}/${meetup['maxMembers']}명', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.circular(20),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () {
+                            HapticFeedback.mediumImpact();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PartyDetailScreen(
+                                  partyData: {
+                                    'title': meetup['title'],
+                                    'category': meetup['type'],
+                                    'loc': meetup['location'],
+                                    'date': meetup['time'],
+                                    'author': meetup['hostName'],
+                                    'authorInfo': '${meetup['hostTemp']}°C · 동네 이웃',
+                                    'img': meetup['image'],
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text('참여하기', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                           ),
-                          child: const Text('참여하기', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),

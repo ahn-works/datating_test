@@ -125,22 +125,28 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: ElevatedButton(
-              onPressed: canSubmit ? _submit : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: coralAccent,
-                disabledBackgroundColor: const Color(0xFFE5E5EA),
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-              ),
-              child: Text(
-                '등록',
-                style: TextStyle(
-                  color: canSubmit ? Colors.white : const Color(0xFF999999),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: SizedBox(
+              height: 40,
+              child: ElevatedButton(
+                onPressed: canSubmit ? () {
+                  HapticFeedback.mediumImpact();
+                  _submit();
+                } : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: coralAccent,
+                  disabledBackgroundColor: const Color(0xFFE2E8F0),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  '등록',
+                  style: TextStyle(
+                    color: canSubmit ? Colors.white : const Color(0xFF94A3B8),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
@@ -162,7 +168,10 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                 children: _categories.map((cat) {
                   final isSelected = _selectedCategory == cat;
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = cat),
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedCategory = cat);
+                    },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -197,7 +206,10 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                 children: _tags.map((t) {
                   final isSelected = _selectedTag == t;
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedTag = t),
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedTag = t);
+                    },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

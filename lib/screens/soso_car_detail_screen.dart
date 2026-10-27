@@ -22,13 +22,14 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   bool _isApplying = false;
   final TextEditingController _applyMsgController = TextEditingController();
   
-  // 디자인 토큰
-  final Color textPrimary = const Color(0xFF0F172A);
-  final Color textSecondary = const Color(0xFF64748B);
-  final Color surfaceColor = const Color(0xFFF8FAFC);
-  final Color coralAccent = const Color(0xFFFF5E36);
-  final Color borderSubtle = const Color(0xFFE2E8F0);
-  final Color destructiveColor = const Color(0xFFFF3B30);
+  // 디자인 토큰 (docs/OOMU_UI_GUIDE.md 기준)
+  final Color textPrimary = const Color(0xFF202124);
+  final Color textSecondary = const Color(0xFF667085);
+  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color coralAccent = const Color(0xFFF25767);
+  final Color borderSubtle = const Color(0xFFE7E9ED);
+  final Color destructiveColor = const Color(0xFFE11D48);
+
 
   bool _isFavorite = false;
   bool _hasCompletedProfile = false;
@@ -508,9 +509,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. 29CM 에디토리얼 슬리버 패럴랙스 헤더 (SliverAppBar)
+          // 1. 슬리버 패럴랙스 헤더 (SliverAppBar - 적정 높이 240dp로 조정하여 본문 가시성 확보)
           SliverAppBar(
-            expandedHeight: 320,
+            expandedHeight: 240,
             pinned: true,
             stretch: true,
             backgroundColor: const Color(0xFF0F172A),
@@ -721,91 +722,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       const SizedBox(height: 20),
                     ],
 
-                    // C. 호스트 신뢰도 카드 (Manner Temperature & Trust Badges)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: surfaceColor,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: borderSubtle),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              final hostName = (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러').toString();
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: hostName)));
-                            },
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 26,
-                                  backgroundImage: appImg(
-                                    (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
-                                        ? widget.meetup!['hostAvatar']
-                                        : 'assets/images/kr_female_1.jpg',
-                                  ),
-                                  backgroundColor: surfaceColor,
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'),
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textPrimary),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF0F172A),
-                                              borderRadius: BorderRadius.circular(6),
-                                            ),
-                                            child: const Text('호스트', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      const Row(
-                                        children: [
-                                          Icon(Icons.verified_user_rounded, color: Color(0xFF10B981), size: 14),
-                                          SizedBox(width: 4),
-                                          Text('PASS 본인인증 완료 · 클린 호스트', style: TextStyle(color: Color(0xFF64748B), fontSize: 11.5)),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                _buildMannerGauge(hostManner),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                          const SizedBox(height: 10),
-                          // 칭찬 후기 칩
-                          const Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: [
-                              Text('⏰ 시간 약속 철저', style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
-                              Text('·', style: TextStyle(color: Color(0xFFCBD5E1))),
-                              Text('💬 편안하고 배려 깊은 대화', style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
-                              Text('·', style: TextStyle(color: Color(0xFFCBD5E1))),
-                              Text('✨ 재참여율 98%', style: TextStyle(fontSize: 11, color: Color(0xFF059669), fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // D. 모임 기본 정보 카드
+                    // 1. 모임 기본 정보 카드 (일시, 장소, 이동, 비용 - 핵심 정보 최우선 노출)
                     Text('모임 정보', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
                     const SizedBox(height: 12),
                     Container(
@@ -824,22 +741,23 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           _buildInfoRow(Icons.directions_subway_rounded, '이동', widget.meetup?['transport'] ?? '대중교통 / 각자 이동'),
                           const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Icon(Icons.payments_rounded, color: textSecondary, size: 20),
                               const SizedBox(width: 14),
                               SizedBox(width: 50, child: Text('비용', style: TextStyle(color: textSecondary, fontSize: 14))),
                               const Expanded(
-                                child: Text('1/N 안심 정산 (현장 결제)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF10B981))),
+                                child: Text('1/N 안심 정산 (현장 결제)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF0D9488))),
                               ),
                               GestureDetector(
                                 onTap: () => _showSplitBillSheet(context),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF0EB),
+                                    color: const Color(0xFFFFF0F2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text('정산서 보기', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFFF5E36))),
+                                  child: Text('정산서 보기', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: coralAccent)),
                                 ),
                               ),
                             ],
@@ -847,164 +765,17 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 24),
 
-                    // E. 🗺️ 카카오 공식 네이티브 지도 & 길찾기 섹션 (실제 KakaoMapView 임베드)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('모임 장소 & 카카오 지도', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFECFDF5),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFFA7F3D0)),
-                          ),
-                          child: Text(
-                            _distanceText,
-                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: borderSubtle),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 3)),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 1) 실제 작동하는 카카오 지도 임베드 뷰
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
-                            child: SizedBox(
-                              height: 180,
-                              width: double.infinity,
-                              child: Stack(
-                                children: [
-                                  KakaoMapView(
-                                    key: ValueKey('kakao-detail-$_targetLat-$_targetLng'),
-                                    lat: _targetLat,
-                                    lng: _targetLng,
-                                    locationName: locName,
-                                    height: 180,
-                                    hideActions: true,
-                                  ),
-                                  // 상단 우측 지도 크게보기 오버레이 버튼
-                                  Positioned(
-                                    right: 10,
-                                    top: 10,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        HapticFeedback.lightImpact();
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => InteractiveMapPopup(
-                                            initialCenter: LatLng(_targetLat, _targetLng),
-                                            locationName: locName,
-                                            kakaoLink: KakaoMapService.getKakaoRouteUrl(locName, _targetLat, _targetLng),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.75),
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: const Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.fullscreen_rounded, size: 14, color: Colors.white),
-                                            SizedBox(width: 4),
-                                            Text('전체화면 지도', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          // 2) 카카오 길찾기 및 위치 정보 행
-                          Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        locName,
-                                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: textPrimary),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      const Text(
-                                        '모임 시간 10분 전 현장 도착을 권장합니다',
-                                        style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFEE500),
-                                    foregroundColor: const Color(0xFF191919),
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  ),
-                                  icon: const Icon(Icons.directions_rounded, size: 16),
-                                  label: const Text('카카오 길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  onPressed: () => KakaoMapService.launchDirections(locName, lat: _targetLat, lng: _targetLng),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 26),
-
-                    // F. 모임 소개 & 이런 분을 찾아요
-                    Text('이런 분과 함께하고 싶어요', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
-                    const SizedBox(height: 10),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: surfaceColor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: borderSubtle),
-                      ),
-                      child: Text(
-                        (widget.meetup?['description'] ??
-                            "스트레스 팍팍 받는 주말엔 역시 매운 음식과 기분 좋은 대화 아니겠습니까? 🔥\n\n취향과 라이프스타일이 통하는 동네 이웃과 편안하게 이야기 나누며 스트레스 풀 분 구해요!\n\n식사 후에는 근처 감성 카페에서 커피 한 잔 하며 주말을 여유롭게 마무리해요 :)"),
-                        style: TextStyle(fontSize: 14.5, height: 1.6, color: textPrimary),
-                      ),
-                    ),
-                    const SizedBox(height: 26),
-
-                    // G. 참여 멤버 아바타 스택 (event-meetup-engine)
+                    // 2. 참여 멤버 아바타 스택 (정원 및 잔여석 안내)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('참여 멤버', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0EB),
+                            color: const Color(0xFFFFF0F2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -1050,7 +821,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
@@ -1064,8 +835,253 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              '💡 현재 2자리가 남아있어요! 지금 신청하면 바로 함께할 수 있습니다.',
+                              '💡 현재 2자리가 남아있어요! 신청 시 바로 함께할 수 있습니다.',
                               style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 3. 호스트 신뢰도 카드 (텍스트 겹침 0% 방지 구조)
+                    Text('호스트 소개', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: borderSubtle),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              final hostName = (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러').toString();
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: hostName)));
+                            },
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: appImg(
+                                    (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
+                                        ? widget.meetup!['hostAvatar']
+                                        : 'assets/images/kr_female_1.jpg',
+                                  ),
+                                  backgroundColor: surfaceColor,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'),
+                                              style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, color: textPrimary),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF0F172A),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: const Text('호스트', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.verified_user_rounded, color: Color(0xFF0D9488), size: 14),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              'PASS 본인인증 호스트',
+                                              style: TextStyle(color: textSecondary, fontSize: 11.5, fontWeight: FontWeight.w500),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                _buildMannerGauge(hostManner),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                          const SizedBox(height: 10),
+                          const Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [
+                              Text('⏰ 시간 약속 철저', style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
+                              Text('·', style: TextStyle(color: Color(0xFFCBD5E1))),
+                              Text('💬 편안하고 배려 깊은 대화', style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
+                              Text('·', style: TextStyle(color: Color(0xFFCBD5E1))),
+                              Text('✨ 재참여율 98%', style: TextStyle(fontSize: 11, color: Color(0xFF0D9488), fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 4. 모임 소개 & 이런 분을 찾아요
+                    Text('모임 소개', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: borderSubtle),
+                      ),
+                      child: Text(
+                        (widget.meetup?['description'] ??
+                            "스트레스 팍팍 받는 주말엔 역시 매운 음식과 기분 좋은 대화 아니겠습니까? 🔥\n\n취향과 라이프스타일이 통하는 동네 이웃과 편안하게 이야기 나누며 스트레스 풀 분 구해요!\n\n식사 후에는 근처 감성 카페에서 커피 한 잔 하며 주말을 여유롭게 마무리해요 :)"),
+                        style: TextStyle(fontSize: 14.5, height: 1.6, color: textPrimary),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 5. 모임 장소 & 카카오 지도 (길찾기는 보조 액션으로 정돈)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('모임 장소 & 지도', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFECFDF5),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFA7F3D0)),
+                          ),
+                          child: Text(
+                            _distanceText,
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: borderSubtle),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                            child: SizedBox(
+                              height: 170,
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  KakaoMapView(
+                                    key: ValueKey('kakao-detail-$_targetLat-$_targetLng'),
+                                    lat: _targetLat,
+                                    lng: _targetLng,
+                                    locationName: locName,
+                                    height: 170,
+                                    hideActions: true,
+                                  ),
+                                  Positioned(
+                                    right: 10,
+                                    top: 10,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        HapticFeedback.lightImpact();
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => InteractiveMapPopup(
+                                            initialCenter: LatLng(_targetLat, _targetLng),
+                                            locationName: locName,
+                                            kakaoLink: KakaoMapService.getKakaoRouteUrl(locName, _targetLat, _targetLng),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.75),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.fullscreen_rounded, size: 14, color: Colors.white),
+                                            SizedBox(width: 4),
+                                            Text('전체화면 지도', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        locName,
+                                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: textPrimary),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '모임 시간 10분 전 현장 도착을 권장합니다',
+                                        style: TextStyle(fontSize: 11.5, color: textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFFFDE7),
+                                    side: const BorderSide(color: Color(0xFFE5D57A)),
+                                    foregroundColor: const Color(0xFF191919),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    minimumSize: const Size(48, 44),
+                                  ),
+                                  icon: const Icon(Icons.directions_rounded, size: 16, color: Color(0xFF333333)),
+                                  label: const Text('길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                  onPressed: () => KakaoMapService.launchDirections(locName, lat: _targetLat, lng: _targetLng),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -1186,14 +1202,25 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   Widget _buildInfoRow(IconData icon, String title, String value) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: textSecondary, size: 20),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, color: textSecondary, size: 20),
+        ),
         const SizedBox(width: 14),
-        SizedBox(width: 50, child: Text(title, style: TextStyle(color: textSecondary, fontSize: 14))),
+        SizedBox(
+          width: 50,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(title, style: TextStyle(color: textSecondary, fontSize: 14)),
+          ),
+        ),
         Expanded(
           child: Text(
             value,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPrimary),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPrimary, height: 1.35),
+            softWrap: true,
           ),
         ),
       ],
