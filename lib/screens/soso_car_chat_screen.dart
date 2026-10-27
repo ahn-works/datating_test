@@ -3263,11 +3263,11 @@ class InteractiveHotspotCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final String name = msg['name'] ?? '핫플 이름';
     final String address = msg['address'] ?? '주소 정보 없음';
-    final double lat = msg['lat'] ?? 37.5665;
-    final double lng = msg['lng'] ?? 126.9780;
+    final double? lat = (msg['lat'] as num?)?.toDouble();
+    final double? lng = (msg['lng'] as num?)?.toDouble();
     
     // 실제 카카오맵 링크 생성 (이름과 좌표 포함)
-    final String kakaoMapUrl = 'https://map.kakao.com/link/map/$name,$lat,$lng';
+    final String kakaoMapUrl = (lat != null && lng != null) ? KakaoMapService.getKakaoMapPinUrl(name, lat, lng) : KakaoMapService.getKakaoSearchUrl('$name $address');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -3732,8 +3732,8 @@ class _FixedPromiseHeaderState extends State<FixedPromiseHeader> {
   // 약속 정보
   final String _meetingTime = '2026. 10. 18 (일) 오후 6:00';
   final String _locationName = '홍대입구역 9번 출구 앞 (서교동 마라토끼)';
-  final String _kakaoMapUrl = 'https://map.kakao.com/link/map/홍대입구역 9번출구,37.5568,126.9242';
-  final String _naverMapUrl = 'https://map.naver.com/v5/search/홍대입구역 9번출구';
+  String get _kakaoMapUrl => KakaoMapService.getKakaoSearchUrl(_locationName);
+  String get _naverMapUrl => 'https://map.naver.com/v5/search/${Uri.encodeComponent(_locationName)}';
 
   @override
   void initState() {

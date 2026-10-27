@@ -41,7 +41,7 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
             child: KakaoMapView(
               lat: mokpoLat,
               lng: mokpoLng,
-              locationName: placeName,
+              locationName: placeName, hideActions: true,
             ),
           ),
 

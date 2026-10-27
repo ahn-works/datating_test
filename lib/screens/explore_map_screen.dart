@@ -340,7 +340,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
             child: KakaoMapView(
               lat: _currentLat,
               lng: _currentLng,
-              locationName: _currentSpotName,
+              locationName: _currentSpotName, hideActions: true,
             ),
           ),
 

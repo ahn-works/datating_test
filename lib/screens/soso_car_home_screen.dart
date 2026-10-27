@@ -1756,7 +1756,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                           Expanded(
                                             child: Text(
                                               category,
-                                              style: TextStyle(fontSize: 10.5, color: textSecondary),
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -1772,7 +1772,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                       const SizedBox(height: 5),
                                       Row(
                                         children: [
-                                          const Icon(Icons.location_on_outlined, size: 12, color: Color(0xFFFF5E36)),
+                                          const Icon(Icons.location_on_rounded, size: 15, color: Color(0xFFFF5E36)),
                                           const SizedBox(width: 3),
                                           Expanded(
                                             child: Text(
@@ -1786,12 +1786,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                       const SizedBox(height: 2),
                                       Row(
                                         children: [
-                                          Icon(Icons.calendar_today_outlined, size: 11, color: textSecondary),
+                                          Icon(Icons.calendar_month_rounded, size: 14, color: const Color(0xFF3B82F6)),
                                           const SizedBox(width: 3),
                                           Expanded(
                                             child: Text(
                                               period,
-                                              style: TextStyle(fontSize: 10.5, color: textSecondary),
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -2034,7 +2034,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.calendar_month_rounded, size: 13.5, color: textSecondary),
+                      Icon(Icons.calendar_month_rounded, size: 15, color: const Color(0xFF3B82F6)),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -4331,11 +4331,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 13, color: textSecondary),
+                    Icon(Icons.calendar_month_rounded, size: 15, color: const Color(0xFF3B82F6)),
                     const SizedBox(width: 4),
                     Text(pot['time'], style: TextStyle(fontSize: 12, color: textSecondary)),
                     const SizedBox(width: 12),
-                    Icon(Icons.location_on_outlined, size: 14, color: textSecondary),
+                    Icon(Icons.location_on_rounded, size: 15, color: const Color(0xFFFF5E36)),
                     const SizedBox(width: 2),
                     Expanded(
                       child: Text(pot['location'], style: TextStyle(fontSize: 12, color: textSecondary), overflow: TextOverflow.ellipsis),

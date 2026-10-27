@@ -147,10 +147,10 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    Icon(Icons.location_on_outlined, size: 12, color: textSecondary),
+                                    Icon(Icons.location_on_rounded, size: 15, color: const Color(0xFFFF5E36)),
                                     const SizedBox(width: 2),
                                     Expanded(
-                                      child: Text(item['location'] ?? '', style: TextStyle(fontSize: 11, color: textSecondary), overflow: TextOverflow.ellipsis),
+                                      child: Text(item['location'] ?? '', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textSecondary), overflow: TextOverflow.ellipsis),
                                     ),
                                   ],
                                 ),

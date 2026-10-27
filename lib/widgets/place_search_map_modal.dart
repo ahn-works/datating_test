@@ -413,8 +413,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                 lat: _selectedLatLng.latitude,
                 lng: _selectedLatLng.longitude,
                 locationName: _selectedPlaceName,
-                height: 200,
-              ),
+                height: 200, hideActions: true,
+            ),
             ),
           ),
 

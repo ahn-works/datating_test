@@ -44,8 +44,8 @@ class MiddleSpotMapScreen extends StatelessWidget {
                 KakaoMapView(
                   lat: lat,
                   lng: lng,
-                  locationName: spotName,
-                ),
+                  locationName: spotName, hideActions: true,
+            ),
                 // 상단 안내 뱃지
                 Positioned(
                   top: 16,
