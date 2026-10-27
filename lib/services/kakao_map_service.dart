@@ -68,15 +68,14 @@ class KakaoMapService {
     'User-Agent': 'OOMUSpotApp/1.0 (Android; iOS; Web)',
   };
 
-  /// 1. 카카오 키워드 장소 검색 API (dapi.kakao.com/v2/local/search/keyword.json)
-  static Future<List<KakaoPlace>> searchKeyword(
-    String query, {
+  static Future<List<KakaoPlace>> _fetchKeyword(
+    String q, {
     double? lat,
     double? lng,
     int? radius,
     int size = 15,
   }) async {
-    final clean = query.trim();
+    final clean = q.trim();
     if (clean.isEmpty) return [];
 
     try {
@@ -93,12 +92,56 @@ class KakaoMapService {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
         return docs.map((doc) => KakaoPlace.fromKakaoJson(doc as Map<String, dynamic>)).toList();
-      } else {
-        debugPrint('[KakaoMapService] searchKeyword error ${res.statusCode}: ${res.body}');
       }
-    } catch (e) {
-      debugPrint('[KakaoMapService] searchKeyword exception: $e');
+    } catch (_) {}
+    return [];
+  }
+
+  /// 1. 카카오 키워드 장소 검색 API (dapi.kakao.com/v2/local/search/keyword.json) - 자연어 스마트 폴백 포함
+  static Future<List<KakaoPlace>> searchKeyword(
+    String query, {
+    double? lat,
+    double? lng,
+    int? radius,
+    int size = 15,
+  }) async {
+    final clean = query.trim();
+    if (clean.isEmpty) return [];
+
+    // 1차: 원본 검색
+    var list = await _fetchKeyword(clean, lat: lat, lng: lng, radius: radius, size: size);
+    if (list.isNotEmpty) return list;
+
+    // 2차: 한국어 말끝 노이즈 단어 제거 (앞, 근처, 인근, 일대, 주변, 맞은편, 건너편, 부근, 쪽, 내부, 출구 앞 등)
+    final cleaned = clean.replaceAll(RegExp(r'\s*(앞|근처|인근|일대|주변|맞은편|건너편|부근|쪽|내부|출구\s*앞)$'), '').trim();
+    if (cleaned.isNotEmpty && cleaned != clean) {
+      list = await _fetchKeyword(cleaned, lat: lat, lng: lng, radius: radius, size: size);
+      if (list.isNotEmpty) return list;
     }
+
+    // 3차: 주소 검색 API 시도 (도로명/지번)
+    final addrList = await searchAddress(cleaned.isNotEmpty ? cleaned : clean, size: size);
+    if (addrList.isNotEmpty) return addrList;
+
+    // 4차: 시/도/구 행정구역 접두어 분리 검색
+    final sub = cleaned.replaceAll(RegExp(r'^(서울(특별시)?|경기(도)?|인천(광역시)?|부산(광역시)?|전남|전북|경남|경북|충남|충북|강원(특별자치도)?|제주(특별자치도)?)\s*([가-힣]+(구|시|군))\s*'), '').trim();
+    if (sub.isNotEmpty && sub != cleaned) {
+      list = await _fetchKeyword(sub, lat: lat, lng: lng, radius: radius, size: size);
+      if (list.isNotEmpty) return list;
+    }
+
+    // 5차: 2개 핵심 키워드 분리 검색
+    final words = cleaned.split(RegExp(r'[\s·,>]+')).where((w) => w.length > 1 && !['일대', '근처', '인접', '주변', '모임'].contains(w)).toList();
+    if (words.length >= 2) {
+      list = await _fetchKeyword('${words[0]} ${words[1]}', lat: lat, lng: lng, radius: radius, size: size);
+      if (list.isNotEmpty) return list;
+    }
+
+    if (words.isNotEmpty) {
+      list = await _fetchKeyword(words.first, lat: lat, lng: lng, radius: radius, size: size);
+      if (list.isNotEmpty) return list;
+    }
+
     return [];
   }
 

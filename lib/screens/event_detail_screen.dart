@@ -1,3 +1,4 @@
+import '../services/kakao_map_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import 'soso_car_host_screen.dart';
@@ -164,18 +165,17 @@ class EventDetailScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            OutlinedButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('🗺️ $location 지도 및 길찾기로 연결합니다.')),
-                                );
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: coralAccent),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            ElevatedButton.icon(
+                              onPressed: () => KakaoMapService.launchDirections(location),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFEE500),
+                                foregroundColor: const Color(0xFF191919),
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
-                              child: Text('지도보기', style: TextStyle(fontSize: 11, color: coralAccent, fontWeight: FontWeight.bold)),
+                              icon: const Icon(Icons.directions_rounded, size: 14),
+                              label: const Text('카카오 길찾기', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),

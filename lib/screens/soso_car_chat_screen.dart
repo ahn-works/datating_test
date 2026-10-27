@@ -2680,15 +2680,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   width: double.infinity,
                   height: 36,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('🗺️ $spotName 지도 및 길찾기로 연결합니다.')),
-                      );
-                    },
-                    icon: const Icon(Icons.map_rounded, size: 14, color: Colors.white),
-                    label: const Text('지도 · 길찾기 연동', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                    onPressed: () => KakaoMapService.launchDirections(spotName),
+                    icon: const Icon(Icons.directions_rounded, size: 14, color: Color(0xFF191919)),
+                    label: const Text('카카오 길찾기 연동', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF191919))),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D9488),
+                      backgroundColor: const Color(0xFFFEE500),
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),

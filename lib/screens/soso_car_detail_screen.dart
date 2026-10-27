@@ -61,6 +61,18 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   void initState() {
     super.initState();
     _isFavorite = globalData.isFavorite(widget.meetup?['id'] ?? widget.meetup?['title']);
+    
+    // meetup 데이터 내 좌표 우선 적용
+    final m = widget.meetup;
+    if (m != null) {
+      final latVal = double.tryParse(m['lat']?.toString() ?? m['latitude']?.toString() ?? '');
+      final lngVal = double.tryParse(m['lng']?.toString() ?? m['longitude']?.toString() ?? '');
+      if (latVal != null && latVal > 0 && lngVal != null && lngVal > 0) {
+        _targetLat = latVal;
+        _targetLng = lngVal;
+      }
+    }
+    
     _resolveLocationAndDistance();
   }
 
@@ -879,10 +891,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               child: Stack(
                                 children: [
                                   KakaoMapView(
+                                    key: ValueKey('kakao-detail-$_targetLat-$_targetLng'),
                                     lat: _targetLat,
                                     lng: _targetLng,
                                     locationName: locName,
                                     height: 180,
+                                    hideActions: true,
                                   ),
                                   // 상단 우측 지도 크게보기 오버레이 버튼
                                   Positioned(

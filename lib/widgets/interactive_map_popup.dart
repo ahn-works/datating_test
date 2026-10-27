@@ -57,6 +57,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                 locationName: widget.locationName,
                 height: double.infinity,
                 width: double.infinity,
+                hideActions: true,
               ),
             ),
 
