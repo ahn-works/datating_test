@@ -14,9 +14,22 @@ import urllib.request
 from datetime import datetime, timezone
 
 FIRESTORE_PROJECT = os.environ.get("FIRESTORE_PROJECT", "test-b54fc")
-FIRESTORE_WEB_KEY = os.environ.get("FIRESTORE_WEB_KEY", "AIzaSyDWOPC60MA39jq2HAVg6UpKnLB5DalDu7U")
+FIRESTORE_WEB_KEY = os.environ.get("FIRESTORE_WEB_KEY", "")
 BASE_URL = f"https://firestore.googleapis.com/v1/projects/{FIRESTORE_PROJECT}/databases/(default)/documents"
 USER_AGENT = "OOMU-Automation-Agent/2.0 (GitHubActions; Python 3.11)"
+
+
+def _make_url(path, query_params=None):
+    """Builds a Firestore REST API URL, cleanly attaching key and query parameters if present."""
+    params = {}
+    if FIRESTORE_WEB_KEY:
+        params["key"] = FIRESTORE_WEB_KEY
+    if query_params:
+        params.update(query_params)
+    query_str = urllib.parse.urlencode(params)
+    if query_str:
+        return f"{BASE_URL}/{path.lstrip('/')}?{query_str}"
+    return f"{BASE_URL}/{path.lstrip('/')}"
 
 
 def python_to_firestore_value(val):
@@ -97,7 +110,7 @@ def dict_to_document_fields(data):
 
 def get_document(collection_path, doc_id):
     """Retrieves a single Firestore document by collection and ID."""
-    url = f"{BASE_URL}/{collection_path}/{doc_id}?key={FIRESTORE_WEB_KEY}"
+    url = _make_url(f"{collection_path}/{doc_id}")
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
@@ -111,7 +124,7 @@ def get_document(collection_path, doc_id):
 
 def list_documents(collection_path, page_size=100):
     """Lists documents in a collection."""
-    url = f"{BASE_URL}/{collection_path}?key={FIRESTORE_WEB_KEY}&pageSize={page_size}"
+    url = _make_url(collection_path, {"pageSize": page_size})
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(req, timeout=20) as resp:
@@ -125,7 +138,7 @@ def list_documents(collection_path, page_size=100):
 
 def set_document(collection_path, doc_id, data, merge=True):
     """Creates or overwrites/merges a document in Firestore."""
-    url = f"{BASE_URL}/{collection_path}/{doc_id}?key={FIRESTORE_WEB_KEY}"
+    url = _make_url(f"{collection_path}/{doc_id}")
     fields = dict_to_document_fields(data)
     body = {"fields": fields}
     post_bytes = json.dumps(body).encode("utf-8")
@@ -144,7 +157,7 @@ def set_document(collection_path, doc_id, data, merge=True):
 
 def create_document(collection_path, data):
     """Creates a document in a collection with an auto-generated ID."""
-    url = f"{BASE_URL}/{collection_path}?key={FIRESTORE_WEB_KEY}"
+    url = _make_url(collection_path)
     fields = dict_to_document_fields(data)
     body = {"fields": fields}
     post_bytes = json.dumps(body).encode("utf-8")
@@ -162,7 +175,7 @@ def create_document(collection_path, data):
 
 def delete_document(collection_path, doc_id):
     """Deletes a document from Firestore."""
-    url = f"{BASE_URL}/{collection_path}/{doc_id}?key={FIRESTORE_WEB_KEY}"
+    url = _make_url(f"{collection_path}/{doc_id}")
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="DELETE")
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
