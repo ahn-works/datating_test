@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'profile_setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -359,6 +360,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // 6. 휴대폰 번호 SMS 인증 바텀시트
+  void _showPhoneAuthModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => _PhoneAuthSheet(
+        onSuccess: () {
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🎉 휴대폰 번호 인증이 완료되었습니다! 환영합니다.'),
+              backgroundColor: Color(0xFFF25767),
+            ),
+          );
+          _navigateHome();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -475,7 +500,36 @@ class _LoginScreenState extends State<LoginScreen> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 1. 카카오로 시작하기 (실제 작동하는 동적 로그인)
+                  // 1. 휴대폰 번호로 시작하기 (실제 SMS OTP 전송)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _showPhoneAuthModal,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: brandCoral,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.smartphone_rounded, size: 20, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            '휴대폰 번호로 시작하기',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 2. 카카오로 시작하기
                   SizedBox(
                     width: double.infinity,
                     height: 52,
@@ -799,6 +853,290 @@ class _EmailAuthSheetState extends State<_EmailAuthSheet> {
                       ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PhoneAuthSheet extends StatefulWidget {
+  final VoidCallback onSuccess;
+
+  const _PhoneAuthSheet({required this.onSuccess});
+
+  @override
+  State<_PhoneAuthSheet> createState() => _PhoneAuthSheetState();
+}
+
+class _PhoneAuthSheetState extends State<_PhoneAuthSheet> {
+  final _phoneController = TextEditingController();
+  final _otpController = TextEditingController();
+
+  bool _isCodeSent = false;
+  bool _isLoading = false;
+  String? _verificationId;
+  String _errorMessage = '';
+
+  int _timerSeconds = 180;
+  Timer? _timer;
+
+  void _startTimer() {
+    _timer?.cancel();
+    setState(() => _timerSeconds = 180);
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_timerSeconds > 0) {
+        if (mounted) setState(() => _timerSeconds--);
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _phoneController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  String get _formattedTimer {
+    final minutes = (_timerSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_timerSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  Future<void> _sendCode() async {
+    final rawPhone = _phoneController.text.trim();
+    if (rawPhone.isEmpty || rawPhone.replaceAll(RegExp(r'[^0-9]'), '').length < 10) {
+      setState(() => _errorMessage = '올바른 휴대폰 번호(10~11자리)를 입력해 주세요.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    await authService.sendPhoneSmsCode(
+      rawPhone: rawPhone,
+      onCodeSent: (vId) {
+        if (mounted) {
+          setState(() {
+            _verificationId = vId;
+            _isCodeSent = true;
+            _isLoading = false;
+          });
+          _startTimer();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('📱 SMS 인증번호가 전송되었습니다! 문자를 확인해 주세요.'),
+              backgroundColor: Color(0xFFF25767),
+            ),
+          );
+        }
+      },
+      onError: (msg) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = msg;
+            _isLoading = false;
+          });
+        }
+      },
+    );
+  }
+
+  Future<void> _verifyCode() async {
+    final smsCode = _otpController.text.trim();
+    if (smsCode.length < 6) {
+      setState(() => _errorMessage = '6자리 인증번호를 정확히 입력해 주세요.');
+      return;
+    }
+    if (_verificationId == null) {
+      setState(() => _errorMessage = '인증번호를 먼저 발송받아 주세요.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      await authService.verifyPhoneSmsCodeAndSignIn(
+        verificationId: _verificationId!,
+        smsCode: smsCode,
+        rawPhone: _phoneController.text.trim(),
+      );
+      if (mounted) {
+        setState(() => _isLoading = false);
+        widget.onSuccess();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '인증번호가 일치하지 않거나 만료되었습니다. ($e)';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const Color brandCoral = Color(0xFFF25767);
+    const Color surfaceColor = Color(0xFFF7F7FA);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E5EA),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: brandCoral.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.smartphone_rounded, size: 22, color: brandCoral),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  '휴대폰 번호로 인증',
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '입력하신 휴대폰 번호로 SMS 인증번호 6자리가 발송됩니다.',
+              style: TextStyle(fontSize: 13, color: Color(0xFF767676)),
+            ),
+            const SizedBox(height: 20),
+
+            // 1. 휴대폰 번호 입력칸 + 발송 버튼
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _phoneController,
+                    enabled: !_isCodeSent || _timerSeconds == 0,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      hintText: '휴대폰 번호 (예: 01012345678)',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _sendCode,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isCodeSent ? const Color(0xFF111111) : brandCoral,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      _isCodeSent ? '재발송' : '인증요청',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // 2. 인증번호 6자리 입력칸 (발송 완료시 나타남)
+            if (_isCodeSent) ...[
+              const SizedBox(height: 14),
+              Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  TextField(
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: InputDecoration(
+                      hintText: '인증번호 6자리 입력',
+                      counterText: '',
+                      filled: true,
+                      fillColor: surfaceColor,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Text(
+                      _formattedTimer,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: _timerSeconds > 30 ? brandCoral : Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            if (_errorMessage.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                _errorMessage,
+                style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ],
+
+            const SizedBox(height: 24),
+
+            if (_isCodeSent)
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _verifyCode,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: brandCoral,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text(
+                          '인증 확인 및 시작하기',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                ),
+              ),
           ],
         ),
       ),

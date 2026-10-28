@@ -77,19 +77,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _syncUserStates() {
+  void _syncUserStates() {
     try {
-      final myUid = globalData.activeUserId;
-      FirebaseFirestore.instance
-          .collection('user_states')
-          .doc(myUid)
-          .snapshots()
-          .listen((snap) {
-        if (mounted) setState(() {});
-      });
-      if (myUid != 'user_me_01') {
+      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
+      if (myUid.isNotEmpty) {
         FirebaseFirestore.instance
             .collection('user_states')
-            .doc('user_me_01')
+            .doc(myUid)
             .snapshots()
             .listen((snap) {
           if (mounted) setState(() {});
@@ -132,9 +126,15 @@ class _ChatScreenState extends State<ChatScreen> {
     // 2. Firestore 저장소 대화방 오버레이 및 추가 (신규 개설 모임 포함)
     if (firestoreDocs != null) {
       for (var doc in firestoreDocs) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data() as Map<String, dynamic>?;
+        if (data == null) continue;
+
         final rawId = data['id']?.toString() ?? doc.id;
         final cId = oomuChatStore.canonicalRoomId(rawId);
+
+        // 빈 데이터 오버레이 방지 (유효한 방 이름이 없을 경우)
+        final String? title = data['title'];
+        if (title == null || title.trim().isEmpty) continue;
 
         DateTime? firestoreTime;
         if (data['updatedAt'] is Timestamp) {
@@ -142,8 +142,8 @@ class _ChatScreenState extends State<ChatScreen> {
         }
 
         if (map.containsKey(cId)) {
-          if (data['title'] != null && (data['title'] as String).isNotEmpty) {
-            map[cId]!['title'] = data['title'];
+          if (title.isNotEmpty) {
+            map[cId]!['title'] = title;
           }
           if (data['lastMessage'] != null && (data['lastMessage'] as String).isNotEmpty) {
             map[cId]!['lastMessage'] = data['lastMessage'];
@@ -154,19 +154,23 @@ class _ChatScreenState extends State<ChatScreen> {
           if (data['members'] != null) {
             map[cId]!['members'] = data['members'];
           }
+          if (data['leftUserIds'] != null) {
+            map[cId]!['leftUserIds'] = data['leftUserIds'];
+          }
           if (firestoreTime != null) {
             map[cId]!['updatedAt'] = firestoreTime;
           }
         } else {
           map[cId] = {
             'id': cId,
-            'title': data['title'] ?? '새 모임 대화방',
+            'title': title,
             'lastMessage': data['lastMessage'] ?? '모임 대화방이 개설되었습니다.',
             'time': data['time'] ?? '방금',
             'unread': 0,
             'members': data['members'] ?? 1,
             'imageUrl': data['imageUrl'] ?? 'assets/images/cover_food.jpg',
             'isGroup': data['isGroup'] ?? true,
+            'leftUserIds': data['leftUserIds'],
             'updatedAt': firestoreTime ?? DateTime.now(),
           };
         }
@@ -196,9 +200,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final list = map.values.where((r) {
       final rid = r['id']?.toString() ?? '';
       if (oomuChatStore.isRoomLeft(rid)) return false;
+
       final leftUsers = List<dynamic>.from(r['leftUserIds'] ?? []);
-      final myUid = globalData.activeUserId;
-      if (leftUsers.contains(myUid) || leftUsers.contains('user_me_01')) return false;
+      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
+      if (myUid.isNotEmpty && leftUsers.contains(myUid)) return false;
+
       return true;
     }).toList();
     list.sort((a, b) {

@@ -240,6 +240,87 @@ class AuthService {
     globalData.userNickname.value = '게스트';
   }
 
+  // 8. 휴대폰 번호 SMS 인증번호 발송 (Firebase Phone Auth)
+  Future<void> sendPhoneSmsCode({
+    required String rawPhone,
+    required Function(String verificationId) onCodeSent,
+    required Function(String errorMessage) onError,
+  }) async {
+    try {
+      String cleanDigits = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
+      if (cleanDigits.length < 10) {
+        onError('올바른 10~11자리 휴대폰 번호를 입력해 주세요.');
+        return;
+      }
+      String formattedE164 = cleanDigits;
+      if (cleanDigits.startsWith('0')) {
+        formattedE164 = '+82${cleanDigits.substring(1)}';
+      } else if (!cleanDigits.startsWith('+')) {
+        formattedE164 = '+82$cleanDigits';
+      }
+
+      await _auth.verifyPhoneNumber(
+        phoneNumber: formattedE164,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          try {
+            final userCred = await _auth.signInWithCredential(credential);
+            if (userCred.user != null) {
+              await _syncUserWithFirestore(
+                userCred.user!,
+                provider: 'phone',
+                extraData: {
+                  'phone': rawPhone,
+                  'isPhoneVerified': true,
+                },
+              );
+            }
+          } catch (_) {}
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          debugPrint('[AuthService] Phone verify failed: ${e.code} ${e.message}');
+          String message = '인증번호 발송 실패 (${e.code})';
+          if (e.code == 'invalid-phone-number') {
+            message = '유효하지 않은 휴대폰 번호 형식입니다.';
+          } else if (e.code == 'too-many-requests') {
+            message = '인증 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+          }
+          onError(message);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          onCodeSent(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    } catch (e) {
+      onError('SMS 발송 중 오류가 발생했습니다: $e');
+    }
+  }
+
+  // 9. 휴대폰 SMS 인증번호 검증 및 로그인 완료
+  Future<UserCredential> verifyPhoneSmsCodeAndSignIn({
+    required String verificationId,
+    required String smsCode,
+    required String rawPhone,
+  }) async {
+    final credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode.trim(),
+    );
+    final userCredential = await _auth.signInWithCredential(credential);
+    if (userCredential.user != null) {
+      await _syncUserWithFirestore(
+        userCredential.user!,
+        provider: 'phone',
+        extraData: {
+          'phone': rawPhone,
+          'isPhoneVerified': true,
+        },
+      );
+    }
+    return userCredential;
+  }
+
   // Firestore 사용자 문서 동기화
   Future<void> _syncUserWithFirestore(
     User user, {
@@ -262,6 +343,13 @@ class AuthService {
       final String initialNickname = customNickname ?? (isAdminEmail ? '오오무 총괄운영자' : (user.displayName ?? '우리동네이웃'));
       final String initialName = customName ?? (isAdminEmail ? '안대표' : '회원');
       final String initialRole = isAdminEmail ? 'admin' : 'user';
+      final String initialGender = customGender ?? (isAdminEmail ? '여성' : '남성');
+
+      // 구글/카카오 계정의 원본 프로필 사진 URL 우선 적용
+      final String? authPhotoUrl = user.photoURL;
+      final String defaultPhoto = (authPhotoUrl != null && authPhotoUrl.isNotEmpty)
+          ? authPhotoUrl
+          : (initialGender == '여성' ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg');
 
       await docRef.set({
         'userId': uid,
@@ -270,7 +358,7 @@ class AuthService {
         'name': initialName,
         'nickname': initialNickname,
         'age': customAge ?? (isAdminEmail ? 29 : 27),
-        'gender': customGender ?? (isAdminEmail ? '여성' : '남성'),
+        'gender': initialGender,
         'location': '서울 마포구 연남동',
         'job': isAdminEmail ? 'OOMU 총괄 기획/운영' : 'IT/기획',
         'mbti': isAdminEmail ? 'ENFJ' : 'ENFP',
@@ -280,8 +368,9 @@ class AuthService {
         'bio': isAdminEmail
             ? '어색한 1:1 만남 대신 재밌는 모임에서 시작하는 우리 동네 무드 OOMU 총괄 운영자 계정입니다 🌿'
             : '안녕하세요! 새로운 동네 친구 만나러 왔어요 😊',
-        'photoUrl': isAdminEmail ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg',
-        'avatarUrl': isAdminEmail ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg',
+        'photoUrl': defaultPhoto,
+        'avatarUrl': defaultPhoto,
+        'photoUrls': [defaultPhoto],
         'mannerTemp': isAdminEmail ? 48.5 : 36.5,
         'isVerified': isAdminEmail,
         'isProfileComplete': isAdminEmail,

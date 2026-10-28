@@ -53,7 +53,6 @@ class OOMUChatStore extends ChangeNotifier {
         }).catchError((_) {});
       }
       loadFromDoc(myUid);
-      if (myUid != 'user_me_01') loadFromDoc('user_me_01');
 
       void listenToDoc(String docId) {
         FirebaseFirestore.instance
@@ -76,7 +75,6 @@ class OOMUChatStore extends ChangeNotifier {
         }, onError: (_) {});
       }
       listenToDoc(myUid);
-      if (myUid != 'user_me_01') listenToDoc('user_me_01');
     } catch (_) {}
   }
 
@@ -103,30 +101,27 @@ class OOMUChatStore extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final myUid = globalData.activeUserId;
-      // 1. Persist to current user's state in Firestore
+      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
+      if (myUid.isEmpty) return;
+
+      // 1. 현재 사용자의 user_states 문서에 나간 방 ID 저장
       await FirebaseFirestore.instance.collection('user_states').doc(myUid).set({
         'leftRoomIds': FieldValue.arrayUnion([cId, roomId]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-      if (myUid != 'user_me_01') {
-        await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
-          'leftRoomIds': FieldValue.arrayUnion([cId, roomId]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
 
-      // 2. Mark user in chatRooms collection
+      // 2. chatRooms 컬렉션의 해당 대화방 문서에서 leftUserIds 추가 및 participants 제거
       await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
-        'leftUserIds': FieldValue.arrayUnion([myUid, 'user_me_01']),
+        'leftUserIds': FieldValue.arrayUnion([myUid]),
+        'participants': FieldValue.arrayRemove([myUid]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      // 3. If it is a meetup in meetups collection, update participants
+      // 3. meetups 컬렉션 모임일 경우 participants 목록에서 제거
       final meetupDoc = await FirebaseFirestore.instance.collection('meetups').doc(cId).get();
       if (meetupDoc.exists) {
         await FirebaseFirestore.instance.collection('meetups').doc(cId).update({
-          'participants': FieldValue.arrayRemove([myUid, 'user_me_01']),
+          'participants': FieldValue.arrayRemove([myUid]),
         });
       }
     } catch (e) {
@@ -141,20 +136,17 @@ class OOMUChatStore extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final myUid = globalData.activeUserId;
+      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
+      if (myUid.isEmpty) return;
+
       await FirebaseFirestore.instance.collection('user_states').doc(myUid).set({
         'leftRoomIds': FieldValue.arrayRemove([cId, roomId]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-      if (myUid != 'user_me_01') {
-        await FirebaseFirestore.instance.collection('user_states').doc('user_me_01').set({
-          'leftRoomIds': FieldValue.arrayRemove([cId, roomId]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
 
       await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
-        'leftUserIds': FieldValue.arrayRemove([myUid, 'user_me_01']),
+        'leftUserIds': FieldValue.arrayRemove([myUid]),
+        'participants': FieldValue.arrayUnion([myUid]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
