@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/oomu_ui_helpers.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final String userName;
@@ -23,7 +24,6 @@ class UserProfileScreen extends StatelessWidget {
     this.userTags,
     this.isSelf = false,
   });
-
 
   void _showReportBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -57,7 +57,7 @@ class UserProfileScreen extends StatelessWidget {
             ],
           ),
         );
-      }
+      },
     );
   }
 
@@ -90,7 +90,7 @@ class UserProfileScreen extends StatelessWidget {
             },
           )).toList(),
         ),
-      )
+      ),
     );
   }
 
@@ -109,21 +109,21 @@ class UserProfileScreen extends StatelessWidget {
               Navigator.pop(ctx);
               globalData.blockUser(userName);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('🚫 $userName님이 차단되었습니다. 모든 게시글과 대화가 즉시 숨김 처리됩니다.'), backgroundColor: Colors.redAccent));
-              Navigator.pop(context); 
-            }, 
-            child: const Text('차단하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+              Navigator.pop(context);
+            },
+            child: const Text('차단하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
-        ]
-      )
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color textPrimary = const Color(0xFF111111);
-    final Color textSecondary = const Color(0xFF767676);
-    final Color surfaceColor = const Color(0xFFFAF6F7);
-    final Color accentColor = const Color(0xFFF25767);
+    final Color textPrimary = OomuUiHelpers.textPrimary;
+    final Color textSecondary = OomuUiHelpers.textSecondary;
+    final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
+    final Color accentColor = OomuUiHelpers.brandCoral;
 
     // 3인 페르소나 데이터 사전 정의
     final personaMap = {
@@ -161,7 +161,8 @@ class UserProfileScreen extends StatelessWidget {
     final displayLocation = userLocation ?? (resolvedData['location'] as String?) ?? '마포구 서교동';
     final displayBio = userBio ?? (resolvedData['bio'] as String?) ?? '안녕하세요! OOMU에서 취향이 맞는 동네 친구들을 만나고 싶어요 ✨';
     final displayAvatar = userAvatar ?? (resolvedData['avatar'] as String?) ?? 'assets/images/kr_female_1.jpg';
-    final displayManner = userManner ?? (resolvedData['manner'] as double?) ?? 37.0;
+    final double? displayManner = userManner ?? OomuUiHelpers.parseMannerValue(resolvedData['manner']);
+    final Color mannerColor = OomuUiHelpers.mannerTempColor(displayManner);
     final displayJob = (resolvedData['job'] as String?) ?? 'IT/콘텐츠 기획';
     final displayTags = userTags ?? (resolvedData['tags'] as List<String>?) ?? ['#동네친구', '#취향공유', '#소소한일상'];
 
@@ -176,7 +177,6 @@ class UserProfileScreen extends StatelessWidget {
             backgroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
-
             actions: isSelf
                 ? const []
                 : [
@@ -199,36 +199,40 @@ class UserProfileScreen extends StatelessWidget {
                       appNetImage('assets/images/kr_female_1.jpg', fit: BoxFit.cover),
                     ],
                   ),
-                  // Gradient for better text readability
                   Positioned(
-                    bottom: 0, left: 0, right: 0,
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
                     height: 160,
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
                           colors: [Colors.black.withOpacity(0.8), Colors.transparent],
                         ),
                       ),
                     ),
                   ),
-                  // Name and Basic Info Overlay
                   Positioned(
-                    bottom: 24, left: 24, right: 24,
+                    bottom: 24,
+                    left: 24,
+                    right: 24,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 6,
                           children: [
-                            Text(userName, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
-                            const SizedBox(width: 8),
-                            Text(displayAge, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w400, color: Colors.white)),
-                            const SizedBox(width: 12),
+                            Text(userName, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white)),
+                            Text(displayAge, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400, color: Colors.white)),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(color: accentColor, borderRadius: BorderRadius.circular(6)),
                               child: const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.verified, color: Colors.white, size: 12),
                                   SizedBox(width: 4),
@@ -236,11 +240,11 @@ class UserProfileScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(color: const Color(0xFF4A90E2), borderRadius: BorderRadius.circular(6)),
                               child: const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.work, color: Colors.white, size: 12),
                                   SizedBox(width: 4),
@@ -248,18 +252,18 @@ class UserProfileScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(color: const Color(0xFF34C759), borderRadius: BorderRadius.circular(6)),
                               child: const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.school, color: Colors.white, size: 12),
                                   SizedBox(width: 4),
                                   Text('홍대졸업', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                                 ],
                               ),
-                            )
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -267,7 +271,13 @@ class UserProfileScreen extends StatelessWidget {
                           children: [
                             const Icon(Icons.location_on, color: Colors.white, size: 16),
                             const SizedBox(width: 4),
-                            Text('$displayLocation · 동네 이웃', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500)),
+                            Expanded(
+                              child: Text(
+                                '$displayLocation · 동네 이웃',
+                                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -275,12 +285,18 @@ class UserProfileScreen extends StatelessWidget {
                           children: [
                             const Icon(Icons.work, color: Colors.white70, size: 16),
                             const SizedBox(width: 4),
-                            Text(displayJob, style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w500)),
+                            Expanded(
+                              child: Text(
+                                displayJob,
+                                style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w500),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -293,7 +309,7 @@ class UserProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Manner Temp
+                  // Manner Temp (동일 사용자·동일 매너온도 기준)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
@@ -308,9 +324,16 @@ class UserProfileScreen extends StatelessWidget {
                         Text('매너 온도', style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 16)),
                         Row(
                           children: [
-                            Text('${displayManner.toStringAsFixed(1)}°C', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: accentColor)),
+                            Text(
+                              OomuUiHelpers.formatMannerTemp(displayManner, shortEmpty: false),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: displayManner == null ? 14 : 18,
+                                color: mannerColor,
+                              ),
+                            ),
                             const SizedBox(width: 4),
-                            Icon(Icons.thermostat, color: accentColor, size: 20),
+                            Icon(Icons.thermostat, color: mannerColor, size: 20),
                           ],
                         ),
                       ],
@@ -322,7 +345,8 @@ class UserProfileScreen extends StatelessWidget {
                   Text('기본 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
                   const SizedBox(height: 16),
                   Wrap(
-                    spacing: 8, runSpacing: 12,
+                    spacing: 8,
+                    runSpacing: 12,
                     children: [
                       _buildProfileTag('🎓', '서울 상위권 대학교', surfaceColor, textPrimary),
                       _buildProfileTag('📏', '178cm', surfaceColor, textPrimary),
@@ -346,13 +370,14 @@ class UserProfileScreen extends StatelessWidget {
                   Text('관심사 / 취향', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
                   const SizedBox(height: 16),
                   Wrap(
-                    spacing: 8, runSpacing: 10,
+                    spacing: 8,
+                    runSpacing: 10,
                     children: displayTags.map((hobby) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white, 
-                        borderRadius: BorderRadius.circular(20), 
-                        border: Border.all(color: const Color(0xFFEBEBEF))
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFEBEBEF)),
                       ),
                       child: Text(hobby, style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
                     )).toList(),
@@ -391,7 +416,9 @@ class UserProfileScreen extends StatelessWidget {
                     Expanded(
                       flex: 1,
                       child: OutlinedButton(
-                        onPressed: () { Navigator.pop(context); },
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: const BorderSide(color: Color(0xFFEBEBEF), width: 1.5),
@@ -405,8 +432,7 @@ class UserProfileScreen extends StatelessWidget {
                       flex: 3,
                       child: ElevatedButton(
                         onPressed: () {
-                           // TODO: Send Like logic
-                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('호감을 보냈습니다!')));
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('호감을 보냈습니다!')));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,

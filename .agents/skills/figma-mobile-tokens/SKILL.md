@@ -15,16 +15,15 @@ license: MIT
 
 ```dart
 class OomuTokens {
-  // 1. Color Tokens
-  static const Color primary = Color(0xFFFF6B4A);       // 선셋 코랄
-  static const Color primaryLight = Color(0xFFFFF4EB);  // 코랄 파스텔 틴트
-  static const Color secondary = Color(0xFF0F172A);     // 트러스트 네이비
-  static const Color background = Color(0xFFFAF6F7);    // 오트밀 로즈 크림
+  // 1. Color Tokens (docs/OOMU_UI_GUIDE.md 단일 기준)
+  static const Color primary = Color(0xFFF25767);       // 코랄 로즈
+  static const Color primaryLight = Color(0xFFFFF0F2);  // 로즈 파스텔 틴트
+  static const Color background = Color(0xFFFAF6F7);    // 소프트 로즈 크림
   static const Color surface = Color(0xFFFFFFFF);       // 순백 카드 표면
-  static const Color textMain = Color(0xFF0F172A);      // 본문 메인 텍스트
-  static const Color textSub = Color(0xFF64748B);       // 서브 라벨 / 날짜
-  static const Color border = Color(0xFFE2E8F0);        // 1px 정밀 보더
-  static const Color verified = Color(0xFF10B981);      // 세이지 에메랄드 인증
+  static const Color textMain = Color(0xFF202124);      // 본문 메인 텍스트
+  static const Color textSub = Color(0xFF667085);       // 서브 라벨 / 날짜
+  static const Color border = Color(0xFFE7E9ED);        // 1px 정밀 보더
+  static const Color verified = Color(0xFF0D9488);      // 딥 틸 인증/거리
 
   // 2. 8dp Grid Spacing Tokens
   static const double space4 = 4.0;
@@ -35,10 +34,11 @@ class OomuTokens {
   static const double space24 = 24.0;
   static const double space32 = 32.0;
 
-  // 3. Border Radius Tokens
+  // 3. Border Radius Tokens (docs/OOMU_UI_GUIDE.md 기준)
   static const double radiusSmall = 8.0;
-  static const double radiusMedium = 14.0;
-  static const double radiusLarge = 20.0;
+  static const double radiusMedium = 12.0; // 버튼/인풋
+  static const double radiusLarge = 16.0;  // 카드 표면
+  static const double radiusSheet = 24.0;  // 바텀시트
   static const double radiusPill = 999.0;
 
   // 4. Mobile Touch Target
@@ -46,10 +46,10 @@ class OomuTokens {
 }
 ```
 
-## 3. 타이포그래피 스케일 (Pretendard TextTheme)
-- **Display**: 22sp / Bold / Height 1.3 / LetterSpacing -0.5
-- **Heading**: 18sp / Bold / Height 1.3 / LetterSpacing -0.3
-- **Subheading**: 15sp / SemiBold / Height 1.4 / LetterSpacing -0.2
-- **Body**: 14sp / Regular / Height 1.5 / LetterSpacing 0.0
-- **Caption**: 12sp / Medium / Height 1.4 / LetterSpacing 0.0
-- **규칙**: 한글 어색한 단어 잘림 방지를 위해 `wordBreak: WordBreak.keepAll`을 전체 텍스트 스타일에 전역 적용합니다.
+## 3. 타이포그래피 스케일 (`docs/OOMU_UI_GUIDE.md` 기준)
+- **Display**: 20~22sp / Bold / Height 1.3~1.38
+- **Heading / Host**: 17~18sp / SemiBold~Bold / Height 1.35~1.4
+- **Subheading / Card Title**: 16~17sp / SemiBold~Bold / Height 1.35~1.4
+- **Body**: 15~16sp / Regular~Medium / Height 1.5~1.6
+- **Caption / Meta**: 13~14sp / Medium / Height 1.35
+- **규칙**: Flutter `Text`에 존재하지 않는 `wordBreak: WordBreak.keepAll`은 사용하지 않으며, 공식 `Text` API(`softWrap`, `overflow`, `maxLines`)와 grapheme cluster 보존 원칙을 준수합니다.

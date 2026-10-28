@@ -3,8 +3,6 @@ import '../widgets/kakao_map_view.dart';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
-import 'package:latlong2/latlong.dart';
-import '../widgets/interactive_map_popup.dart';
 import '../widgets/place_search_map_modal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -64,6 +62,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     if (widget.initialLat != null && widget.initialLng != null) {
       _selectedPlaceLat = widget.initialLat;
       _selectedPlaceLng = widget.initialLng;
+      _selectedPlaceResolvedName = widget.initialLocation?.trim();
     } else if (widget.initialLocation != null && widget.initialLocation!.isNotEmpty) {
       _autoResolveLocation(widget.initialLocation!);
     }
@@ -71,11 +70,12 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
 
   Future<void> _autoResolveLocation(String query) async {
     try {
-      final results = await KakaoMapService.searchKeyword(query, size: 1);
-      if (results.isNotEmpty && mounted) {
+      final resolved = await KakaoMapService.resolveVerifiedPlace(query);
+      if (resolved != null && mounted && _locationController.text.trim() == query.trim()) {
         setState(() {
-          _selectedPlaceLat = results.first.lat;
-          _selectedPlaceLng = results.first.lng;
+          _selectedPlaceLat = resolved.lat;
+          _selectedPlaceLng = resolved.lng;
+          _selectedPlaceResolvedName = query.trim();
         });
       }
     } catch (_) {}
@@ -83,6 +83,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
 
   double? _selectedPlaceLat;
   double? _selectedPlaceLng;
+  String? _selectedPlaceResolvedName;
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
@@ -101,15 +102,6 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   String _memberCount = '2~4명 (2:2 소셜)';
   String _genderLimit = '성별 무관';
   String _ageLimit = '20대~30대';
-
-  final List<Map<String, dynamic>> _categories = [
-    {'name': '맛집/카페', 'icon': Icons.restaurant},
-    {'name': '술/친목', 'icon': Icons.local_bar},
-    {'name': '문화/전시', 'icon': Icons.palette},
-    {'name': '러닝/운동', 'icon': Icons.directions_run},
-    {'name': '드라이브', 'icon': Icons.directions_car},
-    {'name': '스터디', 'icon': Icons.menu_book},
-  ];
 
   bool _isSaving = false;
 
@@ -384,10 +376,30 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
 
     try {
       final title = _titleController.text.trim();
+      final locText = _locationController.text.trim();
+      double? saveLat = _selectedPlaceLat;
+      double? saveLng = _selectedPlaceLng;
+      if (saveLat == null || saveLng == null || _selectedPlaceResolvedName != locText) {
+        try {
+          final verified = await KakaoMapService.resolveVerifiedPlace(locText);
+          if (verified != null) {
+            saveLat = verified.lat;
+            saveLng = verified.lng;
+          } else {
+            saveLat = null;
+            saveLng = null;
+          }
+        } catch (_) {
+          saveLat = null;
+          saveLng = null;
+        }
+      }
       final docRef = await FirebaseFirestore.instance.collection('meetups').add({
         'title': title,
         'description': _descController.text.trim(),
-        'location': _locationController.text.trim(),
+        'location': locText,
+        if (saveLat != null && saveLng != null) 'lat': saveLat,
+        if (saveLat != null && saveLng != null) 'lng': saveLng,
         'category': _selectedSubCategory,
         'mainCategory': _selectedMainCategory,
         'vibe': _selectedVibe,
@@ -406,6 +418,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'photos': [_coverImageUrl],
         'members': '1/${RegExp(r'(\d+)').allMatches(_memberCount).map((m) => m.group(1)).lastOrNull ?? '4'}',
         'manner': globalData.temperature.value,
+        'mannerTemp': globalData.temperature.value,
         'price': 'N빵',
         'transport': '각자 이동',
         'isFemaleOnly': _genderLimit.toString().contains('여'),
@@ -681,10 +694,10 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       double? lat;
       double? lng;
       try {
-        final places = await KakaoMapService.searchKeyword(result, size: 1);
-        if (places.isNotEmpty) {
-          lat = places.first.lat;
-          lng = places.first.lng;
+        final verified = await KakaoMapService.resolveVerifiedPlace(result);
+        if (verified != null) {
+          lat = verified.lat;
+          lng = verified.lng;
         }
       } catch (_) {}
 
@@ -692,12 +705,17 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         _locationController.text = result;
         _selectedPlaceLat = lat;
         _selectedPlaceLng = lng;
+        _selectedPlaceResolvedName = (lat != null && lng != null) ? result.trim() : null;
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('📍 \'$result\' 카카오 지도 위치가 지정되었습니다.'),
-            backgroundColor: const Color(0xFFFF5E36),
+            content: Text(
+              lat != null && lng != null
+                  ? '📍 \'$result\' 카카오 지도 위치가 지정되었습니다.'
+                  : '📍 \'$result\' 장소명이 설정되었습니다.',
+            ),
+            backgroundColor: const Color(0xFFF25767),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -747,13 +765,24 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       suffixIcon: _locationController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
-                              onPressed: () => setState(() => _locationController.clear()),
+                              onPressed: () => setState(() {
+                                _locationController.clear();
+                                _selectedPlaceLat = null;
+                                _selectedPlaceLng = null;
+                                _selectedPlaceResolvedName = null;
+                              }),
                             )
                           : null,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
                     ),
-                    onChanged: (val) => setState(() {}),
+                    onChanged: (val) => setState(() {
+                      if (val.trim() != _selectedPlaceResolvedName) {
+                        _selectedPlaceLat = null;
+                        _selectedPlaceLng = null;
+                        _selectedPlaceResolvedName = null;
+                      }
+                    }),
                   ),
                 ),
                 GestureDetector(

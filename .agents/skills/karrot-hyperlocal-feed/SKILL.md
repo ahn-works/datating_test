@@ -51,13 +51,13 @@ Widget buildKarrotFeedItem(BuildContext context, MeetingItem item) {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF4EB),
+                        color: const Color(0xFFFFF0F2),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(item.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFFF6B4A))),
+                      child: Text(item.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFF25767))),
                     ),
                     const SizedBox(width: 6),
-                    Text(item.neighborhood, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                    Text(item.neighborhood, style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -66,24 +66,17 @@ Widget buildKarrotFeedItem(BuildContext context, MeetingItem item) {
                   item.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.3),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF202124), height: 1.35),
                 ),
                 const SizedBox(height: 6),
-                // [일정 & 참여 인원 & 안심 정산 표기]
+                // [일정 & 참여 인원 (안심정산 배지 미표시 — docs/OOMU_UI_GUIDE.md 기준)]
                 Row(
                   children: [
-                    const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF94A3B8)),
+                    const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF667085)),
                     const SizedBox(width: 3),
-                    Text(item.formattedTime, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                    Text(item.formattedTime, style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text('1/N 안심 정산', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
-                    ),
+                    Text(item.memberStatus, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFF25767))),
                   ],
                 ),
               ],

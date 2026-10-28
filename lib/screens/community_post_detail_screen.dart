@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/oomu_ui_helpers.dart';
 import '../widgets/ugc_action_sheets.dart';
-import 'soso_car_host_screen.dart';
 import 'user_profile_screen.dart';
 
 class CommunityPostDetailScreen extends StatefulWidget {
@@ -16,153 +17,160 @@ class CommunityPostDetailScreen extends StatefulWidget {
 }
 
 class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
-  final Color textPrimary = const Color(0xFF221B1D);
-  final Color textSecondary = const Color(0xFF635559);
-  final Color surfaceColor = const Color(0xFFFAF6F7);
-  final Color coralAccent = const Color(0xFFF25767);
+  final Color textPrimary = OomuUiHelpers.textPrimary;
+  final Color textSecondary = OomuUiHelpers.textSecondary;
+  final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
+  final Color coralAccent = OomuUiHelpers.brandCoral;
 
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   late bool _isLiked;
   late int _likeCount;
-
   late List<Map<String, dynamic>> _comments;
+  bool _isSubmittingComment = false;
 
-  static final List<Map<String, dynamic>> _initialDummyComments = [
-    {
-      'id': 'comm_01',
-      'author': '공연러버',
-      'authorAvatar': 'assets/images/kr_female_2.jpg',
-      'content': '저도 1차 티켓팅 성공해서 갑니다! 후기 보니까 8열 시야 진짜 기대되네요 ㅎㅎ',
-      'time': '10분 전',
-      'likes': 3,
-      'likedUserIds': ['dummy_u1', 'dummy_u2', 'dummy_u3'],
-    },
-    {
-      'id': 'comm_02',
-      'author': '성수동산책러',
-      'authorAvatar': 'assets/images/kr_male_1.jpg',
-      'content': '혹시 캐스팅 누구 회차로 예매하셨나요? 이번 시즌 전원 레전드라 고민되네요!',
-      'time': '25분 전',
-      'likes': 2,
-      'likedUserIds': ['dummy_u4', 'dummy_u5'],
-    },
-    {
-      'id': 'comm_03',
-      'author': '달콤빵순이',
-      'authorAvatar': 'assets/images/kr_female_3.jpg',
-      'content': '공연 끝나고 근처 감성 카페에서 극 얘기 나누는 모임 열어주시면 무조건 참석할게요!',
-      'time': '1시간 전',
-      'likes': 5,
-      'likedUserIds': ['dummy_u1', 'dummy_u2', 'dummy_u6', 'dummy_u7', 'dummy_u8'],
-    },
-  ];
+  String? get _postId {
+    final raw = widget.post['id']?.toString().trim();
+    if (raw == null || raw.isEmpty) return null;
+    return raw;
+  }
+
+  bool get _canUseFirestore {
+    try {
+      return Firebase.apps.isNotEmpty && _postId != null;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _initPostState() {
+    _isLiked = widget.post['isLiked'] == true;
+    _likeCount = (widget.post['likes'] is num) ? (widget.post['likes'] as num).toInt() : 0;
+    final rawList = widget.post['commentList'];
+    if (rawList is List) {
+      _comments = rawList
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } else {
+      _comments = <Map<String, dynamic>>[];
+    }
+    try {
+      widget.post['commentList'] = _comments;
+      widget.post['comments'] = _comments.length;
+    } catch (_) {}
+  }
 
   @override
   void initState() {
     super.initState();
-    _isLiked = widget.post['isLiked'] ?? false;
-    _likeCount = widget.post['likes'] ?? 0;
+    _initPostState();
+  }
 
-    _comments = List<Map<String, dynamic>>.from(_initialDummyComments);
+  @override
+  void didUpdateWidget(covariant CommunityPostDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.post != widget.post || oldWidget.post['id'] != widget.post['id']) {
+      _isSubmittingComment = false;
+      _commentController.clear();
+      _initPostState();
+    }
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _addComment() async {
+    if (_isSubmittingComment) return;
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
 
+    setState(() {
+      _isSubmittingComment = true;
+    });
+
     final myNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
     final myAvatar = globalData.userAvatar.value.isNotEmpty ? globalData.userAvatar.value : 'assets/images/kr_male_1.jpg';
-    final postId = widget.post['id']?.toString() ?? 'post_01';
+    final postId = _postId;
 
-    final newComm = {
+    final newComm = <String, dynamic>{
+      'id': 'local_${DateTime.now().microsecondsSinceEpoch}',
       'author': myNick,
       'authorAvatar': myAvatar,
       'content': text,
       'time': '방금 전',
       'likes': 0,
+      'isLiked': false,
       'likedUserIds': <String>[],
-      'createdAt': FieldValue.serverTimestamp(),
     };
-
-    setState(() {
-      _comments.add(newComm);
-      widget.post['comments'] = _comments.length;
-    });
 
     _commentController.clear();
     FocusScope.of(context).unfocus();
 
-    try {
-      // 1. Ensure the parent post doc exists in Firestore
-      await FirebaseFirestore.instance.collection('community_posts').doc(postId).set({
-        'id': postId,
-        'title': widget.post['title'] ?? '동네 소식',
-        'content': widget.post['content'] ?? '',
-        'author': widget.post['author'] ?? '동네주민',
-        'authorAvatar': widget.post['authorAvatar'] ?? myAvatar,
-        'location': widget.post['location'] ?? '마포구 서교동',
-        'category': widget.post['category'] ?? '동네 토크',
-        'tag': widget.post['tag'] ?? '일상',
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+    setState(() {
+      _comments.add(newComm);
+      widget.post['commentList'] = _comments;
+      widget.post['comments'] = _comments.length;
+    });
 
-      // 2. If this post's comments subcollection is empty, seed initial dummy comments
-      final existingDocs = await FirebaseFirestore.instance
-          .collection('community_posts')
-          .doc(postId)
-          .collection('comments')
-          .limit(1)
-          .get();
+    if (_canUseFirestore && postId != null) {
+      try {
+        final firestorePayload = <String, dynamic>{
+          'author': myNick,
+          'authorAvatar': myAvatar,
+          'content': text,
+          'time': '방금 전',
+          'likes': 0,
+          'likedUserIds': <String>[],
+          'createdAt': FieldValue.serverTimestamp(),
+        };
 
-      if (existingDocs.docs.isEmpty) {
-        for (var c in _initialDummyComments) {
-          await FirebaseFirestore.instance
-              .collection('community_posts')
-              .doc(postId)
-              .collection('comments')
-              .add({
-            'author': c['author'],
-            'authorAvatar': c['authorAvatar'],
-            'content': c['content'],
-            'time': c['time'],
-            'likes': c['likes'] ?? 0,
-            'likedUserIds': c['likedUserIds'] ?? <String>[],
-            'createdAt': FieldValue.serverTimestamp(),
+        final docRef = await FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(postId)
+            .collection('comments')
+            .add(firestorePayload)
+            .timeout(const Duration(seconds: 4));
+
+        newComm['id'] = docRef.id;
+
+        final countSnap = await FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(postId)
+            .collection('comments')
+            .count()
+            .get()
+            .timeout(const Duration(seconds: 4));
+        final totalComments = countSnap.count ?? _comments.length;
+
+        // 원본 게시글의 제목·작성자·지역 등 다른 필드를 임의 기본값으로 덮어쓰지 않고 댓글 수만 갱신
+        await FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(postId)
+            .set({
+          'comments': totalComments,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true)).timeout(const Duration(seconds: 4));
+
+        if (mounted) {
+          setState(() {
+            widget.post['comments'] = totalComments;
           });
         }
+      } catch (e) {
+        debugPrint('Firestore add comment fallback to local state: $e');
       }
-
-      // 3. Add the new comment
-      await FirebaseFirestore.instance
-          .collection('community_posts')
-          .doc(postId)
-          .collection('comments')
-          .add(newComm);
-
-      // 4. Update the total comments count
-      final countSnap = await FirebaseFirestore.instance
-          .collection('community_posts')
-          .doc(postId)
-          .collection('comments')
-          .count()
-          .get();
-      final totalComments = countSnap.count ?? _comments.length;
-
-      await FirebaseFirestore.instance.collection('community_posts').doc(postId).set({
-        'comments': totalComments,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      if (mounted) {
-        setState(() {
-          widget.post['comments'] = totalComments;
-        });
-      }
-    } catch (e) {
-      debugPrint('Firestore add comment error: $e');
     }
+
+    if (!mounted) return;
+    setState(() {
+      _isSubmittingComment = false;
+    });
 
     Future.delayed(const Duration(milliseconds: 150), () {
       if (_scrollController.hasClients) {
@@ -197,8 +205,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       widget.post['likes'] = _likeCount;
       widget.post['isLiked'] = _isLiked;
 
-      final postId = widget.post['id']?.toString();
-      if (postId != null && postId.isNotEmpty) {
+      final postId = _postId;
+      if (_canUseFirestore && postId != null) {
         try {
           FirebaseFirestore.instance
               .collection('community_posts')
@@ -213,18 +221,470 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     });
   }
 
+  List<Map<String, dynamic>> _resolveDisplayComments(AsyncSnapshot<QuerySnapshot>? commentSnap) {
+    if (commentSnap != null && commentSnap.hasData && commentSnap.data!.docs.isNotEmpty) {
+      final docs = commentSnap.data!.docs.map((d) {
+        final data = Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
+        data['id'] = d.id;
+        final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
+        final currentUid = globalData.activeUserId;
+        data['isLiked'] = likedUsers.contains(currentUid) || likedUsers.contains('user_me_01');
+        data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
+        return data;
+      }).toList();
+      try {
+        widget.post['comments'] = docs.length;
+      } catch (_) {}
+      return docs;
+    }
+    try {
+      widget.post['comments'] = _comments.length;
+    } catch (_) {}
+    return List<Map<String, dynamic>>.from(_comments);
+  }
+
+  Widget _buildBodyContent(List<Map<String, dynamic>> displayComments) {
+    final post = widget.post;
+    final author = (post['author'] ?? '동네주민').toString();
+    final location = (post['location'] ?? '마포구 서교동').toString();
+    final time = (post['time'] ?? '방금 전').toString();
+    final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
+    final tag = post['tag'];
+    final title = (post['title'] ?? '').toString();
+    final content = (post['content'] ?? '').toString();
+    final image = post['image'];
+    final postId = _postId;
+
+    return ListView(
+      controller: _scrollController,
+      padding: const EdgeInsets.only(bottom: 24),
+      children: [
+        // Main Post Content Card
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Author Row
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => UserProfileScreen(
+                            userName: author,
+                            userAvatar: post['authorAvatar']?.toString(),
+                            userLocation: location,
+                            userManner: authorManner,
+                          ),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundImage: appImg((post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => UserProfileScreen(
+                                        userName: author,
+                                        userAvatar: post['authorAvatar']?.toString(),
+                                        userLocation: location,
+                                        userManner: authorManner,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  author,
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: OomuUiHelpers.mannerTempBgColor(authorManner),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  OomuUiHelpers.formatMannerTemp(authorManner),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: OomuUiHelpers.mannerTempColor(authorManner),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '$location · $time',
+                          style: TextStyle(fontSize: 12, color: textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (tag != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0F2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '#$tag',
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFC83243)),
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Title (이모지 안전한 줄바꿈)
+              if (title.isNotEmpty) ...[
+                Text(
+                  OomuUiHelpers.formatTitle(title, fallback: ''),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: textPrimary,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+
+              // Body Text
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 14.5,
+                  height: 1.6,
+                  color: textPrimary,
+                ),
+              ),
+
+              // Attached Photo
+              if (image != null && image.toString().isNotEmpty) ...[
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 340),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Image(
+                        image: appImg(image.toString()),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 160,
+                          color: const Color(0xFFF3EAEB),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // Interaction Row (상단 댓글 수와 하단 댓글 수 단일 상태 연동 & 48x48dp 터치 영역)
+              Row(
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 4,
+                      children: [
+                        Tooltip(
+                          message: '게시글 좋아요',
+                          child: InkWell(
+                            onTap: _toggleLike,
+                            borderRadius: BorderRadius.circular(10),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                      size: 19,
+                                      color: _isLiked ? coralAccent : textSecondary,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      '좋아요 $_likeCount',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: _isLiked ? coralAccent : textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.chat_bubble_outline_rounded, size: 18, color: textSecondary),
+                              const SizedBox(width: 5),
+                              Text(
+                                '댓글 ${displayComments.length}',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: '게시글 공유',
+                    icon: Icon(Icons.share_outlined, size: 19, color: textSecondary),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('게시글 링크가 클립보드에 복사되었습니다!')),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Comments Header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+          child: Row(
+            children: [
+              Text(
+                '댓글 ${displayComments.length}',
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: textPrimary),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  '실시간 동네 주민 토크',
+                  style: TextStyle(fontSize: 12, color: textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Comments Empty State or List
+        if (displayComments.isEmpty)
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Icon(Icons.chat_bubble_outline_rounded, size: 28, color: textSecondary.withOpacity(0.5)),
+                const SizedBox(height: 8),
+                Text(
+                  '첫 댓글을 남겨보세요',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: textPrimary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '동네 이웃과 따뜻한 대화를 시작해 보세요 💬',
+                  style: TextStyle(fontSize: 12.5, color: textSecondary),
+                ),
+              ],
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: displayComments.length,
+            separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF3EAEB)),
+            itemBuilder: (context, index) {
+              final comm = displayComments[index];
+              final isCommLiked = comm['isLiked'] == true;
+              final commLikes = (comm['likes'] is num) ? (comm['likes'] as num).toInt() : 0;
+              final commId = comm['id']?.toString();
+
+              return Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => UserProfileScreen(
+                              userName: (comm['author'] ?? '이웃').toString(),
+                              userAvatar: comm['authorAvatar']?.toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundImage: appImg((comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => UserProfileScreen(
+                                          userName: (comm['author'] ?? '이웃').toString(),
+                                          userAvatar: comm['authorAvatar']?.toString(),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    (comm['author'] ?? '이웃').toString(),
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textPrimary),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                (comm['time'] ?? '방금').toString(),
+                                style: TextStyle(fontSize: 12, color: textSecondary),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            (comm['content'] ?? comm['text'] ?? '').toString(),
+                            style: TextStyle(fontSize: 14, height: 1.45, color: textPrimary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Comment like button (최소 48x48dp 터치 영역 보장)
+                    Tooltip(
+                      message: '댓글 좋아요',
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () async {
+                          final myId = globalData.activeUserId;
+                          List<dynamic> likedUsers = List<dynamic>.from(comm['likedUserIds'] ?? []);
+                          bool currentlyLiked = likedUsers.contains(myId) || likedUsers.contains('user_me_01');
+                          if (currentlyLiked) {
+                            likedUsers.remove(myId);
+                            likedUsers.remove('user_me_01');
+                          } else {
+                            likedUsers.add(myId);
+                          }
+                          setState(() {
+                            comm['isLiked'] = !currentlyLiked;
+                            comm['likes'] = likedUsers.length;
+                            comm['likedUserIds'] = likedUsers;
+                          });
+
+                          if (_canUseFirestore && commId != null && !commId.startsWith('local_') && postId != null) {
+                            try {
+                              await FirebaseFirestore.instance
+                                  .collection('community_posts')
+                                  .doc(postId)
+                                  .collection('comments')
+                                  .doc(commId)
+                                  .set({
+                                'likedUserIds': likedUsers,
+                                'likes': likedUsers.length,
+                              }, SetOptions(merge: true));
+                            } catch (_) {}
+                          }
+                        },
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                isCommLiked ? Icons.favorite : Icons.favorite_border,
+                                size: 17,
+                                color: isCommLiked ? coralAccent : textSecondary,
+                              ),
+                              if (commLikes > 0) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  '$commLikes',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
-    final author = post['author'] ?? '동네주민';
-    final location = post['location'] ?? '마포구 서교동';
-    final time = post['time'] ?? '방금 전';
-    final manner = post['manner'] ?? 42.0;
-    final tag = post['tag'];
-    final category = post['category'] ?? '동네 토크';
-    final title = post['title'] ?? '';
-    final content = post['content'] ?? '';
-    final image = post['image'];
+    final author = (post['author'] ?? '동네주민').toString();
+    final category = (post['category'] ?? '동네 토크').toString();
+    final title = (post['title'] ?? '').toString();
+    final postId = _postId;
 
     return Scaffold(
       backgroundColor: surfaceColor,
@@ -232,6 +692,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
+          tooltip: '뒤로가기',
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
@@ -241,12 +702,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: '게시글 더보기',
             icon: Icon(Icons.more_vert, color: textPrimary),
             onPressed: () {
               UgcActionSheets.showContentOptions(
                 context: context,
                 contentType: '게시글',
-                contentId: post['id'] ?? title,
+                contentId: (post['id'] ?? title).toString(),
                 author: author,
                 onContentHidden: () => Navigator.pop(context),
               );
@@ -257,392 +719,23 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.only(bottom: 24),
-              children: [
-                // Main Post Content Card
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Author Row
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => UserProfileScreen(
-                                    userName: author,
-                                    userAvatar: post['authorAvatar'],
-                                    userLocation: location,
-                                    userManner: manner is num ? (manner as num).toDouble() : 37.0,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => UserProfileScreen(
-                                              userName: author,
-                                              userAvatar: post['authorAvatar'],
-                                              userLocation: location,
-                                              userManner: manner is num ? (manner as num).toDouble() : 37.0,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Text(
-                                        author,
-                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF0F2),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        '$manner°C',
-                                        style: TextStyle(color: coralAccent, fontSize: 10.5, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '$location · $time',
-                                  style: TextStyle(fontSize: 11.5, color: textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (tag != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3EAEB),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '#$tag',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: coralAccent),
-                              ),
-                            ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Title
-                      if (title.isNotEmpty) ...[
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                            color: textPrimary,
-                            height: 1.35,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-
-                      // Body Text
-                      Text(
-                        content,
-                        style: const TextStyle(
-                          fontSize: 14.5,
-                          height: 1.55,
-                          color: Color(0xFF2B2B2B),
-                        ),
-                      ),
-
-                      // Attached Photo
-                      if (image != null && (image as String).isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 340),
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Image(
-                                image: appImg(image),
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
-                                  height: 160,
-                                  color: const Color(0xFFF2F2F5),
-                                  alignment: Alignment.center,
-                                  child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-
-                      const SizedBox(height: 18),
-
-                      // Interaction Row
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: _toggleLike,
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                    size: 19,
-                                    color: _isLiked ? const Color(0xFFFF3B30) : textSecondary,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '좋아요 $_likeCount',
-                                    style: TextStyle(
-                                      fontSize: 12.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: _isLiked ? const Color(0xFFFF3B30) : textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Row(
-                            children: [
-                              Icon(Icons.chat_bubble_outline_rounded, size: 18, color: textSecondary),
-                              const SizedBox(width: 4),
-                              Text(
-                                '댓글 ${_comments.length}',
-                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textSecondary),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          // Share
-                          IconButton(
-                            icon: Icon(Icons.share_outlined, size: 19, color: textSecondary),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('게시글 링크가 클립보드에 복사되었습니다!')),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // Comments StreamBuilder from Firestore
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('community_posts')
-                      .doc(widget.post['id']?.toString() ?? 'post_01')
-                      .collection('comments')
-                      .orderBy('createdAt', descending: false)
-                      .snapshots(),
-                  builder: (context, commentSnap) {
-                    List<Map<String, dynamic>> displayComments = [];
-                    if (commentSnap.hasData && commentSnap.data!.docs.isNotEmpty) {
-                      displayComments = commentSnap.data!.docs.map((d) {
-                        final data = Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
-                        data['id'] = d.id;
-                        final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
-                        final currentUid = globalData.activeUserId;
-                        data['isLiked'] = likedUsers.contains(currentUid) || likedUsers.contains('user_me_01');
-                        data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
-                        return data;
-                      }).toList();
-                    } else {
-                      displayComments = List<Map<String, dynamic>>.from(_comments);
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Comments Header
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-                          child: Row(
-                            children: [
-                              Text(
-                                '댓글 ${displayComments.length}',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
-                              ),
-                              const SizedBox(width: 6),
-                              Text('실시간 동네 주민 토크', style: TextStyle(fontSize: 11.5, color: textSecondary)),
-                            ],
-                          ),
-                        ),
-
-                        // Comments List
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: displayComments.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF3EAEB)),
-                          itemBuilder: (context, index) {
-                            final comm = displayComments[index];
-                            final isCommLiked = comm['isLiked'] ?? false;
-                            final commLikes = comm['likes'] ?? 0;
-                            final commId = comm['id']?.toString();
-                            final postId = widget.post['id']?.toString() ?? 'post_01';
-
-                            return Container(
-                              color: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => UserProfileScreen(
-                                            userName: comm['author'] ?? '이웃',
-                                            userAvatar: comm['authorAvatar'],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage: appImg(comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) => UserProfileScreen(
-                                                      userName: comm['author'] ?? '이웃',
-                                                      userAvatar: comm['authorAvatar'],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: Text(
-                                                comm['author'] ?? '이웃',
-                                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              comm['time'] ?? '방금',
-                                              style: TextStyle(fontSize: 10.5, color: textSecondary),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          comm['content'] ?? '',
-                                          style: const TextStyle(fontSize: 13, height: 1.35, color: Color(0xFF333333)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  // Comment like button with Firestore sync
-                                  InkWell(
-                                    onTap: () async {
-                                      final myId = globalData.activeUserId;
-                                      List<dynamic> likedUsers = List<dynamic>.from(comm['likedUserIds'] ?? []);
-                                      bool currentlyLiked = likedUsers.contains(myId) || likedUsers.contains('user_me_01');
-                                      if (currentlyLiked) {
-                                        likedUsers.remove(myId);
-                                        likedUsers.remove('user_me_01');
-                                      } else {
-                                        likedUsers.add(myId);
-                                      }
-                                      setState(() {
-                                        comm['isLiked'] = !currentlyLiked;
-                                        comm['likes'] = likedUsers.length;
-                                        comm['likedUserIds'] = likedUsers;
-                                      });
-
-                                      if (commId != null && postId.isNotEmpty) {
-                                        try {
-                                          await FirebaseFirestore.instance
-                                              .collection('community_posts')
-                                              .doc(postId)
-                                              .collection('comments')
-                                              .doc(commId)
-                                              .set({
-                                            'likedUserIds': likedUsers,
-                                            'likes': likedUsers.length,
-                                          }, SetOptions(merge: true));
-                                        } catch (_) {}
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4),
-                                      child: Column(
-                                        children: [
-                                          Icon(
-                                            isCommLiked ? Icons.favorite : Icons.favorite_border,
-                                            size: 14,
-                                            color: isCommLiked ? const Color(0xFFFF3B30) : textSecondary,
-                                          ),
-                                          if (commLikes > 0)
-                                            Text(
-                                              '$commLikes',
-                                              style: TextStyle(fontSize: 10, color: textSecondary),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
+            child: (_canUseFirestore && postId != null)
+                ? StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('community_posts')
+                        .doc(postId)
+                        .collection('comments')
+                        .orderBy('createdAt', descending: false)
+                        .snapshots(),
+                    builder: (context, commentSnap) {
+                      final displayComments = _resolveDisplayComments(commentSnap);
+                      return _buildBodyContent(displayComments);
+                    },
+                  )
+                : _buildBodyContent(_resolveDisplayComments(null)),
           ),
 
-          // Comment Input Field at Bottom
+          // Comment Input Field at Bottom (전송 버튼 48x48dp 터치 영역 보장)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
@@ -663,33 +756,41 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
                         color: surfaceColor,
-                        borderRadius: BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: const Color(0xFFEFE4E6)),
                       ),
                       child: TextField(
                         controller: _commentController,
-                        style: TextStyle(fontSize: 13.5, color: textPrimary),
+                        style: TextStyle(fontSize: 14, color: textPrimary),
                         decoration: InputDecoration(
                           hintText: '이웃들과 나눌 따뜻한 댓글을 입력하세요...',
                           hintStyle: TextStyle(color: textSecondary, fontSize: 13),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onSubmitted: (_) => _addComment(),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  InkWell(
-                    onTap: _addComment,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: coralAccent,
-                        shape: BoxShape.circle,
+                  Tooltip(
+                    message: '댓글 전송',
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: _isSubmittingComment ? null : _addComment,
+                      child: SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: _isSubmittingComment ? coralAccent.withOpacity(0.6) : coralAccent,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.send_rounded, color: Colors.white, size: 19),
+                          ),
+                        ),
                       ),
-                      child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
                     ),
                   ),
                 ],

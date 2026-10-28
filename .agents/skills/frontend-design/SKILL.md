@@ -17,7 +17,7 @@ description: OOMU (우무 / Spot10) 전용 모바일 UI/UX 프론트엔드 디�
    - 흔한 데이팅앱 클리셰(스와이프 넘기기, 자극적 네온 컬러)와 관공서 표 스타일을 배제하고 차분하고 읽기 쉬운 레이아웃을 지향합니다.
 2. **콘텐츠 중심 유연한 텍스트 렌더링**:
    - 주소, 시간, 모임 소개 등 필수 정보는 자연스러운 줄바꿈을 허용하여 작은 화면에서도 정보가 잘리지 않게 합니다.
-   - 금액은 원화 직접 표기 대신 `1/N 안심 정산` 또는 `무료 참여`로 표기합니다.
+   - 금액은 실제 확인된 비용 정보가 있을 때만 표시하며, 정보가 없는데 임의로 `'무료 참여'`나 `'1/N 안심 정산'` 배지로 대체하지 않습니다.
 3. **4가지 화면 상태 전수 대응**:
    - 로딩 스켈레톤, 빈 화면(Empty State + 명확한 액션 유도), 에러(재시도 버튼), 정상 데이터 화면을 누락 없이 구현합니다.
 4. **인체공학 터치 타깃**:
@@ -41,28 +41,28 @@ description: OOMU (우무 / Spot10) 전용 모바일 UI/UX 프론트엔드 디�
 
 ---
 
-## 3. 디자인 시스템 및 토큰 (Flutter Token System)
+## 3. 디자인 시스템 및 토큰 (Flutter Token System — `docs/OOMU_UI_GUIDE.md` 단일 기준)
 
 ### 컬러 팔레트 (Color Palette)
-- **Primary Brand (선셋 코랄 / 무드 피치)**: `#FF6B4A` ~ `#FF5A5F`  
-  - 따뜻하고 생동감 넘치며 친근한 활력을 부여하는 시그니처 컬러 (선정적이거나 차가운 핑크/레드 지양).
-- **Secondary (트러스트 네이비 / 딥 슬레이트)**: `#0F172A` ~ `#1E293B`  
-  - 또렷한 헤드라인, 신뢰를 주는 본인인증/안전 배지, 깊이감 있는 텍스트.
-- **Background (클린 웜 화이트 / 오트밀 크림)**: `#FAF6F7` ~ `#F8F9FA` (카드 표면: `#FFFFFF`)  
-  - 칙칙한 회색이나 누런 빈티지가 아닌, 깔끔하고 화사한 온기를 머금은 웜 화이트.
-- **Card Surface & Border**: `#FFFFFF`, Border: `#E2E8F0` / `#F1F5F9` (1.0dp 미세 스트로크)
-- **Status & Safety (에메랄드 세이지)**: `#10B981` (실시간 접속, 인증 완료, 안심 동행 상태 표시).
-- **Sub / Neutral Text**: `#64748B` (서브 정보, 날짜, 작성 시간).
+- **Primary Brand (코랄 로즈)**: `#F25767`  
+  - 단일 브랜드 액션 컬러 (`docs/OOMU_UI_GUIDE.md` 기준, 구형 주황 `#FF6B4A`~`#FF5A5F` 배제).
+- **Primary Text**: `#202124` / `#221B1D`  
+  - 또렷한 헤드라인과 핵심 본문 텍스트.
+- **Background (소프트 로즈 크림)**: `#FAF6F7` (카드 표면: `#FFFFFF`)  
+  - 깔끔하고 온기를 머금은 중립 배경.
+- **Card Surface & Border**: `#FFFFFF`, Border: `#E7E9ED` / `#EFE4E6` (1.0dp 미세 스트로크)
+- **Trust & Safety (딥 틸)**: `#0D9488` (본인인증 확인, 거리 안내 표시).
+- **Sub / Secondary Text**: `#667085` / `#635559` (서브 정보, 날짜, 작성 시간).
 
-### 타이포그래피 (Typography - Pretendard 기반)
-- **기본 폰트**: Pretendard (한글 최적화 Sans-serif).
-- **텍스트 줄바꿈 필수 규칙**: `wordBreak: WordBreak.keepAll` 적용하여 한글 단어가 어색하게 음절 단위로 짤리지 않도록 보장합니다.
+### 타이포그래피 (Typography - `docs/OOMU_UI_GUIDE.md` 기준)
+- **기본 폰트**: 등록된 한글 산세리프 또는 시스템 기본 폰트 폴백.
+- **텍스트 줄바꿈 원칙**: Flutter `Text`에 존재하지 않는 `wordBreak: WordBreak.keepAll`이나 UTF-16 `split('')` 결합 문자 삽입을 사용하지 않고, 공식 `Text` API(`softWrap`, `overflow`, `maxLines`)와 이모지(grapheme cluster) 안전 처리를 준수합니다.
 - **계층 구조 (Scale)**:
-  - **Display / Top Header**: 22~24sp / FontWeight.w700 / letterSpacing: -0.5 / lineHeight: 1.3
-  - **Section Title**: 18~20sp / FontWeight.w700 / letterSpacing: -0.3 / lineHeight: 1.35
-  - **Card Title / Subtitle**: 15~16sp / FontWeight.w600 / lineHeight: 1.4
-  - **Body / Content**: 13~14sp / FontWeight.w400 / lineHeight: 1.4~1.5
-  - **Caption / Meta / Chips**: 11~12sp / FontWeight.w500 / lineHeight: 1.3
+  - **Display / Top Header**: 20~22sp / FontWeight.w700~w800 / lineHeight: 1.3~1.38
+  - **Section / Host Title**: 17~18sp / FontWeight.w600~w700 / lineHeight: 1.35~1.4
+  - **Card Title**: 16~17sp / FontWeight.w600~w700 / lineHeight: 1.35~1.4
+  - **Body / Content**: 15~16sp / FontWeight.w400~w500 / lineHeight: 1.5~1.6
+  - **Caption / Meta**: 13~14sp / FontWeight.w500 / lineHeight: 1.35 (초소형 보조 배지만 12sp 허용)
 
 ---
 

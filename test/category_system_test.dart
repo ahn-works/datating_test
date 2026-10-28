@@ -7,23 +7,23 @@ void main() {
       expect(OOMUCategoryData.vibes.length, 4);
 
       final hot = OOMUCategoryData.vibes.firstWhere((v) => v.id == 'hot');
-      expect(hot.title, '놀줄아는');
+      expect(hot.title, '오늘 번개');
       expect(hot.emoji, '⚡');
-      expect(hot.matchKeywords.contains('페스티벌'), isTrue);
+      expect(hot.matchKeywords.contains('혼술바'), isTrue);
 
       final chill = OOMUCategoryData.vibes.firstWhere((v) => v.id == 'chill');
-      expect(chill.title, '소소하게');
+      expect(chill.title, '취향 아지트');
       expect(chill.emoji, '☕');
       expect(chill.matchKeywords.contains('북카페'), isTrue);
 
       final mate = OOMUCategoryData.vibes.firstWhere((v) => v.id == 'mate');
-      expect(mate.title, '메이트');
-      expect(mate.emoji, '🍔');
+      expect(mate.title, '라이프 메이트');
+      expect(mate.emoji, '🏃‍♂️');
       expect(mate.matchKeywords.contains('1인 가구'), isTrue);
 
       final dating = OOMUCategoryData.vibes.firstWhere((v) => v.id == 'dating');
       expect(dating.title, '소개팅');
-      expect(dating.emoji, '💖');
+      expect(dating.emoji, '🌸');
       expect(dating.matchKeywords.contains('소개팅'), isTrue);
     });
 

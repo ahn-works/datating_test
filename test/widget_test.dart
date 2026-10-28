@@ -1,15 +1,8 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
-import 'package:spot10_app/main.dart';
 import 'package:spot10_app/screens/soso_car_detail_screen.dart';
+import 'package:spot10_app/screens/soso_car_home_screen.dart';
 
 const _testMeetup = <String, dynamic>{
   'title': '익명 샘플 모임',
@@ -23,11 +16,11 @@ void main() {
     'OOMU 홈 화면이 Firebase 미연결 상태에서 익명 샘플 모임을 렌더링한다',
     (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(const Spot10App());
+        await tester.pumpWidget(const MaterialApp(home: OOMUHomeScreen()));
         await tester.pump();
 
         expect(find.text('마포구 서교동'), findsOneWidget);
-        expect(find.text('지금 내 상황'), findsOneWidget);
+        expect(find.textContaining('오늘 번개'), findsWidgets);
         await tester.drag(
           find.byType(CustomScrollView),
           const Offset(0, -1200),
@@ -39,7 +32,7 @@ void main() {
     },
   );
 
-  testWidgets('프로필 확인 뒤 기존 참여 신청 메시지 폼을 연다', (tester) async {
+  testWidgets('참여 신청하기 버튼 탭 시 참여 신청 메시지 폼을 연다', (tester) async {
     await mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         const MaterialApp(home: OOMUDetailScreen(meetup: _testMeetup)),
@@ -48,13 +41,9 @@ void main() {
 
       await tester.tap(find.text('참여 신청하기'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('프로필 완성하기'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 350));
-      await tester.pumpAndSettle();
 
       expect(find.text('참여 신청 메시지'), findsOneWidget);
-      expect(find.text('메시지 보내기'), findsOneWidget);
+      expect(find.text('신청서 전송하기'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });
@@ -71,7 +60,7 @@ void main() {
       await tester.tap(find.text('이 모임 신고하기'));
       await tester.pumpAndSettle();
 
-      expect(find.text('모임 신고 사유 선택'), findsOneWidget);
+      expect(find.text('신고 사유를 선택해 주세요'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

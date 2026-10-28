@@ -1,13 +1,12 @@
-import 'profile_setup_screen.dart';
 import 'login_screen.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'soso_car_home_screen.dart';
 import 'chat_screen.dart';
-import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'profile_edit_screen.dart';
 import 'saved_meetups_screen.dart';
@@ -175,17 +174,17 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF5F0),
+                              color: const Color(0xFFFFF0F2),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.35)),
+                              border: Border.all(color: coralAccent.withOpacity(0.35)),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(12),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFF5E36),
+                                  decoration: BoxDecoration(
+                                    color: coralAccent,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 24),
@@ -784,14 +783,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
       body: ValueListenableBuilder<String>(
         valueListenable: globalData.currentUserId,
         builder: (context, activeUid, _) {
+          final bool canQueryFirestore = Firebase.apps.isNotEmpty && activeUid.isNotEmpty;
           return StreamBuilder<DocumentSnapshot>(
-            stream: (activeUid.isNotEmpty)
+            stream: canQueryFirestore
                 ? FirebaseFirestore.instance.collection('users').doc(activeUid).snapshots()
                 : null,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator(color: accentColor));
-              }
 
               String role = activeUid == 'admin_user' ? 'admin' : 'user';
               String nickname = activeUid == 'admin_user' ? '오오무 운영팀' : (activeUid == 'test_user_2' ? '달리는민서' : '매운맛킬러');
@@ -867,7 +864,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 padding: const EdgeInsets.all(24),
                 children: [
                   // 계정 전환 바 (총괄 관리자 및 관리자 권한만 표시)
-                  if (authService.isAdmin || role == 'admin' || activeUid == 'admin_user')
+                  if ((Firebase.apps.isNotEmpty && authService.isAdmin) || role == 'admin' || activeUid == 'admin_user')
                   Container(
                     margin: const EdgeInsets.only(bottom: 20),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -919,8 +916,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFEBEBEF)),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10))],
+                  border: Border.all(color: const Color(0xFFEFE4E6)),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))],
                 ),
                 child: Column(
                   children: [
@@ -961,12 +958,17 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 6,
+                                runSpacing: 4,
                                 children: [
-                                  Flexible(
-                                    child: Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary), overflow: TextOverflow.ellipsis),
+                                  Text(
+                                    nickname,
+                                    maxLines: 1,
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textPrimary),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(width: 6),
                                   if (role == 'admin')
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -974,7 +976,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                         gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: const Text('👑 총괄 관리자', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                                      child: const Text(
+                                        '👑 총괄 관리자',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800),
+                                      ),
                                     ),
                                 ],
                               ),
@@ -988,7 +995,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     children: [
                                       Icon(Icons.location_on, size: 13, color: textSecondary),
                                       const SizedBox(width: 2),
-                                      Text(loc.isNotEmpty ? loc : location, style: TextStyle(color: textSecondary, fontSize: 13)),
+                                      Flexible(child: Text(loc.isNotEmpty ? loc : location, style: TextStyle(color: textSecondary, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis)),
                                     ],
                                   );
                                 },
@@ -1009,62 +1016,78 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       ),
                       child: Text(
                         '"$bio"',
-                        style: TextStyle(fontSize: 13.5, color: textSecondary, height: 1.45, fontStyle: FontStyle.italic),
+                        style: TextStyle(fontSize: 13.5, color: textSecondary, height: 1.5),
                       ),
                     ),
                     const SizedBox(height: 14),
 
-                    // 명확한 '내 프로필 보기' & '프로필 수정' 액션 바 (역할 분리)
+                    // 명확한 '내 프로필 보기' & '프로필 수정' 액션 바 (역할 분리, 360px 및 2.0배 확대 대응)
                     Row(
                       children: [
                         Expanded(
-                          flex: 3,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => UserProfileScreen(
-                                    userName: nickname,
-                                    userAge: age > 0 ? '$age' : '26',
-                                    userLocation: location,
-                                    userBio: bio,
-                                    userAvatar: globalData.userAvatar.value,
-                                    userManner: globalData.temperature.value,
-                                    userTags: hobbies.isNotEmpty ? hobbies : personalities,
-                                    isSelf: true,
+                          child: Tooltip(
+                            message: '내 프로필 보기',
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => UserProfileScreen(
+                                      userName: nickname,
+                                      userAge: age > 0 ? '$age' : '26',
+                                      userLocation: location,
+                                      userBio: bio,
+                                      userAvatar: globalData.userAvatar.value,
+                                      userManner: globalData.temperature.value,
+                                      userTags: hobbies.isNotEmpty ? hobbies : personalities,
+                                      isSelf: true,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: coralAccent,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: coralAccent,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                                minimumSize: const Size.fromHeight(48),
+                              ),
+                              icon: const Icon(Icons.visibility_outlined, size: 16),
+                              label: const Text(
+                                '내 프로필 보기',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+                              ),
                             ),
-                            icon: const Icon(Icons.visibility_outlined, size: 17),
-                            label: const Text('내 프로필 보기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          flex: 2,
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFFE5E5EA)),
-                              backgroundColor: Colors.white,
-                              foregroundColor: textPrimary,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Tooltip(
+                            message: '내 프로필 수정',
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFFE5E5EA)),
+                                backgroundColor: Colors.white,
+                                foregroundColor: textPrimary,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                                minimumSize: const Size.fromHeight(48),
+                              ),
+                              icon: Icon(Icons.edit_outlined, size: 15, color: textSecondary),
+                              label: Text(
+                                '프로필 수정',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: textPrimary),
+                              ),
                             ),
-                            icon: Icon(Icons.edit_outlined, size: 16, color: textSecondary),
-                            label: Text('프로필 수정', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: textPrimary)),
                           ),
                         ),
                       ],
@@ -1083,32 +1106,45 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Text(
-                              'OOMU Plus',
-                              style: TextStyle(
-                                color: Color(0xFFF19E39),
-                                fontWeight: FontWeight.w900,
-                                fontSize: 13,
-                                fontStyle: FontStyle.italic,
+                            const Flexible(
+                              flex: 3,
+                              child: Text(
+                                'OOMU Plus',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Color(0xFFF19E39),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12.5,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             const Expanded(
+                              flex: 7,
                               child: Text(
                                 '시크릿 프로필 & 무제한 탐색 멤버십',
                                 style: TextStyle(color: Colors.white70, fontSize: 11.5),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF19E39).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                '혜택 보기 ›',
-                                style: TextStyle(color: Color(0xFFF19E39), fontSize: 11, fontWeight: FontWeight.bold),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              flex: 3,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF19E39).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text(
+                                  '혜택 보기 ›',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Color(0xFFF19E39), fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                           ],
@@ -1121,7 +1157,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('나의 매너 온도', style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 14)),
+                        Flexible(
+                          child: Text(
+                            '나의 매너 온도',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontWeight: FontWeight.w700, color: textPrimary, fontSize: 14),
+                          ),
+                        ),
                         Row(
                           children: [
                             ValueListenableBuilder<double>(
@@ -1137,7 +1180,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 24),
 
               // 성향 및 라이프스타일 (OOMU 로즈 코랄 카드 스타일)
               Container(
@@ -1161,36 +1204,54 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF0F2),
-                                borderRadius: BorderRadius.circular(8),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0F2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.auto_awesome, color: coralAccent, size: 16),
                               ),
-                              child: Icon(Icons.auto_awesome, color: coralAccent, size: 16),
-                            ),
-                            const SizedBox(width: 8),
-                            Text('성향 및 라이프스타일', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
-                          ],
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  '성향 및 라이프스타일',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(10),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF0F2),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFF8C6CD)),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit_outlined, size: 13, color: coralAccent),
-                                const SizedBox(width: 4),
-                                Text('수정', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
-                              ],
+                        Tooltip(
+                          message: '성향 및 라이프스타일 수정',
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen())),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                              child: Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF0F2),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFFF8C6CD)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.edit_outlined, size: 13, color: coralAccent),
+                                      const SizedBox(width: 4),
+                                      Text('수정', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -1217,7 +1278,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   runSpacing: 8,
                   children: hobbies.map((hobby) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEBEBEF))),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEFE4E6))),
                     child: Text(hobby, style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                   )).toList(),
                 ),
@@ -1232,7 +1293,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   runSpacing: 8,
                   children: closeFriendPersonalities.map((p) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEBEBEF))),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEFE4E6))),
                     child: Text(p.toString(), style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                   )).toList(),
                 ),
@@ -1247,15 +1308,15 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   runSpacing: 8,
                   children: values.map((v) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEBEBEF))),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEFE4E6))),
                     child: Text(v.toString(), style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                   )).toList(),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
               ],
 
               Text('나의 활동 배지', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
@@ -1268,17 +1329,17 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
 
               // 설정 및 관리 Section
-              Text('설정 및 관리', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: coralAccent)),
+              Text('설정 및 관리', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
               const SizedBox(height: 16),
               ValueListenableBuilder<List<Map<String, dynamic>>>(
                 valueListenable: globalData.savedMeetups,
                 builder: (context, saved, _) {
                   return _buildInteractiveMenuItem(
                     icon: Icons.favorite,
-                    iconColor: Colors.redAccent,
+                    iconColor: coralAccent,
                     title: '내가 찜한 모임',
                     badge: '${saved.length}개',
                     textPrimary: textPrimary,
@@ -1290,7 +1351,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
               ),
               _buildInteractiveMenuItem(
                 icon: Icons.history,
-                iconColor: const Color(0xFF007AFF),
+                iconColor: textSecondary,
                 title: '참여/개설 내역',
                 textPrimary: textPrimary,
                 onTap: () {
@@ -1299,14 +1360,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
               ),
               _buildInteractiveMenuItem(
                 icon: Icons.notifications_outlined,
-                iconColor: const Color(0xFFFF9500),
+                iconColor: textSecondary,
                 title: '알림 설정',
                 textPrimary: textPrimary,
                 onTap: _showNotificationSettingsBottomSheet,
               ),
               _buildInteractiveMenuItem(
                 icon: Icons.support_agent,
-                iconColor: const Color(0xFF34C759),
+                iconColor: textSecondary,
                 title: '고객 센터 & FAQ',
                 textPrimary: textPrimary,
                 onTap: _showCustomerCenterModal,
@@ -1314,7 +1375,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
               _buildInteractiveMenuItem(
                 icon: Icons.block,
-                iconColor: const Color(0xFFE11D48),
+                iconColor: textSecondary,
                 title: '차단 사용자 관리',
                 badge: '${globalData.blockedUsers.value.length}명',
                 textPrimary: textPrimary,
@@ -1322,7 +1383,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
               ),
               _buildInteractiveMenuItem(
                 icon: Icons.shield_outlined,
-                iconColor: const Color(0xFF0D9488),
+                iconColor: textSecondary,
                 title: '신고 내역 및 커뮤니티 가이드',
                 textPrimary: textPrimary,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportHistoryScreen())),
@@ -1392,7 +1453,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 66,
+          constraints: const BoxConstraints(minWidth: 66),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
             color: accent.withOpacity(0.08),
@@ -1601,7 +1662,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
             const SizedBox(height: 8),
             Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
             const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF767676))),
+            Text(subtitle, style: TextStyle(fontSize: 12, color: textSecondary)),
           ],
         ),
       ),
@@ -1632,8 +1693,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
               child: Icon(icon, color: iconColor ?? textPrimary, size: 20),
             ),
             const SizedBox(width: 14),
-            Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary)),
-            const Spacer(),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary, height: 1.3),
+              ),
+            ),
+            const SizedBox(width: 8),
             if (badge != null)
               Container(
                 margin: const EdgeInsets.only(right: 8),
@@ -1641,7 +1707,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 decoration: BoxDecoration(color: coralAccent.withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
                 child: Text(badge, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: coralAccent)),
               ),
-            const Icon(Icons.arrow_forward_ios, size: 15, color: Color(0xFFC7C7CC)),
+            const Icon(Icons.arrow_forward_ios, size: 15, color: Color(0xFFB9ADB0)),
           ],
         ),
       ),

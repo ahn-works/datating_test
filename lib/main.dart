@@ -8,6 +8,7 @@ import 'screens/soso_car_home_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
+import 'utils/oomu_ui_helpers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,18 +47,7 @@ class Spot10App extends StatelessWidget {
           PointerDeviceKind.stylus,
         },
       ),
-      theme: ThemeData(
-        primaryColor: const Color(0xFFF25767),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF25767),
-          primary: const Color(0xFFF25767),
-          secondary: const Color(0xFF0D9488),
-          surface: const Color(0xFFFAF6F7),
-        ),
-        scaffoldBackgroundColor: const Color(0xFFFAF6F7),
-        cardColor: const Color(0xFFFFFFFF),
-        dividerColor: const Color(0xFFEFE4E6),
-      ),
+      theme: OomuUiHelpers.buildTheme(),
       builder: (context, child) => Container(
         color: const Color(0xFFD8CFD2),
         child: Center(
