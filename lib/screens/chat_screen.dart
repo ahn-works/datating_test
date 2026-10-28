@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/auth_service.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import 'soso_car_chat_screen.dart';
@@ -76,7 +77,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _syncUserStates();
   }
 
-  void _syncUserStates() {
   void _syncUserStates() {
     try {
       final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
