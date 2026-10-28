@@ -91,8 +91,59 @@
      - 카드 내 가짜 뷰어 수(`$liveViewers`) 완전 제거.
 - **검증**: `scripts/verify_dart_syntax.py`에 `soso_car_home_screen.dart` 등록 후 전체 15개 파일 문법·괄호 검증 통과 (`[PASS]`).
 
+## 📌 [첨부 화면 기준 디테일 수정 단계] 사용자 피드백 기반 디테일 고도화 (2026-10-27) (완료)
+- **외부 사전 백업**:
+  - 파일: `C:\Users\DT4\Downloads\oomu_app_backups\oomu_app_before_ai_20261027-170717.zip` (446.42 MB, 32,672개 파일)
+  - SHA-256: `08d76ebb5e8c8d78758e43639625b95ea6634d30c4f89b24f96fa67c88a80dd1`
+  - 무결성 검증: `testzip()` 손상 0건 통과, 임시 디렉토리 전수 압축해제 및 해시 100% 일치 확인.
+- **수정 대상 (4대 활성 화면 + 연계 2개 파일 한정)**:
+  1. `lib/screens/soso_car_home_screen.dart` (홈)
+  2. `lib/screens/soso_car_detail_screen.dart` (모임 상세)
+  3. `lib/screens/my_page_screen.dart` (MY)
+  4. `lib/screens/community_post_detail_screen.dart` (게시글 상세)
+  5. `lib/screens/user_profile_screen.dart` (`isSelf: true` 읽기 전용 지원)
+  6. `web/kakao_map.html` (카카오 지도 말풍선 잘림 방지)
+- **주요 수정 내역**:
+  1. **제목과 모임 정보 간격 및 단어 고립 방지**:
+     - 홈 카드: 사진 아래 16, 제목 아래 14, 정보 아래 12, 카드 하단 16dp 논리 픽셀 적용.
+     - 상세 화면: 카테고리 아래 12, 제목 아래 26, 모임 정보 헤더-카드 14, 대단위 섹션 간 30dp 분리.
+     - `_formatTitleKeepWords` (Word Joiner `\u2060`) 적용으로 한글 제목 단어가 외롭게 끊기는 현상 방지 (전역 폰트 축소/자간 변경 배제).
+     - 홈 일정과 장소를 각각 별도 행으로 분리하여 긴 주소에 날짜·시간이 밀려 사라지는 문제 해결.
+  2. **안심정산 UI 제거**:
+     - 홈 카드/목록, 상세 상단/정보/신청 바에서 '1/N 안심 정산', '1/N 정산', '안심정산' 배지 및 안내 문구 제거.
+     - 모임 상세의 '정산서 보기' 진입 버튼 제거.
+     - 참여 신청 버튼 문구를 `'참여 신청하기'`로 간결하게 통일.
+     - 실제 확인 가능한 비용 데이터(`fee`/`cost`/`price`)가 있을 때만 비용 행 노출, 없으면 행 자체 숨김. 기존 서버/정산 DB 기능은 100% 보존.
+  3. **호스트 소개 독립 강조 카드**:
+     - 연한 회색 박스 반복 배제. 따뜻한 연로즈 틴트(`Color(0xFFFFF9FA)`), 절제된 로즈 보더(`Color(0xFFF7D9DE)`, 1.2px), 내부 여백 20dp.
+     - 아바타 54dp, 호스트 이름 17.5dp/w700, `PASS 본인인증 호스트`, 매너 온도 분리 배치.
+     - 실제 데이터에 `hostBio`가 있을 때만 2~3줄 노출.
+     - '재참여율 98%' 등 근거 없는 가짜 수치 제거, 인증 칩(시간 약속 철저, 편안하고 배려 깊은 대화)만 Wrap으로 정돈.
+     - 보조 행동으로 `UserProfileScreen`과 연결되는 '호스트 프로필 보기' 버튼 탑재.
+  4. **참여 멤버 영역 정돈**:
+     - 모임 정보 아래와 호스트 소개 위에 30dp 충분한 섹션 간격 부여.
+     - 헤더에 `Row('참여 멤버', 'N/N명 참여')` 명확히 배치.
+     - 실제 신청 방식과 맞지 않는 '신청 시 바로 함께할 수 있습니다' 문구 제거, `현재 N자리 남음 (정원 N명)` 안내로 단순화.
+  5. **글자와 지도 라벨 개선**:
+     - 카테고리/인증 12~13dp, 본문 14.5~16dp 유지.
+     - `web/kakao_map.html`: `.custom-marker` `max-width: 150px; overflow: hidden; text-overflow: ellipsis;` 추가 및 긴 명칭 축약으로 지도 가장자리 말풍선 짤림 원천 차단.
+     - 지도 아래 텍스트 카드로 전체 주소 및 카카오 길찾기 보조 버튼 제공.
+     - 지도 아래 중복 빈 공간(110dp)을 75dp로 축소하여 하단 고정 CTA 바와의 불필요한 공백 제거.
+  6. **MY '내 프로필 보기' 제공**:
+     - 이름 옆 단순 화살표 대신, 프로필 소개 바로 아래에 명확한 `[내 프로필 보기]` (Primary, `UserProfileScreen(isSelf: true)`)와 `[프로필 수정]` (Secondary, `ProfileEditScreen()`) 버튼을 나란히 제공하여 역할 완벽 분리.
+     - `UserProfileScreen`에 `isSelf` 지원: 본인 프로필 조회 시 메시지/좋아요/신고/차단 버튼 숨김 및 깔끔한 '프로필 닫기' 제공.
+     - 중복된 프로필/대표 사진 스트립 제거 및 OOMU Plus 배너를 슬림한 보조 타일로 정돈하여 프로필 행동 버튼이 묻히지 않도록 개선.
+  7. **커뮤니티 게시글 상세 배너 제거**:
+     - `lib/screens/community_post_detail_screen.dart`에서 X 표시한 '이 이야기와 연관된 모임 만들기' 및 '모임 개설' 배너 제거.
+     - 게시글 본문 ➔ 좋아요/댓글/공유 ➔ 댓글 영역이 여백 없이 자연스럽게 이어지도록 정돈.
+- **검증 결과**:
+  - `python scripts/verify_dart_syntax.py`: 타깃 화면 및 관련 파일 18종 전수 괄호·문법·따옴표 무결성 검증 통과 (`[ALL 18 FILES VERIFIED]`).
+  - `flutter analyze` / `flutter test`: 로컬 환경에 Flutter/Dart SDK CLI가 PATH에 설치되어 있지 않아 미실행 (도구 미비로 인한 '미검증' 명시).
+  - 내일 아침 알림: 2026-10-28 09:00 KST 알림 스케줄러 등록 완료 (`schedule` 도구, Task ID `task-839`).
+
 ---
 
-## ⏭️ 다음 시작점: [5단계] 프로필과 커뮤니티 (`05_프로필과_커뮤니티.txt`)
-- **수정 대상**: `lib/screens/my_page_screen.dart`, `lib/screens/profile_edit_screen.dart` ➔ `lib/screens/community_post_detail_screen.dart`, `lib/screens/community_post_create_screen.dart`
-- **핵심 목표**: 프로필 아바타/대표사진 중복 및 멤버십 비중 정리, 커뮤니티 카드 위계 통일 및 과도한 이중 보더 제거.
+## ⏭️ 다음 시작점: [후속 점검]
+- **대기 상태**: 사용자 명시적 요구에 따라 외부 git push 및 배포 없이 로컬 파일 수정 및 정적 무결성 검증 완료 상태 유지.
+- **점검 예정**: 내일 아침 알림(09:00 KST) 후 실제 렌더링 화면 피드백 수렴.
+

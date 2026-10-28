@@ -15,6 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
 import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
+import 'user_profile_screen.dart';
 
 class MyPageScreen extends StatefulWidget {
   final bool isEmbedded;
@@ -957,156 +958,166 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary), overflow: TextOverflow.ellipsis),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    if (role == 'admin')
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Text('👑 총괄 관리자', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(nickname, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary), overflow: TextOverflow.ellipsis),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  if (role == 'admin')
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFC7C7CC)),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Text(jobAndMbti, style: TextStyle(color: accentColor, fontSize: 14, fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 4),
-                                ValueListenableBuilder<String>(
-                                  valueListenable: globalData.userLocation,
-                                  builder: (context, loc, _) {
-                                    return Row(
-                                      children: [
-                                        Icon(Icons.location_on, size: 13, color: textSecondary),
-                                        const SizedBox(width: 2),
-                                        Text(loc.isNotEmpty ? loc : location, style: TextStyle(color: textSecondary, fontSize: 13)),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                                      child: const Text('👑 총괄 관리자', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(jobAndMbti, style: TextStyle(color: accentColor, fontSize: 14, fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 4),
+                              ValueListenableBuilder<String>(
+                                valueListenable: globalData.userLocation,
+                                builder: (context, loc, _) {
+                                  return Row(
+                                    children: [
+                                      Icon(Icons.location_on, size: 13, color: textSecondary),
+                                      const SizedBox(width: 2),
+                                      Text(loc.isNotEmpty ? loc : location, style: TextStyle(color: textSecondary, fontSize: 13)),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    // 3~4장 등록된 프로필 사진 갤러리 스트립 (위피·글램 스타일)
-                    if (userPhotos.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 94,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: userPhotos.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 8),
-                          itemBuilder: (ctx, idx) {
-                            final pUrl = userPhotos[idx];
-                            return GestureDetector(
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(14),
-                                child: Stack(
-                                  children: [
-                                    Image(
-                                      image: appImg(pUrl),
-                                      width: 76,
-                                      height: 94,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    if (idx == 0)
-                                      Positioned(
-                                        top: 6,
-                                        left: 6,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: accentColor,
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: const Text('대표', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                    const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFEFE4E6)),
                       ),
-                    ],
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditing: true))),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: surfaceColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFEFE4E6)),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text('"$bio"', style: TextStyle(fontSize: 14, color: textSecondary, fontStyle: FontStyle.italic)),
-                            ),
-                            Icon(Icons.edit_outlined, size: 14, color: coralAccent.withOpacity(0.7)),
-                          ],
-                        ),
+                      child: Text(
+                        '"$bio"',
+                        style: TextStyle(fontSize: 13.5, color: textSecondary, height: 1.45, fontStyle: FontStyle.italic),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Container(height: 1, color: const Color(0xFFEBEBEF)),
-                    const SizedBox(height: 20),
-                    // Freemium Banner (Interactive)
+                    const SizedBox(height: 14),
+
+                    // 명확한 '내 프로필 보기' & '프로필 수정' 액션 바 (역할 분리)
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => UserProfileScreen(
+                                    userName: nickname,
+                                    userAge: age > 0 ? '$age' : '26',
+                                    userLocation: location,
+                                    userBio: bio,
+                                    userAvatar: globalData.userAvatar.value,
+                                    userManner: globalData.temperature.value,
+                                    userTags: hobbies.isNotEmpty ? hobbies : personalities,
+                                    isSelf: true,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: coralAccent,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            icon: const Icon(Icons.visibility_outlined, size: 17),
+                            label: const Text('내 프로필 보기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 2,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFFE5E5EA)),
+                              backgroundColor: Colors.white,
+                              foregroundColor: textPrimary,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            icon: Icon(Icons.edit_outlined, size: 16, color: textSecondary),
+                            label: Text('프로필 수정', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: textPrimary)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // OOMU Plus 멤버십 보조 영역 (버튼을 묻히지 않도록 슬림하게 배치)
                     GestureDetector(
                       onTap: () => _showOomuPlusModal(context),
                       child: Container(
                         width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: 24),
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF333333), Color(0xFF111111)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 5))],
+                          color: const Color(0xFF232326),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('OOMU Plus', style: TextStyle(color: Color(0xFFF19E39), fontWeight: FontWeight.w900, fontSize: 18, fontStyle: FontStyle.italic)),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(color: const Color(0xFFF19E39).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                                  child: const Text('무료 체험하기', style: TextStyle(color: Color(0xFFF19E39), fontSize: 12, fontWeight: FontWeight.bold)),
-                                )
-                              ],
+                            const Text(
+                              'OOMU Plus',
+                              style: TextStyle(
+                                color: Color(0xFFF19E39),
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
-                            const SizedBox(height: 12),
-                            const Text('시크릿 프로필 열람 및 프리미엄 필터로 나와 딱 맞는 사람을 더 빠르게 찾아보세요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                '시크릿 프로필 & 무제한 탐색 멤버십',
+                                style: TextStyle(color: Colors.white70, fontSize: 11.5),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF19E39).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                '혜택 보기 ›',
+                                style: TextStyle(color: Color(0xFFF19E39), fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
+                    const SizedBox(height: 18),
+                    Container(height: 1, color: const Color(0xFFF1E6E8)),
+                    const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

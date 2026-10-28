@@ -58,6 +58,25 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         combined.contains('즉시');
   }
 
+  String _formatTitleKeepWords(String? title) {
+    if (title == null || title.isEmpty) return '취향 모임';
+    return title.split(' ').map((w) => w.split('').join('\u2060')).join(' ');
+  }
+
+  String _calcRemainingSeats(String memberStr) {
+    try {
+      final parts = memberStr.split('/');
+      if (parts.length == 2) {
+        final current = int.parse(parts[0].replaceAll(RegExp(r'[^0-9]'), ''));
+        final total = int.parse(parts[1].replaceAll(RegExp(r'[^0-9]'), ''));
+        final diff = total - current;
+        if (diff <= 0) return '마감 임박';
+        return '$diff자리 남음';
+      }
+    } catch (_) {}
+    return '잔여석 있음';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -638,18 +657,6 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 11.5),
                             ),
                           ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFECFDF5),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFA7F3D0)),
-                          ),
-                          child: const Text(
-                            '1/N 안심 정산',
-                            style: TextStyle(color: Color(0xFF047857), fontWeight: FontWeight.bold, fontSize: 11.5),
-                          ),
-                        ),
                         if (widget.meetup?['isFemaleOnly'] == true)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -661,22 +668,23 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
-                    // B. 모임 메인 타이틀 (29CM 에디토리얼 폰트 + )
+                    // B. 모임 메인 타이틀 (자연스러운 줄바꿈 보장 + 한 글자 고립 방지)
                     Text(
-                      (widget.meetup != null && widget.meetup!['title'] != null)
-                          ? widget.meetup!['title']
-                          : '주말 엽떡+마라탕 조지실 분 구해요!',
+                      _formatTitleKeepWords(
+                        (widget.meetup != null && widget.meetup!['title'] != null)
+                            ? widget.meetup!['title']
+                            : '주말 엽떡+마라탕 조지실 분 구해요!',
+                      ),
                       style: TextStyle(
                         color: textPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        height: 1.35,
-                        
+                        height: 1.38,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 26),
 
                     // 번개 안내 콜아웃 카드
                     if (_isLightning) ...[
@@ -740,32 +748,18 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
                           _buildInfoRow(Icons.directions_subway_rounded, '이동', widget.meetup?['transport'] ?? '대중교통 / 각자 이동'),
                           const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.payments_rounded, color: textSecondary, size: 20),
-                              const SizedBox(width: 14),
-                              SizedBox(width: 50, child: Text('비용', style: TextStyle(color: textSecondary, fontSize: 14))),
-                              const Expanded(
-                                child: Text('1/N 안심 정산 (현장 결제)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF0D9488))),
-                              ),
-                              GestureDetector(
-                                onTap: () => _showSplitBillSheet(context),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF0F2),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text('정산서 보기', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: coralAccent)),
-                                ),
-                              ),
-                            ],
-                          ),
+                          if (widget.meetup != null && (widget.meetup!['fee'] != null || widget.meetup!['cost'] != null || widget.meetup!['price'] != null)) ...[
+                            const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
+                            _buildInfoRow(
+                              Icons.payments_rounded,
+                              '비용',
+                              (widget.meetup!['fee'] ?? widget.meetup!['cost'] ?? widget.meetup!['price']).toString(),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
 
                     // 2. 참여 멤버 아바타 스택 (정원 및 잔여석 안내)
                     Row(
@@ -773,14 +767,14 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       children: [
                         Text('참여 멤버', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF0F2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '${widget.meetup?['members'] ?? '2/4'}명 참여 중',
-                            style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700),
+                            '${widget.meetup?['members'] ?? '2/4'}명 참여',
+                            style: TextStyle(fontSize: 12.5, color: coralAccent, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -821,52 +815,65 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF9F5),
+                        color: const Color(0xFFFAF6F7),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFFECE5)),
+                        border: Border.all(color: const Color(0xFFF5E8EB)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.check_circle_outline_rounded, size: 16, color: coralAccent),
+                          Icon(Icons.info_outline_rounded, size: 16, color: coralAccent),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              '💡 현재 2자리가 남아있어요! 신청 시 바로 함께할 수 있습니다.',
-                              style: TextStyle(fontSize: 12, color: coralAccent, fontWeight: FontWeight.w700),
+                              '현재 ${_calcRemainingSeats(widget.meetup?['members'])} (정원 ${widget.meetup?['maxMembers'] ?? '4명'})',
+                              style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
 
-                    // 3. 호스트 신뢰도 카드 (텍스트 겹침 0% 방지 구조)
-                    Text('호스트 소개', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
-                    const SizedBox(height: 12),
+                    // 3. 이 모임을 여는 호스트 - 독립된 강조 카드
+                    Text('이 모임을 여는 호스트', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+                    const SizedBox(height: 14),
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: surfaceColor,
+                        color: const Color(0xFFFFF9FA),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: borderSubtle),
+                        border: Border.all(color: const Color(0xFFF7D9DE), width: 1.2),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           GestureDetector(
                             onTap: () {
+                              HapticFeedback.lightImpact();
                               final hostName = (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러').toString();
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(userName: hostName)));
+                              final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
+                                  ? widget.meetup!['hostAvatar']
+                                  : 'assets/images/kr_female_1.jpg';
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => UserProfileScreen(
+                                    userName: hostName,
+                                    userAvatar: hostAvatar,
+                                    userManner: hostManner,
+                                  ),
+                                ),
+                              );
                             },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 CircleAvatar(
-                                  radius: 25,
+                                  radius: 27,
                                   backgroundImage: appImg(
                                     (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
                                         ? widget.meetup!['hostAvatar']
@@ -874,7 +881,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                   ),
                                   backgroundColor: surfaceColor,
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -886,22 +893,22 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                           Flexible(
                                             child: Text(
                                               (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러'),
-                                              style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, color: textPrimary),
+                                              style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.w700, color: textPrimary),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           const SizedBox(width: 6),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF0F172A),
+                                              color: const Color(0xFF1E293B),
                                               borderRadius: BorderRadius.circular(6),
                                             ),
-                                            child: const Text('호스트', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                            child: const Text('호스트', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 4),
+                                      const SizedBox(height: 5),
                                       Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -910,7 +917,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                           Flexible(
                                             child: Text(
                                               'PASS 본인인증 호스트',
-                                              style: TextStyle(color: textSecondary, fontSize: 11.5, fontWeight: FontWeight.w500),
+                                              style: TextStyle(color: textSecondary, fontSize: 12, fontWeight: FontWeight.w500),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -919,29 +926,68 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 12),
                                 _buildMannerGauge(hostManner),
                               ],
                             ),
                           ),
+                          if (widget.meetup != null && widget.meetup!['hostBio'] != null && widget.meetup!['hostBio'].toString().trim().isNotEmpty) ...[
+                            const SizedBox(height: 14),
+                            Text(
+                              widget.meetup!['hostBio'].toString().trim(),
+                              style: TextStyle(fontSize: 13.5, height: 1.5, color: textPrimary),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                          const SizedBox(height: 14),
+                          const Divider(height: 1, color: Color(0xFFF3D5DB)),
                           const SizedBox(height: 12),
-                          const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                          const SizedBox(height: 10),
                           const Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
+                            spacing: 8,
+                            runSpacing: 6,
                             children: [
-                              Text('⏰ 시간 약속 철저', style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
+                              Text('⏰ 시간 약속 철저', style: TextStyle(fontSize: 12, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
                               Text('·', style: TextStyle(color: Color(0xFFCBD5E1))),
-                              Text('💬 편안하고 배려 깊은 대화', style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
-                              Text('·', style: TextStyle(color: Color(0xFFCBD5E1))),
-                              Text('✨ 재참여율 98%', style: TextStyle(fontSize: 11, color: Color(0xFF0D9488), fontWeight: FontWeight.bold)),
+                              Text('💬 편안하고 배려 깊은 대화', style: TextStyle(fontSize: 12, color: Color(0xFF475569), fontWeight: FontWeight.w600)),
                             ],
+                          ),
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                final hostName = (widget.meetup != null ? widget.meetup!['host'] : '매운맛킬러').toString();
+                                final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
+                                    ? widget.meetup!['hostAvatar']
+                                    : 'assets/images/kr_female_1.jpg';
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => UserProfileScreen(
+                                      userName: hostName,
+                                      userAvatar: hostAvatar,
+                                      userManner: hostManner,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFFF4C2CB)),
+                                backgroundColor: Colors.white,
+                                foregroundColor: textPrimary,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              icon: Icon(Icons.person_outline_rounded, size: 16, color: coralAccent),
+                              label: const Text('호스트 프로필 보기', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
 
                     // 4. 모임 소개 & 이런 분을 찾아요
                     Text('모임 소개', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
@@ -960,7 +1006,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         style: TextStyle(fontSize: 14.5, height: 1.6, color: textPrimary),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
 
                     // 5. 모임 장소 & 카카오 지도 (길찾기는 보조 액션으로 정돈)
                     Row(
@@ -1087,7 +1133,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 110), // 하단 CTA 바 공간 확보
+                    const SizedBox(height: 75), // 하단 CTA 바 공간 확보 (중복 여백 정돈)
                   ],
                 ),
               ),
@@ -1185,7 +1231,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         Text(
                           _isLightning
                               ? '지금 바로 번개 합류하기'
-                              : (_isApplying ? '신청 확인 중...' : '참여 신청하기 (1/N 안심 정산)'),
+                              : (_isApplying ? '신청 확인 중...' : '참여 신청하기'),
                           style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                       ],

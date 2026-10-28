@@ -17,6 +17,9 @@ files = [
     r'lib/screens/local_friends_screen.dart',
     r'lib/screens/soso_car_detail_screen.dart',
     r'lib/screens/soso_car_home_screen.dart',
+    r'lib/screens/my_page_screen.dart',
+    r'lib/screens/user_profile_screen.dart',
+    r'lib/screens/community_post_detail_screen.dart',
 ]
 
 def verify_file(filepath):

@@ -4334,6 +4334,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         combined.contains('즉시');
   }
 
+  String _formatTitleKeepWords(String? title) {
+    if (title == null || title.isEmpty) return '취향 모임';
+    return title.split(' ').map((w) => w.split('').join('\u2060')).join(' ');
+  }
+
   Widget _buildMeetupCard(Map<String, dynamic> meetup) {
     final bool isLightning = _isLightningMeetup(meetup);
 
@@ -4416,15 +4421,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
 
-            // 2. 카드 본문 정보 (순서: 제목 -> 일정/장소 -> 참여 정보 -> 주최자)
+            // 2. 카드 본문 정보 (순서: 제목 -> 일정/장소 -> 주최자/인원, 여백 16/14/12/16)
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 모임 제목 (자연스러운 2줄 허용, 짤림 방지)
+                  // 모임 제목 (단어 분리 방지 및 자연스러운 2줄 허용)
                   Text(
-                    meetup['title'] ?? '취향 모임',
+                    _formatTitleKeepWords(meetup['title']),
                     style: TextStyle(
                       fontSize: 16.5,
                       fontWeight: FontWeight.w700,
@@ -4435,9 +4440,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
 
-                  // 일정 & 장소 & 정산 정보
+                  // 일정 & 장소 정보 (별도 행 유지, 안심정산 배지 제거)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
@@ -4464,22 +4469,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(color: const Color(0xFFE7E9ED)),
-                              ),
-                              child: Text(
-                                isLightning ? '⚡ 즉시 번개' : '1/N 안심 정산',
-                                style: TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isLightning ? coralAccent : textSecondary,
+                            if (isLightning)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0F2),
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: const Color(0xFFF8C6CD)),
+                                ),
+                                child: Text(
+                                  '⚡ 즉시 번개',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: coralAccent,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -4660,19 +4666,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           ),
                         ),
                       ),
-                      Text(
-                        isLightning ? '⚡ 번개' : '1/N 정산',
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: textSecondary,
+                      if (isLightning)
+                        const Text(
+                          '⚡ 번개',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFF25767),
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    meetup['title'] ?? '취향 모임',
+                    _formatTitleKeepWords(meetup['title']),
                     style: TextStyle(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w700,
@@ -4683,14 +4690,34 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 5),
+                  // 일정 & 장소 각각 별도 행으로 분리하여 긴 주소에 밀리지 않도록 보장
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, size: 13, color: textSecondary),
-                      const SizedBox(width: 3),
+                      Icon(Icons.calendar_today_outlined, size: 12, color: textSecondary),
+                      const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          '${meetup['location'] ?? '위치 협의'} · ${meetup['date'] ?? '일정 협의'}',
+                          meetup['date'] ?? (isLightning ? '오늘 저녁' : '일정 협의'),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, size: 12, color: textSecondary),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          meetup['location'] ?? '위치 협의',
                           style: TextStyle(
                             fontSize: 11.5,
                             color: textSecondary,

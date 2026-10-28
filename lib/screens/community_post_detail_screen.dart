@@ -225,7 +225,6 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     final title = post['title'] ?? '';
     final content = post['content'] ?? '';
     final image = post['image'];
-    final related = post['relatedMeetup'] as Map<String, dynamic>?;
 
     return Scaffold(
       backgroundColor: surfaceColor,
@@ -457,74 +456,6 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           ),
                         ],
                       ),
-
-                      // Related Meetup CTA Card
-                      if (related != null) ...[
-                        const SizedBox(height: 14),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0F2),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFFF8C6CD)),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: coralAccent.withOpacity(0.15),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.bolt, color: coralAccent, size: 18),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '이 이야기와 연관된 모임 만들기',
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: coralAccent),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      related['title'] ?? '동네 모임 같이 가실 분!',
-                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: textPrimary),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => OOMUHostScreen(
-                                        initialTitle: related['title'],
-                                        initialLocation: related['location'] ?? location,
-                                        initialMainCategory: related['category'] ?? category,
-                                        initialCoverImageUrl: related['poster'],
-                                        initialVibe: '놀줄아는',
-                                      ),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: coralAccent,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                                child: const Text('모임 개설', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

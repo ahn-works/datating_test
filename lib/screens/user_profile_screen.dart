@@ -10,6 +10,7 @@ class UserProfileScreen extends StatelessWidget {
   final String? userAvatar;
   final double? userManner;
   final List<String>? userTags;
+  final bool isSelf;
 
   const UserProfileScreen({
     super.key,
@@ -20,6 +21,7 @@ class UserProfileScreen extends StatelessWidget {
     this.userAvatar,
     this.userManner,
     this.userTags,
+    this.isSelf = false,
   });
 
 
@@ -175,16 +177,18 @@ class UserProfileScreen extends StatelessWidget {
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
 
-            actions: [
-              Container(
-                margin: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), shape: BoxShape.circle),
-                child: IconButton(
-                  icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
-                  onPressed: () => _showReportBottomSheet(context),
-                )
-              )
-            ],
+            actions: isSelf
+                ? const []
+                : [
+                    Container(
+                      margin: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.3), shape: BoxShape.circle),
+                      child: IconButton(
+                        icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+                        onPressed: () => _showReportBottomSheet(context),
+                      ),
+                    ),
+                  ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -368,46 +372,60 @@ class UserProfileScreen extends StatelessWidget {
             color: Colors.white,
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
           ),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: OutlinedButton(
-                  onPressed: () { Navigator.pop(context); },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: const Color(0xFFEBEBEF), width: 1.5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: isSelf
+              ? SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accentColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('프로필 닫기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
-                  child: Icon(Icons.close, color: textSecondary, size: 28),
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: OutlinedButton(
+                        onPressed: () { Navigator.pop(context); },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: Color(0xFFEBEBEF), width: 1.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: Icon(Icons.close, color: textSecondary, size: 28),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 3,
+                      child: ElevatedButton(
+                        onPressed: () {
+                           // TODO: Send Like logic
+                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('호감을 보냈습니다!')));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accentColor,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.favorite, color: Colors.white, size: 24),
+                            SizedBox(width: 8),
+                            Text('호감 보내기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 3,
-                child: ElevatedButton(
-                  onPressed: () {
-                     // TODO: Send Like logic
-                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('호감을 보냈습니다!')));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accentColor,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.favorite, color: Colors.white, size: 24),
-                      const SizedBox(width: 8),
-                      const Text('호감 보내기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

@@ -45,6 +45,9 @@
       font-weight: 900;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       white-space: nowrap;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
       border: 1.5px solid #FEE500;
       transform: translate(-50%, -100%);
       margin-top: -38px;
@@ -95,8 +98,9 @@
     });
     marker.setMap(map);
 
-    // Custom Overlay (Place Name Label)
-    const overlayContent = `<div class="custom-marker">${name}</div>`;
+    // Custom Overlay (Place Name Label - shortened to prevent clipping)
+    const shortName = name.length > 14 ? (name.substring(0, 12) + '..') : name;
+    const overlayContent = `<div class="custom-marker" title="${name}">${shortName}</div>`;
     const customOverlay = new kakao.maps.CustomOverlay({
       position: markerPosition,
       content: overlayContent,
