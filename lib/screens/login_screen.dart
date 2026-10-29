@@ -156,7 +156,49 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text('공식 카카오 계정으로 안전하게 인증하고 동네 모임을 시작하세요.', style: TextStyle(fontSize: 13, color: textSecondary)),
                 const SizedBox(height: 24),
 
-                // [옵션 1] 공식 카카오 OAuth 간편 로그인 버튼
+                // [옵션 1] ⚡ 1초 카카오 간편 시작 (무조건 즉시 로그인)
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFEE500),
+                      foregroundColor: const Color(0xFF191919),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    icon: const Icon(Icons.bolt_rounded, size: 22, color: Color(0xFF191919)),
+                    label: const Text('⚡ 1초 카카오 간편 시작 (추천)', style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      _showLoading('💬 카카오 계정으로 간편 시작 중...');
+                      try {
+                        await authService.signInWithKakao();
+                        if (mounted) {
+                          _hideLoading();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🎉 카카오 계정으로 로그인되었습니다! 환영합니다.'),
+                              backgroundColor: Color(0xFFF25767),
+                            ),
+                          );
+                          _navigateHome();
+                        }
+                      } catch (e) {
+                        _hideLoading();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('카카오 로그인 실패: $e')),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // [옵션 2] 공식 카카오 OAuth 간편 로그인 버튼
                 SizedBox(
                   width: double.infinity,
                   height: 52,

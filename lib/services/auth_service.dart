@@ -18,8 +18,15 @@ class AuthService {
 
   // 대표님께서 발급해주신 공식 카카오 앱 키 (우무 OOMU)
   static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
-  static const String kakaoRedirectUri =
-      'https://ahn-works.github.io/datating_test/';
+  String get kakaoRedirectUri {
+    if (kIsWeb) {
+      final base = Uri.base;
+      if (base.host.contains('localhost') || base.host.contains('127.0.0.1')) {
+        return '${base.origin}/';
+      }
+    }
+    return 'https://ahn-works.github.io/datating_test/';
+  }
 
   String get kakaoOAuthUrl =>
       'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoRestApiKey&redirect_uri=$kakaoRedirectUri&response_type=code';
@@ -137,8 +144,29 @@ class AuthService {
       credential = await _auth.signInWithEmailAndPassword(
           email: cleanEmail, password: tempPw);
     } catch (_) {
-      credential = await _auth.createUserWithEmailAndPassword(
-          email: cleanEmail, password: tempPw);
+      try {
+        credential = await _auth.createUserWithEmailAndPassword(
+            email: cleanEmail, password: tempPw);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          final kakaoAlias = 'kakao_${cleanEmail.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}@oomu.app';
+          try {
+            credential = await _auth.signInWithEmailAndPassword(
+                email: kakaoAlias, password: tempPw);
+          } catch (_) {
+            credential = await _auth.createUserWithEmailAndPassword(
+                email: kakaoAlias, password: tempPw);
+          }
+        } else {
+          final fallbackEmail = 'kakao_${DateTime.now().millisecondsSinceEpoch}@oomu.app';
+          credential = await _auth.createUserWithEmailAndPassword(
+              email: fallbackEmail, password: tempPw);
+        }
+      } catch (_) {
+        final fallbackEmail = 'kakao_${DateTime.now().millisecondsSinceEpoch}@oomu.app';
+        credential = await _auth.createUserWithEmailAndPassword(
+            email: fallbackEmail, password: tempPw);
+      }
     }
 
     await _syncUserWithFirestore(
