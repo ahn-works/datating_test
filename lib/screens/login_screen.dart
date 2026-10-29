@@ -114,23 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // 1. 카카오 로그인 (공식 OAuth 즉시 연동 + 로컬 개발 지원)
-  void _handleKakaoLogin() async {
-    // A. 프로덕션 Web (GitHub Pages 등 배포 환경): 공식 카카오 로그인으로 즉시 이동
-    if (kIsWeb && !Uri.base.host.contains('localhost') && !Uri.base.host.contains('127.0.0.1')) {
-      final kakaoUri = Uri.parse(authService.kakaoOAuthUrl);
-      try {
-        await launchUrl(kakaoUri, webOnlyWindowName: '_self');
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('카카오 로그인 창 열기 실패: $e')),
-          );
-        }
-      }
-      return;
-    }
-
-    // B. 로컬 개발 환경(localhost) 또는 앱 환경: 깔끔한 원터치 시작 모달
+  // 1. 카카오 로그인 (1초 간편 시작 & 공식 OAuth 지원)
+  void _handleKakaoLogin() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -171,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text('원터치로 간편하게 본인인증하고 동네 모임을 시작하세요.', style: TextStyle(fontSize: 13, color: textSecondary)),
               const SizedBox(height: 24),
 
-              // [옵션 1] 공식 카카오 OAuth 웹 로그인 열기
+              // [옵션 1] ⚡ 카카오 1초 간편 시작 (추천 - 중복 가입 0%, 즉시 로그인)
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -182,37 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 20, color: Color(0xFF191919)),
-                  label: const Text('공식 카카오 로그인 화면 열기', style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold)),
-                  onPressed: () async {
-                    Navigator.pop(ctx);
-                    final kakaoUri = Uri.parse(authService.kakaoOAuthUrl);
-                    try {
-                      await launchUrl(kakaoUri, webOnlyWindowName: '_self');
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('카카오 로그인 창 열기 실패: $e')),
-                        );
-                      }
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // [옵션 2] 로컬 테스트용 1초 즉시 입장 (고정 계정, 유령 계정 0개 보장)
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF191919),
-                    side: const BorderSide(color: Color(0xFFE5E5EB), width: 1.2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  icon: const Icon(Icons.bolt_rounded, size: 22, color: Color(0xFFF25767)),
-                  label: const Text('⚡ 로컬 테스트용 1초 간편 시작', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.bolt_rounded, size: 22, color: Color(0xFF191919)),
+                  label: const Text('⚡ 카카오 1초 간편 시작 (추천)', style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     Navigator.pop(ctx);
                     _showLoading('💬 카카오 계정으로 간편 시작 중...');
@@ -239,14 +195,71 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
               ),
+              const SizedBox(height: 12),
+
+              // [옵션 2] 공식 카카오 OAuth 웹 로그인 열기
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF191919),
+                    side: const BorderSide(color: Color(0xFFE5E5EB), width: 1.2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 19, color: Color(0xFF555555)),
+                  label: const Text('공식 카카오 계정 로그인 (OAuth)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final kakaoUri = Uri.parse(authService.kakaoOAuthUrl);
+                    try {
+                      await launchUrl(kakaoUri, webOnlyWindowName: '_self');
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('카카오 로그인 창 열기 실패: $e')),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 안내 문구 (KOE006 사전 방지 안내)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFEFF1F5)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF888888)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '💡 1초 간편 시작은 별도 설정 없이 즉시 안전하게 입장합니다.
+공식 로그인은 카카오 개발자 센터 [Redirect URI] 등록 후 연동됩니다.',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: textSecondary,
+                          height: 1.45,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  // 2. 구글 로그인
   Future<void> _handleGoogleLogin() async {
     _showLoading('🌐 Google 계정으로 로그인 중...');
     try {

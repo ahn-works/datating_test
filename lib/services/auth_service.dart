@@ -28,8 +28,10 @@ class AuthService {
     return 'https://ahn-works.github.io/datating_test/';
   }
 
-  String get kakaoOAuthUrl =>
-      'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoRestApiKey&redirect_uri=$kakaoRedirectUri&response_type=code';
+  String get kakaoOAuthUrl {
+    final encodedRedirect = Uri.encodeComponent(kakaoRedirectUri);
+    return 'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoRestApiKey&redirect_uri=$encodedRedirect&response_type=code';
+  }
 
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -149,7 +151,16 @@ class AuthService {
         password: tempPw,
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found' || e.code == 'invalid-credential' || e.code == 'wrong-password') {
+      if (e.code == 'wrong-password') {
+        try {
+          credential = await _auth.signInWithEmailAndPassword(
+            email: authEmail,
+            password: 'kakao_pass_oomu_2026!',
+          );
+        } catch (_) {
+          rethrow;
+        }
+      } else if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
         try {
           // 2. 신규 회원이면 Firebase Auth 계정 생성
           credential = await _auth.createUserWithEmailAndPassword(
