@@ -53,3 +53,8 @@ windows/
 
 backups/
 *.gz
+node_modules/
+*serviceAccount*.json
+*.key.json
+scripts/delete_ghost_users.js
+
