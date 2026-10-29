@@ -260,21 +260,18 @@ class AuthService {
     return await signInWithRealKakaoAccount(
       kakaoEmail: (kakaoEmail != null && kakaoEmail.isNotEmpty)
           ? kakaoEmail
-          : 'kakao_${DateTime.now().millisecondsSinceEpoch}@oomu.app',
+          : 'kakao_user_fixed@oomu.app',
       kakaoNickname: kakaoNickname ?? '카카오회원',
     );
   }
 
-  // 6. 게스트 둘러보기 (익명 로그인)
-  Future<UserCredential> signInAsGuest() async {
-    final credential = await _auth.signInAnonymously();
-    await _syncUserWithFirestore(
-      credential.user!,
-      customNickname: '탐방하는이웃',
-      customName: '게스트',
-      isGuest: true,
-    );
-    return credential;
+  // 6. 게스트 둘러보기 (Firebase Auth 유령 계정 생성 없이 로컬 메모리 모드로 안전 진입)
+  Future<void> signInAsGuest() async {
+    // Firebase Auth에 유령 (익명) 계정을 무더기로 생성하지 않도록 로컬 게스트 상태로 즉시 설정
+    globalData.currentUserId.value = 'guest';
+    globalData.userNickname.value = '탐방하는이웃';
+    globalData.userLocation.value = '서울 마포구 연남동';
+    globalData.userAvatar.value = 'assets/images/kr_female_1.jpg';
   }
 
   // 7. 로그아웃
