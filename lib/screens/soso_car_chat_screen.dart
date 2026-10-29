@@ -1,3 +1,4 @@
+import 'dart:async';
 import '../services/kakao_map_service.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/services.dart';
@@ -22,66 +23,73 @@ class OOMUChatStore extends ChangeNotifier {
   final Map<String, List<Map<String, dynamic>>> _messagesByRoom = {};
   final Map<String, Map<String, dynamic>> _roomMetadata = {};
   final Set<String> _leftRoomIds = {};
-  bool _persistenceInitialized = false;
+  String? _syncedUid;
+  StreamSubscription<DocumentSnapshot>? _userStateSubscription;
 
   OOMUChatStore._internal() {
-    _initPersistence();
+    // 1. Firebase 인증 상태 변화 시 실시간 자동 동기화 (카카오 로그인 즉시 반영)
+    try {
+      authService.authStateChanges.listen((user) {
+        if (user != null && user.uid.isNotEmpty) {
+          syncWithCurrentUser(user.uid);
+        }
+      });
+    } catch (_) {}
+    syncWithCurrentUser();
   }
 
-  void _initPersistence() {
-    if (_persistenceInitialized) return;
-    _persistenceInitialized = true;
-    try {
-      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
-      if (myUid.isEmpty) return;
-      void loadFromDoc(String docId) {
-        FirebaseFirestore.instance
-            .collection('user_states')
-            .doc(docId)
-            .get()
-            .then((snap) {
-          if (snap.exists && snap.data() != null) {
-            final data = snap.data()!;
-            if (data['leftRoomIds'] is List) {
-              final List<dynamic> list = data['leftRoomIds'];
-              for (var id in list) {
-                final str = id.toString();
-                _leftRoomIds.add(str);
-                _leftRoomIds.add(canonicalRoomId(str));
-              }
-              notifyListeners();
-            }
-          }
-        }).catchError((_) {});
-      }
-      loadFromDoc(myUid);
+  /// 현재 로그인된 유저의 나간 대화방(leftRoomIds)을 Firestore와 실시간 연동
+  void syncWithCurrentUser([String? forceUid]) {
+    final myUid = forceUid ?? authService.currentUser?.uid ?? globalData.currentUserId.value;
+    if (myUid.isEmpty) return;
+    if (_syncedUid == myUid) return;
+    _syncedUid = myUid;
 
-      void listenToDoc(String docId) {
-        FirebaseFirestore.instance
-            .collection('user_states')
-            .doc(docId)
-            .snapshots()
-            .listen((snap) {
-          if (snap.exists && snap.data() != null) {
-            final data = snap.data()!;
-            if (data['leftRoomIds'] is List) {
-              final List<dynamic> list = data['leftRoomIds'];
-              for (var id in list) {
-                final str = id.toString();
-                _leftRoomIds.add(str);
-                _leftRoomIds.add(canonicalRoomId(str));
-              }
-              notifyListeners();
-            }
+    _userStateSubscription?.cancel();
+
+    // A. 1회 즉시 로드
+    FirebaseFirestore.instance
+        .collection('user_states')
+        .doc(myUid)
+        .get()
+        .then((snap) {
+      if (snap.exists && snap.data() != null) {
+        final data = snap.data()!;
+        if (data['leftRoomIds'] is List) {
+          final List<dynamic> list = data['leftRoomIds'];
+          for (var id in list) {
+            final str = id.toString();
+            _leftRoomIds.add(str);
+            _leftRoomIds.add(canonicalRoomId(str));
           }
-        }, onError: (_) {});
+          notifyListeners();
+        }
       }
-      listenToDoc(myUid);
-    } catch (_) {}
+    }).catchError((_) {});
+
+    // B. 실시간 리스너 바인딩
+    _userStateSubscription = FirebaseFirestore.instance
+        .collection('user_states')
+        .doc(myUid)
+        .snapshots()
+        .listen((snap) {
+      if (snap.exists && snap.data() != null) {
+        final data = snap.data()!;
+        if (data['leftRoomIds'] is List) {
+          final List<dynamic> list = data['leftRoomIds'];
+          for (var id in list) {
+            final str = id.toString();
+            _leftRoomIds.add(str);
+            _leftRoomIds.add(canonicalRoomId(str));
+          }
+          notifyListeners();
+        }
+      }
+    }, onError: (_) {});
   }
 
   bool isRoomLeft(String roomId) {
-    _initPersistence();
+    syncWithCurrentUser();
     final cId = canonicalRoomId(roomId);
     return _leftRoomIds.contains(cId) || _leftRoomIds.contains(roomId);
   }
@@ -106,18 +114,23 @@ class OOMUChatStore extends ChangeNotifier {
       final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
       if (myUid.isEmpty) return;
 
-      // 1. 현재 사용자의 user_states 문서에 나간 방 ID 저장
+      // 1. 현재 사용자(A)의 user_states에 나간 방 ID 영구 저장 -> A의 화면에서만 영구 삭제!
       await FirebaseFirestore.instance.collection('user_states').doc(myUid).set({
         'leftRoomIds': FieldValue.arrayUnion([cId, roomId]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      // 2. chatRooms 컬렉션의 해당 대화방 문서에서 leftUserIds 추가 및 participants 제거
-      await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
-        'leftUserIds': FieldValue.arrayUnion([myUid]),
-        'participants': FieldValue.arrayRemove([myUid]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      // 2. chatRooms 대화방 문서에서 leftUserIds에 A 추가, participants에서 A 제거
+      // -> B, C, E한테는 대화방과 메시지가 그대로 온전히 남음!
+      final roomRef = FirebaseFirestore.instance.collection('chatRooms').doc(cId);
+      final roomSnap = await roomRef.get();
+      if (roomSnap.exists) {
+        await roomRef.set({
+          'leftUserIds': FieldValue.arrayUnion([myUid]),
+          'participants': FieldValue.arrayRemove([myUid]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
 
       // 3. meetups 컬렉션 모임일 경우 participants 목록에서 제거
       final meetupDoc = await FirebaseFirestore.instance.collection('meetups').doc(cId).get();
@@ -146,11 +159,15 @@ class OOMUChatStore extends ChangeNotifier {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      await FirebaseFirestore.instance.collection('chatRooms').doc(cId).set({
-        'leftUserIds': FieldValue.arrayRemove([myUid]),
-        'participants': FieldValue.arrayUnion([myUid]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      final roomRef = FirebaseFirestore.instance.collection('chatRooms').doc(cId);
+      final roomSnap = await roomRef.get();
+      if (roomSnap.exists) {
+        await roomRef.set({
+          'leftUserIds': FieldValue.arrayRemove([myUid]),
+          'participants': FieldValue.arrayUnion([myUid]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
     } catch (e) {
       debugPrint('Firestore rejoinRoom error: $e');
     }

@@ -5228,6 +5228,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
+        if (index == 3) {
+          oomuChatStore.syncWithCurrentUser();
+        }
         setState(() {
           _homeDashboardTab = index;
         });

@@ -23,52 +23,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final Color accentColor = const Color(0xFFF25767);
   final Color backgroundColor = const Color(0xFFFAF6F7);
 
-  final List<Map<String, dynamic>> _defaultChatRooms = [
-    {
-      'id': 'room_minseo_01',
-      'title': '서교동 연트럴파크 산책 팟 🐕 (김민서)',
-      'lastMessage': '저녁 7시에 광장 분수대 앞에서 봬요!',
-      'time': '방금',
-      'unread': 2,
-      'members': 3,
-      'imageUrl': 'assets/images/kr_female_1.jpg',
-      'isGroup': true,
-      'defaultOrder': 1,
-    },
-    {
-      'id': 'room_junho_02',
-      'title': '성수동 에스프레소 & 러닝 크루 ☕ (이준호)',
-      'lastMessage': '이번 주말 카페거리 투어 코스 공유드립니다~',
-      'time': '오후 2:30',
-      'unread': 1,
-      'members': 4,
-      'imageUrl': 'assets/images/kr_male_1.jpg',
-      'isGroup': true,
-      'defaultOrder': 2,
-    },
-    {
-      'id': 'room_jiyeon_03',
-      'title': '연남동 숨은 베이킹 투어 🥐 (박지연)',
-      'lastMessage': '소금빵 갓 구워져 나왔대요 ㅎㅎ',
-      'time': '오전 11:15',
-      'unread': 0,
-      'members': 2,
-      'imageUrl': 'assets/images/kr_female_2.jpg',
-      'isGroup': false,
-      'defaultOrder': 3,
-    },
-    {
-      'id': 'room_mala_01',
-      'title': '주말 엽떡+마라탕 조지실 분 🔥',
-      'lastMessage': '홍대입구역 9번 출구 앞에서 봬요!',
-      'time': '어제',
-      'unread': 0,
-      'members': 4,
-      'imageUrl': 'assets/images/cover_food.jpg',
-      'isGroup': true,
-      'defaultOrder': 4,
-    },
-  ];
+  // 더미 하드코딩 대화방 제거 -> 사용자가 실제 참여한 방만 Firestore에서 순수 표시
+  final List<Map<String, dynamic>> _defaultChatRooms = [];
 
   @override
   void initState() {
@@ -81,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
       if (myUid.isNotEmpty) {
+        oomuChatStore.syncWithCurrentUser(myUid);
         FirebaseFirestore.instance
             .collection('user_states')
             .doc(myUid)
@@ -196,13 +153,15 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
 
-    // 4. 최신 메시지 발송 시간 기준 내림차순(최신순) 정렬 (나간 방 제외)
+    // 4. 최신 메시지 발송 시간 기준 내림차순(최신순) 정렬 (A가 나간 방은 A한테만 영구 제외, B/C/E한테는 유지)
+    final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
     final list = map.values.where((r) {
       final rid = r['id']?.toString() ?? '';
+      // 1) 내 메모리/user_states 상 나간 방이면 내 화면에서 제외
       if (oomuChatStore.isRoomLeft(rid)) return false;
 
+      // 2) Firestore 대화방의 leftUserIds에 내 UID가 있으면 내 화면에서 영구 제외
       final leftUsers = List<dynamic>.from(r['leftUserIds'] ?? []);
-      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
       if (myUid.isNotEmpty && leftUsers.contains(myUid)) return false;
 
       return true;
@@ -246,13 +205,65 @@ class _ChatScreenState extends State<ChatScreen> {
 
           if (chatRooms.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.chat_bubble_outline, size: 64, color: textSecondary.withOpacity(0.5)),
-                  const SizedBox(height: 16),
-                  Text('참여 중인 대화방이 없습니다.', style: TextStyle(color: textSecondary, fontSize: 16)),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 18,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Icon(Icons.chat_bubble_outline_rounded, size: 48, color: accentColor),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      '참여 중인 대화방이 없어요',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '동네 모임에 참여하여\n이웃들과 즐거운 대화를 시작해 보세요! ☕',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      icon: const Icon(Icons.explore_rounded, size: 18),
+                      label: const Text('동네 모임 둘러보기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 0)),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             );
           }
