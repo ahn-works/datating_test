@@ -124067,6 +124067,7 @@ A.cQ().$1("[AuthService] Web Phone sign in failed: "+k.c+" "+A.i(k.b))
 j="\uc778\uc99d\ubc88\ud638 \ubc1c\uc1a1 \uc2e4\ud328 ("+k.c+")"
 if(k.c==="invalid-phone-number")j="\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud734\ub300\ud3f0 \ubc88\ud638 \ud615\uc2dd\uc785\ub2c8\ub2e4."
 else if(k.c==="too-many-requests")j="\uc778\uc99d \uc694\uccad\uc774 \ub108\ubb34 \ub9ce\uc2b5\ub2c8\ub2e4. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694."
+else if(k.c==="operation-not-allowed")j="Firebase \ucf58\uc194\uc5d0\uc11c [\uc804\ud654(Phone)] \ub85c\uadf8\uc778\uc774 \ud65c\uc131\ud654\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. (Authentication > Sign-in method\uc5d0\uc11c \uc804\ud654\ub97c \ucf1c\uc8fc\uc138\uc694)"
 c.$1(j)}else throw f
 s=10
 break
