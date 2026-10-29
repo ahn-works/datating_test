@@ -242,8 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '💡 1초 간편 시작은 별도 설정 없이 즉시 안전하게 입장합니다.
-공식 로그인은 카카오 개발자 센터 [Redirect URI] 등록 후 연동됩니다.',
+                        '💡 1초 간편 시작은 별도 설정 없이 즉시 안전하게 입장합니다.\n공식 로그인은 카카오 개발자 센터 [Redirect URI] 등록 후 연동됩니다.',
                         style: TextStyle(
                           fontSize: 11.5,
                           color: textSecondary,
