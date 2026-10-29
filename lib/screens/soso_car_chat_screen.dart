@@ -32,7 +32,8 @@ class OOMUChatStore extends ChangeNotifier {
     if (_persistenceInitialized) return;
     _persistenceInitialized = true;
     try {
-      final myUid = globalData.activeUserId;
+      final myUid = authService.currentUser?.uid ?? globalData.currentUserId.value;
+      if (myUid.isEmpty) return;
       void loadFromDoc(String docId) {
         FirebaseFirestore.instance
             .collection('user_states')

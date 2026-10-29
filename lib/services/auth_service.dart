@@ -13,6 +13,9 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Web Phone Auth용 세션 결과 저장
+  ConfirmationResult? _webConfirmationResult;
+
   // 대표님께서 발급해주신 공식 카카오 앱 키 (우무 OOMU)
   static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
   static const String kakaoRedirectUri = 'https://ahn-works.github.io/datating_test/';
@@ -240,11 +243,12 @@ class AuthService {
     globalData.userNickname.value = '게스트';
   }
 
-  // 8. 휴대폰 번호 SMS 인증번호 발송 (Firebase Phone Auth)
+  // 8. 휴대폰 번호 SMS 인증번호 발송 (Firebase Phone Auth - Web & Mobile 겸용)
   Future<void> sendPhoneSmsCode({
     required String rawPhone,
     required Function(String verificationId) onCodeSent,
     required Function(String errorMessage) onError,
+    VoidCallback? onAutoVerified,
   }) async {
     try {
       String cleanDigits = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
@@ -259,26 +263,13 @@ class AuthService {
         formattedE164 = '+82$cleanDigits';
       }
 
-      await _auth.verifyPhoneNumber(
-        phoneNumber: formattedE164,
-        timeout: const Duration(seconds: 60),
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          try {
-            final userCred = await _auth.signInWithCredential(credential);
-            if (userCred.user != null) {
-              await _syncUserWithFirestore(
-                userCred.user!,
-                provider: 'phone',
-                extraData: {
-                  'phone': rawPhone,
-                  'isPhoneVerified': true,
-                },
-              );
-            }
-          } catch (_) {}
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          debugPrint('[AuthService] Phone verify failed: ${e.code} ${e.message}');
+      if (kIsWeb) {
+        // [Flutter Web] signInWithPhoneNumber + ConfirmationResult 및 reCAPTCHA 자동 연동
+        try {
+          _webConfirmationResult = await _auth.signInWithPhoneNumber(formattedE164);
+          onCodeSent('web_confirmation_token');
+        } on FirebaseAuthException catch (e) {
+          debugPrint('[AuthService] Web Phone sign in failed: ${e.code} ${e.message}');
           String message = '인증번호 발송 실패 (${e.code})';
           if (e.code == 'invalid-phone-number') {
             message = '유효하지 않은 휴대폰 번호 형식입니다.';
@@ -286,28 +277,71 @@ class AuthService {
             message = '인증 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
           }
           onError(message);
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          onCodeSent(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
+        }
+      } else {
+        // [Mobile (Android/iOS)] verifyPhoneNumber + 콜백 처리
+        await _auth.verifyPhoneNumber(
+          phoneNumber: formattedE164,
+          timeout: const Duration(seconds: 60),
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            try {
+              final userCred = await _auth.signInWithCredential(credential);
+              if (userCred.user != null) {
+                await _syncUserWithFirestore(
+                  userCred.user!,
+                  provider: 'phone',
+                  extraData: {
+                    'phone': rawPhone,
+                    'isPhoneVerified': true,
+                  },
+                );
+                if (onAutoVerified != null) {
+                  onAutoVerified();
+                }
+              }
+            } catch (_) {}
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            debugPrint('[AuthService] Phone verify failed: ${e.code} ${e.message}');
+            String message = '인증번호 발송 실패 (${e.code})';
+            if (e.code == 'invalid-phone-number') {
+              message = '유효하지 않은 휴대폰 번호 형식입니다.';
+            } else if (e.code == 'too-many-requests') {
+              message = '인증 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+            }
+            onError(message);
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            onCodeSent(verificationId);
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {},
+        );
+      }
     } catch (e) {
       onError('SMS 발송 중 오류가 발생했습니다: $e');
     }
   }
 
-  // 9. 휴대폰 SMS 인증번호 검증 및 로그인 완료
+  // 9. 휴대폰 SMS 인증번호 검증 및 로그인 완료 (Web & Mobile 겸용)
   Future<UserCredential> verifyPhoneSmsCodeAndSignIn({
     required String verificationId,
     required String smsCode,
     required String rawPhone,
   }) async {
-    final credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: smsCode.trim(),
-    );
-    final userCredential = await _auth.signInWithCredential(credential);
+    UserCredential userCredential;
+    if (kIsWeb) {
+      if (_webConfirmationResult == null) {
+        throw Exception('웹 SMS 인증 세션이 만료되었습니다. 인증번호를 다시 요청해 주세요.');
+      }
+      userCredential = await _webConfirmationResult!.confirm(smsCode.trim());
+    } else {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode.trim(),
+      );
+      userCredential = await _auth.signInWithCredential(credential);
+    }
+
     if (userCredential.user != null) {
       await _syncUserWithFirestore(
         userCredential.user!,
@@ -380,15 +414,29 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-    }
 
-    // globalData 상태 업데이트
-    globalData.currentUserId.value = uid;
-    final data = snapshot.exists ? snapshot.data()! : null;
-    if (data != null) {
-      if (data['nickname'] != null) globalData.userNickname.value = data['nickname'];
-      if (data['location'] != null) globalData.userLocation.value = data['location'];
-      if (data['photoUrl'] != null) globalData.userAvatar.value = data['photoUrl'];
+      // 신규 가입 유저의 인메모리 상태 즉시 동기화
+      globalData.currentUserId.value = uid;
+      globalData.userNickname.value = initialNickname;
+      globalData.userLocation.value = '서울 마포구 연남동';
+      globalData.userAvatar.value = defaultPhoto;
+    } else {
+      // 기존 유저의 경우 추가 메타데이터(전화번호 인증 등) 병합 저장
+      if (extraData != null && extraData.isNotEmpty) {
+        await docRef.set({
+          ...extraData,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+
+      // 기존 유저 인메모리 상태 동기화
+      globalData.currentUserId.value = uid;
+      final data = snapshot.data();
+      if (data != null) {
+        if (data['nickname'] != null) globalData.userNickname.value = data['nickname'];
+        if (data['location'] != null) globalData.userLocation.value = data['location'];
+        if (data['photoUrl'] != null) globalData.userAvatar.value = data['photoUrl'];
+      }
     }
   }
 

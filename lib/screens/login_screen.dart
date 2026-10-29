@@ -921,6 +921,12 @@ class _PhoneAuthSheetState extends State<_PhoneAuthSheet> {
 
     await authService.sendPhoneSmsCode(
       rawPhone: rawPhone,
+      onAutoVerified: () {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          widget.onSuccess();
+        }
+      },
       onCodeSent: (vId) {
         if (mounted) {
           setState(() {
@@ -1058,7 +1064,7 @@ class _PhoneAuthSheetState extends State<_PhoneAuthSheet> {
                 SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _sendCode,
+                    onPressed: (_isLoading || (_isCodeSent && _timerSeconds > 150)) ? null : _sendCode,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _isCodeSent ? const Color(0xFF111111) : brandCoral,
                       foregroundColor: Colors.white,
@@ -1066,7 +1072,9 @@ class _PhoneAuthSheetState extends State<_PhoneAuthSheet> {
                       elevation: 0,
                     ),
                     child: Text(
-                      _isCodeSent ? '재발송' : '인증요청',
+                      _isCodeSent
+                          ? (_timerSeconds > 150 ? '${_timerSeconds - 150}초 후 재발송' : '재발송')
+                          : '인증요청',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
                     ),
                   ),
