@@ -128,58 +128,63 @@ class AuthService {
     }
   }
 
-  // 5-1. 실제 사용자 카카오 계정 이메일 직접 연동
+  // 5-1. 실제 사용자 카카오 계정 고유 ID 기반 1:1 결정적 연동 (중복 가입 0%)
   Future<UserCredential> signInWithRealKakaoAccount({
-    required String kakaoEmail,
+    required String kakaoId,
     required String kakaoNickname,
+    String? kakaoEmail,
     String? kakaoProfileImg,
   }) async {
-    final cleanEmail = kakaoEmail.trim();
+    final cleanId = kakaoId.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
+    final authEmail = 'kakao_${cleanId}@auth.oomu.app';
+    final cleanNick = kakaoNickname.trim().isNotEmpty ? kakaoNickname.trim() : '카카오회원';
+    const String tempPw = 'kakao_oomu_auth_2026!';
     syncKakaoConfigToFirestore();
-    final cleanNick = kakaoNickname.trim();
-    const String tempPw = 'kakao_pass_oomu_2026!';
 
     UserCredential credential;
     try {
+      // 1. 이미 가입된 카카오 유저면 로그인
       credential = await _auth.signInWithEmailAndPassword(
-          email: cleanEmail, password: tempPw);
-    } catch (_) {
-      try {
-        credential = await _auth.createUserWithEmailAndPassword(
-            email: cleanEmail, password: tempPw);
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'email-already-in-use') {
-          final kakaoAlias = 'kakao_${cleanEmail.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}@oomu.app';
-          try {
-            credential = await _auth.signInWithEmailAndPassword(
-                email: kakaoAlias, password: tempPw);
-          } catch (_) {
-            credential = await _auth.createUserWithEmailAndPassword(
-                email: kakaoAlias, password: tempPw);
-          }
-        } else {
-          final fallbackEmail = 'kakao_${DateTime.now().millisecondsSinceEpoch}@oomu.app';
+        email: authEmail,
+        password: tempPw,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' || e.code == 'invalid-credential' || e.code == 'wrong-password') {
+        try {
+          // 2. 신규 회원이면 Firebase Auth 계정 생성
           credential = await _auth.createUserWithEmailAndPassword(
-              email: fallbackEmail, password: tempPw);
+            email: authEmail,
+            password: tempPw,
+          );
+        } on FirebaseAuthException catch (createErr) {
+          if (createErr.code == 'email-already-in-use') {
+            credential = await _auth.signInWithEmailAndPassword(
+              email: authEmail,
+              password: tempPw,
+            );
+          } else {
+            rethrow;
+          }
         }
-      } catch (_) {
-        final fallbackEmail = 'kakao_${DateTime.now().millisecondsSinceEpoch}@oomu.app';
-        credential = await _auth.createUserWithEmailAndPassword(
-            email: fallbackEmail, password: tempPw);
+      } else {
+        rethrow;
       }
     }
 
+    // 3. Firestore 사용자 프로필 동기화 (카카오 회원은 본인인증 완료 상태로 인정)
     await _syncUserWithFirestore(
       credential.user!,
-      customNickname:
-          cleanNick.isNotEmpty ? cleanNick : cleanEmail.split('@').first,
-      customName: cleanNick.isNotEmpty ? cleanNick : '카카오 회원',
+      customNickname: cleanNick,
+      customName: cleanNick,
       provider: 'kakao',
       extraData: {
         'kakaoApp': '우무(OOMU)',
-        'kakaoEmail': cleanEmail,
-        if (kakaoProfileImg != null) 'photoUrl': kakaoProfileImg,
-        if (kakaoProfileImg != null) 'avatarUrl': kakaoProfileImg,
+        'kakaoId': cleanId,
+        'kakaoEmail': kakaoEmail ?? '',
+        'isVerified': true, // 카카오 본인 확인 완료
+        'isPhoneVerified': true,
+        if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty) 'photoUrl': kakaoProfileImg,
+        if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty) 'avatarUrl': kakaoProfileImg,
       },
     );
     return credential;
@@ -187,81 +192,85 @@ class AuthService {
 
   // 5-2. 공식 카카오 OAuth 리다이렉트 인가 코드(Code) 처리
   Future<UserCredential> handleKakaoOAuthCode(String code) async {
+    // 1. 카카오 토큰 발급 요청
+    final tokenResponse = await http.post(
+      Uri.parse('https://kauth.kakao.com/oauth/token'),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+      },
+      body: {
+        'grant_type': 'authorization_code',
+        'client_id': kakaoRestApiKey,
+        'redirect_uri': kakaoRedirectUri,
+        'code': code,
+      },
+    ).timeout(const Duration(seconds: 10));
+
+    if (tokenResponse.statusCode != 200) {
+      try {
+        final errorData = jsonDecode(tokenResponse.body);
+        final desc = errorData['error_description'] ?? errorData['error'] ?? '토큰 발급 실패';
+        throw Exception('카카오 토큰 발급 실패: $desc');
+      } catch (e) {
+        if (e is Exception && e.toString().contains('카카오')) rethrow;
+        throw Exception('카카오 인증 토큰 응답 오류 (${tokenResponse.statusCode})');
+      }
+    }
+
+    final tokenData = jsonDecode(tokenResponse.body);
+    final accessToken = tokenData['access_token'];
+
+    // 2. 카카오 사용자 프로필 조회
+    final userResponse = await http.get(
+      Uri.parse('https://kapi.kakao.com/v2/user/me'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      },
+    ).timeout(const Duration(seconds: 10));
+
+    if (userResponse.statusCode != 200) {
+      throw Exception('카카오 사용자 정보 조회 실패 (${userResponse.statusCode})');
+    }
+
+    final userData = jsonDecode(userResponse.body);
+    final String kakaoId = userData['id'].toString();
+
     String kakaoNickname = '카카오회원';
     String? kakaoEmail;
     String? kakaoProfileImg;
-    String kakaoId = 'kakao_${DateTime.now().millisecondsSinceEpoch}';
 
-    try {
-      // 1. 카카오 토큰 발급 요청
-      final tokenResponse = await http.post(
-        Uri.parse('https://kauth.kakao.com/oauth/token'),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-        },
-        body: {
-          'grant_type': 'authorization_code',
-          'client_id': kakaoRestApiKey,
-          'redirect_uri': kakaoRedirectUri,
-          'code': code,
-        },
-      ).timeout(const Duration(seconds: 5));
+    final properties = userData['properties'] as Map<String, dynamic>?;
+    final kakaoAccount = userData['kakao_account'] as Map<String, dynamic>?;
 
-      if (tokenResponse.statusCode == 200) {
-        final tokenData = jsonDecode(tokenResponse.body);
-        final accessToken = tokenData['access_token'];
-
-        // 2. 카카오 사용자 프로필 조회
-        final userResponse = await http.get(
-          Uri.parse('https://kapi.kakao.com/v2/user/me'),
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-          },
-        ).timeout(const Duration(seconds: 5));
-
-        if (userResponse.statusCode == 200) {
-          final userData = jsonDecode(userResponse.body);
-          kakaoId = userData['id']?.toString() ?? kakaoId;
-          final properties = userData['properties'] as Map<String, dynamic>?;
-          final kakaoAccount =
-              userData['kakao_account'] as Map<String, dynamic>?;
-
-          if (properties != null) {
-            kakaoNickname = properties['nickname'] ?? kakaoNickname;
-            kakaoProfileImg = properties['profile_image'];
-          }
-          if (kakaoAccount != null) {
-            kakaoEmail = kakaoAccount['email'];
-            if (kakaoAccount['profile'] != null) {
-              kakaoNickname =
-                  kakaoAccount['profile']['nickname'] ?? kakaoNickname;
-              kakaoProfileImg = kakaoAccount['profile']['profile_image_url'] ??
-                  kakaoProfileImg;
-            }
-          }
-        }
+    if (properties != null) {
+      kakaoNickname = properties['nickname'] ?? kakaoNickname;
+      kakaoProfileImg = properties['profile_image'];
+    }
+    if (kakaoAccount != null) {
+      kakaoEmail = kakaoAccount['email'];
+      if (kakaoAccount['profile'] != null) {
+        kakaoNickname = kakaoAccount['profile']['nickname'] ?? kakaoNickname;
+        kakaoProfileImg = kakaoAccount['profile']['profile_image_url'] ?? kakaoProfileImg;
       }
-    } catch (e) {
-      debugPrint('[AuthService] Kakao OAuth code exchange error: $e');
     }
 
-    final finalEmail = kakaoEmail ?? 'kakao_${kakaoId.hashCode.abs()}@oomu.app';
+    // 3. 고유 카카오 ID 기반으로 1:1 결정적 계정 연동 (중복 계정 원천 방지)
     return await signInWithRealKakaoAccount(
-      kakaoEmail: finalEmail,
+      kakaoId: kakaoId,
       kakaoNickname: kakaoNickname,
+      kakaoEmail: kakaoEmail,
       kakaoProfileImg: kakaoProfileImg,
     );
   }
 
-  // 5-3. 카카오 계정 빠른 시작
-  Future<UserCredential> signInWithKakao(
-      {String? kakaoNickname, String? kakaoEmail}) async {
+  // 5-3. 카카오 계정 빠른 시작 (테스트 및 로컬 환경용 고정 계정)
+  Future<UserCredential> signInWithKakao({String? testId, String? nickname}) async {
+    final id = (testId != null && testId.isNotEmpty) ? testId : 'test_developer';
     return await signInWithRealKakaoAccount(
-      kakaoEmail: (kakaoEmail != null && kakaoEmail.isNotEmpty)
-          ? kakaoEmail
-          : 'kakao_user_fixed@oomu.app',
-      kakaoNickname: kakaoNickname ?? '카카오회원',
+      kakaoId: id,
+      kakaoNickname: nickname ?? '카카오회원',
+      kakaoEmail: 'test_kakao@oomu.app',
     );
   }
 
