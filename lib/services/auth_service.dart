@@ -18,7 +18,8 @@ class AuthService {
 
   // 대표님께서 발급해주신 공식 카카오 앱 키 (우무 OOMU)
   static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
-  static const String kakaoRedirectUri = 'https://ahn-works.github.io/datating_test/';
+  static const String kakaoRedirectUri =
+      'https://ahn-works.github.io/datating_test/';
 
   String get kakaoOAuthUrl =>
       'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoRestApiKey&redirect_uri=$kakaoRedirectUri&response_type=code';
@@ -39,11 +40,13 @@ class AuthService {
         'provider': 'kakao',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-      debugPrint('[AuthService] Kakao config synced to Firestore (config/kakao_auth)');
+      debugPrint(
+          '[AuthService] Kakao config synced to Firestore (config/kakao_auth)');
     } catch (e) {
       debugPrint('[AuthService] Kakao config Firestore sync: $e');
     }
   }
+
   bool get isAdmin =>
       _auth.currentUser?.email == 'ansimhyang60@naver.com' ||
       globalData.activeUserId == 'udr2AlH3YIX7LEnyHdWGGFcOu2g1';
@@ -102,7 +105,8 @@ class AuthService {
       return credential;
     } catch (e) {
       debugPrint('[AuthService] Google login popup fallback: $e');
-      final fakeEmail = 'google_${DateTime.now().millisecondsSinceEpoch}@oomu.app';
+      final fakeEmail =
+          'google_${DateTime.now().millisecondsSinceEpoch}@oomu.app';
       final credential = await _auth.createUserWithEmailAndPassword(
         email: fakeEmail,
         password: 'google_temp_pw_99!',
@@ -130,14 +134,17 @@ class AuthService {
 
     UserCredential credential;
     try {
-      credential = await _auth.signInWithEmailAndPassword(email: cleanEmail, password: tempPw);
+      credential = await _auth.signInWithEmailAndPassword(
+          email: cleanEmail, password: tempPw);
     } catch (_) {
-      credential = await _auth.createUserWithEmailAndPassword(email: cleanEmail, password: tempPw);
+      credential = await _auth.createUserWithEmailAndPassword(
+          email: cleanEmail, password: tempPw);
     }
 
     await _syncUserWithFirestore(
       credential.user!,
-      customNickname: cleanNick.isNotEmpty ? cleanNick : cleanEmail.split('@').first,
+      customNickname:
+          cleanNick.isNotEmpty ? cleanNick : cleanEmail.split('@').first,
       customName: cleanNick.isNotEmpty ? cleanNick : '카카오 회원',
       provider: 'kakao',
       extraData: {
@@ -161,7 +168,9 @@ class AuthService {
       // 1. 카카오 토큰 발급 요청
       final tokenResponse = await http.post(
         Uri.parse('https://kauth.kakao.com/oauth/token'),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+        },
         body: {
           'grant_type': 'authorization_code',
           'client_id': kakaoRestApiKey,
@@ -187,7 +196,8 @@ class AuthService {
           final userData = jsonDecode(userResponse.body);
           kakaoId = userData['id']?.toString() ?? kakaoId;
           final properties = userData['properties'] as Map<String, dynamic>?;
-          final kakaoAccount = userData['kakao_account'] as Map<String, dynamic>?;
+          final kakaoAccount =
+              userData['kakao_account'] as Map<String, dynamic>?;
 
           if (properties != null) {
             kakaoNickname = properties['nickname'] ?? kakaoNickname;
@@ -196,8 +206,10 @@ class AuthService {
           if (kakaoAccount != null) {
             kakaoEmail = kakaoAccount['email'];
             if (kakaoAccount['profile'] != null) {
-              kakaoNickname = kakaoAccount['profile']['nickname'] ?? kakaoNickname;
-              kakaoProfileImg = kakaoAccount['profile']['profile_image_url'] ?? kakaoProfileImg;
+              kakaoNickname =
+                  kakaoAccount['profile']['nickname'] ?? kakaoNickname;
+              kakaoProfileImg = kakaoAccount['profile']['profile_image_url'] ??
+                  kakaoProfileImg;
             }
           }
         }
@@ -215,7 +227,8 @@ class AuthService {
   }
 
   // 5-3. 카카오 계정 빠른 시작
-  Future<UserCredential> signInWithKakao({String? kakaoNickname, String? kakaoEmail}) async {
+  Future<UserCredential> signInWithKakao(
+      {String? kakaoNickname, String? kakaoEmail}) async {
     return await signInWithRealKakaoAccount(
       kakaoEmail: (kakaoEmail != null && kakaoEmail.isNotEmpty)
           ? kakaoEmail
@@ -266,15 +279,19 @@ class AuthService {
       if (kIsWeb) {
         // [Flutter Web] signInWithPhoneNumber + ConfirmationResult 및 reCAPTCHA 자동 연동
         try {
-          _webConfirmationResult = await _auth.signInWithPhoneNumber(formattedE164);
+          _webConfirmationResult =
+              await _auth.signInWithPhoneNumber(formattedE164);
           onCodeSent('web_confirmation_token');
         } on FirebaseAuthException catch (e) {
-          debugPrint('[AuthService] Web Phone sign in failed: ${e.code} ${e.message}');
+          debugPrint(
+              '[AuthService] Web Phone sign in failed: ${e.code} ${e.message}');
           String message = '인증번호 발송 실패 (${e.code})';
           if (e.code == 'invalid-phone-number') {
             message = '유효하지 않은 휴대폰 번호 형식입니다.';
           } else if (e.code == 'too-many-requests') {
             message = '인증 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+          } else if (e.code == 'operation-not-allowed') {
+            message = 'Firebase 콘솔에서 [전화(Phone)] 로그인이 활성화되지 않았습니다. (Authentication > Sign-in method에서 전화를 켜주세요)';
           }
           onError(message);
         }
@@ -302,7 +319,8 @@ class AuthService {
             } catch (_) {}
           },
           verificationFailed: (FirebaseAuthException e) {
-            debugPrint('[AuthService] Phone verify failed: ${e.code} ${e.message}');
+            debugPrint(
+                '[AuthService] Phone verify failed: ${e.code} ${e.message}');
             String message = '인증번호 발송 실패 (${e.code})';
             if (e.code == 'invalid-phone-number') {
               message = '유효하지 않은 휴대폰 번호 형식입니다.';
@@ -374,16 +392,20 @@ class AuthService {
     final snapshot = await docRef.get();
 
     if (!snapshot.exists) {
-      final String initialNickname = customNickname ?? (isAdminEmail ? '오오무 총괄운영자' : (user.displayName ?? '우리동네이웃'));
+      final String initialNickname = customNickname ??
+          (isAdminEmail ? '오오무 총괄운영자' : (user.displayName ?? '우리동네이웃'));
       final String initialName = customName ?? (isAdminEmail ? '안대표' : '회원');
       final String initialRole = isAdminEmail ? 'admin' : 'user';
       final String initialGender = customGender ?? (isAdminEmail ? '여성' : '남성');
 
       // 구글/카카오 계정의 원본 프로필 사진 URL 우선 적용
       final String? authPhotoUrl = user.photoURL;
-      final String defaultPhoto = (authPhotoUrl != null && authPhotoUrl.isNotEmpty)
-          ? authPhotoUrl
-          : (initialGender == '여성' ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg');
+      final String defaultPhoto =
+          (authPhotoUrl != null && authPhotoUrl.isNotEmpty)
+              ? authPhotoUrl
+              : (initialGender == '여성'
+                  ? 'assets/images/kr_female_1.jpg'
+                  : 'assets/images/kr_male_1.jpg');
 
       await docRef.set({
         'userId': uid,
@@ -396,7 +418,8 @@ class AuthService {
         'location': '서울 마포구 연남동',
         'job': isAdminEmail ? 'OOMU 총괄 기획/운영' : 'IT/기획',
         'mbti': isAdminEmail ? 'ENFJ' : 'ENFP',
-        'hobbies': isAdminEmail ? ['맛집탐방', '보드게임', '러닝', '전시회'] : ['맛집탐방', '카페투어'],
+        'hobbies':
+            isAdminEmail ? ['맛집탐방', '보드게임', '러닝', '전시회'] : ['맛집탐방', '카페투어'],
         'personalities': ['친화력 갑', '리액션 요정'],
         'drinking': ['가볍게 한잔'],
         'bio': isAdminEmail
@@ -433,9 +456,12 @@ class AuthService {
       globalData.currentUserId.value = uid;
       final data = snapshot.data();
       if (data != null) {
-        if (data['nickname'] != null) globalData.userNickname.value = data['nickname'];
-        if (data['location'] != null) globalData.userLocation.value = data['location'];
-        if (data['photoUrl'] != null) globalData.userAvatar.value = data['photoUrl'];
+        if (data['nickname'] != null)
+          globalData.userNickname.value = data['nickname'];
+        if (data['location'] != null)
+          globalData.userLocation.value = data['location'];
+        if (data['photoUrl'] != null)
+          globalData.userAvatar.value = data['photoUrl'];
       }
     }
   }
@@ -491,7 +517,8 @@ class AuthService {
       'isPhoneVerified': true,
       'location': location,
       'address': location,
-      if (detailAddress != null && detailAddress.isNotEmpty) 'detailAddress': detailAddress,
+      if (detailAddress != null && detailAddress.isNotEmpty)
+        'detailAddress': detailAddress,
       'job': job,
       'mbti': mbti,
       'hobbies': hobbies,
@@ -504,7 +531,10 @@ class AuthService {
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
-    await _firestore.collection('users').doc(uid).set(updateData, SetOptions(merge: true));
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .set(updateData, SetOptions(merge: true));
 
     // 글로벌 상태 즉시 동기화
     globalData.userNickname.value = nickname;
