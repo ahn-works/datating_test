@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'profile_setup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'soso_car_home_screen.dart';
 import '../services/auth_service.dart';
