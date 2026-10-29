@@ -116708,7 +116708,7 @@ ET(){var s=0,r=A.B(t.H),q,p=this,o,n
 var $async$ET=A.x(function(a,b){if(a===1)return A.y(b,r)
 for(;;)switch(s){case 0:n=B.c.al(p.d.a.a)
 if(n.length!==0){o=A.cl("[^0-9]",!1)
-o=A.dw(n,o,"").length<10}else o=!0
+o=A.dw(n,o,"").length<9}else o=!0
 if(o){p.F(new A.aV_(p))
 s=1
 break}p.F(new A.aV0(p))
@@ -124046,11 +124046,12 @@ var $async$Cp=A.x(function(a0,a1){if(a0===1){o.push(a1)
 s=p}for(;;)switch(s){case 0:p=4
 h=A.cl("[^0-9]",!1)
 m=A.dw(d,h,"")
-if(J.bd(m)<10){c.$1("\uc62c\ubc14\ub978 10~11\uc790\ub9ac \ud734\ub300\ud3f0 \ubc88\ud638\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694.")
+if(J.bd(m)<9){c.$1("\uc62c\ubc14\ub978 \ud734\ub300\ud3f0 \ubc88\ud638\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694.")
 s=1
-break}l=m
-if(J.baq(m,"0"))l="+82"+J.bmv(m,1)
-else if(!J.baq(m,"+"))l="+82"+A.i(m)
+break}l=null
+if(J.baq(m,"82"))l="+"+A.i(m)
+else if(J.baq(m,"0"))l="+82"+J.bmv(m,1)
+else l="+82"+A.i(m)
 p=8
 s=11
 return A.t(n.a.CE(l),$async$Cp)
