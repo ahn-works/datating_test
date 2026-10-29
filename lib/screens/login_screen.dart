@@ -909,7 +909,7 @@ class _PhoneAuthSheetState extends State<_PhoneAuthSheet> {
 
   Future<void> _sendCode() async {
     final rawPhone = _phoneController.text.trim();
-    if (rawPhone.isEmpty || rawPhone.replaceAll(RegExp(r'[^0-9]'), '').length < 10) {
+    if (rawPhone.isEmpty || rawPhone.replaceAll(RegExp(r'[^0-9]'), '').length < 9) {
       setState(() => _errorMessage = '올바른 휴대폰 번호(10~11자리)를 입력해 주세요.');
       return;
     }

@@ -265,14 +265,19 @@ class AuthService {
   }) async {
     try {
       String cleanDigits = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
-      if (cleanDigits.length < 10) {
-        onError('올바른 10~11자리 휴대폰 번호를 입력해 주세요.');
+      if (cleanDigits.length < 9) {
+        onError('올바른 휴대폰 번호를 입력해 주세요.');
         return;
       }
-      String formattedE164 = cleanDigits;
-      if (cleanDigits.startsWith('0')) {
+      String formattedE164;
+      if (cleanDigits.startsWith('82')) {
+        // +82 또는 82로 시작하는 번호: +8210... 형태로 정리
+        formattedE164 = '+$cleanDigits';
+      } else if (cleanDigits.startsWith('0')) {
+        // 010... 형태: 맨 앞 0을 제거하고 +8210... 형태로 변환
         formattedE164 = '+82${cleanDigits.substring(1)}';
-      } else if (!cleanDigits.startsWith('+')) {
+      } else {
+        // 10... 형태
         formattedE164 = '+82$cleanDigits';
       }
 
