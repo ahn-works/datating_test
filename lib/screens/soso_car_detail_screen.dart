@@ -9,6 +9,8 @@ import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import 'soso_car_chat_screen.dart';
 import 'user_profile_screen.dart';
+import '../widgets/bouncy_tap.dart';
+import '../widgets/oomu_spring_sheet.dart';
 
 /// OOMU 모임 상세 화면 - 100점 풀-피니시 (29CM 에디토리얼 + TDS 제로프릭션 + 카카오맵 네이티브 뷰)
 class OOMUDetailScreen extends StatefulWidget {
@@ -486,47 +488,56 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             elevation: 0,
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
-                child: IconButton(
-                  tooltip: '뒤로가기',
-                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                  onPressed: () => Navigator.pop(context),
+              child: BouncyTap(
+                scaleDown: 0.90,
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
                 ),
               ),
             ),
             actions: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
-                  child: IconButton(
-                    tooltip: '상단 찜하기',
-                    icon: Icon(
+                child: BouncyTap(
+                  scaleDown: 0.88,
+                  onHaptic: OomuHaptics.light,
+                  onTap: () {
+                    setState(() => _isFavorite = !_isFavorite);
+                    if (widget.meetup != null) {
+                      globalData.toggleFavorite(widget.meetup!);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(_isFavorite ? '❤️ 찜한 모임에 추가되었습니다' : '💔 찜한 모임에서 제거되었습니다'),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+                    alignment: Alignment.center,
+                    child: Icon(
                       _isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: _isFavorite ? destructiveColor : Colors.white,
                       size: 20,
                     ),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      setState(() => _isFavorite = !_isFavorite);
-                      if (widget.meetup != null) {
-                        globalData.toggleFavorite(widget.meetup!);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(_isFavorite ? '❤️ 찜한 모임에 추가되었습니다' : '💔 찜한 모임에서 제거되었습니다'),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                    },
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: '모임 신고',
-                icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
-                onPressed: () => _showMeetupReportBottomSheet(context),
+              BouncyTap(
+                scaleDown: 0.90,
+                onTap: () => _showMeetupReportBottomSheet(context),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.more_vert_rounded, color: Colors.white),
+                ),
               ),
               const SizedBox(width: 4),
             ],
@@ -1227,30 +1238,28 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           child: Row(
             children: [
               // 찜하기 버튼 (52x52dp 1:1 수평 대칭 및 터치영역 확보)
-              SizedBox(
-                width: 52,
-                height: 52,
+              BouncyTap(
+                scaleDown: 0.88,
+                onHaptic: OomuHaptics.light,
+                onTap: () {
+                  setState(() => _isFavorite = !_isFavorite);
+                  if (widget.meetup != null) {
+                    globalData.toggleFavorite(widget.meetup!);
+                  }
+                },
                 child: Container(
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
                     color: surfaceColor,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: borderSubtle),
                   ),
-                  child: IconButton(
-                    tooltip: '찜하기',
-                    padding: EdgeInsets.zero,
-                    icon: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-                      color: _isFavorite ? destructiveColor : textSecondary,
-                      size: 22,
-                    ),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      setState(() => _isFavorite = !_isFavorite);
-                      if (widget.meetup != null) {
-                        globalData.toggleFavorite(widget.meetup!);
-                      }
-                    },
+                  alignment: Alignment.center,
+                  child: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
+                    color: _isFavorite ? destructiveColor : textSecondary,
+                    size: 22,
                   ),
                 ),
               ),
@@ -1258,46 +1267,54 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
               // 핵심 신청 버튼
               Expanded(
-                child: SizedBox(
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      if (_isLightning) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('⚡ 실시간 번개 모임에 합류했습니다! 채팅방으로 바로 연결됩니다.'),
-                            backgroundColor: coralAccent,
+                child: BouncyTap(
+                  scaleDown: 0.96,
+                  onHaptic: OomuHaptics.medium,
+                  onTap: () {
+                    if (_isLightning) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('⚡ 실시간 번개 모임에 합류했습니다! 채팅방으로 바로 연결됩니다.'),
+                          backgroundColor: coralAccent,
+                        ),
+                      );
+                      final rId = oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'lightning_room_01');
+                      oomuChatStore.rejoinRoom(rId);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OOMUChatScreen(
+                            title: widget.meetup?['title'] ?? '실시간 번개 팟',
+                            memberCount: 3,
+                            chatRoomId: rId,
                           ),
-                        );
-                        final rId = oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'lightning_room_01');
-                        oomuChatStore.rejoinRoom(rId);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => OOMUChatScreen(
-                              title: widget.meetup?['title'] ?? '실시간 번개 팟',
-                              memberCount: 3,
-                              chatRoomId: rId,
-                            ),
-                          ),
-                        );
-                      } else {
-                        if (!_isApplying) {
-                          _showApplicationBottomSheet(context);
-                        }
+                        ),
+                      );
+                    } else {
+                      if (!_isApplying) {
+                        _showApplicationBottomSheet(context);
                       }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: coralAccent,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    }
+                  },
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: coralAccent,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: coralAccent.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
+                    alignment: Alignment.center,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (_isLightning) ...[
-                          const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+                          const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
                           const SizedBox(width: 6),
                         ],
                         Text(

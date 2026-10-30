@@ -6,6 +6,7 @@ import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/ugc_action_sheets.dart';
 import 'user_profile_screen.dart';
+import '../widgets/bouncy_tap.dart';
 
 class CommunityPostDetailScreen extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -426,9 +427,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       children: [
                         Tooltip(
                           message: '게시글 좋아요',
-                          child: InkWell(
+                          child: BouncyTap(
+                            scaleDown: 0.90,
+                            onHaptic: OomuHaptics.light,
                             onTap: _toggleLike,
-                            borderRadius: BorderRadius.circular(10),
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                               child: Padding(
@@ -775,8 +777,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   const SizedBox(width: 8),
                   Tooltip(
                     message: '댓글 전송',
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
+                    child: BouncyTap(
+                      scaleDown: 0.88,
+                      onHaptic: OomuHaptics.medium,
                       onTap: _isSubmittingComment ? null : _addComment,
                       child: SizedBox(
                         width: 48,

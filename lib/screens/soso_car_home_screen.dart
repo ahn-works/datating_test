@@ -20,6 +20,8 @@ import 'community_post_detail_screen.dart';
 import 'community_post_create_screen.dart';
 import 'event_detail_screen.dart';
 import 'user_profile_screen.dart';
+import '../widgets/bouncy_tap.dart';
+import '../widgets/oomu_spring_sheet.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   final int initialTab;
@@ -2957,8 +2959,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         titleSpacing: 16,
-        title: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        title: BouncyTap(
+          scaleDown: 0.96,
           onTap: _showLocationPickerBottomSheet,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 48),
@@ -3001,8 +3003,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         actions: [
           Tooltip(
             message: '지도 탐색',
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: BouncyTap(
+              scaleDown: 0.92,
               onTap: () {
                 Navigator.push(
                   context,
@@ -3024,8 +3026,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
           Tooltip(
             message: '알림',
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: BouncyTap(
+              scaleDown: 0.92,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const NotificationScreen()),
@@ -3110,7 +3112,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             itemCount: _categories.length + 1,
                             itemBuilder: (context, index) {
                               if (index == _categories.length) {
-                                return GestureDetector(
+                                return BouncyTap(
+                                  scaleDown: 0.94,
                                   onTap: _showFullCategoryBottomSheet,
                                   child: Container(
                                     margin: const EdgeInsets.only(right: 8),
@@ -3135,7 +3138,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 );
                               }
                               bool isSelected = _selectedCategoryIndex == index;
-                              return GestureDetector(
+                              return BouncyTap(
+                                scaleDown: 0.94,
+                                onHaptic: OomuHaptics.selection,
                                 onTap: () => setState(() {
                                   _selectedCategoryIndex = index;
                                   _selectedSubCategory = '전체';
@@ -3736,8 +3741,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildCommunityCard(Map<String, dynamic> post) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return BouncyTap(
+      scaleDown: 0.98,
       onTap: () {
         Navigator.push(
           context,
@@ -4478,8 +4483,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Widget _buildMeetupCard(Map<String, dynamic> meetup) {
     final bool isLightning = _isLightningMeetup(meetup);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return BouncyTap(
+      scaleDown: 0.98,
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
@@ -4749,8 +4754,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Widget _buildMeetupListRow(Map<String, dynamic> meetup) {
     final bool isLightning = _isLightningMeetup(meetup);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return BouncyTap(
+      scaleDown: 0.98,
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -5228,6 +5233,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
+        OomuHaptics.selection();
         if (index == 3) {
           oomuChatStore.syncWithCurrentUser();
         }

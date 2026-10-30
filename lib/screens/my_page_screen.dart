@@ -15,6 +15,7 @@ import '../services/r2_storage_service.dart';
 import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
 import 'user_profile_screen.dart';
+import '../widgets/bouncy_tap.dart';
 
 class MyPageScreen extends StatefulWidget {
   final bool isEmbedded;
@@ -1677,9 +1678,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
     required Color textPrimary,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return BouncyTap(
+      scaleDown: 0.98,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
         child: Row(

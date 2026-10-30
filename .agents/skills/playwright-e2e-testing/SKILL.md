@@ -83,3 +83,4 @@ test('모바일 홈 화면 콘솔 에러 제로 및 핵심 탭 정상 렌더링'
 # Playwright 스냅샷 비교 실행
 npx playwright test --update-snapshots
 ```
+

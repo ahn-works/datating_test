@@ -8,6 +8,7 @@ import 'soso_car_home_screen.dart';
 import 'soso_car_host_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'my_page_screen.dart';
+import '../widgets/bouncy_tap.dart';
 
 class ChatScreen extends StatefulWidget {
   final bool isEmbedded;
@@ -278,7 +279,8 @@ class _ChatScreenState extends State<ChatScreen> {
               final members = room['members'] as int? ?? 1;
               final isGroup = room['isGroup'] as bool? ?? (members > 2);
 
-              return GestureDetector(
+              return BouncyTap(
+                scaleDown: 0.98,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -294,6 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   });
                 },
                 onLongPress: () {
+                  OomuHaptics.heavy();
                   showModalBottomSheet(
                     context: context,
                     backgroundColor: Colors.transparent,
