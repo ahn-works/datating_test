@@ -23,6 +23,7 @@ trigger: always_on
 4. **`ddg_proxy.py` & `scripts/claude_client.py`**: 로컬 `http://127.0.0.1:1337/v1`, API Key `'pk-dummy'`로 구동되는 무료 Claude 7종 / GPT 9종 브릿지
 5. **`lib/services/ai_service.dart` & `lib/features/matching/match_controller.dart`**: Flutter 앱 내 `OomuAiService.instance` 로컬 AI 연동 서비스 및 하이브리드 매칭 컨트롤러
 6. **`docs/OOMU_MASTER_SPEC.md` & `.antigravity/rules/security_distribution_rules.md`**: OOMU 통합 마스터 스펙 및 3계층 Zero-Secret 보안 규칙
+7. **.agents/skills/ 5대 최고급 엔지니어링 스킬 팩**: emil-motion-design (스프링 물리/햅틱/120fps), impeccable-design-audit (48dp 터치타깃/P0~P3 감사), 	aste-anti-slop (AI 편향 파괴/브랜드 Vibe), lutter-expert-performance (Impeller 120fps/메모리 누수 방지), playwright-e2e-testing (모바일 뷰포트 E2E/비주얼 회귀)
 
 ---
 
