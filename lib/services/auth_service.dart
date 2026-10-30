@@ -525,6 +525,16 @@ class AuthService {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (!doc.exists) return false;
       final data = doc.data()!;
+      // 로그인된 사용자 프로필 인메모리 즉시 동기화
+      if (data['location'] != null && data['location'].toString().trim().isNotEmpty) {
+        globalData.userLocation.value = data['location'].toString().trim();
+      }
+      if (data['nickname'] != null && data['nickname'].toString().trim().isNotEmpty) {
+        globalData.userNickname.value = data['nickname'].toString().trim();
+      }
+      if (data['photoUrl'] != null && data['photoUrl'].toString().trim().isNotEmpty) {
+        globalData.userAvatar.value = data['photoUrl'].toString().trim();
+      }
       if (data['role'] == 'admin') return true;
       return data['isProfileComplete'] == true;
     } catch (_) {

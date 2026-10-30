@@ -644,8 +644,57 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   @override
   void initState() {
     super.initState();
+    if (globalData.userLocation.value.isNotEmpty && globalData.userLocation.value != '마포구 서교동') {
+      _currentLocation = globalData.userLocation.value;
+    }
     _homeDashboardTab = widget.initialTab;
     _seedDatabase();
+    _loadUserLocation();
+    globalData.userLocation.addListener(_onGlobalLocationChanged);
+  }
+
+  void _onGlobalLocationChanged() {
+    if (mounted && globalData.userLocation.value.isNotEmpty && _currentLocation != globalData.userLocation.value) {
+      setState(() {
+        _currentLocation = globalData.userLocation.value;
+      });
+    }
+  }
+
+  Future<void> _loadUserLocation() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid ?? globalData.activeUserId;
+    if (uid.isNotEmpty && uid != 'guest') {
+      try {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+          final loc = data['location'] as String?;
+          if (loc != null && loc.trim().isNotEmpty) {
+            final trimmedLoc = loc.trim();
+            if (mounted) {
+              setState(() {
+                _currentLocation = trimmedLoc;
+              });
+            }
+            globalData.userLocation.value = trimmedLoc;
+          }
+          final nick = data['nickname'] as String?;
+          if (nick != null && nick.trim().isNotEmpty) {
+            globalData.userNickname.value = nick.trim();
+          }
+        }
+      } catch (e) {
+        debugPrint('[HomeScreen] _loadUserLocation error: $e');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    globalData.userLocation.removeListener(_onGlobalLocationChanged);
+    _trendPageController.dispose();
+    super.dispose();
   }
 
   Future<void> _seedDatabase() async {
