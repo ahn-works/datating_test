@@ -4,6 +4,7 @@ import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/oomu_ui_helpers.dart';
 import 'soso_car_host_screen.dart';
