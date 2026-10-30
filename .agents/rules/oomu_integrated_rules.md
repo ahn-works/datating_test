@@ -23,7 +23,7 @@ trigger: always_on
 
 ---
 
-## 1. 상시 동기화 필수 지침 문서 & 전문 스킬 체계
+## 1. 상시 동기화 필수 지침 문서 & 전문 스킬 체계 (총 22종 완벽 탑재)
 에이전트는 모든 작업 시 아래 분리·통합된 문서와 스킬들을 기준(Single Source of Truth)으로 삼아 동작합니다:
 1. **`AI_INSTRUCTIONS.md`**: 질문 키워드별 자동 프롬프트 트리거 & 로컬 설치 Claude 7종 / GPT 9종 모델 매핑 통합 지침
 2. **`.antigravity/rules/ui_ux_design_rules.md`**: 경쟁 앱 벤치마킹 기준 및 12년 차 수석 프로덕트 디자이너 UI/UX 토큰 (배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, `1px solid #EFF1F5` 보더, 파스텔 틴트 뱃지 `#FFF4EB`, UX 겹침/Overflow 0%, `+더보기 ▾` 트레이, 2030/B2B UX Writing)
@@ -31,8 +31,8 @@ trigger: always_on
 4. **`ddg_proxy.py` & `scripts/claude_client.py`**: 로컬 `http://127.0.0.1:1337/v1`, API Key `'pk-dummy'`로 구동되는 무료 Claude 7종 / GPT 9종 브릿지
 5. **`lib/services/ai_service.dart` & `lib/features/matching/match_controller.dart`**: Flutter 앱 내 `OomuAiService.instance` 로컬 AI 연동 서비스 및 하이브리드 매칭 컨트롤러
 6. **`docs/OOMU_MASTER_SPEC.md` & `.antigravity/rules/security_distribution_rules.md`**: OOMU 통합 마스터 스펙 및 3계층 Zero-Secret 보안 규칙
-7. **`.agents/skills/` 16종 최고급 엔지니어링 & 지식 스킬 팩**:
-   - **디자인/성능 10종**: `frontend-design`, `emil-motion-design` (스프링 물리/햅틱/120fps), `impeccable-design-audit` (48dp 터치타깃/P0~P3 감사), `taste-anti-slop` (AI 편향 파괴/브랜드 Vibe), `flutter-expert-performance` (Impeller 120fps/메모리 누수 방지), `playwright-e2e-testing` (모바일 뷰포트 E2E/비주얼 회귀), `escrow-split-billing`, `karrot-hyperlocal-feed`, `manner-temp-badges`, `women-safe-anti-creep`
+7. **`.agents/skills/` 22종 최고급 엔지니어링 & 지식 스킬 팩**:
+   - **디자인/모바일/엔지니어링 16종**: `frontend-design`, `emil-motion-design` (스프링 물리/햅틱/120fps), `impeccable-design-audit` (48dp 터치타깃/P0~P3 감사), `taste-anti-slop` (AI 편향 파괴/브랜드 Vibe), `flutter-expert-performance` (Impeller 120fps/메모리 누수 방지), `playwright-e2e-testing` (모바일 뷰포트 E2E/비주얼 회귀), `escrow-split-billing`, `karrot-hyperlocal-feed`, `manner-temp-badges`, `women-safe-anti-creep`, `event-meetup-engine`, `figma-mobile-tokens`, `fluid-micro-interactions`, `interactive-game-icebreakers`, `shadcn-mobile-components`, `wippy-social-jamanchu`
    - **옵시디언 6종 (Kepano Obsidian Skills)**: `defuddle` (웹 콘텐츠 마크다운 변환/추출), `json-canvas` (지식/모임 캔버스 조작), `knap` (옵시디언 마크다운 신속 파싱), `obsidian-bases` (볼트 베이스 구조 제어), `obsidian-cli` (터미널 CLI 관리/검색), `obsidian-markdown` (콜아웃/위키링크 마크다운 표준화)
 
 ---

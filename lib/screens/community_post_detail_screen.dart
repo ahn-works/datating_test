@@ -14,7 +14,8 @@ class CommunityPostDetailScreen extends StatefulWidget {
   const CommunityPostDetailScreen({super.key, required this.post});
 
   @override
-  State<CommunityPostDetailScreen> createState() => _CommunityPostDetailScreenState();
+  State<CommunityPostDetailScreen> createState() =>
+      _CommunityPostDetailScreenState();
 }
 
 class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
@@ -47,7 +48,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   void _initPostState() {
     _isLiked = widget.post['isLiked'] == true;
-    _likeCount = (widget.post['likes'] is num) ? (widget.post['likes'] as num).toInt() : 0;
+    _likeCount = (widget.post['likes'] is num)
+        ? (widget.post['likes'] as num).toInt()
+        : 0;
     final rawList = widget.post['commentList'];
     if (rawList is List) {
       _comments = rawList
@@ -72,7 +75,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   @override
   void didUpdateWidget(covariant CommunityPostDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.post != widget.post || oldWidget.post['id'] != widget.post['id']) {
+    if (oldWidget.post != widget.post ||
+        oldWidget.post['id'] != widget.post['id']) {
       _isSubmittingComment = false;
       _commentController.clear();
       _initPostState();
@@ -95,8 +99,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       _isSubmittingComment = true;
     });
 
-    final myNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
-    final myAvatar = globalData.userAvatar.value.isNotEmpty ? globalData.userAvatar.value : 'assets/images/kr_male_1.jpg';
+    final myNick = globalData.userNickname.value.isNotEmpty
+        ? globalData.userNickname.value
+        : '우리동네민우';
+    final myAvatar = globalData.userAvatar.value.isNotEmpty
+        ? globalData.userAvatar.value
+        : 'assets/images/kr_male_1.jpg';
     final postId = _postId;
 
     final newComm = <String, dynamic>{
@@ -191,7 +199,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   void _toggleLike() {
     setState(() {
       final myUserId = globalData.activeUserId;
-      List<dynamic> likedUsers = List<dynamic>.from(widget.post['likedUserIds'] ?? []);
+      List<dynamic> likedUsers =
+          List<dynamic>.from(widget.post['likedUserIds'] ?? []);
       if (_isLiked) {
         likedUsers.remove(myUserId);
         likedUsers.remove('user_me_01');
@@ -222,15 +231,21 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     });
   }
 
-  List<Map<String, dynamic>> _resolveDisplayComments(AsyncSnapshot<QuerySnapshot>? commentSnap) {
-    if (commentSnap != null && commentSnap.hasData && commentSnap.data!.docs.isNotEmpty) {
+  List<Map<String, dynamic>> _resolveDisplayComments(
+      AsyncSnapshot<QuerySnapshot>? commentSnap) {
+    if (commentSnap != null &&
+        commentSnap.hasData &&
+        commentSnap.data!.docs.isNotEmpty) {
       final docs = commentSnap.data!.docs.map((d) {
-        final data = Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
+        final data =
+            Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
         data['id'] = d.id;
         final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
         final currentUid = globalData.activeUserId;
-        data['isLiked'] = likedUsers.contains(currentUid) || likedUsers.contains('user_me_01');
-        data['likes'] = likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
+        data['isLiked'] = likedUsers.contains(currentUid) ||
+            likedUsers.contains('user_me_01');
+        data['likes'] =
+            likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
         return data;
       }).toList();
       try {
@@ -286,7 +301,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     },
                     child: CircleAvatar(
                       radius: 20,
-                      backgroundImage: appImg((post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
+                      backgroundImage: appImg((post['authorAvatar'] ??
+                              'assets/images/kr_female_1.jpg')
+                          .toString()),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -304,7 +321,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => UserProfileScreen(
                                         userName: author,
-                                        userAvatar: post['authorAvatar']?.toString(),
+                                        userAvatar:
+                                            post['authorAvatar']?.toString(),
                                         userLocation: location,
                                         userManner: authorManner,
                                       ),
@@ -313,7 +331,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                 },
                                 child: Text(
                                   author,
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: textPrimary),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -322,9 +343,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             const SizedBox(width: 6),
                             Flexible(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: OomuUiHelpers.mannerTempBgColor(authorManner),
+                                  color: OomuUiHelpers.mannerTempBgColor(
+                                      authorManner),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -332,7 +355,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: OomuUiHelpers.mannerTempColor(authorManner),
+                                    color: OomuUiHelpers.mannerTempColor(
+                                        authorManner),
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -351,14 +375,18 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   ),
                   if (tag != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFF0F2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         '#$tag',
-                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFC83243)),
+                        style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFC83243)),
                       ),
                     ),
                 ],
@@ -409,7 +437,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           height: 160,
                           color: const Color(0xFFF3EAEB),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                          child: const Icon(Icons.image_not_supported,
+                              color: Colors.grey),
                         ),
                       ),
                     ),
@@ -435,16 +464,22 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             onHaptic: OomuHaptics.light,
                             onTap: _toggleLike,
                             child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                              constraints: const BoxConstraints(
+                                  minWidth: 48, minHeight: 48),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                      _isLiked
+                                          ? Icons.favorite_rounded
+                                          : Icons.favorite_border_rounded,
                                       size: 19,
-                                      color: _isLiked ? coralAccent : textSecondary,
+                                      color: _isLiked
+                                          ? coralAccent
+                                          : textSecondary,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
@@ -452,7 +487,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,
-                                        color: _isLiked ? coralAccent : textSecondary,
+                                        color: _isLiked
+                                            ? coralAccent
+                                            : textSecondary,
                                       ),
                                     ),
                                   ],
@@ -466,11 +503,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.chat_bubble_outline_rounded, size: 18, color: textSecondary),
+                              Icon(Icons.chat_bubble_outline_rounded,
+                                  size: 18, color: textSecondary),
                               const SizedBox(width: 5),
                               Text(
                                 '댓글 ${displayComments.length}',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textSecondary),
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: textSecondary),
                               ),
                             ],
                           ),
@@ -480,7 +521,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   ),
                   IconButton(
                     tooltip: '게시글 공유',
-                    icon: Icon(Icons.share_outlined, size: 19, color: textSecondary),
+                    icon: Icon(Icons.share_outlined,
+                        size: 19, color: textSecondary),
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('게시글 링크가 클립보드에 복사되었습니다!')),
@@ -502,7 +544,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             children: [
               Text(
                 '댓글 ${displayComments.length}',
-                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: textPrimary),
+                style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                    color: textPrimary),
               ),
               const SizedBox(width: 6),
               Flexible(
@@ -525,11 +570,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             alignment: Alignment.center,
             child: Column(
               children: [
-                Icon(Icons.chat_bubble_outline_rounded, size: 28, color: textSecondary.withOpacity(0.5)),
+                Icon(Icons.chat_bubble_outline_rounded,
+                    size: 28, color: textSecondary.withOpacity(0.5)),
                 const SizedBox(height: 8),
                 Text(
                   '첫 댓글을 남겨보세요',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: textPrimary),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -544,16 +593,19 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: displayComments.length,
-            separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF3EAEB)),
+            separatorBuilder: (_, __) =>
+                const Divider(height: 1, color: Color(0xFFF3EAEB)),
             itemBuilder: (context, index) {
               final comm = displayComments[index];
               final isCommLiked = comm['isLiked'] == true;
-              final commLikes = (comm['likes'] is num) ? (comm['likes'] as num).toInt() : 0;
+              final commLikes =
+                  (comm['likes'] is num) ? (comm['likes'] as num).toInt() : 0;
               final commId = comm['id']?.toString();
 
               return Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -571,7 +623,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       },
                       child: CircleAvatar(
                         radius: 16,
-                        backgroundImage: appImg((comm['authorAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
+                        backgroundImage: appImg((comm['authorAvatar'] ??
+                                'assets/images/kr_female_1.jpg')
+                            .toString()),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -588,15 +642,20 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => UserProfileScreen(
-                                          userName: (comm['author'] ?? '이웃').toString(),
-                                          userAvatar: comm['authorAvatar']?.toString(),
+                                          userName: (comm['author'] ?? '이웃')
+                                              .toString(),
+                                          userAvatar:
+                                              comm['authorAvatar']?.toString(),
                                         ),
                                       ),
                                     );
                                   },
                                   child: Text(
                                     (comm['author'] ?? '이웃').toString(),
-                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textPrimary),
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: textPrimary),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -605,14 +664,16 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                               const SizedBox(width: 6),
                               Text(
                                 (comm['time'] ?? '방금').toString(),
-                                style: TextStyle(fontSize: 12, color: textSecondary),
+                                style: TextStyle(
+                                    fontSize: 12, color: textSecondary),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Text(
                             (comm['content'] ?? comm['text'] ?? '').toString(),
-                            style: TextStyle(fontSize: 14, height: 1.45, color: textPrimary),
+                            style: TextStyle(
+                                fontSize: 14, height: 1.45, color: textPrimary),
                           ),
                         ],
                       ),
@@ -624,8 +685,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         borderRadius: BorderRadius.circular(10),
                         onTap: () async {
                           final myId = globalData.activeUserId;
-                          List<dynamic> likedUsers = List<dynamic>.from(comm['likedUserIds'] ?? []);
-                          bool currentlyLiked = likedUsers.contains(myId) || likedUsers.contains('user_me_01');
+                          List<dynamic> likedUsers =
+                              List<dynamic>.from(comm['likedUserIds'] ?? []);
+                          bool currentlyLiked = likedUsers.contains(myId) ||
+                              likedUsers.contains('user_me_01');
                           if (currentlyLiked) {
                             likedUsers.remove(myId);
                             likedUsers.remove('user_me_01');
@@ -638,7 +701,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             comm['likedUserIds'] = likedUsers;
                           });
 
-                          if (_canUseFirestore && commId != null && !commId.startsWith('local_') && postId != null) {
+                          if (_canUseFirestore &&
+                              commId != null &&
+                              !commId.startsWith('local_') &&
+                              postId != null) {
                             try {
                               await FirebaseFirestore.instance
                                   .collection('community_posts')
@@ -653,20 +719,27 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           }
                         },
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                          constraints:
+                              const BoxConstraints(minWidth: 48, minHeight: 48),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                isCommLiked ? Icons.favorite : Icons.favorite_border,
+                                isCommLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 size: 17,
-                                color: isCommLiked ? coralAccent : textSecondary,
+                                color:
+                                    isCommLiked ? coralAccent : textSecondary,
                               ),
                               if (commLikes > 0) ...[
                                 const SizedBox(height: 2),
                                 Text(
                                   '$commLikes',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: textSecondary),
                                 ),
                               ],
                             ],
@@ -698,12 +771,14 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         elevation: 0,
         leading: IconButton(
           tooltip: '뒤로가기',
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           category,
-          style: TextStyle(color: textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
+          style: TextStyle(
+              color: textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
         ),
         actions: [
           IconButton(
@@ -733,7 +808,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         .orderBy('createdAt', descending: false)
                         .snapshots(),
                     builder: (context, commentSnap) {
-                      final displayComments = _resolveDisplayComments(commentSnap);
+                      final displayComments =
+                          _resolveDisplayComments(commentSnap);
                       return _buildBodyContent(displayComments);
                     },
                   )
@@ -769,9 +845,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         style: TextStyle(fontSize: 14, color: textPrimary),
                         decoration: InputDecoration(
                           hintText: '이웃들과 나눌 따뜻한 댓글을 입력하세요...',
-                          hintStyle: TextStyle(color: textSecondary, fontSize: 13),
+                          hintStyle:
+                              TextStyle(color: textSecondary, fontSize: 13),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onSubmitted: (_) => _addComment(),
                       ),
@@ -789,11 +867,14 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         height: 48,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: _isSubmittingComment ? coralAccent.withOpacity(0.6) : coralAccent,
+                            color: _isSubmittingComment
+                                ? coralAccent.withOpacity(0.6)
+                                : coralAccent,
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
-                            child: Icon(Icons.send_rounded, color: Colors.white, size: 19),
+                            child: Icon(Icons.send_rounded,
+                                color: Colors.white, size: 19),
                           ),
                         ),
                       ),

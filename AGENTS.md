@@ -1,6 +1,6 @@
 # 🏛️ OOMU (오뮤) 통합 에이전트 지침서 (AGENTS.md)
 
-> **자동 로드 안내**: 본 파일(`AGENTS.md`)은 Antigravity 에이전트가 세션 시작 및 매 작업 턴마다 자동으로 가장 먼저 읽어들여 메모리에 상주시키는 **최상위 통합 지침**입니다. 사용자가 매번 긴 프롬프트 머리말을 복사·붙여넣지 않아도 아래의 모든 지침과 로컬 AI 모델(Claude 7종 / GPT 9종) 라우팅, 그리고 새로 추가된 16종 전문 엔지니어링 & 옵시디언 스킬이 개인 PC와 사무실 PC 구분 없이 100% 자동 적용됩니다.
+> **자동 로드 안내**: 본 파일(`AGENTS.md`)은 Antigravity 에이전트가 세션 시작 및 매 작업 턴마다 자동으로 가장 먼저 읽어들여 메모리에 상주시키는 **최상위 통합 지침**입니다. 사용자가 매번 긴 프롬프트 머리말을 복사·붙여넣지 않아도 아래의 모든 지침과 로컬 AI 모델(Claude 7종 / GPT 9종) 라우팅, 그리고 새로 추가된 22종 전문 엔지니어링 & 옵시디언 스킬이 개인 PC와 사무실 PC 구분 없이 100% 자동 적용됩니다.
 
 ---
 
@@ -29,9 +29,9 @@ OOMU의 모든 화면·컴포넌트·리스트 작업 시 **단일 진실 공급
 
 ---
 
-## 📂 1. 분리 관리되는 세부 지침 및 전문 스킬 파일 맵 (Single Source of Truth)
+## 📂 1. 분리 관리되는 세부 지침 및 전문 스킬 파일 맵 (총 22종 완벽 탑재)
 
-### A. 디자인, 모바일 성능 & E2E 검증 스킬 (10종)
+### A. 디자인, 모바일 성능 & E2E 검증 스킬 (16종)
 | 구분 | 파일 경로 | 핵심 역할 |
 | :--- | :--- | :--- |
 | **OOMU 프론트엔드 디자인** | [.agents/skills/frontend-design/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/frontend-design/SKILL.md) | 30대 찐친·여성안심 철학, 5대 AI 클리셰 배제, Flutter 모바일 인체공학 터치/바텀시트, 2-Pass 디자인 검증 |
@@ -44,8 +44,14 @@ OOMU의 모든 화면·컴포넌트·리스트 작업 시 **단일 진실 공급
 | **하이퍼로컬 피드 엔진** | [.agents/skills/karrot-hyperlocal-feed/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/karrot-hyperlocal-feed/SKILL.md) | 당근마켓급 88x88 썸네일, 2줄 제목, 동네 인증 배지, 100:100 대칭 2열 그리드 |
 | **매너온도 & 신뢰 배지** | [.agents/skills/manner-temp-badges/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/manner-temp-badges/SKILL.md) | 36.5도 기준 색상 변화 게이지, 본인인증(PASS/SMS) 배지, 클린 호스트 마크 |
 | **여성 안심 & 악성유저 차단** | [.agents/skills/women-safe-anti-creep/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/women-safe-anti-creep/SKILL.md) | 호스트 승인제 신청 모달, 여성 전용 필터, 1-Click 비밀 신고/차단, 안심 귀가 타이머 |
+| **모임 개설 및 상세 엔진** | [.agents/skills/event-meetup-engine/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/event-meetup-engine/SKILL.md) | 모임 상세 & 4단계 개설 플로우, 참여자 아바타 스택(AvatarStack), D-Day 카운트다운 |
+| **피그마 모바일 토큰 매핑** | [.agents/skills/figma-mobile-tokens/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/figma-mobile-tokens/SKILL.md) | 선셋 코랄 팔레트, 8dp 그리드 스페이싱, Pretendard 타이포그래피 스케일 동기화 |
+| **플루이드 마이크로 인터랙션** | [.agents/skills/fluid-micro-interactions/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/fluid-micro-interactions/SKILL.md) | 슬리버(Sliver) 패럴랙스 스크롤 헤더, 햅틱 피드백, 스프링 바운스 스크롤 피직스 |
+| **인터랙티브 아이스브레이킹 게임** | [.agents/skills/interactive-game-icebreakers/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/interactive-game-icebreakers/SKILL.md) | 30대 동네친구/자만추 온라인 아이스브레이킹 미니게임(노래방 배틀, 타로 카드 등) UI |
+| **샤드씨엔 모바일 컴포넌트** | [.agents/skills/shadcn-mobile-components/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/shadcn-mobile-components/SKILL.md) | 1px 정밀 보더 카드, 인피드 아코디언 더보기/접기, 슬림 필 도트 인디케이터 |
+| **위피 감성 소셜 자만추** | [.agents/skills/wippy-social-jamanchu/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/wippy-social-jamanchu/SKILL.md) | 30대 자연스러운 자만추·스토리형 프로필, 가치관 문답, 라이프스타일 칩 컴포넌트 |
 
-### B. 옵시디언 지식 & 마크다운 스킬 6종 (Kepano Obsidian Skills)
+### B. 옵시디언 지식 & 마크다운 스킬 (6종)
 | 스킬명 | 경로 | 핵심 역할 |
 | :--- | :--- | :--- |
 | **defuddle** | [.agents/skills/defuddle/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/defuddle/SKILL.md) | HTML 및 웹 콘텐츠를 읽기 쉬운 깔끔한 마크다운으로 변환 및 노이즈 제거 |
@@ -176,7 +182,7 @@ OOMU는 대표님이 일일이 수동 관리하지 않아도 앱이 살아 숨�
 
 본 프로젝트는 원격 저장소(`origin main`)를 통해 사무실 PC와 개인 PC 간 완벽한 연속 작업 환경을 제공합니다:
 1. **스킬 & 지침 자동 로드**:
-   - 개인 PC에서 본 프로젝트를 열거나 `git pull origin main`을 실행하면 `.agents/skills/` 내 16종 스킬(디자인 10종 + 옵시디언 6종)과 `AGENTS.md` 지침이 Antigravity 에이전트 메모리에 자동 상주합니다.
+   - 개인 PC에서 본 프로젝트를 열거나 `git pull origin main`을 실행하면 `.agents/skills/` 내 22종 스킬(모바일/디자인 16종 + 옵시디언 6종)과 `AGENTS.md` 지침이 Antigravity 에이전트 메모리에 자동 상주합니다.
 2. **작업 인수인계 시 필수 순서**:
    - **작업 시작 시**: `git pull origin main`으로 최신 상태 동기화
    - **코드/UI 수정 시**: 실제 활성 경로인 `soso_car_home_screen.dart` 및 `docs/OOMU_UI_GUIDE.md` 기준으로 작업 (부존재 경로 `lib/features/...` 사용 금지)
