@@ -347,6 +347,70 @@ def upload_bytes_to_r2_and_presign(img_bytes, content_type, object_key, r2_cfg):
     return f"https://{host}{canonical_uri}?{sorted_q}&X-Amz-Signature={get_sig}"
 
 
+
+
+def delete_r2_object(object_key, r2_cfg):
+    """Cloudflare R2 버킷에서 만료/교체된 포스터 객체 삭제 (SigV4 DELETE)"""
+    access_key = r2_cfg.get("accessKeyId", "")
+    secret_key = r2_cfg.get("secretAccessKey", "")
+    bucket = r2_cfg.get("bucketName", "oomu-spot")
+    endpoint = r2_cfg.get("s3Endpoint", "")
+
+    if not access_key or not secret_key or not endpoint or not object_key:
+        return False
+
+    parsed = urllib.parse.urlparse(endpoint)
+    host = parsed.netloc
+    clean_key = object_key.lstrip("/")
+    canonical_uri = f"/{bucket}/{clean_key}"
+
+    now = datetime.now(timezone.utc)
+    amz_date = now.strftime("%Y%m%dT%H%M%SZ")
+    date_stamp = now.strftime("%Y%m%d")
+    region = "auto"
+    service = "s3"
+
+    payload_hash = hashlib.sha256(b"").hexdigest()
+    canonical_headers = (
+        f"host:{host}\n"
+        f"x-amz-content-sha256:{payload_hash}\n"
+        f"x-amz-date:{amz_date}\n"
+    )
+    signed_headers = "host;x-amz-content-sha256;x-amz-date"
+    canonical_request = f"DELETE\n{canonical_uri}\n\n{canonical_headers}\n{signed_headers}\n{payload_hash}"
+
+    algorithm = "AWS4-HMAC-SHA256"
+    credential_scope = f"{date_stamp}/{region}/{service}/aws4_request"
+    req_hash = hashlib.sha256(canonical_request.encode("utf-8")).hexdigest()
+    string_to_sign = f"{algorithm}\n{amz_date}\n{credential_scope}\n{req_hash}"
+    signing_key = _get_signature_key(secret_key, date_stamp, region, service)
+    signature = hmac.new(signing_key, string_to_sign.encode("utf-8"), hashlib.sha256).hexdigest()
+
+    auth_header = (
+        f"{algorithm} Credential={access_key}/{credential_scope}, "
+        f"SignedHeaders={signed_headers}, Signature={signature}"
+    )
+
+    url = f"https://{host}{canonical_uri}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Host": host,
+            "x-amz-date": amz_date,
+            "x-amz-content-sha256": payload_hash,
+            "Authorization": auth_header,
+            "User-Agent": USER_AGENT,
+        },
+        method="DELETE",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.status in (200, 204)
+    except Exception as e:
+        print(f"  [WARN] Failed to delete R2 object {clean_key}: {e}")
+        return False
+
+
 def ensure_crawled_poster(item, kopis_key, r2_cfg):
     """
     이벤트 아이템의 포스터를 보장하는 핵심 파이프라인:
@@ -664,7 +728,7 @@ def get_fallback_trends():
     ]
 
 
-def sync_to_firestore(events):
+def sync_to_firestore(events, r2_cfg=None):
     """수집 및 포스터 크롤링된 모든 트렌드 이벤트를 Firestore 'trend_events' 컬렉션에 동기화 (이전 잔여 문서 정리 포함)"""
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     active_ids = {item.get("id", f"trend_{idx+1}") for idx, item in enumerate(events)}
@@ -675,6 +739,11 @@ def sync_to_firestore(events):
         for doc in existing.get("documents", []):
             doc_id = doc["name"].split("/")[-1]
             if doc_id not in active_ids:
+                fields = doc.get("fields", {})
+                r2_key = fields.get("posterR2Key", {}).get("stringValue", "")
+                if r2_key and r2_cfg:
+                    if delete_r2_object(r2_key, r2_cfg):
+                        print(f"  [CLEANUP] Deleted stale R2 asset: {r2_key}")
                 del_url = f"{BASE_FIRESTORE_URL}/trend_events/{doc_id}?key={FIRESTORE_WEB_KEY}"
                 req = urllib.request.Request(del_url, headers={"User-Agent": USER_AGENT}, method="DELETE")
                 with urllib.request.urlopen(req, timeout=10):
@@ -754,7 +823,7 @@ def main():
         ensure_crawled_poster(item, kopis_key, r2_cfg)
 
     # 4. Firestore 실시간 동기화
-    sync_to_firestore(all_events)
+    sync_to_firestore(all_events, r2_cfg)
     print("==================================================")
     print("Pipeline completed successfully!")
     print("==================================================")
