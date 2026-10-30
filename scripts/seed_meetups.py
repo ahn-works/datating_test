@@ -64,6 +64,24 @@ SEED_PERSONAS = [
         "manner": 41.8,
         "default_loc": "서울 마포구 합정역 부근",
     },
+    {
+        "host": "여수빵순이",
+        "avatar": "assets/images/kr_female_1.jpg",
+        "manner": 44.5,
+        "default_loc": "전남 여수시 화장동 선소상가 카페거리",
+    },
+    {
+        "host": "성산러너_민우",
+        "avatar": "assets/images/kr_male_1.jpg",
+        "manner": 45.2,
+        "default_loc": "전남 여수시 화장동 성산공원",
+    },
+    {
+        "host": "웅천피플_준",
+        "avatar": "assets/images/kr_male_2.jpg",
+        "manner": 43.4,
+        "default_loc": "전남 여수시 웅천동 해변문화공원",
+    },
 ]
 
 # High-engagement meetup templates

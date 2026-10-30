@@ -22,7 +22,6 @@ import 'community_post_create_screen.dart';
 import 'event_detail_screen.dart';
 import 'user_profile_screen.dart';
 import '../widgets/bouncy_tap.dart';
-import '../widgets/oomu_spring_sheet.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   final int initialTab;
@@ -326,6 +325,306 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'date': '오늘 즉시 (22분 후 집결)',
     },
   ];
+
+  final List<Map<String, dynamic>> _yeosuLiveSpots = [
+    {
+      'id': 'spot_yeosu_01',
+      'title': '화장동 선소상가 바삭 와플 & 크로플 🧇',
+      'location': '여수시 화장동 선소상가거리',
+      'distance': '도보 180m',
+      'timeLeft': '8분 남음',
+      'category': '오늘 번개',
+      'members': '2/4',
+      'host': '여수와플러',
+      'hostAvatar': 'assets/images/kr_female_2.jpg',
+      'manner': 42.1,
+      'image': 'assets/images/cover_cafe.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (8분 후 집결)',
+    },
+    {
+      'id': 'spot_yeosu_02',
+      'title': '성산공원 호수 둘레길 야경 산책 & 힐링 🏃',
+      'location': '여수시 화장동 성산공원 입구',
+      'distance': '도보 320m',
+      'timeLeft': '14분 남음',
+      'category': '오늘 번개',
+      'members': '3/4',
+      'host': '화장동이웃',
+      'hostAvatar': 'assets/images/kr_male_2.jpg',
+      'manner': 43.5,
+      'image': 'assets/images/cover_running.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (14분 후 집결)',
+    },
+    {
+      'id': 'spot_yeosu_03',
+      'title': '웅천 친수공원 잔디마당 노을 캔맥주 급구 🍺',
+      'location': '여수시 웅천동 해변공원',
+      'distance': '차량 7분',
+      'timeLeft': '18분 남음',
+      'category': '오늘 번개',
+      'members': '2/4',
+      'host': '웅천피플_준',
+      'hostAvatar': 'assets/images/kr_male_1.jpg',
+      'manner': 41.2,
+      'image': 'assets/images/cover_wine.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (18분 후 집결)',
+    },
+    {
+      'id': 'spot_yeosu_04',
+      'title': '무선지구 롯데마트 앞 소금빵 & 카페 나들이 ☕',
+      'location': '여수시 화장동 롯데마트 인근',
+      'distance': '도보 450m',
+      'timeLeft': '25분 남음',
+      'category': '오늘 번개',
+      'members': '1/3',
+      'host': '무선빵순이',
+      'hostAvatar': 'assets/images/kr_female_3.jpg',
+      'manner': 44.0,
+      'image': 'assets/images/cover_cafe.jpg',
+      'isLightning': true,
+      'date': '오늘 즉시 (25분 후 집결)',
+    },
+  ];
+
+  List<Map<String, dynamic>> _getLiveSpotsForLocation(String location) {
+    final clean = location.trim();
+    if (clean.contains('여수') || clean.contains('화장동')) {
+      return _yeosuLiveSpots;
+    }
+    return _liveSpots;
+  }
+
+  final List<Map<String, dynamic>> _yeosuCommunityPosts = [
+    {
+      'id': 'post_yeosu_01',
+      'category': '동네 토크',
+      'tag': '성산공원둘레길',
+      'title': '🐕 오늘 저녁 화장동 성산공원 호수 둘레길 댕댕이 산책 같이 하실 분!',
+      'content': '날씨가 너무 선선해서 저녁 7시쯤 비숑 데리고 성산공원 한 바퀴 돌려구요! 댕댕이 없으셔도 가볍게 산책하고 수다 떠실 화장동 이웃분 환영합니다 ✨',
+      'author': '화장동댕댕이',
+      'authorAvatar': 'assets/images/kr_female_1.jpg',
+      'location': '전남 여수시 화장동',
+      'time': '10분 전',
+      'manner': 41.5,
+      'likedUserIds': ['user_demo_1', 'user_demo_2'],
+      'likes': 4,
+      'isLiked': false,
+      'comments': 2,
+      'commentList': <Map<String, dynamic>>[
+        {
+          'id': 'comm_yeosu_1',
+          'author': '선소산책러',
+          'authorAvatar': 'assets/images/kr_female_2.jpg',
+          'content': '저도 성산공원 장미원 쪽으로 산책 나가려던 참인데 반갑네요!',
+          'time': '5분 전',
+          'likes': 1,
+          'isLiked': false,
+          'likedUserIds': <String>['user_demo_2'],
+        },
+        {
+          'id': 'comm_yeosu_2',
+          'author': '무선지구이웃',
+          'authorAvatar': 'assets/images/kr_male_1.jpg',
+          'content': '오늘 날씨 선선해서 걷기 딱 좋습니다 ㅎㅎ',
+          'time': '2분 전',
+          'likes': 0,
+          'isLiked': false,
+          'likedUserIds': <String>[],
+        },
+      ],
+      'image': 'assets/images/cover_running.jpg',
+      'relatedMeetup': {
+        'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
+        'location': '전남 여수시 화장동 성산공원 수변무대',
+        'category': '문화 & 엔터 > 야외 액티비티',
+        'poster': 'assets/images/cover_running.jpg',
+      }
+    },
+    {
+      'id': 'post_yeosu_02',
+      'category': '맛집/카페',
+      'tag': '선소상가와플',
+      'title': '🧇 선소상가 새로 오픈한 수제 소금빵 & 와플집 가보신 분?',
+      'content': '선소상가 안쪽에 새로 생긴 베이커리 다녀왔는데 겉바속촉 제대로네요... 쌀가루 소금빵이랑 크림 와플 미쳤습니다. 이번 주말에 디저트 좋아하시는 분들이랑 같이 털러 가고 싶어요!',
+      'author': '여수빵순이',
+      'authorAvatar': 'assets/images/kr_female_2.jpg',
+      'location': '전남 여수시 화장동',
+      'time': '35분 전',
+      'manner': 43.2,
+      'likedUserIds': ['user_demo_3'],
+      'likes': 7,
+      'isLiked': false,
+      'comments': 1,
+      'commentList': <Map<String, dynamic>>[
+        {
+          'id': 'comm_yeosu_3',
+          'author': '학동미식가',
+          'authorAvatar': 'assets/images/kr_male_2.jpg',
+          'content': '오픈런 대기 꽤 길던데 주말에 같이 가요!',
+          'time': '15분 전',
+          'likes': 2,
+          'isLiked': false,
+          'likedUserIds': <String>['user_demo_1'],
+        },
+      ],
+      'image': 'assets/images/cover_cafe.jpg',
+      'relatedMeetup': {
+        'title': '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
+        'location': '전남 여수시 화장동 선소상가 카페거리',
+        'category': '일상 & 푸드 > 카페 & 디저트',
+        'poster': 'assets/images/cover_cafe.jpg',
+      }
+    },
+    {
+      'id': 'post_yeosu_03',
+      'category': '공연/전시',
+      'tag': '웅천친수공원',
+      'title': '🌊 웅천 친수공원 잔디마당 주말 버스킹 & 노을 피크닉 같이 즐겨요!',
+      'content': '이번 주말 저녁에 웅천 친수공원에서 바다 보면서 잔잔한 버스킹 공연 한대요. 돗자리 펴고 노을 보면서 시원한 캔맥주나 커피 한잔하실 이웃분 구합니다~',
+      'author': '웅천피플_준',
+      'authorAvatar': 'assets/images/kr_male_1.jpg',
+      'location': '전남 여수시 웅천동',
+      'time': '1시간 전',
+      'manner': 42.0,
+      'likedUserIds': ['user_demo_1'],
+      'likes': 12,
+      'isLiked': false,
+      'comments': 0,
+      'commentList': <Map<String, dynamic>>[],
+      'image': 'assets/images/cover_wine.jpg',
+      'relatedMeetup': {
+        'title': '여수 웅천친수공원 바다 캔맥주 소셜 피크닉 & 수다 🍺',
+        'location': '전남 여수시 웅천동 해변문화공원',
+        'category': '일상 & 푸드 > 동네 술 한잔',
+        'poster': 'assets/images/cover_wine.jpg',
+      }
+    },
+    {
+      'id': 'post_yeosu_04',
+      'category': '질문/추천',
+      'tag': '동네질문',
+      'title': '❓ 화장동이나 무선지구에 혼자 책 읽기 좋은 조용한 카페 추천해주세요!',
+      'content': '퇴근 후나 주말에 조용하게 책 읽거나 노트북 작업할 수 있는 아지트 찾고 있어요. 통창 뷰 좋거나 잔잔한 음악 나오는 곳 아시는 분 공유 부탁드려요!',
+      'author': '북카페러버',
+      'authorAvatar': 'assets/images/kr_female_3.jpg',
+      'location': '전남 여수시 화장동',
+      'time': '2시간 전',
+      'manner': 40.8,
+      'likedUserIds': [],
+      'likes': 5,
+      'isLiked': false,
+      'comments': 2,
+      'commentList': <Map<String, dynamic>>[
+        {
+          'id': 'comm_yeosu_4',
+          'author': '선소주민',
+          'authorAvatar': 'assets/images/kr_female_1.jpg',
+          'content': '성산공원 맞은편 2층 카페 통창 뷰도 좋고 조용해서 추천드려요!',
+          'time': '1시간 전',
+          'likes': 1,
+          'isLiked': false,
+          'likedUserIds': <String>[],
+        },
+        {
+          'id': 'comm_yeosu_5',
+          'author': '무선지구이웃',
+          'authorAvatar': 'assets/images/kr_male_2.jpg',
+          'content': '무선지구 도서관 근처 베이커리 카페도 널찍하고 괜찮아요~',
+          'time': '30분 전',
+          'likes': 0,
+          'isLiked': false,
+          'likedUserIds': <String>[],
+        },
+      ],
+      'image': 'assets/images/cover_cafe.jpg',
+      'relatedMeetup': {
+        'title': '화장동 성산공원 호수 앞 조용한 북카페 독서 모임 📚',
+        'location': '전남 여수시 화장동 성산공원 인근',
+        'category': '문화 & 엔터 > 북카페 & 독서',
+        'poster': 'assets/images/cover_cafe.jpg',
+      }
+    },
+  ];
+
+  List<Map<String, dynamic>> _getActiveCommunityPosts() {
+    final clean = _currentLocation.trim();
+    if (clean.contains('여수') || clean.contains('화장동')) {
+      return _yeosuCommunityPosts;
+    }
+    return _communityPosts;
+  }
+
+  final List<Map<String, dynamic>> _yeosuGroupDatingPots = [
+    {
+      'id': 'group_dating_yeosu_01',
+      'title': '🍷 불금 웅천 오션뷰 2:2 와인 & 타파스 미팅 (20대 중후반)',
+      'location': '전남 여수시 웅천동 해변 와인바',
+      'time': '이번 주 금요일 저녁 7:30',
+      'members': '3/4 (여성 1자리 남음)',
+      'category': '동네 2:2 미팅',
+      'host': '웅천와인러',
+      'hostAvatar': 'assets/images/kr_female_1.jpg',
+      'manner': 43.1,
+      'image': 'assets/images/cover_wine.jpg',
+      'desc': '탁 트인 웅천 바다 보면서 어색하지 않게 편안하게 와인 한잔하는 2:2 동네 미팅입니다! 직장인 2030 동네 친구도 사귀고 좋은 인연 만들어봐요.',
+    },
+    {
+      'id': 'group_dating_yeosu_02',
+      'title': '☕ 주말 화장동 성산공원 앞 3:3 자연스러운 카페 & 보드게임 미팅 🎲',
+      'location': '전남 여수시 화장동 베이커리 카페',
+      'time': '이번 주 토요일 오후 3:00',
+      'members': '4/6 (남2/여2 모집완료)',
+      'category': '동네 3:3 미팅',
+      'host': '성산러버',
+      'hostAvatar': 'assets/images/kr_male_2.jpg',
+      'manner': 41.8,
+      'image': 'assets/images/cover_cafe.jpg',
+      'desc': '술 없이 가볍게 커피 마시고 성산공원 산책하며 자연스럽게 친해지는 3:3 캐주얼 미팅 팟입니다.',
+    },
+  ];
+
+  List<Map<String, dynamic>> _getActiveGroupDatingPots() {
+    final clean = _currentLocation.trim();
+    if (clean.contains('여수') || clean.contains('화장동')) {
+      return _yeosuGroupDatingPots;
+    }
+    return _groupDatingPots;
+  }
+
+  int _calculateLocationRelevanceScore(String itemLocation) {
+    if (itemLocation.isEmpty || _currentLocation.isEmpty) return 0;
+    final current = _currentLocation.trim();
+    final parts = current.replaceAll('(', ' ').replaceAll(')', ' ').split(' ').where((s) => s.isNotEmpty).toList();
+
+    // 1. Exact dong match (e.g. '화장동', '서교동') -> Highest priority (Score 3)
+    for (final p in parts.reversed) {
+      if (p.endsWith('동') || p.endsWith('읍') || p.endsWith('면') || p.endsWith('가')) {
+        if (itemLocation.contains(p)) {
+          return 3;
+        }
+      }
+    }
+
+    // 2. District / City match (e.g. '여수시', '여수', '마포구', '마포') -> Score 2
+    for (final p in parts) {
+      final clean = p.replaceAll('전남', '').replaceAll('전라남도', '').replaceAll('서울특별시', '').replaceAll('서울', '').replaceAll('시', '').replaceAll('구', '').replaceAll('군', '').trim();
+      if (itemLocation.contains(p) || (clean.length >= 2 && itemLocation.contains(clean))) {
+        return 2;
+      }
+    }
+
+    // 3. Fallback: contains any part
+    for (final p in parts) {
+      if (p.length >= 2 && itemLocation.contains(p)) {
+        return 1;
+      }
+    }
+
+    return 0;
+  }
 
   String _currentLocation = '마포구 서교동';
   String? _selectedVibe;
@@ -827,15 +1126,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             final double cardWidth = ((constraints.maxWidth - 52) / 2).clamp(150.0, 260.0);
+            final currentLiveSpots = _getLiveSpotsForLocation(_currentLocation);
             return SizedBox(
               height: 168,
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 scrollDirection: Axis.horizontal,
-                itemCount: _liveSpots.length,
+                itemCount: currentLiveSpots.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
-                  final spot = _liveSpots[index];
+                  final spot = currentLiveSpots[index];
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => SoSoSpotDetailScreen(spot: spot)));
@@ -3510,6 +3810,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         return _matchesFilters(data);
                       }).toList();
 
+                      // 지역 적합도(_calculateLocationRelevanceScore) 최우선 정렬 후 최신순 정렬
+                      filteredDocs.sort((a, b) {
+                        final dataA = a.data() as Map<String, dynamic>;
+                        final dataB = b.data() as Map<String, dynamic>;
+                        final scoreA = _calculateLocationRelevanceScore(dataA['location']?.toString() ?? '');
+                        final scoreB = _calculateLocationRelevanceScore(dataB['location']?.toString() ?? '');
+                        if (scoreA != scoreB) {
+                          return scoreB.compareTo(scoreA);
+                        }
+                        final aTime = dataA['createdAt'];
+                        final bTime = dataB['createdAt'];
+                        if (aTime is Timestamp && bTime is Timestamp) {
+                          return bTime.compareTo(aTime);
+                        }
+                        return 0;
+                      });
+
                       if (filteredDocs.isEmpty) {
                         return _buildEmptyFilterState();
                       }
@@ -3553,14 +3870,24 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildCommunityDashboard() {
-    final List<String> trendKeywords = [
-      '#스위니토드',
-      '#두바이쫀득쿠키',
-      '#TXT월드투어',
-      '#성수팝업웨이팅',
-      '#을지로혼술바',
-      '#마라탕릴레이',
-    ];
+    final bool isYeosu = _currentLocation.contains('여수') || _currentLocation.contains('화장동');
+    final List<String> trendKeywords = isYeosu
+        ? [
+            '#성산공원둘레길',
+            '#선소상가와플',
+            '#웅천친수공원',
+            '#무선소금빵',
+            '#여수밤바다러닝',
+            '#여수오션뷰카페',
+          ]
+        : [
+            '#스위니토드',
+            '#두바이쫀득쿠키',
+            '#TXT월드투어',
+            '#성수팝업웨이팅',
+            '#을지로혼술바',
+            '#마라탕릴레이',
+          ];
 
     final List<String> simpleTopics = ['전체', '☕ 일상·수다', '🎭 공연·핫플', '🍰 맛집·카페', '❓ 동네질문'];
 
@@ -3571,8 +3898,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       builder: (context, snapshot) {
         final Map<String, Map<String, dynamic>> postMap = {};
 
-        // 1. Initial 3-persona and preset posts (원본 참조 유지로 상세 댓글/좋아요 상태와 100% 동기화)
-        for (var p in _communityPosts) {
+        // 1. Initial 3-persona and preset posts (현재 위치 기반 프리셋 로드 & 원본 참조 유지)
+        final activeInitialPosts = _getActiveCommunityPosts();
+        for (var p in activeInitialPosts) {
           final pid = p['id']?.toString() ?? '';
           if (p['commentList'] is List) {
             p['comments'] = (p['commentList'] as List).length;
@@ -3602,6 +3930,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
         final allPosts = postMap.values.toList();
         allPosts.sort((a, b) {
+          final scoreA = _calculateLocationRelevanceScore(a['location']?.toString() ?? '');
+          final scoreB = _calculateLocationRelevanceScore(b['location']?.toString() ?? '');
+          if (scoreA != scoreB) {
+            return scoreB.compareTo(scoreA);
+          }
           final aTime = a['createdAt'];
           final bTime = b['createdAt'];
           if (aTime is Timestamp && bTime is Timestamp) {
@@ -3697,6 +4030,43 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+
+        // 1-2. 실시간 동네 트렌드 키워드 태그
+        Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 4, bottom: 6),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: trendKeywords.map((tag) {
+                final isSelected = _communityKeywordFilter == tag;
+                return GestureDetector(
+                  onTap: () {
+                    OomuHaptics.selection();
+                    setState(() {
+                      _communityKeywordFilter = isSelected ? null : tag;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+                    decoration: BoxDecoration(
+                      color: isSelected ? coralAccent : const Color(0xFFF4EFF1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      tag,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        color: isSelected ? Colors.white : const Color(0xFF706769),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ),
@@ -4087,206 +4457,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
-  void _showCreateCommunityPostSheet() {
-    final textController = TextEditingController();
-    String selectedTag = '일상';
-    final List<String> quickTags = ['일상', '맛집', '공연', '동네질문'];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            final hasText = textController.text.trim().isNotEmpty;
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 14,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 상단 바: 취소 | 동네 이야기 | 등록
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(ctx),
-                        child: Text('취소', style: TextStyle(color: textSecondary, fontSize: 14, fontWeight: FontWeight.w600)),
-                      ),
-                      Text(
-                        '동네 이야기 쓰기',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textPrimary),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          final text = textController.text.trim();
-                          if (text.isEmpty) return;
-
-                          final lines = text.split('\n');
-                          final postTitle = lines.first.length > 25 ? '${lines.first.substring(0, 25)}...' : lines.first;
-
-                          setState(() {
-                            _communityPosts.insert(0, {
-                              'id': 'post_${DateTime.now().millisecondsSinceEpoch}',
-                              'category': selectedTag == '공연' ? '공연/전시' : (selectedTag == '맛집' ? '맛집/카페' : (selectedTag == '동네질문' ? '질문/추천' : '동네 토크')),
-                              'tag': selectedTag,
-                              'title': postTitle,
-                              'content': text,
-                              'author': '나 (방금)',
-                              'authorAvatar': 'assets/images/kr_female_1.jpg',
-                              'location': _currentLocation,
-                              'time': '방금 전',
-                              'manner': 45.0,
-                              'likes': 0,
-                              'isLiked': false,
-                              'comments': 0,
-                              'image': null,
-                              'relatedMeetup': {
-                                'title': '$postTitle 같이 하실 분!',
-                                'location': _currentLocation,
-                                'category': '일상 & 푸드 > 카페 & 디저트',
-                                'poster': 'assets/images/cover_cafe.jpg',
-                              }
-                            });
-                          });
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('🎉 이야기가 동네 커뮤니티에 등록되었습니다!')),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                          decoration: BoxDecoration(
-                            color: hasText ? coralAccent : const Color(0xFFE5E5EA),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            '등록',
-                            style: TextStyle(
-                              color: hasText ? Colors.white : const Color(0xFF999999),
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const Divider(height: 20, color: Color(0xFFEEEEEE)),
-
-                  // 작성자 정보 및 위치
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundImage: appImg('assets/images/kr_female_1.jpg'),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '$_currentLocation 주민',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // 단일 통합 본문 텍스트필드 (카테고리/제목 강요 없음! Threads/당근 스타일)
-                  TextField(
-                    controller: textController,
-                    maxLines: 6,
-                    autofocus: true,
-                    style: TextStyle(fontSize: 14, color: textPrimary, height: 1.45),
-                    onChanged: (_) => setSheetState(() {}),
-                    decoration: InputDecoration(
-                      hintText: '공연/맛집 후기나 궁금한 동네 소식을 자유롭게 남겨보세요.\n사진이나 약속 장소도 함께 공유할 수 있어요 :)',
-                      hintStyle: TextStyle(color: textSecondary, fontSize: 13, height: 1.4),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 간편 태그 선택 (원터치 선택사항)
-                  Row(
-                    children: [
-                      Text('주제: ', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
-                      const SizedBox(width: 4),
-                      ...quickTags.map((tag) {
-                        final isSel = selectedTag == tag;
-                        return GestureDetector(
-                          onTap: () => setSheetState(() => selectedTag = tag),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: isSel ? const Color(0xFFFFF0EB) : const Color(0xFFF3F3F6),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: isSel ? coralAccent : Colors.transparent,
-                              ),
-                            ),
-                            child: Text(
-                              '#$tag',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-                                color: isSel ? coralAccent : const Color(0xFF666666),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // 하단 툴바: 사진 추가 아이콘
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F7),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.photo_camera_outlined, size: 16, color: textSecondary),
-                            const SizedBox(width: 4),
-                            Text('사진 첨부', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${textController.text.length}자',
-                        style: TextStyle(fontSize: 11, color: textSecondary),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   Widget _buildDatingDashboard() {
     return ListView(
       padding: const EdgeInsets.only(bottom: 40),
@@ -4322,9 +4492,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const OOMUHostScreen(
-                            initialTitle: '홍대 2:2 직장인 미팅 팟',
-                            initialLocation: '서울 마포구 서교동',
+                          builder: (_) => OOMUHostScreen(
+                            initialTitle: '${_currentLocation.split(' ').last} 2:2 직장인 미팅 팟',
+                            initialLocation: _currentLocation,
                             initialMainCategory: '소개팅 & 미팅 > 2:2 / 3:3 미팅',
                             initialVibe: '소개팅',
                           ),
@@ -4345,14 +4515,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          // Group Dating Pots List
+          // Group Dating Pots List (현재 위치 기반 팟 목록)
           ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _groupDatingPots.length,
+            itemCount: _getActiveGroupDatingPots().length,
             itemBuilder: (context, index) {
-              return _buildGroupDatingCard(_groupDatingPots[index]);
+              final pots = _getActiveGroupDatingPots();
+              return _buildGroupDatingCard(pots[index]);
             },
           ),
       ],
@@ -5010,7 +5181,179 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildDummyMeetups() {
-    final List<Map<String, dynamic>> allDummyData = [
+    final List<Map<String, dynamic>> allDummyData = _getDummyMeetupsForLocation(_currentLocation);
+
+    final filtered = allDummyData.where((m) => _matchesFilters(m)).toList();
+    filtered.sort((a, b) {
+      final scoreA = _calculateLocationRelevanceScore(a['location']?.toString() ?? '');
+      final scoreB = _calculateLocationRelevanceScore(b['location']?.toString() ?? '');
+      return scoreB.compareTo(scoreA);
+    });
+
+    if (filtered.isEmpty) {
+      return _buildEmptyFilterState();
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filtered.length,
+      itemBuilder: (context, index) {
+        return _isListView ? _buildMeetupListRow(filtered[index]) : _buildMeetupCard(filtered[index]);
+      },
+    );
+  }
+
+  List<Map<String, dynamic>> _getDummyMeetupsForLocation(String location) {
+    final clean = location.trim();
+    if (clean.contains('여수') || clean.contains('화장동')) {
+      return _getYeosuDummyMeetups();
+    }
+    return _getSeoulDummyMeetups();
+  }
+
+  List<Map<String, dynamic>> _getYeosuDummyMeetups() {
+    return [
+      {
+        'id': 'yeosu_dummy_01',
+        'title': '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
+        'mainCategory': '일상 & 푸드',
+        'category': '동네 맛집 & 소셜 다이닝',
+        'location': '전남 여수시 화장동 선소상가 카페거리',
+        'date': '이번 주 일요일 오전 11:00',
+        'imageUrl': 'assets/images/cover_cafe.jpg',
+        'isFemaleOnly': true,
+        'host': '여수빵순이',
+        'hostAvatar': 'assets/images/kr_female_1.jpg',
+        'manner': 42.5,
+        'members': '2/4',
+        'price': '1/N 안심 정산',
+        'transport': '화장동 선소상가 앞 집결',
+        'schedule': '1차 갓 구운 소금빵 & 드립커피 ➔ 2차 루프탑 테라스 수다',
+        'tags': ['화장동카페', '소금빵오픈런', '여수디저트', '소소하게', '동네친구', '카페·디저트'],
+        'photos': ['assets/images/cover_cafe.jpg', 'assets/images/cover_food.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_02',
+        'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
+        'mainCategory': '문화 & 엔터',
+        'category': '야외 액티비티',
+        'location': '전남 여수시 화장동 성산공원 수변무대',
+        'date': '오늘 저녁 7:30',
+        'imageUrl': 'assets/images/cover_running.jpg',
+        'isFemaleOnly': false,
+        'isLightning': true,
+        'host': '성산러너_민우',
+        'hostAvatar': 'assets/images/kr_male_1.jpg',
+        'manner': 45.2,
+        'members': '3/4',
+        'price': '무료 참여',
+        'transport': '성산공원 입구 집결',
+        'schedule': '스트레칭 10분 ➔ 성산공원 호수 둘레길 5km 러닝 ➔ 이온음료 쿨다운',
+        'tags': ['성산공원', '화장동러닝', '오운완', '둘레길산책', '러닝·운동', '오늘번개'],
+        'photos': ['assets/images/cover_running.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_03',
+        'title': '불금엔 화장동 무선상가 코노 & 시원한 하이볼 한잔 🎤',
+        'mainCategory': '문화 & 엔터',
+        'category': '음악 & 노래방',
+        'location': '전남 여수시 화장동 무선지구 상가',
+        'date': '오늘 저녁 8:30',
+        'imageUrl': 'assets/images/cover_wine.jpg',
+        'isFemaleOnly': false,
+        'isLightning': true,
+        'host': '무선보컬킹',
+        'hostAvatar': 'assets/images/kr_male_2.jpg',
+        'manner': 40.8,
+        'members': '2/4',
+        'price': '1/N 안심 정산',
+        'transport': '무선 롯데마트 앞 집결',
+        'schedule': '1차 무선지구 코노 고음 배틀 ➔ 2차 캐주얼 하이볼 한잔',
+        'tags': ['불금엔 역시 코노', '음악 & 노래방', '불금코노·술', '오늘번개', '스트레스해소'],
+        'photos': ['assets/images/cover_wine.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_04',
+        'title': '여수 웅천친수공원 바다 캔맥주 소셜 피크닉 & 수다 🍺',
+        'mainCategory': '일상 & 푸드',
+        'category': '동네 술 한잔',
+        'location': '전남 여수시 웅천동 해변문화공원',
+        'date': '이번 주 토요일 오후 6:30',
+        'imageUrl': 'assets/images/cover_wine.jpg',
+        'isFemaleOnly': false,
+        'host': '웅천피플_준',
+        'hostAvatar': 'assets/images/kr_female_2.jpg',
+        'manner': 43.0,
+        'members': '3/6',
+        'price': '1/N 안심 정산',
+        'transport': '웅천 친수공원 잔디마당',
+        'schedule': '노을 보며 돗자리 캔맥주 & 버스킹 감상 피크닉',
+        'tags': ['웅천피크닉', '바다캔맥주', '소셜다이닝', '동네친구', '혼술바동행'],
+        'photos': ['assets/images/cover_wine.jpg', 'assets/images/cover_cafe.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_05',
+        'title': '여수 학동 선소상가 찐맛집 털기 & 2:2 캐주얼 소셜 다이닝 🥘',
+        'mainCategory': '일상 & 푸드',
+        'category': '동네 맛집 & 소셜 다이닝',
+        'location': '전남 여수시 학동 선소상가 맛집골목',
+        'date': '이번 주 금요일 저녁 7:30',
+        'imageUrl': 'assets/images/cover_food.jpg',
+        'isFemaleOnly': false,
+        'host': '선소미식가',
+        'hostAvatar': 'assets/images/kr_female_3.jpg',
+        'manner': 44.1,
+        'members': '2/4',
+        'price': '1/N 안심 정산',
+        'transport': '학동 선소상가 입구',
+        'schedule': '현지인 추천 남도 제철 안주 & 맛집 탐방 ➔ 분위기 좋은 2차',
+        'tags': ['선소맛집', '맛집털기', '2:2미팅', '소셜다이닝', '자만추'],
+        'photos': ['assets/images/cover_food.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_06',
+        'title': '화장동 보드게임 카페 스플렌더 & 루미큐브 두뇌 배틀 🎲',
+        'mainCategory': '게임 & 오락',
+        'category': '보드게임',
+        'location': '전남 여수시 화장동 보드게임 카페',
+        'date': '토요일 오후 3:00',
+        'imageUrl': 'assets/images/cover_cafe.jpg',
+        'isFemaleOnly': false,
+        'host': '미플장인',
+        'hostAvatar': 'assets/images/kr_male_3.jpg',
+        'manner': 41.5,
+        'members': '3/4',
+        'price': '무료 참여',
+        'transport': '화장동 상가거리',
+        'tags': ['보드게임·방탈출', '취향아지트', '전략보드게임', '소소하게'],
+        'photos': ['assets/images/cover_cafe.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_07',
+        'title': '여수 소호동동다리 바닷길 야경 산책 & 힐링 워킹 🌊',
+        'mainCategory': '여행 & 나들이',
+        'category': '동네산책',
+        'location': '전남 여수시 소호동 동동다리 산책로',
+        'date': '목요일 저녁 8:00',
+        'imageUrl': 'assets/images/cover_running.jpg',
+        'isFemaleOnly': false,
+        'host': '밤바다산책',
+        'hostAvatar': 'assets/images/kr_female_1.jpg',
+        'manner': 43.8,
+        'members': '2/4',
+        'price': '무료 참여',
+        'transport': '소호동동다리 광장 집결',
+        'schedule': '바다 위 데크길 산책 40분 ➔ 오션뷰 카페 차 한잔',
+        'tags': ['동네산책', '라이프메이트', '소호동동다리', '야경산책', '힐링'],
+        'photos': ['assets/images/cover_running.jpg'],
+      },
+    ];
+  }
+
+  List<Map<String, dynamic>> _getSeoulDummyMeetups() {
+    return [
       {
         'id': 'dummy_meetup_01',
         'title': '주말 엽떡+마라탕 조지실 분 🔥',
@@ -5024,7 +5367,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_female_1.jpg',
         'manner': 41.2,
         'members': '2/4',
-        'price': 'N빵',
+        'price': '1/N 안심 정산',
         'transport': '각자 이동',
         'schedule': '1차 엽떡+마라탕 먹방 ➔ 2차 인생네컷 & 보드게임 카페',
         'tags': ['동네 핫플 메뉴 털기', '주말 마라탕&엽떡 모임', '소셜다이닝', '소소하게', '메이트'],
@@ -5047,7 +5390,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_female_2.jpg',
         'manner': 38.5,
         'members': '2/4',
-        'price': '각자 결제',
+        'price': '1/N 안심 정산',
         'transport': '성수역 3번출구 집결',
         'schedule': '힙한 신상 에스프레소 바 ➔ 베이커리 북카페 & 디저트 탐방',
         'tags': ['북카페 겸 근교 드라이브', '동네 핫플 디저트 투어', '소소하게', '디저트', '주말여유'],
@@ -5069,7 +5412,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_male_1.jpg',
         'manner': 42.0,
         'members': '3/4',
-        'price': '1/N 분담',
+        'price': '1/N 안심 정산',
         'transport': '홍대입구역 3번출구 도보',
         'schedule': '내추럴 와인 2병 페어링 & 소소한 금요일 밤 이야기',
         'tags': ['힙한 혼술바 동행', '동네 수제맥주·와인 팟', '놀줄아는', '와인바', '소셜다이닝'],
@@ -5088,7 +5431,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'host': '고음불가',
         'hostAvatar': 'assets/images/kr_male_2.jpg',
         'manner': 38.5,
-        'price': 'N빵',
+        'price': '1/N 안심 정산',
         'members': '2/4',
         'isFemaleOnly': false,
         'transport': '각자 이동',
@@ -5111,7 +5454,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_female_3.jpg',
         'manner': 40.2,
         'members': '2/3',
-        'price': '무료',
+        'price': '무료 참여',
         'transport': '성수역 4번출구',
         'schedule': '팝업스토어 2곳 웨이팅 & 인생샷 교환 ➔ 카페 수다',
         'tags': ['성수/연남 팝업스토어 웨이팅 동행', '전시 & 팝업스토어', '놀줄아는', '팝업'],
@@ -5129,7 +5472,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'host': '미플마스터',
         'hostAvatar': 'assets/images/kr_male_1.jpg',
         'manner': 40.5,
-        'price': '게임비 각자',
+        'price': '1/N 안심 정산',
         'members': '3/4',
         'isFemaleOnly': false,
         'transport': '신촌역 2번출구',
@@ -5152,7 +5495,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_male_3.jpg',
         'manner': 39.8,
         'members': '4/6',
-        'price': '무료',
+        'price': '무료 참여',
         'transport': '망원역 집결',
         'schedule': '스트레칭 10분 ➔ 6분 페이스 5km 러닝 ➔ 이온음료 쿨다운',
         'tags': ['한강 러닝 & 플로깅', '야외 액티비티', '메이트', '러닝', '운동'],
@@ -5174,7 +5517,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_male_2.jpg',
         'manner': 43.1,
         'members': '2/2',
-        'price': '무료',
+        'price': '무료 참여',
         'transport': '헬스장 정문',
         'schedule': '웨이트 60분 + 유산소 20분 보조',
         'tags': ['동네 헬스장 헬스 메이트', '운동 메이트', '메이트', '헬스'],
@@ -5192,7 +5535,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'host': '셔터버기',
         'hostAvatar': 'assets/images/kr_female_3.jpg',
         'manner': 42.8,
-        'price': '카페비 각자',
+        'price': '1/N 안심 정산',
         'members': '2/4',
         'isFemaleOnly': false,
         'transport': '종로3가역 4번출구',
@@ -5212,7 +5555,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'host': '향기디자이너',
         'hostAvatar': 'assets/images/kr_female_1.jpg',
         'manner': 44.0,
-        'price': '클래스비 35,000원',
+        'price': '1/N 안심 정산',
         'members': '2/3',
         'isFemaleOnly': true,
         'transport': '홍대입구역 도보 8분',
@@ -5235,7 +5578,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_male_1.jpg',
         'manner': 41.5,
         'members': '3/4',
-        'price': '1/N',
+        'price': '1/N 안심 정산',
         'transport': '홍대입구역 3번출구',
         'schedule': '가벼운 와인과 식사 & 편안한 동네 인연 찾기',
         'tags': ['소개팅', '2:2', '미팅', '인연', '소셜다이닝'],
@@ -5244,22 +5587,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         ],
       },
     ];
-
-    final filtered = allDummyData.where((m) => _matchesFilters(m)).toList();
-
-    if (filtered.isEmpty) {
-      return _buildEmptyFilterState();
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filtered.length,
-      itemBuilder: (context, index) {
-        return _isListView ? _buildMeetupListRow(filtered[index]) : _buildMeetupCard(filtered[index]);
-      },
-    );
   }
 
   Stream<QuerySnapshot>? _getMeetupStream() {
