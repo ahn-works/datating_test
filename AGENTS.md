@@ -1,6 +1,6 @@
 # 🏛️ OOMU (오뮤) 통합 에이전트 지침서 (AGENTS.md)
 
-> **자동 로드 안내**: 본 파일(`AGENTS.md`)은 Antigravity 에이전트가 세션 시작 및 매 작업 턴마다 자동으로 가장 먼저 읽어들여 메모리에 상주시키는 **최상위 통합 지침**입니다. 사용자가 매번 긴 프롬프트 머리말을 복사·붙여넣지 않아도 아래의 모든 지침과 로컬 AI 모델(Claude 7종 / GPT 9종) 라우팅이 자동 적용됩니다.
+> **자동 로드 안내**: 본 파일(`AGENTS.md`)은 Antigravity 에이전트가 세션 시작 및 매 작업 턴마다 자동으로 가장 먼저 읽어들여 메모리에 상주시키는 **최상위 통합 지침**입니다. 사용자가 매번 긴 프롬프트 머리말을 복사·붙여넣지 않아도 아래의 모든 지침과 로컬 AI 모델(Claude 7종 / GPT 9종) 라우팅, 그리고 새로 추가된 16종 전문 엔지니어링 & 옵시디언 스킬이 개인 PC와 사무실 PC 구분 없이 100% 자동 적용됩니다.
 
 ---
 
@@ -13,27 +13,54 @@ OOMU의 모든 화면·컴포넌트·리스트 작업 시 **단일 진실 공급
    - 단일 브랜드 색상 `#F25767` 및 중립 배경 `#FAF6F7`, 8dp 여백 시스템, 최소 48×48dp 터치 타깃 준수.
    - 콘텐츠 특성(제목, 주소, 시간)에 맞게 유연한 줄바꿈을 적용하며 획일적 1줄 말줄임이나 비대칭 짤림을 배제합니다.
    - 모든 모임의 금액 표기는 `1/N 안심 정산` 또는 `무료 참여`로 통일합니다.
+   - **커뮤니티 피드 & 상세 타이포그래피 계층 (Typography Hierarchy)**:
+     - 제목(Title): 피드 `16.5dp` / 상세 `18.5dp`, `FontWeight.w800`, 깊은 블랙 `Color(0xFF19181B)`, `letterSpacing: -0.35~-0.4`, 줄간격 `1.35`, 최대 2줄 말줄임
+     - 제목-본문 간격: `8~12dp` 고정 확보 (제목과 본문이 뭉쳐 보이는 답답함 차단)
+     - 본문(Content): 피드 `13.5dp` / 상세 `14.5dp`, `FontWeight.w400`, 차콜 그레이 `Color(0xFF4A4446)`, `letterSpacing: -0.15`, 쾌적한 줄간격 `1.55~1.65`
+     - 서브태그 뱃지: 제목 상단 배치, 코랄 틴트 배지 (`#FFF0F2`, 보더 `#FCD3D9`, 텍스트 `coralAccent`)
+     - 피드 카드: 내부 패딩 `18dp`, 둥근 모서리 `20dp`, 미세 1px 테두리 `Color(0xFFF0E8EA)`
+   - **동네 위치 실시간 연동 (Neighborhood Matching)**:
+     - 유저 프로필 위치(`location`, 예: `여수시 화장동`)를 홈 상단 앱바 타이틀, 피드 모임, 번개 탭과 100% 실시간 연동
+     - `OomuUiHelpers.formatLocationNeighborhood` 기반으로 동/구 단위 매칭을 수행하여 타 지역(마포구 등)이 임의 노출되지 않도록 보장
 2. **화면 경로 기준**:
    - `main.dart` 기준 실제 활성 화면인 `soso_car_home_screen.dart`, `soso_car_detail_screen.dart` 등을 직접 수정하며, 부존재 경로(`lib/features/...`)는 사용하지 않습니다.
 3. **완료 및 검증 기준**:
    - UI 작업 완료 검증은 정적 분석(문법/괄호 무결성), 보안 규칙 검증, 실제 로컬 렌더링 확인으로 분리하여 판정합니다 (자동 `git push`/배포 강제 제외). 도구 미비로 실행하지 못한 항목은 '미검증'으로 명시합니다.
 
-
 ---
 
-## 📂 1. 분리 관리되는 세부 지침 파일 맵 (Single Source of Truth)
+## 📂 1. 분리 관리되는 세부 지침 및 전문 스킬 파일 맵 (Single Source of Truth)
 
+### A. 디자인, 모바일 성능 & E2E 검증 스킬 (10종)
 | 구분 | 파일 경로 | 핵심 역할 |
 | :--- | :--- | :--- |
-| **통합 프롬프트 트리거** | [`AI_INSTRUCTIONS.md`](file:///c:/Users/developersim/Desktop/datating_test/AI_INSTRUCTIONS.md) | 질문 키워드별 자동 프롬프트 트리거 & 4대 핵심 도메인 통합 지침 |
-| **OOMU 프론트엔드 디자인 스킬** | [.agents/skills/frontend-design/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/frontend-design/SKILL.md) | 30대 찐친·여성안심 철학, 5대 AI 클리셰 배제, Flutter 모바일 인체공학 터치/바텀시트, 2-Pass 디자인 검증 |
+| **OOMU 프론트엔드 디자인** | [.agents/skills/frontend-design/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/frontend-design/SKILL.md) | 30대 찐친·여성안심 철학, 5대 AI 클리셰 배제, Flutter 모바일 인체공학 터치/바텀시트, 2-Pass 디자인 검증 |
 | **Emil 모션 & 마이크로 인터랙션** | [.agents/skills/emil-motion-design/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/emil-motion-design/SKILL.md) | scale(0) 금지, ease-in 금지, 스프링 물리, 버튼 탭 햅틱, 120fps GPU 렌더링 |
 | **Impeccable 디자인 감사** | [.agents/skills/impeccable-design-audit/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/impeccable-design-audit/SKILL.md) | 48dp 터치 타깃, 카드 안의 카드 중첩 금지, 60+ 안티-슬롭, P0~P3 디자인 감사 |
 | **Taste 브랜드 아트 디렉션** | [.agents/skills/taste-anti-slop/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/taste-anti-slop/SKILL.md) | AI 뻔한 편향(Inter, 3열 아이콘) 거부, OOMU 2030 감성 Vibe 일관성 유지 |
 | **Flutter 120fps 성능 최적화** | [.agents/skills/flutter-expert-performance/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/flutter-expert-performance/SKILL.md) | Impeller 120fps 최적화, const 엄수, 메모리 누수 방지, Thumb-zone 인체공학 |
 | **Playwright 모바일 E2E 검증** | [.agents/skills/playwright-e2e-testing/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/playwright-e2e-testing/SKILL.md) | Pixel 7 / iPhone 모바일 뷰포트 에뮬레이션, 콘솔 에러 제로, 비주얼 회귀 테스트 |
+| **에스크로 1/N 안심 정산** | [.agents/skills/escrow-split-billing/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/escrow-split-billing/SKILL.md) | 동네 소모임 투명 1/N 안심 정산, 원화 표기 배제, 토스/카카오페이 송금 링크 |
+| **하이퍼로컬 피드 엔진** | [.agents/skills/karrot-hyperlocal-feed/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/karrot-hyperlocal-feed/SKILL.md) | 당근마켓급 88x88 썸네일, 2줄 제목, 동네 인증 배지, 100:100 대칭 2열 그리드 |
+| **매너온도 & 신뢰 배지** | [.agents/skills/manner-temp-badges/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/manner-temp-badges/SKILL.md) | 36.5도 기준 색상 변화 게이지, 본인인증(PASS/SMS) 배지, 클린 호스트 마크 |
+| **여성 안심 & 악성유저 차단** | [.agents/skills/women-safe-anti-creep/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/women-safe-anti-creep/SKILL.md) | 호스트 승인제 신청 모달, 여성 전용 필터, 1-Click 비밀 신고/차단, 안심 귀가 타이머 |
+
+### B. 옵시디언 지식 & 마크다운 스킬 6종 (Kepano Obsidian Skills)
+| 스킬명 | 경로 | 핵심 역할 |
+| :--- | :--- | :--- |
+| **defuddle** | [.agents/skills/defuddle/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/defuddle/SKILL.md) | HTML 및 웹 콘텐츠를 읽기 쉬운 깔끔한 마크다운으로 변환 및 노이즈 제거 |
+| **json-canvas** | [.agents/skills/json-canvas/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/json-canvas/SKILL.md) | 모임/지식 캔버스 시각화 데이터(.canvas) 구조 생성, 수정 및 파싱 |
+| **knap** | [.agents/skills/knap/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/knap/SKILL.md) | 마크다운 문서를 Obsidian 형식으로 신속 파싱 및 서식 자동 변환 |
+| **obsidian-bases** | [.agents/skills/obsidian-bases/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/obsidian-bases/SKILL.md) | 옵시디언 볼트 베이스 및 코어 지식 구조 제어 및 데이터 관리 |
+| **obsidian-cli** | [.agents/skills/obsidian-cli/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/obsidian-cli/SKILL.md) | Obsidian CLI 터미널 명령을 통한 지식 베이스 검색, 관리 및 인덱싱 |
+| **obsidian-markdown** | [.agents/skills/obsidian-markdown/SKILL.md](file:///C:/Users/DT4/Downloads/oomu_app/.agents/skills/obsidian-markdown/SKILL.md) | 옵시디언 특화 GFM 마크다운 서식(콜아웃, 내부 링크, 위키링크) 표준화 |
+
+### C. 프로젝트 핵심 규칙 문서
+| 구분 | 파일 경로 | 핵심 역할 |
+| :--- | :--- | :--- |
+| **통합 프롬프트 트리거** | [`AI_INSTRUCTIONS.md`](file:///c:/Users/developersim/Desktop/datating_test/AI_INSTRUCTIONS.md) | 질문 키워드별 자동 프롬프트 트리거 & 4대 핵심 도메인 통합 지침 |
 | **프롬프트 & 모델 라우팅** | [`.antigravity/rules/prompt_routing_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/prompt_routing_rules.md) | 고정 머리말 규칙, 화면 경로별 실전 프롬프트 3선, 로컬 Claude 7종/GPT 9종 자동 매칭표 |
-| **12년 차 UI/UX 디자인 규칙** | [`.antigravity/rules/ui_ux_design_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/ui_ux_design_rules.md) | 경쟁 앱 벤치마킹 기준, 배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, Overflow 0%, 2030/B2B UX Writing |
+| **12년 차 UI/UX 디자인 규칙** | [`.antigravity/rules/ui_ux_design_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/ui_ux_design_rules.md) | 배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, 파스텔 뱃지, Overflow 0%, 2030/B2B UX Writing |
 | **3계층 Zero-Secret 보안** | [`.antigravity/rules/security_distribution_rules.md`](file:///c:/Users/developersim/Desktop/datating_test/.antigravity/rules/security_distribution_rules.md) | Git/APK API 키 하드코딩 금지 (`pk-dummy` 예외), Firestore `config/*` 런타임 로드 |
 | **상황별 프롬프트 플레이북** | [`docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`](file:///c:/Users/developersim/Desktop/datating_test/docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md) | `[상황 1]~[상황 5]` 시나리오별 프롬프트 및 로컬 AI 모델 호출 가이드 |
 | **통합 마스터 스펙** | [`docs/OOMU_MASTER_SPEC.md`](file:///c:/Users/developersim/Desktop/datating_test/docs/OOMU_MASTER_SPEC.md) | 하이브리드 아키텍처, B2B 아지트 & 정산, 에스크로, 트렌드 파이프라인 명세 |
@@ -91,13 +118,12 @@ OOMU의 모든 화면·컴포넌트·리스트 작업 시 **단일 진실 공급
 3. **보안 및 Git 푸시 전**
    - `powershell -ExecutionPolicy Bypass -File .\scripts\verify_security_rules.ps1` 통과 여부를 확인합니다.
 
-
 ---
 
 ## 📱 5. SMS & 본인인증 프로바이더 선정 절대 수칙 (알리고 금지 & 솔라피 표준화)
 
 > **[필독 경고] 알리고(Aligo) 연동 절대 금지**:
-> 알리고는 웹 회원가입 시 '개인' 유형이 있더라도, **API Key 발급 페이지( dmin/api/auth.html)에서 자바스크립트 checkCert() 검사를 통해 강제로 사업자등록 인증 페이지(/admin/account.html)로 튕겨내므로 사업자등록증이 없는 개인 개발자는 API Key 발급이 물리적으로 불가능**합니다.
+> 알리고는 웹 회원가입 시 '개인' 유형이 있더라도, **API Key 발급 페이지(admin/api/auth.html)에서 자바스크립트 checkCert() 검사를 통해 강제로 사업자등록 인증 페이지(/admin/account.html)로 튕겨내므로 사업자등록증이 없는 개인 개발자는 API Key 발급이 물리적으로 불가능**합니다.
 > 비사업자 개인 대표님/개발자 프로젝트에 알리고를 추천하거나 연동을 시도하는 행위를 절대 엄금합니다.
 
 ### 🌟 비사업자 개인 공식 인증 솔루션: 솔라피 (SOLAPI, 구 CoolSMS)
@@ -143,3 +169,16 @@ OOMU는 대표님이 일일이 수동 관리하지 않아도 앱이 살아 숨�
    - 반드시 **공식 기술 문서, 공식 FAQ, 실제 웹 서비스 DOM/JavaScript 코드, 실제 결제/인증 API 스펙을 100% 교차 검증**한 뒤에만 확정 답변을 드립니다.
 3. **사전 검증 통과 전 완료 보고 금지**:
    - 코드 작성이나 세팅 완료 후 '다 되었습니다'라고 말하기 전에, 반드시 브라우저 테스트, 로컬 단위 검증, GitHub Actions 성공 여부를 먼저 확인한 뒤 증거(로그, 스크린샷, 실행 결과)와 함께 보고합니다.
+
+---
+
+## 💻 8. 개인 PC 안티그래비티 원격·교차 연속 작업 가이드 (Cross-PC Continuity)
+
+본 프로젝트는 원격 저장소(`origin main`)를 통해 사무실 PC와 개인 PC 간 완벽한 연속 작업 환경을 제공합니다:
+1. **스킬 & 지침 자동 로드**:
+   - 개인 PC에서 본 프로젝트를 열거나 `git pull origin main`을 실행하면 `.agents/skills/` 내 16종 스킬(디자인 10종 + 옵시디언 6종)과 `AGENTS.md` 지침이 Antigravity 에이전트 메모리에 자동 상주합니다.
+2. **작업 인수인계 시 필수 순서**:
+   - **작업 시작 시**: `git pull origin main`으로 최신 상태 동기화
+   - **코드/UI 수정 시**: 실제 활성 경로인 `soso_car_home_screen.dart` 및 `docs/OOMU_UI_GUIDE.md` 기준으로 작업 (부존재 경로 `lib/features/...` 사용 금지)
+   - **커밋 전**: `flutter analyze` 및 `powershell -ExecutionPolicy Bypass -File .\scripts\verify_security_rules.ps1` 검증 100% 통과 필수
+   - **커밋 후**: `git push origin main` 후 GitHub Actions `Flutter Web Deploy` 초록색 체크(`completed success`)를 반드시 확인합니다.

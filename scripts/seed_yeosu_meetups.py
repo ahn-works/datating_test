@@ -114,3 +114,4 @@ for m in YEOSU_MEETUPS:
     print(f"Created: {m['title']} -> ID: {doc.get('id', 'ok')}")
 
 print("\n[SUCCESS] Yeosu meetups successfully seeded into Firestore!")
+

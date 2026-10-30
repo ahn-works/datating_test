@@ -4170,14 +4170,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         ).then((_) => setState(() {}));
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFEFE4E6)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF0E8EA)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: const Color(0xFF1E1E24).withOpacity(0.025),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -4205,11 +4205,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     );
                   },
                   child: CircleAvatar(
-                    radius: 17,
+                    radius: 18,
                     backgroundImage: appImg(post['authorAvatar'] ?? 'assets/images/kr_female_1.jpg'),
                   ),
                 ),
-                const SizedBox(width: 9),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -4234,7 +4234,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               },
                               child: Text(
                                 (post['author'] ?? '동네주민').toString(),
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: textPrimary),
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: textPrimary),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -4254,7 +4254,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   OomuUiHelpers.formatMannerTemp(authorManner),
                                   style: TextStyle(
                                     color: OomuUiHelpers.mannerTempColor(authorManner),
-                                    fontSize: 11,
+                                    fontSize: 10.5,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -4263,27 +4263,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 1),
+                      const SizedBox(height: 2),
                       Text(
                         '${post['location']} · ${post['time']}',
-                        style: TextStyle(fontSize: 11, color: textSecondary),
+                        style: TextStyle(fontSize: 11.5, color: textSecondary),
                       ),
                     ],
                   ),
                 ),
-                if (post['tag'] != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFAF6F7),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '#${post['tag']}',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textSecondary),
-                    ),
-                  ),
-                const SizedBox(width: 4),
                 InkWell(
                   onTap: () {
                     UgcActionSheets.showContentOptions(
@@ -4296,28 +4283,65 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   },
                   borderRadius: BorderRadius.circular(16),
                   child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Icon(Icons.more_vert, size: 18, color: Color(0xFF8E8E93)),
+                    padding: EdgeInsets.all(6),
+                    child: Icon(Icons.more_horiz, size: 20, color: Color(0xFF8E8E93)),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
-            // 제목 (있을 경우만 볼드 처리, 본문과 자연스럽게 연결)
+            // 서브태그 뱃지 (있을 경우만 선명한 코랄 틴트 배지)
+            if (post['tag'] != null && (post['tag'] as String).isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 3.5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0F2),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFFCD3D9), width: 0.8),
+                ),
+                child: Text(
+                  '#${post['tag']}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: coralAccent,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+
+            // 제목 (16.5px, Deep Black, LetterSpacing -0.35px: 본문과 완벽 분리되는 또렷한 타이포그래피 계층)
             if (post['title'] != null && (post['title'] as String).isNotEmpty) ...[
               Text(
                 post['title'] ?? '',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary, height: 1.35),
+                style: const TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF19181B),
+                  height: 1.35,
+                  letterSpacing: -0.35,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
             ],
 
-            // 본문
+            // 본문 (13.5px, 편안한 차콜 그레이 Color(0xFF4A4446), 쾌적한 줄간격 1.55)
             Text(
               post['content'] ?? '',
-              style: TextStyle(fontSize: 13, color: textPrimary, height: 1.45),
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF4A4446),
+                height: 1.55,
+                letterSpacing: -0.15,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
             ),
 
             // 첨부 사진 (있을 경우만)

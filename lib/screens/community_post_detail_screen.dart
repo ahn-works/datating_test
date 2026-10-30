@@ -366,27 +366,30 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
               const SizedBox(height: 16),
 
-              // Title (이모지 안전한 줄바꿈)
+              // Title (이모지 안전한 줄바꿈 & 선명한 타이포그래피 계층)
               if (title.isNotEmpty) ...[
                 Text(
                   OomuUiHelpers.formatTitle(title, fallback: ''),
-                  style: TextStyle(
-                    fontSize: 17,
+                  style: const TextStyle(
+                    fontSize: 18.5,
                     fontWeight: FontWeight.w800,
-                    color: textPrimary,
+                    color: Color(0xFF19181B),
                     height: 1.35,
+                    letterSpacing: -0.4,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
               ],
 
-              // Body Text
+              // Body Text (가독성 높은 차콜 그레이 & 쾌적한 줄간격)
               Text(
                 content,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14.5,
-                  height: 1.6,
-                  color: textPrimary,
+                  fontWeight: FontWeight.w400,
+                  height: 1.65,
+                  color: Color(0xFF4A4446),
+                  letterSpacing: -0.15,
                 ),
               ),
 
