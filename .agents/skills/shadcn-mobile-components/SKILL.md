@@ -8,8 +8,9 @@ license: MIT
 
 본 스킬은 웹에서 가장 각광받는 `shadcn/ui`의 정갈하고 미니멀한 시각 감각을 Flutter 모바일 환경에 이식하여, 머티리얼의 둔탁함을 걷어내고 세련된 프리미엄 앱 UI를 완성하는 위젯 모음입니다.
 
-## 1. 상용화 및 라이선스 (Commercial Viability)
+## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_UI_GUIDE.md`)
 - **라이선스**: MIT License (상업적 이용 및 완전한 자체 커스텀 가능)
+- **단일 디자인 기준**: 모든 카드 보더·배경·강조 색상 및 간격 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 및 `OomuUiHelpers`를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
 
 ## 2. 1px 미세 보더 카드 컴포넌트 (Shadcn Border Card)
 부담스러운 그림자 대신 1.0dp 정밀 스트로크와 미세한 음영으로 모던함을 구현합니다:
@@ -61,7 +62,7 @@ Widget buildPillDotIndicator({required int totalCount, required int currentIndex
         height: 4,
         width: isSelected ? 18 : 6, // 선택된 페이지는 긴 바 형태
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFF6B4A) : const Color(0xFFCBD5E1),
+          color: isSelected ? OomuUiHelpers.brandCoral : OomuUiHelpers.borderSoftRose,
           borderRadius: BorderRadius.circular(2),
         ),
       );

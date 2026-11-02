@@ -32,9 +32,9 @@ class OOMUHomeScreen extends StatefulWidget {
 }
 
 class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
-  final Color textPrimary = const Color(0xFF221B1D);
-  final Color textSecondary = const Color(0xFF635559);
-  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color textPrimary = const Color(0xFF191F28);
+  final Color textSecondary = const Color(0xFF6B7684);
+  final Color surfaceColor = const Color(0xFFF7F8FA);
   final Color accentColor = const Color(0xFFF25767);
   final Color coralAccent = const Color(0xFFF25767);
   final Color destructiveColor = const Color(0xFFE11D48);
@@ -402,7 +402,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'id': 'post_yeosu_01',
       'category': '동네 토크',
       'tag': '성산공원둘레길',
-      'title': '🐕 오늘 저녁 화장동 성산공원 호수 둘레길 댕댕이 산책 같이 하실 분!',
+      'title': '🐕 오늘 저녁 화장동 성산공원 둘레길 댕댕이 산책 같이 하실 분!',
       'content': '날씨가 너무 선선해서 저녁 7시쯤 비숑 데리고 성산공원 한 바퀴 돌려구요! 댕댕이 없으셔도 가볍게 산책하고 수다 떠실 화장동 이웃분 환영합니다 ✨',
       'author': '화장동댕댕이',
       'authorAvatar': 'assets/images/kr_female_1.jpg',
@@ -435,7 +435,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           'likedUserIds': <String>[],
         },
       ],
-      'image': 'assets/images/cover_running.jpg',
+      'image': null,
       'relatedMeetup': {
         'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
         'location': '전남 여수시 화장동 성산공원 수변무대',
@@ -447,7 +447,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'id': 'post_yeosu_02',
       'category': '맛집/카페',
       'tag': '선소상가와플',
-      'title': '🧇 선소상가 새로 오픈한 수제 소금빵 & 와플집 가보신 분?',
+      'title': '🧇 선소상가 새로 오픈한 수제 소금빵 & 와플 맛집 다녀오신 분 계신가요?',
       'content': '선소상가 안쪽에 새로 생긴 베이커리 다녀왔는데 겉바속촉 제대로네요... 쌀가루 소금빵이랑 크림 와플 미쳤습니다. 이번 주말에 디저트 좋아하시는 분들이랑 같이 털러 가고 싶어요!',
       'author': '여수빵순이',
       'authorAvatar': 'assets/images/kr_female_2.jpg',
@@ -560,7 +560,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final List<Map<String, dynamic>> _yeosuGroupDatingPots = [
     {
       'id': 'group_dating_yeosu_01',
-      'title': '🍷 불금 웅천 오션뷰 2:2 와인 & 타파스 미팅 (20대 중후반)',
+      'title': '🍷 불금 여수 웅천 오션뷰 2:2 와인 & 타파스 미팅 (20대 중후반)',
       'location': '전남 여수시 웅천동 해변 와인바',
       'time': '이번 주 금요일 저녁 7:30',
       'members': '3/4 (여성 1자리 남음)',
@@ -576,7 +576,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'title': '☕ 주말 화장동 성산공원 앞 3:3 자연스러운 카페 & 보드게임 미팅 🎲',
       'location': '전남 여수시 화장동 베이커리 카페',
       'time': '이번 주 토요일 오후 3:00',
-      'members': '4/6 (남2/여2 모집완료)',
+      'members': '4/6 (남2/여2 모집중)',
       'category': '동네 3:3 미팅',
       'host': '성산러버',
       'hostAvatar': 'assets/images/kr_male_2.jpg',
@@ -944,29 +944,60 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (globalData.userLocation.value.isNotEmpty && globalData.userLocation.value != '마포구 서교동') {
+    if (globalData.userLocation.value.isNotEmpty) {
       _currentLocation = globalData.userLocation.value;
     }
     _homeDashboardTab = widget.initialTab;
     _seedDatabase();
     _loadUserLocation();
     globalData.userLocation.addListener(_onGlobalLocationChanged);
+    globalData.currentUserId.addListener(_onActiveUserChanged);
+  }
+
+  int _locationLoadGeneration = 0;
+
+  void _onActiveUserChanged() {
+    if (mounted) {
+      final targetLoc = globalData.userLocation.value.isNotEmpty
+          ? globalData.userLocation.value
+          : '마포구 서교동';
+      if (_currentLocation != targetLoc) {
+        setState(() {
+          _currentLocation = targetLoc;
+        });
+      }
+      _loadUserLocation();
+    }
   }
 
   void _onGlobalLocationChanged() {
-    if (mounted && globalData.userLocation.value.isNotEmpty && _currentLocation != globalData.userLocation.value) {
+    if (!mounted) return;
+    final targetLoc = globalData.userLocation.value.isNotEmpty
+        ? globalData.userLocation.value
+        : '마포구 서교동';
+    if (_currentLocation != targetLoc) {
       setState(() {
-        _currentLocation = globalData.userLocation.value;
+        _currentLocation = targetLoc;
       });
     }
   }
 
   Future<void> _loadUserLocation() async {
-    final user = FirebaseAuth.instance.currentUser;
-    final uid = user?.uid ?? globalData.activeUserId;
-    if (uid.isNotEmpty && uid != 'guest') {
-      try {
+    final int reqGen = ++_locationLoadGeneration;
+    final int reqSession = globalData.sessionGeneration;
+    if (Firebase.apps.isEmpty) return;
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final uid = user?.uid ?? globalData.activeUserId;
+      if (uid.isNotEmpty && uid != 'guest') {
         final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        final currentAuthUid = FirebaseAuth.instance.currentUser?.uid;
+        if (!mounted ||
+            reqGen != _locationLoadGeneration ||
+            !globalData.isActiveSession(reqSession, uid) ||
+            (currentAuthUid != null && currentAuthUid != uid)) {
+          return;
+        }
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
           final loc = data['location'] as String?;
@@ -983,16 +1014,21 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           if (nick != null && nick.trim().isNotEmpty) {
             globalData.userNickname.value = nick.trim();
           }
+          final avatar = (data['photoUrl'] ?? data['profileImage'] ?? data['avatarUrl'] ?? data['authorAvatar'])?.toString().trim();
+          if (avatar != null && avatar.isNotEmpty) {
+            globalData.userAvatar.value = avatar;
+          }
         }
-      } catch (e) {
-        debugPrint('[HomeScreen] _loadUserLocation error: $e');
       }
+    } catch (e) {
+      debugPrint('[HomeScreen] _loadUserLocation error: $e');
     }
   }
 
   @override
   void dispose() {
     globalData.userLocation.removeListener(_onGlobalLocationChanged);
+    globalData.currentUserId.removeListener(_onActiveUserChanged);
     _trendPageController.dispose();
     super.dispose();
   }
@@ -1107,15 +1143,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF0F2),
+                    color: const Color(0xFFF2F4F7),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: const Color(0xFFF8C6CD)),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('전체 지도', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: coralAccent)),
-                      Icon(Icons.chevron_right, size: 14, color: coralAccent),
+                      Text('전체 지도', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF4E5968))),
+                      Icon(Icons.chevron_right, size: 14, color: Color(0xFF4E5968)),
                     ],
                   ),
                 ),
@@ -1128,7 +1163,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             final double cardWidth = ((constraints.maxWidth - 52) / 2).clamp(150.0, 260.0);
             final currentLiveSpots = _getLiveSpotsForLocation(_currentLocation);
             return SizedBox(
-              height: 168,
+              height: 184,
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 scrollDirection: Axis.horizontal,
@@ -1144,13 +1179,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       width: cardWidth,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: const Color(0xFFF8C6CD), width: 1.2),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFEAECF0), width: 1.0),
                         boxShadow: [
                           BoxShadow(
-                            color: coralAccent.withOpacity(0.08),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -1161,20 +1196,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           Stack(
                             children: [
                               ClipRRect(
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                                 child: Image(
                                   image: appImg(spot['image']),
                                   width: cardWidth,
                                   height: 84,
                                   fit: BoxFit.cover,
+                                  alignment: (spot['image'] ?? '').toString().contains('cover_running')
+                                      ? const Alignment(0, 0.55)
+                                      : Alignment.center,
                                 ),
                               ),
                           Container(
                             height: 84,
                             decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                               gradient: LinearGradient(
-                                colors: [Colors.black.withOpacity(0.55), Colors.transparent],
+                                colors: [Colors.black.withOpacity(0.45), Colors.transparent],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                               ),
@@ -1196,7 +1234,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   const SizedBox(width: 3),
                                   Text(
                                     spot['timeLeft'],
-                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),
+                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800),
                                   ),
                                 ],
                               ),
@@ -1220,49 +1258,56 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         ],
                       ),
                       // 하단 정보
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              spot['title'],
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: textPrimary),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 9,
-                                      backgroundImage: appImg(spot['hostAvatar']),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                OomuUiHelpers.formatTitle(spot['title']),
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary, height: 1.28),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 9,
+                                          backgroundImage: appImg(spot['hostAvatar']),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Flexible(
+                                          child: Text(
+                                            spot['host'],
+                                            style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      spot['host'],
-                                      style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
-                                      overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF2F4F7),
+                                      borderRadius: BorderRadius.circular(5),
                                     ),
-                                  ],
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF4EB),
-                                    borderRadius: BorderRadius.circular(5),
+                                    child: Text(
+                                      '${spot['members']} 참여',
+                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF4E5968)),
+                                    ),
                                   ),
-                                  child: Text(
-                                    '${spot['members']} 참여',
-                                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFD9480F)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -2931,18 +2976,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 margin: const EdgeInsets.only(right: 8),
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                                 decoration: BoxDecoration(
-                                  color: isSubSelected ? textPrimary : const Color(0xFFFAF6F7),
+                                  color: isSubSelected ? textPrimary : Colors.white,
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: isSubSelected ? textPrimary : const Color(0xFFEFE4E6),
+                                    color: isSubSelected ? textPrimary : const Color(0xFFEAECF0),
                                   ),
                                 ),
                                 child: Text(
                                   subName == '전체' ? '전체' : '#$subName',
                                   style: TextStyle(
                                     fontSize: 12.5,
-                                    fontWeight: isSubSelected ? FontWeight.bold : FontWeight.w600,
-                                    color: isSubSelected ? Colors.white : textSecondary,
+                                    fontWeight: isSubSelected ? FontWeight.w700 : FontWeight.w600,
+                                    color: isSubSelected ? Colors.white : const Color(0xFF4E5968),
                                   ),
                                 ),
                               ),
@@ -2962,15 +3007,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF3EAEB),
+                            color: const Color(0xFFF2F4F7),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFFEFE4E6)),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('+더보기', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF666677))),
-                              Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF666677)),
+                              Text('+더보기', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF4E5968))),
+                              Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF4E5968)),
                             ],
                           ),
                         ),
@@ -2984,9 +3028,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFAF6F7),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFEFE4E6)),
+                border: Border.all(color: const Color(0xFFEAECF0)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -3301,14 +3345,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF6F7),
+      backgroundColor: const Color(0xFFF7F8FA),
       appBar: (_homeDashboardTab == 3 || _homeDashboardTab == 4)
           ? null
           : AppBar(
-        backgroundColor: const Color(0xFFFAF6F7),
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        titleSpacing: 16,
+        shape: const Border(
+          bottom: BorderSide(color: Color(0xFFEAECF0), width: 1),
+        ),
+        titleSpacing: 20,
         title: BouncyTap(
           scaleDown: 0.96,
           onTap: _showLocationPickerBottomSheet,
@@ -3318,34 +3365,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
-                  flex: 6,
                   child: Text(
                     _currentLocation,
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17.5, color: textPrimary),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: textPrimary,
+                      letterSpacing: -0.4,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 2),
-                Icon(Icons.keyboard_arrow_down, size: 20, color: textPrimary),
                 const SizedBox(width: 4),
-                Flexible(
-                  flex: 6,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE6F7F5),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.2)),
-                    ),
-                    child: const Text(
-                      '🟢 이웃 54명 접속 중',
-                      style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF0D9488)),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
+                Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: textPrimary),
               ],
             ),
           ),
@@ -3362,14 +3395,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 );
               },
               child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
                 child: Center(
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
-                    child: const Icon(Icons.map_rounded, color: Color(0xFFF25767), size: 20),
-                  ),
+                  child: Icon(Icons.map_outlined, color: textPrimary, size: 22),
                 ),
               ),
             ),
@@ -3383,44 +3411,34 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 MaterialPageRoute(builder: (_) => const NotificationScreen()),
               ),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
                 child: Center(
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
-                    child: const Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Icon(Icons.notifications_outlined, color: Color(0xFF221B1D), size: 21),
-                        Positioned(
-                          top: 9,
-                          right: 9,
-                          child: CircleAvatar(radius: 3.5, backgroundColor: Color(0xFFF25767)),
-                        )
-                      ],
-                    ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(Icons.notifications_none_rounded, color: textPrimary, size: 23),
+                      const Positioned(
+                        top: 2,
+                        right: 2,
+                        child: CircleAvatar(radius: 3.5, backgroundColor: Color(0xFFF25767)),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 10),
             child: Tooltip(
               message: '필터',
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen())),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
                   child: Center(
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: const BoxDecoration(color: Color(0xFFFFF0F2), shape: BoxShape.circle),
-                      child: Icon(Icons.tune, color: textPrimary, size: 19),
-                    ),
+                    child: Icon(Icons.tune_rounded, color: textPrimary, size: 21),
                   ),
                 ),
               ),
@@ -3433,10 +3451,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           : (_homeDashboardTab == 1
               ? _buildCommunityDashboard()
               : (_homeDashboardTab == 2
-                  ? _buildDatingDashboard()
-                  : (_homeDashboardTab == 3
-                      ? const ChatScreen(isEmbedded: true)
-                      : const MyPageScreen(isEmbedded: true)))),
+                   ? _buildDatingDashboard()
+                   : (_homeDashboardTab == 3
+                       ? const ChatScreen(isEmbedded: true)
+                       : const MyPageScreen(isEmbedded: true)))),
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
@@ -3455,7 +3473,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     children: [
                       Expanded(
                         child: SizedBox(
-                          height: 42,
+                          height: 40,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             clipBehavior: Clip.none,
@@ -3470,17 +3488,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 14),
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF0F2),
-                                      borderRadius: BorderRadius.circular(22),
-                                      border: Border.all(color: const Color(0xFFF8C6CD)),
+                                      color: const Color(0xFFF2F4F7),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: const Color(0xFFEAECF0)),
                                     ),
-                                    child: Row(
+                                    child: const Row(
                                       children: [
-                                        Icon(Icons.grid_view_rounded, size: 15, color: coralAccent),
-                                        const SizedBox(width: 5),
+                                        Icon(Icons.grid_view_rounded, size: 15, color: Color(0xFF4E5968)),
+                                        SizedBox(width: 5),
                                         Text(
                                           '전체보기',
-                                          style: TextStyle(color: coralAccent, fontWeight: FontWeight.w700, fontSize: 12),
+                                          style: TextStyle(color: Color(0xFF4E5968), fontWeight: FontWeight.w700, fontSize: 12.5),
                                         ),
                                       ],
                                     ),
@@ -3498,31 +3516,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 180),
                                   margin: const EdgeInsets.only(right: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 15),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    gradient: isSelected
-                                        ? const LinearGradient(
-                                            colors: [Color(0xFFFF707F), Color(0xFFE84355)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          )
-                                        : null,
-                                    color: isSelected ? null : const Color(0xFFF3EAEB),
-                                    borderRadius: BorderRadius.circular(22),
+                                    color: isSelected ? coralAccent : const Color(0xFFF2F4F7),
+                                    borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: isSelected ? Colors.transparent : const Color(0xFFEFE4E6),
+                                      color: isSelected ? coralAccent : const Color(0xFFEAECF0),
                                       width: 1,
                                     ),
-                                    boxShadow: isSelected
-                                        ? [
-                                            BoxShadow(
-                                              color: coralAccent.withOpacity(0.32),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
-                                            )
-                                          ]
-                                        : [],
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -3532,8 +3534,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                       Text(
                                         _categories[index]['name'],
                                         style: TextStyle(
-                                          color: isSelected ? Colors.white : const Color(0xFF221B1D),
-                                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                                          color: isSelected ? Colors.white : const Color(0xFF4E5968),
+                                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                                           fontSize: 13,
                                         ),
                                       ),
@@ -3556,51 +3558,52 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ),
 
-          // 2. 동네 지도 탐색 진입 (보조 탐색 수단으로 시각적 무게 절제)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ExploreMapScreen()),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE7E9ED), width: 1.0),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFAF6F7),
-                          borderRadius: BorderRadius.circular(8),
+          // 2. 동네 지도 탐색 진입 (오늘 번개 탭에서는 상단 캐러셀의 '전체 지도 >' 버튼과 중복되므로 숨김)
+          if (_selectedCategoryIndex != 1)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ExploreMapScreen()),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFEAECF0), width: 1.0),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2F4F7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(Icons.map_outlined, color: textPrimary, size: 16),
                         ),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.map_outlined, color: coralAccent, size: 16),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          '$_currentLocation 지도에서 모임 둘러보기',
-                          style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '$_currentLocation 지도에서 모임 둘러보기',
+                            style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
                         ),
-                      ),
-                      Icon(Icons.chevron_right_rounded, color: textSecondary, size: 18),
-                    ],
+                        Icon(Icons.chevron_right_rounded, color: textSecondary, size: 18),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
           if (_selectedVibe != null)
             SliverToBoxAdapter(
@@ -3652,10 +3655,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           // 5. 우리 동네 취향 모임 Header
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 18, bottom: 16),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 18, bottom: 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Column(
@@ -3663,33 +3666,33 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       children: [
                         Text(
                           _selectedCategoryIndex == 1
-                              ? '${_currentLocation.split(' ')[0]}에서\n오늘 만나는 당일 번개'
+                              ? '${_currentLocation.split(' ')[0]} 오늘 당일 번개'
                               : (_selectedCategoryIndex == 2
-                                  ? '${_currentLocation.split(' ')[0]}의\n감성 취향 아지트'
+                                  ? '${_currentLocation.split(' ')[0]} 감성 취향 아지트'
                                   : (_selectedCategoryIndex == 3
-                                      ? '${_currentLocation.split(' ')[0]}의\n일상 라이프 메이트'
-                                      : '${_currentLocation.split(' ')[0]}에서\n지금 뜨는 모임')),
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary, height: 1.2),
+                                      ? '${_currentLocation.split(' ')[0]} 일상 라이프 메이트'
+                                      : '${_currentLocation.split(' ')[0]}에서 지금 뜨는 모임')),
+                          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: textPrimary, letterSpacing: -0.4),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Text(
                           _selectedVibe != null
                               ? '✨ \'$_selectedVibe\' 필터링 중'
                               : (_selectedCategoryIndex > 0
-                                  ? '${_categories[_selectedCategoryIndex]['name']}${_selectedSubCategory != '전체' ? ' > #$_selectedSubCategory' : ''}'
+                                  ? (_selectedSubCategory != '전체'
+                                      ? '${_categories[_selectedCategoryIndex]['name']} · #$_selectedSubCategory'
+                                      : (_selectedCategoryIndex == 1
+                                          ? '오늘 바로 만나는 우리 동네 번개'
+                                          : '취향이 통하는 이웃과 만나는 모임'))
                                   : (_selectedSubCategory != '전체'
                                       ? '#$_selectedSubCategory 모임'
-                                      : (_selectedCategoryIndex == 1
-                                          ? '⚡ 오늘 바로 합류 가능한 동네 번개 팟'
-                                          : (_selectedCategoryIndex == 2
-                                              ? '☕ 공연·전시·취미를 함께하는 아지트'
-                                              : (_selectedCategoryIndex == 3
-                                                  ? '🏃‍♂️ 1인 가구 일상 생활 공유 메이트'
-                                                  : '실시간 참여 가능한 이웃 모임'))))),
+                                      : '가까운 이웃과 편하게 만나는 동네 모임')),
                           style: TextStyle(
-                            fontSize: 12.5,
-                            color: coralAccent,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            color: textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -3701,9 +3704,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 3),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3EAEB),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFEFE4E6)),
+                      color: const Color(0xFFF2F4F7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFEAECF0)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -3714,28 +3717,28 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             behavior: HitTestBehavior.opaque,
                             onTap: () => setState(() => _isListView = false),
                             child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 52, minHeight: 48),
+                              constraints: const BoxConstraints(minWidth: 50, minHeight: 44),
                               child: Center(
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: !_isListView ? Colors.white : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(9),
+                                    borderRadius: BorderRadius.circular(8),
                                     boxShadow: !_isListView
-                                        ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                        ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
                                         : null,
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.grid_view_rounded, size: 14, color: !_isListView ? coralAccent : textSecondary),
+                                      Icon(Icons.grid_view_rounded, size: 14, color: !_isListView ? textPrimary : textSecondary),
                                       const SizedBox(width: 3),
                                       Text(
                                         '블럭',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          fontWeight: !_isListView ? FontWeight.w800 : FontWeight.w600,
-                                          color: !_isListView ? coralAccent : textSecondary,
+                                          fontWeight: !_isListView ? FontWeight.w700 : FontWeight.w500,
+                                          color: !_isListView ? textPrimary : textSecondary,
                                         ),
                                       ),
                                     ],
@@ -3752,28 +3755,28 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             behavior: HitTestBehavior.opaque,
                             onTap: () => setState(() => _isListView = true),
                             child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 52, minHeight: 48),
+                              constraints: const BoxConstraints(minWidth: 50, minHeight: 44),
                               child: Center(
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: _isListView ? Colors.white : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(9),
+                                    borderRadius: BorderRadius.circular(8),
                                     boxShadow: _isListView
-                                        ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                        ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
                                         : null,
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.view_agenda_outlined, size: 14, color: _isListView ? coralAccent : textSecondary),
+                                      Icon(Icons.view_agenda_outlined, size: 14, color: _isListView ? textPrimary : textSecondary),
                                       const SizedBox(width: 3),
                                       Text(
                                         '목록',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          fontWeight: _isListView ? FontWeight.w800 : FontWeight.w600,
-                                          color: _isListView ? coralAccent : textSecondary,
+                                          fontWeight: _isListView ? FontWeight.w700 : FontWeight.w500,
+                                          color: _isListView ? textPrimary : textSecondary,
                                         ),
                                       ),
                                     ],
@@ -3855,7 +3858,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 child: Container(
                   height: 8,
                   width: double.infinity,
-                  color: const Color(0xFFFAF6F7),
+                  color: const Color(0xFFF2F4F7),
                 ),
               ),
             ),
@@ -3870,25 +3873,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildCommunityDashboard() {
-    final bool isYeosu = _currentLocation.contains('여수') || _currentLocation.contains('화장동');
-    final List<String> trendKeywords = isYeosu
-        ? [
-            '#성산공원둘레길',
-            '#선소상가와플',
-            '#웅천친수공원',
-            '#무선소금빵',
-            '#여수밤바다러닝',
-            '#여수오션뷰카페',
-          ]
-        : [
-            '#스위니토드',
-            '#두바이쫀득쿠키',
-            '#TXT월드투어',
-            '#성수팝업웨이팅',
-            '#을지로혼술바',
-            '#마라탕릴레이',
-          ];
-
     final List<String> simpleTopics = ['전체', '☕ 일상·수다', '🎭 공연·핫플', '🍰 맛집·카페', '❓ 동네질문'];
 
     return StreamBuilder<QuerySnapshot>(
@@ -3898,14 +3882,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       builder: (context, snapshot) {
         final Map<String, Map<String, dynamic>> postMap = {};
 
-        // 1. Initial 3-persona and preset posts (현재 위치 기반 프리셋 로드 & 원본 참조 유지)
+        // 1. Initial 3-persona and preset posts (세션 간 참조 오염 방지를 위해 복제)
         final activeInitialPosts = _getActiveCommunityPosts();
         for (var p in activeInitialPosts) {
-          final pid = p['id']?.toString() ?? '';
-          if (p['commentList'] is List) {
-            p['comments'] = (p['commentList'] as List).length;
+          final cloned = Map<String, dynamic>.from(p);
+          final pid = cloned['id']?.toString() ?? '';
+          if (cloned['commentList'] is List) {
+            cloned['comments'] = (cloned['commentList'] as List).length;
           }
-          postMap[pid] = p;
+          postMap[pid] = cloned;
         }
 
         // 2. Real-time Firestore posts overlay & new user posts
@@ -3971,19 +3956,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       children: [
         // 1. 심플 원터치 글쓰기 바
         Container(
-          margin: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+          margin: const EdgeInsets.fromLTRB(20, 14, 20, 10),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFEFE4E6)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFEAECF0)),
           ),
           child: InkWell(
             onTap: () async {
@@ -4002,18 +3980,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             },
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: appImg('assets/images/kr_female_1.jpg'),
+                ValueListenableBuilder<String>(
+                  valueListenable: globalData.userAvatar,
+                  builder: (_, avatarUrl, __) => CircleAvatar(
+                    radius: 16,
+                    backgroundImage: appImg(avatarUrl),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    '$_currentLocation 이웃들과 소소한 이야기를 나눠보세요...',
-                    style: TextStyle(color: textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+                    '${_currentLocation.split(' ').last}의 일상과 소식을 나눠보세요',
+                    style: TextStyle(color: textSecondary, fontSize: 12.5, fontWeight: FontWeight.w500),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -4023,9 +4006,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.edit, size: 13, color: Colors.white),
+                      Icon(Icons.edit_outlined, size: 13, color: Colors.white),
                       SizedBox(width: 4),
-                      Text('글쓰기', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                      Text('글쓰기', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -4034,46 +4017,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
         ),
 
-        // 1-2. 실시간 동네 트렌드 키워드 태그
+        // 2. 단일 통합 심플 토픽 필터 (2중 적층 해시태그 바를 제거하여 시선 정돈)
         Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 4, bottom: 6),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: trendKeywords.map((tag) {
-                final isSelected = _communityKeywordFilter == tag;
-                return GestureDetector(
-                  onTap: () {
-                    OomuHaptics.selection();
-                    setState(() {
-                      _communityKeywordFilter = isSelected ? null : tag;
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
-                    decoration: BoxDecoration(
-                      color: isSelected ? coralAccent : const Color(0xFFF4EFF1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                        color: isSelected ? Colors.white : const Color(0xFF706769),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-
-        // 2. 단일 통합 심플 토픽 필터 (중복 태그 줄 완전히 제거하여 시원하고 깔끔한 UI 제공!)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
@@ -4087,34 +4033,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
                     decoration: BoxDecoration(
-                      gradient: isSelected
-                          ? const LinearGradient(
-                              colors: [Color(0xFFFF707F), Color(0xFFE84355)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
-                          : null,
-                      color: isSelected ? null : Colors.white,
+                      color: isSelected ? textPrimary : Colors.white,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
-                        color: isSelected ? Colors.transparent : const Color(0xFFEFE4E6),
+                        color: isSelected ? textPrimary : const Color(0xFFEAECF0),
                       ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: coralAccent.withOpacity(0.28),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          : [],
                     ),
                     child: Text(
                       topic,
                       style: TextStyle(
                         fontSize: 12.5,
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                        color: isSelected ? Colors.white : textPrimary,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                        color: isSelected ? Colors.white : const Color(0xFF4E5968),
                       ),
                     ),
                   ),
@@ -4125,7 +4055,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         ),
 
         const SizedBox(height: 6),
-        const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F4)),
 
         // 4. 커뮤니티 피드 리스트
         if (filteredPosts.isEmpty)
@@ -4145,7 +4074,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           )
         else
           ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: filteredPosts.length,
@@ -4173,13 +4102,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF0E8EA)),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEAECF0)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E1E24).withOpacity(0.025),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -4248,14 +4177,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: OomuUiHelpers.mannerTempBgColor(authorManner),
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
                                 child: Text(
                                   OomuUiHelpers.formatMannerTemp(authorManner),
                                   style: TextStyle(
                                     color: OomuUiHelpers.mannerTempColor(authorManner),
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w800,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               );
@@ -4266,7 +4195,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '${post['location']} · ${post['time']}',
-                        style: TextStyle(fontSize: 11.5, color: textSecondary),
+                        style: TextStyle(fontSize: 12, color: textSecondary),
                       ),
                     ],
                   ),
@@ -4284,7 +4213,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   child: const Padding(
                     padding: EdgeInsets.all(6),
-                    child: Icon(Icons.more_horiz, size: 20, color: Color(0xFF8E8E93)),
+                    child: Icon(Icons.more_horiz, size: 20, color: Color(0xFF8B95A1)),
                   ),
                 ),
               ],
@@ -4292,35 +4221,34 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
             const SizedBox(height: 12),
 
-            // 서브태그 뱃지 (있을 경우만 선명한 코랄 틴트 배지)
+            // 서브태그 뱃지 (중립 쿨그레이 칩으로 핑크 범벅 방지)
             if (post['tag'] != null && (post['tag'] as String).isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0F2),
+                  color: const Color(0xFFF2F4F7),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFFCD3D9), width: 0.8),
                 ),
                 child: Text(
                   '#${post['tag']}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: coralAccent,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF4E5968),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
             ],
 
-            // 제목 (16.5px, Deep Black, LetterSpacing -0.35px: 본문과 완벽 분리되는 또렷한 타이포그래피 계층)
+            // 제목 (16.5dp, Deep Charcoal, 외톨이 줄바꿈 방지 적용)
             if (post['title'] != null && (post['title'] as String).isNotEmpty) ...[
               Text(
-                post['title'] ?? '',
+                OomuUiHelpers.formatTitle(post['title']?.toString()),
                 style: const TextStyle(
                   fontSize: 16.5,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF19181B),
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF191F28),
                   height: 1.35,
                   letterSpacing: -0.35,
                 ),
@@ -4330,13 +4258,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               const SizedBox(height: 8),
             ],
 
-            // 본문 (13.5px, 편안한 차콜 그레이 Color(0xFF4A4446), 쾌적한 줄간격 1.55)
+            // 본문 (14dp, 차분한 슬레이트 그레이 #333D4B, 줄간격 1.55)
             Text(
               post['content'] ?? '',
               style: const TextStyle(
-                fontSize: 13.5,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFF4A4446),
+                color: Color(0xFF333D4B),
                 height: 1.55,
                 letterSpacing: -0.15,
               ),
@@ -4346,7 +4274,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
             // 첨부 사진 (있을 경우만)
             if (post['image'] != null && (post['image'] as String).isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
@@ -4356,7 +4284,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     image: appImg(post['image']),
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: const Color(0xFFF2F2F5),
+                      color: const Color(0xFFF2F4F7),
                       alignment: Alignment.center,
                       child: const Icon(Icons.image_not_supported, color: Colors.grey),
                     ),
@@ -4365,7 +4293,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ],
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
             // 하단 인터랙션 바: 좋아요, 댓글, 연관 모임 바로 만들기 CTA
             Row(
@@ -4401,23 +4329,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        post['isLiked'] == true ? Icons.favorite : Icons.favorite_border,
+                        post['isLiked'] == true ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                         size: 17,
-                        color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+                        color: post['isLiked'] == true ? coralAccent : textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${post['likes'] ?? 0}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 12.5,
                           fontWeight: FontWeight.w600,
-                          color: post['isLiked'] == true ? const Color(0xFFFF3B30) : textSecondary,
+                          color: post['isLiked'] == true ? coralAccent : textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -4428,14 +4356,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   },
                   child: Row(
                     children: [
-                      Icon(Icons.chat_bubble_outline, size: 16, color: textSecondary),
+                      Icon(Icons.chat_bubble_outline_rounded, size: 16, color: textSecondary),
                       const SizedBox(width: 4),
-                      Text('${post['comments'] ?? 0}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary)),
+                      Text('${post['comments'] ?? 0}', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textSecondary)),
                     ],
                   ),
                 ),
                 const Spacer(),
-                // 연관 모임 바로 만들기 CTA
+                // 연관 모임 바로 만들기 CTA (중립 칩 + 코랄 아이콘 포인트)
                 if (post['relatedMeetup'] != null)
                   GestureDetector(
                     onTap: () {
@@ -4454,20 +4382,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFDE8EC),
+                        color: const Color(0xFFF2F4F7),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: coralAccent.withOpacity(0.25)),
+                        border: Border.all(color: const Color(0xFFEAECF0)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.bolt, size: 13, color: coralAccent),
+                          Icon(Icons.bolt_rounded, size: 14, color: coralAccent),
                           const SizedBox(width: 3),
-                          Text(
+                          const Text(
                             '모임 만들기',
-                            style: TextStyle(color: coralAccent, fontSize: 11, fontWeight: FontWeight.w800),
+                            style: TextStyle(color: Color(0xFF333D4B), fontSize: 11.5, fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -4483,34 +4411,52 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
   Widget _buildDatingDashboard() {
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.only(bottom: 40, top: 8),
       children: [
-          // Group Dating Banner & Host CTA
+          // Group Dating Banner & Host CTA (원색 파란 배너를 걷어내고 브랜드 톤과 통일)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFF0F4FF), Color(0xFFE8EFFF)],
-                ),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFD0DEFF)),
+                border: Border.all(color: const Color(0xFFEAECF0)),
               ),
               child: Row(
                 children: [
-                  const Text('🎉', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF0F2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text('🥂', style: TextStyle(fontSize: 19)),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('친구와 함께 나가는 동네 미팅 팟!', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textPrimary)),
+                        Text(
+                          '우리 동네 2:2 · 3:3 미팅 팟',
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPrimary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 2),
-                        Text('부담 없는 2:2 / 3:3 동네 친구 & 연인 만들기', style: TextStyle(fontSize: 11, color: textSecondary)),
+                        Text(
+                          '친구와 편하게 만나는 동네 미팅',
+                          style: TextStyle(fontSize: 12, color: textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -4526,19 +4472,19 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3B68FF),
+                        color: textPrimary,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text('+ 팟 만들기', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                      child: const Text('+ 팟 만들기', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           // Group Dating Pots List (현재 위치 기반 팟 목록)
           ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -4559,13 +4505,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFECECEF)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEAECF0)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -4573,9 +4519,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             child: SizedBox(
-              height: 120,
+              height: 136,
               width: double.infinity,
               child: Image(
                 image: appImg(pot['image']),
@@ -4592,57 +4538,75 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 3.5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF4FF),
+                        color: const Color(0xFFF2F4F7),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         pot['category'],
-                        style: const TextStyle(color: Color(0xFF3B68FF), fontSize: 11, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Color(0xFF333D4B), fontSize: 11.5, fontWeight: FontWeight.w700),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 3.5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF0EB),
+                        color: const Color(0xFFFFF0F2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         pot['members'],
-                        style: TextStyle(color: coralAccent, fontSize: 11, fontWeight: FontWeight.w800),
+                        style: const TextStyle(color: Color(0xFFD9384A), fontSize: 11.5, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Text(
-                  pot['title'],
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textPrimary),
+                  OomuUiHelpers.formatTitle(pot['title']?.toString()),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textPrimary, height: 1.35, letterSpacing: -0.3),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   pot['desc'] ?? '',
-                  style: TextStyle(fontSize: 12, color: textSecondary, height: 1.35),
+                  style: const TextStyle(fontSize: 13.5, color: Color(0xFF4E5968), height: 1.45),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(Icons.calendar_month_rounded, size: 15, color: const Color(0xFF3B82F6)),
-                    const SizedBox(width: 4),
-                    Text(pot['time'], style: TextStyle(fontSize: 12, color: textSecondary)),
-                    const SizedBox(width: 12),
-                    Icon(Icons.location_on_rounded, size: 15, color: coralAccent),
-                    const SizedBox(width: 2),
+                    Icon(Icons.calendar_today_outlined, size: 14, color: textSecondary),
+                    const SizedBox(width: 6),
                     Expanded(
-                      child: Text(pot['location'], style: TextStyle(fontSize: 12, color: textSecondary), overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        pot['time'],
+                        style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w500),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    Icon(Icons.location_on_outlined, size: 15, color: textSecondary),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        pot['location'],
+                        style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w500),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,
-                  height: 42,
+                  height: 44,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: coralAccent,
@@ -4661,7 +4625,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         ),
                       );
                     },
-                    child: const Text('미팅 팟 참여하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                    child: const Text('미팅 팟 참여하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13.5)),
                   ),
                 ),
               ],
@@ -4732,17 +4696,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       scaleDown: 0.98,
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFE7E9ED),
+            color: const Color(0xFFEAECF0),
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withOpacity(0.025),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -4751,11 +4715,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. 사진 (180dp 비율 일관성 및 정돈된 배지)
+            // 1. 사진 (168dp 비율 일관성 및 정돈된 배지)
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
               child: SizedBox(
-                height: 180,
+                height: 168,
                 width: double.infinity,
                 child: Stack(
                   fit: StackFit.expand,
@@ -4763,6 +4727,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     Image(
                       image: appImg(meetup['imageUrl'] ?? 'assets/images/cover_food.jpg'),
                       fit: BoxFit.cover,
+                      alignment: (meetup['imageUrl'] ?? '').toString().contains('cover_running')
+                          ? const Alignment(0, 0.55)
+                          : Alignment.center,
                       errorBuilder: (_, __, ___) => Image.asset('assets/images/cover_food.jpg', fit: BoxFit.cover),
                     ),
                     Positioned(
@@ -4784,7 +4751,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: isLightning ? Colors.white : const Color(0xFF221B1D),
+                                  color: isLightning ? Colors.white : const Color(0xFF191F28),
                                   fontWeight: FontWeight.w700,
                                   fontSize: 11.5,
                                 ),
@@ -4804,7 +4771,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   '여성 전용',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: Color(0xFFC83243), fontWeight: FontWeight.w700, fontSize: 11.5),
+                                  style: TextStyle(color: Color(0xFFD9384A), fontWeight: FontWeight.w700, fontSize: 11.5),
                                 ),
                               ),
                             ),
@@ -4817,7 +4784,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
 
-            // 2. 카드 본문 정보 (순서: 제목 -> 일정/장소 -> 주최자/인원, 여백 16/14/12/16)
+            // 2. 카드 본문 정보 (Card-in-Card 중첩 박스를 제거하고 깔끔한 여백과 디바이더로 정돈)
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -4836,145 +4803,135 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
 
-                  // 일정 & 장소 정보 (별도 행 유지, 안심정산 배지 제거)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFAF6F7),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFE7E9ED)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today_outlined, size: 14, color: textSecondary),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                meetup['date'] ?? (isLightning ? '오늘 저녁' : '일정 협의'),
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: textPrimary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (isLightning)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF0F2),
-                                  borderRadius: BorderRadius.circular(5),
-                                  border: Border.all(color: const Color(0xFFF8C6CD)),
-                                ),
-                                child: Text(
-                                  '⚡ 즉시 번개',
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: coralAccent,
-                                  ),
-                                ),
-                              ),
-                          ],
+                  // 일정 & 장소 정보 (중첩 박스 없이 정갈한 아이콘+텍스트 행)
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today_outlined, size: 14, color: textSecondary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          meetup['date'] ?? (isLightning ? '오늘 저녁' : '일정 협의'),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF333D4B),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on_outlined, size: 14, color: textSecondary),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                meetup['location'] ?? '위치 협의',
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w500,
-                                  color: textSecondary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                      ),
+                      if (isLightning)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2F4F7),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Text(
+                            '⚡ 당일 번개',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF4E5968),
                             ),
-                          ],
+                          ),
                         ),
-                      ],
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, size: 14, color: textSecondary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          meetup['location'] ?? '위치 협의',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(height: 1, thickness: 1, color: Color(0xFFF2F4F7)),
+                  ),
 
                   // 주최자 정보 및 참여 현황
                   Row(
                     children: [
                       Expanded(
                         child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 12,
-                            backgroundImage: appImg(
-                              meetup['hostAvatar'] ??
-                                  (meetup['isFemaleOnly'] == true ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg'),
+                          children: [
+                            CircleAvatar(
+                              radius: 12,
+                              backgroundImage: appImg(
+                                meetup['hostAvatar'] ??
+                                    (meetup['isFemaleOnly'] == true ? 'assets/images/kr_female_1.jpg' : 'assets/images/kr_male_1.jpg'),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              meetup['host'] ?? '호스트',
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textPrimary),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: 7),
+                            Flexible(
+                              child: Text(
+                                meetup['host'] ?? '호스트',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Builder(
-                              builder: (_) {
-                                final hostManner = OomuUiHelpers.parseMannerTemp(meetup);
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
-                                  decoration: BoxDecoration(
-                                    color: OomuUiHelpers.mannerTempBgColor(hostManner),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    OomuUiHelpers.formatMannerTemp(hostManner),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: OomuUiHelpers.mannerTempColor(hostManner),
+                            const SizedBox(width: 6),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 68),
+                              child: Builder(
+                                builder: (_) {
+                                  final hostManner = OomuUiHelpers.parseMannerTemp(meetup);
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                                    decoration: BoxDecoration(
+                                      color: OomuUiHelpers.mannerTempBgColor(hostManner),
+                                      borderRadius: BorderRadius.circular(5),
                                     ),
-                                  ),
-                                );
-                              },
+                                    child: Text(
+                                      OomuUiHelpers.formatMannerTemp(hostManner),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: OomuUiHelpers.mannerTempColor(hostManner),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Flexible(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF0F2),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFF8C6CD)),
                           ),
                           child: Text(
                             '${meetup['members'] ?? '2/4'} (${_calcRemainingSeats(meetup['members']?.toString() ?? '2/4')})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 11.5,
-                              color: coralAccent,
+                              color: Color(0xFFD9384A),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -5009,7 +4966,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: const Color(0xFFE7E9ED),
+            color: const Color(0xFFEAECF0),
             width: 1.0,
           ),
           boxShadow: [
@@ -5035,6 +4992,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     Image(
                       image: appImg(meetup['imageUrl'] ?? 'assets/images/cover_food.jpg'),
                       fit: BoxFit.cover,
+                      alignment: (meetup['imageUrl'] ?? '').toString().contains('cover_running')
+                          ? const Alignment(0, 0.55)
+                          : Alignment.center,
                       errorBuilder: (_, __, ___) => Image.asset('assets/images/cover_food.jpg', fit: BoxFit.cover),
                     ),
                     if (meetup['isFemaleOnly'] == true)
@@ -5044,7 +5004,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                           decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(5)),
-                          child: const Text('여성 전용', style: TextStyle(color: Color(0xFFC83243), fontWeight: FontWeight.w700, fontSize: 10.5)),
+                          child: const Text('여성 전용', style: TextStyle(color: Color(0xFFD9384A), fontWeight: FontWeight.w700, fontSize: 10.5)),
                         ),
                       ),
                   ],
@@ -5063,7 +5023,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: isLightning ? const Color(0xFFFFF0F2) : const Color(0xFFFAF6F7),
+                          color: isLightning ? const Color(0xFFFFF0F2) : const Color(0xFFF2F4F7),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -5071,7 +5031,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
-                            color: isLightning ? coralAccent : textSecondary,
+                            color: isLightning ? coralAccent : const Color(0xFF4E5968),
                           ),
                         ),
                       ),
@@ -5108,9 +5068,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       Expanded(
                         child: Text(
                           meetup['date'] ?? (isLightning ? '오늘 저녁' : '일정 협의'),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11.5,
-                            color: textPrimary,
+                            color: Color(0xFF333D4B),
                             fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
@@ -5187,10 +5147,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       const SizedBox(width: 6),
                       Text(
                         '${meetup['members'] ?? '2/4'} (${_calcRemainingSeats(meetup['members'])})',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
-                          color: coralAccent,
+                          color: Color(0xFFD9384A),
                         ),
                       ),
                     ],
@@ -5252,7 +5212,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_female_1.jpg',
         'manner': 42.5,
         'members': '2/4',
-        'price': '1/N 안심 정산',
+        'price': '각자 결제',
         'transport': '화장동 선소상가 앞 집결',
         'schedule': '1차 갓 구운 소금빵 & 드립커피 ➔ 2차 루프탑 테라스 수다',
         'tags': ['화장동카페', '소금빵오픈런', '여수디저트', '소소하게', '동네친구', '카페·디저트'],
@@ -5260,7 +5220,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'yeosu_dummy_02',
-        'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
+        'title': '화장동 성산공원 호수 둘레길 저녁 5km 런닝 크루 🏃‍♀️',
         'mainCategory': '문화 & 엔터',
         'category': '야외 액티비티',
         'location': '전남 여수시 화장동 성산공원 수변무대',
@@ -5272,7 +5232,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_male_1.jpg',
         'manner': 45.2,
         'members': '3/4',
-        'price': '무료 참여',
+        'price': '각자 결제',
         'transport': '성산공원 입구 집결',
         'schedule': '스트레칭 10분 ➔ 성산공원 호수 둘레길 5km 러닝 ➔ 이온음료 쿨다운',
         'tags': ['성산공원', '화장동러닝', '오운완', '둘레길산책', '러닝·운동', '오늘번개'],
@@ -5280,7 +5240,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'yeosu_dummy_03',
-        'title': '불금엔 화장동 무선상가 코노 & 시원한 하이볼 한잔 🎤',
+        'title': '불금엔 여수 화장동 무선상가 코노 & 시원한 하이볼 한잔 🎤',
         'mainCategory': '문화 & 엔터',
         'category': '음악 & 노래방',
         'location': '전남 여수시 화장동 무선지구 상가',
@@ -5292,7 +5252,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_male_2.jpg',
         'manner': 40.8,
         'members': '2/4',
-        'price': '1/N 안심 정산',
+        'price': '각자 결제',
         'transport': '무선 롯데마트 앞 집결',
         'schedule': '1차 무선지구 코노 고음 배틀 ➔ 2차 캐주얼 하이볼 한잔',
         'tags': ['불금엔 역시 코노', '음악 & 노래방', '불금코노·술', '오늘번개', '스트레스해소'],
@@ -5311,7 +5271,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'hostAvatar': 'assets/images/kr_female_2.jpg',
         'manner': 43.0,
         'members': '3/6',
-        'price': '1/N 안심 정산',
+        'price': '각자 결제',
         'transport': '웅천 친수공원 잔디마당',
         'schedule': '노을 보며 돗자리 캔맥주 & 버스킹 감상 피크닉',
         'tags': ['웅천피크닉', '바다캔맥주', '소셜다이닝', '동네친구', '혼술바동행'],
@@ -5623,80 +5583,95 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildBottomNav(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: _homeDashboardTab.clamp(0, 4),
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: coralAccent,
-      unselectedItemColor: const Color(0xFF767676),
-      showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
-      elevation: 20,
-      backgroundColor: Colors.white,
-      onTap: (index) {
-        OomuHaptics.selection();
-        if (index == 3) {
-          oomuChatStore.syncWithCurrentUser();
-        }
-        setState(() {
-          _homeDashboardTab = index;
-        });
-      },
-      items: [
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined, size: 24),
-          activeIcon: Icon(Icons.home, size: 24),
-          label: '동네모임',
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Color(0xFFEAECF0), width: 1),
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.group_outlined, size: 24),
-          activeIcon: Icon(Icons.group, size: 24),
-          label: '커뮤니티',
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.favorite_border, size: 24),
-          activeIcon: Icon(Icons.favorite, size: 24),
-          label: '소개팅',
-        ),
-        BottomNavigationBarItem(
-          icon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.chat_bubble_outline, size: 23),
-              Positioned(
-                right: -6,
-                top: -4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle),
-                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                ),
+        child: BottomNavigationBar(
+          currentIndex: _homeDashboardTab.clamp(0, 4),
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: coralAccent,
+          unselectedItemColor: const Color(0xFF8B95A1),
+          showUnselectedLabels: true,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          onTap: (index) {
+            OomuHaptics.selection();
+            if (index == 3) {
+              oomuChatStore.syncWithCurrentUser();
+            }
+            setState(() {
+              _homeDashboardTab = index;
+            });
+          },
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined, size: 23),
+              activeIcon: Icon(Icons.home_rounded, size: 23),
+              label: '동네모임',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.group_outlined, size: 23),
+              activeIcon: Icon(Icons.group_rounded, size: 23),
+              label: '커뮤니티',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_border_rounded, size: 23),
+              activeIcon: Icon(Icons.favorite_rounded, size: 23),
+              label: '소개팅',
+            ),
+            BottomNavigationBarItem(
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+                  Positioned(
+                    right: -6,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      decoration: const BoxDecoration(color: Color(0xFFF25767), shape: BoxShape.circle),
+                      child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          activeIcon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.chat_bubble, size: 23),
-              Positioned(
-                right: -6,
-                top: -4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: const BoxDecoration(color: Color(0xFFFF3B30), shape: BoxShape.circle),
-                  child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                ),
+              activeIcon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.chat_bubble_rounded, size: 22),
+                  Positioned(
+                    right: -6,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      decoration: const BoxDecoration(color: Color(0xFFF25767), shape: BoxShape.circle),
+                      child: const Text('3', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          label: '채팅',
+              label: '채팅',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline_rounded, size: 23),
+              activeIcon: Icon(Icons.person_rounded, size: 23),
+              label: 'MY',
+            ),
+          ],
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline, size: 24),
-          activeIcon: Icon(Icons.person, size: 24),
-          label: 'MY',
-        ),
-      ],
+      ),
     );
   }
 }

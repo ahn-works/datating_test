@@ -10,7 +10,6 @@ import '../utils/oomu_ui_helpers.dart';
 import 'soso_car_chat_screen.dart';
 import 'user_profile_screen.dart';
 import '../widgets/bouncy_tap.dart';
-import '../widgets/oomu_spring_sheet.dart';
 
 /// OOMU 모임 상세 화면 - 100점 풀-피니시 (29CM 에디토리얼 + TDS 제로프릭션 + 카카오맵 네이티브 뷰)
 class OOMUDetailScreen extends StatefulWidget {
@@ -529,14 +528,17 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   ),
                 ),
               ),
-              BouncyTap(
-                scaleDown: 0.90,
-                onTap: () => _showMeetupReportBottomSheet(context),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.more_vert_rounded, color: Colors.white),
+              Tooltip(
+                message: '모임 신고',
+                child: BouncyTap(
+                  scaleDown: 0.90,
+                  onTap: () => _showMeetupReportBottomSheet(context),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.more_vert_rounded, color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(width: 4),
@@ -1296,34 +1298,61 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       }
                     }
                   },
-                  child: Container(
+                  child: SizedBox(
                     height: 52,
-                    decoration: BoxDecoration(
-                      color: coralAccent,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: coralAccent.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (_isLightning) ...[
-                          const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
-                          const SizedBox(width: 6),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: coralAccent,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        minimumSize: const Size(double.infinity, 52),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      onPressed: () {
+                        if (_isLightning) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('⚡ 실시간 번개 모임에 합류했습니다! 채팅방으로 바로 연결됩니다.'),
+                              backgroundColor: coralAccent,
+                            ),
+                          );
+                          final rId = oomuChatStore.canonicalRoomId(widget.meetup?['id'] ?? 'lightning_room_01');
+                          oomuChatStore.rejoinRoom(rId);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OOMUChatScreen(
+                                title: widget.meetup?['title'] ?? '실시간 번개 팟',
+                                memberCount: 3,
+                                chatRoomId: rId,
+                              ),
+                            ),
+                          );
+                        } else {
+                          if (!_isApplying) {
+                            _showApplicationBottomSheet(context);
+                          }
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (_isLightning) ...[
+                            const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
+                            const SizedBox(width: 6),
+                          ],
+                          Flexible(
+                            child: Text(
+                              _isLightning
+                                  ? '지금 바로 번개 합류하기'
+                                  : (_isApplying ? '신청 확인 중...' : '참여 신청하기'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                          ),
                         ],
-                        Text(
-                          _isLightning
-                              ? '지금 바로 번개 합류하기'
-                              : (_isApplying ? '신청 확인 중...' : '참여 신청하기'),
-                          style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

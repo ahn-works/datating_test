@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -7,7 +8,9 @@ import 'package:spot10_app/screens/profile_edit_screen.dart';
 import 'package:spot10_app/screens/soso_car_detail_screen.dart';
 import 'package:spot10_app/screens/soso_car_home_screen.dart';
 import 'package:spot10_app/screens/user_profile_screen.dart';
+import 'package:spot10_app/services/auth_service.dart';
 import 'package:spot10_app/services/kakao_map_service.dart';
+import 'package:spot10_app/utils/global_data.dart';
 import 'package:spot10_app/utils/oomu_ui_helpers.dart';
 
 void main() {
@@ -479,6 +482,335 @@ void main() {
           }
         }
         await tester.binding.setSurfaceSize(null);
+      });
+    });
+  });
+
+  group('[9] 긴 제목·이모지·글자 확대에서 원문 데이터 보존 및 실제 표시 검증', () {
+    testWidgets('긴 이모지 제목이 글자 확대(1.0/1.3/2.0) 시 원문 데이터를 변형하지 않고 표시된다', (tester) async {
+      await mockNetworkImagesFor(() async {
+        const longEmojiTitles = <String>[
+          '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
+          '화장동 성산공원 호수 둘레길 저녁 5km 런닝 크루 🏃‍♀️',
+          '🍷 불금 여수 웅천 오션뷰 2:2 와인 & 타파스 미팅 (20대 중후반)',
+        ];
+        for (final originalTitle in longEmojiTitles) {
+          final mapData = <String, dynamic>{
+            'title': originalTitle,
+            'category': '카페/디저트',
+            'host': '여수빵순이',
+            'manner': 42.5,
+            'location': '전남 여수시 화장동 선소상가 카페거리',
+            'lat': 34.7604,
+            'lng': 127.6622,
+            'imageUrl': 'https://example.invalid/sample.png',
+          };
+
+          for (final scale in const <double>[1.0, 1.3, 2.0]) {
+            await tester.binding.setSurfaceSize(const Size(360, 800));
+            await tester.pumpWidget(
+              MediaQuery(
+                data: MediaQueryData(
+                  size: const Size(360, 800),
+                  textScaler: TextScaler.linear(scale),
+                ),
+                child: MaterialApp(
+                  theme: OomuUiHelpers.buildTheme(),
+                  home: OOMUDetailScreen(meetup: mapData),
+                ),
+              ),
+            );
+            await tester.pump();
+
+            // 원문 Map 데이터와 화면 표시 문자열 모두 제어문자(\u2060, \u00A0) 삽입 없이 보존됨
+            expect(mapData['title'], equals(originalTitle));
+            expect(OomuUiHelpers.formatTitle(originalTitle), equals(originalTitle));
+            expect(find.text(originalTitle), findsWidgets);
+            expect(find.textContaining('\uFFFD'), findsNothing);
+            expect(tester.takeException(), isNull);
+          }
+        }
+        await tester.binding.setSurfaceSize(null);
+      });
+    });
+  });
+
+  group('[10] 계정 전환 시 사용자별 상태 초기화 및 AuthService 지연 응답 차단 검증', () {
+    test('계정 A의 찜·차단·숨김·신고·리뷰·온도·프로필 등 모든 사용자별 상태가 B 전환·게스트 전환·로그아웃 시 잔류하지 않고 미설정 상태로 초기화된다', () async {
+      final completerB = Completer<Map<String, dynamic>?>();
+      globalData.debugProfileFetcher = (uid) {
+        if (uid == 'user_B') return completerB.future;
+        return Future.value(null);
+      };
+
+      try {
+        // 1. 계정 A 상태 및 앱 공통 알림 설정 채우기
+        globalData.switchUser('user_A', triggerFirestoreSync: false);
+        globalData.userNickname.value = '부산유저A';
+        globalData.userLocation.value = '부산 해운대구 우동';
+        globalData.userAvatar.value = 'assets/images/kr_male_1.jpg';
+        globalData.temperature.value = 44.2;
+        globalData.rating.value = 4.9;
+        globalData.reviewCount.value = 15;
+        globalData.recentReviews.value = [
+          {'rating': 5.0, 'text': '좋았어요', 'time': '방금 전'}
+        ];
+        globalData.savedMeetups.value = [
+          {'id': 'meetup_A_1', 'title': 'A가 찜한 해운대 러닝 모임'}
+        ];
+        globalData.blockedUsers.value = ['차단유저A'];
+        globalData.hiddenPostIds.value = ['post_hidden_A'];
+        globalData.reportHistory.value = [
+          {'id': 'rep_A_1', 'targetUser': '차단유저A'}
+        ];
+        globalData.notificationSettings.value = {
+          ...globalData.notificationSettings.value,
+          'marketing': true,
+        };
+
+        expect(globalData.isFavorite('meetup_A_1'), isTrue);
+        expect(globalData.isUserBlocked('차단유저A'), isTrue);
+
+        // 2. 계정 A -> B 전환 (프로필 응답 도착 전 대기 상태)
+        globalData.switchUser('user_B');
+
+        // A의 사용자별 상태가 하나도 남지 않고, 특정 인물('매운맛킬러' 등)로 채워지지 않은 미설정 상태여야 함
+        expect(globalData.currentUserId.value, equals('user_B'));
+        expect(globalData.userNickname.value, isEmpty);
+        expect(globalData.userLocation.value, isEmpty);
+        expect(globalData.userAvatar.value, isEmpty);
+        expect(globalData.temperature.value, equals(0.0));
+        expect(globalData.rating.value, equals(0.0));
+        expect(globalData.reviewCount.value, equals(0));
+        expect(globalData.recentReviews.value, isEmpty);
+        expect(globalData.savedMeetups.value, isEmpty);
+        expect(globalData.isFavorite('meetup_A_1'), isFalse);
+        expect(globalData.blockedUsers.value, isEmpty);
+        expect(globalData.isUserBlocked('차단유저A'), isFalse);
+        expect(globalData.hiddenPostIds.value, isEmpty);
+        expect(globalData.reportHistory.value, isEmpty);
+        // 앱 공통 알림 설정은 유지됨
+        expect(globalData.notificationSettings.value['marketing'], isTrue);
+
+        // 3. B 프로필 응답 도착 (일부 필드만 있는 경우 없는 필드는 미설정 유지)
+        completerB.complete({
+          'location': '여수시 화장동',
+          'nickname': '여수이웃B',
+        });
+        await Future<void>.delayed(Duration.zero);
+        expect(globalData.userLocation.value, equals('여수시 화장동'));
+        expect(globalData.userNickname.value, equals('여수이웃B'));
+        expect(globalData.userAvatar.value, isEmpty);
+        expect(globalData.temperature.value, equals(0.0));
+        expect(globalData.savedMeetups.value, isEmpty);
+
+        // 4. B에서 찜 추가 후 게스트 전환 시 B의 상태가 남지 않아야 함
+        globalData.toggleFavorite({'id': 'meetup_B_1', 'title': 'B가 찜한 여수 모임'});
+        expect(globalData.isFavorite('meetup_B_1'), isTrue);
+
+        await authService.signInAsGuest();
+        expect(globalData.currentUserId.value, equals('guest'));
+        expect(globalData.userNickname.value, isEmpty);
+        expect(globalData.userLocation.value, isEmpty);
+        expect(globalData.userAvatar.value, isEmpty);
+        expect(globalData.savedMeetups.value, isEmpty);
+        expect(globalData.isFavorite('meetup_B_1'), isFalse);
+
+        // 5. 게스트에서 찜 추가 후 로그아웃 시 모든 사용자별 상태가 초기화되어야 함
+        globalData.toggleFavorite({'id': 'meetup_guest_1', 'title': '게스트 찜 모임'});
+        await authService.signOut();
+        expect(globalData.currentUserId.value, isEmpty);
+        expect(globalData.savedMeetups.value, isEmpty);
+        expect(globalData.notificationSettings.value['marketing'], isTrue);
+      } finally {
+        globalData.debugProfileFetcher = null;
+        globalData.resetSession();
+      }
+    });
+
+    test('① A 요청 대기 -> B 로그인 -> A 응답 도착 시 이전 A 응답이 B 세션을 덮어쓰지 못한다', () async {
+      final completerA = Completer<Map<String, dynamic>?>();
+      final completerB = Completer<Map<String, dynamic>?>();
+      String? currentAuthUid = 'user_A';
+
+      authService.debugCurrentUidGetter = () => currentAuthUid;
+      authService.debugUserDocFetcher = (uid) {
+        if (uid == 'user_A') return completerA.future;
+        if (uid == 'user_B') return completerB.future;
+        return Future.value(null);
+      };
+
+      try {
+        // 1. A 로그인 요청 시작 (응답 대기 중)
+        final futureA = authService.syncUserSessionProfile('user_A');
+        expect(globalData.currentUserId.value, equals('user_A'));
+
+        // 2. A 응답 도착 전 B 로그인 및 B 응답 먼저 도착
+        currentAuthUid = 'user_B';
+        final futureB = authService.syncUserSessionProfile('user_B');
+        completerB.complete({
+          'location': '여수시 화장동',
+          'nickname': '여수이웃B',
+          'photoUrl': 'assets/images/kr_female_2.jpg',
+          'mannerTemp': 40.5,
+        });
+        await futureB;
+
+        expect(globalData.currentUserId.value, equals('user_B'));
+        expect(globalData.userLocation.value, equals('여수시 화장동'));
+        expect(globalData.userNickname.value, equals('여수이웃B'));
+
+        // 3. 뒤늦게 A 응답 도착 -> B 상태를 덮어쓰지 않아야 함
+        completerA.complete({
+          'location': '부산 해운대구 우동',
+          'nickname': '해운대유저A',
+          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'mannerTemp': 38.0,
+        });
+        await futureA;
+
+        expect(globalData.currentUserId.value, equals('user_B'));
+        expect(globalData.userLocation.value, equals('여수시 화장동'));
+        expect(globalData.userNickname.value, equals('여수이웃B'));
+        expect(globalData.userAvatar.value, equals('assets/images/kr_female_2.jpg'));
+        expect(globalData.temperature.value, closeTo(40.5, 0.001));
+      } finally {
+        authService.debugCurrentUidGetter = null;
+        authService.debugUserDocFetcher = null;
+        globalData.resetSession();
+      }
+    });
+
+    test('② A 요청 대기 -> 로그아웃 -> A 응답 도착 시(UID가 null일 때) 이전 A 응답이 통과하지 못한다', () async {
+      final completerSyncA = Completer<Map<String, dynamic>?>();
+      final completerCompleteCheckA = Completer<Map<String, dynamic>?>();
+      String? currentAuthUid = 'user_A';
+      int callCount = 0;
+
+      authService.debugCurrentUidGetter = () => currentAuthUid;
+      authService.debugUserDocFetcher = (uid) {
+        callCount++;
+        if (callCount == 1) return completerSyncA.future;
+        return completerCompleteCheckA.future;
+      };
+
+      try {
+        // 1. A 프로필 동기화 및 완료 검사 요청 시작 (응답 대기 중)
+        final syncFuture = authService.syncUserSessionProfile('user_A');
+        final completeFuture = authService.isUserProfileComplete('user_A');
+
+        // 2. 응답이 오기 전에 로그아웃 (currentAuthUid = null)
+        currentAuthUid = null;
+        await authService.signOut();
+        expect(globalData.currentUserId.value, isEmpty);
+        expect(globalData.userNickname.value, isEmpty);
+        expect(globalData.userLocation.value, isEmpty);
+
+        // 3. 로그아웃 상태에서 뒤늦게 A 응답들이 도착 -> 차단되어 미설정 상태 유지
+        completerSyncA.complete({
+          'location': '부산 해운대구 우동',
+          'nickname': '해운대유저A',
+          'photoUrl': 'assets/images/kr_male_1.jpg',
+        });
+        completerCompleteCheckA.complete({
+          'location': '부산 해운대구 우동',
+          'nickname': '해운대유저A',
+          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'isProfileComplete': true,
+        });
+
+        await syncFuture;
+        final isCompleteResult = await completeFuture;
+
+        expect(isCompleteResult, isFalse);
+        expect(globalData.currentUserId.value, isEmpty);
+        expect(globalData.userLocation.value, isEmpty);
+        expect(globalData.userNickname.value, isEmpty);
+        expect(globalData.userAvatar.value, isEmpty);
+      } finally {
+        authService.debugCurrentUidGetter = null;
+        authService.debugUserDocFetcher = null;
+        globalData.resetSession();
+      }
+    });
+
+    test('③ A 요청 대기 -> 로그아웃 -> A 재로그인 -> 이전 A 응답 도착 시 이전 세션 응답이 새 A 세션을 덮어쓰지 못한다', () async {
+      final completerOldSessionA = Completer<Map<String, dynamic>?>();
+      final completerNewSessionA = Completer<Map<String, dynamic>?>();
+      String? currentAuthUid = 'user_A';
+      int requestOrder = 0;
+
+      authService.debugCurrentUidGetter = () => currentAuthUid;
+      authService.debugUserDocFetcher = (uid) {
+        requestOrder++;
+        if (requestOrder == 1) return completerOldSessionA.future;
+        return completerNewSessionA.future;
+      };
+
+      try {
+        // 1. 첫 번째 A 세션 요청 시작 (응답 지연)
+        final oldSessionFuture = authService.syncUserSessionProfile('user_A');
+
+        // 2. 로그아웃
+        currentAuthUid = null;
+        await authService.signOut();
+        expect(globalData.currentUserId.value, isEmpty);
+
+        // 3. 동일 계정(user_A)으로 재로그인 및 새 세션 응답 도착
+        currentAuthUid = 'user_A';
+        final newSessionFuture = authService.syncUserSessionProfile('user_A');
+        completerNewSessionA.complete({
+          'location': '여수시 학동',
+          'nickname': '새세션유저A',
+          'photoUrl': 'assets/images/kr_female_3.jpg',
+          'mannerTemp': 43.0,
+        });
+        await newSessionFuture;
+
+        expect(globalData.currentUserId.value, equals('user_A'));
+        expect(globalData.userLocation.value, equals('여수시 학동'));
+        expect(globalData.userNickname.value, equals('새세션유저A'));
+        expect(globalData.temperature.value, closeTo(43.0, 0.001));
+
+        // 4. 로그아웃 이전 세션(첫 번째 A 세션)의 지연 응답이 뒤늦게 도착 -> UID가 같아도 세션 세대가 다르므로 차단됨
+        completerOldSessionA.complete({
+          'location': '구세션과거동네',
+          'nickname': '구세션과거닉네임',
+          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'mannerTemp': 36.5,
+        });
+        await oldSessionFuture;
+
+        expect(globalData.currentUserId.value, equals('user_A'));
+        expect(globalData.userLocation.value, equals('여수시 학동'));
+        expect(globalData.userNickname.value, equals('새세션유저A'));
+        expect(globalData.userAvatar.value, equals('assets/images/kr_female_3.jpg'));
+        expect(globalData.temperature.value, closeTo(43.0, 0.001));
+      } finally {
+        authService.debugCurrentUidGetter = null;
+        authService.debugUserDocFetcher = null;
+        globalData.resetSession();
+      }
+    });
+
+    testWidgets('미설정 상태에서 MY 화면이 특정 인물(매운맛킬러 등) 대신 미설정 안내(닉네임 미설정·동네 미설정·정보 없음)를 표시한다', (tester) async {
+      await mockNetworkImagesFor(() async {
+        globalData.resetSession();
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: OomuUiHelpers.buildTheme(),
+            home: const MyPageScreen(),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.text('닉네임 미설정'), findsOneWidget);
+        expect(find.text('동네 미설정'), findsOneWidget);
+        expect(find.text('정보 없음'), findsOneWidget);
+        expect(find.text('매운맛킬러'), findsNothing);
+        expect(find.text('37.5°C'), findsNothing);
+        expect(find.text('41.2°C'), findsNothing);
+        expect(tester.takeException(), isNull);
       });
     });
   });

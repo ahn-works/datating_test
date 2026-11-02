@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GlobalData {
@@ -6,58 +7,148 @@ class GlobalData {
   factory GlobalData() => _instance;
   GlobalData._internal();
 
-  final ValueNotifier<double> temperature = ValueNotifier<double>(41.2); 
-  final ValueNotifier<double> rating = ValueNotifier<double>(4.8);
-  final ValueNotifier<int> reviewCount = ValueNotifier<int>(24);
-  final ValueNotifier<List<Map<String, dynamic>>> recentReviews = ValueNotifier<List<Map<String, dynamic>>>([]);
+  // 사용자별 활동 지표 (미설정 초기값: 0.0 / 0 / 빈 리스트)
+  final ValueNotifier<double> temperature = ValueNotifier<double>(0.0);
+  final ValueNotifier<double> rating = ValueNotifier<double>(0.0);
+  final ValueNotifier<int> reviewCount = ValueNotifier<int>(0);
+  final ValueNotifier<List<Map<String, dynamic>>> recentReviews =
+      ValueNotifier<List<Map<String, dynamic>>>([]);
 
-  // 현재 활성 사용자 ID (기본값: admin_user)
-  final ValueNotifier<String> currentUserId = ValueNotifier<String>('admin_user');
+  // 현재 활성 사용자 ID (미로그인/초기화 시 빈 문자열)
+  final ValueNotifier<String> currentUserId = ValueNotifier<String>('');
   String get activeUserId => currentUserId.value;
 
-  void switchUser(String uid) {
-    currentUserId.value = uid;
+  // 세션 세대 카운터 (로그아웃 후 동일 계정 재로그인 시에도 이전 세션 비동기 응답을 차단)
+  int _sessionGeneration = 0;
+  int get sessionGeneration => _sessionGeneration;
+
+  // 비동기 프로필 응답 레이스 컨디션 차단용 세대 카운터 및 테스트용 주입 훅
+  int _syncGeneration = 0;
+  Future<Map<String, dynamic>?> Function(String uid)? debugProfileFetcher;
+
+  bool isActiveSession(int sessionGen, String uid) {
+    return uid.isNotEmpty &&
+        uid != 'guest' &&
+        _sessionGeneration == sessionGen &&
+        currentUserId.value == uid;
   }
 
-  // 사용자 프로필 및 위치
-  final ValueNotifier<String> userAvatar = ValueNotifier<String>('assets/images/kr_female_1.jpg');
-  final ValueNotifier<String> userLocation = ValueNotifier<String>('마포구 서교동');
-  final ValueNotifier<String> userNickname = ValueNotifier<String>('매운맛킬러');
-
-  // 내가 찜한 모임
-  final ValueNotifier<List<Map<String, dynamic>>> savedMeetups = ValueNotifier<List<Map<String, dynamic>>>([
-    {
-      'id': 'saved_01',
-      'title': '성수동 감성 카페 & 디저트 투어 ☕',
-      'mainCategory': '일상 & 푸드',
-      'category': '카페 & 디저트',
-      'location': '성동구 성수동 카페거리',
-      'date': '이번주 일요일 14:00',
-      'imageUrl': 'assets/images/cover_cafe.jpg',
-      'members': '2/4',
-      'manner': 38.5,
-      'host': '성수동힙스터',
-      'hostAvatar': 'assets/images/kr_female_2.jpg',
-      'isFemaleOnly': false,
-    },
-    {
-      'id': 'saved_02',
-      'title': '연남동 내추럴 와인바 소셜 다이닝 🍷',
-      'mainCategory': '일상 & 푸드',
-      'category': '동네 술 한잔',
-      'location': '마포구 연남동 미로길',
-      'date': '금요일 저녁 7:30',
-      'imageUrl': 'assets/images/cover_wine.jpg',
-      'members': '3/4',
-      'manner': 42.0,
-      'host': '와인앤모어',
-      'hostAvatar': 'assets/images/kr_male_1.jpg',
-      'isFemaleOnly': false,
+  void switchUser(String uid, {bool triggerFirestoreSync = true}) {
+    final normalized = uid.trim();
+    if (normalized.isEmpty) {
+      resetSession();
+      return;
     }
-  ]);
+    if (normalized == 'guest') {
+      resetSession();
+      currentUserId.value = 'guest';
+      return;
+    }
+    if (currentUserId.value == normalized) return;
+    // 계정 전환 즉시 이전 계정의 모든 사용자별 상태를 미설정으로 초기화하고 이전 세션 응답 무효화
+    resetSession();
+    currentUserId.value = normalized;
+    if (triggerFirestoreSync) {
+      syncUserProfileFromFirestore(normalized);
+    }
+  }
 
-  // 알림 설정 상태
-  final ValueNotifier<Map<String, bool>> notificationSettings = ValueNotifier<Map<String, bool>>({
+  void resetSession() {
+    _sessionGeneration++;
+    _syncGeneration++;
+    currentUserId.value = '';
+    userAvatar.value = '';
+    userLocation.value = '';
+    userNickname.value = '';
+    temperature.value = 0.0;
+    rating.value = 0.0;
+    reviewCount.value = 0;
+    recentReviews.value = [];
+    savedMeetups.value = [];
+    blockedUsers.value = [];
+    hiddenPostIds.value = [];
+    reportHistory.value = [];
+  }
+
+  void applyProfileData(Map<String, dynamic>? data) {
+    if (data == null) return;
+    final loc = (data['location'] as String?)?.trim();
+    if (loc != null && loc.isNotEmpty) {
+      userLocation.value = loc;
+    }
+    final nick = (data['nickname'] as String?)?.trim();
+    if (nick != null && nick.isNotEmpty) {
+      userNickname.value = nick;
+    }
+    final avatar = (data['photoUrl'] ??
+            data['profileImage'] ??
+            data['avatarUrl'] ??
+            data['authorAvatar'])
+        ?.toString()
+        .trim();
+    if (avatar != null && avatar.isNotEmpty) {
+      userAvatar.value = avatar;
+    }
+    final rawTemp = data['mannerTemp'] ?? data['manner'] ?? data['temperature'];
+    if (rawTemp is num && rawTemp.toDouble() > 0) {
+      temperature.value = rawTemp.toDouble();
+    } else if (rawTemp is String) {
+      final parsed = double.tryParse(rawTemp);
+      if (parsed != null && parsed > 0) {
+        temperature.value = parsed;
+      }
+    }
+    if (data['savedMeetups'] is List) {
+      savedMeetups.value = (data['savedMeetups'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    if (data['blockedUsers'] is List) {
+      blockedUsers.value = (data['blockedUsers'] as List)
+          .map((e) => e.toString())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+  }
+
+  Future<void> syncUserProfileFromFirestore(String uid) async {
+    if (uid.isEmpty || uid == 'guest') return;
+    final int requestSession = _sessionGeneration;
+    final int requestGeneration = ++_syncGeneration;
+    try {
+      Map<String, dynamic>? data;
+      if (debugProfileFetcher != null) {
+        data = await debugProfileFetcher!(uid);
+      } else {
+        if (Firebase.apps.isEmpty) return;
+        final doc =
+            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        data = doc.data();
+      }
+      // 대기 중 로그아웃되었거나 다른 계정/새 세션으로 전환된 경우 이전 비동기 응답을 즉시 폐기
+      if (!isActiveSession(requestSession, uid) ||
+          requestGeneration != _syncGeneration) {
+        return;
+      }
+      applyProfileData(data);
+    } catch (e) {
+      debugPrint('[GlobalData] syncUserProfileFromFirestore error: $e');
+    }
+  }
+
+  // 사용자 프로필 및 위치 (미설정 상태: 빈 문자열)
+  final ValueNotifier<String> userAvatar = ValueNotifier<String>('');
+  final ValueNotifier<String> userLocation = ValueNotifier<String>('');
+  final ValueNotifier<String> userNickname = ValueNotifier<String>('');
+
+  // 내가 찜한 모임 (사용자별 상태)
+  final ValueNotifier<List<Map<String, dynamic>>> savedMeetups =
+      ValueNotifier<List<Map<String, dynamic>>>([]);
+
+  // 알림 설정 상태 (앱 공통 설정 - 계정 전환 시 유지)
+  final ValueNotifier<Map<String, bool>> notificationSettings =
+      ValueNotifier<Map<String, bool>>({
     'joinApproval': true,
     'newChat': true,
     'secretMatch': true,
@@ -65,25 +156,17 @@ class GlobalData {
     'marketing': false,
   });
 
-  // UGC 차단 사용자 목록 (앱스토어 Guideline 1.2 대응)
-  final ValueNotifier<List<String>> blockedUsers = ValueNotifier<List<String>>([
-    '불량회원99',
-  ]);
+  // UGC 차단 사용자 목록 (사용자별 상태)
+  final ValueNotifier<List<String>> blockedUsers =
+      ValueNotifier<List<String>>([]);
 
-  // 신고 및 숨김 처리된 콘텐츠 ID 목록
-  final ValueNotifier<List<String>> hiddenPostIds = ValueNotifier<List<String>>([]);
+  // 신고 및 숨김 처리된 콘텐츠 ID 목록 (사용자별 상태)
+  final ValueNotifier<List<String>> hiddenPostIds =
+      ValueNotifier<List<String>>([]);
 
-  // 내가 접수한 신고 내역
-  final ValueNotifier<List<Map<String, dynamic>>> reportHistory = ValueNotifier<List<Map<String, dynamic>>>([
-    {
-      'id': 'rep_init_01',
-      'targetType': '사용자',
-      'targetUser': '불량회원99',
-      'reason': '스팸 및 불법 광고 홍보',
-      'status': '조치 완료 (이용 정지)',
-      'date': '2026. 10. 15',
-    },
-  ]);
+  // 내가 접수한 신고 내역 (사용자별 상태)
+  final ValueNotifier<List<Map<String, dynamic>>> reportHistory =
+      ValueNotifier<List<Map<String, dynamic>>>([]);
 
   bool isUserBlocked(String? nickname) {
     if (nickname == null || nickname.isEmpty) return false;
@@ -97,7 +180,6 @@ class GlobalData {
       current.add(nickname);
       blockedUsers.value = current;
 
-      // Firestore 비동기 저장
       try {
         FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
           'blockedUsers': FieldValue.arrayUnion([nickname]),
@@ -115,7 +197,6 @@ class GlobalData {
       current.remove(nickname);
       blockedUsers.value = current;
 
-      // Firestore 비동기 삭제
       try {
         FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
           'blockedUsers': FieldValue.arrayRemove([nickname]),
@@ -134,7 +215,6 @@ class GlobalData {
     required String reason,
     String? detail,
   }) async {
-    // 1. 숨김 콘텐츠에 즉시 추가하여 로컬에서 바로 보이지 않게 처리
     if (targetId.isNotEmpty) {
       final hidden = List<String>.from(hiddenPostIds.value);
       if (!hidden.contains(targetId)) {
@@ -143,7 +223,6 @@ class GlobalData {
       }
     }
 
-    // 2. 신고 내역 목록에 추가
     final history = List<Map<String, dynamic>>.from(reportHistory.value);
     final reportEntry = {
       'id': 'rep_${DateTime.now().millisecondsSinceEpoch}',
@@ -159,7 +238,6 @@ class GlobalData {
     history.insert(0, reportEntry);
     reportHistory.value = history;
 
-    // 3. Firestore reports 컬렉션에 실시간 저장 (운영진 검토 파이프라인)
     try {
       await FirebaseFirestore.instance.collection('reports').add({
         'targetType': targetType,
@@ -192,7 +270,6 @@ class GlobalData {
     }
     savedMeetups.value = list;
 
-    // Firestore 비동기 동기화
     try {
       FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
         'savedMeetupCount': list.length,
@@ -234,16 +311,17 @@ class GlobalData {
     rating.value = currentTotal / reviewCount.value;
 
     if (newRating >= 4.0) {
-      temperature.value += (newRating - 3.0) * 0.5; 
+      temperature.value += (newRating - 3.0) * 0.5;
     } else if (newRating <= 3.0) {
-      temperature.value -= (4.0 - newRating) * 0.5; 
+      temperature.value -= (4.0 - newRating) * 0.5;
     }
-    
+
     if (temperature.value > 99.0) temperature.value = 99.0;
     if (temperature.value < 0.0) temperature.value = 0.0;
-    
+
     final currentReviews = List<Map<String, dynamic>>.from(recentReviews.value);
-    currentReviews.insert(0, {'rating': newRating, 'text': text, 'time': '방금 전'});
+    currentReviews
+        .insert(0, {'rating': newRating, 'text': text, 'time': '방금 전'});
     recentReviews.value = currentReviews;
   }
 }

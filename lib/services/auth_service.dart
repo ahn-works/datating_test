@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/global_data.dart';
@@ -10,8 +11,31 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._internal();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
+
+  // 테스트 시 현재 인증된 UID 및 비동기 프로필 조회를 제어하기 위한 훅
+  String? Function()? debugCurrentUidGetter;
+  Future<Map<String, dynamic>?> Function(String uid)? debugUserDocFetcher;
+
+  String? get _activeAuthUid {
+    if (debugCurrentUidGetter != null) {
+      return debugCurrentUidGetter!();
+    }
+    if (Firebase.apps.isEmpty) return null;
+    return _auth.currentUser?.uid;
+  }
+
+  bool _isValidSessionAfterAwait(int requestSession, String uid) {
+    if (uid.isEmpty || uid == 'guest') return false;
+    final currentAuthUid = _activeAuthUid;
+    // 로그아웃 상태(currentAuthUid == null)이거나 다른 계정으로 바뀐 경우 즉시 차단
+    if (currentAuthUid == null || currentAuthUid != uid) {
+      return false;
+    }
+    // 동일 계정으로 로그아웃 후 재로그인한 경우에도 이전 세션(requestSession)의 응답을 차단
+    return globalData.isActiveSession(requestSession, uid);
+  }
 
   // Web Phone Auth용 세션 결과 저장
   ConfirmationResult? _webConfirmationResult;
@@ -138,8 +162,9 @@ class AuthService {
     String? kakaoProfileImg,
   }) async {
     final cleanId = kakaoId.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
-    final authEmail = 'kakao_${cleanId}@auth.oomu.app';
-    final cleanNick = kakaoNickname.trim().isNotEmpty ? kakaoNickname.trim() : '카카오회원';
+    final authEmail = 'kakao_$cleanId@auth.oomu.app';
+    final cleanNick =
+        kakaoNickname.trim().isNotEmpty ? kakaoNickname.trim() : '카카오회원';
     const String tempPw = 'kakao_oomu_auth_2026!';
     syncKakaoConfigToFirestore();
 
@@ -194,8 +219,10 @@ class AuthService {
         'kakaoEmail': kakaoEmail ?? '',
         'isVerified': true, // 카카오 본인 확인 완료
         'isPhoneVerified': true,
-        if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty) 'photoUrl': kakaoProfileImg,
-        if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty) 'avatarUrl': kakaoProfileImg,
+        if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty)
+          'photoUrl': kakaoProfileImg,
+        if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty)
+          'avatarUrl': kakaoProfileImg,
       },
     );
     return credential;
@@ -220,7 +247,8 @@ class AuthService {
     if (tokenResponse.statusCode != 200) {
       try {
         final errorData = jsonDecode(tokenResponse.body);
-        final desc = errorData['error_description'] ?? errorData['error'] ?? '토큰 발급 실패';
+        final desc =
+            errorData['error_description'] ?? errorData['error'] ?? '토큰 발급 실패';
         throw Exception('카카오 토큰 발급 실패: $desc');
       } catch (e) {
         if (e is Exception && e.toString().contains('카카오')) rethrow;
@@ -262,7 +290,8 @@ class AuthService {
       kakaoEmail = kakaoAccount['email'];
       if (kakaoAccount['profile'] != null) {
         kakaoNickname = kakaoAccount['profile']['nickname'] ?? kakaoNickname;
-        kakaoProfileImg = kakaoAccount['profile']['profile_image_url'] ?? kakaoProfileImg;
+        kakaoProfileImg =
+            kakaoAccount['profile']['profile_image_url'] ?? kakaoProfileImg;
       }
     }
 
@@ -276,8 +305,10 @@ class AuthService {
   }
 
   // 5-3. 카카오 계정 빠른 시작 (테스트 및 로컬 환경용 고정 계정)
-  Future<UserCredential> signInWithKakao({String? testId, String? nickname}) async {
-    final id = (testId != null && testId.isNotEmpty) ? testId : 'test_developer';
+  Future<UserCredential> signInWithKakao(
+      {String? testId, String? nickname}) async {
+    final id =
+        (testId != null && testId.isNotEmpty) ? testId : 'test_developer';
     return await signInWithRealKakaoAccount(
       kakaoId: id,
       kakaoNickname: nickname ?? '카카오회원',
@@ -287,18 +318,41 @@ class AuthService {
 
   // 6. 게스트 둘러보기 (Firebase Auth 유령 계정 생성 없이 로컬 메모리 모드로 안전 진입)
   Future<void> signInAsGuest() async {
-    // Firebase Auth에 유령 (익명) 계정을 무더기로 생성하지 않도록 로컬 게스트 상태로 즉시 설정
-    globalData.currentUserId.value = 'guest';
-    globalData.userNickname.value = '탐방하는이웃';
-    globalData.userLocation.value = '서울 마포구 연남동';
-    globalData.userAvatar.value = 'assets/images/kr_female_1.jpg';
+    // 이전 계정의 모든 사용자별 상태 초기화 및 이전 세션 비동기 응답 무효화 후 게스트 전환
+    globalData.switchUser('guest');
   }
 
   // 7. 로그아웃
   Future<void> signOut() async {
-    await _auth.signOut();
-    globalData.currentUserId.value = 'guest';
-    globalData.userNickname.value = '게스트';
+    // 로그아웃 시작 즉시 세션을 무효화하여 진행 중인 이전 비동기 응답이 통과하지 못하도록 차단
+    globalData.resetSession();
+    if (Firebase.apps.isNotEmpty) {
+      await _auth.signOut();
+    }
+    globalData.resetSession();
+  }
+
+  /// 로그인 세션에 대해 비동기 프로필 조회 후 현재 활성 세션과 일치할 때만 로컬 상태에 반영
+  Future<void> syncUserSessionProfile(String uid) async {
+    final normalized = uid.trim();
+    if (normalized.isEmpty || normalized == 'guest') return;
+    globalData.switchUser(normalized, triggerFirestoreSync: false);
+    final int requestSession = globalData.sessionGeneration;
+
+    Map<String, dynamic>? data;
+    if (debugUserDocFetcher != null) {
+      data = await debugUserDocFetcher!(normalized);
+    } else {
+      if (Firebase.apps.isEmpty) return;
+      final snapshot =
+          await _firestore.collection('users').doc(normalized).get();
+      data = snapshot.data();
+    }
+
+    if (!_isValidSessionAfterAwait(requestSession, normalized)) {
+      return;
+    }
+    globalData.applyProfileData(data);
   }
 
   // 8. 휴대폰 번호 SMS 인증번호 발송 (Firebase Phone Auth - Web & Mobile 겸용)
@@ -341,7 +395,8 @@ class AuthService {
           } else if (e.code == 'too-many-requests') {
             message = '인증 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
           } else if (e.code == 'operation-not-allowed') {
-            message = 'Firebase 콘솔에서 [전화(Phone)] 로그인이 활성화되지 않았습니다. (Authentication > Sign-in method에서 전화를 켜주세요)';
+            message =
+                'Firebase 콘솔에서 [전화(Phone)] 로그인이 활성화되지 않았습니다. (Authentication > Sign-in method에서 전화를 켜주세요)';
           }
           onError(message);
         }
@@ -438,8 +493,16 @@ class AuthService {
     final email = user.email ?? '';
     final bool isAdminEmail = email == 'ansimhyang60@naver.com';
 
+    // 비동기 요청 시작 전 switchUser를 통해 이전 사용자 상태를 초기화하고 세션 세대를 기록
+    globalData.switchUser(uid, triggerFirestoreSync: false);
+    final int requestSession = globalData.sessionGeneration;
+
     final docRef = _firestore.collection('users').doc(uid);
     final snapshot = await docRef.get();
+
+    if (!_isValidSessionAfterAwait(requestSession, uid)) {
+      return;
+    }
 
     if (!snapshot.exists) {
       final String initialNickname = customNickname ??
@@ -488,11 +551,15 @@ class AuthService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // 신규 가입 유저의 인메모리 상태 즉시 동기화
-      globalData.currentUserId.value = uid;
+      if (!_isValidSessionAfterAwait(requestSession, uid)) {
+        return;
+      }
+
+      // 신규 가입 유저의 인메모리 상태 즉시 동기화 (현재 세션에 속할 때만 반영)
       globalData.userNickname.value = initialNickname;
       globalData.userLocation.value = '서울 마포구 연남동';
       globalData.userAvatar.value = defaultPhoto;
+      globalData.temperature.value = isAdminEmail ? 48.5 : 36.5;
     } else {
       // 기존 유저의 경우 추가 메타데이터(전화번호 인증 등) 병합 저장
       if (extraData != null && extraData.isNotEmpty) {
@@ -502,41 +569,42 @@ class AuthService {
         }, SetOptions(merge: true));
       }
 
-      // 기존 유저 인메모리 상태 동기화
-      globalData.currentUserId.value = uid;
-      final data = snapshot.data();
-      if (data != null) {
-        if (data['nickname'] != null)
-          globalData.userNickname.value = data['nickname'];
-        if (data['location'] != null)
-          globalData.userLocation.value = data['location'];
-        if (data['photoUrl'] != null)
-          globalData.userAvatar.value = data['photoUrl'];
+      // 기존 유저 인메모리 상태 동기화 (현재 활성 세션 검증 후 실제 저장된 필드만 반영)
+      if (!_isValidSessionAfterAwait(requestSession, uid)) {
+        return;
       }
+      globalData.applyProfileData(snapshot.data());
     }
   }
 
   /// 사용자가 초기 프로필 설정을 완료했는지 검사
   Future<bool> isUserProfileComplete([String? targetUid]) async {
-    final uid = targetUid ?? currentUser?.uid;
-    if (uid == null) return false;
-    if (isAdmin) return true;
+    final uid = targetUid ?? _activeAuthUid;
+    if (uid == null || uid.isEmpty || uid == 'guest') return false;
+    if (Firebase.apps.isNotEmpty && isAdmin) return true;
+    final int requestSession = globalData.sessionGeneration;
     try {
-      final doc = await _firestore.collection('users').doc(uid).get();
-      if (!doc.exists) return false;
-      final data = doc.data()!;
-      // 로그인된 사용자 프로필 인메모리 즉시 동기화
-      if (data['location'] != null && data['location'].toString().trim().isNotEmpty) {
-        globalData.userLocation.value = data['location'].toString().trim();
+      Map<String, dynamic>? data;
+      if (debugUserDocFetcher != null) {
+        data = await debugUserDocFetcher!(uid);
+      } else {
+        if (Firebase.apps.isEmpty) return false;
+        final doc = await _firestore.collection('users').doc(uid).get();
+        if (!doc.exists) return false;
+        data = doc.data();
       }
-      if (data['nickname'] != null && data['nickname'].toString().trim().isNotEmpty) {
-        globalData.userNickname.value = data['nickname'].toString().trim();
+      if (data == null) return false;
+      // 비동기 응답 도착 시점에 로그아웃되었거나 계정/세션이 변경되었으면 전역 상태를 덮어쓰지 않고 종료
+      if (!_isValidSessionAfterAwait(requestSession, uid)) {
+        return false;
       }
-      if (data['photoUrl'] != null && data['photoUrl'].toString().trim().isNotEmpty) {
-        globalData.userAvatar.value = data['photoUrl'].toString().trim();
-      }
+      globalData.applyProfileData(data);
       if (data['role'] == 'admin') return true;
-      return data['isProfileComplete'] == true;
+      final hasLocation = data['location'] != null &&
+          data['location'].toString().trim().isNotEmpty;
+      final hasNickname = data['nickname'] != null &&
+          data['nickname'].toString().trim().isNotEmpty;
+      return data['isProfileComplete'] == true || (hasLocation && hasNickname);
     } catch (_) {
       return false;
     }
@@ -557,7 +625,8 @@ class AuthService {
     required String bio,
     required List<String> photoUrls,
   }) async {
-    final uid = targetUid ?? currentUser?.uid ?? globalData.activeUserId;
+    final uid = targetUid ?? _activeAuthUid ?? globalData.activeUserId;
+    final int requestSession = globalData.sessionGeneration;
     int calculatedAge = 25;
     try {
       final yearDigits = birthDate.replaceAll(RegExp(r'[^0-9]'), '');
@@ -591,10 +660,16 @@ class AuthService {
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .set(updateData, SetOptions(merge: true));
+    if (Firebase.apps.isNotEmpty) {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .set(updateData, SetOptions(merge: true));
+    }
+
+    if (!_isValidSessionAfterAwait(requestSession, uid)) {
+      return;
+    }
 
     // 글로벌 상태 즉시 동기화
     globalData.userNickname.value = nickname;

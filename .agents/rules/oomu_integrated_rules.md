@@ -1,92 +1,31 @@
 ---
 trigger: always_on
 ---
-# 🏛️ OOMU (오뮤) 통합 마스터 지침 & 로컬 AI 16종 (Claude 7종 / GPT 9종) 상시 자동 발동 규칙
+# 🏛️ OOMU 상시 자동 발동 핵심 규칙 (oomu_integrated_rules.md)
 
-본 규칙(`trigger: always_on`)은 OOMU 워크스페이스의 모든 대화 턴에서 **사용자가 별도의 세팅 프롬프트나 머리말을 붙여넣지 않아도 에이전트가 자동으로 가장 먼저 읽고 100% 선행 적용**하는 최상위 통합 지침입니다. 개인 PC와 사무실 PC 구분 없이 Antigravity 에이전트 구동 시 즉시 적용됩니다.
+본 규칙(`trigger: always_on`)은 모든 대화 턴에서 자동 적용되며, [AGENTS.md](file:///c:/Users/DT4/Downloads/oomu_app/AGENTS.md) 및 [docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)와 100% 동일한 기준을 따릅니다.
 
-## 🎨 0. OOMU UI/UX 디자인 기준 (단일 진실 공급원: docs/OOMU_UI_GUIDE.md)
-에이전트는 모든 UI/UX 작업 시 단일 가이드인 **[docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**를 최우선 기준으로 준수합니다.
-1. **차분한 2030 여성 안심 로컬 커뮤니티**: 단일 브랜드 색상 `#F25767`, 중립 배경 `#FAF6F7`, 8dp 여백 시스템, 최소 48×48dp 터치 타깃을 적용합니다.
-2. **콘텐츠 중심 유연한 레이아웃**: 모든 문구를 기계적으로 1줄로 자르지 않고, 주소·시간·소개 등 필수 정보는 자연스럽게 줄바꿈을 허용하며 비대칭 우측 짤림을 방지합니다.
-3. **금액 미표시 원칙**: 원화 숫자(`원`, `₩`) 표기 대신 `1/N 안심 정산` 또는 `무료 참여`로 표기합니다.
-4. **실제 경로 수정**: `main.dart` 기준 실제 활성 화면(`soso_car_home_screen.dart`, `soso_car_detail_screen.dart` 등)을 수정 대상으로 합니다.
-5. **커뮤니티 피드 & 상세 타이포그래피 계층 (Typography Hierarchy)**:
-   - 제목(Title): 피드 `16.5dp` / 상세 `18.5dp`, `FontWeight.w800`, 깊은 블랙 `Color(0xFF19181B)`, `letterSpacing: -0.35~-0.4`, 줄간격 `1.35`, 최대 2줄 말줄임
-   - 제목-본문 간격: `8~12dp` 고정 확보 (제목과 본문이 덩어리로 뭉쳐 보이는 답답함 차단)
-   - 본문(Content): 피드 `13.5dp` / 상세 `14.5dp`, `FontWeight.w400`, 차콜 그레이 `Color(0xFF4A4446)`, `letterSpacing: -0.15`, 쾌적한 줄간격 `1.55~1.65`
-   - 서브태그 뱃지: 제목 상단 배치, 코랄 틴트 배지 (`#FFF0F2`, 보더 `#FCD3D9`, 텍스트 `coralAccent`)
-   - 피드 카드: 내부 패딩 `18dp`, 둥근 모서리 `20dp`, 미세 1px 테두리 `Color(0xFFF0E8EA)`
-6. **동네 위치 실시간 연동 (Neighborhood Matching)**:
-   - 유저 프로필 위치(`location`, 예: `여수시 화장동`)를 홈 상단 앱바 타이틀, 피드 모임, 번개 탭과 100% 실시간 연동
-   - `OomuUiHelpers.formatLocationNeighborhood` 기반으로 동/구 단위 매칭을 수행하여 타 지역(마포구 등)이 임의 노출되지 않도록 보장
+## 1. 에이전트 핵심 태도 (대표님께 검수 부담을 떠넘기지 않는다)
+- **능동적 전문가 감사 (Proactive Audit)**: 대표님이 일일이 화면의 어색한 점(컬러 부조화, 글자 크기, 간격, 외톨이 줄바꿈, 동네/세션 꼬임)을 찾아내어 지시하지 않아도, 에이전트가 먼저 코드와 화면을 점검하여 문제 목록을 도출하고 수정합니다.
+- **과장 표현 금지**: "100% 완벽", "무결점" 같은 허세 섞인 보고를 금지하고, 실제 발견·수정한 구체적 항목만 정직하게 보고합니다.
+- **스킬 및 명령어 원칙**: 워크스페이스 스킬은 원본 경로인 `.agents/skills/`에서 작업 성격에 맞는 관련 스킬 1개를 기본으로 선택해 참조합니다. 슬래시 명령어는 현재 IDE에서 실제 지원되는지 확인되지 않은 경우 추천하지 않습니다.
 
----
+## 2. 컬러 & 디자인 시스템 (단일 기준: `docs/OOMU_UI_GUIDE.md`)
+- 모든 색상·타이포그래피·간격·터치 타깃 수치는 중복 복사하지 않고 유일한 기준 문서인 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)를 따릅니다.
+- **핑크 범벅 및 원색 남발 금지 (사용 금지 예시)**: 구형 분홍 배경(`#FAF6F7`)이나 한 화면에 파랑(`#3B68FF`), 초록(`#0D9488`), 주황(`#FFF0EB` / `#FF6B4A`), 핑크(`#F25767`) 배지를 동시에 섞어 쓰는 구형 방식은 금지합니다.
 
-## 1. 상시 동기화 필수 지침 문서 & 전문 스킬 체계 (총 22종 완벽 탑재)
-에이전트는 모든 작업 시 아래 분리·통합된 문서와 스킬들을 기준(Single Source of Truth)으로 삼아 동작합니다:
-1. **`AI_INSTRUCTIONS.md`**: 질문 키워드별 자동 프롬프트 트리거 & 로컬 설치 Claude 7종 / GPT 9종 모델 매핑 통합 지침
-2. **`.antigravity/rules/ui_ux_design_rules.md`**: 경쟁 앱 벤치마킹 기준 및 12년 차 수석 프로덕트 디자이너 UI/UX 토큰 (배경 `#F8F9FA` vs 카드 `#FFFFFF` 분리, `1px solid #EFF1F5` 보더, 파스텔 틴트 뱃지 `#FFF4EB`, UX 겹침/Overflow 0%, `+더보기 ▾` 트레이, 2030/B2B UX Writing)
-3. **`.antigravity/rules/prompt_routing_rules.md` & `docs/ANTIGRAVITY_PROMPT_PLAYBOOK.md`**: 고정 머리말 및 `[상황 1]~[상황 5]` 실전 프롬프트 템플릿
-4. **`ddg_proxy.py` & `scripts/claude_client.py`**: 로컬 `http://127.0.0.1:1337/v1`, API Key `'pk-dummy'`로 구동되는 무료 Claude 7종 / GPT 9종 브릿지
-5. **`lib/services/ai_service.dart` & `lib/features/matching/match_controller.dart`**: Flutter 앱 내 `OomuAiService.instance` 로컬 AI 연동 서비스 및 하이브리드 매칭 컨트롤러
-6. **`docs/OOMU_MASTER_SPEC.md` & `.antigravity/rules/security_distribution_rules.md`**: OOMU 통합 마스터 스펙 및 3계층 Zero-Secret 보안 규칙
-7. **`.agents/skills/` 22종 최고급 엔지니어링 & 지식 스킬 팩**:
-   - **디자인/모바일/엔지니어링 16종**: `frontend-design`, `emil-motion-design` (스프링 물리/햅틱/120fps), `impeccable-design-audit` (48dp 터치타깃/P0~P3 감사), `taste-anti-slop` (AI 편향 파괴/브랜드 Vibe), `flutter-expert-performance` (Impeller 120fps/메모리 누수 방지), `playwright-e2e-testing` (모바일 뷰포트 E2E/비주얼 회귀), `escrow-split-billing`, `karrot-hyperlocal-feed`, `manner-temp-badges`, `women-safe-anti-creep`, `event-meetup-engine`, `figma-mobile-tokens`, `fluid-micro-interactions`, `interactive-game-icebreakers`, `shadcn-mobile-components`, `wippy-social-jamanchu`
-   - **옵시디언 6종 (Kepano Obsidian Skills)**: `defuddle` (웹 콘텐츠 마크다운 변환/추출), `json-canvas` (지식/모임 캔버스 조작), `knap` (옵시디언 마크다운 신속 파싱), `obsidian-bases` (볼트 베이스 구조 제어), `obsidian-cli` (터미널 CLI 관리/검색), `obsidian-markdown` (콜아웃/위키링크 마크다운 표준화)
+## 3. 타이포그래피·간격·레이아웃 디테일 기준
+- **상단 앱바(AppBar)**: 동네 이름(`여수시 화장동`)이 `여수시 화...`처럼 잘리지 않도록 불필요한 장식 배지(`이웃 54명...`)와 아이콘 배경 원을 정리합니다.
+- **외톨이 줄바꿈(Widow) 금지**: `만들 / 기`, `가보신 / 분?`, `(20 / 대 중후반)`처럼 1~2글자만 다음 줄로 떨어지거나 단어 중간이 끊어지지 않도록 카피·패딩·폰트 크기를 조정합니다 (Flutter `TextStyle`에 없는 `WordBreak.keepAll` 지시 금지).
+- **카드 안의 박스(Card-in-Card) 금지**: 카드 내부에 또 두꺼운 테두리 박스를 중첩하지 않고 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 규격의 여백으로 깔끔하게 정돈합니다.
+- **가로 스크롤 칩 2중 적층 금지**: 화면 상단에 태그 바와 카테고리 바가 2줄 연속으로 쌓여 복잡해 보이지 않도록 정돈합니다.
+- **하단 네비게이션 바**: 선택된 탭 뒤에 과도한 분홍색 원형 배경이 튀어나오지 않도록 깔끔한 아이콘+라벨 하이라이트를 사용합니다.
 
----
+## 4. 보이지 않는 세션·상태·동네 정합성 점검
+- 로그인/로그아웃/계정 변경 시 이전 계정의 동네(`location`), 닉네임, 찜(`savedMeetups`), 차단/신고 등 사용자별 상태가 남지 않도록 상태 초기화를 항상 확인합니다.
+- 유저 프로필 동네(예: `여수시 화장동`)와 홈·번개·커뮤니티·소개팅 모임 지역 및 썸네일 사진 맥락(여수 모임에 서울 롯데타워 사진 사용 금지 등)이 일치하는지 스스로 점검합니다.
 
-## 2. 로컬 설치 AI 16종 (Claude 7종 + GPT 9종) 자동 매칭 규칙
-- **로컬 엔드포인트**: `http://127.0.0.1:1337/v1` (API Key: `'pk-dummy'`)
-- **CLI 호출 명령**: `.venv\Scripts\python.exe scripts/claude_client.py --model <모델명> "<프롬프트>"`
-- **설치된 16종 모델 전체 목록**:
-  - **Claude 7종**: `claude-3-haiku`, `claude-haiku-4.5`, `claude-3-sonnet`, `claude-3-5-sonnet`, `claude-sonnet-4`, `claude-3-opus`, `claude-opus-4`
-  - **GPT 9종**: `gpt-4o`, `gpt-4o-mini`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-4`, `gpt-4.5`, `o3-mini`, `o4-mini`
-- **작업 성격별 모델 자동 선택**:
-  1. **UI/UX 디테일, 색감/타이포그래피, 2030/B2B 마이크로카피**: `claude-3-5-sonnet` (주력) / `claude-3-sonnet`, `claude-haiku-4.5`, `claude-opus-4`
-  2. **레이아웃 겹침(Overflow) 0% 검증 & 반응형 구조 점검**: `o4-mini` (주력) / `o3-mini`, `gpt-4.1`
-  3. **풀스택 연동(Flutter ↔ Firestore ↔ R2) & 비동기 코드 구현**: `gpt-4.1` (주력) / `gpt-4o`, `claude-sonnet-4`
-  4. **복합 비즈니스 아키텍처 설계 & B2B 에스크로/정산 검증**: `claude-opus-4` (주력) / `claude-3-opus`, `gpt-4.5`
-  5. **앱 내부 실시간 AI (`OomuAiService`) & 트렌드 배치(`sync_trends.py`)**: `claude-3-haiku`, `gpt-4o-mini`
-
----
-
-## 3. OOMU 표준 카테고리 & UI 레이아웃 원칙
-1. **기본 진입 탭 및 3대 대분류**:
-   - 기본 진입은 항상 **`전체`** 탭이며, 대분류는 **`⚡ 오늘 번개`** (`#전체`, `#혼술바동행`, `#불금코노·술`, `#맛집털기`, `#오늘번개`), **`☕ 취향 아지트`** (`#전체`, `#공연·전시`, `#카페·디저트`, `#보드게임·방탈출`, `#북카페·독서`), **`🏃‍♂️ 라이프 메이트`** (`#전체`, `#러닝·운동`, `#1인가구장보기/소분`, `#동성캠핑`, `#동네산책`)로 구성합니다.
-   - 서브태그는 절대 우측으로 잘리지 않도록 1줄 기본 노출 + **`+N 더보기 ▾` / `접기 ▴` 확장 트레이** 또는 반응형 `Wrap` 구조를 사용합니다.
-   - `⚡ 오늘 번개` 탭에는 당일/주말 즉시 참여 가능한 일상 번개(술약, 밥약, 코노, 카페 등)만 배치하며, 사전 예매가 필요한 먼 날짜의 콘서트/뮤지컬은 `☕ 취향 아지트` 및 인피드 트렌드 섹션에 배치합니다.
-2. **UX 겹침(Overflow) 0% 원칙**:
-   - `Row` 내부 가변 텍스트 옆에는 반드시 `Expanded` 또는 `Flexible` + `maxLines` + `TextOverflow.ellipsis`를 선언합니다.
-   - 텍스트가 들어가는 컨테이너에 고정 `height`를 부여하지 않고 `padding`과 `constraints: BoxConstraints(minHeight: ...)`로 유동 확장합니다.
-3. **3계층 Zero-Secret 보안**:
-   - 실제 외부 유료 API 키(`AIza...` 서버키, `sk-...`, R2 SecretKey)는 절대 코드에 하드코딩하지 않고 Firestore `config/api_keys`, `config/r2_storage`에서 런타임 로드합니다. (단, 로컬 프록시용 `'pk-dummy'`는 허용)
-   - 커밋 전 `powershell -ExecutionPolicy Bypass -File .\scripts\verify_security_rules.ps1` 및 `flutter analyze` 통과를 원칙으로 합니다.
-
----
-
-## 4. 완료 보고 전 필수 오타·문법·화면 렌더링 사전 검증 규칙 (Pre-Report Gate)
-- **사전 검증 없는 완료 보고 절대 금지**: 에이전트가 작업을 마쳤다고 판단하더라도, 실제 화면이 백지로 뜨거나 오타/문법 에러(`SyntaxError`, 따옴표 줄바꿈 깨짐, 괄호 불일치 등)가 남아있는 상태로 사용자에게 완료 보고하는 것을 엄격히 금지합니다.
-- **필수 실행 검증 절차**:
-  1. **HTML 시안(`oomu_prototype.html` 등) 및 Python 스크립트 수정 시**: 반드시 `.\.venv\Scripts\python.exe scripts/verify_before_report.py --html "<HTML경로>"`를 실행하여 `<script>` 내 JS 문자열 줄바꿈 깨짐·괄호 짝·`render()` 정상 호출 여부를 검증하고 `[SUCCESS]`를 확인한 뒤 보고합니다.
-  2. **Flutter(`lib/**`) 코드 수정 시**: 반드시 `flutter analyze` 및 `flutter test`를 실행하여 컴파일 에러 및 오타 0건을 확인한 뒤 보고합니다.
-
----
-
-## 5. 📱 SMS & 본인인증 프로바이더 선정 및 검증 절대 수칙
-1. **알리고(Aligo) 추천 및 연동 원천 금지**: 알리고는 개인 계정 API Key 발급 시 사업자 인증 페이지로 강제 리다이렉트되어 개인 개발자의 API 이용이 불가능합니다.
-2. **솔라피(SOLAPI, 구 CoolSMS) 표준 채택**: 비사업자 개인도 휴대폰 본인인증만으로 API Key 발급 및 본인 발신번호 무료 등록이 가능하며, 1,000원~10,000원 소액 충전을 지원합니다.
-
----
-
-## 6. ⚙️ 24/7 B2B 자율 무인 운영 & Notion 보고 체계
-- .github/workflows/oomu_cron_ops.yml을 통해 시드 모임 생성, 밸런스 게임 배달, 유령 모임 청소, 유해 콘텐츠 검사, 휴면 유저 리텐션, 노션 일일 경영 보고서, DB 정기 백업을 24시간 자율 수행합니다.
-- 에이전트는 유료 직원 수준의 프로페셔널한 책임감으로 모든 기술 명세와 정책을 사전 100% 검증(verify_before_report.py)한 후 보고합니다.
-
----
-
-## 7. 💻 개인 PC 안티그래비티 원격·교차 연속 작업 가이드 (Cross-PC Continuity)
-본 지침은 원격 저장소(`origin main`)를 통해 사무실 PC와 개인 PC 간 완벽한 인수인계와 연속 작업을 보장합니다:
-1. **자동 로드**: 개인 PC에서 본 저장소를 열면 `.agents/rules/oomu_integrated_rules.md`와 `AGENTS.md`가 모든 턴에서 가장 먼저 자동 상주됩니다.
-2. **동기화 순서**: 작업 시작 시 `git pull origin main` 수행 -> 활성 화면(`soso_car_home_screen.dart`) 직접 수정 -> 커밋 전 `flutter analyze` & `verify_security_rules.ps1` 검증 통과 -> 커밋 후 GitHub Actions `Flutter Web Deploy` 초록색 체크(`completed success`) 확인.
+## 5. 실제 수정 경로 및 사전 검증
+- 실제 활성 화면인 `lib/screens/soso_car_home_screen.dart`, `lib/screens/soso_car_detail_screen.dart`, `lib/screens/community_post_detail_screen.dart` 등을 직접 수정합니다 (존재하지 않는 `lib/features/...` 참조 금지).
+- 코드 수정 후 `flutter analyze`(또는 `verify_dart_syntax.py`) 및 `verify_security_rules.ps1` 통과를 확인한 뒤 보고합니다.
+- **3계층 Zero-Secret 보안 지침 수정 금지**: [`.antigravity/rules/security_distribution_rules.md`](file:///c:/Users/DT4/Downloads/oomu_app/.antigravity/rules/security_distribution_rules.md) 및 [`docs/SECURITY_AGENT_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/SECURITY_AGENT_GUIDE.md)는 절대 임의 수정하지 않으며, 모든 유료 API 키 하드코딩 금지 및 Firestore 런타임 로드 원칙을 100% 유지합니다.

@@ -8,9 +8,9 @@ license: MIT
 
 본 스킬은 대한민국 1위 하이퍼로컬 서비스인 **당근마켓(Karrot)**의 신뢰도 높은 동네생활·모임 피드 UI 구조를 모바일 Flutter 환경에서 결함 없이(Overflow 0%, 짤림 0%) 완벽하게 구현하기 위한 전문 지침입니다.
 
-## 1. 상용화 및 라이선스 (Commercial Viability)
+## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_UI_GUIDE.md`)
 - **라이선스**: MIT License (상업적 이용, 수정, 비공개 패키징 100% 허용)
-- **저작권 보장**: 특정 기업의 독점 그래픽 에셋(당근 캐릭터 등)을 직접 복제하지 않고, 모바일 앱 표준 레이아웃 아키텍처 및 Flutter 네이티브 위젯 패턴만 사용하므로 상용 스토어 출시 시 법적 리스크가 0%입니다.
+- **단일 디자인 기준**: 모든 색상·타이포그래피·간격·금액 표기 원칙은 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 및 `OomuUiHelpers`를 따르며, 확인되지 않은 `'1/N 안심 정산'` 배지나 구형 주황(`#FF6B4A`)을 강제하지 않습니다.
 
 ## 2. 88×88 정방형 피드 리스트 표준 레이아웃 (List Pattern)
 동네 모임 피드의 메인 리스트 아이템은 다음 3-Tier 구조를 엄격히 준수합니다:
@@ -51,13 +51,13 @@ Widget buildKarrotFeedItem(BuildContext context, MeetingItem item) {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF4EB),
+                        color: const Color(0xFFFFF0F2),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(item.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFFF6B4A))),
+                      child: Text(item.category, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFF25767))),
                     ),
                     const SizedBox(width: 6),
-                    Text(item.neighborhood, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                    Text(item.neighborhood, style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -66,24 +66,17 @@ Widget buildKarrotFeedItem(BuildContext context, MeetingItem item) {
                   item.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.3),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF202124), height: 1.35),
                 ),
                 const SizedBox(height: 6),
-                // [일정 & 참여 인원 & 안심 정산 표기]
+                // [일정 & 참여 인원 (안심정산 배지 미표시 — docs/OOMU_UI_GUIDE.md 기준)]
                 Row(
                   children: [
-                    const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF94A3B8)),
+                    const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF667085)),
                     const SizedBox(width: 3),
-                    Text(item.formattedTime, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                    Text(item.formattedTime, style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text('1/N 안심 정산', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
-                    ),
+                    Text(item.memberStatus, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFF25767))),
                   ],
                 ),
               ],

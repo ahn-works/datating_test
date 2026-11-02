@@ -1,75 +1,66 @@
 ---
 name: frontend-design
-description: OOMU (우무 / Spot10) 전용 모바일 UI/UX 프론트엔드 디자인 지침. 30대 자연스러운 찐친·동네 모임·여성 안심 철학을 구현하고, 글로벌 1티어(Mobbin, TDS, 29CM) 기준의 '100점 풀-피니시(Full-Finish)' 무결점 Flutter 모바일 UI를 제작할 때 사용합니다.
+description: OOMU (우무 / Spot10) 전용 모바일 UI/UX 프론트엔드 디자인 지침. 모든 디자인 수치는 docs/OOMU_UI_GUIDE.md 단일 기준을 따르며, 2030 자연스러운 로컬 모임 및 여성 안심 커뮤니티 UI를 설계할 때 사용합니다.
 ---
 
 # OOMU (우무 / Spot10) 프론트엔드 디자인 가이드
 
-우무(OOMU)는 **"2030 여성이 안심하고 편안하게 모임을 열고 참여하는 로컬 취향 커뮤니티"**입니다.
-모든 UI/UX 작업의 단일 진실 공급원은 **[docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**이며, 아래 핵심 원칙을 기준으로 화면을 설계합니다.
+> **단일 디자인 기준 (Single Source of Truth)**:
+> 모든 색상, 타이포그래피, 간격(Spacing), 카드 반경, 최소 터치 영역 수치는 본 파일에 중복 복사하지 않고 유일한 기준 문서인 **[`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)** 및 [`lib/utils/oomu_ui_helpers.dart`](file:///c:/Users/DT4/Downloads/oomu_app/lib/utils/oomu_ui_helpers.dart)를 따릅니다.
 
 ---
 
-## 🎨 핵심 디자인 원칙 (docs/OOMU_UI_GUIDE.md 참조)
+## 🏆 0. 레퍼런스 및 핵심 설계 방향
 
-1. **톤앤매너 및 색상**:
-   - 단일 브랜드 코랄 `#F25767`, 중립 배경 `#FAF6F7`, 카드 `#FFFFFF`, 8dp 여백 시스템.
-   - 흔한 데이팅앱 클리셰(스와이프 넘기기, 자극적 네온 컬러)와 관공서 표 스타일을 배제하고 차분하고 읽기 쉬운 레이아웃을 지향합니다.
-2. **콘텐츠 중심 유연한 텍스트 렌더링**:
-   - 주소, 시간, 모임 소개 등 필수 정보는 자연스러운 줄바꿈을 허용하여 작은 화면에서도 정보가 잘리지 않게 합니다.
-   - 금액은 실제 확인된 비용 정보가 있을 때만 표시하며, 정보가 없는데 임의로 `'무료 참여'`나 `'1/N 안심 정산'` 배지로 대체하지 않습니다.
-3. **4가지 화면 상태 전수 대응**:
-   - 로딩 스켈레톤, 빈 화면(Empty State + 명확한 액션 유도), 에러(재시도 버튼), 정상 데이터 화면을 누락 없이 구현합니다.
-4. **인체공학 터치 타깃**:
-   - 모든 인터랙티브 요소는 최소 48×48dp 이상의 터치 영역을 확보합니다.
-
+1. **Mobbin (모빈 - mobbin.com)**:
+   - 지도 위 바텀시트 오버레이 탐색(Sheet-over-Map), 불필요한 입력을 줄인 미니멀 폼 디자인.
+2. **토스 디자인 시스템 (TDS)**:
+   - 유저가 멈칫하거나 헷갈리지 않는 한글 타이포그래피 위계와 여백 체계 (`docs/OOMU_UI_GUIDE.md` 참조).
+   - 촉각 햅틱 피드백(`HapticFeedback`), 닫기 편한 바텀시트, 빈 화면(Empty State)에서의 명확한 행동 유도.
+3. **에디토리얼 레이아웃 & 컬러 절제**:
+   - 구형 분홍 배경(`#FAF6F7`)이나 주황 강조(`#FF6B4A`)는 **사용 금지 예시**입니다.
+   - 중립 배경과 순백 카드 표면의 명도 분리 및 미세 보더 규격은 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[1. 컬러 시스템]`을 따릅니다.
 
 ---
 
-## 2. OOMU 브랜드 아이덴티티 및 핵심 원칙
+## 🎯 1. 화면 구현 핵심 체크리스트
 
-### ① 30대 찐친 & 자만추 무드 (Natural & Tasteful)
-- 20대의 자극적이고 가벼운 만남이 아니라, **취향·동네·라이프스타일·가치관이 맞는 30대 직장인/싱글**이 편안하게 대화하고 모일 수 있는 분위기를 만듭니다.
-- 프로필 카드는 사람을 '평가'하는 스와이프 카드가 아니라, **"이 사람과 대화하면 주말이 즐겁겠다"**는 생각이 드는 감성적인 스토리형 프로필(반려동물, 주말 취미, 동네 단골 스팟, 가치관 질문 등)로 구성합니다.
+### ① 상태값 대응 (4-State Coverage)
+- 정상 데이터 상태뿐 아니라 **[1. 로딩 중]** ➡️ **[2. 데이터 없음 (Empty State)]** ➡️ **[3. 네트워크 오류/실패]** ➡️ **[4. 정상 데이터]** 흐름을 점검합니다.
+
+### ② 마이크로 마감 및 줄바꿈 규칙
+- 여백, 보더, 최소 터치 영역 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[3. 레이아웃 & 컴포넌트 규칙]`을 준수합니다.
+- **한글 줄바꿈**: Flutter `TextStyle`에 존재하지 않는 `WordBreak.keepAll` 속성은 절대 사용하지 않으며, 제어문자(`\u2060`, `\u00A0`)를 원문 문자열에 삽입해 이모지를 깨뜨리지 않습니다.
+- 레이아웃 겹침(`RenderFlex overflow`)이 발생하지 않도록 `Row` 내부 가변 텍스트에 `Expanded`/`Flexible`을 적용합니다.
+
+### ③ 정보 배열 & 시각적 위계 정돈
+- **메인 피드**: 주소·일시·참여 인원 등 핵심 메타 정보가 명확하게 읽히도록 정돈합니다.
+- **금액 표기 원칙**: 실제 확인된 비용 데이터(`fee`/`cost`/`price`)가 있을 때만 표시하며, 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지를 강제하지 않습니다 (`docs/OOMU_UI_GUIDE.md` 단일 기준).
+- **실제 활성 화면 수정**: 존재하지 않는 `lib/features/...`가 아닌 `lib/screens/` 하위 실제 활성 화면을 수정합니다.
+
+---
+
+## 2. OOMU 브랜드 아이덴티티 원칙
+
+### ① 2030 자연스러운 로컬 모임 & 자만추 무드
+- 사람을 좌우로 넘겨 평가하는 스와이프 카드를 배제하고, 취향·동네·라이프스타일이 드러나는 스토리형 프로필과 소모임 카드를 구성합니다.
 
 ### ② 여성 안심 우선주의 (Women-First & Anti-Creep)
-- **무차별 1:1 DM 금지**: 방장 승인제 그룹 모임 기반으로 설계하며, UI에서 불쾌한 침해를 사전에 차단하는 안전장치(여성 전용 필터, 지인 차단, 1-Click 신고/차단)를 가장 찾기 쉬운 위치에 배치합니다.
-- **심리적 안전감(Psychological Safety)**: 시각적으로 불안감을 주거나 지나치게 은밀해 보이는 다크 UI보다는, 밝고 투명하며 신뢰를 주는 소프트 웜(Soft Warm) 톤을 기본으로 합니다.
-
-### ③ 하이퍼로컬 & 액티비티 생동감 (Neighborhood Vibe)
-- 동네 인증 배지, 거리 표시(500m~1km 가우시안 노이즈 안심 반경), 모임 장소 맵 연동, 동네 질문/답변 피드가 자연스럽게 연결되는 레이아웃을 사용합니다.
+- 방장 승인제 그룹 모임 기반으로 설계하며, 여성 전용 필터, 1-Click 신고/차단 등 안전장치를 찾기 쉬운 위치에 배치합니다.
 
 ---
 
-## 3. 디자인 시스템 및 토큰 (Flutter Token System — `docs/OOMU_UI_GUIDE.md` 단일 기준)
+## 3. 디자인 토큰 참조 (`docs/OOMU_UI_GUIDE.md`)
 
-### 컬러 팔레트 (Color Palette)
-- **Primary Brand (코랄 로즈)**: `#F25767`  
-  - 단일 브랜드 액션 컬러 (`docs/OOMU_UI_GUIDE.md` 기준, 구형 주황 `#FF6B4A`~`#FF5A5F` 배제).
-- **Primary Text**: `#202124` / `#221B1D`  
-  - 또렷한 헤드라인과 핵심 본문 텍스트.
-- **Background (소프트 로즈 크림)**: `#FAF6F7` (카드 표면: `#FFFFFF`)  
-  - 깔끔하고 온기를 머금은 중립 배경.
-- **Card Surface & Border**: `#FFFFFF`, Border: `#E7E9ED` / `#EFE4E6` (1.0dp 미세 스트로크)
-- **Trust & Safety (딥 틸)**: `#0D9488` (본인인증 확인, 거리 안내 표시).
-- **Sub / Secondary Text**: `#667085` / `#635559` (서브 정보, 날짜, 작성 시간).
-
-### 타이포그래피 (Typography - `docs/OOMU_UI_GUIDE.md` 기준)
-- **기본 폰트**: 등록된 한글 산세리프 또는 시스템 기본 폰트 폴백.
-- **텍스트 줄바꿈 원칙**: Flutter `Text`에 존재하지 않는 `wordBreak: WordBreak.keepAll`이나 UTF-16 `split('')` 결합 문자 삽입을 사용하지 않고, 공식 `Text` API(`softWrap`, `overflow`, `maxLines`)와 이모지(grapheme cluster) 안전 처리를 준수합니다.
-- **계층 구조 (Scale)**:
-  - **Display / Top Header**: 20~22sp / FontWeight.w700~w800 / lineHeight: 1.3~1.38
-  - **Section / Host Title**: 17~18sp / FontWeight.w600~w700 / lineHeight: 1.35~1.4
-  - **Card Title**: 16~17sp / FontWeight.w600~w700 / lineHeight: 1.35~1.4
-  - **Body / Content**: 15~16sp / FontWeight.w400~w500 / lineHeight: 1.5~1.6
-  - **Caption / Meta**: 13~14sp / FontWeight.w500 / lineHeight: 1.35 (초소형 보조 배지만 12sp 허용)
+- **컬러 시스템**: [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) `[1. 컬러 시스템 (60-30-10 원칙)]` 참조
+- **타이포그래피 위계**: [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) `[2. 타이포그래피 위계]` 참조
+- **레이아웃 & 컴포넌트 규칙**: [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) `[3. 레이아웃 & 컴포넌트 규칙]` 참조
 
 ---
 
-## 4. OOMU에서 단호히 배제해야 할 5가지 안티패턴 (AI 클리셰)
+## 4. 배제해야 할 안티패턴 (사용 금지 예시)
 
-1. **스와이프 데이팅앱 클리셰**: 좌우로 넘겨 사람을 버리는 Tinder식 스와이프 UI (30대 찐친 신뢰도 하락의 주원인).
-2. **무미건조한 행정/게시판 스타일**: 텍스트만 빽빽하고 썸네일 없는 삭막한 테이블 리스트.
-3. **템플릿 카드 세트**: 계층 구조 없이 모든 컨텐츠를 똑같은 둥근 모서리(16dp)와 밋밋한 회색 그림자(`rgba(0,0,0,0.1)`)로 복붙한 화면.
-4. **선정적/가벼운 멘트**: "오늘 밤 짜릿한 만남", "지금 바로 대화 신청" 등의 자극적인 카피 (여성 유저 즉시 이탈 유발).
-5. **의미 없는 번호 매기기 (01, 02, 03)**: 순차 프로세스가 아님에도 겉멋으로 붙인 숫자 라벨이나 대문자 트래킹 영문 배지.
+1. **스와이프 데이팅앱 클리셰**: 좌우로 넘겨 사람을 버리는 Tinder식 스와이프 UI.
+2. **핑크 범벅(`#FAF6F7`) 및 원색 남발**: 화면 전체를 분홍빛으로 칠하거나 한 화면에 파랑·초록·주황(`#FF6B4A`)·코랄 배지를 동시에 섞어 쓰는 구성.
+3. **카드 안의 박스(Card-in-Card)**: 카드 내부에 또 두꺼운 회색 테두리 박스를 중첩해 세로 공간을 낭비하는 구성.
+4. **선정적/가벼운 멘트**: 자극적인 카피나 확인되지 않은 허위 배지(`'1/N 안심 정산'` 일괄 강제 등).

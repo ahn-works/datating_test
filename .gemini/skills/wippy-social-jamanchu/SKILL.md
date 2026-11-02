@@ -8,9 +8,9 @@ license: MIT
 
 본 스킬은 사람을 물건처럼 좌우로 넘겨버리는 틴더식 스와이프 UI를 배제하고, **위피(WIPPY)**와 **문토(MUNTO)**에서 검증된 **"자연스러운 대화와 취향 중심의 30대 자만추 스토리 프로필"**을 구현하는 지침입니다.
 
-## 1. 상용화 및 라이선스 (Commercial Viability)
+## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_UI_GUIDE.md`)
 - **라이선스**: MIT License (상업적 배포 및 유료 수익화 100% 보장)
-- **법적 안정성**: 특정 브랜드의 시각 자산을 베끼지 않고, 모바일 앱 일반적인 버티컬 스크롤 스토리 카드 패턴을 따릅니다.
+- **단일 디자인 기준**: 모든 색상·타이포그래피·간격·칩 스타일 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 및 `OomuUiHelpers`를 따릅니다 (구형 분홍 배경 `#FAF6F7` 사용 금지).
 
 ## 2. 30대 취향 스토리 카드 구조 (Story Profile Architecture)
 
@@ -106,11 +106,11 @@ Widget buildJamanchuProfileCard(BuildContext context, UserProfile profile) {
                 children: profile.lifestyleTags.map((tag) => Container(
                   padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFAF6F7),
+                    color: OomuUiHelpers.surfaceMutedCream,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFFFE4E6), width: 0.8),
+                    border: Border.all(color: OomuUiHelpers.borderSoftRose, width: 0.8),
                   ),
-                  child: Text(tag, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFBE185D))),
+                  child: Text(tag, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: OomuUiHelpers.textSecondary)),
                 )).toList(),
               ),
               const SizedBox(height: 14),

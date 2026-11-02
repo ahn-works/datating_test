@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 
-/// OOMU 공통 UI/데이터 정규화 헬퍼 및 테마 토큰 (docs/OOMU_UI_GUIDE.md 단일 기준)
+/// OOMU 공통 UI/데이터 정규화 헬퍼 및 테마 토큰 (docs/OOMU_UI_GUIDE.md 60-30-10 단일 기준)
 class OomuUiHelpers {
   OomuUiHelpers._();
 
-  // 1. 핵심 컬러 토큰
+  // 1. 핵심 컬러 토큰 (무채색 90% + 코랄 포인트 10% 원칙)
   static const Color brandCoral = Color(0xFFF25767);
   static const Color brandCoralSoft = Color(0xFFFFF0F2);
-  static const Color brandCoralBorder = Color(0xFFF8C6CD);
-  static const Color brandCoralText = Color(0xFFC83243);
+  static const Color brandCoralBorder = Color(0xFFFCD3D9);
+  static const Color brandCoralText = Color(0xFFD9384A);
 
-  static const Color backgroundNeutral = Color(0xFFFAF6F7);
+  static const Color backgroundNeutral = Color(0xFFF7F8FA);
   static const Color surfaceCard = Color(0xFFFFFFFF);
-  static const Color surfaceMuted = Color(0xFFF3EAEB);
-  static const Color borderSubtle = Color(0xFFEFE4E6);
-  static const Color borderNeutral = Color(0xFFE7E9ED);
+  static const Color surfaceMuted = Color(0xFFF2F4F7);
+  static const Color borderSubtle = Color(0xFFEAECF0);
+  static const Color borderNeutral = Color(0xFFEAECF0);
 
-  static const Color textPrimary = Color(0xFF221B1D);
-  static const Color textSecondary = Color(0xFF635559);
-  static const Color textMuted = Color(0xFF8E8285);
+  static const Color textPrimary = Color(0xFF191F28);
+  static const Color textBody = Color(0xFF333D4B);
+  static const Color textSecondary = Color(0xFF6B7684);
+  static const Color textMuted = Color(0xFF8B95A1);
 
   static const Color safeTeal = Color(0xFF0D9488);
-  static const Color safeTealBg = Color(0xFFE6F7F5);
+  static const Color safeTealBg = Color(0xFFF0FDFA);
 
   static const List<String> koreanFontFallback = [
     'Pretendard',
@@ -31,9 +32,7 @@ class OomuUiHelpers {
     'sans-serif',
   ];
 
-  /// 2. 제목 문자열 정규화 (서로게이트 페어 및 ZWJ 조합 이모지 100% 보존)
-  /// 기존 UTF-16 단위 `split('').join('\u2060')`를 사용하지 않고 원문을 보존하며,
-  /// 이전에 삽입된 `\u2060`(Word Joiner)이 있으면 제거하여 깨진 이모지를 복원합니다.
+  /// 2. 제목 문자열 정규화 (원문 데이터 및 서로게이트 페어·ZWJ·국기 이모지 100% 보존)
   static String formatTitle(String? title, {String fallback = '취향 모임'}) {
     if (title == null) return fallback;
     final cleaned = title.replaceAll('\u2060', '').trim();
@@ -66,7 +65,6 @@ class OomuUiHelpers {
   }
 
   /// 4. 모임/게시글 Map에서 호스트 매너온도 추출 (우선순위: `manner` -> `mannerTemp`)
-  /// 값이 없을 때 임의의 하드코딩 기본값(36.5, 41.2, 37.0)을 생성하지 않고 null을 반환합니다.
   static double? parseMannerTemp(Map<String, dynamic>? data) {
     if (data == null) return null;
     return parseMannerValue(data['manner']) ??
@@ -81,22 +79,16 @@ class OomuUiHelpers {
     return '${temp.toStringAsFixed(1)}°C';
   }
 
-  /// 6. 매너온도 구간별 일관된 텍스트/강조 색상
+  /// 6. 매너온도 구간별 일관된 텍스트 색상 (원색 충돌 방지를 위해 차분한 슬레이트/틸 톤 유지)
   static Color mannerTempColor(double? temp) {
     if (temp == null) return textSecondary;
-    if (temp < 36.5) return const Color(0xFF64748B);
-    if (temp < 40.0) return safeTeal;
-    if (temp < 50.0) return const Color(0xFFB45309);
-    return brandCoralText;
+    if (temp < 36.5) return const Color(0xFF6B7684);
+    return const Color(0xFF4E5968);
   }
 
-  /// 7. 매너온도 구간별 배지 배경 색상
+  /// 7. 매너온도 구간별 배지 배경 색상 (우측 코랄 배지와 충돌하지 않는 중립 쿨그레이 칩)
   static Color mannerTempBgColor(double? temp) {
-    if (temp == null) return surfaceMuted;
-    if (temp < 36.5) return const Color(0xFFF1F5F9);
-    if (temp < 40.0) return safeTealBg;
-    if (temp < 50.0) return const Color(0xFFFFFBEB);
-    return brandCoralSoft;
+    return surfaceMuted;
   }
 
   /// 8. 매너온도 구간별 이모지
@@ -139,38 +131,54 @@ class OomuUiHelpers {
         : double.tryParse(rawLng?.toString() ?? '');
     if (lat == null || lng == null) return null;
     if (lat.isNaN || lng.isNaN || lat <= 0 || lng <= 0) return null;
-    // 대한민국 및 인접 유효 위경도 범위 점검 (위도 30~45, 경도 120~135)
     if (lat < 30.0 || lat > 45.0 || lng < 120.0 || lng > 135.0) return null;
     return (lat: lat, lng: lng);
   }
 
-  /// 11. OOMU 공통 ThemeData 생성 (시스템 폰트 폴백 적용)
+  /// 11. OOMU 공통 ThemeData 생성 (핑크 틴트 오염 및 하단 탭바 원형 하이라이트 제거)
   static ThemeData buildTheme() {
     const baseTextStyle = TextStyle(
       fontFamilyFallback: koreanFontFallback,
       color: textPrimary,
     );
     return ThemeData(
+      useMaterial3: true,
       primaryColor: brandCoral,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
       colorScheme: ColorScheme.fromSeed(
         seedColor: brandCoral,
         primary: brandCoral,
-        secondary: safeTeal,
-        surface: backgroundNeutral,
+        secondary: textPrimary,
+        surface: surfaceCard,
       ),
       scaffoldBackgroundColor: backgroundNeutral,
       cardColor: surfaceCard,
       dividerColor: borderSubtle,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surfaceCard,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: surfaceCard,
+        elevation: 0,
+        selectedItemColor: brandCoral,
+        unselectedItemColor: textMuted,
+        type: BottomNavigationBarType.fixed,
+      ),
       textTheme: TextTheme(
         headlineMedium: baseTextStyle.copyWith(
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
           height: 1.32,
           letterSpacing: -0.4,
         ),
         titleLarge: baseTextStyle.copyWith(
-          fontSize: 18,
-          fontWeight: FontWeight.w800,
+          fontSize: 17.5,
+          fontWeight: FontWeight.w700,
           height: 1.35,
           letterSpacing: -0.3,
         ),
@@ -181,22 +189,23 @@ class OomuUiHelpers {
           letterSpacing: -0.2,
         ),
         bodyLarge: baseTextStyle.copyWith(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
+          fontSize: 14.5,
+          fontWeight: FontWeight.w400,
+          color: textBody,
           height: 1.55,
         ),
         bodyMedium: baseTextStyle.copyWith(
-          fontSize: 14,
+          fontSize: 13.5,
           fontWeight: FontWeight.w400,
-          height: 1.5,
+          color: textBody,
+          height: 1.55,
         ),
         labelMedium: baseTextStyle.copyWith(
           fontSize: 12.5,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
           color: textSecondary,
         ),
       ),
     );
   }
 }
-

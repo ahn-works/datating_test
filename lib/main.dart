@@ -31,13 +31,13 @@ void main() async {
   runApp(const Spot10App());
 }
 
-class Spot10App extends StatelessWidget { 
-  const Spot10App({super.key}); 
-  
-  @override 
+class Spot10App extends StatelessWidget {
+  const Spot10App({super.key});
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'OOMU', 
+      title: 'OOMU',
       debugShowCheckedModeBanner: false,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {
@@ -49,7 +49,7 @@ class Spot10App extends StatelessWidget {
       ),
       theme: OomuUiHelpers.buildTheme(),
       builder: (context, child) => Container(
-        color: const Color(0xFFD8CFD2),
+        color: const Color(0xFFE5E8EB),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
@@ -60,7 +60,7 @@ class Spot10App extends StatelessWidget {
                   MediaQuery.of(context).size.height,
                 ),
               ),
-              child: Container(color: const Color(0xFFFAF6F7), child: child!),
+              child: Container(color: const Color(0xFFF7F8FA), child: child!),
             ),
           ),
         ),
@@ -70,7 +70,7 @@ class Spot10App extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              backgroundColor: Color(0xFFFAF6F7),
+              backgroundColor: Color(0xFFF7F8FA),
               body: Center(
                 child: CircularProgressIndicator(color: Color(0xFFF25767)),
               ),
@@ -78,9 +78,10 @@ class Spot10App extends StatelessWidget {
           }
           if (snapshot.hasData && snapshot.data != null) {
             final user = snapshot.data!;
-            globalData.currentUserId.value = user.uid;
+            globalData.switchUser(user.uid);
             return _AuthGate(user: user);
           }
+          globalData.switchUser('guest');
           return const LoginScreen();
         },
       ),
@@ -102,7 +103,7 @@ class _AuthGate extends StatelessWidget {
       builder: (context, profileSnapshot) {
         if (profileSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            backgroundColor: Color(0xFFFAF6F7),
+            backgroundColor: Color(0xFFF7F8FA),
             body: Center(
               child: CircularProgressIndicator(color: Color(0xFFF25767)),
             ),
