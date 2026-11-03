@@ -1,3 +1,5 @@
+import '../utils/oomu_ui_helpers.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,8 @@ import 'soso_car_home_screen.dart';
 import 'soso_car_chat_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
+  final String? sourceEventId;
+  final String? sourceEventTitle;
   final String? initialTitle;
   final String? initialLocation;
   final String? initialMainCategory;
@@ -23,6 +27,8 @@ class OOMUHostScreen extends StatefulWidget {
 
   const OOMUHostScreen({
     super.key,
+    this.sourceEventId,
+    this.sourceEventTitle,
     this.initialTitle,
     this.initialLocation,
     this.initialMainCategory,
@@ -84,10 +90,10 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   double? _selectedPlaceLat;
   double? _selectedPlaceLng;
   String? _selectedPlaceResolvedName;
-  final Color textPrimary = const Color(0xFF111111);
-  final Color textSecondary = const Color(0xFF767676);
-  final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF19E39);
+  final Color textPrimary = OomuUiHelpers.textPrimary;
+  final Color textSecondary = OomuUiHelpers.textSecondary;
+  final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
+  final Color accentColor = OomuUiHelpers.brandCoral;
   final Color destructiveColor = const Color(0xFFFF3B30);
 
   String _selectedMainCategory = '일상 & 푸드';
@@ -202,7 +208,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     content: Text(source == ImageSource.camera
                         ? '📸 카메라로 촬영한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'
                         : '🖼️ 갤러리에서 선택한 모임 커버 사진이 Cloudflare R2에 등록되었습니다!'),
-                    backgroundColor: const Color(0xFFF38020),
+                    backgroundColor: OomuUiHelpers.brandCoral,
                   ),
                 );
               }
@@ -231,8 +237,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: const Color(0xFFF38020).withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
-                          child: const Text('R2 oomu-spot 연동', style: TextStyle(color: Color(0xFFF38020), fontSize: 11, fontWeight: FontWeight.bold)),
+                          decoration: BoxDecoration(color: OomuUiHelpers.brandCoral.withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
+                          child: const Text('등록한 모임 사진', style: TextStyle(color: OomuUiHelpers.brandCoral, fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -248,15 +254,15 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF5F0),
+                              color: OomuUiHelpers.surfaceMuted,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.35)),
+                              border: Border.all(color: OomuUiHelpers.brandCoral.withOpacity(0.35)),
                             ),
                             child: Column(
                               children: [
-                                const Icon(Icons.photo_camera_rounded, color: Color(0xFFFF5E36), size: 24),
+                                const Icon(Icons.photo_camera_rounded, color: OomuUiHelpers.brandCoral, size: 24),
                                 const SizedBox(height: 6),
-                                const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF111111))),
+                                const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: OomuUiHelpers.textPrimary)),
                                 Text('카메라 촬영', style: TextStyle(fontSize: 11, color: textSecondary)),
                               ],
                             ),
@@ -273,13 +279,13 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFF7EE),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFF38020).withOpacity(0.35)),
+                              border: Border.all(color: OomuUiHelpers.brandCoral.withOpacity(0.35)),
                             ),
                             child: Column(
                               children: [
-                                const Icon(Icons.photo_library_rounded, color: Color(0xFFF38020), size: 24),
+                                const Icon(Icons.photo_library_rounded, color: OomuUiHelpers.brandCoral, size: 24),
                                 const SizedBox(height: 6),
-                                const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF111111))),
+                                const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: OomuUiHelpers.textPrimary)),
                                 Text('갤러리 / 앨범', style: TextStyle(fontSize: 11, color: textSecondary)),
                               ],
                             ),
@@ -294,14 +300,14 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF38020).withOpacity(0.1),
+                        color: OomuUiHelpers.brandCoral.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: const [
-                          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF38020))),
+                          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: OomuUiHelpers.brandCoral)),
                           SizedBox(width: 10),
-                          Text('Cloudflare R2 (oomu-spot)에 사진 업로드 중...', style: TextStyle(color: Color(0xFFF38020), fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text('Cloudflare R2 (oomu-spot)에 사진 업로드 중...', style: TextStyle(color: OomuUiHelpers.brandCoral, fontSize: 12, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -394,8 +400,17 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           saveLng = null;
         }
       }
-      final docRef = await FirebaseFirestore.instance.collection('meetups').add({
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw StateError('로그인 후 모임을 열 수 있어요.');
+      final db = FirebaseFirestore.instance;
+      final docRef = db.collection('meetups').doc();
+      final batch = db.batch();
+      batch.set(docRef, {
         'title': title,
+        'hostUid': user.uid,
+        'participantIds': [user.uid],
+        if (widget.sourceEventId != null) 'sourceEventId': widget.sourceEventId,
+        if (widget.sourceEventTitle != null) 'sourceEventTitle': widget.sourceEventTitle,
         'description': _descController.text.trim(),
         'location': locText,
         if (saveLat != null && saveLng != null) 'lat': saveLat,
@@ -412,7 +427,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'memberCount': _memberCount,
         'genderLimit': _genderLimit,
         'ageLimit': _ageLimit,
-        'host': globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '매운맛킬러',
+        'host': globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '모임 호스트',
         'hostAvatar': globalData.userAvatar.value,
         'imageUrl': _coverImageUrl,
         'photos': [_coverImageUrl],
@@ -426,22 +441,24 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // 신규 모임용 실시간 채팅방 Firestore 생성
-      try {
-        await FirebaseFirestore.instance.collection('chatRooms').doc(docRef.id).set({
+      // 모임과 채팅방이 함께 저장되어야 개설 직후 실제 대화방에 들어갈 수 있다.
+      batch.set(db.collection('chatRooms').doc(docRef.id), {
           'id': docRef.id,
           'title': title,
-          'lastMessage': '$title 모임 대화방이 개설되었습니다. 🎉',
+          'lastMessage': '',
+          'hostUid': user.uid,
+          'participants': [user.uid],
+          'meetupId': docRef.id,
+          'location': locText,
+          'date': '일정 협의',
           'lastMessageTime': '방금',
           'time': '방금',
           'members': 1,
           'imageUrl': _coverImageUrl,
           'isGroup': true,
           'updatedAt': FieldValue.serverTimestamp(),
-        });
-      } catch (e) {
-        debugPrint('Chat room init note: $e');
-      }
+      });
+      await batch.commit();
 
       if (mounted) {
         showDialog(
@@ -454,7 +471,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.celebration, color: Color(0xFFF19E39), size: 64),
+                  const Icon(Icons.celebration, color: OomuUiHelpers.brandCoral, size: 64),
                   const SizedBox(height: 24),
                   Text('모임이 개설되었습니다!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textPrimary)),
                   const SizedBox(height: 12),
@@ -484,6 +501,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       }
     } catch (e) {
       debugPrint("Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('모임을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        ));
+      }
     } finally {
       if (mounted) setState(() { _isSaving = false; });
     }
@@ -566,7 +588,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                         color: isSelected ? const Color(0xFFFFF0EB) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? const Color(0xFFFF5E36) : const Color(0xFFEBEBEF),
+                          color: isSelected ? OomuUiHelpers.brandCoral : const Color(0xFFEBEBEF),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -579,7 +601,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                             cat.name,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: isSelected ? const Color(0xFFFF5E36) : textPrimary,
+                              color: isSelected ? OomuUiHelpers.brandCoral : textPrimary,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                               fontSize: 12,
                             ),
@@ -620,7 +642,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   selected: isSelected,
                   selectedColor: const Color(0xFFFFECE5),
                   labelStyle: TextStyle(
-                    color: isSelected ? const Color(0xFFFF5E36) : textPrimary,
+                    color: isSelected ? OomuUiHelpers.brandCoral : textPrimary,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -737,9 +759,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 onTap: _openPlaceSearchModal,
                 child: const Row(
                   children: [
-                    Icon(Icons.search_rounded, size: 16, color: Color(0xFFFF5E36)),
+                    Icon(Icons.search_rounded, size: 16, color: OomuUiHelpers.brandCoral),
                     SizedBox(width: 4),
-                    Text('지도/키워드 검색', style: TextStyle(fontSize: 13, color: Color(0xFFFF5E36), fontWeight: FontWeight.bold)),
+                    Text('지도/키워드 검색', style: TextStyle(fontSize: 13, color: OomuUiHelpers.brandCoral, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -761,7 +783,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     decoration: InputDecoration(
                       hintText: '장소 직접 입력 (예: 스타벅스 홍대점, 맛집)',
                       hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9E9EA7)),
-                      prefixIcon: const Icon(Icons.location_on, color: Color(0xFFFF5E36), size: 22),
+                      prefixIcon: const Icon(Icons.location_on, color: OomuUiHelpers.brandCoral, size: 22),
                       suffixIcon: _locationController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
@@ -797,9 +819,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_rounded, size: 16, color: Color(0xFFFF5E36)),
+                        Icon(Icons.map_rounded, size: 16, color: OomuUiHelpers.brandCoral),
                         SizedBox(width: 4),
-                        Text('지도 선택', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF5E36))),
+                        Text('지도 선택', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: OomuUiHelpers.brandCoral)),
                       ],
                     ),
                   ),
@@ -857,11 +879,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.tune_rounded, size: 13, color: Color(0xFFFF5E36)),
+                                Icon(Icons.tune_rounded, size: 13, color: OomuUiHelpers.brandCoral),
                                 SizedBox(width: 3),
                                 Text(
                                   '위치 변경',
-                                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFFF5E36)),
+                                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: OomuUiHelpers.brandCoral),
                                 ),
                               ],
                             ),
@@ -887,7 +909,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       child: Row(
                         children: [
-                          const Icon(Icons.place_rounded, size: 14, color: Color(0xFFFF5E36)),
+                          const Icon(Icons.place_rounded, size: 14, color: OomuUiHelpers.brandCoral),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -921,7 +943,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
-                      child: const Icon(Icons.map_rounded, size: 16, color: Color(0xFFFF5E36)),
+                      child: const Icon(Icons.map_rounded, size: 16, color: OomuUiHelpers.brandCoral),
                     ),
                     const SizedBox(width: 10),
                     const Expanded(
@@ -946,7 +968,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E36),
+                          color: OomuUiHelpers.brandCoral,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
@@ -1031,7 +1053,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         return ChoiceChip(
           label: Text(sub.name),
           selected: isSelected,
-          selectedColor: const Color(0xFFFF5E36),
+          selectedColor: OomuUiHelpers.brandCoral,
           labelStyle: TextStyle(
             color: isSelected ? Colors.white : textPrimary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,

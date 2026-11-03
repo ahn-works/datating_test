@@ -1,14 +1,14 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
+import '../widgets/phone_verification_field.dart';
+import '../utils/oomu_ui_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kpostal/kpostal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import '../services/auth_service.dart';
 import '../services/r2_storage_service.dart';
 import '../utils/app_image.dart';
-import '../utils/global_data.dart';
 import 'soso_car_home_screen.dart';
 
 /// 대기업(위피·글램·틴더·문토) 온보딩 UX/UI 규격을 적용한
@@ -23,7 +23,7 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   // OOMU 브랜드 테마 색상 (위피·글램 표준)
-  final Color primaryColor = const Color(0xFFFF3B5C);
+  final Color primaryColor = OomuUiHelpers.brandCoral;
   final Color primaryLight = const Color(0xFFFFF0F3);
   final Color textTitle = const Color(0xFF191F28);
   final Color textBody = const Color(0xFF4E5968);
@@ -39,28 +39,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final List<String> _photoUrls = [];
 
   // Step 2: 기본 인적사항 & 본인 인증
-  final TextEditingController _nicknameController = TextEditingController(text: '연남동비타민');
-  bool _isNicknameChecked = true;
+  final TextEditingController _nicknameController = TextEditingController();
   String _selectedGender = '여성';
-  final TextEditingController _birthDateController = TextEditingController(text: '1998.05.21');
-  final TextEditingController _phoneController = TextEditingController(text: '010-9876-5432');
-  final List<TextEditingController> _smsCodeControllers = List.generate(6, (i) => TextEditingController(text: ['7', '2', '9', '4', '1', '8'][i]));
-  bool _isPhoneVerified = true;
-  bool _isSmsSent = true;
-  int _timerSeconds = 165;
-  Timer? _countdownTimer;
+  final TextEditingController _birthDateController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  bool _isPhoneVerified = false;
 
   // Step 3: 활동 동네 설정 (다음 주소 API)
-  String _selectedAddress = '서울특별시 마포구 연남로1길 15';
-  String _selectedDong = '서울 마포구 연남동';
+  String _selectedAddress = '';
+  String _selectedDong = '';
   final TextEditingController _detailAddressController = TextEditingController();
 
   // Step 4: 취향, 직업, MBTI, 한줄 소개
-  final TextEditingController _jobController = TextEditingController(text: 'IT 서비스 기획자');
-  String _selectedMbti = 'ENFP';
-  final List<String> _selectedHobbies = ['☕ 카페투어', '🍷 내추럴와인', '🏃‍♀️ 한강러닝'];
+  final TextEditingController _jobController = TextEditingController();
+  String _selectedMbti = '';
+  final List<String> _selectedHobbies = [];
   final TextEditingController _bioController = TextEditingController(
-    text: '퇴근 후 연남동 경의선 숲길에서 가볍게 산책하거나 커피 마실 편한 동네 친구 찾아요! 😊',
+    text: '',
   );
 
   // 16가지 MBTI 목록
@@ -86,38 +81,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   void dispose() {
-    _countdownTimer?.cancel();
     _nicknameController.dispose();
     _birthDateController.dispose();
     _phoneController.dispose();
-    for (var c in _smsCodeControllers) {
-      c.dispose();
-    }
     _detailAddressController.dispose();
     _jobController.dispose();
     _bioController.dispose();
     super.dispose();
   }
 
-  void _startTimer() {
-    _countdownTimer?.cancel();
-    setState(() {
-      _timerSeconds = 180;
-      _isSmsSent = true;
-    });
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timerSeconds > 0) {
-        setState(() => _timerSeconds--);
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
   Future<void> _loadInitialUserData() async {
-    final uid = authService.currentUser?.uid ?? globalData.activeUserId;
+    if (Firebase.apps.isEmpty) return;
+    final uid = authService.currentUser?.uid;
+    if (uid == null) return;
     try {
       final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!mounted || authService.currentUser?.uid != uid) return;
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         if (data['nickname'] != null && data['nickname'].toString().isNotEmpty) {
@@ -129,9 +108,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         if (data['birthDate'] != null) {
           _birthDateController.text = data['birthDate'];
         }
-        if (data['phone'] != null) {
-          _phoneController.text = data['phone'];
-        }
+        final verifiedPhone = authService.currentUser?.phoneNumber;
+        _phoneController.text = verifiedPhone ?? '';
+        _isPhoneVerified = verifiedPhone != null && verifiedPhone.isNotEmpty;
         if (data['location'] != null && data['location'].toString().isNotEmpty) {
           _selectedDong = data['location'];
         }
@@ -475,6 +454,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         photoUrls: _photoUrls,
       );
 
+      if (!mounted) return;
       setState(() => _isLoading = false);
 
       if (mounted) {
@@ -497,6 +477,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         }
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('저장 실패: $e')));
@@ -741,7 +722,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   decoration: BoxDecoration(
                     color: hasPhoto ? primaryColor : textTitle,
                     borderRadius: BorderRadius.circular(6),
-                    boxShadow: hasPhoto ? [BoxShadow(color: primaryColor.withOpacity(0.4), blurRadius: 6)] : null,
+                    boxShadow: hasPhoto ? [BoxShadow(color: primaryColor.withValues(alpha: 0.4), blurRadius: 6)] : null,
                   ),
                   child: const Text('⭐ 대표 사진', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
                 ),
@@ -778,42 +759,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '안전한 모임 문화를 위해 휴대폰 본인 인증이 필요해요',
+          '안전한 모임 문화를 위해 휴대폰 번호 인증이 필요해요',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textCaption, height: 1.5, letterSpacing: -0.3),
         ),
         const SizedBox(height: 24),
 
         // 1. 활동 닉네임 + 중복확인
         _buildSectionLabel('활동 닉네임'),
-        Row(
-          children: [
-            Expanded(
-              child: _buildInputField(
-                controller: _nicknameController,
-                hintText: '한글 2~8자 입력',
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2B303B),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  elevation: 0,
-                ),
-                onPressed: () {
-                  setState(() => _isNicknameChecked = true);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('사용 가능한 멋진 닉네임입니다!'), duration: Duration(seconds: 1)),
-                  );
-                },
-                child: const Text('중복확인', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5)),
-              ),
-            ),
-          ],
-        ),
+        _buildInputField(controller: _nicknameController, hintText: '모임에서 사용할 닉네임'),
         const SizedBox(height: 22),
 
         // 2. 성별 선택
@@ -847,77 +800,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         const SizedBox(height: 22),
 
-        // 4. 휴대폰 번호 SMS 인증
-        _buildSectionLabel('휴대폰 번호 본인 인증'),
-        Row(
-          children: [
-            Expanded(
-              child: _buildInputField(
-                controller: _phoneController,
-                hintText: '010-0000-0000',
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2B303B),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  elevation: 0,
-                ),
-                onPressed: () {
-                  _startTimer();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('인증번호 6자리가 발송되었습니다.')),
-                  );
-                },
-                child: Text(_isSmsSent ? '재전송' : '인증요청', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5)),
-              ),
-            ),
-          ],
-        ),
-
-        // 6자리 개별 인증번호 입력 셀
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(6, (idx) {
-            return SizedBox(
-              width: 44,
-              height: 48,
-              child: TextField(
-                controller: _smsCodeControllers[idx],
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textTitle),
-                decoration: InputDecoration(
-                  counterText: '',
-                  filled: true,
-                  fillColor: surfaceSub,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor, width: 1.5)),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                onChanged: (val) {
-                  if (val.isNotEmpty && idx < 5) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                },
-              ),
-            );
-          }),
-        ),
-
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('✓ 휴대폰 본인 인증 완료', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: primaryColor)),
-            Text('${(_timerSeconds ~/ 60).toString().padLeft(2, '0')}:${(_timerSeconds % 60).toString().padLeft(2, '0')}', style: TextStyle(fontSize: 12, color: textCaption)),
-          ],
+        _buildSectionLabel('휴대폰 번호 인증'),
+        PhoneVerificationField(
+          controller: _phoneController,
+          onVerified: (value) { if (mounted) setState(() => _isPhoneVerified = value); },
         ),
       ],
     );
@@ -991,7 +877,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.1),
+                  color: primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.location_on, color: primaryColor, size: 20),

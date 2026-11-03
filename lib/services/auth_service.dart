@@ -1,3 +1,4 @@
+import '../utils/profile_policy.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -363,21 +364,10 @@ class AuthService {
     VoidCallback? onAutoVerified,
   }) async {
     try {
-      String cleanDigits = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
-      if (cleanDigits.length < 9) {
-        onError('올바른 휴대폰 번호를 입력해 주세요.');
+      final formattedE164 = normalizeKoreanMobile(rawPhone);
+      if (formattedE164 == null) {
+        onError('010으로 시작하는 휴대폰 번호를 확인해 주세요.');
         return;
-      }
-      String formattedE164;
-      if (cleanDigits.startsWith('82')) {
-        // +82 또는 82로 시작하는 번호: +8210... 형태로 정리
-        formattedE164 = '+$cleanDigits';
-      } else if (cleanDigits.startsWith('0')) {
-        // 010... 형태: 맨 앞 0을 제거하고 +8210... 형태로 변환
-        formattedE164 = '+82${cleanDigits.substring(1)}';
-      } else {
-        // 10... 형태
-        formattedE164 = '+82$cleanDigits';
       }
 
       if (kIsWeb) {
@@ -506,19 +496,17 @@ class AuthService {
 
     if (!snapshot.exists) {
       final String initialNickname = customNickname ??
-          (isAdminEmail ? '오오무 총괄운영자' : (user.displayName ?? '우리동네이웃'));
+          (isAdminEmail ? '오오무 총괄운영자' : (user.displayName ?? ''));
       final String initialName = customName ?? (isAdminEmail ? '안대표' : '회원');
       final String initialRole = isAdminEmail ? 'admin' : 'user';
-      final String initialGender = customGender ?? (isAdminEmail ? '여성' : '남성');
+      final String initialGender = customGender ?? (isAdminEmail ? '여성' : '');
 
       // 구글/카카오 계정의 원본 프로필 사진 URL 우선 적용
       final String? authPhotoUrl = user.photoURL;
       final String defaultPhoto =
           (authPhotoUrl != null && authPhotoUrl.isNotEmpty)
               ? authPhotoUrl
-              : (initialGender == '여성'
-                  ? 'assets/images/kr_female_1.jpg'
-                  : 'assets/images/kr_male_1.jpg');
+              : (isAdminEmail ? 'assets/images/kr_female_1.jpg' : '');
 
       await docRef.set({
         'userId': uid,
@@ -526,21 +514,21 @@ class AuthService {
         'role': initialRole,
         'name': initialName,
         'nickname': initialNickname,
-        'age': customAge ?? (isAdminEmail ? 29 : 27),
+        'age': customAge ?? (isAdminEmail ? 29 : null),
         'gender': initialGender,
-        'location': '서울 마포구 연남동',
-        'job': isAdminEmail ? 'OOMU 총괄 기획/운영' : 'IT/기획',
-        'mbti': isAdminEmail ? 'ENFJ' : 'ENFP',
+        'location': isAdminEmail ? '서울 마포구 연남동' : '',
+        'job': isAdminEmail ? 'OOMU 총괄 기획/운영' : '',
+        'mbti': isAdminEmail ? 'ENFJ' : '',
         'hobbies':
-            isAdminEmail ? ['맛집탐방', '보드게임', '러닝', '전시회'] : ['맛집탐방', '카페투어'],
-        'personalities': ['친화력 갑', '리액션 요정'],
-        'drinking': ['가볍게 한잔'],
+            isAdminEmail ? ['맛집탐방', '보드게임', '러닝', '전시회'] : [],
+        'personalities': [],
+        'drinking': [],
         'bio': isAdminEmail
             ? '어색한 1:1 만남 대신 재밌는 모임에서 시작하는 우리 동네 무드 OOMU 총괄 운영자 계정입니다 🌿'
-            : '안녕하세요! 새로운 동네 친구 만나러 왔어요 😊',
+            : '',
         'photoUrl': defaultPhoto,
         'avatarUrl': defaultPhoto,
-        'photoUrls': [defaultPhoto],
+        'photoUrls': defaultPhoto.isEmpty ? [] : [defaultPhoto],
         'mannerTemp': isAdminEmail ? 48.5 : 36.5,
         'isVerified': isAdminEmail,
         'isProfileComplete': isAdminEmail,
@@ -557,7 +545,7 @@ class AuthService {
 
       // 신규 가입 유저의 인메모리 상태 즉시 동기화 (현재 세션에 속할 때만 반영)
       globalData.userNickname.value = initialNickname;
-      globalData.userLocation.value = '서울 마포구 연남동';
+      globalData.userLocation.value = isAdminEmail ? '서울 마포구 연남동' : '';
       globalData.userAvatar.value = defaultPhoto;
       globalData.temperature.value = isAdminEmail ? 48.5 : 36.5;
     } else {
@@ -600,11 +588,7 @@ class AuthService {
       }
       globalData.applyProfileData(data);
       if (data['role'] == 'admin') return true;
-      final hasLocation = data['location'] != null &&
-          data['location'].toString().trim().isNotEmpty;
-      final hasNickname = data['nickname'] != null &&
-          data['nickname'].toString().trim().isNotEmpty;
-      return data['isProfileComplete'] == true || (hasLocation && hasNickname);
+      return hasCompletedProfile(data);
     } catch (_) {
       return false;
     }
@@ -625,16 +609,26 @@ class AuthService {
     required String bio,
     required List<String> photoUrls,
   }) async {
-    final uid = targetUid ?? _activeAuthUid ?? globalData.activeUserId;
+    final uid = targetUid ?? _activeAuthUid;
+    if (uid == null || uid != _activeAuthUid) throw StateError('로그인 상태를 확인해 주세요.');
     final int requestSession = globalData.sessionGeneration;
-    int calculatedAge = 25;
-    try {
-      final yearDigits = birthDate.replaceAll(RegExp(r'[^0-9]'), '');
-      if (yearDigits.length >= 4) {
-        final birthYear = int.tryParse(yearDigits.substring(0, 4)) ?? 1999;
-        calculatedAge = DateTime.now().year - birthYear + 1;
-      }
-    } catch (_) {}
+    final verifiedNumber = normalizeKoreanMobile(currentUser?.phoneNumber ?? '');
+    if (verifiedNumber == null || verifiedNumber != normalizeKoreanMobile(phone)) {
+      throw StateError('현재 계정의 휴대폰 번호 인증을 먼저 완료해 주세요.');
+    }
+    final digits = birthDate.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length != 8) throw StateError('생년월일을 8자리로 입력해 주세요.');
+    final year = int.parse(digits.substring(0, 4));
+    final month = int.parse(digits.substring(4, 6));
+    final day = int.parse(digits.substring(6, 8));
+    final birth = DateTime(year, month, day);
+    if (birth.year != year || birth.month != month || birth.day != day) throw StateError('올바른 생년월일을 입력해 주세요.');
+    final now = DateTime.now();
+    final calculatedAge = now.year - year - (now.month < month || (now.month == month && now.day < day) ? 1 : 0);
+    if (calculatedAge < 19 || calculatedAge > 99) throw StateError('만 19세 이상만 가입할 수 있어요.');
+    if (nickname.trim().isEmpty || location.trim().isEmpty || photoUrls.isEmpty) {
+      throw StateError('닉네임, 활동 동네, 대표 사진을 확인해 주세요.');
+    }
 
     final Map<String, dynamic> updateData = {
       'nickname': nickname,
@@ -642,7 +636,7 @@ class AuthService {
       'gender': gender,
       'birthDate': birthDate,
       'age': calculatedAge,
-      'phone': phone,
+      'phone': verifiedNumber,
       'isPhoneVerified': true,
       'location': location,
       'address': location,
@@ -656,7 +650,6 @@ class AuthService {
       if (photoUrls.isNotEmpty) 'photoUrl': photoUrls.first,
       if (photoUrls.isNotEmpty) 'avatarUrl': photoUrls.first,
       'isProfileComplete': true,
-      'isVerified': true,
       'updatedAt': FieldValue.serverTimestamp(),
     };
 

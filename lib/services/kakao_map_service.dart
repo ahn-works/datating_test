@@ -173,102 +173,13 @@ class KakaoMapService {
     if (tokens.isEmpty) return null;
 
     final candidates = await searchKeyword(clean, size: 5);
-    if (candidates.isEmpty) {
-      // 네트워크/CORS/오프라인 테스트 환경에서 입력 문자열에 실제 역/동 명칭이 명시적으로 포함된 경우에만 검증된 좌표 매핑 제공 (무관한 장소 폴백 절대 금지)
-      const verifiedFallbacks = <String, KakaoPlace>{
-        '성수역': KakaoPlace(
-          id: 'verified_seongsu_stn',
-          name: '성수역 2호선',
-          address: '서울 성동구 성수동2가 300-4',
-          roadAddress: '서울 성동구 아차산로 100',
-          category: '지하철역',
-          lat: 37.5445,
-          lng: 127.0560,
-          placeUrl: 'https://map.kakao.com/link/map/성수역,37.5445,127.0560',
-        ),
-        '성수동': KakaoPlace(
-          id: 'verified_seongsu_dong',
-          name: '성수동 카페거리',
-          address: '서울 성동구 성수동2가',
-          roadAddress: '서울 성동구 연무장길',
-          category: '지역',
-          lat: 37.5445,
-          lng: 127.0560,
-          placeUrl: 'https://map.kakao.com/link/map/성수동,37.5445,127.0560',
-        ),
-        '홍대입구역': KakaoPlace(
-          id: 'verified_hongdae_stn',
-          name: '홍대입구역',
-          address: '서울 마포구 동교동 165',
-          roadAddress: '서울 마포구 양화로 160',
-          category: '지하철역',
-          lat: 37.5575,
-          lng: 126.9245,
-          placeUrl: 'https://map.kakao.com/link/map/홍대입구역,37.5575,126.9245',
-        ),
-        '연남동': KakaoPlace(
-          id: 'verified_yeonnam_dong',
-          name: '연남동 경의선숲길',
-          address: '서울 마포구 연남동',
-          roadAddress: '서울 마포구 양화로23길',
-          category: '지역',
-          lat: 37.5615,
-          lng: 126.9255,
-          placeUrl: 'https://map.kakao.com/link/map/연남동,37.5615,126.9255',
-        ),
-        '망원한강공원': KakaoPlace(
-          id: 'verified_mangwon_hangang',
-          name: '망원한강공원',
-          address: '서울 마포구 망원동 205-4',
-          roadAddress: '서울 마포구 마포나루길 467',
-          category: '공원',
-          lat: 37.5556,
-          lng: 126.8946,
-          placeUrl: 'https://map.kakao.com/link/map/망원한강공원,37.5556,126.8946',
-        ),
-        '강남역': KakaoPlace(
-          id: 'verified_gangnam_stn',
-          name: '강남역',
-          address: '서울 강남구 역삼동 858',
-          roadAddress: '서울 강남구 강남대로 396',
-          category: '지하철역',
-          lat: 37.4980,
-          lng: 127.0276,
-          placeUrl: 'https://map.kakao.com/link/map/강남역,37.4980,127.0276',
-        ),
-        '합정역': KakaoPlace(
-          id: 'verified_hapjeong_stn',
-          name: '합정역',
-          address: '서울 마포구 서교동 393',
-          roadAddress: '서울 마포구 양화로 55',
-          category: '지하철역',
-          lat: 37.5495,
-          lng: 126.9138,
-          placeUrl: 'https://map.kakao.com/link/map/합정역,37.5495,126.9138',
-        ),
-      };
-      for (final entry in verifiedFallbacks.entries) {
-        if (clean.contains(entry.key)) {
-          return entry.value;
-        }
-      }
-      return null;
-    }
+    // Without a search result, a nearby station/district is not a verified venue.
+    if (candidates.isEmpty) return null;
 
     for (final candidate in candidates) {
       if (!candidate.hasValidCoords) continue;
       final combined = '${candidate.name} ${candidate.address} ${candidate.roadAddress}'.toLowerCase();
-      bool matched = false;
-      for (final token in tokens) {
-        final normToken = token.toLowerCase();
-        final stem = (normToken.endsWith('역') || normToken.endsWith('동') || normToken.endsWith('구') || normToken.endsWith('시')) && normToken.length > 2
-            ? normToken.substring(0, normToken.length - 1)
-            : normToken;
-        if (combined.contains(normToken) || (stem.length >= 2 && combined.contains(stem))) {
-          matched = true;
-          break;
-        }
-      }
+      final matched = tokens.every((token) => combined.contains(token.toLowerCase()));
       if (matched) {
         return candidate;
       }

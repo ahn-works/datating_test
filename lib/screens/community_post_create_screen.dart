@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/global_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/oomu_ui_helpers.dart';
 
 class CommunityPostCreateScreen extends StatefulWidget {
   final String currentLocation;
@@ -13,9 +16,9 @@ class CommunityPostCreateScreen extends StatefulWidget {
 }
 
 class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
-  final Color textPrimary = const Color(0xFF221B1D);
-  final Color textSecondary = const Color(0xFF635559);
-  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color textPrimary = OomuUiHelpers.textPrimary;
+  final Color textSecondary = OomuUiHelpers.textSecondary;
+  final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
   final Color coralAccent = const Color(0xFFF25767);
 
   final TextEditingController _titleController = TextEditingController();
@@ -49,63 +52,57 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     'assets/images/cover_running.jpg',
   ];
 
-  void _submit() {
+
+  bool _submitting = false;
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
     final content = _contentController.text.trim();
-    if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이야기 내용을 입력해주세요.')),
-      );
+    if (content.isEmpty) return;
+    if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인 후 글을 등록할 수 있어요. 입력한 내용은 유지돼요.')));
       return;
     }
-
-    String title = _titleController.text.trim();
-    if (title.isEmpty) {
-      final firstLine = content.split('\n').first;
-      title = firstLine.length > 25 ? '${firstLine.substring(0, 25)}...' : firstLine;
-    }
-
-    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
-
-    final postId = 'post_${DateTime.now().millisecondsSinceEpoch}';
-    final newPost = {
-      'id': postId,
-      'category': _selectedCategory == '🎭 공연·핫플'
-          ? '공연/전시'
-          : (_selectedCategory == '🍰 맛집·카페'
-              ? '맛집/카페'
-              : (_selectedCategory == '❓ 동네질문' ? '질문/추천' : '동네 토크')),
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final generation = globalData.sessionGeneration;
+    final titleInput = _titleController.text.trim();
+    final title = titleInput.isEmpty ? content.split('\n').first.characters.take(40).toString() : titleInput;
+    final ref = FirebaseFirestore.instance.collection('community_posts').doc();
+    final post = <String, dynamic>{
+      'id': ref.id, 'authorId': uid,
+      'title': title, 'content': content,
+      'category': _selectedCategory == '🎭 공연·핫플' ? '공연/전시'
+        : _selectedCategory == '🍰 맛집·카페' ? '맛집/카페'
+        : _selectedCategory == '❓ 동네질문' ? '질문/추천' : '동네 토크',
       'tag': _selectedTag,
-      'title': title,
-      'content': content,
-      'author': currentNick,
-      'authorAvatar': 'assets/images/kr_female_1.jpg',
+      'author': globalData.userNickname.value.isEmpty ? '이웃' : globalData.userNickname.value,
+      'authorAvatar': globalData.userAvatar.value,
       'location': widget.currentLocation,
-      'time': '방금 전',
-      'manner': 45.0,
-      'likedUserIds': <String>[],
-      'likes': 0,
-      'isLiked': false,
-      'comments': 0,
-      'image': _selectedPhoto,
-      'relatedMeetup': {
-        'title': '$title 같이 하실 분!',
-        'location': widget.currentLocation,
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'poster': _selectedPhoto ?? 'assets/images/cover_cafe.jpg',
-      },
-      'createdAt': DateTime.now().toIso8601String(),
+      if (globalData.temperature.value > 0) 'manner': globalData.temperature.value,
+      'likes': 0, 'likedUserIds': <String>[], 'comments': 0,
+      'image': _selectedPhoto, 'createdAt': FieldValue.serverTimestamp(),
     };
-
+    setState(() => _submitting = true);
     try {
-      FirebaseFirestore.instance.collection('community_posts').doc(postId).set(newPost);
-    } catch (_) {}
-
-    Navigator.pop(context, newPost);
+      await ref.set(post);
+      if (!mounted || FirebaseAuth.instance.currentUser?.uid != uid || generation != globalData.sessionGeneration) return;
+      Navigator.pop(context, {...post, 'time': '방금 전'});
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool canSubmit = _contentController.text.trim().isNotEmpty;
+    final bool canSubmit = !_submitting && _contentController.text.trim().isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -128,7 +125,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: SizedBox(
-              height: 40,
+              height: 48,
               child: ElevatedButton(
                 onPressed: canSubmit ? () {
                   HapticFeedback.mediumImpact();
@@ -142,7 +139,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
-                  '등록',
+                  _submitting ? '저장 중' : '등록',
                   style: TextStyle(
                     color: canSubmit ? Colors.white : const Color(0xFF94A3B8),
                     fontWeight: FontWeight.w800,
@@ -179,7 +176,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                       decoration: BoxDecoration(
                         color: isSelected ? const Color(0xFFFFF0F2) : surfaceColor,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: isSelected ? coralAccent : const Color(0xFFEFE4E6)),
+                        border: Border.all(color: isSelected ? coralAccent : const Color(0xFFEAECF0)),
                       ),
                       child: Text(
                         cat,
@@ -287,7 +284,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                       decoration: BoxDecoration(
                         color: _selectedPhoto == null ? const Color(0xFFFFF0F2) : surfaceColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: _selectedPhoto == null ? coralAccent : const Color(0xFFEFE4E6)),
+                        border: Border.all(color: _selectedPhoto == null ? coralAccent : const Color(0xFFEAECF0)),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

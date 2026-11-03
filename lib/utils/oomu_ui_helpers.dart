@@ -4,6 +4,14 @@ import 'package:flutter/material.dart';
 class OomuUiHelpers {
   OomuUiHelpers._();
 
+  static String formatMeetupCost(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isEmpty || text.contains('안심 정산') || text.contains('안심정산')) {
+      return '비용 안내 확인 필요';
+    }
+    return text;
+  }
+
   // 1. 핵심 컬러 토큰 (무채색 90% + 코랄 포인트 10% 원칙)
   static const Color brandCoral = Color(0xFFF25767);
   static const Color brandCoralSoft = Color(0xFFFFF0F2);
@@ -111,7 +119,7 @@ class OomuUiHelpers {
         final current = int.parse(parts[0].replaceAll(RegExp(r'[^0-9]'), ''));
         final total = int.parse(parts[1].replaceAll(RegExp(r'[^0-9]'), ''));
         final diff = total - current;
-        if (diff <= 0) return '마감 임박';
+        if (diff <= 0) return '모집 마감';
         return '$diff자리 남음';
       }
     } catch (_) {}

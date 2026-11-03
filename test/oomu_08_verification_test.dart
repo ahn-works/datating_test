@@ -88,10 +88,9 @@ void main() {
 
   group('[3] 장소·지도·거리 불일치 수정 검증', () {
     test('KakaoMapService.resolveVerifiedPlace는 검증된 장소만 좌표를 반환하고 미확인 장소는 null을 반환한다', () async {
+      // No initialized place-search backend: never substitute a station for a venue.
       final seongsu = await KakaoMapService.resolveVerifiedPlace('성수역 3번 출구 레드버튼');
-      expect(seongsu, isNotNull);
-      expect(seongsu!.lat, closeTo(37.5445, 0.01));
-      expect(seongsu.lng, closeTo(127.0560, 0.01));
+      expect(seongsu, isNull);
 
       final unknown = await KakaoMapService.resolveVerifiedPlace('알수없는비밀장소XYZ_999');
       expect(unknown, isNull);
@@ -253,13 +252,16 @@ void main() {
         expect(find.textContaining('프랑켄슈타인'), findsNothing);
         expect(find.textContaining('도솔산성'), findsNothing);
 
-        // 2. 게시글 B에 새 댓글 작성 시 상단/헤더/목록 수가 모두 1로 일치하고 postA에는 영향 없음
+        // 2. 저장소가 없는 환경에서는 저장 성공을 꾸미지 않고 입력을 보존한다.
         await tester.enterText(find.byType(TextField), '저도 토요일 러닝 참여하고 싶어요!');
         await tester.tap(find.byTooltip('댓글 전송'));
         await tester.pumpAndSettle();
 
-        expect(find.text('댓글 1'), findsNWidgets(2));
-        expect(find.text('저도 토요일 러닝 참여하고 싶어요!'), findsOneWidget);
+        expect(find.text('댓글 0'), findsNWidgets(2));
+        expect(postB['comments'], equals(0));
+        expect(postB['commentList'], isEmpty);
+        expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '저도 토요일 러닝 참여하고 싶어요!');
+        expect(find.text('실제 게시글에서 댓글을 작성할 수 있어요.'), findsOneWidget);
         expect(postA['comments'], equals(2));
 
         // 3. 게시글 A 렌더링 시 본래 2개 댓글만 표시

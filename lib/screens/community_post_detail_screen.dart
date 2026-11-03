@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
+import '../widgets/balanced_heading.dart';
 import '../widgets/ugc_action_sheets.dart';
 import 'user_profile_screen.dart';
 import '../widgets/bouncy_tap.dart';
@@ -101,7 +103,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
     final myNick = globalData.userNickname.value.isNotEmpty
         ? globalData.userNickname.value
-        : '우리동네민우';
+        : '이웃';
     final myAvatar = globalData.userAvatar.value.isNotEmpty
         ? globalData.userAvatar.value
         : 'assets/images/kr_male_1.jpg';
@@ -118,62 +120,43 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       'likedUserIds': <String>[],
     };
 
-    _commentController.clear();
-    FocusScope.of(context).unfocus();
-
-    setState(() {
-      _comments.add(newComm);
-      widget.post['commentList'] = _comments;
-      widget.post['comments'] = _comments.length;
-    });
-
-    if (_canUseFirestore && postId != null) {
-      try {
-        final firestorePayload = <String, dynamic>{
-          'author': myNick,
-          'authorAvatar': myAvatar,
-          'content': text,
-          'time': '방금 전',
-          'likes': 0,
-          'likedUserIds': <String>[],
+    if (!_canUseFirestore || postId == null) {
+      setState(() => _isSubmittingComment = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('실제 게시글에서 댓글을 작성할 수 있어요.')));
+      return;
+    }
+    try {
+      final db = FirebaseFirestore.instance;
+      final authorUid = FirebaseAuth.instance.currentUser?.uid;
+      if (authorUid == null) throw StateError('로그인 후 댓글을 작성해 주세요.');
+      final postRef = db.collection('community_posts').doc(postId);
+      final commentRef = postRef.collection('comments').doc();
+      await db.runTransaction((tx) async {
+        final post = await tx.get(postRef);
+        if (!post.exists) throw StateError('게시글을 찾을 수 없어요.');
+        if (FirebaseAuth.instance.currentUser?.uid != authorUid) throw StateError('로그인 상태가 변경됐어요.');
+        tx.set(commentRef, {
+          'authorId': authorUid,
+          'author': myNick, 'authorAvatar': myAvatar, 'content': text,
+          'time': '방금 전', 'likes': 0, 'likedUserIds': <String>[],
           'createdAt': FieldValue.serverTimestamp(),
-        };
-
-        final docRef = await FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(postId)
-            .collection('comments')
-            .add(firestorePayload)
-            .timeout(const Duration(seconds: 4));
-
-        newComm['id'] = docRef.id;
-
-        final countSnap = await FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(postId)
-            .collection('comments')
-            .count()
-            .get()
-            .timeout(const Duration(seconds: 4));
-        final totalComments = countSnap.count ?? _comments.length;
-
-        // 원본 게시글의 제목·작성자·지역 등 다른 필드를 임의 기본값으로 덮어쓰지 않고 댓글 수만 갱신
-        await FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(postId)
-            .set({
-          'comments': totalComments,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true)).timeout(const Duration(seconds: 4));
-
-        if (mounted) {
-          setState(() {
-            widget.post['comments'] = totalComments;
-          });
-        }
-      } catch (e) {
-        debugPrint('Firestore add comment fallback to local state: $e');
-      }
+        });
+        tx.update(postRef, {'comments': FieldValue.increment(1), 'updatedAt': FieldValue.serverTimestamp()});
+      });
+      if (!mounted) return;
+      newComm['id'] = commentRef.id;
+      _commentController.clear();
+      FocusScope.of(context).unfocus();
+      setState(() {
+        if (!_comments.any((comment) => comment['id'] == commentRef.id)) _comments.add(newComm);
+        widget.post['commentList'] = _comments;
+        widget.post['comments'] = _comments.length;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSubmittingComment = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('댓글을 저장하지 못했어요. 입력한 내용은 남겨두었어요. 다시 시도해 주세요.')));
+      return;
     }
 
     if (!mounted) return;
@@ -396,7 +379,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
               // Title (이모지 안전한 줄바꿈 & 선명한 타이포그래피 계층)
               if (title.isNotEmpty) ...[
-                Text(
+                BalancedHeading(
                   OomuUiHelpers.formatTitle(title, fallback: ''),
                   style: const TextStyle(
                     fontSize: 18.5,
