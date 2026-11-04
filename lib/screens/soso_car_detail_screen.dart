@@ -424,6 +424,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     final List<String> praiseTags = _extractHostPraiseTags(widget.meetup);
     final bool hasResolvedCoords = _targetLat != null && _targetLng != null;
     final bool isDistanceUnknown = _distanceText == '거리 확인 불가' || _distanceText == '거리 계산 중...';
+    final costLabel = OomuUiHelpers.formatMeetupCost(
+      widget.meetup?['fee'] ?? widget.meetup?['cost'] ?? widget.meetup?['price'],
+    );
 
     return Scaffold(
       backgroundColor: surfaceColor,
@@ -609,12 +612,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           _buildInfoRow(Icons.location_on_rounded, '장소', locName),
                           const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
                           _buildInfoRow(Icons.directions_subway_rounded, '이동', (widget.meetup?['transport'] ?? '대중교통 / 각자 이동').toString()),
-                          if (widget.meetup != null && (widget.meetup!['fee'] != null || widget.meetup!['cost'] != null || widget.meetup!['price'] != null)) ...[
+                          if (costLabel != '비용 안내 확인 필요') ...[
                             const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
                             _buildInfoRow(
                               Icons.payments_rounded,
                               '비용',
-                              OomuUiHelpers.formatMeetupCost(widget.meetup!['fee'] ?? widget.meetup!['cost'] ?? widget.meetup!['price']),
+                              costLabel,
                             ),
                           ],
                         ],

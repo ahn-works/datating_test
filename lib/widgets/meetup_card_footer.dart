@@ -52,7 +52,7 @@ class MeetupCardFooter extends StatelessWidget {
                       ? OomuUiHelpers.textSecondary
                       : const Color(0xFFC83243))),
         );
-        if (constraints.maxWidth < 320 ||
+        if (constraints.maxWidth < 305 ||
             MediaQuery.textScalerOf(context).scale(13) > 16) {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -65,18 +65,12 @@ class MeetupCardFooter extends StatelessWidget {
                     children: [temperature, attendance]),
               ]);
         }
-        return Column(children: [
-          Row(children: [
-            Expanded(child: identity),
-            const SizedBox(width: 12),
-            attendance
-          ]),
-          const SizedBox(height: 4),
-          Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                  padding: const EdgeInsets.only(left: 36),
-                  child: temperature)),
+        return Row(children: [
+          Expanded(child: identity),
+          const SizedBox(width: 8),
+          temperature,
+          const SizedBox(width: 8),
+          attendance,
         ]);
       });
 }

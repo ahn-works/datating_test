@@ -21,12 +21,14 @@ void main() {
 
         expect(find.text('마포구 서교동'), findsOneWidget);
         expect(find.textContaining('오늘 번개'), findsWidgets);
+        expect(find.text('헬린이탈출'), findsOneWidget);
+        expect(find.textContaining('모임 더보기'), findsOneWidget);
         await tester.drag(
           find.byType(CustomScrollView),
           const Offset(0, -1200),
         );
         await tester.pumpAndSettle();
-        expect(find.text('성수동힙스터'), findsWidgets);
+        expect(find.text('공연·전시와 동네 발견'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
     },

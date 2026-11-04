@@ -228,10 +228,10 @@ void main() {
       expect(tester.takeException(), isNull, reason: 'community composer');
       await tester.tap(find.text('취소'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('소개팅').last);
+      await tester.tap(find.text('발견').last);
       await tester.pumpAndSettle();
       expect(find.text('우리 동네 2:2 · 3:3 미팅 팟'), findsOneWidget);
-      expect(find.textContaining('아직 등록된 미팅 모임이 없어요'), findsOneWidget);
+      expect(find.textContaining('동네 미팅 모임은 아직 없어요'), findsOneWidget);
       expect(find.text('미팅 팟 참여하기'), findsNothing);
       expect(find.textContaining('불금 홍대 2:2'), findsNothing);
       expect(tester.takeException(), isNull, reason: 'dating tab');

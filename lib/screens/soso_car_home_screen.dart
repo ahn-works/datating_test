@@ -573,9 +573,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final PageController _trendPageController = PageController();
   Stream<QuerySnapshot>? _meetupStream;
   Stream<QuerySnapshot>? _trendStream;
+  List<Map<String, dynamic>> _lastTrendItems = [];
   bool _showAllMeetups = false;
   int get _initialMeetupCount => _selectedCategoryIndex == 0 ? 1 : 2;
   Position? _devicePosition;
+  final Map<String, Future<KakaoPlace?>> _placeLookupCache = {};
   bool _isListView = false;
   bool _isSubCategoryExpanded = false;
 
@@ -710,6 +712,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   _currentLocation = detected;
                                 });
                                 globalData.updateLocation(detected);
+                                _loadDevicePosition();
                                 try {
                                   FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
                                     'location': detected,
@@ -990,14 +993,44 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     }
   }
 
-  String? _meetupDistance(Map<String, dynamic> meetup) {
+  String? _meetupDistance(Map<String, dynamic> meetup,
+      {({double lat, double lng})? resolvedCoords}) {
     final position = _devicePosition;
-    final coords = OomuUiHelpers.extractValidCoords(meetup);
+    final coords = OomuUiHelpers.extractValidCoords(meetup) ?? resolvedCoords;
     if (position == null || coords == null) return null;
     final meters = KakaoMapService.calculateDistanceInMeters(
       position.latitude, position.longitude, coords.lat, coords.lng,
     );
     return '내 위치에서 ${KakaoMapService.formatDistance(meters)}';
+  }
+
+  Widget _buildMeetupDistance(Map<String, dynamic> meetup) {
+    if (_devicePosition == null) return const SizedBox.shrink();
+    final savedDistance = _meetupDistance(meetup);
+    if (savedDistance != null) {
+      return Text(savedDistance,
+          style: TextStyle(fontSize: 12, color: textSecondary));
+    }
+    final location = (meetup['location'] ?? '').toString().trim();
+    if (location.isEmpty) return const SizedBox.shrink();
+    final lookup = _placeLookupCache.putIfAbsent(
+      location, () => KakaoMapService.resolveVerifiedPlace(location),
+    );
+    return FutureBuilder<KakaoPlace?>(
+      future: lookup,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox(height: 17);
+        }
+        final place = snapshot.data;
+        final distance = place != null && place.hasValidCoords
+            ? _meetupDistance(meetup,
+                resolvedCoords: (lat: place.lat, lng: place.lng))
+            : null;
+        return Text(distance ?? '정확한 장소 거리 확인 불가',
+            style: TextStyle(fontSize: 12, color: textSecondary));
+      },
+    );
   }
 
   Widget _buildMeetupMoreButton(int total) => Padding(
@@ -1992,7 +2025,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    '실시간 공연·뮤지컬 & 트렌드 핫플',
+                                    '공연·전시와 동네 발견',
                                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary),
                                   ),
                                   const SizedBox(width: 6),
@@ -2011,7 +2044,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '원하는 이벤트를 선택해 바로 모임을 만들어보세요',
+                                '관심 가는 공연과 장소를 둘러보세요',
                                 style: TextStyle(fontSize: 12, color: textSecondary),
                               ),
                             ],
@@ -2088,7 +2121,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         final title = item['title']?.toString() ?? '';
                         final location = item['location']?.toString() ?? item['venue']?.toString() ?? '';
                         final category = item['category']?.toString() ?? '문화 & 엔터';
-                        final tag = item['tag']?.toString() ?? '🔥 실시간';
+                        final tag = item['tag']?.toString() ?? '가볼 만한 곳';
                         final poster = item['poster']?.toString() ?? '';
                         final period = item['period']?.toString() ?? '상시 운영';
                         final rank = item['rank'] as int? ?? (idx + 1);
@@ -2142,7 +2175,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                             borderRadius: BorderRadius.circular(6),
                                           ),
                                           child: Text(
-                                            '$rank위',
+                                            item['isSuggested'] == true ? '아이디어' : '$rank위',
                                             style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
                                           ),
                                         ),
@@ -2214,46 +2247,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                         ],
                                       ),
                                       const SizedBox(height: 8),
-                                      SizedBox(
-                                        height: 32,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: coralAccent,
-                                            foregroundColor: Colors.white,
-                                            elevation: 0,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                                          ),
-                                          onPressed: () {
-                                            Navigator.pop(ctx);
-                                            final mainCat = category.contains('>') ? category.split('>')[0].trim() : '문화 & 엔터';
-                                            final subCat = category.contains('>') ? category.split('>')[1].trim() : '페스티벌 & 공연';
-                                            final finalVibe = item['vibe']?.toString() ?? '놀줄아는';
-
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => OOMUHostScreen(
-                                                  initialTitle: '$title 같이 가실 분!',
-                                                  initialLocation: location,
-                                                  initialMainCategory: mainCat,
-                                                  initialSubCategory: subCat,
-                                                  initialCoverImageUrl: poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg',
-                                                  initialVibe: finalVibe,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: const Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.add, size: 14),
-                                              SizedBox(width: 4),
-                                              Text('이 이벤트로 모임 만들기', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -2337,7 +2330,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     final title = item['title']?.toString() ?? '';
     final location = item['location']?.toString() ?? item['venue']?.toString() ?? '';
     final category = item['category']?.toString() ?? '문화 & 엔터';
-    final tag = item['tag']?.toString() ?? '🔥 실시간 트렌드';
+    final tag = item['tag']?.toString() ?? '가볼 만한 곳';
     final poster = item['poster']?.toString() ?? '';
     final period = item['period']?.toString() ?? '상시 운영';
     final rank = item['rank'] as int? ?? (index + 1);
@@ -2571,17 +2564,36 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       stream: trendStream,
       builder: (context, snapshot) {
         List<Map<String, dynamic>> rawItems = [];
-        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+        if (snapshot.hasData) {
           rawItems = snapshot.data!.docs
               .map((doc) => doc.data() as Map<String, dynamic>)
-              .where((d) => d['isLocalCrawled'] != true)
               .toList();
-        } else {
+          _lastTrendItems = rawItems;
+        } else if (_lastTrendItems.isNotEmpty) {
+          rawItems = _lastTrendItems;
+        } else if (!const bool.fromEnvironment('dart.vm.product')) {
           rawItems = List<Map<String, dynamic>>.from(fallbackTrends);
         }
 
-        final myLocalItems = _buildMyNeighborhoodEvents(_currentLocation);
-        final guaranteedPool = _getGuaranteedRichCategoryPool();
+        final myLocalItems = _buildMyNeighborhoodEvents(_currentLocation)
+            .take(3)
+            .map((item) {
+              final title = (item['title'] ?? '').toString();
+              return <String, dynamic>{
+                ...item,
+                'isSuggested': true,
+                'tag': '동네 탐색 아이디어',
+                'period': '방문 전 정보 확인',
+                if (title.contains('소금빵'))
+                  'poster': 'assets/images/cover_salt_bread.jpg'
+                else if (title.contains('모찌') || title.contains('도나스') || title.contains('디저트'))
+                  'poster': 'assets/images/cover_cafe.jpg',
+              };
+            })
+            .toList();
+        final guaranteedPool = const bool.fromEnvironment('dart.vm.product')
+            ? <Map<String, dynamic>>[]
+            : _getGuaranteedRichCategoryPool();
         final Set<String> seenTitles = {};
         final List<Map<String, dynamic>> items = [];
 
@@ -2592,13 +2604,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           items.add(it);
         }
 
+        if (items.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Text('지금 확인할 수 있는 공연·동네 정보가 없어요.'),
+          );
+        }
+
         final filteredItems = items.where((it) => _matchesTrendFilter(it, _selectedTrendCategory)).toList()
 
           ..sort((a, b) {
 
-            final aLocal = _isMyNeighborhoodEvent(a) ? 0 : 1;
+            final aLocal = a['isSuggested'] == true ? 1 : (_isMyNeighborhoodEvent(a) ? 0 : 2);
 
-            final bLocal = _isMyNeighborhoodEvent(b) ? 0 : 1;
+            final bLocal = b['isSuggested'] == true ? 1 : (_isMyNeighborhoodEvent(b) ? 0 : 2);
 
             if (aLocal != bLocal) return aLocal.compareTo(bLocal);
 
@@ -3426,7 +3445,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           : (_homeDashboardTab == 1
               ? _buildCommunityDashboard()
               : (_homeDashboardTab == 2
-                   ? _buildDatingDashboard()
+                   ? _buildDiscoveryDashboard()
                    : (_homeDashboardTab == 3
                        ? ChatScreen(isEmbedded: true, onExplore: () => setState(() => _homeDashboardTab = 0))
                        : const MyPageScreen(isEmbedded: true)))),
@@ -3538,44 +3557,25 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ExploreMapScreen()),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFEAECF0), width: 1.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildHomeShortcut(
+                        icon: Icons.map_outlined,
+                        label: '지도에서 모임',
+                        onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const ExploreMapScreen())),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF2F4F7),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          alignment: Alignment.center,
-                          child: Icon(Icons.map_outlined, color: textPrimary, size: 16),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '$_currentLocation 지도에서 모임 둘러보기',
-                            style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontSize: 13),
-                          ),
-                        ),
-                        Icon(Icons.chevron_right_rounded, color: textSecondary, size: 18),
-                      ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildHomeShortcut(
+                        icon: Icons.theater_comedy_outlined,
+                        label: '공연·핫플',
+                        onTap: () => setState(() => _homeDashboardTab = 2),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -3851,6 +3851,44 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       );
+  }
+
+  Widget _buildHomeShortcut({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFEAECF0)),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          height: 48,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: coralAccent),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: textPrimary),
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, size: 16, color: textSecondary),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildCommunityDashboard() {
@@ -4361,45 +4399,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     ],
                   ),
                 ),
-                const Spacer(),
-                // 연관 모임 바로 만들기 CTA (중립 칩 + 코랄 아이콘 포인트)
-                if (post['relatedMeetup'] != null)
-                  GestureDetector(
-                    onTap: () {
-                      final related = post['relatedMeetup'] as Map<String, dynamic>;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OOMUHostScreen(
-                            initialTitle: related['title'],
-                            initialLocation: related['location'],
-                            initialMainCategory: related['category'],
-                            initialCoverImageUrl: related['poster'],
-                            initialVibe: '놀줄아는',
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F4F7),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFEAECF0)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.bolt_rounded, size: 14, color: coralAccent),
-                          const SizedBox(width: 3),
-                          const Text(
-                            '모임 만들기',
-                            style: TextStyle(color: Color(0xFF333D4B), fontSize: 11.5, fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
               ],
             ),
           ],
@@ -4408,10 +4407,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     );
   }
 
-  Widget _buildDatingDashboard() {
+  Widget _buildDiscoveryDashboard() {
     return ListView(
       padding: const EdgeInsets.only(bottom: 40, top: 8),
       children: [
+          _buildTrendCurationSection(),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
+            child: Divider(height: 1, color: Color(0xFFEAECF0)),
+          ),
           // Group Dating Banner & Host CTA (원색 파란 배너를 걷어내고 브랜드 톤과 통일)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
@@ -4502,7 +4506,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 return category.contains('소개팅') || category.contains('미팅');
               }).toList() ?? [];
               if (docs.isEmpty) {
-                return _datingNotice('아직 등록된 미팅 모임이 없어요. 첫 모임을 열어보세요.');
+                return _datingNotice('동네 미팅 모임은 아직 없어요. 관심 가는 공연과 장소부터 둘러보세요.');
               }
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -4629,7 +4633,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
               child: SizedBox(
-                height: 150,
+                height: 120,
                 width: double.infinity,
                 child: Stack(
                   fit: StackFit.expand,
@@ -4706,7 +4710,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
             // 2. 카드 본문 정보 (Card-in-Card 중첩 박스를 제거하고 깔끔한 여백과 디바이더로 정돈)
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -4723,7 +4727,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
 
                   // 일정 & 장소 정보 (중첩 박스 없이 정갈한 아이콘+텍스트 행)
                   Row(
@@ -4745,7 +4749,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       Icon(Icons.location_on_outlined, size: 14, color: coralAccent),
@@ -4765,16 +4769,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     ],
                   ),
 
-                  if (_meetupDistance(meetup) case final distance?) ...[
+                  if (_devicePosition != null) ...[
                     const SizedBox(height: 5),
                     Padding(
                       padding: const EdgeInsets.only(left: 20),
-                      child: Text(distance, style: TextStyle(fontSize: 12, color: textSecondary)),
+                      child: _buildMeetupDistance(meetup),
                     ),
                   ],
 
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                    padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(height: 1, thickness: 1, color: Color(0xFFF2F4F7)),
                   ),
 
@@ -4915,9 +4919,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       ),
                     ],
                   ),
-                  if (_meetupDistance(meetup) case final distance?) ...[
+                  if (_devicePosition != null) ...[
                     const SizedBox(height: 4),
-                    Text(distance, style: TextStyle(fontSize: 11.5, color: textSecondary)),
+                    _buildMeetupDistance(meetup),
                   ],
                   const SizedBox(height: 12),
                   MeetupCardFooter(meetup: meetup),
@@ -5403,9 +5407,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               label: '커뮤니티',
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border_rounded, size: 23),
-              activeIcon: Icon(Icons.favorite_rounded, size: 23),
-              label: '소개팅',
+              icon: Icon(Icons.explore_outlined, size: 23),
+              activeIcon: Icon(Icons.explore_rounded, size: 23),
+              label: '발견',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.chat_bubble_outline_rounded, size: 22),
