@@ -31,9 +31,17 @@ class MeetupCardFooter extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: OomuUiHelpers.textPrimary))),
         ]);
-        final members = meetup['members']?.toString();
+        String? membersStr;
+        if (meetup['members'] is List) {
+          membersStr = '${(meetup['members'] as List).length}';
+        } else if (meetup['members'] != null &&
+            meetup['members'].toString().trim().isNotEmpty) {
+          membersStr = meetup['members'].toString().trim();
+        } else if (meetup['currentMembers'] != null) {
+          membersStr = meetup['currentMembers'].toString();
+        }
         final attendance = Text(
-            members == null ? '참여 인원 확인 필요' : '$members명 참여',
+            membersStr == null ? '참여 인원 확인 필요' : '$membersStr명 참여',
             style: const TextStyle(
                 fontSize: 13, color: OomuUiHelpers.textSecondary));
         final temperature = Container(

@@ -156,6 +156,179 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // 4-1. 체험용 3대 테스트 계정 선택 바텀시트
+  void _showTestUserModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '체험용 테스트 계정 선택',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF191F28),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close, size: 20, color: Color(0xFF767676)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '원하는 페르소나를 선택하면 해당 프로필로 1초 만에 전환됩니다.',
+                style: TextStyle(fontSize: 13, color: Color(0xFF767676)),
+              ),
+              const SizedBox(height: 16),
+              _buildTestUserTile(
+                ctx,
+                uid: 'test_user_01',
+                name: '망원치즈_민지',
+                desc: '25세 · 여성 · 서울 마포구 망원동',
+                badge: '디저트·카페',
+                avatar: 'assets/images/kr_female_1.jpg',
+              ),
+              const SizedBox(height: 8),
+              _buildTestUserTile(
+                ctx,
+                uid: 'test_user_02',
+                name: '연남러너_도현',
+                desc: '28세 · 남성 · 서울 마포구 연남동',
+                badge: '한강러닝·운동',
+                avatar: 'assets/images/kr_male_1.jpg',
+              ),
+              const SizedBox(height: 8),
+              _buildTestUserTile(
+                ctx,
+                uid: 'test_user_03',
+                name: '성수와인_서연',
+                desc: '31세 · 여성 · 서울 성동구 성수동',
+                badge: '와인·전시회',
+                avatar: 'assets/images/kr_female_2.jpg',
+              ),
+              const SizedBox(height: 8),
+              _buildTestUserTile(
+                ctx,
+                uid: 'LZs5U32GQJMkK77hkmaJupgKzwE2',
+                name: '우리동네이웃',
+                desc: '29세 · 여성 · 전남 여수시 화장동',
+                badge: '여수 로컬',
+                avatar: 'assets/images/kr_female_1.jpg',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTestUserTile(
+    BuildContext ctx, {
+    required String uid,
+    required String name,
+    required String desc,
+    required String badge,
+    required String avatar,
+  }) {
+    return InkWell(
+      onTap: () async {
+        Navigator.pop(ctx);
+        _showLoading('$name 계정으로 입장 중...');
+        try {
+          await authService.syncUserSessionProfile(uid);
+          if (mounted) {
+            _navigateHome();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('🎉 $name($desc) 계정으로 전환되었습니다.'),
+                duration: const Duration(seconds: 2),
+                backgroundColor: brandCoral,
+              ),
+            );
+          }
+        } finally {
+          if (mounted) _hideLoading();
+        }
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F8FA),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE5E8EB)),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: AssetImage(avatar),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF191F28),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: brandCoral.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          badge,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: brandCoral,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    desc,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF767676),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFFB0B8C1)),
+          ],
+        ),
+      ),
+    );
+  }
+
   // 5. 이메일 로그인 / 회원가입 바텀시트
   void _showEmailAuthModal({bool isSignUp = false}) {
     showModalBottomSheet(
@@ -211,19 +384,36 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 상단 우측 둘러보기
+              // 상단 우측 액션 (체험용 테스트 계정 & 둘러보기 - 2.0x 확대 시에도 오버플로우 방지)
               Align(
                 alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: _isLoading ? null : _handleGuestLogin,
-                  child: Text(
-                    '둘러보기 ›',
-                    style: TextStyle(
-                      color: textSecondary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: _isLoading ? null : _showTestUserModal,
+                      child: Text(
+                        '🧪 테스트 계정',
+                        style: TextStyle(
+                          color: textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: _isLoading ? null : _handleGuestLogin,
+                      child: Text(
+                        '둘러보기 ›',
+                        style: TextStyle(
+                          color: textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 

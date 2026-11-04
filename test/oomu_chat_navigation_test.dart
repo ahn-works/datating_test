@@ -1,3 +1,4 @@
+import 'package:spot10_app/widgets/balanced_text.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -216,7 +217,13 @@ void main() {
       await tester.tap(find.text('커뮤니티').last);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'community list');
-      await tester.tap(find.textContaining('오늘 저녁 연트럴파크 강아지').first);
+      // 표시용 제어문자(U+2060/NBSP)는 BalancedText.restore로 원문 복원 후 비교한다.
+      await tester.tap(find
+          .byWidgetPredicate((w) =>
+              w is Text &&
+              w.data != null &&
+              BalancedText.restore(w.data!).contains('오늘 저녁 연트럴파크 강아지'))
+          .first);
       await tester.pumpAndSettle();
       expect(find.byType(CommunityPostDetailScreen), findsOneWidget);
       expect(tester.takeException(), isNull, reason: 'community detail');

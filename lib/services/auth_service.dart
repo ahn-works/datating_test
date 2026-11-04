@@ -23,8 +23,12 @@ class AuthService {
     if (debugCurrentUidGetter != null) {
       return debugCurrentUidGetter!();
     }
-    if (Firebase.apps.isEmpty) return null;
-    return _auth.currentUser?.uid;
+    if (Firebase.apps.isNotEmpty && _auth.currentUser?.uid != null) {
+      return _auth.currentUser!.uid;
+    }
+    final gUid = globalData.currentUserId.value.trim();
+    if (gUid.isNotEmpty && gUid != 'guest') return gUid;
+    return null;
   }
 
   bool _isValidSessionAfterAwait(int requestSession, String uid) {

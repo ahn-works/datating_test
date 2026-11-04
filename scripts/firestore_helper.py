@@ -21,11 +21,15 @@ USER_AGENT = "OOMU-Automation-Agent/2.0 (GitHubActions; Python 3.11)"
 
 def _make_url(path, query_params=None):
     """Builds a Firestore REST API URL, cleanly attaching key and query parameters if present."""
-    params = {}
+    params = []
     if FIRESTORE_WEB_KEY:
-        params["key"] = FIRESTORE_WEB_KEY
+        params.append(("key", FIRESTORE_WEB_KEY))
     if query_params:
-        params.update(query_params)
+        if isinstance(query_params, dict):
+            for k, v in query_params.items():
+                params.append((k, v))
+        elif isinstance(query_params, list):
+            params.extend(query_params)
     query_str = urllib.parse.urlencode(params)
     if query_str:
         return f"{BASE_URL}/{path.lstrip('/')}?{query_str}"
@@ -138,17 +142,20 @@ def list_documents(collection_path, page_size=100):
 
 def set_document(collection_path, doc_id, data, merge=True):
     """Creates or overwrites/merges a document in Firestore."""
-    url = _make_url(f"{collection_path}/{doc_id}")
     fields = dict_to_document_fields(data)
+    query_params = []
+    if merge:
+        for k in fields.keys():
+            query_params.append(("updateMask.fieldPaths", k))
+    url = _make_url(f"{collection_path}/{doc_id}", query_params=query_params)
     body = {"fields": fields}
     post_bytes = json.dumps(body).encode("utf-8")
 
-    method = "PATCH" if merge else "PUT"
     req = urllib.request.Request(
         url,
         data=post_bytes,
         headers={"Content-Type": "application/json", "User-Agent": USER_AGENT},
-        method=method,
+        method="PATCH",
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
         res = json.loads(resp.read().decode("utf-8"))

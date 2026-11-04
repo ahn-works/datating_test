@@ -25,6 +25,7 @@ import 'community_post_create_screen.dart';
 import 'event_detail_screen.dart';
 import 'user_profile_screen.dart';
 import '../widgets/bouncy_tap.dart';
+import '../widgets/balanced_text.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   final int initialTab;
@@ -2412,7 +2413,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 4),
                   SizedBox(
                     height: 38,
-                    child: Text(
+                    child: BalancedText(
                       title,
                       style: TextStyle(
                         fontSize: 13,
@@ -2428,7 +2429,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 7),
                   Row(
                     children: [
-                      Icon(Icons.location_on_rounded, size: 14, color: coralAccent),
+                      Icon(Icons.location_on_rounded, size: 14, color: textSecondary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -2443,7 +2444,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.calendar_month_rounded, size: 15, color: const Color(0xFF3B82F6)),
+                      Icon(Icons.calendar_month_rounded, size: 15, color: textSecondary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -2467,8 +2468,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 height: 36,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFF0EB),
-                    foregroundColor: coralAccent,
+                    backgroundColor: const Color(0xFFF2F4F7),
+                    foregroundColor: textPrimary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -2801,7 +2802,19 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 ),
               ),
               // 위피 / 문토 / 당근 스타일 미니멀 슬림 도트 인디케이터
-              if (totalPages > 1)
+              if (totalPages > 5)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      '${safePage + 1} / $totalPages',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary),
+                    ),
+                  ),
+                )
+              else if (totalPages > 1)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: Row(
@@ -3381,8 +3394,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
         ),
         actions: [
-          Tooltip(
-            message: '지도 탐색',
+          Semantics(button: true, label: '지도 탐색',
             child: BouncyTap(
               scaleDown: 0.92,
               onTap: () {
@@ -3399,8 +3411,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               ),
             ),
           ),
-          Tooltip(
-            message: '알림',
+          Semantics(button: true, label: '알림',
             child: BouncyTap(
               scaleDown: 0.92,
               onTap: () async {
@@ -3424,8 +3435,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: Tooltip(
-              message: '필터',
+            child: Semantics(button: true, label: '필터',
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FilterScreen())),
@@ -4210,6 +4220,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           Builder(
                             builder: (_) {
                               final authorManner = OomuUiHelpers.parseMannerTemp(post);
+                              if (authorManner == null) return const SizedBox.shrink();
                               return Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
@@ -4231,7 +4242,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${post['location']} · ${post['time']}',
+                        [post['location'], post['time']].map((e) => (e ?? '').toString().trim()).where((e) => e.isNotEmpty).join(' · '),
                         style: TextStyle(fontSize: 12, color: textSecondary),
                       ),
                     ],
@@ -4280,7 +4291,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
             // 제목 (16.5dp, Deep Charcoal, 외톨이 줄바꿈 방지 적용)
             if (post['title'] != null && (post['title'] as String).isNotEmpty) ...[
-              Text(
+              BalancedText(
                 OomuUiHelpers.formatTitle(post['title']?.toString()),
                 style: const TextStyle(
                   fontSize: 16.5,
@@ -4588,8 +4599,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   String _meetupCoverImage(Map<String, dynamic> meetup) {
     final source = (meetup['imageUrl'] ?? '').toString();
     final title = (meetup['title'] ?? '').toString();
-    if (title.contains('소금빵') && source == 'assets/images/cover_cafe.jpg') {
+    if ((title.contains('소금빵') || source.contains('salt_bread')) &&
+        (source == 'assets/images/cover_cafe.jpg' || source.contains('salt_bread'))) {
       return 'assets/images/cover_salt_bread.jpg';
+    }
+    final location = (meetup['location'] ?? '').toString();
+    final isSeoulArea = location.contains('서울') || location.contains('마포') || location.contains('망원') || location.contains('한강');
+    if ((source == 'assets/images/cover_running.jpg' || source.contains('running_hangang') || (source.contains('run') && isSeoulArea)) && isSeoulArea) {
+      return 'assets/images/cover_running_hangang.jpg';
     }
     return source.isEmpty ? 'assets/images/cover_food.jpg' : source;
   }
@@ -4715,7 +4732,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 모임 제목 (단어 분리 방지 및 자연스러운 2줄 허용)
-                  Text(
+                  BalancedText(
                     _formatTitleKeepWords(meetup['title']),
                     style: TextStyle(
                       fontSize: 16.5,
@@ -4868,7 +4885,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 children: [
                   Text((meetup['category'] ?? '동네 모임').toString(), style: TextStyle(fontSize: 13, color: textSecondary)),
                   const SizedBox(height: 5),
-                  Text(
+                  BalancedText(
                     _formatTitleKeepWords(meetup['title']),
                     style: TextStyle(
                       fontSize: 16,

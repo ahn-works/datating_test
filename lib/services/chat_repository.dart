@@ -73,8 +73,14 @@ abstract class ChatRepository {
 class FirestoreChatRepository implements ChatRepository {
   const FirestoreChatRepository();
   @override
-  String? get currentUid =>
-      Firebase.apps.isEmpty ? null : FirebaseAuth.instance.currentUser?.uid;
+  String? get currentUid {
+    final globalUid = globalData.currentUserId.value.trim();
+    if (globalUid.isNotEmpty && globalUid != 'guest') return globalUid;
+    if (Firebase.apps.isEmpty) return null;
+    final authUid = FirebaseAuth.instance.currentUser?.uid;
+    if (authUid != null && authUid.isNotEmpty) return authUid;
+    return null;
+  }
   @override
   Stream<String?> get sessionChanges => Firebase.apps.isEmpty
       ? const Stream.empty()

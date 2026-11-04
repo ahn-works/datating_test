@@ -27,9 +27,9 @@ class MyPageScreen extends StatefulWidget {
 }
 
 class _MyPageScreenState extends State<MyPageScreen> {
-  final Color textPrimary = const Color(0xFF221B1D);
-  final Color textSecondary = const Color(0xFF635559);
-  final Color surfaceColor = const Color(0xFFFAF6F7);
+  final Color textPrimary = const Color(0xFF191F28);
+  final Color textSecondary = const Color(0xFF6B7684);
+  final Color surfaceColor = const Color(0xFFF7F8FA);
   final Color accentColor = const Color(0xFFF25767);
   final Color coralAccent = const Color(0xFFF25767);
 
@@ -960,14 +960,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF6F7),
+      backgroundColor: const Color(0xFFF7F8FA),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFFAF6F7),
+        backgroundColor: const Color(0xFFF7F8FA),
         elevation: 0,
         title: Text('마이페이지',
             style: TextStyle(
-                color: accentColor, fontSize: 22, fontWeight: FontWeight.w800)),
+                color: textPrimary, fontSize: 22, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: Icon(Icons.settings_outlined, color: textSecondary),
@@ -1432,54 +1432,30 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               color: const Color(0xFF232326),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Row(
-                              children: [
-                                const Flexible(
-                                  flex: 3,
-                                  child: Text(
-                                    'OOMU Plus',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Color(0xFFF19E39),
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 12.5,
-                                      fontStyle: FontStyle.italic,
-                                    ),
+                            child: Wrap(
+                              spacing: 10,
+                              runSpacing: 4,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: const [
+                                Text(
+                                  'OOMU Plus',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                const Expanded(
-                                  flex: 7,
-                                  child: Text(
-                                    '시크릿 프로필 & 무제한 탐색 멤버십',
-                                    style: TextStyle(
-                                        color: Colors.white70, fontSize: 11.5),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                Text(
+                                  '시크릿 프로필 · 무제한 탐색',
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 12),
                                 ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  flex: 3,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF19E39)
-                                          .withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Text(
-                                      '혜택 보기 ›',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          color: Color(0xFFF19E39),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
+                                Text(
+                                  '혜택 보기 ›',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -1724,25 +1700,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     const SizedBox(height: 32),
                   ],
 
-                  Text('나의 활동 배지',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: textPrimary)),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    clipBehavior: Clip.none,
-                    child: Row(
-                      children: [
-                        _buildBadge('👑', '파티 마스터', '모임 개설 10회', textPrimary),
-                        _buildBadge('🗣️', '핵인싸', '모임 참여 20회', textPrimary),
-                        _buildBadge('💖', '매너왕', '매너 온도 40도+', textPrimary),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
 
                   // 설정 및 관리 Section
                   Text('설정 및 관리',
@@ -2093,102 +2050,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         fontWeight: FontWeight.bold)),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showBadgeDetailModal(String title, String subtitle, String emoji) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 24),
-            Text(emoji, style: const TextStyle(fontSize: 52)),
-            const SizedBox(height: 12),
-            Text(title,
-                style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 20,
-                    color: textPrimary)),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0F2),
-                  borderRadius: BorderRadius.circular(12)),
-              child: Text(subtitle,
-                  style: TextStyle(
-                      color: coralAccent,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 16),
-            Text('활동 조건을 충족하여 인증된 공식 배지입니다.\n모임 참여자들에게 프로필 배지로 노출됩니다.',
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: textSecondary, fontSize: 13, height: 1.4)),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF221B1D),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                ),
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('확인',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBadge(
-      String emoji, String title, String subtitle, Color textPrimary) {
-    return GestureDetector(
-      onTap: () => _showBadgeDetailModal(title, subtitle, emoji),
-      child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8F5F6),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFECE4E6)),
-        ),
-        child: Column(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 28)),
-            const SizedBox(height: 8),
-            Text(title,
-                style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                    color: textPrimary)),
-            const SizedBox(height: 2),
-            Text(subtitle,
-                style: TextStyle(fontSize: 12, color: textSecondary)),
           ],
         ),
       ),
