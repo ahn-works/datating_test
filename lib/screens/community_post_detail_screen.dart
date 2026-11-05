@@ -661,6 +661,63 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                 style: TextStyle(
                                     fontSize: 12, color: textSecondary),
                               ),
+                              if ((comm['authorId']?.toString() == globalData.activeUserId && globalData.activeUserId.isNotEmpty) ||
+                                  (comm['author']?.toString() == globalData.userNickname.value && globalData.userNickname.value.isNotEmpty)) ...[
+                                const Spacer(),
+                                GestureDetector(
+                                  onTap: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (dCtx) => AlertDialog(
+                                        title: const Text('댓글을 삭제할까요?'),
+                                        content: const Text('삭제된 댓글은 복구할 수 없습니다.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(dCtx, false),
+                                            child: const Text('취소'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(dCtx, true),
+                                            child: const Text('삭제',
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.bold)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true && mounted) {
+                                      final cId = comm['id']?.toString();
+                                      if (_canUseFirestore && cId != null && !cId.startsWith('local_') && postId != null) {
+                                        try {
+                                          await FirebaseFirestore.instance
+                                              .collection('community_posts')
+                                              .doc(postId)
+                                              .collection('comments')
+                                              .doc(cId)
+                                              .delete();
+                                          await FirebaseFirestore.instance
+                                              .collection('community_posts')
+                                              .doc(postId)
+                                              .update({'comments': FieldValue.increment(-1)});
+                                        } catch (_) {}
+                                      }
+                                      setState(() {
+                                        _comments.removeWhere((item) => item['id'] == cId);
+                                        widget.post['commentList'] = _comments;
+                                        widget.post['comments'] = _comments.length;
+                                      });
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('댓글이 삭제되었습니다.')),
+                                      );
+                                    }
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 4),
+                                    child: Icon(Icons.close, size: 14, color: Colors.grey),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -779,13 +836,111 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             tooltip: '게시글 더보기',
             icon: Icon(Icons.more_vert, color: textPrimary),
             onPressed: () {
-              UgcActionSheets.showContentOptions(
-                context: context,
-                contentType: '게시글',
-                contentId: (post['id'] ?? title).toString(),
-                author: author,
-                onContentHidden: () => Navigator.pop(context),
-              );
+              final myUid = globalData.activeUserId;
+              final myNick = globalData.userNickname.value;
+              final postAuthor = (post['author'] ?? '').toString();
+              final postAuthorId = (post['authorId'] ?? '').toString();
+              final isMyPost = (myUid.isNotEmpty && postAuthorId == myUid) ||
+                  (myNick.isNotEmpty && postAuthor == myNick);
+
+              if (isMyPost) {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (bCtx) => Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(24)),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 16),
+                    child: SafeArea(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.delete_outline,
+                                  color: Colors.red, size: 20),
+                            ),
+                            title: const Text('게시글 삭제하기',
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: const Text('이 게시글과 모든 댓글을 완전히 삭제합니다',
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.grey)),
+                            onTap: () async {
+                              Navigator.pop(bCtx);
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (dCtx) => AlertDialog(
+                                  title: const Text('게시글을 삭제할까요?'),
+                                  content: const Text(
+                                      '삭제된 게시글은 다시 복구할 수 없습니다.'),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dCtx, false),
+                                        child: const Text('취소')),
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dCtx, true),
+                                        child: const Text('삭제',
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight:
+                                                    FontWeight.bold))),
+                                  ],
+                                ),
+                              );
+                              if (confirm == true && mounted) {
+                                if (_canUseFirestore && postId != null) {
+                                  try {
+                                    await FirebaseFirestore.instance
+                                        .collection('community_posts')
+                                        .doc(postId)
+                                        .delete();
+                                  } catch (_) {}
+                                }
+                                Navigator.pop(
+                                    context, {'deleted': true, 'id': postId});
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('게시글이 삭제되었습니다.')),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                UgcActionSheets.showContentOptions(
+                  context: context,
+                  contentType: '게시글',
+                  contentId: (post['id'] ?? title).toString(),
+                  author: author,
+                  onContentHidden: () => Navigator.pop(context),
+                );
+              }
             },
           ),
         ],

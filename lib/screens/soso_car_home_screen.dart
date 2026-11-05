@@ -4825,8 +4825,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           context,
           MaterialPageRoute(
               builder: (_) => CommunityPostDetailScreen(post: post)),
-        ).then((_) {
-          if (mounted) setState(() {});
+        ).then((res) {
+          if (mounted) {
+            if (res is Map && res['deleted'] == true) {
+              setState(() {
+                _communityPosts.removeWhere((p) => (p['id'] ?? p['title']) == res['id']);
+              });
+            } else {
+              setState(() {});
+            }
+          }
         });
       },
       child: Container(

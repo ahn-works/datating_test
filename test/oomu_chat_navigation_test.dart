@@ -58,6 +58,11 @@ class FakeChatRepository implements ChatRepository {
   }
 
   @override
+  Future<void> deleteMessage(String r, String m) async {
+    writes++;
+  }
+
+  @override
   Future<void> leave(String r) async {
     writes++;
   }
@@ -286,5 +291,26 @@ void main() {
     expect(find.textContaining('모임 참여 승인이 완료'), findsNothing);
     expect(find.textContaining('내 글에 새로운 댓글'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+  testWidgets('long press on user sent message allows deleting it via repository',
+      (tester) async {
+    final repo = FakeChatRepository()
+      ..initial = [
+        {'id': 'msg_01', 'senderId': 'a', 'text': '내가 보낸 메시지'}
+      ];
+    await showRoom(tester, repo);
+    expect(find.text('내가 보낸 메시지'), findsOneWidget);
+    await tester.longPress(find.text('내가 보낸 메시지'));
+    await tester.pumpAndSettle();
+    expect(find.text('메시지 내용 복사'), findsOneWidget);
+    expect(find.text('메시지 삭제'), findsOneWidget);
+    await tester.tap(find.text('메시지 삭제'));
+    await tester.pumpAndSettle();
+    expect(find.text('메시지를 삭제할까요?'), findsOneWidget);
+    await tester.tap(find.text('삭제'));
+    await tester.pumpAndSettle();
+    expect(repo.writes, 1);
+    await tester.pumpWidget(const SizedBox());
+    await repo.close();
   });
 }

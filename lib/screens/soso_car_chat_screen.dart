@@ -1628,13 +1628,13 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        child: SafeArea(
+      builder: (ctx) => Material(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1657,6 +1657,51 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   );
                 },
               ),
+              if (isMe) ...[
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: const Text('메시지 삭제',
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('이 메시지를 대화방에서 완전히 삭제합니다',
+                      style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (dCtx) => AlertDialog(
+                        title: const Text('메시지를 삭제할까요?'),
+                        content: const Text('삭제된 메시지는 대화방 참여자 모두에게 더 이상 보이지 않아요.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dCtx, false),
+                            child: const Text('취소'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(dCtx, true),
+                            child: const Text('삭제',
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true && mounted) {
+                      final msgId = (msg['id'] ?? '').toString();
+                      if (msgId.isNotEmpty) {
+                        try {
+                          await _repo.deleteMessage(widget.chatRoomId, msgId);
+                        } catch (_) {}
+                      }
+                      if (mounted) setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('메시지가 삭제되었습니다.')),
+                      );
+                    }
+                  },
+                ),
+              ],
               if (!isMe) ...[
                 ListTile(
                   leading: const Icon(Icons.flag_outlined, color: Colors.red),
@@ -1696,6 +1741,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               ],
             ],
           ),
+        ),
         ),
       ),
     );

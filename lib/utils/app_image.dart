@@ -129,6 +129,17 @@ const Map<String, String> _bundledProfileMap = {
 };
 
 String? _resolveBundledProfileAsset(String rawName) {
-  final decoded = Uri.decodeComponent(rawName).trim();
-  return _bundledProfileMap[decoded] ?? _bundledProfileMap[rawName.trim()];
+  final trimmed = rawName.trim();
+  if (_bundledProfileMap.containsKey(trimmed)) {
+    return _bundledProfileMap[trimmed];
+  }
+  if (trimmed.contains('%')) {
+    try {
+      final decoded = Uri.decodeComponent(trimmed).trim();
+      if (_bundledProfileMap.containsKey(decoded)) {
+        return _bundledProfileMap[decoded];
+      }
+    } catch (_) {}
+  }
+  return null;
 }

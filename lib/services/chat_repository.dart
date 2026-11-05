@@ -67,6 +67,7 @@ abstract class ChatRepository {
   Stream<List<ChatData>> messages(String id);
   Future<void> send(String id, ChatData message);
   Future<void> updateMessage(String roomId, String messageId, ChatData changes);
+  Future<void> deleteMessage(String roomId, String messageId);
   Future<void> leave(String roomId);
 }
 
@@ -197,5 +198,20 @@ class FirestoreChatRepository implements ChatRepository {
           },
           SetOptions(merge: true));
     });
+  }
+
+  @override
+  Future<void> deleteMessage(String roomId, String messageId) async {
+    final uid = _requireUid();
+    final db = FirebaseFirestore.instance;
+    final msgRef = db.collection('chatRooms').doc(roomId).collection('messages').doc(messageId);
+    final snap = await msgRef.get();
+    if (snap.exists) {
+      final senderId = snap.data()?['senderId'];
+      if (senderId != null && senderId != uid) {
+        throw StateError('내가 작성한 메시지만 삭제할 수 있어요.');
+      }
+      await msgRef.delete();
+    }
   }
 }
