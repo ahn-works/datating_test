@@ -31,11 +31,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
   double _currentLat = 37.5568;
   double _currentLng = 126.9238;
   String _currentSpotName = '마포구 서교동 (홍대입구역)';
-  
+
   String _selectedRadius = '1km';
   String _selectedCategory = '전체';
   final TextEditingController _searchController = TextEditingController();
-  
+
   bool _isLoading = false;
   Map<String, dynamic>? _selectedMeetup;
 
@@ -72,7 +72,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'category': '⚡ 오늘 번개',
       'members': '2/4',
       'host': '달콤한와플',
-      'hostAvatar': 'assets/images/kr_female_2.jpg',
+      'hostAvatar': 'assets/images/시연.png',
       'manner': 42.1,
       'imageUrl': 'assets/images/cover_cafe.jpg',
       'isLightning': true,
@@ -89,7 +89,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'category': '⚡ 오늘 번개',
       'members': '3/4',
       'host': '연트럴피플',
-      'hostAvatar': 'assets/images/kr_male_2.jpg',
+      'hostAvatar': 'assets/images/정재.png',
       'manner': 39.4,
       'imageUrl': 'assets/images/cover_wine.jpg',
       'isLightning': true,
@@ -106,7 +106,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'category': '☕ 카페/디저트',
       'members': '2/3',
       'host': '성수동힙스터',
-      'hostAvatar': 'assets/images/kr_female_3.jpg',
+      'hostAvatar': 'assets/images/지연.png',
       'manner': 43.0,
       'imageUrl': 'assets/images/cover_cafe.jpg',
       'isLightning': false,
@@ -123,7 +123,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'category': '🏃 러닝/산책',
       'members': '3/5',
       'host': '망원러너',
-      'hostAvatar': 'assets/images/kr_male_1.jpg',
+      'hostAvatar': 'assets/images/지훈.png',
       'manner': 41.5,
       'imageUrl': 'assets/images/cover_running.jpg',
       'isLightning': true,
@@ -140,7 +140,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'category': '🍷 와인/펍',
       'members': '2/4',
       'host': '을지로감성',
-      'hostAvatar': 'assets/images/kr_female_1.jpg',
+      'hostAvatar': 'assets/images/민지.png',
       'manner': 44.2,
       'imageUrl': 'assets/images/cover_wine.jpg',
       'isLightning': false,
@@ -157,7 +157,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'category': '🍽️ 맛집 탐방',
       'members': '3/4',
       'host': '브런치러버',
-      'hostAvatar': 'assets/images/kr_female_2.jpg',
+      'hostAvatar': 'assets/images/시연.png',
       'manner': 40.8,
       'imageUrl': 'assets/images/cover_food.jpg',
       'isLightning': false,
@@ -200,7 +200,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     if (query.trim().isEmpty) return;
     setState(() => _isLoading = true);
     try {
-      final results = await KakaoMapService.searchKeyword(query.trim(), size: 1);
+      final results =
+          await KakaoMapService.searchKeyword(query.trim(), size: 1);
       if (results.isNotEmpty) {
         final first = results.first;
         await _moveToLocation(first.lat, first.lng, first.name);
@@ -236,7 +237,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
     try {
-      final text = await KakaoMapService.getDistanceTextFromCurrent(_currentLat, _currentLng);
+      final text = await KakaoMapService.getDistanceTextFromCurrent(
+          _currentLat, _currentLng);
       // 서울 홍대 기준 안심 위치 반영
       await _moveToLocation(37.5568, 126.9238, '내 GPS 현재 위치 (마포구 서교동)');
       if (mounted) {
@@ -254,7 +256,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
   }
 
   // 현재 필터에 따른 모임 목록 필터링
-  List<Map<String, dynamic>> _getFilteredMeetups(List<Map<String, dynamic>> rawList) {
+  List<Map<String, dynamic>> _getFilteredMeetups(
+      List<Map<String, dynamic>> rawList) {
     return rawList.where((m) {
       // 카테고리 필터
       if (_selectedCategory != '전체') {
@@ -262,7 +265,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         if (_selectedCategory == '⚡ 오늘 번개') {
           if (m['isLightning'] != true && !cat.contains('번개')) return false;
         } else {
-          final cleanCat = _selectedCategory.replaceAll(RegExp(r'[^\uAC00-\uD7A3a-zA-Z]'), '').trim();
+          final cleanCat = _selectedCategory
+              .replaceAll(RegExp(r'[^\uAC00-\uD7A3a-zA-Z]'), '')
+              .trim();
           if (!cat.contains(cleanCat)) return false;
         }
       }
@@ -295,13 +300,12 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         titleSpacing: 0,
-        title: Text(
+        title: const Text(
           '동네 지도 탐색 (카카오맵)',
-          style: TextStyle(
+          style: const TextStyle(
             color: textPrimary,
             fontWeight: FontWeight.w800,
             fontSize: 17,
-            
           ),
         ),
         actions: [
@@ -312,7 +316,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           ),
           IconButton(
             tooltip: '새 모임 개설',
-            icon: const Icon(Icons.add_circle_outline_rounded, color: coralAccent),
+            icon: const Icon(Icons.add_circle_outline_rounded,
+                color: coralAccent),
             onPressed: () {
               Navigator.push(
                 context,
@@ -340,7 +345,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
             child: KakaoMapView(
               lat: _currentLat,
               lng: _currentLng,
-              locationName: _currentSpotName, hideActions: true,
+              locationName: _currentSpotName,
+              hideActions: true,
             ),
           ),
 
@@ -355,11 +361,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                 // 검색 입력창
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.96),
+                    color: Colors.white.withValues(alpha: 0.96),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -370,15 +376,20 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.only(left: 14, right: 8),
-                        child: Icon(Icons.search_rounded, color: coralAccent, size: 22),
+                        child: Icon(Icons.search_rounded,
+                            color: coralAccent, size: 22),
                       ),
                       Expanded(
                         child: TextField(
                           controller: _searchController,
-                          style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: textPrimary),
+                          style: const TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                              color: textPrimary),
                           decoration: const InputDecoration(
                             hintText: '동네, 지하철역, 취향 키워드 검색 (예: 성수, 와인)',
-                            hintStyle: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                            hintStyle: TextStyle(
+                                fontSize: 13, color: Color(0xFF94A3B8)),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(vertical: 14),
                           ),
@@ -388,7 +399,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       ),
                       if (_searchController.text.isNotEmpty)
                         IconButton(
-                          icon: const Icon(Icons.clear, size: 18, color: Color(0xFF94A3B8)),
+                          icon: const Icon(Icons.clear,
+                              size: 18, color: Color(0xFF94A3B8)),
                           onPressed: () {
                             setState(() => _searchController.clear());
                           },
@@ -396,7 +408,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       Container(
                         margin: const EdgeInsets.only(right: 8),
                         child: IconButton(
-                          icon: const Icon(Icons.tune_rounded, size: 20, color: textSecondary),
+                          icon: const Icon(Icons.tune_rounded,
+                              size: 20, color: textSecondary),
                           onPressed: () => _showFilterModal(context),
                         ),
                       ),
@@ -413,7 +426,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     itemCount: _hotspots.length,
                     itemBuilder: (context, index) {
                       final spot = _hotspots[index];
-                      final isSelected = _currentSpotName.contains(spot['name'] as String);
+                      final isSelected =
+                          _currentSpotName.contains(spot['name'] as String);
                       return GestureDetector(
                         onTap: () => _moveToLocation(
                           (spot['lat'] as num).toDouble(),
@@ -422,19 +436,24 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         ),
                         child: Container(
                           margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: isSelected ? coralAccent : Colors.white.withOpacity(0.95),
+                            color: isSelected
+                                ? coralAccent
+                                : Colors.white.withValues(alpha: 0.95),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
+                                color: Colors.black.withValues(alpha: 0.06),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
                             ],
                             border: Border.all(
-                              color: isSelected ? coralAccent : const Color(0xFFE2E8F0),
+                              color: isSelected
+                                  ? coralAccent
+                                  : const Color(0xFFE2E8F0),
                             ),
                           ),
                           child: Row(
@@ -449,8 +468,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               Text(
                                 spot['name'] as String,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : textPrimary,
-                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                  color:
+                                      isSelected ? Colors.white : textPrimary,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
                                   fontSize: 12,
                                 ),
                               ),
@@ -479,19 +501,28 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         },
                         child: Container(
                           margin: const EdgeInsets.only(right: 6),
-                          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 11, vertical: 5),
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF0F172A) : Colors.white.withOpacity(0.92),
+                            color: isSelected
+                                ? const Color(0xFF0F172A)
+                                : Colors.white.withValues(alpha: 0.92),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                              color: isSelected
+                                  ? const Color(0xFF0F172A)
+                                  : const Color(0xFFE2E8F0),
                             ),
                           ),
                           child: Text(
                             cat,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : const Color(0xFF475569),
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF475569),
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w600,
                               fontSize: 11.5,
                             ),
                           ),
@@ -512,9 +543,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.75),
+                    color: Colors.black.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Row(
@@ -523,10 +555,15 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
                       ),
                       SizedBox(width: 8),
-                      Text('카카오 지도 동기화 중...', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text('카카오 지도 동기화 중...',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -544,10 +581,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               return Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(28)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 24,
                       offset: const Offset(0, -6),
                     ),
@@ -564,14 +602,17 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
 
                     if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                       meetups = snapshot.data!.docs.map((doc) {
-                        final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+                        final data = Map<String, dynamic>.from(
+                            doc.data() as Map<String, dynamic>);
                         data['id'] = doc.id;
                         return data;
                       }).toList();
                     }
 
                     // 기본 프리셋과 병합하여 풍성한 탐색 피드 제공
-                    final Set<String> existingTitles = meetups.map((m) => (m['title'] ?? '').toString()).toSet();
+                    final Set<String> existingTitles = meetups
+                        .map((m) => (m['title'] ?? '').toString())
+                        .toSet();
                     for (var preset in _presetMeetups) {
                       if (!existingTitles.contains(preset['title'])) {
                         meetups.add(preset);
@@ -599,13 +640,16 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               ),
                               const SizedBox(height: 12),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.explore_rounded, color: coralAccent, size: 20),
+                                        const Icon(Icons.explore_rounded,
+                                            color: coralAccent, size: 20),
                                         const SizedBox(width: 6),
                                         Text(
                                           '현재 반경 모임 (${filtered.length}개)',
@@ -613,13 +657,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.w800,
                                             color: textPrimary,
-                                            
                                           ),
                                         ),
                                       ],
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFFFF0EB),
                                         borderRadius: BorderRadius.circular(12),
@@ -637,7 +681,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                              const Divider(
+                                  height: 1, color: Color(0xFFF1F5F9)),
                             ],
                           ),
                         ),
@@ -646,7 +691,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         if (filtered.isEmpty)
                           SliverToBoxAdapter(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 40),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -656,10 +702,12 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFF8FAFC),
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                                      border: Border.all(
+                                          color: const Color(0xFFE2E8F0)),
                                     ),
                                     alignment: Alignment.center,
-                                    child: const Icon(Icons.explore_off_rounded, size: 36, color: Color(0xFF94A3B8)),
+                                    child: const Icon(Icons.explore_off_rounded,
+                                        size: 36, color: Color(0xFF94A3B8)),
                                   ),
                                   const SizedBox(height: 16),
                                   const Text(
@@ -668,14 +716,16 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                       color: textPrimary,
-                                      
                                     ),
                                   ),
                                   const SizedBox(height: 6),
                                   const Text(
                                     '반경을 넓히거나 다른 카테고리를 선택해 보세요.\n이 동네의 첫 번째 호스트가 되어볼 수도 있어요!',
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 13, color: textSecondary, height: 1.4),
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: textSecondary,
+                                        height: 1.4),
                                   ),
                                   const SizedBox(height: 20),
                                   ElevatedButton.icon(
@@ -692,12 +742,17 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                       );
                                     },
                                     icon: const Icon(Icons.add, size: 18),
-                                    label: const Text('이 동네 첫 모임 열기', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    label: const Text('이 동네 첫 모임 열기',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: coralAccent,
                                       foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(14)),
                                       elevation: 0,
                                     ),
                                   ),
@@ -708,7 +763,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         else
                           // 100점 풀-피니시 모임 카드 리스트
                           SliverPadding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
@@ -740,8 +796,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
 
     void openDetail() {
       HapticFeedback.lightImpact();
-      final double? lat = (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
-      final double? lng = (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
+      final double? lat =
+          (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
+      final double? lng =
+          (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
       if (lat != null && lng != null) {
         setState(() {
           _currentLat = lat;
@@ -766,12 +824,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFE2E8F0),
+            color:
+                isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFE2E8F0),
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
@@ -794,7 +853,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           width: 88,
                           height: 88,
                           child: appNetImage(
-                            (m['imageUrl'] ?? m['image'] ?? 'assets/images/cover_cafe.jpg').toString(),
+                            (m['imageUrl'] ??
+                                    m['image'] ??
+                                    'assets/images/cover_cafe.jpg')
+                                .toString(),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -804,14 +866,18 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           top: 6,
                           left: 6,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2.5),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFF5E36),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
                               '⚡번개',
-                              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900),
                             ),
                           ),
                         ),
@@ -828,27 +894,39 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2.5),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                (m['category'] ?? m['mainCategory'] ?? '일상 & 소통').toString(),
-                                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
+                                (m['category'] ??
+                                        m['mainCategory'] ??
+                                        '일상 & 소통')
+                                    .toString(),
+                                style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF475569)),
                               ),
                             ),
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2.5),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFECFDF5),
                                 borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: const Color(0xFFA7F3D0)),
+                                border:
+                                    Border.all(color: const Color(0xFFA7F3D0)),
                               ),
                               child: const Text(
                                 '1/N 안심 정산',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF047857)),
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF047857)),
                               ),
                             ),
                           ],
@@ -878,31 +956,44 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               children: [
                                 CircleAvatar(
                                   radius: 10,
-                                  backgroundImage: appImg((m['hostAvatar'] ?? 'assets/images/kr_female_1.jpg').toString()),
+                                  backgroundImage: appImg((m['hostAvatar'] ??
+                                          'assets/images/민지.png')
+                                      .toString()),
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
                                   '${m['host'] ?? '호스트'}',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textPrimary),
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: textPrimary),
                                 ),
                                 const SizedBox(width: 6),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFFFBEB),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFFFDE68A)),
+                                    border: Border.all(
+                                        color: const Color(0xFFFDE68A)),
                                   ),
                                   child: Text(
                                     '${m['manner'] ?? 41.2}°C 🔥',
-                                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFB45309)),
+                                    style: const TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFFB45309)),
                                   ),
                                 ),
                               ],
                             ),
                             Text(
                               '${m['members'] ?? '2/4'}명 참여',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -914,7 +1005,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               const SizedBox(height: 10),
               // 🌟 1티어 에디토리얼 위치 & 일정 하이라이트 박스
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(12),
@@ -925,26 +1017,34 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     // 1) 위치 정보 (눈에 띄는 15px 라운드 핀 아이콘 + 볼드 텍스트 + 거리 칩)
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded, size: 15, color: Color(0xFFFF5E36)),
+                        const Icon(Icons.location_on_rounded,
+                            size: 15, color: Color(0xFFFF5E36)),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             (m['location'] ?? '위치 미지정').toString(),
-                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                            style: const TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (m['distance'] != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFECE5),
                               borderRadius: BorderRadius.circular(5),
                             ),
                             child: Text(
                               m['distance'].toString(),
-                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFFF5E36)),
+                              style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFFF5E36)),
                             ),
                           ),
                       ],
@@ -957,18 +1057,25 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     Row(
                       children: [
                         Icon(
-                          isLightning ? Icons.bolt_rounded : Icons.calendar_month_rounded,
+                          isLightning
+                              ? Icons.bolt_rounded
+                              : Icons.calendar_month_rounded,
                           size: 14.5,
-                          color: isLightning ? const Color(0xFFFF5E36) : const Color(0xFF2563EB),
+                          color: isLightning
+                              ? const Color(0xFFFF5E36)
+                              : const Color(0xFF2563EB),
                         ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            (m['date'] ?? (isLightning ? '오늘 번개' : '이번 주말')).toString(),
+                            (m['date'] ?? (isLightning ? '오늘 번개' : '이번 주말'))
+                                .toString(),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: isLightning ? const Color(0xFFFF5E36) : const Color(0xFF334155),
+                              color: isLightning
+                                  ? const Color(0xFFFF5E36)
+                                  : const Color(0xFF334155),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -976,7 +1083,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         ),
                         const Text(
                           '카카오 지도 연결',
-                          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF059669)),
+                          style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF059669)),
                         ),
                       ],
                     ),
@@ -1013,7 +1123,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     children: [
                       const Text(
                         '탐색 반경 및 필터 설정',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A)),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close),
@@ -1022,7 +1135,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text('탐색 반경 기준', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+                  const Text('탐색 반경 기준',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF475569))),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -1051,10 +1168,15 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF5E36),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('필터 적용하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: const Text('필터 적용하기',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)),
                     ),
                   ),
                 ],

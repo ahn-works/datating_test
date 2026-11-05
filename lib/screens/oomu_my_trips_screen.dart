@@ -14,7 +14,8 @@ class OOMUMyTripsScreen extends StatefulWidget {
   State<OOMUMyTripsScreen> createState() => _OOMUMyTripsScreenState();
 }
 
-class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTickerProviderStateMixin {
+class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
+    with SingleTickerProviderStateMixin {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
   final Color surfaceColor = const Color(0xFFF5F5F7);
@@ -49,15 +50,19 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('내 모임', style: TextStyle(color: textPrimary, fontSize: 24, fontWeight: FontWeight.w800)),
+        title: Text('내 모임',
+            style: TextStyle(
+                color: textPrimary, fontSize: 24, fontWeight: FontWeight.w800)),
         bottom: TabBar(
           controller: _tabController,
           labelColor: textPrimary,
           unselectedLabelColor: textSecondary,
           indicatorColor: accentColor,
           indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          labelStyle:
+              const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+          unselectedLabelStyle:
+              const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           tabs: const [
             Tab(text: '참여 예정'),
             Tab(text: '내가 연 모임'),
@@ -76,31 +81,35 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
   }
 
   Widget _buildMyMeetupList({required bool isHosting}) {
-    final allMeetups = isHosting ? [
-      {
-        'id': 'room_mala_01',
-        'title': '주말 엽떡+마라탕 조지실 분',
-        'category': '술/맛집',
-        'location': '홍대입구역 9번 출구',
-        'date': '이번주 토요일 18:00',
-        'status': '모집 중',
-        'members': '2/4',
-        'imageUrl': 'assets/images/cover_food.jpg'
-      }
-    ] : [
-      {
-        'id': 'room_cafe_02',
-        'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
-        'category': '카페/수다',
-        'location': '성동구 성수동 카페거리',
-        'date': '내일 14:00',
-        'status': '참여 확정',
-        'members': '3/4',
-        'imageUrl': 'assets/images/cover_cafe.jpg'
-      }
-    ];
+    final allMeetups = isHosting
+        ? [
+            {
+              'id': 'room_mala_01',
+              'title': '주말 엽떡+마라탕 조지실 분',
+              'category': '술/맛집',
+              'location': '홍대입구역 9번 출구',
+              'date': '이번주 토요일 18:00',
+              'status': '모집 중',
+              'members': '2/4',
+              'imageUrl': 'assets/images/cover_food.jpg'
+            }
+          ]
+        : [
+            {
+              'id': 'room_cafe_02',
+              'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
+              'category': '카페/수다',
+              'location': '성동구 성수동 카페거리',
+              'date': '내일 14:00',
+              'status': '참여 확정',
+              'members': '3/4',
+              'imageUrl': 'assets/images/cover_cafe.jpg'
+            }
+          ];
 
-    final meetups = allMeetups.where((m) => !oomuChatStore.isRoomLeft(m['id'] ?? '')).toList();
+    final meetups = allMeetups
+        .where((m) => !oomuChatStore.isRoomLeft(m['id'] ?? ''))
+        .toList();
 
     if (meetups.isEmpty) {
       return Center(
@@ -109,11 +118,15 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.event_available_outlined, size: 56, color: textSecondary.withOpacity(0.4)),
+              Icon(Icons.event_available_outlined,
+                  size: 56, color: textSecondary.withValues(alpha: 0.4)),
               const SizedBox(height: 16),
               Text(
                 isHosting ? '개설한 모임이 없습니다.' : '참여 중인 모임이 없습니다.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
@@ -124,15 +137,24 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 0)));
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const OOMUHomeScreen(initialTab: 0)));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF25767),
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('모임 둘러보기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                child: const Text('모임 둘러보기',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13)),
               ),
             ],
           ),
@@ -145,90 +167,139 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
       itemCount: meetups.length,
       itemBuilder: (context, index) {
         final meetup = meetups[index];
-        return GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: meetup))), child: Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFEBEBEF)),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, offset: const Offset(0, 10))],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  image: DecorationImage(image: appImg(meetup['imageUrl']), fit: BoxFit.cover),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                    gradient: LinearGradient(colors: [Colors.black.withOpacity(0.5), Colors.transparent], begin: Alignment.topCenter, end: Alignment.center),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(8)),
-                        child: Text(meetup['category']!, style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 12)),
-                      ),
-                    ],
-                  ),
-                ),
+        return GestureDetector(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => OOMUDetailScreen(meetup: meetup))),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFEBEBEF)),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10))
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(24)),
+                      image: DecorationImage(
+                          image: appImg(meetup['imageUrl']), fit: BoxFit.cover),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(24)),
+                        gradient: LinearGradient(colors: [
+                          Colors.black.withValues(alpha: 0.5),
+                          Colors.transparent
+                        ], begin: Alignment.topCenter, end: Alignment.center),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.95),
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Text(meetup['category']!,
+                                style: TextStyle(
+                                    color: textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(meetup['title']!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary), maxLines: 2, overflow: TextOverflow.ellipsis),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(left: 12),
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(color: isHosting ? surfaceColor : const Color(0xFFE5F0FF), borderRadius: BorderRadius.circular(8)),
-                          child: Text(meetup['status']!, style: TextStyle(fontSize: 12, color: isHosting ? textPrimary : accentColor, fontWeight: FontWeight.bold)),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on_outlined, size: 16, color: textSecondary),
-                        const SizedBox(width: 4),
-                        Text(meetup['location']!, style: TextStyle(fontSize: 13, color: textSecondary)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.access_time, size: 16, color: textSecondary),
-                            const SizedBox(width: 4),
-                            Text(meetup['date']!, style: TextStyle(fontSize: 13, color: textSecondary)),
+                            Expanded(
+                              child: Text(meetup['title']!,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: textPrimary),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                  color: isHosting
+                                      ? surfaceColor
+                                      : const Color(0xFFE5F0FF),
+                                  borderRadius: BorderRadius.circular(8)),
+                              child: Text(meetup['status']!,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color:
+                                          isHosting ? textPrimary : accentColor,
+                                      fontWeight: FontWeight.bold)),
+                            )
                           ],
                         ),
-                        Text('${meetup['members']!} 참여중', style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_outlined,
+                                size: 16, color: textSecondary),
+                            const SizedBox(width: 4),
+                            Text(meetup['location']!,
+                                style: TextStyle(
+                                    fontSize: 13, color: textSecondary)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.access_time,
+                                    size: 16, color: textSecondary),
+                                const SizedBox(width: 4),
+                                Text(meetup['date']!,
+                                    style: TextStyle(
+                                        fontSize: 13, color: textSecondary)),
+                              ],
+                            ),
+                            Text('${meetup['members']!} 참여중',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: textSecondary,
+                                    fontWeight: FontWeight.bold)),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ));
+            ));
       },
     );
   }
@@ -241,17 +312,24 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen> with SingleTicker
       selectedItemColor: coralAccent,
       unselectedItemColor: const Color(0xFF767676),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+      selectedLabelStyle:
+          const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+      unselectedLabelStyle:
+          const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
         if (index <= 2) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUHomeScreen(initialTab: index)));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => OOMUHomeScreen(initialTab: index)));
         } else if (index == 3) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => const ChatScreen()));
         } else if (index == 4) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
         }
       },
       items: const [

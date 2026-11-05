@@ -71,7 +71,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                  icon:
+                      const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
                   onPressed: () => Navigator.pop(context),
                 )
               ],
@@ -133,7 +134,7 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
         border: Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 4),
           )
@@ -166,19 +167,22 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Icon(Icons.verified_rounded, color: Color(0xFF0064FF), size: 16),
+                        const Icon(Icons.verified_rounded,
+                            color: Color(0xFF0064FF), size: 16),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       info,
-                      style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                      style: const TextStyle(
+                          color: Color(0xFF64748B), fontSize: 13),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF4EB),
                   borderRadius: BorderRadius.circular(10),
@@ -186,7 +190,11 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('매너온도', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w600)),
+                    const Text('매너온도',
+                        style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600)),
                     Text(
                       '$mannerTemp°C',
                       style: const TextStyle(
@@ -201,57 +209,76 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          const Text('이전 모임 매너 후기', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1E293B))),
+          const Text('이전 모임 매너 후기',
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: Color(0xFF1E293B))),
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: reviews.map((r) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                r,
-                style: const TextStyle(
-                  color: Color(0xFF334155),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )).toList(),
+            children: reviews
+                .map((r) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        r,
+                        style: const TextStyle(
+                          color: Color(0xFF334155),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ))
+                .toList(),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(color: Color(0xFFF1F5F9), height: 1),
           ),
-          const Text('취향 & 스타일', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1E293B))),
+          const Text('취향 & 스타일',
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: Color(0xFF1E293B))),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.smoke_free_rounded, size: 15, color: Color(0xFF64748B)),
+              const Icon(Icons.smoke_free_rounded,
+                  size: 15, color: Color(0xFF64748B)),
               const SizedBox(width: 8),
-              Text(smoke, style: const TextStyle(fontSize: 13, color: Color(0xFF334155))),
+              Text(smoke,
+                  style:
+                      const TextStyle(fontSize: 13, color: Color(0xFF334155))),
             ],
           ),
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(Icons.forum_outlined, size: 15, color: Color(0xFF64748B)),
+              const Icon(Icons.forum_outlined,
+                  size: 15, color: Color(0xFF64748B)),
               const SizedBox(width: 8),
-              Text(talk, style: const TextStyle(fontSize: 13, color: Color(0xFF334155))),
+              Text(talk,
+                  style:
+                      const TextStyle(fontSize: 13, color: Color(0xFF334155))),
             ],
           ),
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(Icons.music_note_rounded, size: 15, color: Color(0xFF64748B)),
+              const Icon(Icons.music_note_rounded,
+                  size: 15, color: Color(0xFF64748B)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   '선곡 스타일: $music',
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF334155)),
+                  style:
+                      const TextStyle(fontSize: 13, color: Color(0xFF334155)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -277,9 +304,11 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                     foregroundColor: const Color(0xFF64748B),
                     side: const BorderSide(color: Color(0xFFCBD5E1)),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('거절하기', style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: const Text('거절하기',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -300,9 +329,11 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('수락하기', style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: const Text('수락하기',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
@@ -342,35 +373,48 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
               children: [
                 Icon(Icons.shield_outlined, color: Color(0xFFFF6B4A), size: 22),
                 SizedBox(width: 8),
-                Text('안심 클린 가이드 & 신고', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                Text('안심 클린 가이드 & 신고',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
               ],
             ),
             const SizedBox(height: 12),
             const Text(
               'OOMU는 건전하고 안전한 30대 동네 모임을 지향합니다.\n부적절한 언행, 영리 목적, 노쇼 등의 행위는 즉시 영구 이용 제한 조치됩니다.',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.5),
+              style: TextStyle(
+                  fontSize: 14, color: Color(0xFF64748B), height: 1.5),
             ),
             const SizedBox(height: 20),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.block_flipped, color: Color(0xFFE11D48)),
-              title: const Text('이 모임 및 호스트 차단하기', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFE11D48))),
-              subtitle: const Text('피드 및 모임 탐색에서 더 이상 노출되지 않습니다.', style: TextStyle(fontSize: 12)),
+              leading:
+                  const Icon(Icons.block_flipped, color: Color(0xFFE11D48)),
+              title: const Text('이 모임 및 호스트 차단하기',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700, color: Color(0xFFE11D48))),
+              subtitle: const Text('피드 및 모임 탐색에서 더 이상 노출되지 않습니다.',
+                  style: TextStyle(fontSize: 12)),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('해당 모임과 호스트가 차단되었습니다.'), behavior: SnackBarBehavior.floating),
+                  const SnackBar(
+                      content: Text('해당 모임과 호스트가 차단되었습니다.'),
+                      behavior: SnackBarBehavior.floating),
                 );
               },
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.report_problem_outlined, color: Color(0xFF64748B)),
-              title: const Text('비매너/허위 정보 신고하기', style: TextStyle(fontWeight: FontWeight.w700)),
+              leading: const Icon(Icons.report_problem_outlined,
+                  color: Color(0xFF64748B)),
+              title: const Text('비매너/허위 정보 신고하기',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('신고가 접수되었습니다. 운영팀이 24시간 내 조치합니다.'), behavior: SnackBarBehavior.floating),
+                  const SnackBar(
+                      content: Text('신고가 접수되었습니다. 운영팀이 24시간 내 조치합니다.'),
+                      behavior: SnackBarBehavior.floating),
                 );
               },
             ),
@@ -383,13 +427,15 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.partyData?['title'] ?? '이번 주말 양양 드라이브 서핑 🚙 (제 차로 편하게 가요!)';
+    final title =
+        widget.partyData?['title'] ?? '이번 주말 양양 드라이브 서핑 🚙 (제 차로 편하게 가요!)';
     final category = widget.partyData?['category'] ?? '⚡ 오늘 번개';
     final location = widget.partyData?['loc'] ?? '강원 양양군 / 잠실역 4번 출구 집결';
     final date = widget.partyData?['date'] ?? '9월 19일 (토) 오전 8:00 출발';
     final hostName = widget.partyData?['author'] ?? '스윗드라이버';
     final hostInfo = widget.partyData?['authorInfo'] ?? '30대 · 남성 · 베스트 드라이버';
-    final imageUrl = widget.partyData?['img'] ?? 'https://picsum.photos/600/400?random=11';
+    final imageUrl =
+        widget.partyData?['img'] ?? 'https://picsum.photos/600/400?random=11';
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAF6F7), // OOMU 오트밀 로즈 크림 베이스
@@ -406,10 +452,11 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
               icon: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.35),
+                  color: Colors.black.withValues(alpha: 0.35),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                child: const Icon(Icons.arrow_back_rounded,
+                    color: Colors.white, size: 20),
               ),
               onPressed: () => Navigator.pop(context),
             ),
@@ -418,10 +465,11 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                 icon: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.35),
+                    color: Colors.black.withValues(alpha: 0.35),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.shield_outlined, color: Colors.white, size: 20),
+                  child: const Icon(Icons.shield_outlined,
+                      color: Colors.white, size: 20),
                 ),
                 onPressed: () => _showSafetyReportSheet(context),
               ),
@@ -429,15 +477,18 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                 icon: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.35),
+                    color: Colors.black.withValues(alpha: 0.35),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.share_rounded, color: Colors.white, size: 20),
+                  child: const Icon(Icons.share_rounded,
+                      color: Colors.white, size: 20),
                 ),
                 onPressed: () {
                   HapticFeedback.lightImpact();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('모임 공유 링크가 클립보드에 복사되었습니다.'), behavior: SnackBarBehavior.floating),
+                    const SnackBar(
+                        content: Text('모임 공유 링크가 클립보드에 복사되었습니다.'),
+                        behavior: SnackBarBehavior.floating),
                   );
                 },
               ),
@@ -453,7 +504,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                     errorBuilder: (_, __, ___) => Container(
                       color: const Color(0xFFE2E8F0),
                       child: const Center(
-                        child: Icon(Icons.image_not_supported_rounded, color: Color(0xFF94A3B8), size: 40),
+                        child: Icon(Icons.image_not_supported_rounded,
+                            color: Color(0xFF94A3B8), size: 40),
                       ),
                     ),
                   ),
@@ -463,9 +515,9 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.4),
+                          Colors.black.withValues(alpha: 0.4),
                           Colors.transparent,
-                          Colors.black.withOpacity(0.6),
+                          Colors.black.withValues(alpha: 0.6),
                         ],
                         stops: const [0.0, 0.5, 1.0],
                       ),
@@ -479,7 +531,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFF6B4A),
                             borderRadius: BorderRadius.circular(20),
@@ -494,16 +547,22 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
+                            color: Colors.black.withValues(alpha: 0.55),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.lock_clock_rounded, color: Colors.white70, size: 13),
+                              Icon(Icons.lock_clock_rounded,
+                                  color: Colors.white70, size: 13),
                               SizedBox(width: 4),
-                              Text('여성 안심 승인제', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                              Text('여성 안심 승인제',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600)),
                             ],
                           ),
                         ),
@@ -527,7 +586,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF4EB),
                           borderRadius: BorderRadius.circular(8),
@@ -535,7 +595,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.local_fire_department_rounded, color: Color(0xFFFF6B4A), size: 14),
+                            Icon(Icons.local_fire_department_rounded,
+                                color: Color(0xFFFF6B4A), size: 14),
                             SizedBox(width: 4),
                             Text(
                               '실시간 신청 급증 모임',
@@ -550,7 +611,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                       ),
                       TextButton.icon(
                         onPressed: () => _showHostManagementModal(context),
-                        icon: const Icon(Icons.manage_accounts_rounded, size: 16, color: Color(0xFF0F172A)),
+                        icon: const Icon(Icons.manage_accounts_rounded,
+                            size: 16, color: Color(0xFF0F172A)),
                         label: const Text(
                           '호스트 전용 관리',
                           style: TextStyle(
@@ -561,8 +623,10 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                         ),
                         style: TextButton.styleFrom(
                           backgroundColor: const Color(0xFFF1F5F9),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ],
@@ -605,11 +669,13 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white, width: 2),
+                                        border: Border.all(
+                                            color: Colors.white, width: 2),
                                       ),
                                       child: const CircleAvatar(
                                         radius: 15,
-                                        backgroundImage: NetworkImage('https://picsum.photos/100?random=301'),
+                                        backgroundImage: NetworkImage(
+                                            'https://picsum.photos/100?random=301'),
                                       ),
                                     ),
                                   ),
@@ -618,11 +684,13 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white, width: 2),
+                                        border: Border.all(
+                                            color: Colors.white, width: 2),
                                       ),
                                       child: const CircleAvatar(
                                         radius: 15,
-                                        backgroundImage: NetworkImage('https://picsum.photos/100?random=302'),
+                                        backgroundImage: NetworkImage(
+                                            'https://picsum.photos/100?random=302'),
                                       ),
                                     ),
                                   ),
@@ -631,11 +699,13 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white, width: 2),
+                                        border: Border.all(
+                                            color: Colors.white, width: 2),
                                       ),
                                       child: const CircleAvatar(
                                         radius: 15,
-                                        backgroundImage: NetworkImage('https://picsum.photos/100?random=303'),
+                                        backgroundImage: NetworkImage(
+                                            'https://picsum.photos/100?random=303'),
                                       ),
                                     ),
                                   ),
@@ -668,7 +738,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE2E8F0),
                             borderRadius: BorderRadius.circular(12),
@@ -700,7 +771,10 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                       children: [
                         const Text(
                           '모임 안내 및 일정',
-                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF0F172A)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Color(0xFF0F172A)),
                         ),
                         const SizedBox(height: 14),
                         Row(
@@ -711,16 +785,24 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                                 color: const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.calendar_today_rounded, color: Color(0xFF475569), size: 18),
+                              child: const Icon(Icons.calendar_today_rounded,
+                                  color: Color(0xFF475569), size: 18),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('일정', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                                  const Text('일정',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF94A3B8))),
                                   const SizedBox(height: 2),
-                                  Text(date, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+                                  Text(date,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF1E293B))),
                                 ],
                               ),
                             ),
@@ -738,16 +820,24 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                                 color: const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.location_on_rounded, color: Color(0xFFFF6B4A), size: 18),
+                              child: const Icon(Icons.location_on_rounded,
+                                  color: Color(0xFFFF6B4A), size: 18),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('집결 및 목적지', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                                  const Text('집결 및 목적지',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF94A3B8))),
                                   const SizedBox(height: 2),
-                                  Text(location, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+                                  Text(location,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF1E293B))),
                                 ],
                               ),
                             ),
@@ -774,7 +864,10 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                           children: [
                             Text(
                               '정산 방식',
-                              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF0F172A)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 16,
+                                  color: Color(0xFF0F172A)),
                             ),
                             Text(
                               '1/N 안심 정산',
@@ -798,7 +891,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.verified_user_rounded, color: Color(0xFFFF6B4A), size: 16),
+                                  Icon(Icons.verified_user_rounded,
+                                      color: Color(0xFFFF6B4A), size: 16),
                                   SizedBox(width: 6),
                                   Text(
                                     '투명 1/N 에스크로 정산 시스템',
@@ -840,7 +934,10 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                       children: [
                         const Text(
                           '호스트 신뢰 정보',
-                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF0F172A)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Color(0xFF0F172A)),
                         ),
                         const SizedBox(height: 14),
                         Row(
@@ -848,7 +945,8 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                             const CircleAvatar(
                               radius: 26,
                               backgroundColor: Color(0xFFF1F5F9),
-                              backgroundImage: NetworkImage('https://picsum.photos/100?random=20'),
+                              backgroundImage: NetworkImage(
+                                  'https://picsum.photos/100?random=20'),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -859,29 +957,45 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                                     children: [
                                       Text(
                                         hostName,
-                                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF0F172A)),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 16,
+                                            color: Color(0xFF0F172A)),
                                       ),
                                       const SizedBox(width: 6),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFE8F5E9),
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
-                                        child: const Text('본인인증완료', style: TextStyle(color: Color(0xFF2E7D32), fontSize: 10, fontWeight: FontWeight.w700)),
+                                        child: const Text('본인인증완료',
+                                            style: TextStyle(
+                                                color: Color(0xFF2E7D32),
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700)),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(hostInfo, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                                  Text(hostInfo,
+                                      style: const TextStyle(
+                                          color: Color(0xFF64748B),
+                                          fontSize: 13)),
                                 ],
                               ),
                             ),
-                            Column(
+                            const Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const Text('매너온도', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w600)),
-                                const Text(
+                                Text('매너온도',
+                                    style: TextStyle(
+                                        color: Color(0xFF94A3B8),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600)),
+                                Text(
                                   '42.1°C',
                                   style: TextStyle(
                                     color: Color(0xFFFF6B4A),
@@ -912,7 +1026,10 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                       children: [
                         Text(
                           '모임 상세 소개',
-                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF0F172A)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Color(0xFF0F172A)),
                         ),
                         SizedBox(height: 12),
                         Text(
@@ -940,12 +1057,13 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 16,
               offset: const Offset(0, -4),
             )
           ],
-          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
+          border: const Border(
+              top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
         ),
         child: SafeArea(
           child: Row(
@@ -956,15 +1074,20 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                   setState(() => _isLiked = !_isLiked);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(_isLiked ? '관심 모임에 저장되었습니다.' : '관심 모임에서 제외되었습니다.'),
+                      content: Text(
+                          _isLiked ? '관심 모임에 저장되었습니다.' : '관심 모임에서 제외되었습니다.'),
                       behavior: SnackBarBehavior.floating,
                       duration: const Duration(seconds: 1),
                     ),
                   );
                 },
                 icon: Icon(
-                  _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: _isLiked ? const Color(0xFFFF3B30) : const Color(0xFF94A3B8),
+                  _isLiked
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: _isLiked
+                      ? const Color(0xFFFF3B30)
+                      : const Color(0xFF94A3B8),
                   size: 26,
                 ),
               ),
@@ -975,14 +1098,16 @@ class _PartyDetailScreenState extends State<PartyDetailScreen> {
                     HapticFeedback.mediumImpact();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const PartyApplicationScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const PartyApplicationScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF6B4A),
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 54),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
                   child: const Text(

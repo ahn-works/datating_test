@@ -27,7 +27,8 @@ class LocationHelper {
         debugPrint('[LocationHelper] Location services are disabled.');
       }
 
-      LocationPermission permission = await Geolocator.checkPermission().timeout(
+      LocationPermission permission =
+          await Geolocator.checkPermission().timeout(
         const Duration(milliseconds: 500),
         onTimeout: () => LocationPermission.denied,
       );
@@ -36,7 +37,8 @@ class LocationHelper {
           const Duration(milliseconds: 1500),
           onTimeout: () => LocationPermission.denied,
         );
-        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        if (permission == LocationPermission.denied ||
+            permission == LocationPermission.deniedForever) {
           debugPrint('[LocationHelper] Location permission denied.');
           return _cachedDongName ?? '마포구 서교동';
         }
@@ -52,17 +54,17 @@ class LocationHelper {
       } catch (_) {}
 
       // 2. 캐시 없으면 최대 1.8초 이내 빠른 측정 (low accuracy로 즉각 락온)
-      if (position == null) {
-        position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low,
-          timeLimit: const Duration(milliseconds: 1800),
-        );
-      }
+      position ??= await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+        timeLimit: const Duration(milliseconds: 1800),
+      );
 
-      debugPrint('[LocationHelper] Got coordinates: ${position.latitude}, ${position.longitude}');
+      debugPrint(
+          '[LocationHelper] Got coordinates: ${position.latitude}, ${position.longitude}');
 
       // 3. 역지오코딩 시도 (카카오 로컬 API coord2regioncode - 최대 1.5초 타임아웃)
-      final reverseName = await _reverseGeocode(position.latitude, position.longitude);
+      final reverseName =
+          await _reverseGeocode(position.latitude, position.longitude);
       if (reverseName != null && reverseName.trim().isNotEmpty) {
         _cachedDongName = reverseName;
         _cachedDongTime = DateTime.now();
@@ -70,7 +72,8 @@ class LocationHelper {
       }
 
       // 4. 오프라인 좌표 거리 매칭 (서울, 경기, 전남, 부산 등 정밀 매핑 - 0.01초 즉시 계산)
-      final matched = _matchNearestKoreanDong(position.latitude, position.longitude);
+      final matched =
+          _matchNearestKoreanDong(position.latitude, position.longitude);
       _cachedDongName = matched;
       _cachedDongTime = DateTime.now();
       return matched;

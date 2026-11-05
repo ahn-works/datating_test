@@ -32,25 +32,37 @@ class OOMUChatStore extends ChangeNotifier {
     _subscription?.cancel();
     _leftRoomIds.clear();
     if (uid.isEmpty || uid == 'guest' || Firebase.apps.isEmpty) return;
-    _subscription = FirebaseFirestore.instance.collection('user_states').doc(uid)
-        .snapshots().listen((snap) {
+    _subscription = FirebaseFirestore.instance
+        .collection('user_states')
+        .doc(uid)
+        .snapshots()
+        .listen((snap) {
       if (_uid != uid) return;
       _leftRoomIds
         ..clear()
         ..addAll((snap.data()?['leftRoomIds'] is List
-          ? snap.data()!['leftRoomIds'] as List : const []).whereType<String>());
+                ? snap.data()!['leftRoomIds'] as List
+                : const [])
+            .whereType<String>());
       notifyListeners();
     }, onError: (_) {});
   }
+
   String canonicalRoomId(String id) => id.trim();
-  bool isRoomLeft(String id) { syncWithCurrentUser(); return _leftRoomIds.contains(id); }
-  List<Map<String, dynamic>> getRoomMessages(String id, String title) => const [];
+  bool isRoomLeft(String id) {
+    syncWithCurrentUser();
+    return _leftRoomIds.contains(id);
+  }
+
+  List<Map<String, dynamic>> getRoomMessages(String id, String title) =>
+      const [];
   Future<void> leaveRoom(String id) async {
     await const FirestoreChatRepository().leave(id);
     _leftRoomIds.add(id);
     notifyListeners();
   }
 }
+
 final oomuChatStore = OOMUChatStore();
 
 class OOMUChatScreen extends StatefulWidget {
@@ -60,8 +72,8 @@ class OOMUChatScreen extends StatefulWidget {
   final ChatRepository? repository;
 
   const OOMUChatScreen({
-    super.key, 
-    required this.title, 
+    super.key,
+    required this.title,
     required this.memberCount,
     this.chatRoomId = '',
     this.repository,
@@ -76,10 +88,9 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   final Color textSecondary = OomuUiHelpers.textSecondary;
   final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
   final Color accentColor = OomuUiHelpers.brandCoral;
-  
+
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
 
   late final ChatRepository _repo;
   StreamSubscription<String?>? _session;
@@ -93,7 +104,6 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   String? _lastMessageId;
   ChatData? _roomData;
 
-
   @override
   void initState() {
     super.initState();
@@ -103,6 +113,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       if (mounted) setState(_bindRoom);
     });
   }
+
   void _bindRoom() {
     _generation++;
     _uid = _repo.currentUid;
@@ -116,6 +127,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     _roomStream = _uid == null || id.isEmpty ? null : _repo.room(id);
     _messageStream = _uid == null || id.isEmpty ? null : _repo.messages(id);
   }
+
   @override
   void dispose() {
     _session?.cancel();
@@ -123,13 +135,17 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     _scrollController.dispose();
     super.dispose();
   }
+
   void _showFailure(String text) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      behavior: SnackBarBehavior.floating,
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 92),
-      content: Text(text),
-    ));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 92),
+        content: Text(text),
+      ));
+    }
   }
+
   Future<bool> _addMessage(Map<String, dynamic> msgData) async {
     if (_sending) return false;
     if (!_canSend || _readFailed || _uid == null) {
@@ -141,30 +157,45 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     try {
       await _repo.send(widget.chatRoomId.trim(), {
         ...msgData,
-        'sender': globalData.userNickname.value.isEmpty ? '이웃' : globalData.userNickname.value,
+        'sender': globalData.userNickname.value.isEmpty
+            ? '이웃'
+            : globalData.userNickname.value,
         'senderAvatar': globalData.userAvatar.value,
       });
       if (!mounted || generation != _generation) return false;
       _scrollToBottom();
       return true;
     } catch (_) {
-      if (generation == _generation) _showFailure('메시지를 보내지 못했어요. 입력한 내용을 확인하고 다시 시도해 주세요.');
+      if (generation == _generation)
+        _showFailure('메시지를 보내지 못했어요. 입력한 내용을 확인하고 다시 시도해 주세요.');
       return false;
     } finally {
-      if (mounted && generation == _generation) setState(() => _sending = false);
+      if (mounted && generation == _generation)
+        setState(() => _sending = false);
     }
   }
-  Future<void> _updateMessageData(String messageId, Map<String, dynamic> delta) async {
-    try { await _repo.updateMessage(widget.chatRoomId, messageId, delta); }
-    catch (_) { _showFailure('변경을 저장하지 못했어요. 다시 시도해 주세요.'); }
+
+  Future<void> _updateMessageData(
+      String messageId, Map<String, dynamic> delta) async {
+    try {
+      await _repo.updateMessage(widget.chatRoomId, messageId, delta);
+    } catch (_) {
+      _showFailure('변경을 저장하지 못했어요. 다시 시도해 주세요.');
+    }
   }
+
   Future<void> _sendMessage({String? customText}) async {
     final original = _controller.text;
     final text = (customText ?? original).trim();
     if (text.isEmpty) return;
     if (await _addMessage({'type': 'text', 'text': text}) &&
-        mounted && customText == null && _controller.text == original) _controller.clear();
+        mounted &&
+        customText == null &&
+        _controller.text == original) {
+      _controller.clear();
+    }
   }
+
   void _scrollToBottom({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) return;
@@ -172,10 +203,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       } else {
         _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+            duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       }
     });
   }
+
   Future<void> _sendImageAction() async {
     Navigator.pop(context);
 
@@ -193,7 +225,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
         if (!R2StorageService.isImageFile(image.name)) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 전송할 수 있습니다.')),
+            const SnackBar(
+                content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 전송할 수 있습니다.')),
           );
           return;
         }
@@ -207,9 +240,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
         final bytes = await image.readAsBytes();
         final downloadUrl = await r2Storage.uploadImageBytes(
-          bytes: bytes, fileName: image.name, category: R2UploadCategory.chatPhoto);
+            bytes: bytes,
+            fileName: image.name,
+            category: R2UploadCategory.chatPhoto);
         if (downloadUrl.isEmpty || !mounted) return;
-        await _addMessage({'type': 'image', 'imageUrl': downloadUrl, 'title': '사진을 보냈어요'});
+        await _addMessage(
+            {'type': 'image', 'imageUrl': downloadUrl, 'title': '사진을 보냈어요'});
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('사진 업로드 실패: $e')),
@@ -220,7 +256,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -228,7 +265,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('사진 공유', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary)),
+              Text('사진 공유',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary)),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -241,14 +282,21 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF5F0),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.3)),
+                          border: Border.all(
+                              color: const Color(0xFFFF5E36)
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           children: [
-                            const Icon(Icons.photo_camera_rounded, color: Color(0xFFFF5E36), size: 24),
+                            const Icon(Icons.photo_camera_rounded,
+                                color: Color(0xFFFF5E36), size: 24),
                             const SizedBox(height: 6),
-                            const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            Text('카메라 촬영', style: TextStyle(fontSize: 11, color: textSecondary)),
+                            const Text('사진 찍기',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text('카메라 촬영',
+                                style: TextStyle(
+                                    fontSize: 11, color: textSecondary)),
                           ],
                         ),
                       ),
@@ -264,14 +312,21 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF7EE),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFFF38020).withOpacity(0.3)),
+                          border: Border.all(
+                              color: const Color(0xFFF38020)
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           children: [
-                            const Icon(Icons.photo_library_rounded, color: Color(0xFFF38020), size: 24),
+                            const Icon(Icons.photo_library_rounded,
+                                color: Color(0xFFF38020), size: 24),
                             const SizedBox(height: 6),
-                            const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            Text('갤러리/앨범', style: TextStyle(fontSize: 11, color: textSecondary)),
+                            const Text('사진 불러오기',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text('갤러리/앨범',
+                                style: TextStyle(
+                                    fontSize: 11, color: textSecondary)),
                           ],
                         ),
                       ),
@@ -293,11 +348,13 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('위치 권한이 거부되었습니다.')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('위치 권한이 거부되었습니다.')));
           return;
         }
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('현재 위치를 빠르게 가져오는 중입니다...')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('현재 위치를 빠르게 가져오는 중입니다...')));
       Position? position;
       try {
         position = await Geolocator.getLastKnownPosition().timeout(
@@ -309,9 +366,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         desiredAccuracy: LocationAccuracy.low,
         timeLimit: const Duration(milliseconds: 1800),
       );
-      final String kakaoMapUrl = 'https://map.kakao.com/link/map/내_현재_위치,${position.latitude},${position.longitude}';
-      
-      _addMessage({'type': 'location', 'latitude': position.latitude, 'longitude': position.longitude, 'mapUrl': kakaoMapUrl});
+      final String kakaoMapUrl =
+          'https://map.kakao.com/link/map/내_현재_위치,${position.latitude},${position.longitude}';
+
+      _addMessage({
+        'type': 'location',
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'mapUrl': kakaoMapUrl
+      });
     } catch (e) {
       _showFailure('현재 위치를 확인하지 못했어요. 위치는 전송하지 않았어요.');
     }
@@ -322,133 +385,161 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   // ===========================================================================
   void _showScheduleCreatorBottomSheet() {
     Navigator.pop(context);
-    
+
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
     String location = '';
     int maxMembers = 4;
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.calendar_month, color: Colors.blue),
-                          SizedBox(width: 8),
-                          Text('상세 일정 제안하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        ],
+            builder: (BuildContext context, StateSetter setState) {
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.calendar_month, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Text('상세 일정 제안하기',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Date Picker
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('날짜 선택',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(selectedDate != null
+                          ? '${selectedDate!.year}년 ${selectedDate!.month}월 ${selectedDate!.day}일'
+                          : '터치하여 날짜를 선택하세요'),
+                      trailing:
+                          const Icon(Icons.edit_calendar, color: Colors.blue),
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: ctx,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (date != null) setState(() => selectedDate = date);
+                      },
+                    ),
+                    const Divider(),
+
+                    // Time Picker
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('시간 선택',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(selectedTime != null
+                          ? selectedTime!.format(context)
+                          : '터치하여 시간을 선택하세요'),
+                      trailing:
+                          const Icon(Icons.access_time, color: Colors.blue),
+                      onTap: () async {
+                        final time = await showTimePicker(
+                          context: ctx,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (time != null) setState(() => selectedTime = time);
+                      },
+                    ),
+                    const Divider(),
+
+                    // Location
+                    TextField(
+                      onChanged: (val) => location = val,
+                      decoration: InputDecoration(
+                        labelText: '모임 장소 (예: 스타벅스 여수점)',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: const Color(0xFFF5F5F7),
                       ),
-                      const SizedBox(height: 24),
-                      
-                      // Date Picker
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('날짜 선택', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(selectedDate != null ? '${selectedDate!.year}년 ${selectedDate!.month}월 ${selectedDate!.day}일' : '터치하여 날짜를 선택하세요'),
-                        trailing: const Icon(Icons.edit_calendar, color: Colors.blue),
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: ctx,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 365)),
-                          );
-                          if (date != null) setState(() => selectedDate = date);
-                        },
-                      ),
-                      const Divider(),
-                      
-                      // Time Picker
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('시간 선택', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(selectedTime != null ? selectedTime!.format(context) : '터치하여 시간을 선택하세요'),
-                        trailing: const Icon(Icons.access_time, color: Colors.blue),
-                        onTap: () async {
-                          final time = await showTimePicker(
-                            context: ctx,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          if (time != null) setState(() => selectedTime = time);
-                        },
-                      ),
-                      const Divider(),
-                      
-                      // Location
-                      TextField(
-                        onChanged: (val) => location = val,
-                        decoration: InputDecoration(
-                          labelText: '모임 장소 (예: 스타벅스 여수점)',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          filled: true,
-                          fillColor: const Color(0xFFF5F5F7),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Max Members
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('모임 인원', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          DropdownButton<int>(
-                            value: maxMembers,
-                            items: [2,3,4,5,6,7,8].map((e) => DropdownMenuItem(value: e, child: Text('$e명'))).toList(),
-                            onChanged: (val) {
-                              if (val != null) setState(() => maxMembers = val);
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                          onPressed: () {
-                            if (selectedDate == null || selectedTime == null || location.trim().isEmpty) {
-                              ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('날짜, 시간, 장소를 모두 입력해주세요.')));
-                              return;
-                            }
-                            Navigator.pop(ctx);
-                            _addMessage({
-                              'type': 'schedule',
-                              'title': '새로운 일정이 제안되었습니다!',
-                              'date': '${selectedDate!.month}월 ${selectedDate!.day}일',
-                              'timeStr': selectedTime!.format(ctx),
-                              'location': location,
-                              'maxMembers': maxMembers,
-                            });
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Max Members
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('모임 인원',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        DropdownButton<int>(
+                          value: maxMembers,
+                          items: [2, 3, 4, 5, 6, 7, 8]
+                              .map((e) => DropdownMenuItem(
+                                  value: e, child: Text('$e명')))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) setState(() => maxMembers = val);
                           },
-                          child: const Text('일정 공유 및 투표 시작', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
-                      )
-                    ],
-                  ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12))),
+                        onPressed: () {
+                          if (selectedDate == null ||
+                              selectedTime == null ||
+                              location.trim().isEmpty) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                                const SnackBar(
+                                    content: Text('날짜, 시간, 장소를 모두 입력해주세요.')));
+                            return;
+                          }
+                          Navigator.pop(ctx);
+                          _addMessage({
+                            'type': 'schedule',
+                            'title': '새로운 일정이 제안되었습니다!',
+                            'date':
+                                '${selectedDate!.month}월 ${selectedDate!.day}일',
+                            'timeStr': selectedTime!.format(ctx),
+                            'location': location,
+                            'maxMembers': maxMembers,
+                          });
+                        },
+                        child: const Text('일정 공유 및 투표 시작',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    )
+                  ],
                 ),
               ),
-            );
-          }
-        );
+            ),
+          );
+        });
       },
     );
   }
@@ -470,35 +561,72 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Container(
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
           child: SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
-                  children: [Icon(Icons.how_to_vote, color: Colors.purple), SizedBox(width: 8), Text('투표 만들기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
+                  children: [
+                    Icon(Icons.how_to_vote, color: Colors.purple),
+                    SizedBox(width: 8),
+                    Text('투표 만들기',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold))
+                  ],
                 ),
                 const SizedBox(height: 24),
-                TextField(controller: titleCtrl, decoration: InputDecoration(labelText: '투표 주제', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                TextField(
+                    controller: titleCtrl,
+                    decoration: InputDecoration(
+                        labelText: '투표 주제',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)))),
                 const SizedBox(height: 16),
-                TextField(controller: opt1Ctrl, decoration: InputDecoration(labelText: '옵션 1', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                TextField(
+                    controller: opt1Ctrl,
+                    decoration: InputDecoration(
+                        labelText: '옵션 1',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)))),
                 const SizedBox(height: 12),
-                TextField(controller: opt2Ctrl, decoration: InputDecoration(labelText: '옵션 2', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                TextField(
+                    controller: opt2Ctrl,
+                    decoration: InputDecoration(
+                        labelText: '옵션 2',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)))),
                 const SizedBox(height: 24),
                 SizedBox(
-                  width: double.infinity, height: 50,
+                  width: double.infinity,
+                  height: 50,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12))),
                     onPressed: () {
-                      if (titleCtrl.text.isEmpty || opt1Ctrl.text.isEmpty || opt2Ctrl.text.isEmpty) {
-                         ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('모든 항목을 입력해주세요.')));
-                         return;
+                      if (titleCtrl.text.isEmpty ||
+                          opt1Ctrl.text.isEmpty ||
+                          opt2Ctrl.text.isEmpty) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(content: Text('모든 항목을 입력해주세요.')));
+                        return;
                       }
                       Navigator.pop(ctx);
-                      _addMessage({'type': 'poll', 'title': '📊 ${titleCtrl.text}', 'opt1': opt1Ctrl.text, 'opt2': opt2Ctrl.text});
+                      _addMessage({
+                        'type': 'poll',
+                        'title': '📊 ${titleCtrl.text}',
+                        'opt1': opt1Ctrl.text,
+                        'opt2': opt2Ctrl.text
+                      });
                     },
-                    child: const Text('투표 등록', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('투표 등록',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],
@@ -509,12 +637,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-
-
   // ===========================================================================
   // [동적 작동] 핫플 검색 폼 (BottomSheet)
   // ===========================================================================
-  
+
   void _showSafeReturnBottomSheet() {
     Navigator.pop(context);
     _addMessage({
@@ -526,7 +652,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
   void _showHotspotSearchBottomSheet() {
     Navigator.pop(context);
-    
+
     String searchQuery = '';
     String selectedCategory = '전체';
     List<Map<String, dynamic>> searchResults = [];
@@ -538,147 +664,193 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+            builder: (BuildContext context, StateSetter setState) {
+          Future<void> performSearch(String query) async {
+            if (query.trim().isEmpty) return;
+            setState(() {
+              isLoading = true;
+              searchResults = [];
+            });
 
-            Future<void> performSearch(String query) async {
-              if (query.trim().isEmpty) return;
-              setState(() {
-                isLoading = true;
-                searchResults = [];
-              });
-
-              try {
-                // 카카오 공식 장소 검색 (KakaoMapService)
-                final places = await KakaoMapService.searchKeyword(query, size: 10);
-                if (mounted) {
-                  setState(() {
-                    searchResults = places.map((item) {
-                      return {
-                        'name': item.name,
-                        'category': item.category.isNotEmpty ? item.category : (selectedCategory == '전체' ? '모임장소' : selectedCategory),
-                        'address': item.roadAddress.isNotEmpty ? item.roadAddress : item.address,
-                        'lat': item.lat,
-                        'lng': item.lng,
-                      };
-                    }).toList();
-                  });
-                }
-              } catch (e) {
-                print('Search error: $e');
-              } finally {
+            try {
+              // 카카오 공식 장소 검색 (KakaoMapService)
+              final places =
+                  await KakaoMapService.searchKeyword(query, size: 10);
+              if (mounted) {
                 setState(() {
-                  isLoading = false;
+                  searchResults = places.map((item) {
+                    return {
+                      'name': item.name,
+                      'category': item.category.isNotEmpty
+                          ? item.category
+                          : (selectedCategory == '전체'
+                              ? '모임장소'
+                              : selectedCategory),
+                      'address': item.roadAddress.isNotEmpty
+                          ? item.roadAddress
+                          : item.address,
+                      'lat': item.lat,
+                      'lng': item.lng,
+                    };
+                  }).toList();
                 });
               }
+            } catch (e) {
+              print('Search error: $e');
+            } finally {
+              setState(() {
+                isLoading = false;
+              });
             }
-
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-              child: Container(
-                height: MediaQuery.of(ctx).size.height * 0.7,
-                padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [Icon(Icons.travel_explore, color: Colors.brown), SizedBox(width: 8), Text('실시간 장소 검색 (전국)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      onSubmitted: (val) {
-                         searchQuery = val;
-                         performSearch(val);
-                      },
-                      decoration: InputDecoration(
-                        hintText: '장소 이름 또는 지역 검색 (예: 여수 카페)',
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.send, color: Colors.brown),
-                          onPressed: () => performSearch(searchQuery),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onChanged: (val) => searchQuery = val,
-                    ),
-                    const SizedBox(height: 16),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: ['전체', '관광지', '카페', '술집', '빵집'].map((category) {
-                          final isSelected = selectedCategory == category;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              label: Text(category),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                if(selected) setState(() => selectedCategory = category);
-                              },
-                              selectedColor: Colors.brown.withOpacity(0.2),
-                              labelStyle: TextStyle(color: isSelected ? Colors.brown : Colors.black87, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Divider(),
-                    Expanded(
-                      child: isLoading
-                        ? const Center(child: CircularProgressIndicator(color: Colors.brown))
-                        : searchResults.isEmpty 
-                          ? const Center(child: Text('장소 이름이나 지역을 검색해보세요.'))
-                          : ListView.builder(
-                              itemCount: searchResults.length,
-                              itemBuilder: (context, index) {
-                                final place = searchResults[index];
-                                return ListTile(
-                                  contentPadding: EdgeInsets.symmetric(vertical: 4),
-                                  leading: Container(
-                                    width: 40, height: 40,
-                                    decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                    child: const Icon(Icons.place, color: Colors.brown),
-                                  ),
-                                  title: Text(place['name'], style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                  subtitle: Text('${place['category']} • ${place['address']}', style: const TextStyle(fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
-                                  trailing: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.brown, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                                    onPressed: () {
-                                      Navigator.pop(ctx);
-                                      _addMessage({
-                                        'type': 'hotspot',
-                                        'title': '☕ 우리 동네 핫플 추천!',
-                                        'name': place['name'],
-                                        'category': place['category'],
-                                        'address': place['address'],
-                                        'lat': place['lat'],
-                                        'lng': place['lng'],
-                                      });
-                                    },
-                                    child: const Text('공유', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            );
           }
-        );
+
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              height: MediaQuery.of(ctx).size.height * 0.7,
+              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(24))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.travel_explore, color: Colors.brown),
+                      SizedBox(width: 8),
+                      Text('실시간 장소 검색 (전국)',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    onSubmitted: (val) {
+                      searchQuery = val;
+                      performSearch(val);
+                    },
+                    decoration: InputDecoration(
+                      hintText: '장소 이름 또는 지역 검색 (예: 여수 카페)',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.brown),
+                        onPressed: () => performSearch(searchQuery),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onChanged: (val) => searchQuery = val,
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: ['전체', '관광지', '카페', '술집', '빵집'].map((category) {
+                        final isSelected = selectedCategory == category;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(category),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              if (selected)
+                                setState(() => selectedCategory = category);
+                            },
+                            selectedColor: Colors.brown.withValues(alpha: 0.2),
+                            labelStyle: TextStyle(
+                                color:
+                                    isSelected ? Colors.brown : Colors.black87,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(),
+                  Expanded(
+                    child: isLoading
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.brown))
+                        : searchResults.isEmpty
+                            ? const Center(child: Text('장소 이름이나 지역을 검색해보세요.'))
+                            : ListView.builder(
+                                itemCount: searchResults.length,
+                                itemBuilder: (context, index) {
+                                  final place = searchResults[index];
+                                  return ListTile(
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    leading: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                          color: Colors.brown
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      child: const Icon(Icons.place,
+                                          color: Colors.brown),
+                                    ),
+                                    title: Text(place['name'],
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis),
+                                    subtitle: Text(
+                                        '${place['category']} • ${place['address']}',
+                                        style: const TextStyle(fontSize: 12),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis),
+                                    trailing: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.brown,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8))),
+                                      onPressed: () {
+                                        Navigator.pop(ctx);
+                                        _addMessage({
+                                          'type': 'hotspot',
+                                          'title': '☕ 우리 동네 핫플 추천!',
+                                          'name': place['name'],
+                                          'category': place['category'],
+                                          'address': place['address'],
+                                          'lat': place['lat'],
+                                          'lng': place['lng'],
+                                        });
+                                      },
+                                      child: const Text('공유',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12)),
+                                    ),
+                                  );
+                                },
+                              ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
       },
     );
   }
 
-    // ===========================================================================
+  // ===========================================================================
   // [동적 작동] 모임 후기 별점 폼
   // ===========================================================================
   void _showReviewBottomSheet() {
     Navigator.pop(context);
-    
+
     int selectedStars = 5;
     TextEditingController textCtrl = TextEditingController();
 
@@ -688,222 +860,338 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [Icon(Icons.rate_review, color: Colors.orange), SizedBox(width: 8), Text('모임 후기 남기기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('이번 모임은 어떠셨나요? 별점과 솔직한 후기를 남겨주세요.\n작성하신 별점은 상대방의 매너 온도에 즉시 반영됩니다.', style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4)),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(5, (index) {
-                          return GestureDetector(
-                            onTap: () => setState(() => selectedStars = index + 1),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: Icon(
-                                index < selectedStars ? Icons.star : Icons.star_border,
-                                color: Colors.orange,
-                                size: 44,
-                              ),
+            builder: (BuildContext context, StateSetter setState) {
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(24))),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.rate_review, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text('모임 후기 남기기',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                      '이번 모임은 어떠셨나요? 별점과 솔직한 후기를 남겨주세요.\n작성하신 별점은 상대방의 매너 온도에 즉시 반영됩니다.',
+                      style: TextStyle(
+                          color: Colors.grey, fontSize: 13, height: 1.4)),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return GestureDetector(
+                          onTap: () =>
+                              setState(() => selectedStars = index + 1),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(
+                              index < selectedStars
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.orange,
+                              size: 44,
                             ),
-                          );
-                        }),
-                      ),
+                          ),
+                        );
+                      }),
                     ),
-                    const SizedBox(height: 24),
-                    TextField(
-                      controller: textCtrl,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: '즐거운 모임이었나요? 후기를 자유롭게 적어주세요.',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: const Color(0xFFF5F5F7),
-                      ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: textCtrl,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: '즐거운 모임이었나요? 후기를 자유롭게 적어주세요.',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: const Color(0xFFF5F5F7),
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity, height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                        onPressed: () {
-                          if (textCtrl.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('후기 내용을 입력해주세요.')));
-                            return;
-                          }
-                          Navigator.pop(ctx);
-                          
-                          // 글로벌 상태 업데이트 (매너 온도 및 평점 즉시 반영!)
-                          globalData.submitReview(selectedStars.toDouble(), textCtrl.text);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('후기가 프로필에 반영되었습니다!')));
-                          
-                          _addMessage({
-                            'type': 'review',
-                            'rating': selectedStars,
-                            'text': textCtrl.text,
-                          });
-                        },
-                        child: const Text('후기 공유하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12))),
+                      onPressed: () {
+                        if (textCtrl.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(content: Text('후기 내용을 입력해주세요.')));
+                          return;
+                        }
+                        Navigator.pop(ctx);
+
+                        // 글로벌 상태 업데이트 (매너 온도 및 평점 즉시 반영!)
+                        globalData.submitReview(
+                            selectedStars.toDouble(), textCtrl.text);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('후기가 프로필에 반영되었습니다!')));
+
+                        _addMessage({
+                          'type': 'review',
+                          'rating': selectedStars,
+                          'text': textCtrl.text,
+                        });
+                      },
+                      child: const Text('후기 공유하기',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            );
-          }
-        );
+            ),
+          );
+        });
       },
     );
   }
 
   void _showAttachmentMenu() {
     if (!_canSend || _readFailed) return;
-    showModalBottomSheet(context: context, isScrollControlled: true,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
-      builder: (ctx) => SafeArea(child: SingleChildScrollView(
+      builder: (ctx) => SafeArea(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('대화에 추가하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 20),
-          Wrap(spacing: 20, runSpacing: 24, children: [
-            _buildAttachmentIcon(Icons.image_outlined, '사진', textSecondary, onTap: _sendImageAction),
-            _buildAttachmentIcon(Icons.location_on_outlined, '현재 위치', textSecondary, onTap: _sendLocationAction),
-            _buildAttachmentIcon(Icons.calendar_month_outlined, '일정', textSecondary, onTap: _showScheduleCreatorBottomSheet),
-            _buildAttachmentIcon(Icons.poll_outlined, '투표', textSecondary, onTap: _showPollCreatorBottomSheet),
-            _buildAttachmentIcon(Icons.local_cafe_outlined, '장소 공유', textSecondary, onTap: _showHotspotSearchBottomSheet),
-            _buildAttachmentIcon(Icons.rate_review_outlined, '모임 후기', textSecondary, onTap: _showReviewBottomSheet),
-            _buildAttachmentIcon(Icons.home_outlined, '귀가 알림', textSecondary, onTap: _showSafeReturnBottomSheet),
-            _buildAttachmentIcon(Icons.auto_awesome_outlined, '대화 주제', textSecondary, onTap: () {
-              Navigator.pop(ctx);
-              _showAiTopicsBottomSheet();
-            }),
-          ]),
-          const SizedBox(height: 20),
-          Text('선택한 내용만 대화방에 공유돼요. 귀가 알림은 직접 남기는 메시지예요.',
-            style: TextStyle(color: textSecondary, fontSize: 13, height: 1.5)),
-        ]),
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('대화에 추가하기',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 20),
+              Wrap(spacing: 20, runSpacing: 24, children: [
+                _buildAttachmentIcon(Icons.image_outlined, '사진', textSecondary,
+                    onTap: _sendImageAction),
+                _buildAttachmentIcon(
+                    Icons.location_on_outlined, '현재 위치', textSecondary,
+                    onTap: _sendLocationAction),
+                _buildAttachmentIcon(
+                    Icons.calendar_month_outlined, '일정', textSecondary,
+                    onTap: _showScheduleCreatorBottomSheet),
+                _buildAttachmentIcon(Icons.poll_outlined, '투표', textSecondary,
+                    onTap: _showPollCreatorBottomSheet),
+                _buildAttachmentIcon(
+                    Icons.local_cafe_outlined, '장소 공유', textSecondary,
+                    onTap: _showHotspotSearchBottomSheet),
+                _buildAttachmentIcon(
+                    Icons.rate_review_outlined, '모임 후기', textSecondary,
+                    onTap: _showReviewBottomSheet),
+                _buildAttachmentIcon(
+                    Icons.home_outlined, '귀가 알림', textSecondary,
+                    onTap: _showSafeReturnBottomSheet),
+                _buildAttachmentIcon(
+                    Icons.auto_awesome_outlined, '대화 주제', textSecondary,
+                    onTap: () {
+                  Navigator.pop(ctx);
+                  _showAiTopicsBottomSheet();
+                }),
+              ]),
+              const SizedBox(height: 20),
+              Text('선택한 내용만 대화방에 공유돼요. 귀가 알림은 직접 남기는 메시지예요.',
+                  style: TextStyle(
+                      color: textSecondary, fontSize: 13, height: 1.5)),
+            ]),
       )),
     );
   }
 
-  Widget _buildAttachmentIcon(IconData icon, String label, Color color, {VoidCallback? onTap}) {
+  Widget _buildAttachmentIcon(IconData icon, String label, Color color,
+      {VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: onTap ?? () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label 기능이 준비중입니다.')));
-      },
+      onTap: onTap ??
+          () {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text('$label 기능이 준비중입니다.')));
+          },
       child: SizedBox(
         width: 72,
         child: Column(
           children: [
             Container(
-              width: 56, height: 56,
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+            Text(label,
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
 
-
-  Widget _chatNotice(String title, String description, {bool retry = false}) => Center(
-    child: SingleChildScrollView(padding: const EdgeInsets.all(28),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.forum_outlined, size: 36, color: textSecondary),
-        const SizedBox(height: 16),
-        Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textPrimary)),
-        const SizedBox(height: 8),
-        Text(description, textAlign: TextAlign.center, style: TextStyle(fontSize: 15, height: 1.5, color: textSecondary)),
-        if (retry) TextButton(onPressed: () => setState(_bindRoom), child: const Text('다시 불러오기')),
-      ]),
-    ),
-  );
+  Widget _chatNotice(String title, String description, {bool retry = false}) =>
+      Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(28),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.forum_outlined, size: 36, color: textSecondary),
+            const SizedBox(height: 16),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimary)),
+            const SizedBox(height: 8),
+            Text(description,
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(fontSize: 15, height: 1.5, color: textSecondary)),
+            if (retry)
+              TextButton(
+                  onPressed: () => setState(_bindRoom),
+                  child: const Text('다시 불러오기')),
+          ]),
+        ),
+      );
   @override
   Widget build(BuildContext context) => StreamBuilder<ChatData?>(
-    key: ValueKey(_generation), stream: _roomStream,
-    builder: (context, roomSnapshot) {
-      _roomData = roomSnapshot.data;
-      _canSend = !roomSnapshot.hasError && isChatParticipant(_roomData, _uid);
-      final memberCount = chatParticipantIds(_roomData).length;
-      Widget content;
-      if (_uid == null) {
-        content = _chatNotice('로그인 후 대화할 수 있어요', '모임 참여가 확인되면 대화 내용을 볼 수 있어요.');
-      } else if (widget.chatRoomId.trim().isEmpty) {
-        content = _chatNotice('대화방을 찾을 수 없어요', '채팅 목록에서 모임을 다시 선택해 주세요.');
-      } else if (roomSnapshot.hasError) {
-        content = _chatNotice('대화방을 불러오지 못했어요', '연결 상태와 접근 권한을 확인해 주세요.', retry: true);
-      } else if (roomSnapshot.connectionState == ConnectionState.waiting) {
-        content = const Center(child: CircularProgressIndicator());
-      } else if (_roomData == null) {
-        content = _chatNotice('대화방을 찾을 수 없어요', '채팅 목록에서 모임을 다시 선택해 주세요.');
-      } else if (!_canSend) {
-        content = _chatNotice('참여 확인이 필요한 대화방이에요', '모임 참여가 승인되고 대화방에 연결되면 이용할 수 있어요.');
-      } else {
-        content = StreamBuilder<List<ChatData>>(stream: _messageStream,
-          builder: (context, snapshot) {
-            _readFailed = snapshot.hasError;
-            if (snapshot.hasError) return _chatNotice('대화를 불러오지 못했어요', '연결 상태를 확인한 뒤 다시 시도해 주세요.', retry: true);
-            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-            return _buildMessageList(snapshot.data!);
-          });
-      }
-      return Scaffold(
-        backgroundColor: OomuUiHelpers.backgroundNeutral,
-        appBar: AppBar(
-          toolbarHeight: MediaQuery.textScalerOf(context).scale(16) > 22 ? 112 : 80,
-          leading: IconButton(tooltip: '뒤로', icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.maybePop(context)),
-          title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text((_roomData?['title'] ?? widget.title).toString(), maxLines: 2, overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
-            if (_canSend) Text('$memberCount명 참여 중', style: TextStyle(color: textSecondary, fontSize: 13)),
-          ]),
-          actions: [IconButton(tooltip: '대화방 정보', icon: const Icon(Icons.more_horiz),
-            onPressed: _canSend ? _showChatRoomSafetyDrawer : null)],
-        ),
-        body: Column(children: [
-          if (_canSend && (_roomData?['location'] ?? '').toString().isNotEmpty)
-            Padding(padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.place_outlined, size: 18, color: textSecondary), const SizedBox(width: 8),
-                Expanded(child: Text([_roomData?['date'], _roomData?['location']].whereType<String>()
-                  .where((s) => s.isNotEmpty).join(' · '), style: TextStyle(fontSize: 13, height: 1.5, color: textSecondary))),
-              ])),
-          Expanded(child: content),
-          if (_canSend) _buildMessageInput(),
-        ]),
+        key: ValueKey(_generation),
+        stream: _roomStream,
+        builder: (context, roomSnapshot) {
+          _roomData = roomSnapshot.data;
+          _canSend =
+              !roomSnapshot.hasError && isChatParticipant(_roomData, _uid);
+          final memberCount = chatParticipantIds(_roomData).length;
+          Widget content;
+          if (_uid == null) {
+            content =
+                _chatNotice('로그인 후 대화할 수 있어요', '모임 참여가 확인되면 대화 내용을 볼 수 있어요.');
+          } else if (widget.chatRoomId.trim().isEmpty) {
+            content = _chatNotice('대화방을 찾을 수 없어요', '채팅 목록에서 모임을 다시 선택해 주세요.');
+          } else if (roomSnapshot.hasError) {
+            content = _chatNotice('대화방을 불러오지 못했어요', '연결 상태와 접근 권한을 확인해 주세요.',
+                retry: true);
+          } else if (roomSnapshot.connectionState == ConnectionState.waiting) {
+            content = const Center(child: CircularProgressIndicator());
+          } else if (_roomData == null) {
+            content = _chatNotice('대화방을 찾을 수 없어요', '채팅 목록에서 모임을 다시 선택해 주세요.');
+          } else if (!_canSend) {
+            content = _chatNotice(
+                '참여 확인이 필요한 대화방이에요', '모임 참여가 승인되고 대화방에 연결되면 이용할 수 있어요.');
+          } else {
+            content = StreamBuilder<List<ChatData>>(
+                stream: _messageStream,
+                builder: (context, snapshot) {
+                  _readFailed = snapshot.hasError;
+                  if (snapshot.hasError)
+                    return _chatNotice(
+                        '대화를 불러오지 못했어요', '연결 상태를 확인한 뒤 다시 시도해 주세요.',
+                        retry: true);
+                  if (!snapshot.hasData)
+                    return const Center(child: CircularProgressIndicator());
+                  return _buildMessageList(snapshot.data!);
+                });
+          }
+          return Scaffold(
+            backgroundColor: OomuUiHelpers.backgroundNeutral,
+            appBar: AppBar(
+              toolbarHeight:
+                  MediaQuery.textScalerOf(context).scale(16) > 22 ? 112 : 80,
+              leading: IconButton(
+                  tooltip: '뒤로',
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.maybePop(context)),
+              title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text((_roomData?['title'] ?? widget.title).toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700)),
+                    if (_canSend)
+                      Text('$memberCount명 참여 중',
+                          style: TextStyle(color: textSecondary, fontSize: 13)),
+                  ]),
+              actions: [
+                IconButton(
+                    tooltip: '대화방 정보',
+                    icon: const Icon(Icons.more_horiz),
+                    onPressed: _canSend ? _showChatRoomSafetyDrawer : null)
+              ],
+            ),
+            body: Column(children: [
+              if (_canSend &&
+                  (_roomData?['location'] ?? '').toString().isNotEmpty)
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.place_outlined,
+                              size: 18, color: textSecondary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: Text(
+                                  [_roomData?['date'], _roomData?['location']]
+                                      .whereType<String>()
+                                      .where((s) => s.isNotEmpty)
+                                      .join(' · '),
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      height: 1.5,
+                                      color: textSecondary))),
+                        ])),
+              Expanded(child: content),
+              if (_canSend) _buildMessageInput(),
+            ]),
+          );
+        },
       );
-    },
-  );
   Widget _buildMessageList(List<Map<String, dynamic>> source) {
-    final list = source.where((m) => !isLegacyChatSeed(m))
-      .map((m) => presentChatMessage(m, _uid)).toList();
-    if (list.isEmpty) return _chatNotice('아직 나눈 대화가 없어요', '첫 인사를 남겨보세요.\n일정이나 투표는 + 버튼에서 직접 추가할 수 있어요.');
+    final list = source
+        .where((m) => !isLegacyChatSeed(m))
+        .map((m) => presentChatMessage(m, _uid))
+        .toList();
+    if (list.isEmpty)
+      return _chatNotice(
+          '아직 나눈 대화가 없어요', '첫 인사를 남겨보세요.\n일정이나 투표는 + 버튼에서 직접 추가할 수 있어요.');
     final lastId = list.last['id']?.toString();
     if (lastId != _lastMessageId) {
       final initial = _lastMessageId == null;
-      final atBottom = !_scrollController.hasClients || _scrollController.position.extentAfter < 100;
+      final atBottom = !_scrollController.hasClients ||
+          _scrollController.position.extentAfter < 100;
       _lastMessageId = lastId;
       if (initial || atBottom) _scrollToBottom(jump: initial);
     }
-    return ListView.builder(controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      itemCount: list.length, itemBuilder: (_, index) => _buildDynamicMessage(list[index]));
+    return ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        itemCount: list.length,
+        itemBuilder: (_, index) => _buildDynamicMessage(list[index]));
   }
 
   Widget _buildDynamicMessage(Map<String, dynamic> data) {
@@ -916,7 +1204,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     if (!isMe && globalData.isUserBlocked(sender)) {
       return _buildBlockedMessagePlaceholder(sender);
     }
-    
+
     void updateThisMessage(Map<String, dynamic> delta) {
       if (msgId.isNotEmpty) {
         _updateMessageData(msgId, delta);
@@ -925,19 +1213,46 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
     if (type == 'system') return _buildSystemMessage(data['text'] ?? '');
     if (type == 'ai_spot_summary') return _buildAiSpotSummaryCard(data);
-    if (type == 'settlement') return _buildTextMessage({...data, 'text': (data['title'] ?? '공유한 내용').toString() + '\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'});
+    if (type == 'settlement')
+      return _buildTextMessage({
+        ...data,
+        'text': '${data['title'] ?? '공유한 내용'}\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'
+      });
     if (type == 'image') return _buildImageMessage(data);
     if (type == 'location') return _buildLocationMessage(data);
-    
-    if (type == 'schedule') return InteractiveScheduleCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
-    if (type == 'poll') return InteractivePollCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
-    
+
+    if (type == 'schedule')
+      return InteractiveScheduleCard(
+          msg: data,
+          isMe: isMe,
+          chatRoomId: widget.chatRoomId,
+          onUpdate: updateThisMessage);
+    if (type == 'poll')
+      return InteractivePollCard(
+          msg: data,
+          isMe: isMe,
+          chatRoomId: widget.chatRoomId,
+          onUpdate: updateThisMessage);
+
     if (type == 'hotspot') return InteractiveHotspotCard(msg: data, isMe: isMe);
     if (type == 'review') return InteractiveReviewCard(msg: data, isMe: isMe);
-    
-    if (type == 'safe_return') return InteractiveSafeReturnCard(msg: data, isMe: isMe, chatRoomId: widget.chatRoomId, onUpdate: updateThisMessage);
-    if (type == 'profile_exchange') return _buildTextMessage({...data, 'text': (data['title'] ?? '공유한 내용').toString() + '\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'});
-    if (type == 'secret_after') return _buildTextMessage({...data, 'text': (data['title'] ?? '공유한 내용').toString() + '\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'});
+
+    if (type == 'safe_return')
+      return InteractiveSafeReturnCard(
+          msg: data,
+          isMe: isMe,
+          chatRoomId: widget.chatRoomId,
+          onUpdate: updateThisMessage);
+    if (type == 'profile_exchange')
+      return _buildTextMessage({
+        ...data,
+        'text': '${data['title'] ?? '공유한 내용'}\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'
+      });
+    if (type == 'secret_after')
+      return _buildTextMessage({
+        ...data,
+        'text': '${data['title'] ?? '공유한 내용'}\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'
+      });
     if (['carpool'].contains(type)) {
       return _buildInteractiveCardMessage(data);
     }
@@ -949,63 +1264,103 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     IconData icon = Icons.info;
     Color iconColor = accentColor;
 
-    switch(msg['type']) {
-      case 'review': icon = Icons.rate_review; iconColor = Colors.orange; break;
-      case 'hotspot': icon = Icons.local_cafe; iconColor = Colors.brown; break;
-      case 'carpool': icon = Icons.directions_car; iconColor = Colors.indigo; break;
-      case 'safe_return': icon = Icons.contact_emergency; iconColor = Colors.pink; break;
-      case 'profile_exchange': icon = Icons.badge; iconColor = Colors.teal; break;
+    switch (msg['type']) {
+      case 'review':
+        icon = Icons.rate_review;
+        iconColor = Colors.orange;
+        break;
+      case 'hotspot':
+        icon = Icons.local_cafe;
+        iconColor = Colors.brown;
+        break;
+      case 'carpool':
+        icon = Icons.directions_car;
+        iconColor = Colors.indigo;
+        break;
+      case 'safe_return':
+        icon = Icons.contact_emergency;
+        iconColor = Colors.pink;
+        break;
+      case 'profile_exchange':
+        icon = Icons.badge;
+        iconColor = Colors.teal;
+        break;
     }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) _buildAvatar(),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
           if (isMe) const SizedBox(width: 4),
-          
           Container(
             width: 240,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: iconColor.withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: iconColor.withOpacity(0.05), blurRadius: 10)],
+              border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+              boxShadow: [
+                BoxShadow(
+                    color: iconColor.withValues(alpha: 0.05), blurRadius: 10)
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: iconColor.withOpacity(0.1), shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 16)),
+                    Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                            color: iconColor.withValues(alpha: 0.1),
+                            shape: BoxShape.circle),
+                        child: Icon(icon, color: iconColor, size: 16)),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(msg['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                        child: Text(msg['title'] ?? '',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 14),
+                            overflow: TextOverflow.ellipsis)),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Text(msg['desc'] ?? '', style: TextStyle(fontSize: 13, color: textSecondary, height: 1.4)),
+                Text(msg['desc'] ?? '',
+                    style: TextStyle(
+                        fontSize: 13, color: textSecondary, height: 1.4)),
                 const SizedBox(height: 16),
                 SizedBox(
-                  width: double.infinity, height: 40,
+                  width: double.infinity,
+                  height: 40,
                   child: ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${msg['title']}에 반응했습니다!')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${msg['title']}에 반응했습니다!')));
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: iconColor, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                    child: const Text('반응하기', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: iconColor,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12))),
+                    child: const Text('반응하기',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ),
               ],
             ),
           ),
-
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
         ],
       ),
     );
@@ -1018,12 +1373,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) _buildAvatar(),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '방금', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe)
+            Text(msg['time'] ?? '방금',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
           if (isMe) const SizedBox(width: 4),
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -1039,7 +1397,9 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             ),
           ),
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '방금', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (!isMe)
+            Text(msg['time'] ?? '방금',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
         ],
       ),
     );
@@ -1051,18 +1411,23 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) _buildAvatar(),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
           if (isMe) const SizedBox(width: 4),
           GestureDetector(
             onTap: () async {
               if (mapUrl.isNotEmpty) {
                 final Uri url = Uri.parse(mapUrl);
-                if (!await launchUrl(url)) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('지도를 열 수 없습니다.')));
+                if (!await launchUrl(url))
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('지도를 열 수 없습니다.')));
               }
             },
             child: Container(
@@ -1071,7 +1436,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: accentColor.withOpacity(0.5)),
+                border: Border.all(color: accentColor.withValues(alpha: 0.5)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1080,33 +1445,46 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     children: [
                       Icon(Icons.location_on, color: accentColor, size: 20),
                       const SizedBox(width: 4),
-                      const Text('현재 위치 공유', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const Text('현재 위치 공유',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    height: 90, width: double.infinity,
+                    height: 90,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFFBE6),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFFEE500), width: 1.2),
+                      border: Border.all(
+                          color: const Color(0xFFFEE500), width: 1.2),
                     ),
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 7),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEE500),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+                            BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2)),
                           ],
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.location_on, size: 14, color: Color(0xFF191919)),
+                            Icon(Icons.location_on,
+                                size: 14, color: Color(0xFF191919)),
                             SizedBox(width: 4),
-                            Text('카카오맵에서 위치 보기', style: TextStyle(color: Color(0xFF191919), fontSize: 12, fontWeight: FontWeight.w800)),
+                            Text('카카오맵에서 위치 보기',
+                                style: TextStyle(
+                                    color: Color(0xFF191919),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800)),
                           ],
                         ),
                       ),
@@ -1117,7 +1495,9 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             ),
           ),
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
         ],
       ),
     );
@@ -1129,14 +1509,16 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(color: Colors.black.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-          child: Text(text, style: TextStyle(fontSize: 12, color: textPrimary.withOpacity(0.8))),
+          decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20)),
+          child: Text(text,
+              style: TextStyle(
+                  fontSize: 12, color: textPrimary.withValues(alpha: 0.8))),
         ),
       ),
     );
   }
-
-
 
   Widget _buildBlockedMessagePlaceholder(String sender) {
     return Container(
@@ -1170,7 +1552,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               child: Text(
                 '차단 해제',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue),
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue),
               ),
             ),
           ),
@@ -1179,32 +1564,60 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-
   void _showChatRoomSafetyDrawer() {
-    showModalBottomSheet(context: context, backgroundColor: Colors.white, builder: (ctx) => SafeArea(
-      child: Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text((_roomData?['title'] ?? widget.title).toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Text(chatParticipantIds(_roomData).length.toString() + '명 참여 중', style: TextStyle(color: textSecondary)),
-          const SizedBox(height: 16),
-          const Text('메시지를 길게 누르면 복사하거나 신고·차단할 수 있어요.', style: TextStyle(fontSize: 15, height: 1.5)),
-          const SizedBox(height: 16),
-          ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.exit_to_app),
-            title: const Text('대화방 나가기'), subtitle: const Text('대화방에서 나가도 모임 신청은 취소되지 않아요.'),
-            onTap: () async {
-              Navigator.pop(ctx);
-              final leave = await showDialog<bool>(context: context, builder: (dialog) => AlertDialog(
-                title: const Text('대화방에서 나갈까요?'),
-                content: const Text('다시 참여하려면 모임장의 대화방 연결이 필요해요.'),
-                actions: [TextButton(onPressed: () => Navigator.pop(dialog, false), child: const Text('취소')),
-                  TextButton(onPressed: () => Navigator.pop(dialog, true), child: const Text('나가기'))]));
-              if (leave != true || !mounted) return;
-              try { await _repo.leave(widget.chatRoomId); if (mounted) Navigator.pop(context); }
-              catch (_) { _showFailure('대화방에서 나가지 못했어요. 다시 시도해 주세요.'); }
-            }),
-        ])),
-    ));
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.white,
+        builder: (ctx) => SafeArea(
+              child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text((_roomData?['title'] ?? widget.title).toString(),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 8),
+                        Text('${chatParticipantIds(_roomData).length}명 참여 중',
+                            style: TextStyle(color: textSecondary)),
+                        const SizedBox(height: 16),
+                        const Text('메시지를 길게 누르면 복사하거나 신고·차단할 수 있어요.',
+                            style: TextStyle(fontSize: 15, height: 1.5)),
+                        const SizedBox(height: 16),
+                        ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.exit_to_app),
+                            title: const Text('대화방 나가기'),
+                            subtitle: const Text('대화방에서 나가도 모임 신청은 취소되지 않아요.'),
+                            onTap: () async {
+                              Navigator.pop(ctx);
+                              final leave = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dialog) => AlertDialog(
+                                          title: const Text('대화방에서 나갈까요?'),
+                                          content: const Text(
+                                              '다시 참여하려면 모임장의 대화방 연결이 필요해요.'),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    dialog, false),
+                                                child: const Text('취소')),
+                                            TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(dialog, true),
+                                                child: const Text('나가기'))
+                                          ]));
+                              if (leave != true || !mounted) return;
+                              try {
+                                await _repo.leave(widget.chatRoomId);
+                                if (mounted) Navigator.pop(context);
+                              } catch (_) {
+                                _showFailure('대화방에서 나가지 못했어요. 다시 시도해 주세요.');
+                              }
+                            }),
+                      ])),
+            ));
   }
 
   void _showMessageActionSheet(Map<String, dynamic> msg) {
@@ -1225,11 +1638,17 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.copy, color: Colors.black87),
-                title: const Text('메시지 내용 복사', style: TextStyle(fontWeight: FontWeight.w600)),
+                title: const Text('메시지 내용 복사',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   Clipboard.setData(ClipboardData(text: text));
@@ -1241,22 +1660,30 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               if (!isMe) ...[
                 ListTile(
                   leading: const Icon(Icons.flag_outlined, color: Colors.red),
-                  title: const Text('이 메시지 신고하기', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('부적절한 언어, 스팸, 혐오 표현 등', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  title: const Text('이 메시지 신고하기',
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('부적절한 언어, 스팸, 혐오 표현 등',
+                      style: TextStyle(fontSize: 12, color: Colors.grey)),
                   onTap: () {
                     Navigator.pop(ctx);
                     UgcActionSheets.showReportDialog(
                       context: context,
                       targetType: '채팅 메시지',
-                      targetId: msg['id'] ?? 'msg_${DateTime.now().millisecondsSinceEpoch}',
+                      targetId: msg['id'] ??
+                          'msg_${DateTime.now().millisecondsSinceEpoch}',
                       targetUser: sender,
                     );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.block, color: Colors.deepOrange),
-                  title: Text('$sender님 차단하기', style: const TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('이 사용자의 모든 메시지가 즉시 가려집니다', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  title: Text('$sender님 차단하기',
+                      style: const TextStyle(
+                          color: Colors.deepOrange,
+                          fontWeight: FontWeight.w600)),
+                  subtitle: const Text('이 사용자의 모든 메시지가 즉시 가려집니다',
+                      style: TextStyle(fontSize: 12, color: Colors.grey)),
                   onTap: () {
                     Navigator.pop(ctx);
                     UgcActionSheets.showBlockConfirmDialog(
@@ -1274,77 +1701,148 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-
   Widget _buildTextMessage(Map<String, dynamic> msg) {
     final isMe = msg['isMe'] == true;
     final sender = (msg['sender'] ?? '이웃').toString();
-    return Padding(padding: const EdgeInsets.only(bottom: 16),
-      child: Align(alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-        child: ConstrainedBox(constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * .8),
-          child: Column(crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start, children: [
-            if (!isMe) Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(sender,
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textSecondary))),
-            GestureDetector(onLongPress: () => _showMessageActionSheet(msg), child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(color: isMe ? const Color(0xFFFFF0F2) : Colors.white,
-                borderRadius: BorderRadius.circular(16)),
-              child: Text((msg['text'] ?? '').toString(), style: TextStyle(fontSize: 15, height: 1.5, color: textPrimary)),
-            )),
-            if ((msg['time'] ?? '').toString().isNotEmpty)
-              Padding(padding: const EdgeInsets.only(top: 4), child: Text(msg['time'].toString(),
-                style: TextStyle(fontSize: 12, color: textSecondary))),
-          ]),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Align(
+        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * .8),
+          child: Column(
+              crossAxisAlignment:
+                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                if (!isMe)
+                  Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(sender,
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: textSecondary))),
+                GestureDetector(
+                    onLongPress: () => _showMessageActionSheet(msg),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                          color: isMe ? const Color(0xFFFFF0F2) : Colors.white,
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Text((msg['text'] ?? '').toString(),
+                          style: TextStyle(
+                              fontSize: 15, height: 1.5, color: textPrimary)),
+                    )),
+                if ((msg['time'] ?? '').toString().isNotEmpty)
+                  Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(msg['time'].toString(),
+                          style:
+                              TextStyle(fontSize: 12, color: textSecondary))),
+              ]),
         ),
       ),
     );
   }
-  Widget _buildAvatar({String? name}) => CircleAvatar(radius: 16,
-    backgroundColor: const Color(0xFFEAECF0), child: Icon(Icons.person_outline, size: 18, color: textSecondary));
-  Widget _buildMessageInput() => SafeArea(top: false, child: Container(
-    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), color: Colors.white,
-    child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      IconButton(tooltip: '대화에 추가하기', onPressed: _sending ? null : _showAttachmentMenu, icon: const Icon(Icons.add)),
-      Expanded(child: TextField(controller: _controller, minLines: 1, maxLines: 4,
-        textInputAction: TextInputAction.newline, keyboardType: TextInputType.multiline,
-        decoration: const InputDecoration(hintText: '메시지 입력', filled: true, fillColor: Color(0xFFF2F4F7),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20)), borderSide: BorderSide.none)),
-      )),
-      const SizedBox(width: 8),
-      IconButton.filled(tooltip: '메시지 전송', style: IconButton.styleFrom(backgroundColor: accentColor,
-        foregroundColor: Colors.white, minimumSize: const Size(48, 48)),
-        onPressed: _sending ? null : _sendMessage,
-        icon: _sending ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-          : const Icon(Icons.arrow_upward_rounded)),
-    ]),
-  ));
 
+  Widget _buildAvatar({String? name}) => CircleAvatar(
+      radius: 16,
+      backgroundColor: const Color(0xFFEAECF0),
+      child: Icon(Icons.person_outline, size: 18, color: textSecondary));
+  Widget _buildMessageInput() => SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        color: Colors.white,
+        child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          IconButton(
+              tooltip: '대화에 추가하기',
+              onPressed: _sending ? null : _showAttachmentMenu,
+              icon: const Icon(Icons.add)),
+          Expanded(
+              child: TextField(
+            controller: _controller,
+            minLines: 1,
+            maxLines: 4,
+            textInputAction: TextInputAction.newline,
+            keyboardType: TextInputType.multiline,
+            decoration: const InputDecoration(
+                hintText: '메시지 입력',
+                filled: true,
+                fillColor: Color(0xFFF2F4F7),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    borderSide: BorderSide.none)),
+          )),
+          const SizedBox(width: 8),
+          IconButton.filled(
+              tooltip: '메시지 전송',
+              style: IconButton.styleFrom(
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(48, 48)),
+              onPressed: _sending ? null : _sendMessage,
+              icon: _sending
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.arrow_upward_rounded)),
+        ]),
+      ));
 
   void _showAiTopicsBottomSheet() {
-    final topics = oomuAi.generateIcebreakerTopics(meetingTitle: widget.title, seedOffset: 0);
-    showModalBottomSheet(context: context, isScrollControlled: true,
+    final topics = oomuAi.generateIcebreakerTopics(
+        meetingTitle: widget.title, seedOffset: 0);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
-      builder: (ctx) => SafeArea(child: SingleChildScrollView(
+      builder: (ctx) => SafeArea(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('편하게 꺼내볼 이야기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Text('질문을 고르면 입력창에 담겨요. 내용을 확인한 뒤 직접 보내세요.',
-            style: TextStyle(fontSize: 15, height: 1.5, color: textSecondary)),
-          const SizedBox(height: 16),
-          FutureBuilder<List<Map<String, String>>>(future: topics, builder: (context, snapshot) {
-            if (snapshot.hasError) return const Text('추천 질문을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-            if (!snapshot.hasData) return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
-            return Column(mainAxisSize: MainAxisSize.min, children: snapshot.data!
-              .where((t) => (t['question'] ?? '').isNotEmpty).map((topic) => ListTile(
-                contentPadding: EdgeInsets.zero, title: Text(topic['question']!, style: const TextStyle(fontSize: 15, height: 1.5)),
-                trailing: const Icon(Icons.add), onTap: () {
-                  _controller.text = topic['question']!;
-                  Navigator.pop(ctx);
-                },
-              )).toList());
-          }),
-        ]),
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('편하게 꺼내볼 이야기',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              Text('질문을 고르면 입력창에 담겨요. 내용을 확인한 뒤 직접 보내세요.',
+                  style: TextStyle(
+                      fontSize: 15, height: 1.5, color: textSecondary)),
+              const SizedBox(height: 16),
+              FutureBuilder<List<Map<String, String>>>(
+                  future: topics,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError)
+                      return const Text('추천 질문을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+                    if (!snapshot.hasData)
+                      return const Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Center(child: CircularProgressIndicator()));
+                    return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: snapshot.data!
+                            .where((t) => (t['question'] ?? '').isNotEmpty)
+                            .map((topic) => ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(topic['question']!,
+                                      style: const TextStyle(
+                                          fontSize: 15, height: 1.5)),
+                                  trailing: const Icon(Icons.add),
+                                  onTap: () {
+                                    _controller.text = topic['question']!;
+                                    Navigator.pop(ctx);
+                                  },
+                                ))
+                            .toList());
+                  }),
+            ]),
       )),
     );
   }
@@ -1361,24 +1859,28 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) _buildAvatar(name: msg['sender']),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
           if (isMe) const SizedBox(width: 4),
-
           Container(
             width: 275,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.35), width: 1.5),
+              border: Border.all(
+                  color: const Color(0xFF0D9488).withValues(alpha: 0.35),
+                  width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF0D9488).withOpacity(0.08),
+                  color: const Color(0xFF0D9488).withValues(alpha: 0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -1393,10 +1895,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0D9488).withOpacity(0.12),
+                        color: const Color(0xFF0D9488).withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.auto_awesome, color: Color(0xFF0D9488), size: 16),
+                      child: const Icon(Icons.auto_awesome,
+                          color: Color(0xFF0D9488), size: 16),
                     ),
                     const SizedBox(width: 8),
                     const Expanded(
@@ -1410,14 +1913,18 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFFCCFBF1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Text(
                         'AI 요약',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0F766E)),
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F766E)),
                       ),
                     ),
                   ],
@@ -1427,14 +1934,18 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 // Spot Name
                 Text(
                   spotName,
-                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                  style: const TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B)),
                 ),
                 const SizedBox(height: 6),
 
                 // Briefing text
                 Text(
                   summary,
-                  style: const TextStyle(fontSize: 12.5, height: 1.4, color: Color(0xFF334155)),
+                  style: const TextStyle(
+                      fontSize: 12.5, height: 1.4, color: Color(0xFF334155)),
                 ),
                 const SizedBox(height: 10),
 
@@ -1453,9 +1964,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('🍽️ ', style: TextStyle(fontSize: 11)),
-                            const Text('대표메뉴: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF134E4A))),
+                            const Text('대표메뉴: ',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF134E4A))),
                             Expanded(
-                              child: Text(popularMenu, style: const TextStyle(fontSize: 11, color: Color(0xFF134E4A))),
+                              child: Text(popularMenu,
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Color(0xFF134E4A))),
                             ),
                           ],
                         ),
@@ -1465,9 +1982,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('🚗 ', style: TextStyle(fontSize: 11)),
-                            const Text('주차꿀팁: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF134E4A))),
+                            const Text('주차꿀팁: ',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF134E4A))),
                             Expanded(
-                              child: Text(parkingTip, style: const TextStyle(fontSize: 11, color: Color(0xFF134E4A))),
+                              child: Text(parkingTip,
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Color(0xFF134E4A))),
                             ),
                           ],
                         ),
@@ -1478,9 +2001,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('✨ ', style: TextStyle(fontSize: 11)),
-                            const Text('분위기: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF134E4A))),
+                            const Text('분위기: ',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF134E4A))),
                             Expanded(
-                              child: Text(vibe, style: const TextStyle(fontSize: 11, color: Color(0xFF134E4A))),
+                              child: Text(vibe,
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Color(0xFF134E4A))),
                             ),
                           ],
                         ),
@@ -1494,17 +2023,23 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   Wrap(
                     spacing: 4,
                     runSpacing: 4,
-                    children: tags.map((t) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        t.toString(),
-                        style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
-                      ),
-                    )).toList(),
+                    children: tags
+                        .map((t) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                t.toString(),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ))
+                        .toList(),
                   ),
                 ],
 
@@ -1514,21 +2049,28 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   height: 36,
                   child: ElevatedButton.icon(
                     onPressed: () => KakaoMapService.launchDirections(spotName),
-                    icon: const Icon(Icons.directions_rounded, size: 14, color: Color(0xFF191919)),
-                    label: const Text('카카오 길찾기 연동', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF191919))),
+                    icon: const Icon(Icons.directions_rounded,
+                        size: 14, color: Color(0xFF191919)),
+                    label: const Text('카카오 길찾기 연동',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF191919))),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFEE500),
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
         ],
       ),
     );
@@ -1553,15 +2095,19 @@ class InteractiveScheduleCard extends StatefulWidget {
   });
 
   @override
-  State<InteractiveScheduleCard> createState() => _InteractiveScheduleCardState();
+  State<InteractiveScheduleCard> createState() =>
+      _InteractiveScheduleCardState();
 }
 
 class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
   @override
   Widget build(BuildContext context) {
-    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final currentNick = globalData.userNickname.value.isNotEmpty
+        ? globalData.userNickname.value
+        : '우리동네민우';
     final int maxMembers = widget.msg['maxMembers'] ?? 4;
-    final List<String> attendees = List<String>.from(widget.msg['attendees'] ?? [widget.msg['sender'] ?? '우리동네민우']);
+    final List<String> attendees = List<String>.from(
+        widget.msg['attendees'] ?? [widget.msg['sender'] ?? '우리동네민우']);
     final bool isAttending = attendees.contains(currentNick);
     final int attendCount = attendees.length;
     final bool isFull = attendCount >= maxMembers && !isAttending;
@@ -1569,22 +2115,33 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+          if (!widget.isMe)
+            const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('assets/images/민지.png')),
           if (!widget.isMe) const SizedBox(width: 8),
-          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-
           Container(
             width: 270,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.blue.withOpacity(0.35), width: 1.5),
-              boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+              border: Border.all(
+                  color: Colors.blue.withValues(alpha: 0.35), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.blue.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4))
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1593,51 +2150,75 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.12), shape: BoxShape.circle),
-                      child: const Icon(Icons.calendar_month, color: Colors.blue, size: 18),
+                      decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.12),
+                          shape: BoxShape.circle),
+                      child: const Icon(Icons.calendar_month,
+                          color: Colors.blue, size: 18),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         widget.msg['title'] ?? '새로운 일정 제안',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (attendCount >= maxMembers)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(6)),
-                        child: const Text('마감됨', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(6)),
+                        child: const Text('마감됨',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey)),
                       ),
                   ],
                 ),
                 const SizedBox(height: 14),
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFF5F7FA), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFF5F7FA),
+                      borderRadius: BorderRadius.circular(10)),
                   child: Column(
                     children: [
                       Row(children: [
                         const Icon(Icons.event, size: 14, color: Colors.blue),
                         const SizedBox(width: 6),
-                        const Text('날짜: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text(widget.msg['date'] ?? '-', style: const TextStyle(fontSize: 12)),
+                        const Text('날짜: ',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(widget.msg['date'] ?? '-',
+                            style: const TextStyle(fontSize: 12)),
                       ]),
                       const SizedBox(height: 6),
                       Row(children: [
-                        const Icon(Icons.access_time, size: 14, color: Colors.blue),
+                        const Icon(Icons.access_time,
+                            size: 14, color: Colors.blue),
                         const SizedBox(width: 6),
-                        const Text('시간: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text(widget.msg['timeStr'] ?? widget.msg['time'] ?? '-', style: const TextStyle(fontSize: 12)),
+                        const Text('시간: ',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(widget.msg['timeStr'] ?? widget.msg['time'] ?? '-',
+                            style: const TextStyle(fontSize: 12)),
                       ]),
                       const SizedBox(height: 6),
                       Row(children: [
                         const Icon(Icons.place, size: 14, color: Colors.blue),
                         const SizedBox(width: 6),
-                        const Text('장소: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        const Text('장소: ',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold)),
                         Expanded(
-                          child: Text(widget.msg['location'] ?? '-', style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                          child: Text(widget.msg['location'] ?? '-',
+                              style: const TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ]),
                     ],
@@ -1651,10 +2232,16 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                       children: [
                         Icon(Icons.group, size: 14, color: Color(0xFF767676)),
                         SizedBox(width: 4),
-                        Text('참석 확정 현황', style: TextStyle(fontSize: 12, color: Color(0xFF767676))),
+                        Text('참석 확정 현황',
+                            style: TextStyle(
+                                fontSize: 12, color: Color(0xFF767676))),
                       ],
                     ),
-                    Text('$attendCount / $maxMembers 명', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    Text('$attendCount / $maxMembers 명',
+                        style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -1663,7 +2250,8 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                   child: LinearProgressIndicator(
                     value: (attendCount / maxMembers).clamp(0.0, 1.0),
                     backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(attendCount >= maxMembers ? Colors.green : Colors.blue),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        attendCount >= maxMembers ? Colors.green : Colors.blue),
                     minHeight: 6,
                   ),
                 ),
@@ -1672,11 +2260,20 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                   Wrap(
                     spacing: 4,
                     runSpacing: 4,
-                    children: attendees.map((name) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.08), borderRadius: BorderRadius.circular(4)),
-                      child: Text('✓ $name', style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
-                    )).toList(),
+                    children: attendees
+                        .map((name) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(4)),
+                              child: Text('✓ $name',
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w600)),
+                            ))
+                        .toList(),
                   ),
                 ],
                 const SizedBox(height: 14),
@@ -1686,7 +2283,8 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (isFull) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('모집 인원이 마감되었습니다!')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('모집 인원이 마감되었습니다!')));
                         return;
                       }
                       final newAttendees = List<String>.from(attendees);
@@ -1699,27 +2297,38 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                         widget.onUpdate!({'attendees': newAttendees});
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(!isAttending ? '👍 모임 참석이 확정되었습니다!' : '일정 참석을 취소했습니다.')),
+                        SnackBar(
+                            content: Text(!isAttending
+                                ? '👍 모임 참석이 확정되었습니다!'
+                                : '일정 참석을 취소했습니다.')),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isAttending ? const Color(0xFFF0F0F0) : (isFull ? Colors.grey[300] : Colors.blue),
-                      foregroundColor: isAttending ? Colors.black87 : Colors.white,
+                      backgroundColor: isAttending
+                          ? const Color(0xFFF0F0F0)
+                          : (isFull ? Colors.grey[300] : Colors.blue),
+                      foregroundColor:
+                          isAttending ? Colors.black87 : Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     child: Text(
-                      isAttending ? '참석 취소하기' : (isFull ? '모집 마감' : '👍 저도 참석할게요!'),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      isAttending
+                          ? '참석 취소하기'
+                          : (isFull ? '모집 마감' : '👍 저도 참석할게요!'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           if (!widget.isMe) const SizedBox(width: 4),
-          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (!widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
       ),
     );
@@ -1750,10 +2359,14 @@ class InteractivePollCard extends StatefulWidget {
 class _InteractivePollCardState extends State<InteractivePollCard> {
   @override
   Widget build(BuildContext context) {
-    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
-    final voters = widget.msg['voters'] != null ? Map<String, dynamic>.from(widget.msg['voters']) : <String, dynamic>{};
+    final currentNick = globalData.userNickname.value.isNotEmpty
+        ? globalData.userNickname.value
+        : '우리동네민우';
+    final voters = widget.msg['voters'] != null
+        ? Map<String, dynamic>.from(widget.msg['voters'])
+        : <String, dynamic>{};
     final int? selectedOption = voters[currentNick] as int?;
-    
+
     final int opt1Count = voters.values.where((v) => v == 1).length;
     final int opt2Count = voters.values.where((v) => v == 2).length;
     final int totalVotes = opt1Count + opt2Count;
@@ -1761,22 +2374,33 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+          if (!widget.isMe)
+            const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('assets/images/민지.png')),
           if (!widget.isMe) const SizedBox(width: 8),
-          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-
           Container(
             width: 260,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.purple.withOpacity(0.35), width: 1.5),
-              boxShadow: [BoxShadow(color: Colors.purple.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+              border: Border.all(
+                  color: Colors.purple.withValues(alpha: 0.35), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.purple.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4))
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1785,14 +2409,18 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Colors.purple.withOpacity(0.12), shape: BoxShape.circle),
-                      child: const Icon(Icons.how_to_vote, color: Colors.purple, size: 18),
+                      decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.12),
+                          shape: BoxShape.circle),
+                      child: const Icon(Icons.how_to_vote,
+                          color: Colors.purple, size: 18),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         widget.msg['title'] ?? '투표',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -1802,26 +2430,41 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('실시간 실명 투표', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                    Text('총 $totalVotes명 참여', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple)),
+                    const Text('실시간 실명 투표',
+                        style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    Text('총 $totalVotes명 참여',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple)),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildPollOption(1, widget.msg['opt1'] ?? '옵션 1', opt1Count, totalVotes, selectedOption == 1, currentNick, voters),
+                _buildPollOption(1, widget.msg['opt1'] ?? '옵션 1', opt1Count,
+                    totalVotes, selectedOption == 1, currentNick, voters),
                 const SizedBox(height: 8),
-                _buildPollOption(2, widget.msg['opt2'] ?? '옵션 2', opt2Count, totalVotes, selectedOption == 2, currentNick, voters),
+                _buildPollOption(2, widget.msg['opt2'] ?? '옵션 2', opt2Count,
+                    totalVotes, selectedOption == 2, currentNick, voters),
               ],
             ),
           ),
-
           if (!widget.isMe) const SizedBox(width: 4),
-          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (!widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
       ),
     );
   }
 
-  Widget _buildPollOption(int optionIndex, String text, int count, int totalVotes, bool isSelected, String currentNick, Map<String, dynamic> voters) {
+  Widget _buildPollOption(
+      int optionIndex,
+      String text,
+      int count,
+      int totalVotes,
+      bool isSelected,
+      String currentNick,
+      Map<String, dynamic> voters) {
     final double percent = totalVotes > 0 ? (count / totalVotes) : 0.0;
 
     return GestureDetector(
@@ -1839,9 +2482,15 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.purple.withOpacity(0.08) : const Color(0xFFF7F7F9),
+          color: isSelected
+              ? Colors.purple.withValues(alpha: 0.08)
+              : const Color(0xFFF7F7F9),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isSelected ? Colors.purple : Colors.grey.withOpacity(0.2), width: isSelected ? 1.5 : 1.0),
+          border: Border.all(
+              color: isSelected
+                  ? Colors.purple
+                  : Colors.grey.withValues(alpha: 0.2),
+              width: isSelected ? 1.5 : 1.0),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1852,15 +2501,23 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, size: 16, color: isSelected ? Colors.purple : Colors.grey),
+                      Icon(
+                          isSelected
+                              ? Icons.check_circle
+                              : Icons.radio_button_unchecked,
+                          size: 16,
+                          color: isSelected ? Colors.purple : Colors.grey),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           text,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.purple : const Color(0xFF222222),
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected
+                                ? Colors.purple
+                                : const Color(0xFF222222),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1868,7 +2525,11 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                     ],
                   ),
                 ),
-                Text('$count명', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.purple : Colors.grey[700])),
+                Text('$count명',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.purple : Colors.grey[700])),
               ],
             ),
             const SizedBox(height: 6),
@@ -1877,7 +2538,9 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
               child: LinearProgressIndicator(
                 value: percent,
                 backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation<Color>(isSelected ? Colors.purple : Colors.purple.withOpacity(0.5)),
+                valueColor: AlwaysStoppedAnimation<Color>(isSelected
+                    ? Colors.purple
+                    : Colors.purple.withValues(alpha: 0.5)),
                 minHeight: 4,
               ),
             ),
@@ -1895,7 +2558,8 @@ class InteractiveHotspotCard extends StatelessWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
 
-  const InteractiveHotspotCard({super.key, required this.msg, required this.isMe});
+  const InteractiveHotspotCard(
+      {super.key, required this.msg, required this.isMe});
 
   @override
   Widget build(BuildContext context) {
@@ -1905,73 +2569,112 @@ class InteractiveHotspotCard extends StatelessWidget {
     final double? lng = (msg['lng'] as num?)?.toDouble();
 
     // 실제 카카오맵 링크 생성 (이름과 좌표 포함)
-    final String kakaoMapUrl = (lat != null && lng != null) ? KakaoMapService.getKakaoMapPinUrl(name, lat, lng) : KakaoMapService.getKakaoSearchUrl('$name $address');
+    final String kakaoMapUrl = (lat != null && lng != null)
+        ? KakaoMapService.getKakaoMapPinUrl(name, lat, lng)
+        : KakaoMapService.getKakaoSearchUrl('$name $address');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+          if (!isMe)
+            const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('assets/images/민지.png')),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: const Color(0xFF767676))),
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (isMe) const SizedBox(width: 4),
-
           Container(
             width: 250,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.brown.withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: Colors.brown.withOpacity(0.05), blurRadius: 10)],
+              border: Border.all(color: Colors.brown.withValues(alpha: 0.3)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.brown.withValues(alpha: 0.05), blurRadius: 10)
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.local_cafe, color: Colors.brown, size: 16)),
+                    Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                            color: Colors.brown.withValues(alpha: 0.1),
+                            shape: BoxShape.circle),
+                        child: const Icon(Icons.local_cafe,
+                            color: Colors.brown, size: 16)),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(msg['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                        child: Text(msg['title'] ?? '',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 14),
+                            overflow: TextOverflow.ellipsis)),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87)),
+                Text(name,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black87)),
                 const SizedBox(height: 4),
-                Text(address, style: const TextStyle(fontSize: 12, color: const Color(0xFF767676))),
+                Text(address,
+                    style: const TextStyle(
+                        fontSize: 12, color: Color(0xFF767676))),
                 const SizedBox(height: 12),
 
                 // 미니 지도 썸네일
                 GestureDetector(
                   onTap: () async {
                     final Uri url = Uri.parse(kakaoMapUrl);
-                    if (!await launchUrl(url)) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('지도를 열 수 없습니다.')));
+                    if (!await launchUrl(url))
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('지도를 열 수 없습니다.')));
                   },
                   child: Container(
-                    height: 90, width: double.infinity,
+                    height: 90,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFFBE6),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFFEE500), width: 1.2),
+                      border: Border.all(
+                          color: const Color(0xFFFEE500), width: 1.2),
                     ),
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 7),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEE500),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+                            BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2)),
                           ],
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.location_on, size: 14, color: Color(0xFF191919)),
+                            Icon(Icons.location_on,
+                                size: 14, color: Color(0xFF191919)),
                             SizedBox(width: 4),
-                            Text('카카오맵에서 위치 보기', style: TextStyle(color: Color(0xFF191919), fontSize: 12, fontWeight: FontWeight.w800)),
+                            Text('카카오맵에서 위치 보기',
+                                style: TextStyle(
+                                    color: Color(0xFF191919),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800)),
                           ],
                         ),
                       ),
@@ -1981,9 +2684,10 @@ class InteractiveHotspotCard extends StatelessWidget {
               ],
             ),
           ),
-
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: const Color(0xFF767676))),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
       ),
     );
@@ -1997,7 +2701,8 @@ class InteractiveReviewCard extends StatelessWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
 
-  const InteractiveReviewCard({super.key, required this.msg, required this.isMe});
+  const InteractiveReviewCard(
+      {super.key, required this.msg, required this.isMe});
 
   @override
   Widget build(BuildContext context) {
@@ -2007,60 +2712,84 @@ class InteractiveReviewCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+          if (!isMe)
+            const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('assets/images/민지.png')),
           if (!isMe) const SizedBox(width: 8),
-          if (isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (isMe) const SizedBox(width: 4),
-          
           Container(
             width: 250,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.orange.withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.05), blurRadius: 10)],
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.orange.withValues(alpha: 0.05),
+                    blurRadius: 10)
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.rate_review, color: Colors.orange, size: 16)),
+                    Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.1),
+                            shape: BoxShape.circle),
+                        child: const Icon(Icons.rate_review,
+                            color: Colors.orange, size: 16)),
                     const SizedBox(width: 8),
-                    const Expanded(child: Text('✨ 모임 후기가 도착했어요!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                    const Expanded(
+                        child: Text('✨ 모임 후기가 도착했어요!',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 14))),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Row(
-                  children: List.generate(5, (index) => Icon(
-                    index < rating ? Icons.star : Icons.star_border,
-                    color: Colors.orange,
-                    size: 20,
-                  )),
+                  children: List.generate(
+                      5,
+                      (index) => Icon(
+                            index < rating ? Icons.star : Icons.star_border,
+                            color: Colors.orange,
+                            size: 20,
+                          )),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(8)),
-                  child: Text(text, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F7),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Text(text,
+                      style: const TextStyle(
+                          fontSize: 14, color: Colors.black87, height: 1.4)),
                 ),
               ],
             ),
           ),
-
           if (!isMe) const SizedBox(width: 4),
-          if (!isMe) Text(msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
       ),
     );
   }
 }
-
 
 // ===========================================================================
 // 동적 컴포넌트: 안전 귀가 (Safe Return)
@@ -2080,13 +2809,16 @@ class InteractiveSafeReturnCard extends StatefulWidget {
   });
 
   @override
-  State<InteractiveSafeReturnCard> createState() => _InteractiveSafeReturnCardState();
+  State<InteractiveSafeReturnCard> createState() =>
+      _InteractiveSafeReturnCardState();
 }
 
 class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
   @override
   Widget build(BuildContext context) {
-    final currentNick = globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '우리동네민우';
+    final currentNick = globalData.userNickname.value.isNotEmpty
+        ? globalData.userNickname.value
+        : '우리동네민우';
     final List<String> cheers = List<String>.from(widget.msg['cheers'] ?? []);
     final bool isLiked = cheers.contains(currentNick);
     final int likes = cheers.length;
@@ -2094,22 +2826,33 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!widget.isMe) const CircleAvatar(radius: 16, backgroundImage: AssetImage('assets/images/kr_female_1.jpg')),
+          if (!widget.isMe)
+            const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('assets/images/민지.png')),
           if (!widget.isMe) const SizedBox(width: 8),
-          if (widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
           if (widget.isMe) const SizedBox(width: 4),
-
           Container(
             width: 260,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFFFFF0F5),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.pink.withOpacity(0.35), width: 1.5),
-              boxShadow: [BoxShadow(color: Colors.pink.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+              border: Border.all(
+                  color: Colors.pink.withValues(alpha: 0.35), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.pink.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4))
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2118,14 +2861,20 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Colors.pink.withOpacity(0.15), shape: BoxShape.circle),
-                      child: const Icon(Icons.nightlight_round, color: Colors.pink, size: 18),
+                      decoration: BoxDecoration(
+                          color: Colors.pink.withValues(alpha: 0.15),
+                          shape: BoxShape.circle),
+                      child: const Icon(Icons.nightlight_round,
+                          color: Colors.pink, size: 18),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         widget.msg['title'] ?? '🏠 안전 귀가 알림',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.pink),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.pink),
                       ),
                     ),
                   ],
@@ -2133,7 +2882,8 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
                 const SizedBox(height: 12),
                 Text(
                   widget.msg['desc'] ?? '방금 집에 무사히 도착했습니다! 다들 조심히 들어가세요.',
-                  style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF333333)),
+                  style: const TextStyle(
+                      fontSize: 13, height: 1.4, color: Color(0xFF333333)),
                 ),
                 const SizedBox(height: 14),
                 InkWell(
@@ -2149,14 +2899,17 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(!isLiked ? '💖 무사 귀가를 축하해 주셨습니다!' : '안심 반응을 취소했습니다.'),
+                        content: Text(!isLiked
+                            ? '💖 무사 귀가를 축하해 주셨습니다!'
+                            : '안심 반응을 취소했습니다.'),
                         duration: const Duration(seconds: 1),
                       ),
                     );
                   },
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: isLiked ? Colors.pink : Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -2165,9 +2918,15 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.favorite, color: isLiked ? Colors.white : Colors.pink, size: 16),
+                        Icon(Icons.favorite,
+                            color: isLiked ? Colors.white : Colors.pink,
+                            size: 16),
                         const SizedBox(width: 6),
-                        Text('다행이에요! $likes', style: TextStyle(color: isLiked ? Colors.white : Colors.pink, fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text('다행이에요! $likes',
+                            style: TextStyle(
+                                color: isLiked ? Colors.white : Colors.pink,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12)),
                       ],
                     ),
                   ),
@@ -2175,9 +2934,10 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
               ],
             ),
           ),
-
           if (!widget.isMe) const SizedBox(width: 4),
-          if (!widget.isMe) Text(widget.msg['time'] ?? '', style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (!widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
         ],
       ),
     );

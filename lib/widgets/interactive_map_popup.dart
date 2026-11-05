@@ -67,12 +67,16 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
               left: 0,
               right: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.black.withOpacity(0.75), Colors.transparent],
+                    colors: [
+                      Colors.black.withValues(alpha: 0.75),
+                      Colors.transparent
+                    ],
                   ),
                 ),
                 child: Row(
@@ -88,27 +92,37 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                         children: [
                           Text(
                             widget.locationName,
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFEE500),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
                                   '카카오 지도',
-                                  style: TextStyle(color: Color(0xFF191919), fontSize: 9.5, fontWeight: FontWeight.w900),
+                                  style: TextStyle(
+                                      color: Color(0xFF191919),
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w900),
                                 ),
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 _distanceText,
-                                style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
@@ -135,14 +149,18 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                         lng: widget.initialCenter.longitude,
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFEE500), // Kakao Yellow
+                        backgroundColor:
+                            const Color(0xFFFEE500), // Kakao Yellow
                         foregroundColor: const Color(0xFF191919), // Kakao Black
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                         elevation: 3,
                       ),
                       icon: const Icon(Icons.map_rounded, size: 18),
-                      label: const Text('카카오맵 보기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                      label: const Text('카카오맵 보기',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w800)),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -154,14 +172,19 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                         lng: widget.initialCenter.longitude,
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF191919), // Midnight Black
+                        backgroundColor:
+                            const Color(0xFF191919), // Midnight Black
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                         elevation: 3,
                       ),
-                      icon: const Icon(Icons.directions_rounded, size: 18, color: Color(0xFFFEE500)),
-                      label: const Text('카카오 길찾기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                      icon: const Icon(Icons.directions_rounded,
+                          size: 18, color: Color(0xFFFEE500)),
+                      label: const Text('카카오 길찾기',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w800)),
                     ),
                   ),
                 ],

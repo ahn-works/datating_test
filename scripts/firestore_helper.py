@@ -31,9 +31,10 @@ def _make_url(path, query_params=None):
         elif isinstance(query_params, list):
             params.extend(query_params)
     query_str = urllib.parse.urlencode(params)
+    quoted_path = '/'.join(urllib.parse.quote(seg) for seg in path.lstrip('/').split('/'))
     if query_str:
-        return f"{BASE_URL}/{path.lstrip('/')}?{query_str}"
-    return f"{BASE_URL}/{path.lstrip('/')}"
+        return f"{BASE_URL}/{quoted_path}?{query_str}"
+    return f"{BASE_URL}/{quoted_path}"
 
 
 def python_to_firestore_value(val):

@@ -27,7 +27,9 @@ class UgcActionSheets {
               Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 18),
               Row(
@@ -35,7 +37,10 @@ class UgcActionSheets {
                   const SizedBox(width: 8),
                   Text(
                     '$contentType 관리',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87),
                   ),
                 ],
               ),
@@ -44,14 +49,18 @@ class UgcActionSheets {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.flag_outlined, color: Colors.red, size: 20),
+                  child: const Icon(Icons.flag_outlined,
+                      color: Colors.red, size: 20),
                 ),
-                title: Text('이 $contentType 신고하기', style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('부적절한 내용, 스팸, 혐오 표현 등', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                title: Text('이 $contentType 신고하기',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('부적절한 내용, 스팸, 혐오 표현 등',
+                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: const Icon(Icons.chevron_right,
+                    color: Colors.grey, size: 20),
                 onTap: () {
                   Navigator.pop(ctx);
                   showReportDialog(
@@ -67,14 +76,18 @@ class UgcActionSheets {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.block, color: Colors.deepOrange, size: 20),
+                  child: const Icon(Icons.block,
+                      color: Colors.deepOrange, size: 20),
                 ),
-                title: Text('작성자($author) 차단하기', style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('이 사용자의 모든 글과 메시지를 즉시 숨깁니다', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                title: Text('작성자($author) 차단하기',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('이 사용자의 모든 글과 메시지를 즉시 숨깁니다',
+                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: const Icon(Icons.chevron_right,
+                    color: Colors.grey, size: 20),
                 onTap: () {
                   Navigator.pop(ctx);
                   showBlockConfirmDialog(
@@ -113,7 +126,9 @@ class UgcActionSheets {
               Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 18),
               Row(
@@ -121,7 +136,10 @@ class UgcActionSheets {
                   const SizedBox(width: 8),
                   Text(
                     '$userName님 관리',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87),
                   ),
                 ],
               ),
@@ -130,14 +148,18 @@ class UgcActionSheets {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.report_problem_outlined, color: Colors.red, size: 20),
+                  child: const Icon(Icons.report_problem_outlined,
+                      color: Colors.red, size: 20),
                 ),
-                title: const Text('이 사용자 신고하기', style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('비매너 행위, 불쾌한 언어, 사기 사칭 등', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                title: const Text('이 사용자 신고하기',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('비매너 행위, 불쾌한 언어, 사기 사칭 등',
+                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: const Icon(Icons.chevron_right,
+                    color: Colors.grey, size: 20),
                 onTap: () {
                   Navigator.pop(ctx);
                   showReportDialog(
@@ -152,14 +174,18 @@ class UgcActionSheets {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.block, color: Colors.deepOrange, size: 20),
+                  child: const Icon(Icons.block,
+                      color: Colors.deepOrange, size: 20),
                 ),
-                title: const Text('이 사용자 차단하기', style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('모임 및 대화에서 서로 영구 제외됩니다', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                title: const Text('이 사용자 차단하기',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('모임 및 대화에서 서로 영구 제외됩니다',
+                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: const Icon(Icons.chevron_right,
+                    color: Colors.grey, size: 20),
                 onTap: () {
                   Navigator.pop(ctx);
                   showBlockConfirmDialog(
@@ -201,7 +227,9 @@ class UgcActionSheets {
           children: [
             const Icon(Icons.report, color: Colors.redAccent, size: 22),
             const SizedBox(width: 8),
-            Text('$targetType 신고 사유 선택', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            Text('$targetType 신고 사유 선택',
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
           ],
         ),
         content: SizedBox(
@@ -224,9 +252,14 @@ class UgcActionSheets {
                     final item = reasons[index];
                     return ListTile(
                       dense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      title: Text(item['title']!, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                      subtitle: Text(item['desc']!, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
+                      title: Text(item['title']!,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 13)),
+                      subtitle: Text(item['desc']!,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.grey)),
                       onTap: () {
                         Navigator.pop(ctx);
                         globalData.submitReport(
@@ -237,7 +270,8 @@ class UgcActionSheets {
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('🚨 신고가 접수되었습니다. 24시간 이내에 운영진이 검토 후 영구 제재 조치합니다.'),
+                            content: Text(
+                                '🚨 신고가 접수되었습니다. 24시간 이내에 운영진이 검토 후 영구 제재 조치합니다.'),
                             backgroundColor: Colors.black87,
                             duration: Duration(seconds: 3),
                           ),
@@ -275,7 +309,8 @@ class UgcActionSheets {
           children: [
             Icon(Icons.block, color: Colors.redAccent, size: 22),
             SizedBox(width: 8),
-            Text('사용자 차단', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            Text('사용자 차단',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
           ],
         ),
         content: Text(
@@ -283,7 +318,8 @@ class UgcActionSheets {
           '• 차단 즉시 서로의 모든 게시글, 댓글, 채팅 메시지가 숨겨집니다.\n'
           '• 모임 및 소개팅 추천 매칭에서 영구 제외됩니다.\n'
           '• 설정 > 차단 관리 메뉴에서 언제든지 차단을 해제할 수 있습니다.',
-          style: const TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF333333)),
+          style: const TextStyle(
+              fontSize: 13, height: 1.5, color: Color(0xFF333333)),
         ),
         actions: [
           TextButton(
@@ -293,7 +329,8 @@ class UgcActionSheets {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               elevation: 0,
             ),
             onPressed: () {
@@ -301,14 +338,17 @@ class UgcActionSheets {
               globalData.blockUser(userName);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('🚫 $userName님이 차단되었습니다. 모든 게시글과 대화가 즉시 숨김 처리됩니다.'),
+                  content:
+                      Text('🚫 $userName님이 차단되었습니다. 모든 게시글과 대화가 즉시 숨김 처리됩니다.'),
                   backgroundColor: Colors.redAccent,
                   duration: const Duration(seconds: 3),
                 ),
               );
               onUserBlocked?.call();
             },
-            child: const Text('차단하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('차단하기',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

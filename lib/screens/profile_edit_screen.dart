@@ -25,18 +25,43 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _jobController = TextEditingController();
   final TextEditingController _mbtiController = TextEditingController();
-  
+
   String _gender = '여성';
   String _role = 'user';
-  String _avatarUrl = 'assets/images/kr_female_1.jpg';
-  
-  final List<String> _availableHobbies = ['맛집탐방', '러닝', '전시회', '와인', '드라이브', '캠핑', '보드게임', '방탈출', '뮤지컬', '카페투어'];
+  String _avatarUrl = 'assets/images/민지.png';
+
+  final List<String> _availableHobbies = [
+    '맛집탐방',
+    '러닝',
+    '전시회',
+    '와인',
+    '드라이브',
+    '캠핑',
+    '보드게임',
+    '방탈출',
+    '뮤지컬',
+    '카페투어'
+  ];
   List<String> _selectedHobbies = [];
-  
-  final List<String> _availablePersonalities = ['리액션 요정', '친화력 갑', '긍정적', '경청하는 편', '텐션 높음', '차분함', '유머러스함'];
+
+  final List<String> _availablePersonalities = [
+    '리액션 요정',
+    '친화력 갑',
+    '긍정적',
+    '경청하는 편',
+    '텐션 높음',
+    '차분함',
+    '유머러스함'
+  ];
   List<String> _selectedPersonalities = [];
-  
-  final List<String> _availableDrinking = ['알쓰', '가볍게 한잔', '분위기 메이커', '술자리 매니아', '비음주'];
+
+  final List<String> _availableDrinking = [
+    '알쓰',
+    '가볍게 한잔',
+    '분위기 메이커',
+    '술자리 매니아',
+    '비음주'
+  ];
   List<String> _selectedDrinking = [];
 
   bool _isLoading = true;
@@ -45,7 +70,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   List<String> _parseSafeList(dynamic value, List<String> defaultValue) {
     if (value == null) return defaultValue;
     if (value is List) {
-      return value.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList();
+      return value
+          .map((e) => e?.toString() ?? '')
+          .where((s) => s.isNotEmpty)
+          .toList();
     }
     if (value is String && value.trim().isNotEmpty) {
       return [value.trim()];
@@ -61,22 +89,35 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _loadProfile() async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(globalData.activeUserId)
+          .get();
       if (doc.exists) {
         final data = doc.data()!;
-        _nicknameController.text = data['nickname'] ?? (globalData.activeUserId == 'admin_user' ? '오오무 운영팀' : '매운맛킬러');
-        _nameController.text = data['name'] ?? (globalData.activeUserId == 'admin_user' ? '총괄관리자' : '김민우');
-        _ageController.text = (data['age'] ?? (globalData.activeUserId == 'admin_user' ? 29 : 27)).toString();
-        _gender = data['gender'] ?? (globalData.activeUserId == 'admin_user' ? '여성' : '남성');
-        _role = data['role'] ?? (globalData.activeUserId == 'admin_user' ? 'admin' : 'user');
+        _nicknameController.text = data['nickname'] ??
+            (globalData.activeUserId == 'admin_user' ? '오오무 운영팀' : '매운맛킬러');
+        _nameController.text = data['name'] ??
+            (globalData.activeUserId == 'admin_user' ? '총괄관리자' : '김민우');
+        _ageController.text =
+            (data['age'] ?? (globalData.activeUserId == 'admin_user' ? 29 : 27))
+                .toString();
+        _gender = data['gender'] ??
+            (globalData.activeUserId == 'admin_user' ? '여성' : '남성');
+        _role = data['role'] ??
+            (globalData.activeUserId == 'admin_user' ? 'admin' : 'user');
         _locationController.text = data['location'] ?? '서울 마포구 연남동';
         _bioController.text = data['bio'] ?? '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
         _jobController.text = data['job'] ?? 'IT/개발';
         _mbtiController.text = data['mbti'] ?? 'ENFP';
         _selectedHobbies = _parseSafeList(data['hobbies'], ['맛집탐방', '보드게임']);
-        _selectedPersonalities = _parseSafeList(data['personalities'], ['리액션 요정', '친화력 갑']);
+        _selectedPersonalities =
+            _parseSafeList(data['personalities'], ['리액션 요정', '친화력 갑']);
         _selectedDrinking = _parseSafeList(data['drinking'], ['가볍게 한잔']);
-        _avatarUrl = (data['photoUrl'] ?? data['avatarUrl'] ?? 'assets/images/kr_female_1.jpg').toString();
+        _avatarUrl = (data['photoUrl'] ??
+                data['avatarUrl'] ??
+                'assets/images/민지.png')
+            .toString();
       } else {
         _nicknameController.text = '오오무 운영팀';
         _nameController.text = '총괄관리자';
@@ -94,7 +135,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     } catch (e) {
       debugPrint("Error loading profile: $e");
     } finally {
-      if (mounted) setState(() { _isLoading = false; });
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+        });
     }
   }
 
@@ -102,22 +146,31 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final nick = _nicknameController.text.trim();
     if (nick.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('닉네임을 1자 이상 입력해주세요.'), behavior: SnackBarBehavior.floating),
-      );
-      return;
-    }
-    
-    int parsedAge = int.tryParse(_ageController.text.trim()) ?? 0;
-    if (parsedAge < 19 || parsedAge > 99) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('올바른 나이를 입력해주세요 (20세 이상).'), behavior: SnackBarBehavior.floating),
+        const SnackBar(
+            content: Text('닉네임을 1자 이상 입력해주세요.'),
+            behavior: SnackBarBehavior.floating),
       );
       return;
     }
 
-    setState(() { _isSaving = true; });
+    int parsedAge = int.tryParse(_ageController.text.trim()) ?? 0;
+    if (parsedAge < 19 || parsedAge > 99) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('올바른 나이를 입력해주세요 (20세 이상).'),
+            behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
     try {
-      await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(globalData.activeUserId)
+          .set({
         'nickname': nick,
         'name': _nameController.text.trim(),
         'age': parsedAge,
@@ -137,15 +190,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       globalData.userNickname.value = _nicknameController.text.trim();
       globalData.userLocation.value = _locationController.text.trim();
-      
+
       if (mounted) {
-        Navigator.pop(context, true); 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✨ 프로필이 성공적으로 업데이트되었습니다.')));
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✨ 프로필이 성공적으로 업데이트되었습니다.')));
       }
     } catch (e) {
       debugPrint("Error saving profile: $e");
     } finally {
-      if (mounted) setState(() { _isSaving = false; });
+      if (mounted)
+        setState(() {
+          _isSaving = false;
+        });
     }
   }
 
@@ -184,7 +241,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       globalData.updateAvatar(finalAvatar);
 
       // Immediately sync to active user doc
-      await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(globalData.activeUserId)
+          .set({
         'photoUrl': finalAvatar,
         'avatarUrl': finalAvatar,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -212,18 +272,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   void _showAvatarPickerModal(BuildContext context) {
     final presetAvatars = [
-      'assets/images/kr_female_1.jpg',
-      'assets/images/kr_female_2.jpg',
-      'assets/images/kr_female_3.jpg',
-      'assets/images/kr_male_1.jpg',
-      'assets/images/kr_male_2.jpg',
-      'assets/images/kr_male_3.jpg',
+      'assets/images/민지.png',
+      'assets/images/시연.png',
+      'assets/images/지연.png',
+      'assets/images/지훈.png',
+      'assets/images/정재.png',
+      'assets/images/지안.png',
     ];
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) {
         return SafeArea(
           child: Padding(
@@ -234,12 +295,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               children: [
                 Center(
                   child: Container(
-                    width: 40, height: 4,
-                    decoration: BoxDecoration(color: const Color(0xFFE5E5EA), borderRadius: BorderRadius.circular(2)),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFE5E5EA),
+                        borderRadius: BorderRadius.circular(2)),
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text('프로필 사진 변경', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('프로필 사진 변경',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -255,13 +321,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF5F0),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFFF5E36).withOpacity(0.3)),
+                            border: Border.all(
+                                color: const Color(0xFFFF5E36)
+                                    .withValues(alpha: 0.3)),
                           ),
                           child: const Column(
                             children: [
-                              Icon(Icons.photo_camera_rounded, color: Color(0xFFFF5E36), size: 28),
+                              Icon(Icons.photo_camera_rounded,
+                                  color: Color(0xFFFF5E36), size: 28),
                               SizedBox(height: 8),
-                              Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                              Text('사진 찍기',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14)),
                             ],
                           ),
                         ),
@@ -280,13 +352,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF7EE),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFF38020).withOpacity(0.3)),
+                            border: Border.all(
+                                color: const Color(0xFFF38020)
+                                    .withValues(alpha: 0.3)),
                           ),
                           child: const Column(
                             children: [
-                              Icon(Icons.photo_library_rounded, color: Color(0xFFF38020), size: 28),
+                              Icon(Icons.photo_library_rounded,
+                                  color: Color(0xFFF38020), size: 28),
                               SizedBox(height: 8),
-                              Text('앨범에서 선택', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                              Text('앨범에서 선택',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14)),
                             ],
                           ),
                         ),
@@ -295,7 +373,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text('기본 캐릭터 아바타', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF767676))),
+                const Text('기본 캐릭터 아바타',
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF767676))),
                 const SizedBox(height: 10),
                 SizedBox(
                   height: 60,
@@ -311,26 +393,34 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           Navigator.pop(ctx);
                           setState(() => _avatarUrl = pAvatar);
                           globalData.updateAvatar(pAvatar);
-                          await FirebaseFirestore.instance.collection('users').doc(globalData.activeUserId).set({
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(globalData.activeUserId)
+                              .set({
                             'photoUrl': pAvatar,
                             'avatarUrl': pAvatar,
                             'updatedAt': FieldValue.serverTimestamp(),
                           }, SetOptions(merge: true));
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('✨ 프로필 캐릭터가 설정되었습니다.')),
+                              const SnackBar(
+                                  content: Text('✨ 프로필 캐릭터가 설정되었습니다.')),
                             );
                           }
                         },
                         child: Container(
-                          width: 56, height: 56,
+                          width: 56,
+                          height: 56,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isSelected ? const Color(0xFFFF5E36) : const Color(0xFFE5E5EA),
+                              color: isSelected
+                                  ? const Color(0xFFFF5E36)
+                                  : const Color(0xFFE5E5EA),
                               width: isSelected ? 3 : 1.5,
                             ),
-                            image: DecorationImage(image: AssetImage(pAvatar), fit: BoxFit.cover),
+                            image: DecorationImage(
+                                image: AssetImage(pAvatar), fit: BoxFit.cover),
                           ),
                         ),
                       );
@@ -353,25 +443,42 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return AssetImage(url);
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, String hint = '', TextInputType? keyboardType, TextInputAction? textInputAction}) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {int maxLines = 1,
+      String hint = '',
+      TextInputType? keyboardType,
+      TextInputAction? textInputAction}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+        Text(label,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: textSecondary)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
-          textInputAction: textInputAction ?? (maxLines > 1 ? TextInputAction.newline : TextInputAction.next),
-          style: TextStyle(fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
+          textInputAction: textInputAction ??
+              (maxLines > 1 ? TextInputAction.newline : TextInputAction.next),
+          style: TextStyle(
+              fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: const Color(0xFFC7C7CC), fontSize: 15, fontWeight: FontWeight.normal),
+            hintStyle: const TextStyle(
+                color: Color(0xFFC7C7CC),
+                fontSize: 15,
+                fontWeight: FontWeight.normal),
             fillColor: surfaceColor,
             filled: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: accentColor, width: 2)),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: accentColor, width: 2)),
           ),
         ),
         const SizedBox(height: 20),
@@ -383,7 +490,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('성별', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+        Text('성별',
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: textSecondary)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -396,9 +507,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: _gender == '여성' ? const Color(0xFFF25767) : surfaceColor,
+                    color: _gender == '여성'
+                        ? const Color(0xFFF25767)
+                        : surfaceColor,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _gender == '여성' ? const Color(0xFFF25767) : const Color(0xFFEBEBEF)),
+                    border: Border.all(
+                        color: _gender == '여성'
+                            ? const Color(0xFFF25767)
+                            : const Color(0xFFEBEBEF)),
                   ),
                   child: Center(
                     child: Text(
@@ -423,9 +539,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: _gender == '남성' ? const Color(0xFF4A90E2) : surfaceColor,
+                    color: _gender == '남성'
+                        ? const Color(0xFF4A90E2)
+                        : surfaceColor,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _gender == '남성' ? const Color(0xFF4A90E2) : const Color(0xFFEBEBEF)),
+                    border: Border.all(
+                        color: _gender == '남성'
+                            ? const Color(0xFF4A90E2)
+                            : const Color(0xFFEBEBEF)),
                   ),
                   child: Center(
                     child: Text(
@@ -447,36 +568,56 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  Widget _buildChipSection(String title, List<String> available, List<String> selected) {
+  Widget _buildChipSection(
+      String title, List<String> available, List<String> selected) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+        Text(title,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: textSecondary)),
         const SizedBox(height: 12),
         Wrap(
-          spacing: 8, runSpacing: 12,
+          spacing: 8,
+          runSpacing: 12,
           children: available.map((item) {
             final isSelected = selected.contains(item);
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  if (isSelected) selected.remove(item);
-                  else selected.add(item);
+                  if (isSelected) {
+                    selected.remove(item);
+                  } else {
+                    selected.add(item);
+                  }
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? accentColor : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: isSelected ? accentColor : const Color(0xFFEBEBEF)),
-                  boxShadow: isSelected ? [BoxShadow(color: accentColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))] : [],
+                  border: Border.all(
+                      color:
+                          isSelected ? accentColor : const Color(0xFFEBEBEF)),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                              color: accentColor.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3))
+                        ]
+                      : [],
                 ),
-                child: Text(item, style: TextStyle(
-                  color: isSelected ? Colors.white : textPrimary,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 14
-                )),
+                child: Text(item,
+                    style: TextStyle(
+                        color: isSelected ? Colors.white : textPrimary,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontSize: 14)),
               ),
             );
           }).toList(),
@@ -494,106 +635,146 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: textPrimary),
-        title: Text('프로필 상세 수정', style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text('프로필 상세 수정',
+            style: TextStyle(
+                color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
       ),
-      body: _isLoading 
-        ? Center(child: CircularProgressIndicator(color: accentColor))
-        : SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: GestureDetector(
-                    onTap: _isUploadingPhoto ? null : () => _showAvatarPickerModal(context),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 104, height: 104,
-                          decoration: BoxDecoration(
-                            color: surfaceColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFE5E5EA), width: 2),
-                            image: DecorationImage(image: _getAvatarProvider(_avatarUrl), fit: BoxFit.cover),
-                            boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4)),
-                            ],
-                          ),
-                          child: _isUploadingPhoto
-                              ? Container(
-                                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
-                                  child: const Center(child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
-                                )
-                              : null,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(7),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(color: accentColor))
+          : SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: GestureDetector(
+                      onTap: _isUploadingPhoto
+                          ? null
+                          : () => _showAvatarPickerModal(context),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 104,
+                            height: 104,
                             decoration: BoxDecoration(
-                              color: accentColor,
+                              color: surfaceColor,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(
+                                  color: const Color(0xFFE5E5EA), width: 2),
+                              image: DecorationImage(
+                                  image: _getAvatarProvider(_avatarUrl),
+                                  fit: BoxFit.cover),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4)),
+                              ],
                             ),
-                            child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 16),
+                            child: _isUploadingPhoto
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.4),
+                                        shape: BoxShape.circle),
+                                    child: const Center(
+                                        child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2)),
+                                  )
+                                : null,
                           ),
-                        ),
-                        if (_role == 'admin')
                           Positioned(
-                            top: 0, right: 0,
+                            bottom: 0,
+                            right: 0,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.all(7),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [Color(0xFFF19E39), Color(0xFFF25767)]),
-                                borderRadius: BorderRadius.circular(10),
+                                color: accentColor,
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
                               ),
-                              child: const Text('👑 Admin', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                              child: const Icon(Icons.camera_alt_rounded,
+                                  color: Colors.white, size: 16),
                             ),
                           ),
-                      ],
+                          if (_role == 'admin')
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(colors: [
+                                    Color(0xFFF19E39),
+                                    Color(0xFFF25767)
+                                  ]),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Text('👑 Admin',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Center(
-                  child: Text('사진을 탭하여 변경', style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
-                ),
-                const SizedBox(height: 32),
-                
-                _buildTextField('닉네임 (활동명)', _nicknameController, hint: '예: 오오무 운영팀 또는 닉네임'),
-                
-                Row(
-                  children: [
-                    Expanded(child: _buildTextField('이름 (실명)', _nameController, hint: '예: 홍길동')),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildTextField('나이', _ageController, hint: '예: 29', keyboardType: TextInputType.number)),
-                  ],
-                ),
-                
-                _buildGenderSelector(),
-                _buildTextField('활동 동네 / 지역', _locationController, hint: '예: 서울 마포구 연남동'),
-                
-                Row(
-                  children: [
-                    Expanded(child: _buildTextField('직무/직업', _jobController, hint: '예: IT/개발')),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildTextField('MBTI', _mbtiController, hint: '예: ENFJ')),
-                  ],
-                ),
-                
-                _buildTextField('한줄 소개', _bioController, maxLines: 2, hint: '나를 표현할 수 있는 한줄 소개를 적어주세요!'),
-                
-                _buildChipSection('성격 태그', _availablePersonalities, _selectedPersonalities),
-                _buildChipSection('음주 성향', _availableDrinking, _selectedDrinking),
-                _buildChipSection('나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
-                
-                const SizedBox(height: 30),
-              ],
+                  const SizedBox(height: 6),
+                  Center(
+                    child: Text('사진을 탭하여 변경',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: textSecondary,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildTextField('닉네임 (활동명)', _nicknameController,
+                      hint: '예: 오오무 운영팀 또는 닉네임'),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: _buildTextField('이름 (실명)', _nameController,
+                              hint: '예: 홍길동')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: _buildTextField('나이', _ageController,
+                              hint: '예: 29',
+                              keyboardType: TextInputType.number)),
+                    ],
+                  ),
+                  _buildGenderSelector(),
+                  _buildTextField('활동 동네 / 지역', _locationController,
+                      hint: '예: 서울 마포구 연남동'),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: _buildTextField('직무/직업', _jobController,
+                              hint: '예: IT/개발')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: _buildTextField('MBTI', _mbtiController,
+                              hint: '예: ENFJ')),
+                    ],
+                  ),
+                  _buildTextField('한줄 소개', _bioController,
+                      maxLines: 2, hint: '나를 표현할 수 있는 한줄 소개를 적어주세요!'),
+                  _buildChipSection(
+                      '성격 태그', _availablePersonalities, _selectedPersonalities),
+                  _buildChipSection(
+                      '음주 성향', _availableDrinking, _selectedDrinking),
+                  _buildChipSection(
+                      '나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
-          ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -604,11 +785,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: accentColor,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
-              child: _isSaving 
-                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text('저장하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
+                  : const Text('저장하기',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
             ),
           ),
         ),

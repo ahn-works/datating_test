@@ -169,7 +169,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
   @override
   void initState() {
     super.initState();
-    _selectedLatLng = widget.initialLatLng ?? const LatLng(37.5568, 126.9238); // 홍대입구 기본값
+    _selectedLatLng =
+        widget.initialLatLng ?? const LatLng(37.5568, 126.9238); // 홍대입구 기본값
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _searchController.text = widget.initialQuery!;
       _selectedPlaceName = widget.initialQuery!;
@@ -188,11 +189,14 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         if (_selectedCategoryFilter == '전체') {
           _searchResults = List.from(_defaultPlaces);
         } else {
-          _searchResults = _defaultPlaces.where((p) => p.category == _selectedCategoryFilter).toList();
+          _searchResults = _defaultPlaces
+              .where((p) => p.category == _selectedCategoryFilter)
+              .toList();
         }
       } else {
         _searchResults = _defaultPlaces.where((p) {
-          final matchesCategory = _selectedCategoryFilter == '전체' || p.category == _selectedCategoryFilter;
+          final matchesCategory = _selectedCategoryFilter == '전체' ||
+              p.category == _selectedCategoryFilter;
           final matchesText = p.name.toLowerCase().contains(clean) ||
               p.address.toLowerCase().contains(clean) ||
               p.category.toLowerCase().contains(clean);
@@ -219,7 +223,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         final onlineList = places.map((item) {
           return PlaceSearchResult(
             name: item.name,
-            address: item.roadAddress.isNotEmpty ? item.roadAddress : item.address,
+            address:
+                item.roadAddress.isNotEmpty ? item.roadAddress : item.address,
             category: item.category.isNotEmpty ? item.category : '카카오맵 검색',
             latLng: LatLng(item.lat, item.lng),
           );
@@ -246,7 +251,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('위치 권한이 필요합니다. 설정에서 허용해주세요.')),
@@ -312,26 +318,37 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         children: [
           // 1. 드래그 핸들 & 헤더
           Container(
-            padding: const EdgeInsets.only(top: 12, bottom: 8, left: 20, right: 14),
+            padding:
+                const EdgeInsets.only(top: 12, bottom: 8, left: 20, right: 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFF0EB),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text('📍 장소 선택', style: TextStyle(color: coralAccent, fontWeight: FontWeight.w800, fontSize: 13)),
+                      child: const Text('📍 장소 선택',
+                          style: TextStyle(
+                              color: coralAccent,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13)),
                     ),
                     const SizedBox(width: 8),
-                    const Text('모임 장소 검색 및 설정', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+                    const Text('모임 장소 검색 및 설정',
+                        style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: textPrimary)),
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 24, color: textSecondary),
+                  icon: const Icon(Icons.close_rounded,
+                      size: 24, color: textSecondary),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -349,14 +366,20 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
               ),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary),
+                style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimary),
                 decoration: InputDecoration(
                   hintText: '카페, 맛집, 역 이름 검색 (예: 스타벅스, 엽떡, 여수 학동)',
-                  hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9E9EA7)),
-                  prefixIcon: const Icon(Icons.search_rounded, color: coralAccent),
+                  hintStyle:
+                      const TextStyle(fontSize: 13, color: Color(0xFF9E9EA7)),
+                  prefixIcon:
+                      const Icon(Icons.search_rounded, color: coralAccent),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18, color: textSecondary),
+                          icon: const Icon(Icons.clear_rounded,
+                              size: 18, color: textSecondary),
                           onPressed: () {
                             _searchController.clear();
                             _filterPlaces('');
@@ -364,7 +387,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                 ),
                 onChanged: _filterPlaces,
               ),
@@ -377,7 +401,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 18),
-              children: ['전체', '카페', '맛집', '술집', '엔터', '액티비티', '약속장소'].map((cat) {
+              children:
+                  ['전체', '카페', '맛집', '술집', '엔터', '액티비티', '약속장소'].map((cat) {
                 final isSelected = _selectedCategoryFilter == cat;
                 return Padding(
                   padding: const EdgeInsets.only(right: 6),
@@ -387,7 +412,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                     selectedColor: const Color(0xFFFFF0EB),
                     labelStyle: TextStyle(
                       color: isSelected ? coralAccent : textSecondary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w600,
                       fontSize: 12,
                     ),
                     onSelected: (val) {
@@ -413,8 +439,9 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                 lat: _selectedLatLng.latitude,
                 lng: _selectedLatLng.longitude,
                 locationName: _selectedPlaceName,
-                height: 200, hideActions: true,
-            ),
+                height: 200,
+                hideActions: true,
+              ),
             ),
           ),
 
@@ -422,37 +449,50 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              itemCount: _searchResults.length + (_searchController.text.trim().isNotEmpty ? 1 : 0),
-              separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF0F0F3)),
+              itemCount: _searchResults.length +
+                  (_searchController.text.trim().isNotEmpty ? 1 : 0),
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 1, color: Color(0xFFF0F0F3)),
               itemBuilder: (context, index) {
                 // 직접 입력 옵션이 최상단에 있는 경우
                 if (_searchController.text.trim().isNotEmpty && index == 0) {
                   final customText = _searchController.text.trim();
                   return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     leading: const CircleAvatar(
                       backgroundColor: Color(0xFFFFF0EB),
                       radius: 20,
-                      child: Icon(Icons.edit_location_alt_rounded, color: coralAccent, size: 22),
+                      child: Icon(Icons.edit_location_alt_rounded,
+                          color: coralAccent, size: 22),
                     ),
                     title: Text(
                       '\'$customText\' (으)로 직접 지정',
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: coralAccent),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: coralAccent),
                     ),
-                    subtitle: const Text('입력하신 이름을 모임 장소로 즉시 확정합니다', style: TextStyle(fontSize: 12, color: textSecondary)),
-                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: coralAccent),
+                    subtitle: const Text('입력하신 이름을 모임 장소로 즉시 확정합니다',
+                        style: TextStyle(fontSize: 12, color: textSecondary)),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded,
+                        size: 14, color: coralAccent),
                     onTap: () {
-                      _selectLocation(_selectedLatLng, customText, '직접 입력한 모임 장소');
+                      _selectLocation(
+                          _selectedLatLng, customText, '직접 입력한 모임 장소');
                     },
                   );
                 }
 
-                final actualIndex = _searchController.text.trim().isNotEmpty ? index - 1 : index;
+                final actualIndex = _searchController.text.trim().isNotEmpty
+                    ? index - 1
+                    : index;
                 final item = _searchResults[actualIndex];
                 final isSelected = _selectedPlaceName == item.name;
 
                 return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   leading: CircleAvatar(
                     backgroundColor: isSelected ? coralAccent : surfaceColor,
                     radius: 20,
@@ -461,7 +501,9 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                           ? Icons.coffee_rounded
                           : (item.category == '맛집'
                               ? Icons.restaurant_rounded
-                              : (item.category == '술집' ? Icons.wine_bar_rounded : Icons.place_rounded)),
+                              : (item.category == '술집'
+                                  ? Icons.wine_bar_rounded
+                                  : Icons.place_rounded)),
                       color: isSelected ? Colors.white : textSecondary,
                       size: 20,
                     ),
@@ -469,7 +511,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                   title: Text(
                     item.name,
                     style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                      fontWeight:
+                          isSelected ? FontWeight.w800 : FontWeight.w700,
                       fontSize: 14,
                       color: isSelected ? coralAccent : textPrimary,
                     ),
@@ -481,7 +524,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check_circle_rounded, color: coralAccent, size: 22)
+                      ? const Icon(Icons.check_circle_rounded,
+                          color: coralAccent, size: 22)
                       : null,
                   onTap: () {
                     _selectLocation(item.latLng, item.name, item.address);
@@ -499,7 +543,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
                     offset: const Offset(0, -4),
                   ),
@@ -511,12 +555,18 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.check_circle_outline, color: coralAccent, size: 18),
+                      const Icon(Icons.check_circle_outline,
+                          color: coralAccent, size: 18),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          _selectedPlaceName.isNotEmpty ? _selectedPlaceName : '선택된 장소 없음',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textPrimary),
+                          _selectedPlaceName.isNotEmpty
+                              ? _selectedPlaceName
+                              : '선택된 장소 없음',
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: textPrimary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -528,7 +578,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                       padding: const EdgeInsets.only(left: 24, top: 2),
                       child: Text(
                         _selectedAddress,
-                        style: const TextStyle(fontSize: 12, color: textSecondary),
+                        style:
+                            const TextStyle(fontSize: 12, color: textSecondary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -541,15 +592,19 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: coralAccent,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
                       icon: const Icon(Icons.check_rounded, size: 20),
-                      label: const Text('이 위치로 장소 설정하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      label: const Text('이 위치로 장소 설정하기',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w800)),
                       onPressed: () {
                         if (_selectedPlaceName.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('장소를 선택하거나 검색어를 입력해주세요.')),
+                            const SnackBar(
+                                content: Text('장소를 선택하거나 검색어를 입력해주세요.')),
                           );
                           return;
                         }

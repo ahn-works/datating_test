@@ -11,7 +11,7 @@ class PartyHostScreen extends StatefulWidget {
 class _PartyHostScreenState extends State<PartyHostScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-  
+
   String _selectedCategory = '⚡ 오늘 번개';
   final List<String> _categories = [
     '⚡ 오늘 번개',
@@ -184,7 +184,10 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: isSel ? const Color(0xFFFF6B4A) : Colors.transparent),
+                      side: BorderSide(
+                          color: isSel
+                              ? const Color(0xFFFF6B4A)
+                              : Colors.transparent),
                     ),
                   );
                 }).toList(),
@@ -200,10 +203,14 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                   TextField(
                     controller: _titleController,
                     textInputAction: TextInputAction.next,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A)),
                     decoration: InputDecoration(
                       hintText: '예: 이번 주말 성수 에스프레소 바 투어 ☕️',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                      hintStyle: const TextStyle(
+                          color: Color(0xFF94A3B8), fontSize: 14),
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(
@@ -216,7 +223,8 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFFF6B4A), width: 1.5),
+                        borderSide: const BorderSide(
+                            color: Color(0xFFFF6B4A), width: 1.5),
                       ),
                       contentPadding: const EdgeInsets.all(14),
                     ),
@@ -226,10 +234,13 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                     controller: _descController,
                     maxLines: 4,
                     textInputAction: TextInputAction.newline,
-                    style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B), height: 1.5),
+                    style: const TextStyle(
+                        fontSize: 14, color: Color(0xFF1E293B), height: 1.5),
                     decoration: InputDecoration(
-                      hintText: '어떤 사람들과 어떤 분위기로 만나는지 자유롭게 적어주세요. (취향, 준비물, 약속 매너 등)',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                      hintText:
+                          '어떤 사람들과 어떤 분위기로 만나는지 자유롭게 적어주세요. (취향, 준비물, 약속 매너 등)',
+                      hintStyle: const TextStyle(
+                          color: Color(0xFF94A3B8), fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(
@@ -242,7 +253,8 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFFF6B4A), width: 1.5),
+                        borderSide: const BorderSide(
+                            color: Color(0xFFFF6B4A), width: 1.5),
                       ),
                       contentPadding: const EdgeInsets.all(14),
                     ),
@@ -276,7 +288,10 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: isSel ? const Color(0xFF0F172A) : Colors.transparent),
+                      side: BorderSide(
+                          color: isSel
+                              ? const Color(0xFF0F172A)
+                              : Colors.transparent),
                     ),
                   );
                 }).toList(),
@@ -292,14 +307,18 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _pickDate,
-                      icon: const Icon(Icons.calendar_month_rounded, size: 18, color: Color(0xFFFF6B4A)),
+                      icon: const Icon(Icons.calendar_month_rounded,
+                          size: 18, color: Color(0xFFFF6B4A)),
                       label: Text(
                         '${_selectedDate.month}월 ${_selectedDate.day}일',
-                        style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0F172A)),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         side: const BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                     ),
@@ -308,14 +327,18 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _pickTime,
-                      icon: const Icon(Icons.access_time_rounded, size: 18, color: Color(0xFFFF6B4A)),
+                      icon: const Icon(Icons.access_time_rounded,
+                          size: 18, color: Color(0xFFFF6B4A)),
                       label: Text(
                         '${_selectedTime.hour}:${_selectedTime.minute.toString().padLeft(2, '0')}',
-                        style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0F172A)),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         side: const BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                     ),
@@ -331,7 +354,8 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('함께할 최대 인원', style: TextStyle(fontSize: 14, color: Color(0xFF475569))),
+                  const Text('함께할 최대 인원',
+                      style: TextStyle(fontSize: 14, color: Color(0xFF475569))),
                   Row(
                     children: [
                       IconButton(
@@ -347,7 +371,8 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
                       ),
                       Container(
                         constraints: const BoxConstraints(minWidth: 54),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(10),
@@ -435,12 +460,13 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 16,
               offset: const Offset(0, -4),
             )
           ],
-          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
+          border: const Border(
+              top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
         ),
         child: SafeArea(
           child: ElevatedButton(
@@ -449,14 +475,16 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
               backgroundColor: const Color(0xFFFF6B4A),
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
             child: _isLoading
                 ? const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2.5, color: Colors.white),
                   )
                 : const Text(
                     '모임 개설 완료하기',
@@ -481,7 +509,7 @@ class _PartyHostScreenState extends State<PartyHostScreen> {
         border: Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 3),
           )

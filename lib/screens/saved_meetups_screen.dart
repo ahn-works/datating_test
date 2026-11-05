@@ -62,9 +62,13 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
             itemBuilder: (context, index) {
               final item = savedList[index];
               final title = (item['title'] ?? '모임').toString();
-              final location = (item['location'] ?? item['loc'] ?? '서울/경기').toString();
+              final location =
+                  (item['location'] ?? item['loc'] ?? '서울/경기').toString();
               final category = (item['category'] ?? '취향 아지트').toString();
-              final imageUrl = (item['imageUrl'] ?? item['img'] ?? 'assets/images/cover_cafe.jpg').toString();
+              final imageUrl = (item['imageUrl'] ??
+                      item['img'] ??
+                      'assets/images/cover_cafe.jpg')
+                  .toString();
 
               return Dismissible(
                 key: Key(item['id'] ?? title + index.toString()),
@@ -79,7 +83,8 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.delete_outline_rounded, color: Colors.white, size: 22),
+                      Icon(Icons.delete_outline_rounded,
+                          color: Colors.white, size: 22),
                       SizedBox(width: 6),
                       Text(
                         '찜 해제',
@@ -107,10 +112,11 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
+                    border:
+                        Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withValues(alpha: 0.03),
                         blurRadius: 10,
                         offset: const Offset(0, 3),
                       ),
@@ -124,7 +130,8 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                         HapticFeedback.lightImpact();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => OOMUDetailScreen(meetup: item)),
+                          MaterialPageRoute(
+                              builder: (_) => OOMUDetailScreen(meetup: item)),
                         );
                       },
                       child: Padding(
@@ -162,10 +169,12 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                   Row(
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 7, vertical: 3),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFF1F5F9),
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
                                           category,
@@ -178,10 +187,12 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                       ),
                                       const SizedBox(width: 6),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 3),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFFFF4EB),
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: const Text(
                                           '1/N 안심 정산',
@@ -196,8 +207,10 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
 
                                       // 48dp 터치 타깃 찜 해제 하트 버튼
                                       IconButton(
-                                        icon: const Icon(Icons.favorite_rounded, color: Color(0xFFFF3B30), size: 22),
-                                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                                        icon: const Icon(Icons.favorite_rounded,
+                                            color: Color(0xFFFF3B30), size: 22),
+                                        constraints: const BoxConstraints(
+                                            minWidth: 44, minHeight: 44),
                                         padding: EdgeInsets.zero,
                                         onPressed: () {
                                           HapticFeedback.lightImpact();
@@ -226,7 +239,8 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                   // 위치
                                   Row(
                                     children: [
-                                      const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF94A3B8)),
+                                      const Icon(Icons.location_on_rounded,
+                                          size: 14, color: Color(0xFF94A3B8)),
                                       const SizedBox(width: 3),
                                       Expanded(
                                         child: Text(

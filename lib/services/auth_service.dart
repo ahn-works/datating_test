@@ -510,7 +510,7 @@ class AuthService {
       final String defaultPhoto =
           (authPhotoUrl != null && authPhotoUrl.isNotEmpty)
               ? authPhotoUrl
-              : (isAdminEmail ? 'assets/images/kr_female_1.jpg' : '');
+              : (isAdminEmail ? 'assets/images/민지.png' : '');
 
       await docRef.set({
         'userId': uid,

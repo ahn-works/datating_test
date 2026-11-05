@@ -114,11 +114,15 @@ class _HomeScreenState extends State<HomeScreen> {
         surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0F172A), size: 26),
+            icon: const Icon(Icons.notifications_none_rounded,
+                color: Color(0xFF0F172A), size: 26),
             tooltip: '알림',
             onPressed: () {
               HapticFeedback.lightImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const NotificationScreen()));
             },
           ),
           const SizedBox(width: 4),
@@ -146,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: bgColor.withOpacity(0.25),
+                        color: bgColor.withValues(alpha: 0.25),
                         blurRadius: 14,
                         offset: const Offset(0, 6),
                       )
@@ -157,9 +161,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -185,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         b['sub']!,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.85),
+                          color: Colors.white.withValues(alpha: 0.85),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -209,7 +214,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: isCurrent ? 22 : 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: isCurrent ? const Color(0xFFFF6B4A) : const Color(0xFFCBD5E1),
+                  color: isCurrent
+                      ? const Color(0xFFFF6B4A)
+                      : const Color(0xFFCBD5E1),
                   borderRadius: BorderRadius.circular(4),
                 ),
               );
@@ -243,12 +250,20 @@ class _HomeScreenState extends State<HomeScreen> {
               TextButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const LocalFriendsScreen()));
                 },
                 child: const Row(
                   children: [
-                    Text('전체보기', style: TextStyle(color: Color(0xFFFF6B4A), fontWeight: FontWeight.w700, fontSize: 13)),
-                    Icon(Icons.chevron_right_rounded, color: Color(0xFFFF6B4A), size: 16),
+                    Text('전체보기',
+                        style: TextStyle(
+                            color: Color(0xFFFF6B4A),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13)),
+                    Icon(Icons.chevron_right_rounded,
+                        color: Color(0xFFFF6B4A), size: 16),
                   ],
                 ),
               ),
@@ -296,7 +311,8 @@ class _HomeScreenState extends State<HomeScreen> {
             accentColor: const Color(0xFFFF6B4A),
             onTap: () {
               HapticFeedback.lightImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const PartyScreen()));
             },
           ),
           const SizedBox(height: 12),
@@ -308,7 +324,10 @@ class _HomeScreenState extends State<HomeScreen> {
             accentColor: const Color(0xFF0F172A),
             onTap: () {
               HapticFeedback.lightImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalFriendsScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const LocalFriendsScreen()));
             },
           ),
         ],
@@ -339,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
           border: Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -357,7 +376,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 errorBuilder: (_, __, ___) => Container(
                   color: const Color(0xFFF1F5F9),
                   child: const Center(
-                    child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF94A3B8)),
+                    child: Icon(Icons.person_rounded,
+                        size: 40, color: Color(0xFF94A3B8)),
                   ),
                 ),
               ),
@@ -368,8 +388,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.2),
-                      Colors.black.withOpacity(0.85),
+                      Colors.black.withValues(alpha: 0.2),
+                      Colors.black.withValues(alpha: 0.85),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -383,9 +403,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 top: 10,
                 right: 10,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -420,14 +441,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 3),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded, color: Colors.white70, size: 11),
+                        const Icon(Icons.location_on_rounded,
+                            color: Colors.white70, size: 11),
                         const SizedBox(width: 3),
                         Expanded(
                           child: Text(
                             location,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white70, fontSize: 11),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 11),
                           ),
                         ),
                       ],
@@ -468,7 +491,7 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -486,7 +509,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.1),
+                    color: accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(icon, color: accentColor, size: 24),
@@ -516,7 +539,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 20),
+                const Icon(Icons.chevron_right_rounded,
+                    color: Color(0xFFCBD5E1), size: 20),
               ],
             ),
           ),

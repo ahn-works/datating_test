@@ -49,12 +49,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
   void _showAvatarPickerBottomSheet() {
     final avatarList = [
-      {'name': '여성 1 (기본)', 'path': 'assets/images/kr_female_1.jpg'},
-      {'name': '여성 2 (단발)', 'path': 'assets/images/kr_female_2.jpg'},
-      {'name': '여성 3 (웨이브)', 'path': 'assets/images/kr_female_3.jpg'},
-      {'name': '남성 1 (댄디)', 'path': 'assets/images/kr_male_1.jpg'},
-      {'name': '남성 2 (캐주얼)', 'path': 'assets/images/kr_male_2.jpg'},
-      {'name': '남성 3 (스포티)', 'path': 'assets/images/kr_male_3.jpg'},
+      {'name': '민지 (따뜻함)', 'path': 'assets/images/민지.png'},
+      {'name': '시연 (카페)', 'path': 'assets/images/시연.png'},
+      {'name': '지연 (와인)', 'path': 'assets/images/지연.png'},
+      {'name': '지훈 (러너)', 'path': 'assets/images/지훈.png'},
+      {'name': '정재 (자켓)', 'path': 'assets/images/정재.png'},
+      {'name': '지안 (블랙)', 'path': 'assets/images/지안.png'},
     ];
 
     final r2UrlController = TextEditingController();
@@ -174,7 +174,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                            color: const Color(0xFFF38020).withOpacity(0.12),
+                            color:
+                                const Color(0xFFF38020).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6)),
                         child: const Text('R2 oomu-spot',
                             style: TextStyle(
@@ -206,7 +207,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               color: const Color(0xFFFFF0F2),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                  color: coralAccent.withOpacity(0.35)),
+                                  color: coralAccent.withValues(alpha: 0.35)),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -251,7 +252,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                   color: const Color(0xFFF38020)
-                                      .withOpacity(0.35)),
+                                      .withValues(alpha: 0.35)),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -289,11 +290,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF38020).withOpacity(0.1),
+                        color: const Color(0xFFF38020).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        children: const [
+                      child: const Row(
+                        children: [
                           SizedBox(
                               width: 18,
                               height: 18,
@@ -411,8 +412,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           controller: r2UrlController,
                           decoration: InputDecoration(
                             hintText: 'https://pub-xxxx.r2.dev/photo.jpg',
-                            hintStyle: TextStyle(
-                                color: const Color(0xFFC7C7CC), fontSize: 13),
+                            hintStyle: const TextStyle(
+                                color: Color(0xFFC7C7CC), fontSize: 13),
                             filled: true,
                             fillColor: surfaceColor,
                             contentPadding: const EdgeInsets.symmetric(
@@ -511,7 +512,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                            color: const Color(0xFFF38020).withOpacity(0.12),
+                            color:
+                                const Color(0xFFF38020).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10)),
                         child: const Icon(Icons.cloud_sync_outlined,
                             color: Color(0xFFF38020), size: 22),
@@ -539,20 +541,21 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       color: const Color(0xFFFFF9F3),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                          color: const Color(0xFFF38020).withOpacity(0.3)),
+                          color:
+                              const Color(0xFFF38020).withValues(alpha: 0.3)),
                     ),
-                    child: Row(
+                    child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.shield_outlined,
+                        Icon(Icons.shield_outlined,
                             color: Color(0xFFF38020), size: 20),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             '보안 안내: 개인정보 및 R2 S3 Secret Access Key는 Git 소스코드에 절대 커밋되지 않으며, Firebase Firestore (config/r2_storage)에 안전하게 암호화 보관됩니다.',
                             style: TextStyle(
                                 fontSize: 12,
-                                color: const Color(0xFFB85D00),
+                                color: Color(0xFFB85D00),
                                 height: 1.4),
                           ),
                         ),
@@ -573,9 +576,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     decoration: BoxDecoration(
                         color: surfaceColor,
                         borderRadius: BorderRadius.circular(10)),
-                    child: SelectableText(
+                    child: const SelectableText(
                       R2StorageService.s3Endpoint,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontFamily: 'monospace',
                           color: Color(0xFF333333)),
@@ -812,7 +815,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
           Switch(
             value: value,
-            activeColor: coralAccent,
+            activeThumbColor: coralAccent,
             onChanged: (_) => onToggle(),
           ),
         ],
@@ -915,7 +918,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 decoration: InputDecoration(
                   hintText: '문의 내용을 작성해 주시면 24시간 이내에 답변드립니다.',
                   hintStyle:
-                      TextStyle(color: const Color(0xFFC7C7CC), fontSize: 13),
+                      const TextStyle(color: Color(0xFFC7C7CC), fontSize: 13),
                   filled: true,
                   fillColor: surfaceColor,
                   border: OutlineInputBorder(
@@ -1178,7 +1181,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       border: Border.all(color: const Color(0xFFEFE4E6)),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 16,
                             offset: const Offset(0, 4))
                       ],
@@ -1200,8 +1203,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                              color:
-                                                  coralAccent.withOpacity(0.4),
+                                              color: coralAccent.withValues(
+                                                  alpha: 0.4),
                                               width: 2),
                                           image: DecorationImage(
                                               image: appImg(avatar),
@@ -1432,11 +1435,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               color: const Color(0xFF232326),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Wrap(
+                            child: const Wrap(
                               spacing: 10,
                               runSpacing: 4,
                               crossAxisAlignment: WrapCrossAlignment.center,
-                              children: const [
+                              children: [
                                 Text(
                                   'OOMU Plus',
                                   style: TextStyle(
@@ -1514,7 +1517,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           color: const Color(0xFFF1E6E8), width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: coralAccent.withOpacity(0.04),
+                          color: coralAccent.withValues(alpha: 0.04),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -1700,7 +1703,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     const SizedBox(height: 32),
                   ],
 
-
                   // 설정 및 관리 Section
                   Text('설정 및 관리',
                       style: TextStyle(
@@ -1855,7 +1857,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           constraints: const BoxConstraints(minWidth: 66),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
-            color: accent.withOpacity(0.08),
+            color: accent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -2074,7 +2076,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (iconColor ?? textPrimary).withOpacity(0.1),
+                color: (iconColor ?? textPrimary).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: iconColor ?? textPrimary, size: 20),
@@ -2096,7 +2098,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                    color: coralAccent.withOpacity(0.12),
+                    color: coralAccent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10)),
                 child: Text(badge,
                     style: TextStyle(
@@ -2196,7 +2198,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                      color: coralAccent.withOpacity(0.3),
+                      color: coralAccent.withValues(alpha: 0.3),
                       blurRadius: 6,
                       offset: const Offset(0, 2))
                 ]

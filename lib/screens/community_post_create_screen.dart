@@ -12,7 +12,8 @@ class CommunityPostCreateScreen extends StatefulWidget {
   const CommunityPostCreateScreen({super.key, required this.currentLocation});
 
   @override
-  State<CommunityPostCreateScreen> createState() => _CommunityPostCreateScreenState();
+  State<CommunityPostCreateScreen> createState() =>
+      _CommunityPostCreateScreenState();
 }
 
 class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
@@ -52,7 +53,6 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     'assets/images/cover_running.jpg',
   ];
 
-
   bool _submitting = false;
   @override
   void dispose() {
@@ -66,35 +66,54 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     final content = _contentController.text.trim();
     if (content.isEmpty) return;
     if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인 후 글을 등록할 수 있어요. 입력한 내용은 유지돼요.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인 후 글을 등록할 수 있어요. 입력한 내용은 유지돼요.')));
       return;
     }
     final uid = FirebaseAuth.instance.currentUser!.uid;
     final generation = globalData.sessionGeneration;
     final titleInput = _titleController.text.trim();
-    final title = titleInput.isEmpty ? content.split('\n').first.characters.take(40).toString() : titleInput;
+    final title = titleInput.isEmpty
+        ? content.split('\n').first.characters.take(40).toString()
+        : titleInput;
     final ref = FirebaseFirestore.instance.collection('community_posts').doc();
     final post = <String, dynamic>{
-      'id': ref.id, 'authorId': uid,
-      'title': title, 'content': content,
-      'category': _selectedCategory == '🎭 공연·핫플' ? '공연/전시'
-        : _selectedCategory == '🍰 맛집·카페' ? '맛집/카페'
-        : _selectedCategory == '❓ 동네질문' ? '질문/추천' : '동네 토크',
+      'id': ref.id,
+      'authorId': uid,
+      'title': title,
+      'content': content,
+      'category': _selectedCategory == '🎭 공연·핫플'
+          ? '공연/전시'
+          : _selectedCategory == '🍰 맛집·카페'
+              ? '맛집/카페'
+              : _selectedCategory == '❓ 동네질문'
+                  ? '질문/추천'
+                  : '동네 토크',
       'tag': _selectedTag,
-      'author': globalData.userNickname.value.isEmpty ? '이웃' : globalData.userNickname.value,
+      'author': globalData.userNickname.value.isEmpty
+          ? '이웃'
+          : globalData.userNickname.value,
       'authorAvatar': globalData.userAvatar.value,
       'location': widget.currentLocation,
-      if (globalData.temperature.value > 0) 'manner': globalData.temperature.value,
-      'likes': 0, 'likedUserIds': <String>[], 'comments': 0,
-      'image': _selectedPhoto, 'createdAt': FieldValue.serverTimestamp(),
+      if (globalData.temperature.value > 0)
+        'manner': globalData.temperature.value,
+      'likes': 0,
+      'likedUserIds': <String>[],
+      'comments': 0,
+      'image': _selectedPhoto,
+      'createdAt': FieldValue.serverTimestamp(),
     };
     setState(() => _submitting = true);
     try {
       await ref.set(post);
-      if (!mounted || FirebaseAuth.instance.currentUser?.uid != uid || generation != globalData.sessionGeneration) return;
+      if (!mounted ||
+          FirebaseAuth.instance.currentUser?.uid != uid ||
+          generation != globalData.sessionGeneration) return;
       Navigator.pop(context, {...post, 'time': '방금 전'});
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -102,7 +121,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canSubmit = !_submitting && _contentController.text.trim().isNotEmpty;
+    final bool canSubmit =
+        !_submitting && _contentController.text.trim().isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -113,12 +133,16 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
           onPressed: () => Navigator.pop(context),
           child: Text(
             '취소',
-            style: TextStyle(color: textSecondary, fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: textSecondary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600),
           ),
         ),
         title: Text(
           '동네 이야기 쓰기',
-          style: TextStyle(color: textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
+          style: TextStyle(
+              color: textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
         actions: [
@@ -127,16 +151,19 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
             child: SizedBox(
               height: 48,
               child: ElevatedButton(
-                onPressed: canSubmit ? () {
-                  HapticFeedback.mediumImpact();
-                  _submit();
-                } : null,
+                onPressed: canSubmit
+                    ? () {
+                        HapticFeedback.mediumImpact();
+                        _submit();
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: coralAccent,
                   disabledBackgroundColor: const Color(0xFFE2E8F0),
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
                   _submitting ? '저장 중' : '등록',
@@ -157,7 +184,11 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Category selector chips
-            Text('카테고리 선택', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textSecondary)),
+            Text('카테고리 선택',
+                style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: textSecondary)),
             const SizedBox(height: 8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -172,17 +203,23 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFFFF0F2) : surfaceColor,
+                        color:
+                            isSelected ? const Color(0xFFFFF0F2) : surfaceColor,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: isSelected ? coralAccent : const Color(0xFFEAECF0)),
+                        border: Border.all(
+                            color: isSelected
+                                ? coralAccent
+                                : const Color(0xFFEAECF0)),
                       ),
                       child: Text(
                         cat,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
                           color: isSelected ? coralAccent : textPrimary,
                         ),
                       ),
@@ -195,7 +232,11 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
             const SizedBox(height: 14),
 
             // Tag selector chips
-            Text('트렌드 태그 선택', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textSecondary)),
+            Text('트렌드 태그 선택',
+                style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: textSecondary)),
             const SizedBox(height: 8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -210,17 +251,22 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: isSelected ? coralAccent : const Color(0xFFF3EAEB),
+                        color:
+                            isSelected ? coralAccent : const Color(0xFFF3EAEB),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '#$t',
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? Colors.white : const Color(0xFF555555),
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF555555),
                         ),
                       ),
                     ),
@@ -236,10 +282,16 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
             // Title Input
             TextField(
               controller: _titleController,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: textPrimary),
               decoration: InputDecoration(
                 hintText: '제목을 입력하세요 (선택)',
-                hintStyle: TextStyle(color: textSecondary.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w600),
+                hintStyle: TextStyle(
+                    color: textSecondary.withValues(alpha: 0.6),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
@@ -256,8 +308,12 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
               onChanged: (_) => setState(() {}),
               style: TextStyle(fontSize: 14.5, color: textPrimary, height: 1.5),
               decoration: InputDecoration(
-                hintText: '${widget.currentLocation} 이웃들과 나누고 싶은 공연 후기, 맛집 추천, 동네 질문 등을 자유롭게 적어보세요 :)',
-                hintStyle: TextStyle(color: textSecondary.withOpacity(0.6), fontSize: 13.5, height: 1.45),
+                hintText:
+                    '${widget.currentLocation} 이웃들과 나누고 싶은 공연 후기, 맛집 추천, 동네 질문 등을 자유롭게 적어보세요 :)',
+                hintStyle: TextStyle(
+                    color: textSecondary.withValues(alpha: 0.6),
+                    fontSize: 13.5,
+                    height: 1.45),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
@@ -266,7 +322,11 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
             const SizedBox(height: 16),
 
             // Photo Attachment Section
-            Text('사진 첨부 (선택)', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textSecondary)),
+            Text('사진 첨부 (선택)',
+                style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: textSecondary)),
             const SizedBox(height: 8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -282,18 +342,32 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                       height: 68,
                       margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
-                        color: _selectedPhoto == null ? const Color(0xFFFFF0F2) : surfaceColor,
+                        color: _selectedPhoto == null
+                            ? const Color(0xFFFFF0F2)
+                            : surfaceColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: _selectedPhoto == null ? coralAccent : const Color(0xFFEAECF0)),
+                        border: Border.all(
+                            color: _selectedPhoto == null
+                                ? coralAccent
+                                : const Color(0xFFEAECF0)),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.not_interested_rounded, size: 20, color: _selectedPhoto == null ? coralAccent : textSecondary),
+                          Icon(Icons.not_interested_rounded,
+                              size: 20,
+                              color: _selectedPhoto == null
+                                  ? coralAccent
+                                  : textSecondary),
                           const SizedBox(height: 2),
                           Text(
                             '사진 없음',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _selectedPhoto == null ? coralAccent : textSecondary),
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: _selectedPhoto == null
+                                    ? coralAccent
+                                    : textSecondary),
                           ),
                         ],
                       ),
@@ -309,7 +383,9 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSel ? coralAccent : Colors.transparent, width: 2),
+                          border: Border.all(
+                              color: isSel ? coralAccent : Colors.transparent,
+                              width: 2),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
@@ -319,9 +395,10 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                               Image.asset(photoPath, fit: BoxFit.cover),
                               if (isSel)
                                 Container(
-                                  color: coralAccent.withOpacity(0.3),
+                                  color: coralAccent.withValues(alpha: 0.3),
                                   child: const Center(
-                                    child: Icon(Icons.check_circle, color: Colors.white, size: 20),
+                                    child: Icon(Icons.check_circle,
+                                        color: Colors.white, size: 20),
                                   ),
                                 ),
                             ],

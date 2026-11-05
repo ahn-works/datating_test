@@ -8,9 +8,17 @@ class OOMUHubScreen extends StatelessWidget {
   final List<Map<String, String>> screens = const [
     {'folder': '1_n', 'title': '1_n'},
     {'folder': 'ai', 'title': 'ai'},
-    {'folder': '_1', 'title': '우무(OOMU) - 중간 경유지 픽업 &amp; 동네 랑데부 스팟 투표 (Smart Pickup &amp; Meetup Point)'},
+    {
+      'folder': '_1',
+      'title':
+          '우무(OOMU) - 중간 경유지 픽업 &amp; 동네 랑데부 스팟 투표 (Smart Pickup &amp; Meetup Point)'
+    },
     {'folder': '_10', 'title': '우무(OOMU) - 동네 소규모 드라이브 여행'},
-    {'folder': '_11', 'title': '우무(OOMU) - 중간 경유지 픽업 &amp; 동네 랑데부 스팟 투표 (Smart Pickup &amp; Meetup Point)'},
+    {
+      'folder': '_11',
+      'title':
+          '우무(OOMU) - 중간 경유지 픽업 &amp; 동네 랑데부 스팟 투표 (Smart Pickup &amp; Meetup Point)'
+    },
     {'folder': '_12', 'title': '우무(OOMU) - 드라이버 안심 프로필'},
     {'folder': '_13', 'title': '_13'},
     {'folder': '_14', 'title': '우무(OOMU) - 동네 소규모 드라이브 여행'},
@@ -20,9 +28,16 @@ class OOMUHubScreen extends StatelessWidget {
     {'folder': '_18', 'title': '우무(OOMU) - 상세 정보'},
     {'folder': '_19', 'title': '우무(OOMU) - 동네 소규모 드라이브 여행'},
     {'folder': '_2', 'title': '_2'},
-    {'folder': '_20', 'title': 'Edit Vehicle &amp; License Verification - 우무(OOMU)'},
+    {
+      'folder': '_20',
+      'title': 'Edit Vehicle &amp; License Verification - 우무(OOMU)'
+    },
     {'folder': '_21', 'title': '우무(OOMU) - Manage Applicants &amp; Requests'},
-    {'folder': '_22', 'title': '우무(OOMU) - 스마트 대체 일정 &amp; 코스 변경 (Weather &amp; Traffic Reroute)'},
+    {
+      'folder': '_22',
+      'title':
+          '우무(OOMU) - 스마트 대체 일정 &amp; 코스 변경 (Weather &amp; Traffic Reroute)'
+    },
     {'folder': '_23', 'title': '우무(OOMU) - OOMU'},
     {'folder': '_3', 'title': '우무(OOMU) - 상세 정보'},
     {'folder': '_4', 'title': '_4'},
@@ -43,7 +58,8 @@ class OOMUHubScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('우무 드라이브 메이트 디자인 허브', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('우무 드라이브 메이트 디자인 허브',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -65,19 +81,29 @@ class OOMUHubScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))],
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5))
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Image.network(
                         'soso_car_ui/${s['folder']}/screen.png',
                         fit: BoxFit.cover,
                         width: double.infinity,
-                        errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade200, child: const Center(child: Icon(Icons.broken_image, color: Colors.grey))),
+                        errorBuilder: (_, __, ___) => Container(
+                            color: Colors.grey.shade200,
+                            child: const Center(
+                                child: Icon(Icons.broken_image,
+                                    color: Colors.grey))),
                       ),
                     ),
                   ),
@@ -85,7 +111,10 @@ class OOMUHubScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     child: Text(
                       s['title']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, height: 1.3),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          height: 1.3),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

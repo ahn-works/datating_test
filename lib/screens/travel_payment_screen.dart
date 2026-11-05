@@ -78,7 +78,8 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF4EB),
                       borderRadius: BorderRadius.circular(6),
@@ -125,7 +126,8 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.receipt_long_rounded, color: Color(0xFFFF6B4A), size: 20),
+                      Icon(Icons.receipt_long_rounded,
+                          color: Color(0xFFFF6B4A), size: 20),
                       SizedBox(width: 8),
                       Text(
                         '투명 1/N 정산 안내',
@@ -140,16 +142,19 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
                   const SizedBox(height: 16),
                   _buildBillingRow('사전 참가비', '0원 (무료 참여)', isHighlight: false),
                   const SizedBox(height: 12),
-                  _buildBillingRow('정산 방식', '현장 실비 1/N 균등 정산', isHighlight: true),
+                  _buildBillingRow('정산 방식', '현장 실비 1/N 균등 정산',
+                      isHighlight: true),
                   const SizedBox(height: 12),
-                  _buildBillingRow('정산 수단', '토스 / 카카오페이 간편 송금', isHighlight: false),
+                  _buildBillingRow('정산 수단', '토스 / 카카오페이 간편 송금',
+                      isHighlight: false),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 14),
                     child: Divider(color: Color(0xFFF1F5F9), height: 1),
                   ),
                   const Text(
                     '• 모임 중 발생한 주유비, 톨게이트비, 식대는 모임 종료 즉시 영수증을 등록하여 N등분 정산됩니다.\n• 주최자(호스트)에게 사적으로 선입금하지 마세요.',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.5),
+                    style: TextStyle(
+                        fontSize: 12, color: Color(0xFF64748B), height: 1.5),
                   ),
                 ],
               ),
@@ -170,7 +175,8 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
                   Checkbox(
                     value: _agreedToRules,
                     activeColor: const Color(0xFFFF6B4A),
-                    onChanged: (v) => setState(() => _agreedToRules = v ?? false),
+                    onChanged: (v) =>
+                        setState(() => _agreedToRules = v ?? false),
                   ),
                   const SizedBox(width: 6),
                   const Expanded(
@@ -211,12 +217,13 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 16,
               offset: const Offset(0, -4),
             )
           ],
-          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
+          border: const Border(
+              top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
         ),
         child: SafeArea(
           child: ElevatedButton(
@@ -225,14 +232,16 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
               backgroundColor: const Color(0xFFFF6B4A),
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
             child: _isProcessing
                 ? const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2.5, color: Colors.white),
                   )
                 : const Text(
                     '1/N 안심 서약하고 참여 확정',
@@ -247,7 +256,8 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
     );
   }
 
-  Widget _buildBillingRow(String label, String value, {bool isHighlight = false}) {
+  Widget _buildBillingRow(String label, String value,
+      {bool isHighlight = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -260,7 +270,8 @@ class _TravelPaymentScreenState extends State<TravelPaymentScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: isHighlight ? const Color(0xFFFF6B4A) : const Color(0xFF0F172A),
+            color:
+                isHighlight ? const Color(0xFFFF6B4A) : const Color(0xFF0F172A),
           ),
         ),
       ],

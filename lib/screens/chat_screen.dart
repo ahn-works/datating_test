@@ -109,24 +109,27 @@ class _ChatScreenState extends State<ChatScreen> {
                       key: ValueKey(_generation),
                       stream: _rooms,
                       builder: (context, snapshot) {
-                        if (snapshot.hasError)
+                        if (snapshot.hasError) {
                           return _notice('대화방을 불러오지 못했어요',
                               '연결 상태와 대화방 접근 권한을 확인한 뒤 다시 시도해 주세요.',
                               retry: true);
-                        if (!snapshot.hasData)
+                        }
+                        if (!snapshot.hasData) {
                           return const Center(
                               child: CircularProgressIndicator());
+                        }
                         final rooms = snapshot.data!
                             .where((r) =>
                                 isChatParticipant(r, _uid) &&
                                 (r['title'] ?? '').toString().contains(_search))
                             .toList();
-                        if (rooms.isEmpty)
+                        if (rooms.isEmpty) {
                           return _notice(
                               _search.isEmpty ? '참여 중인 대화방이 없어요' : '검색 결과가 없어요',
                               _search.isEmpty
                                   ? '모임 참여가 확인되면 대화를 시작할 수 있어요.'
                                   : '다른 대화방 이름으로 검색해 주세요.');
+                        }
                         return ListView.separated(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             itemCount: rooms.length,

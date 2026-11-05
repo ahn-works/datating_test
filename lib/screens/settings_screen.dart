@@ -55,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               border: Border.all(color: _cardBorder),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -68,9 +68,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   height: 52,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: _coralAccent.withOpacity(0.3), width: 2),
+                    border: Border.all(
+                        color: _coralAccent.withValues(alpha: 0.3), width: 2),
                     image: const DecorationImage(
-                      image: AssetImage('assets/images/kr_female_1.jpg'),
+                      image: AssetImage('assets/images/민지.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -92,7 +93,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: _coralLight,
                               borderRadius: BorderRadius.circular(6),
@@ -228,7 +230,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       side: const BorderSide(color: _cardBorder),
                       backgroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
                       '로그아웃',
@@ -245,10 +248,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: OutlinedButton(
                     onPressed: () => _showWithdrawDialog(context),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.red.withOpacity(0.3)),
+                      side:
+                          BorderSide(color: Colors.red.withValues(alpha: 0.3)),
                       backgroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
                       '회원 탈퇴',
@@ -271,7 +276,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -279,7 +285,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: const Text(
                     'OOMU v1.4.0 (최신 버전)',
-                    style: TextStyle(fontSize: 11.5, color: _textSecondary, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        fontSize: 11.5,
+                        color: _textSecondary,
+                        fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -319,7 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         border: Border.all(color: _cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -347,7 +356,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: iconColor, size: 20),
@@ -449,7 +458,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Icon(Icons.logout, color: _coralAccent, size: 22),
             SizedBox(width: 8),
-            Text('로그아웃', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textPrimary)),
+            Text('로그아웃',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary)),
           ],
         ),
         content: const Text(
@@ -459,7 +472,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('취소', style: TextStyle(color: _textSecondary, fontWeight: FontWeight.w600)),
+            child: const Text('취소',
+                style: TextStyle(
+                    color: _textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -473,9 +488,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _coralAccent,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('로그아웃', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('로그아웃',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -490,9 +508,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Color(0xFFE53935), size: 22),
+            Icon(Icons.warning_amber_rounded,
+                color: Color(0xFFE53935), size: 22),
             SizedBox(width: 8),
-            Text('회원 탈퇴 안내', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textPrimary)),
+            Text('회원 탈퇴 안내',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: _textPrimary)),
           ],
         ),
         content: const Text(
@@ -502,7 +525,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('취소', style: TextStyle(color: _textSecondary, fontWeight: FontWeight.w600)),
+            child: const Text('취소',
+                style: TextStyle(
+                    color: _textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -519,9 +544,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE53935),
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('탈퇴하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('탈퇴하기',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -548,7 +576,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: const Color(0xFFDDDDDD), borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                    color: const Color(0xFFDDDDDD),
+                    borderRadius: BorderRadius.circular(2)),
               ),
             ),
             const Padding(
@@ -557,7 +587,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Icon(Icons.shield_outlined, color: _coralAccent, size: 22),
                   SizedBox(width: 8),
-                  Text('이용약관 및 커뮤니티 정책', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: _textPrimary)),
+                  Text('이용약관 및 커뮤니티 정책',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: _textPrimary)),
                 ],
               ),
             ),
@@ -572,7 +606,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     '제2조 (UGC 및 불건전 콘텐츠 무관용 원칙)\nOOMU는 애플 App Store 및 구글 Play 커뮤니티 가이드라인을 엄격히 준수합니다. 비방, 혐오 발언, 성희롱, 무단 광고성 게시물은 24시간 내 무관용 원칙으로 삭제되며 가해자는 즉시 영구 차단 조치됩니다.\n\n'
                     '제3조 (개인정보 보호 및 위치기반 서비스)\n이용자의 정확한 GPS 좌표는 서버에 영구 저장되지 않으며, 동네 인증 및 반경 거리 계산 목적으로만 실시간 활용됩니다. 프로필 교환은 상호 수락 시에만 제한적으로 공개됩니다.\n\n'
                     '제4조 (매너 온도 및 매칭 신뢰 시스템)\n36.5°C를 기본으로 하며, 모임 참여자들의 상호 매너 평가를 통해 신뢰도를 유지합니다.',
-                    style: TextStyle(fontSize: 13, color: _textSecondary, height: 1.6),
+                    style: TextStyle(
+                        fontSize: 13, color: _textSecondary, height: 1.6),
                   ),
                 ],
               ),
@@ -588,9 +623,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _coralAccent,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('확인', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('확인',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),

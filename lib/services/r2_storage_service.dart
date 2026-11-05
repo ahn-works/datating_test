@@ -265,7 +265,7 @@ class R2StorageService {
         return generatePresignedGetUrl(cleanKey);
       }
       // 자격증명 미등록 시 카테고리별 안전 폴백
-      if (cleanKey.startsWith('profiles/')) return 'assets/images/kr_female_1.jpg';
+      if (cleanKey.startsWith('profiles/')) return 'assets/images/민지.png';
       if (cleanKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
       if (cleanKey.contains('wine') || cleanKey.startsWith('posters/')) return 'assets/images/cover_wine.jpg';
       if (cleanKey.contains('run')) return 'assets/images/cover_running.jpg';
@@ -296,7 +296,7 @@ class R2StorageService {
             return generatePresignedGetUrl(objectKey);
           }
           // 자격증명 미등록 시 안전 폴백
-          if (objectKey.startsWith('profiles/')) return 'assets/images/kr_female_1.jpg';
+          if (objectKey.startsWith('profiles/')) return 'assets/images/민지.png';
           if (objectKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
           if (objectKey.contains('wine') || objectKey.startsWith('posters/')) return 'assets/images/cover_wine.jpg';
           if (objectKey.contains('run')) return 'assets/images/cover_running.jpg';

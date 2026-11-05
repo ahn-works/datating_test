@@ -106,7 +106,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         : '이웃';
     final myAvatar = globalData.userAvatar.value.isNotEmpty
         ? globalData.userAvatar.value
-        : 'assets/images/kr_male_1.jpg';
+        : 'assets/images/지훈.png';
     final postId = _postId;
 
     final newComm = <String, dynamic>{
@@ -122,7 +122,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
     if (!_canUseFirestore || postId == null) {
       setState(() => _isSubmittingComment = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('실제 게시글에서 댓글을 작성할 수 있어요.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('실제 게시글에서 댓글을 작성할 수 있어요.')));
       return;
     }
     try {
@@ -134,28 +135,38 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       await db.runTransaction((tx) async {
         final post = await tx.get(postRef);
         if (!post.exists) throw StateError('게시글을 찾을 수 없어요.');
-        if (FirebaseAuth.instance.currentUser?.uid != authorUid) throw StateError('로그인 상태가 변경됐어요.');
+        if (FirebaseAuth.instance.currentUser?.uid != authorUid)
+          throw StateError('로그인 상태가 변경됐어요.');
         tx.set(commentRef, {
           'authorId': authorUid,
-          'author': myNick, 'authorAvatar': myAvatar, 'content': text,
-          'time': '방금 전', 'likes': 0, 'likedUserIds': <String>[],
+          'author': myNick,
+          'authorAvatar': myAvatar,
+          'content': text,
+          'time': '방금 전',
+          'likes': 0,
+          'likedUserIds': <String>[],
           'createdAt': FieldValue.serverTimestamp(),
         });
-        tx.update(postRef, {'comments': FieldValue.increment(1), 'updatedAt': FieldValue.serverTimestamp()});
+        tx.update(postRef, {
+          'comments': FieldValue.increment(1),
+          'updatedAt': FieldValue.serverTimestamp()
+        });
       });
       if (!mounted) return;
       newComm['id'] = commentRef.id;
       _commentController.clear();
       FocusScope.of(context).unfocus();
       setState(() {
-        if (!_comments.any((comment) => comment['id'] == commentRef.id)) _comments.add(newComm);
+        if (!_comments.any((comment) => comment['id'] == commentRef.id))
+          _comments.add(newComm);
         widget.post['commentList'] = _comments;
         widget.post['comments'] = _comments.length;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() => _isSubmittingComment = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('댓글을 저장하지 못했어요. 입력한 내용은 남겨두었어요. 다시 시도해 주세요.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('댓글을 저장하지 못했어요. 입력한 내용은 남겨두었어요. 다시 시도해 주세요.')));
       return;
     }
 
@@ -285,7 +296,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     child: CircleAvatar(
                       radius: 20,
                       backgroundImage: appImg((post['authorAvatar'] ??
-                              'assets/images/kr_female_1.jpg')
+                              'assets/images/민지.png')
                           .toString()),
                     ),
                   ),
@@ -554,7 +565,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             child: Column(
               children: [
                 Icon(Icons.chat_bubble_outline_rounded,
-                    size: 28, color: textSecondary.withOpacity(0.5)),
+                    size: 28, color: textSecondary.withValues(alpha: 0.5)),
                 const SizedBox(height: 8),
                 Text(
                   '첫 댓글을 남겨보세요',
@@ -607,7 +618,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       child: CircleAvatar(
                         radius: 16,
                         backgroundImage: appImg((comm['authorAvatar'] ??
-                                'assets/images/kr_female_1.jpg')
+                                'assets/images/민지.png')
                             .toString()),
                       ),
                     ),
@@ -806,7 +817,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -851,7 +862,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: _isSubmittingComment
-                                ? coralAccent.withOpacity(0.6)
+                                ? coralAccent.withValues(alpha: 0.6)
                                 : coralAccent,
                             shape: BoxShape.circle,
                           ),

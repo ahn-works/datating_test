@@ -53,13 +53,16 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     if (widget.initialLocation != null && widget.initialLocation!.isNotEmpty) {
       _locationController.text = widget.initialLocation!;
     }
-    if (widget.initialMainCategory != null && widget.initialMainCategory!.isNotEmpty) {
+    if (widget.initialMainCategory != null &&
+        widget.initialMainCategory!.isNotEmpty) {
       _selectedMainCategory = widget.initialMainCategory!;
     }
-    if (widget.initialSubCategory != null && widget.initialSubCategory!.isNotEmpty) {
+    if (widget.initialSubCategory != null &&
+        widget.initialSubCategory!.isNotEmpty) {
       _selectedSubCategory = widget.initialSubCategory!;
     }
-    if (widget.initialCoverImageUrl != null && widget.initialCoverImageUrl!.isNotEmpty) {
+    if (widget.initialCoverImageUrl != null &&
+        widget.initialCoverImageUrl!.isNotEmpty) {
       _coverImageUrl = widget.initialCoverImageUrl!;
     }
     if (widget.initialVibe != null && widget.initialVibe!.isNotEmpty) {
@@ -69,7 +72,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       _selectedPlaceLat = widget.initialLat;
       _selectedPlaceLng = widget.initialLng;
       _selectedPlaceResolvedName = widget.initialLocation?.trim();
-    } else if (widget.initialLocation != null && widget.initialLocation!.isNotEmpty) {
+    } else if (widget.initialLocation != null &&
+        widget.initialLocation!.isNotEmpty) {
       _autoResolveLocation(widget.initialLocation!);
     }
   }
@@ -77,7 +81,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   Future<void> _autoResolveLocation(String query) async {
     try {
       final resolved = await KakaoMapService.resolveVerifiedPlace(query);
-      if (resolved != null && mounted && _locationController.text.trim() == query.trim()) {
+      if (resolved != null &&
+          mounted &&
+          _locationController.text.trim() == query.trim()) {
         setState(() {
           _selectedPlaceLat = resolved.lat;
           _selectedPlaceLng = resolved.lng;
@@ -104,45 +110,62 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  
+
   String _memberCount = '2~4명 (2:2 소셜)';
   String _genderLimit = '성별 무관';
   String _ageLimit = '20대~30대';
 
   bool _isSaving = false;
 
-  void _showBottomSheetPicker(String title, List<String> options, String currentValue, Function(String) onSelected) {
+  void _showBottomSheetPicker(String title, List<String> options,
+      String currentValue, Function(String) onSelected) {
     showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFEBEBEF), borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: 24),
-              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textPrimary)),
-              const SizedBox(height: 16),
-              ...options.map((opt) {
-                final isSelected = opt == currentValue;
-                return ListTile(
-                  title: Text(opt, style: TextStyle(fontSize: 16, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, color: isSelected ? accentColor : textPrimary)),
-                  trailing: isSelected ? Icon(Icons.check_circle, color: accentColor) : null,
-                  onTap: () {
-                    onSelected(opt);
-                    Navigator.pop(ctx);
-                  },
-                );
-              }).toList(),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      }
-    );
+        context: context,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        builder: (ctx) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFEBEBEF),
+                        borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 24),
+                Text(title,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: textPrimary)),
+                const SizedBox(height: 16),
+                ...options.map((opt) {
+                  final isSelected = opt == currentValue;
+                  return ListTile(
+                    title: Text(opt,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? accentColor : textPrimary)),
+                    trailing: isSelected
+                        ? Icon(Icons.check_circle, color: accentColor)
+                        : null,
+                    onTap: () {
+                      onSelected(opt);
+                      Navigator.pop(ctx);
+                    },
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        });
   }
 
   String _coverImageUrl = 'assets/images/cover_food.jpg';
@@ -161,7 +184,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           Future<void> pickAndSetCover(ImageSource source) async {
@@ -178,7 +202,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               if (!R2StorageService.isImageFile(file.name)) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
+                    const SnackBar(
+                        content:
+                            Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
                   );
                 }
                 return;
@@ -199,7 +225,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 uploadedUrl = file.path;
               }
 
-              final finalCover = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+              final finalCover =
+                  uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
               if (mounted) {
                 setState(() => _coverImageUrl = finalCover);
                 Navigator.pop(ctx);
@@ -223,7 +250,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           }
 
           return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -233,159 +261,231 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   children: [
                     Row(
                       children: [
-                        Text('커버 사진 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+                        Text('커버 사진 선택',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: textPrimary)),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: OomuUiHelpers.brandCoral.withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
-                          child: const Text('등록한 모임 사진', style: TextStyle(color: OomuUiHelpers.brandCoral, fontSize: 11, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: OomuUiHelpers.brandCoral
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6)),
+                          child: const Text('등록한 모임 사진',
+                              style: TextStyle(
+                                  color: OomuUiHelpers.brandCoral,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
 
-                  // 1. Primary Action Cards (Camera & Gallery)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: isUploading ? null : () => pickAndSetCover(ImageSource.camera),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: OomuUiHelpers.surfaceMuted,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: OomuUiHelpers.brandCoral.withOpacity(0.35)),
-                            ),
-                            child: Column(
-                              children: [
-                                const Icon(Icons.photo_camera_rounded, color: OomuUiHelpers.brandCoral, size: 24),
-                                const SizedBox(height: 6),
-                                const Text('사진 찍기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: OomuUiHelpers.textPrimary)),
-                                Text('카메라 촬영', style: TextStyle(fontSize: 11, color: textSecondary)),
-                              ],
+                    // 1. Primary Action Cards (Camera & Gallery)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: isUploading
+                                ? null
+                                : () => pickAndSetCover(ImageSource.camera),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: OomuUiHelpers.surfaceMuted,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                    color: OomuUiHelpers.brandCoral
+                                        .withValues(alpha: 0.35)),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.photo_camera_rounded,
+                                      color: OomuUiHelpers.brandCoral,
+                                      size: 24),
+                                  const SizedBox(height: 6),
+                                  const Text('사진 찍기',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 13,
+                                          color: OomuUiHelpers.textPrimary)),
+                                  Text('카메라 촬영',
+                                      style: TextStyle(
+                                          fontSize: 11, color: textSecondary)),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: InkWell(
-                          onTap: isUploading ? null : () => pickAndSetCover(ImageSource.gallery),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF7EE),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: OomuUiHelpers.brandCoral.withOpacity(0.35)),
-                            ),
-                            child: Column(
-                              children: [
-                                const Icon(Icons.photo_library_rounded, color: OomuUiHelpers.brandCoral, size: 24),
-                                const SizedBox(height: 6),
-                                const Text('사진 불러오기', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: OomuUiHelpers.textPrimary)),
-                                Text('갤러리 / 앨범', style: TextStyle(fontSize: 11, color: textSecondary)),
-                              ],
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: InkWell(
+                            onTap: isUploading
+                                ? null
+                                : () => pickAndSetCover(ImageSource.gallery),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF7EE),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                    color: OomuUiHelpers.brandCoral
+                                        .withValues(alpha: 0.35)),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.photo_library_rounded,
+                                      color: OomuUiHelpers.brandCoral,
+                                      size: 24),
+                                  const SizedBox(height: 6),
+                                  const Text('사진 불러오기',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 13,
+                                          color: OomuUiHelpers.textPrimary)),
+                                  Text('갤러리 / 앨범',
+                                      style: TextStyle(
+                                          fontSize: 11, color: textSecondary)),
+                                ],
+                              ),
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+
+                    if (isUploading) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 14),
+                        decoration: BoxDecoration(
+                          color:
+                              OomuUiHelpers.brandCoral.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          children: [
+                            SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: OomuUiHelpers.brandCoral)),
+                            SizedBox(width: 10),
+                            Text('Cloudflare R2 (oomu-spot)에 사진 업로드 중...',
+                                style: TextStyle(
+                                    color: OomuUiHelpers.brandCoral,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold)),
+                          ],
                         ),
                       ),
                     ],
-                  ),
 
-                  if (isUploading) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: OomuUiHelpers.brandCoral.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: const [
-                          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: OomuUiHelpers.brandCoral)),
-                          SizedBox(width: 10),
-                          Text('Cloudflare R2 (oomu-spot)에 사진 업로드 중...', style: TextStyle(color: OomuUiHelpers.brandCoral, fontSize: 12, fontWeight: FontWeight.bold)),
-                        ],
+                    const SizedBox(height: 18),
+                    Text('또는 추천 프리셋에서 선택',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: textSecondary,
+                            fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 10),
+
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 1.7,
+                      children: _coverPresets.map((p) {
+                        final selected = _coverImageUrl == p['path'];
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() => _coverImageUrl = p['path']!);
+                            Navigator.pop(ctx);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                  color: selected
+                                      ? accentColor
+                                      : Colors.transparent,
+                                  width: 3),
+                              image: DecorationImage(
+                                  image: AssetImage(p['path']!),
+                                  fit: BoxFit.cover,
+                                  colorFilter: const ColorFilter.mode(
+                                      Colors.black26, BlendMode.darken)),
+                            ),
+                            alignment: Alignment.bottomLeft,
+                            padding: const EdgeInsets.all(8),
+                            child: Text(p['label']!,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: urlController,
+                      decoration: InputDecoration(
+                        hintText: 'Cloudflare R2 URL 직접 입력 (https://...)',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.check, color: accentColor),
+                          onPressed: () {
+                            final u = urlController.text.trim();
+                            if (u.startsWith('http')) {
+                              setState(() => _coverImageUrl = u);
+                              Navigator.pop(ctx);
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ],
-
-                  const SizedBox(height: 18),
-                  Text('또는 추천 프리셋에서 선택', style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 10),
-
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 1.7,
-                    children: _coverPresets.map((p) {
-                      final selected = _coverImageUrl == p['path'];
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() => _coverImageUrl = p['path']!);
-                          Navigator.pop(ctx);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: selected ? accentColor : Colors.transparent, width: 3),
-                            image: DecorationImage(image: AssetImage(p['path']!), fit: BoxFit.cover, colorFilter: const ColorFilter.mode(Colors.black26, BlendMode.darken)),
-                          ),
-                          alignment: Alignment.bottomLeft,
-                          padding: const EdgeInsets.all(8),
-                          child: Text(p['label']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: urlController,
-                    decoration: InputDecoration(
-                      hintText: 'Cloudflare R2 URL 직접 입력 (https://...)',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.check, color: accentColor),
-                        onPressed: () {
-                          final u = urlController.text.trim();
-                          if (u.startsWith('http')) {
-                            setState(() => _coverImageUrl = u);
-                            Navigator.pop(ctx);
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
+          );
+        },
+      ),
+    );
+  }
 
   Future<void> _submitMeetup() async {
-    if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty || _locationController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('필수 정보를 모두 입력해주세요.')));
+    if (_titleController.text.trim().isEmpty ||
+        _descController.text.trim().isEmpty ||
+        _locationController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('필수 정보를 모두 입력해주세요.')));
       return;
     }
 
-    setState(() { _isSaving = true; });
+    setState(() {
+      _isSaving = true;
+    });
 
     try {
       final title = _titleController.text.trim();
       final locText = _locationController.text.trim();
       double? saveLat = _selectedPlaceLat;
       double? saveLng = _selectedPlaceLng;
-      if (saveLat == null || saveLng == null || _selectedPlaceResolvedName != locText) {
+      if (saveLat == null ||
+          saveLng == null ||
+          _selectedPlaceResolvedName != locText) {
         try {
           final verified = await KakaoMapService.resolveVerifiedPlace(locText);
           if (verified != null) {
@@ -410,7 +510,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'hostUid': user.uid,
         'participantIds': [user.uid],
         if (widget.sourceEventId != null) 'sourceEventId': widget.sourceEventId,
-        if (widget.sourceEventTitle != null) 'sourceEventTitle': widget.sourceEventTitle,
+        if (widget.sourceEventTitle != null)
+          'sourceEventTitle': widget.sourceEventTitle,
         'description': _descController.text.trim(),
         'location': locText,
         if (saveLat != null && saveLng != null) 'lat': saveLat,
@@ -427,11 +528,14 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'memberCount': _memberCount,
         'genderLimit': _genderLimit,
         'ageLimit': _ageLimit,
-        'host': globalData.userNickname.value.isNotEmpty ? globalData.userNickname.value : '모임 호스트',
+        'host': globalData.userNickname.value.isNotEmpty
+            ? globalData.userNickname.value
+            : '모임 호스트',
         'hostAvatar': globalData.userAvatar.value,
         'imageUrl': _coverImageUrl,
         'photos': [_coverImageUrl],
-        'members': '1/${RegExp(r'(\d+)').allMatches(_memberCount).map((m) => m.group(1)).lastOrNull ?? '4'}',
+        'members':
+            '1/${RegExp(r'(\d+)').allMatches(_memberCount).map((m) => m.group(1)).lastOrNull ?? '4'}',
         'manner': globalData.temperature.value,
         'mannerTemp': globalData.temperature.value,
         'price': 'N빵',
@@ -443,20 +547,20 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
 
       // 모임과 채팅방이 함께 저장되어야 개설 직후 실제 대화방에 들어갈 수 있다.
       batch.set(db.collection('chatRooms').doc(docRef.id), {
-          'id': docRef.id,
-          'title': title,
-          'lastMessage': '',
-          'hostUid': user.uid,
-          'participants': [user.uid],
-          'meetupId': docRef.id,
-          'location': locText,
-          'date': '일정 협의',
-          'lastMessageTime': '방금',
-          'time': '방금',
-          'members': 1,
-          'imageUrl': _coverImageUrl,
-          'isGroup': true,
-          'updatedAt': FieldValue.serverTimestamp(),
+        'id': docRef.id,
+        'title': title,
+        'lastMessage': '',
+        'hostUid': user.uid,
+        'participants': [user.uid],
+        'meetupId': docRef.id,
+        'location': locText,
+        'date': '일정 협의',
+        'lastMessageTime': '방금',
+        'time': '방금',
+        'members': 1,
+        'imageUrl': _coverImageUrl,
+        'isGroup': true,
+        'updatedAt': FieldValue.serverTimestamp(),
       });
       await batch.commit();
 
@@ -465,32 +569,49 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           context: context,
           barrierDismissible: false,
           builder: (ctx) => Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.celebration, color: OomuUiHelpers.brandCoral, size: 64),
+                  const Icon(Icons.celebration,
+                      color: OomuUiHelpers.brandCoral, size: 64),
                   const SizedBox(height: 24),
-                  Text('모임이 개설되었습니다!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textPrimary)),
+                  Text('모임이 개설되었습니다!',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: textPrimary)),
                   const SizedBox(height: 12),
-                  Text('새로운 사람들과의 만남을 기대해보세요.', textAlign: TextAlign.center, style: TextStyle(color: textSecondary, fontSize: 14)),
+                  Text('새로운 사람들과의 만남을 기대해보세요.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: textSecondary, fontSize: 14)),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: accentColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: accentColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12))),
                       onPressed: () {
                         Navigator.pop(ctx); // close dialog
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OOMUChatScreen(
-                          title: title, 
-                          memberCount: 1,
-                          chatRoomId: docRef.id,
-                        )));
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => OOMUChatScreen(
+                                      title: title,
+                                      memberCount: 1,
+                                      chatRoomId: docRef.id,
+                                    )));
                       },
-                      child: const Text('채팅방으로 이동', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text('채팅방으로 이동',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
                     ),
                   )
                 ],
@@ -507,7 +628,10 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         ));
       }
     } finally {
-      if (mounted) setState(() { _isSaving = false; });
+      if (mounted)
+        setState(() {
+          _isSaving = false;
+        });
     }
   }
 
@@ -518,10 +642,13 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('새로운 모임 열기', style: TextStyle(color: textPrimary, fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text('새로운 모임 열기',
+            style: TextStyle(
+                color: textPrimary, fontWeight: FontWeight.w800, fontSize: 18)),
         leading: IconButton(
           icon: Icon(Icons.close, color: textPrimary),
-          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
+          onPressed: () => Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (_) => const OOMUHomeScreen())),
         ),
       ),
       body: SingleChildScrollView(
@@ -541,7 +668,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   image: DecorationImage(
                     image: appImg(_coverImageUrl),
                     fit: BoxFit.cover,
-                    colorFilter: const ColorFilter.mode(Colors.black26, BlendMode.darken),
+                    colorFilter: const ColorFilter.mode(
+                        Colors.black26, BlendMode.darken),
                   ),
                 ),
                 child: const Center(
@@ -550,7 +678,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     children: [
                       Icon(Icons.add_a_photo, color: Colors.white, size: 32),
                       SizedBox(height: 8),
-                      Text('커버 사진 변경', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text('커버 사진 변경',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)),
                     ],
                   ),
                 ),
@@ -559,7 +691,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             const SizedBox(height: 32),
 
             // 2. Category Selection (대분류 ➔ 중분류 ➔ 추천 소분류 태그 & 분위기)
-            Text('어떤 취향의 모임인가요?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+            Text('어떤 취향의 모임인가요?',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: textPrimary)),
             const SizedBox(height: 14),
 
             // 2-1. 대분류 가로 스크롤 카드
@@ -583,12 +719,16 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       duration: const Duration(milliseconds: 200),
                       width: 96,
                       margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFFFF0EB) : Colors.white,
+                        color:
+                            isSelected ? const Color(0xFFFFF0EB) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? OomuUiHelpers.brandCoral : const Color(0xFFEBEBEF),
+                          color: isSelected
+                              ? OomuUiHelpers.brandCoral
+                              : const Color(0xFFEBEBEF),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -601,8 +741,12 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                             cat.name,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: isSelected ? OomuUiHelpers.brandCoral : textPrimary,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                              color: isSelected
+                                  ? OomuUiHelpers.brandCoral
+                                  : textPrimary,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w600,
                               fontSize: 12,
                             ),
                             maxLines: 1,
@@ -618,19 +762,31 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             const SizedBox(height: 18),
 
             // 2-2. 중분류 선택 칩
-            Text('중분류 세부 선택', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+            Text('중분류 세부 선택',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: textSecondary)),
             const SizedBox(height: 8),
             _buildHostSubCategoryChips(),
             const SizedBox(height: 18),
 
             // 2-3. 추천 소분류 예시 태그
-            Text('추천 태그 (터치하여 추가/해제)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+            Text('추천 태그 (터치하여 추가/해제)',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: textSecondary)),
             const SizedBox(height: 8),
             _buildHostExampleTagChips(),
             const SizedBox(height: 18),
 
             // 2-4. 분위기 (지금 내 상황 Vibe)
-            Text('모임 분위기 (상황)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+            Text('모임 분위기 (상황)',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: textSecondary)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -655,25 +811,44 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             const SizedBox(height: 40),
 
             // 3. Meetup Info
-            Text('모임의 기본 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+            Text('모임의 기본 정보',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: textPrimary)),
             const SizedBox(height: 16),
             _buildTextField('모임 제목', _titleController, '예) 연남동에서 커피 한잔 하실 분!'),
-                        _buildLocationField(context),
-            _buildTextField('상세 소개', _descController, '어떤 사람들과 어떤 시간을 보내고 싶은지 자세히 적어주세요.', maxLines: 4),
-            
+            _buildLocationField(context),
+            _buildTextField(
+                '상세 소개', _descController, '어떤 사람들과 어떤 시간을 보내고 싶은지 자세히 적어주세요.',
+                maxLines: 4),
+
             const SizedBox(height: 40),
 
             // 4. Conditions (Toss/Social App Style Settings)
-            Text('참여 조건 설정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
+            Text('참여 조건 설정',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: textPrimary)),
             const SizedBox(height: 16),
             _buildSettingRow('참여 인원', _memberCount, () {
-              _showBottomSheetPicker('참여 인원', ['2~4명 (2:2 소셜)', '4~6명 (3:3 미팅)', '인원 제한 없음'], _memberCount, (val) => setState(() => _memberCount = val));
+              _showBottomSheetPicker(
+                  '참여 인원',
+                  ['2~4명 (2:2 소셜)', '4~6명 (3:3 미팅)', '인원 제한 없음'],
+                  _memberCount,
+                  (val) => setState(() => _memberCount = val));
             }),
             _buildSettingRow('성별 제한', _genderLimit, () {
-              _showBottomSheetPicker('성별 제한', ['성별 무관', '여성만', '남성만'], _genderLimit, (val) => setState(() => _genderLimit = val));
+              _showBottomSheetPicker('성별 제한', ['성별 무관', '여성만', '남성만'],
+                  _genderLimit, (val) => setState(() => _genderLimit = val));
             }),
             _buildSettingRow('연령대', _ageLimit, () {
-              _showBottomSheetPicker('연령대', ['연령 무관', '20대만', '30대만', '20대~30대', '30대~40대'], _ageLimit, (val) => setState(() => _ageLimit = val));
+              _showBottomSheetPicker(
+                  '연령대',
+                  ['연령 무관', '20대만', '30대만', '20대~30대', '30대~40대'],
+                  _ageLimit,
+                  (val) => setState(() => _ageLimit = val));
             }),
 
             const SizedBox(height: 100),
@@ -691,11 +866,20 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: accentColor,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
-            child: _isSaving 
-              ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('새로운 모임 열기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            child: _isSaving
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                        color: Colors.white, strokeWidth: 2))
+                : const Text('새로운 모임 열기',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
           ),
         ),
       ),
@@ -727,7 +911,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         _locationController.text = result;
         _selectedPlaceLat = lat;
         _selectedPlaceLng = lng;
-        _selectedPlaceResolvedName = (lat != null && lng != null) ? result.trim() : null;
+        _selectedPlaceResolvedName =
+            (lat != null && lng != null) ? result.trim() : null;
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -754,14 +939,23 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('모임 장소', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textSecondary)),
+              Text('모임 장소',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: textSecondary)),
               GestureDetector(
                 onTap: _openPlaceSearchModal,
                 child: const Row(
                   children: [
-                    Icon(Icons.search_rounded, size: 16, color: OomuUiHelpers.brandCoral),
+                    Icon(Icons.search_rounded,
+                        size: 16, color: OomuUiHelpers.brandCoral),
                     SizedBox(width: 4),
-                    Text('지도/키워드 검색', style: TextStyle(fontSize: 13, color: OomuUiHelpers.brandCoral, fontWeight: FontWeight.bold)),
+                    Text('지도/키워드 검색',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: OomuUiHelpers.brandCoral,
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -779,14 +973,20 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 Expanded(
                   child: TextField(
                     controller: _locationController,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: textPrimary),
                     decoration: InputDecoration(
                       hintText: '장소 직접 입력 (예: 스타벅스 홍대점, 맛집)',
-                      hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9E9EA7)),
-                      prefixIcon: const Icon(Icons.location_on, color: OomuUiHelpers.brandCoral, size: 22),
+                      hintStyle: const TextStyle(
+                          fontSize: 13, color: Color(0xFF9E9EA7)),
+                      prefixIcon: const Icon(Icons.location_on,
+                          color: OomuUiHelpers.brandCoral, size: 22),
                       suffixIcon: _locationController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                              icon: const Icon(Icons.clear,
+                                  size: 18, color: Colors.grey),
                               onPressed: () => setState(() {
                                 _locationController.clear();
                                 _selectedPlaceLat = null;
@@ -796,7 +996,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                             )
                           : null,
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 16),
                     ),
                     onChanged: (val) => setState(() {
                       if (val.trim() != _selectedPlaceResolvedName) {
@@ -811,7 +1012,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   onTap: _openPlaceSearchModal,
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFECE5),
                       borderRadius: BorderRadius.circular(12),
@@ -819,9 +1021,14 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_rounded, size: 16, color: OomuUiHelpers.brandCoral),
+                        Icon(Icons.map_rounded,
+                            size: 16, color: OomuUiHelpers.brandCoral),
                         SizedBox(width: 4),
-                        Text('지도 선택', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: OomuUiHelpers.brandCoral)),
+                        Text('지도 선택',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: OomuUiHelpers.brandCoral)),
                       ],
                     ),
                   ),
@@ -841,7 +1048,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -851,25 +1058,32 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3.5),
                             decoration: BoxDecoration(
                               color: const Color(0xFFECFDF5),
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFFA7F3D0)),
+                              border:
+                                  Border.all(color: const Color(0xFFA7F3D0)),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF059669)),
+                                Icon(Icons.check_circle_rounded,
+                                    size: 12, color: Color(0xFF059669)),
                                 SizedBox(width: 4),
                                 Text(
                                   '카카오 지도 핀 위치 확인됨',
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF059669)),
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF059669)),
                                 ),
                               ],
                             ),
@@ -879,11 +1093,15 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.tune_rounded, size: 13, color: OomuUiHelpers.brandCoral),
+                                Icon(Icons.tune_rounded,
+                                    size: 13, color: OomuUiHelpers.brandCoral),
                                 SizedBox(width: 3),
                                 Text(
                                   '위치 변경',
-                                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: OomuUiHelpers.brandCoral),
+                                  style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: OomuUiHelpers.brandCoral),
                                 ),
                               ],
                             ),
@@ -906,15 +1124,20 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
                       child: Row(
                         children: [
-                          const Icon(Icons.place_rounded, size: 14, color: OomuUiHelpers.brandCoral),
+                          const Icon(Icons.place_rounded,
+                              size: 14, color: OomuUiHelpers.brandCoral),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               _locationController.text.trim(),
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textPrimary),
+                              style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: textPrimary),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -927,7 +1150,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               )
             else
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF9F8),
                   borderRadius: BorderRadius.circular(14),
@@ -943,7 +1167,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
-                      child: const Icon(Icons.map_rounded, size: 16, color: OomuUiHelpers.brandCoral),
+                      child: const Icon(Icons.map_rounded,
+                          size: 16, color: OomuUiHelpers.brandCoral),
                     ),
                     const SizedBox(width: 10),
                     const Expanded(
@@ -952,12 +1177,16 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                         children: [
                           Text(
                             '지도에서 정확한 위치를 지정해 보세요',
-                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                            style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1E293B)),
                           ),
                           SizedBox(height: 1),
                           Text(
                             '참여 이웃들이 헤매지 않고 쉽게 찾아올 수 있어요.',
-                            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                            style: TextStyle(
+                                fontSize: 11, color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
@@ -966,14 +1195,18 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     GestureDetector(
                       onTap: _openPlaceSearchModal,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: OomuUiHelpers.brandCoral,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           '지도 선택',
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ),
                     ),
@@ -986,25 +1219,39 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, String hint, {int maxLines = 1}) {
+  Widget _buildTextField(
+      String label, TextEditingController controller, String hint,
+      {int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textSecondary)),
+          Text(label,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: textSecondary)),
           const SizedBox(height: 8),
           TextField(
             controller: controller,
             maxLines: maxLines,
-            style: TextStyle(color: textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(color: Color(0xFFC7C7CC), fontSize: 15, fontWeight: FontWeight.normal),
+              hintStyle: const TextStyle(
+                  color: Color(0xFFC7C7CC),
+                  fontSize: 15,
+                  fontWeight: FontWeight.normal),
               fillColor: surfaceColor,
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: accentColor, width: 1.5)),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: accentColor, width: 1.5)),
             ),
           ),
         ],
@@ -1025,10 +1272,18 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textPrimary)),
+            Text(title,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimary)),
             Row(
               children: [
-                Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: accentColor)),
+                Text(value,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: accentColor)),
                 const SizedBox(width: 4),
                 Icon(Icons.chevron_right, color: textSecondary, size: 20),
               ],
@@ -1091,7 +1346,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           ),
           label: Text(tag),
           backgroundColor: isAdded ? const Color(0xFF1E1E24) : Colors.white,
-          side: BorderSide(color: isAdded ? const Color(0xFF1E1E24) : const Color(0xFFE5E5EA)),
+          side: BorderSide(
+              color:
+                  isAdded ? const Color(0xFF1E1E24) : const Color(0xFFE5E5EA)),
           labelStyle: TextStyle(
             color: isAdded ? Colors.white : textPrimary,
             fontSize: 12,

@@ -21,12 +21,16 @@ class EventDetailScreen extends StatelessWidget {
     const Color coralAccent = Color(0xFFF25767);
 
     final title = event['title']?.toString() ?? '문화 & 트렌드 이벤트';
-    final location = event['location']?.toString() ?? event['venue']?.toString() ?? '';
+    final location =
+        event['location']?.toString() ?? event['venue']?.toString() ?? '';
     final category = event['category']?.toString() ?? '동네 장소';
     final meetupCategory = eventMeetupCategory(category);
     final poster = event['poster']?.toString() ?? '';
     final rawPeriod = event['period']?.toString().trim();
-    final period = rawPeriod == null || rawPeriod.isEmpty || rawPeriod == '상시 운영' ? '운영 일정 확인 필요' : rawPeriod;
+    final period =
+        rawPeriod == null || rawPeriod.isEmpty || rawPeriod == '상시 운영'
+            ? '운영 일정 확인 필요'
+            : rawPeriod;
     final vibe = event['vibe']?.toString().trim() ?? '';
 
     return Scaffold(
@@ -44,7 +48,8 @@ class EventDetailScreen extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.black.withValues(alpha: 0.4),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white, size: 18),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -55,9 +60,11 @@ class EventDetailScreen extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Colors.black.withValues(alpha: 0.4),
                   child: IconButton(
-                    icon: const Icon(Icons.share_rounded, color: Colors.white, size: 18),
+                    icon: const Icon(Icons.share_rounded,
+                        color: Colors.white, size: 18),
                     onPressed: () async {
-                      await Clipboard.setData(ClipboardData(text: '$title\n$location\n$period'));
+                      await Clipboard.setData(
+                          ClipboardData(text: '$title\n$location\n$period'));
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('장소 정보를 복사했어요.')),
@@ -72,7 +79,9 @@ class EventDetailScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Image(
-                    image: appImg(poster.isNotEmpty ? poster : 'assets/images/cover_food.jpg'),
+                    image: appImg(poster.isNotEmpty
+                        ? poster
+                        : 'assets/images/cover_food.jpg'),
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Image.asset(
                       'assets/images/cover_wine.jpg',
@@ -92,7 +101,6 @@ class EventDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -105,9 +113,16 @@ class EventDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(category, style: const TextStyle(fontSize: 13, color: textSecondary)),
+                  Text(category,
+                      style:
+                          const TextStyle(fontSize: 13, color: textSecondary)),
                   const SizedBox(height: 8),
-                  BalancedHeading(title, style: const TextStyle(fontSize: 22, height: 1.4, fontWeight: FontWeight.w700, color: textPrimary)),
+                  BalancedHeading(title,
+                      style: const TextStyle(
+                          fontSize: 22,
+                          height: 1.4,
+                          fontWeight: FontWeight.w700,
+                          color: textPrimary)),
                   const SizedBox(height: 24),
                   // Quick Summary Card
                   Container(
@@ -134,28 +149,50 @@ class EventDetailScreen extends StatelessWidget {
                                 color: coralAccent.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.place_rounded, color: coralAccent, size: 20),
+                              child: const Icon(Icons.place_rounded,
+                                  color: coralAccent, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('장소', style: const TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600)),
+                                  const Text('장소',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: textSecondary,
+                                          fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 2),
-                                  Text(location.isEmpty ? '정확한 장소 확인 필요' : location, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary)),
+                                  Text(
+                                      location.isEmpty
+                                          ? '정확한 장소 확인 필요'
+                                          : location,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: textPrimary)),
                                 ],
                               ),
                             ),
-
                           ],
                         ),
                         const SizedBox(height: 12),
-                        SizedBox(width: double.infinity, child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48), foregroundColor: textPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                          onPressed: location.isEmpty ? null : () => KakaoMapService.launchDirections(location),
-                          icon: const Icon(Icons.directions_outlined, size: 20), label: const Text('지도에서 길찾기'),
-                        )),
+                        SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(48, 48),
+                                  foregroundColor: textPrimary,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12))),
+                              onPressed: location.isEmpty
+                                  ? null
+                                  : () => KakaoMapService.launchDirections(
+                                      location),
+                              icon: const Icon(Icons.directions_outlined,
+                                  size: 20),
+                              label: const Text('지도에서 길찾기'),
+                            )),
                         const Divider(height: 20, color: Color(0xFFEAECF0)),
                         Row(
                           children: [
@@ -165,16 +202,25 @@ class EventDetailScreen extends StatelessWidget {
                                 color: Color(0xFFEEF2FF),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF6B7684), size: 20),
+                              child: const Icon(Icons.calendar_month_rounded,
+                                  color: Color(0xFF6B7684), size: 20),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('방문 일정', style: const TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600)),
+                                  const Text('방문 일정',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: textSecondary,
+                                          fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 2),
-                                  Text(period, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary)),
+                                  Text(period,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: textPrimary)),
                                 ],
                               ),
                             ),
@@ -189,16 +235,28 @@ class EventDetailScreen extends StatelessWidget {
                                 color: Color(0xFFF0FDFA),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.category_rounded, color: Color(0xFF6B7684), size: 20),
+                              child: const Icon(Icons.category_rounded,
+                                  color: Color(0xFF6B7684), size: 20),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('카테고리 & 무드', style: const TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600)),
+                                  const Text('카테고리 & 무드',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: textSecondary,
+                                          fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 2),
-                                  Text(vibe.isEmpty ? category : '$category · $vibe', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textPrimary)),
+                                  Text(
+                                      vibe.isEmpty
+                                          ? category
+                                          : '$category · $vibe',
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: textPrimary)),
                                 ],
                               ),
                             ),
@@ -211,7 +269,11 @@ class EventDetailScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Event Introduction
-                  Text('어떤 곳인가요?', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textPrimary)),
+                  const Text('어떤 곳인가요?',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: textPrimary)),
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
@@ -222,15 +284,21 @@ class EventDetailScreen extends StatelessWidget {
                       border: Border.all(color: OomuUiHelpers.borderSubtle),
                     ),
                     child: Text(
-                      (event['description'] ?? event['intro'])?.toString().trim().isNotEmpty == true
+                      (event['description'] ?? event['intro'])
+                                  ?.toString()
+                                  .trim()
+                                  .isNotEmpty ==
+                              true
                           ? (event['description'] ?? event['intro']).toString()
                           : '아직 자세한 소개가 없어요. 방문 전 운영 시간과 예약 여부를 확인해 주세요.',
-                      style: const TextStyle(fontSize: 13.5, height: 1.6, color: textSecondary),
+                      style: const TextStyle(
+                          fontSize: 13.5, height: 1.6, color: textSecondary),
                     ),
                   ),
 
                   const SizedBox(height: 28),
-                  RelatedMeetups(eventId: event['id']?.toString() ?? '$title|$location'),
+                  RelatedMeetups(
+                      eventId: event['id']?.toString() ?? '$title|$location'),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -262,7 +330,8 @@ class EventDetailScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => OOMUHostScreen(
-                            sourceEventId: event['id']?.toString() ?? '$title|$location',
+                            sourceEventId:
+                                event['id']?.toString() ?? '$title|$location',
                             sourceEventTitle: title,
                             initialMainCategory: meetupCategory?.main,
                             initialSubCategory: meetupCategory?.sub,
@@ -274,14 +343,19 @@ class EventDetailScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.add_circle_outline, size: 18, color: Colors.white),
+                    icon: const Icon(Icons.add_circle_outline,
+                        size: 18, color: Colors.white),
                     label: const Text(
                       '이곳에 같이 갈 모임 열기',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: coralAccent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
                       elevation: 0,
                     ),
                   ),

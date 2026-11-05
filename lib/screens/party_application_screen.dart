@@ -56,14 +56,8 @@ class _PartyApplicationScreenState extends State<PartyApplicationScreen> {
       'q': '8. 새로운 사람을 만났을 때 나의 낯가림 정도는?',
       'opt': ['먼저 다가가는 편안한 스타일', '친해지기까지 시간이 꽤 필요한 편']
     },
-    {
-      'type': 'text',
-      'q': '9. 사람을 만날 때 가장 중요하게 생각하는 가치관이나 성격은 무엇인가요?'
-    },
-    {
-      'type': 'text',
-      'q': '10. 마지막으로, 이번 모임에서 가장 기대하는 점을 자유롭게 적어주세요!'
-    },
+    {'type': 'text', 'q': '9. 사람을 만날 때 가장 중요하게 생각하는 가치관이나 성격은 무엇인가요?'},
+    {'type': 'text', 'q': '10. 마지막으로, 이번 모임에서 가장 기대하는 점을 자유롭게 적어주세요!'},
   ];
 
   void _next() {
@@ -163,24 +157,31 @@ class _PartyApplicationScreenState extends State<PartyApplicationScreen> {
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 setState(() => _answers[i] = opt);
-                                Future.delayed(const Duration(milliseconds: 220), _next);
+                                Future.delayed(
+                                    const Duration(milliseconds: 220), _next);
                               },
                               borderRadius: BorderRadius.circular(16),
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: sel ? const Color(0xFFFFF4EB) : Colors.white,
+                                  color: sel
+                                      ? const Color(0xFFFFF4EB)
+                                      : Colors.white,
                                   border: Border.all(
-                                    color: sel ? const Color(0xFFFF6B4A) : const Color(0xFFE2E8F0),
+                                    color: sel
+                                        ? const Color(0xFFFF6B4A)
+                                        : const Color(0xFFE2E8F0),
                                     width: sel ? 2.0 : 1.0,
                                   ),
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: sel
                                       ? [
                                           BoxShadow(
-                                            color: const Color(0xFFFF6B4A).withOpacity(0.12),
+                                            color: const Color(0xFFFF6B4A)
+                                                .withValues(alpha: 0.12),
                                             blurRadius: 10,
                                             offset: const Offset(0, 4),
                                           )
@@ -191,8 +192,11 @@ class _PartyApplicationScreenState extends State<PartyApplicationScreen> {
                                   opt,
                                   style: TextStyle(
                                     fontSize: 16,
-                                    fontWeight: sel ? FontWeight.w800 : FontWeight.w600,
-                                    color: sel ? const Color(0xFFFF6B4A) : const Color(0xFF1E293B),
+                                    fontWeight:
+                                        sel ? FontWeight.w800 : FontWeight.w600,
+                                    color: sel
+                                        ? const Color(0xFFFF6B4A)
+                                        : const Color(0xFF1E293B),
                                   ),
                                 ),
                               ),
@@ -207,23 +211,30 @@ class _PartyApplicationScreenState extends State<PartyApplicationScreen> {
                         autofocus: true,
                         maxLines: 6,
                         onChanged: (v) => setState(() => _answers[i] = v),
-                        style: const TextStyle(fontSize: 16, height: 1.5, color: Color(0xFF0F172A)),
+                        style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.5,
+                            color: Color(0xFF0F172A)),
                         decoration: InputDecoration(
                           hintText: '자유롭게 편안한 마음으로 적어주세요...',
-                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 15),
+                          hintStyle: const TextStyle(
+                              color: Color(0xFF94A3B8), fontSize: 15),
                           filled: true,
                           fillColor: const Color(0xFFF8FAFC),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFE2E8F0)),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFE2E8F0)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFFF6B4A), width: 1.5),
+                            borderSide: const BorderSide(
+                                color: Color(0xFFFF6B4A), width: 1.5),
                           ),
                           contentPadding: const EdgeInsets.all(18),
                         ),
@@ -231,21 +242,27 @@ class _PartyApplicationScreenState extends State<PartyApplicationScreen> {
                     ),
                     const SizedBox(height: 16),
                     AnimatedOpacity(
-                      opacity: (_answers[i] ?? '').trim().isNotEmpty ? 1.0 : 0.4,
+                      opacity:
+                          (_answers[i] ?? '').trim().isNotEmpty ? 1.0 : 0.4,
                       duration: const Duration(milliseconds: 200),
                       child: ElevatedButton(
-                        onPressed: (_answers[i] ?? '').trim().isNotEmpty ? _next : null,
+                        onPressed: (_answers[i] ?? '').trim().isNotEmpty
+                            ? _next
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF6B4A),
                           disabledBackgroundColor: const Color(0xFFE2E8F0),
                           minimumSize: const Size(double.infinity, 54),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
                           elevation: 0,
                         ),
                         child: Text(
                           i == _totalQuestions - 1 ? '제출하고 참여 확정하기' : '다음 질문으로',
                           style: TextStyle(
-                            color: (_answers[i] ?? '').trim().isNotEmpty ? Colors.white : const Color(0xFF94A3B8),
+                            color: (_answers[i] ?? '').trim().isNotEmpty
+                                ? Colors.white
+                                : const Color(0xFF94A3B8),
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
                           ),

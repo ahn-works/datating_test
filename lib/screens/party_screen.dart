@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'party_detail_screen.dart'; 
+import 'party_detail_screen.dart';
 import 'party_host_screen.dart';
 import 'neighborhood_crew_screen.dart';
 
-class PartyScreen extends StatefulWidget { 
-  const PartyScreen({super.key}); 
-  @override 
-  State<PartyScreen> createState() => _PartyScreenState(); 
+class PartyScreen extends StatefulWidget {
+  const PartyScreen({super.key});
+  @override
+  State<PartyScreen> createState() => _PartyScreenState();
 }
 
 class _PartyScreenState extends State<PartyScreen> {
@@ -113,7 +113,7 @@ class _PartyScreenState extends State<PartyScreen> {
     super.dispose();
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     String query = _searchController.text.trim().toLowerCase();
     List<Map<String, dynamic>> displayedParties = _allParties.where((p) {
@@ -125,7 +125,9 @@ class _PartyScreenState extends State<PartyScreen> {
         final title = (p['title'] as String).toLowerCase();
         final loc = (p['loc'] as String).toLowerCase();
         final tags = (p['tags'] as List<String>).join(' ').toLowerCase();
-        if (!title.contains(query) && !loc.contains(query) && !tags.contains(query)) {
+        if (!title.contains(query) &&
+            !loc.contains(query) &&
+            !tags.contains(query)) {
           return false;
         }
       }
@@ -143,55 +145,66 @@ class _PartyScreenState extends State<PartyScreen> {
             fontSize: 22,
             letterSpacing: -0.5,
           ),
-        ), 
-        backgroundColor: Colors.white, 
+        ),
+        backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.people_outline_rounded, color: Color(0xFFFF6B4A), size: 26), 
-            tooltip: '단골 크루', 
+            icon: const Icon(Icons.people_outline_rounded,
+                color: Color(0xFFFF6B4A), size: 26),
+            tooltip: '단골 크루',
             onPressed: () {
               HapticFeedback.lightImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NeighborhoodCrewScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const NeighborhoodCrewScreen()));
             },
           ),
           IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF0F172A), size: 26), 
+            icon: const Icon(Icons.add_circle_outline_rounded,
+                color: Color(0xFF0F172A), size: 26),
             tooltip: '모임 만들기',
             onPressed: () {
               HapticFeedback.lightImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyHostScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const PartyHostScreen()));
             },
           ),
           const SizedBox(width: 4),
         ],
-      ), 
+      ),
       body: Column(
         children: [
           // 1. 검색창 (TDS 스타일 미니멀 폼)
           Container(
-            color: Colors.white, 
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12), 
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: TextField(
               controller: _searchController,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF94A3B8)), 
+                prefixIcon:
+                    const Icon(Icons.search_rounded, color: Color(0xFF94A3B8)),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, color: Color(0xFF94A3B8), size: 18),
+                        icon: const Icon(Icons.clear_rounded,
+                            color: Color(0xFF94A3B8), size: 18),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {});
                         },
                       )
                     : null,
-                hintText: '동네명, 취향 키워드 검색 (서핑, LP바, 러닝 등)', 
-                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14), 
-                filled: true, 
-                fillColor: const Color(0xFFF1F5F9), 
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none), 
+                hintText: '동네명, 취향 키워드 검색 (서핑, LP바, 러닝 등)',
+                hintStyle:
+                    const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                filled: true,
+                fillColor: const Color(0xFFF1F5F9),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
@@ -215,11 +228,16 @@ class _PartyScreenState extends State<PartyScreen> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                        color: isSelected
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFFF8FAFC),
                         border: Border.all(
-                          color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                          color: isSelected
+                              ? const Color(0xFF0F172A)
+                              : const Color(0xFFE2E8F0),
                           width: 1.0,
                         ),
                         borderRadius: BorderRadius.circular(20),
@@ -227,8 +245,11 @@ class _PartyScreenState extends State<PartyScreen> {
                       child: Text(
                         _filters[i],
                         style: TextStyle(
-                          color: isSelected ? Colors.white : const Color(0xFF475569),
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF475569),
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
                           fontSize: 13,
                         ),
                       ),
@@ -241,63 +262,74 @@ class _PartyScreenState extends State<PartyScreen> {
 
           // 3. 모임 리스트 (당근마켓 스타일 88x88 정방형 피드 & 1/N 안심 정산 뱃지)
           Expanded(
-            child: displayedParties.isEmpty 
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFF4EB),
-                            shape: BoxShape.circle,
+            child: displayedParties.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFF4EB),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.explore_off_rounded,
+                                color: Color(0xFFFF6B4A), size: 40),
                           ),
-                          child: const Icon(Icons.explore_off_rounded, color: Color(0xFFFF6B4A), size: 40),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          '해당 조건의 모임이 아직 없어요',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF0F172A),
+                          const SizedBox(height: 16),
+                          const Text(
+                            '해당 조건의 모임이 아직 없어요',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          '직접 첫 번째 아지트 모임을 열고\n마음 맞는 30대 동네 친구를 찾아보세요!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyHostScreen())),
-                          icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('모임 직접 개설하기', style: TextStyle(fontWeight: FontWeight.w700)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF6B4A),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
+                          const SizedBox(height: 6),
+                          const Text(
+                            '직접 첫 번째 아지트 모임을 열고\n마음 맞는 30대 동네 친구를 찾아보세요!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF64748B),
+                                height: 1.4),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const PartyHostScreen())),
+                            icon: const Icon(Icons.add_rounded, size: 18),
+                            label: const Text('모임 직접 개설하기',
+                                style: TextStyle(fontWeight: FontWeight.w700)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF6B4A),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  )
+                : ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    itemCount: displayedParties.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (ctx, i) {
+                      final p = displayedParties[i];
+                      return _hyperlocalMeetupCard(context, p);
+                    },
                   ),
-                )
-              : ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), 
-                  itemCount: displayedParties.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, i) {
-                    final p = displayedParties[i];
-                    return _hyperlocalMeetupCard(context, p);
-                  },
-                ),
           ),
         ],
       ),
@@ -324,7 +356,7 @@ class _PartyScreenState extends State<PartyScreen> {
         border: Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           )
@@ -338,7 +370,8 @@ class _PartyScreenState extends State<PartyScreen> {
             HapticFeedback.lightImpact();
             Navigator.push(
               ctx,
-              MaterialPageRoute(builder: (_) => PartyDetailScreen(partyData: party)),
+              MaterialPageRoute(
+                  builder: (_) => PartyDetailScreen(partyData: party)),
             );
           },
           child: Padding(
@@ -358,7 +391,8 @@ class _PartyScreenState extends State<PartyScreen> {
                       width: 88,
                       height: 88,
                       color: const Color(0xFFF1F5F9),
-                      child: const Icon(Icons.image_not_supported_rounded, color: Color(0xFF94A3B8), size: 28),
+                      child: const Icon(Icons.image_not_supported_rounded,
+                          color: Color(0xFF94A3B8), size: 28),
                     ),
                   ),
                 ),
@@ -373,15 +407,20 @@ class _PartyScreenState extends State<PartyScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
-                              color: isUrgent ? const Color(0xFFFFF1F2) : const Color(0xFFF1F5F9),
+                              color: isUrgent
+                                  ? const Color(0xFFFFF1F2)
+                                  : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               status,
                               style: TextStyle(
-                                color: isUrgent ? const Color(0xFFE11D48) : const Color(0xFF475569),
+                                color: isUrgent
+                                    ? const Color(0xFFE11D48)
+                                    : const Color(0xFF475569),
                                 fontWeight: FontWeight.w700,
                                 fontSize: 11,
                               ),
@@ -389,7 +428,8 @@ class _PartyScreenState extends State<PartyScreen> {
                           ),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFF4EB),
                               borderRadius: BorderRadius.circular(6),
@@ -425,20 +465,23 @@ class _PartyScreenState extends State<PartyScreen> {
                       // 위치 및 일시
                       Row(
                         children: [
-                          const Icon(Icons.location_on_rounded, size: 13, color: Color(0xFF94A3B8)),
+                          const Icon(Icons.location_on_rounded,
+                              size: 13, color: Color(0xFF94A3B8)),
                           const SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               loc,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                              style: const TextStyle(
+                                  color: Color(0xFF64748B), fontSize: 12),
                             ),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             date,
-                            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                            style: const TextStyle(
+                                color: Color(0xFF94A3B8), fontSize: 11),
                           ),
                         ],
                       ),
@@ -452,12 +495,18 @@ class _PartyScreenState extends State<PartyScreen> {
                             children: [
                               Text(
                                 author,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF334155)),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 mannerTemp,
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFFF6B4A)),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFFF6B4A)),
                               ),
                             ],
                           ),

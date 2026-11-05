@@ -130,7 +130,7 @@ def post_daily_balance_game(force=False):
         "title": game["title"],
         "content": content_text,
         "author": "오우무 에디터 💌",
-        "authorAvatar": "assets/images/kr_female_1.jpg",
+        "authorAvatar": "assets/images/민지.png",
         "location": "서울 전체",
         "time": "오늘의 투표",
         "manner": 48.5,

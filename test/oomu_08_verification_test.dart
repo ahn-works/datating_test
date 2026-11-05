@@ -550,7 +550,7 @@ void main() {
         globalData.switchUser('user_A', triggerFirestoreSync: false);
         globalData.userNickname.value = '부산유저A';
         globalData.userLocation.value = '부산 해운대구 우동';
-        globalData.userAvatar.value = 'assets/images/kr_male_1.jpg';
+        globalData.userAvatar.value = 'assets/images/지훈.png';
         globalData.temperature.value = 44.2;
         globalData.rating.value = 4.9;
         globalData.reviewCount.value = 15;
@@ -653,7 +653,7 @@ void main() {
         completerB.complete({
           'location': '여수시 화장동',
           'nickname': '여수이웃B',
-          'photoUrl': 'assets/images/kr_female_2.jpg',
+          'photoUrl': 'assets/images/시연.png',
           'mannerTemp': 40.5,
         });
         await futureB;
@@ -666,7 +666,7 @@ void main() {
         completerA.complete({
           'location': '부산 해운대구 우동',
           'nickname': '해운대유저A',
-          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'photoUrl': 'assets/images/지훈.png',
           'mannerTemp': 38.0,
         });
         await futureA;
@@ -674,7 +674,7 @@ void main() {
         expect(globalData.currentUserId.value, equals('user_B'));
         expect(globalData.userLocation.value, equals('여수시 화장동'));
         expect(globalData.userNickname.value, equals('여수이웃B'));
-        expect(globalData.userAvatar.value, equals('assets/images/kr_female_2.jpg'));
+        expect(globalData.userAvatar.value, equals('assets/images/시연.png'));
         expect(globalData.temperature.value, closeTo(40.5, 0.001));
       } finally {
         authService.debugCurrentUidGetter = null;
@@ -712,12 +712,12 @@ void main() {
         completerSyncA.complete({
           'location': '부산 해운대구 우동',
           'nickname': '해운대유저A',
-          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'photoUrl': 'assets/images/지훈.png',
         });
         completerCompleteCheckA.complete({
           'location': '부산 해운대구 우동',
           'nickname': '해운대유저A',
-          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'photoUrl': 'assets/images/지훈.png',
           'isProfileComplete': true,
         });
 
@@ -764,7 +764,7 @@ void main() {
         completerNewSessionA.complete({
           'location': '여수시 학동',
           'nickname': '새세션유저A',
-          'photoUrl': 'assets/images/kr_female_3.jpg',
+          'photoUrl': 'assets/images/지연.png',
           'mannerTemp': 43.0,
         });
         await newSessionFuture;
@@ -778,7 +778,7 @@ void main() {
         completerOldSessionA.complete({
           'location': '구세션과거동네',
           'nickname': '구세션과거닉네임',
-          'photoUrl': 'assets/images/kr_male_1.jpg',
+          'photoUrl': 'assets/images/지훈.png',
           'mannerTemp': 36.5,
         });
         await oldSessionFuture;
@@ -786,7 +786,7 @@ void main() {
         expect(globalData.currentUserId.value, equals('user_A'));
         expect(globalData.userLocation.value, equals('여수시 학동'));
         expect(globalData.userNickname.value, equals('새세션유저A'));
-        expect(globalData.userAvatar.value, equals('assets/images/kr_female_3.jpg'));
+        expect(globalData.userAvatar.value, equals('assets/images/지연.png'));
         expect(globalData.temperature.value, closeTo(43.0, 0.001));
       } finally {
         authService.debugCurrentUidGetter = null;

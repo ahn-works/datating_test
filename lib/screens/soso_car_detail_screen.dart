@@ -707,7 +707,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               final hostName = (widget.meetup != null ? (widget.meetup!['host'] ?? '모임 호스트') : '매운맛킬러').toString();
                               final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
                                   ? widget.meetup!['hostAvatar'].toString()
-                                  : 'assets/images/kr_female_1.jpg';
+                                  : 'assets/images/민지.png';
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -727,7 +727,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                   backgroundImage: appImg(
                                     (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
                                         ? widget.meetup!['hostAvatar'].toString()
-                                        : 'assets/images/kr_female_1.jpg',
+                                        : 'assets/images/민지.png',
                                   ),
                                   backgroundColor: surfaceColor,
                                 ),
@@ -816,7 +816,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                 final hostName = (widget.meetup != null ? (widget.meetup!['host'] ?? '모임 호스트') : '매운맛킬러').toString();
                                 final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
                                     ? widget.meetup!['hostAvatar'].toString()
-                                    : 'assets/images/kr_female_1.jpg';
+                                    : 'assets/images/민지.png';
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

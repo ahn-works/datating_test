@@ -14,9 +14,9 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     } else if (target.contains('run') || target.contains('1502680390469') || target.contains('1552674605') || target.contains('1519681393784')) {
       return const AssetImage('assets/images/cover_running.jpg');
     } else if (target.contains('534528741775') || target.contains('1517841905240') || target.contains('1438761681033') || target.contains('img=33') || target.contains('img=5') || target.contains('img=47') || target.contains('img=45')) {
-      return const AssetImage('assets/images/kr_female_1.jpg');
+      return const AssetImage('assets/images/민지.png');
     } else if (target.contains('507003211169') || target.contains('1500648767791') || target.contains('1527980965255') || target.contains('img=12') || target.contains('img=36')) {
-      return const AssetImage('assets/images/kr_male_1.jpg');
+      return const AssetImage('assets/images/지훈.png');
     } else {
       return const AssetImage('assets/images/cover_food.jpg');
     }
@@ -25,6 +25,28 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
   // 1. Flutter 로컬 에셋 경로
   if (target.startsWith('assets/')) {
     return AssetImage(target);
+  }
+
+  // 1-1. R2 프로필 키 중 번들 에셋에 존재하는 실제 사진 즉시 로컬 에셋 매핑 (CORS 및 렌더링 지연 원천 차단)
+  if (target.startsWith('profiles/') || target.startsWith('/profiles/')) {
+    final cleanKey = target.startsWith('/') ? target.substring(1) : target;
+    final fileName = cleanKey.substring('profiles/'.length);
+    final mappedAsset = _resolveBundledProfileAsset(fileName);
+    if (mappedAsset != null) {
+      return AssetImage('assets/images/$mappedAsset');
+    }
+  }
+
+  // 1-2. R2 커버 키 중 번들 에셋 매핑
+  if (target.startsWith('covers/') || target.startsWith('/covers/')) {
+    final cleanKey = target.startsWith('/') ? target.substring(1) : target;
+    final fileName = cleanKey.substring('covers/'.length);
+    if (fileName.contains('cafe')) return const AssetImage('assets/images/cover_cafe.jpg');
+    if (fileName.contains('wine')) return const AssetImage('assets/images/cover_wine.jpg');
+    if (fileName.contains('run')) return const AssetImage('assets/images/cover_running.jpg');
+    if (fileName.contains('bread') || fileName.contains('salt')) return const AssetImage('assets/images/cover_salt_bread.jpg');
+    if (fileName.contains('hangang')) return const AssetImage('assets/images/cover_running_hangang.jpg');
+    return const AssetImage('assets/images/cover_food.jpg');
   }
 
   // 2. 모바일 / 데스크톱 네이티브 로컬 파일 경로 (FileImage 지원)
@@ -60,4 +82,53 @@ Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, St
       child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
     ),
   );
+}
+
+const Map<String, String> _bundledProfileMap = {
+  '민지.png': '민지.png',
+  '민지2.png': '민지2.png',
+  '시연.png': '시연.png',
+  '정재.png': '정재.png',
+  '정재2.png': '정재2.png',
+  '주아.png': '주아.png',
+  '지안.png': '지안.png',
+  '지안2.png': '지안2.png',
+  '지연.png': '지연.png',
+  '지연2.png': '지연2.png',
+  '지연3.png': '지연3.png',
+  '지훈.png': '지훈.png',
+  '지훈2.png': '지훈2.png',
+  '지훈3.png': '지훈3.png',
+  '초연.png': '초연.png',
+  'minji.png': '민지.png',
+  'minji2.png': '민지2.png',
+  'siyan.png': '시연.png',
+  'jeongjae.png': '정재.png',
+  'jeongjae2.png': '정재2.png',
+  'jua.png': '주아.png',
+  'jian.png': '지안.png',
+  'jian2.png': '지안2.png',
+  'jiyeon.png': '지연.png',
+  'jiyeon2.png': '지연2.png',
+  'jiyeon3.png': '지연3.png',
+  'jihun.png': '지훈.png',
+  'jihun2.png': '지훈2.png',
+  'jihun3.png': '지훈3.png',
+  'choyeon.png': '초연.png',
+  'test_user_01.jpg': '민지.png',
+  'test_user_02.jpg': '지훈.png',
+  'test_user_03.jpg': '지연.png',
+  'user_yeosu_neighbor.jpg': '초연.png',
+  'bot_mangwon_runner.jpg': '지안.png',
+  'bot_seongsu_wine.jpg': '정재.png',
+  'bot_yeosu_food.jpg': '정재.png',
+  'bot_yeosu_karaoke.jpg': '시연.png',
+  'bot_yeosu_ungcheon.jpg': '지안.png',
+  'bot_yeosu_running.jpg': '지훈.png',
+  'bot_yeosu_bakery.jpg': '주아.png',
+};
+
+String? _resolveBundledProfileAsset(String rawName) {
+  final decoded = Uri.decodeComponent(rawName).trim();
+  return _bundledProfileMap[decoded] ?? _bundledProfileMap[rawName.trim()];
 }

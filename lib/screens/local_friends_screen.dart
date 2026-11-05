@@ -20,7 +20,7 @@ class LocalFriendsScreen extends StatefulWidget {
 class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
   final Color primaryColor = const Color(0xFFF19E39);
   int _selectedFilterIndex = 0;
-  
+
   final List<String> _filters = ['전체', '동네 산책', '밥친구', '카공', '러닝', '급벙'];
 
   final List<Map<String, dynamic>> _meetups = [
@@ -97,9 +97,13 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('동네 친구 만들기', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: const Text('동네 친구 만들기',
+            style:
+                TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(icon: const Icon(Icons.search, color: Colors.black87), onPressed: () {}),
+          IconButton(
+              icon: const Icon(Icons.search, color: Colors.black87),
+              onPressed: () {}),
         ],
       ),
       body: Column(
@@ -122,11 +126,15 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? primaryColor : Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: isSelected ? primaryColor : Colors.grey.shade300),
+                        border: Border.all(
+                            color: isSelected
+                                ? primaryColor
+                                : Colors.grey.shade300),
                       ),
                       child: Text(
                         _filters[index],
@@ -147,7 +155,10 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
               builder: (context) {
                 final displayed = _selectedFilterIndex == 0
                     ? _meetups
-                    : _meetups.where((m) => m['type'] == _filters[_selectedFilterIndex]).toList();
+                    : _meetups
+                        .where(
+                            (m) => m['type'] == _filters[_selectedFilterIndex])
+                        .toList();
 
                 if (displayed.isEmpty) {
                   return EmptyStateScreen(
@@ -155,7 +166,10 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                     title: '해당 조건의 동네 친구 모임이 없어요',
                     message: '첫 번째로 모임을 열고\n가까운 동네 이웃과 소소한 일상을 함께해보세요!',
                     actionLabel: '새 모임 직접 열기',
-                    onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyHostScreen())),
+                    onAction: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PartyHostScreen())),
                   );
                 }
 
@@ -176,11 +190,17 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           HapticFeedback.mediumImpact();
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyHostScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const PartyHostScreen()));
         },
         backgroundColor: primaryColor,
-        icon: const Icon(Icons.edit_note_rounded, color: Colors.white, size: 22),
-        label: const Text('모임 열기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+        icon:
+            const Icon(Icons.edit_note_rounded, color: Colors.white, size: 22),
+        label: const Text('모임 열기',
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15)),
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -193,9 +213,12 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4)),
         ],
-        border: Border.all(color: Colors.black.withOpacity(0.02)),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.02)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,14 +233,21 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                   children: [
                     const CircleAvatar(
                       radius: 16,
-                      backgroundImage: AssetImage('assets/images/kr_female_2.jpg'),
+                      backgroundImage:
+                          AssetImage('assets/images/시연.png'),
                     ),
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(meetup['hostName'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                        Text('${meetup['hostTemp']}°C 🌡️', style: const TextStyle(fontSize: 11, color: Color(0xFFC04020), fontWeight: FontWeight.bold)),
+                        Text(meetup['hostName'],
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold)),
+                        Text('${meetup['hostTemp']}°C 🌡️',
+                            style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFC04020),
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ],
@@ -239,7 +269,10 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.7)
+                      ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
@@ -250,14 +283,18 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                 top: 12,
                 left: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: meetup['color'],
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     meetup['type'],
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11),
                   ),
                 ),
               ),
@@ -267,7 +304,11 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                 right: 12,
                 child: Text(
                   meetup['title'],
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, shadows: [Shadow(color: Colors.black87, blurRadius: 4)]),
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [Shadow(color: Colors.black87, blurRadius: 4)]),
                 ),
               ),
             ],
@@ -280,7 +321,8 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
               children: [
                 if (meetup['hasPoll']) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9F9F9),
                       borderRadius: BorderRadius.circular(8),
@@ -288,13 +330,26 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.how_to_vote, size: 16, color: Color(0xFFF19E39)),
+                        const Icon(Icons.how_to_vote,
+                            size: 16, color: Color(0xFFF19E39)),
                         const SizedBox(width: 8),
-                        const Expanded(child: Text('현재 만남 장소 (스팟) 투표 진행 중!', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87))),
+                        const Expanded(
+                            child: Text('현재 만남 장소 (스팟) 투표 진행 중!',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87))),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: const Color(0xFFF19E39), borderRadius: BorderRadius.circular(12)),
-                          child: const Text('투표하기', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: const Color(0xFFF19E39),
+                              borderRadius: BorderRadius.circular(12)),
+                          child: const Text('투표하기',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
                         )
                       ],
                     ),
@@ -303,17 +358,27 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                 ],
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 16, color: Colors.black54),
+                    const Icon(Icons.access_time,
+                        size: 16, color: Colors.black54),
                     const SizedBox(width: 6),
-                    Text(meetup['time'], style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500)),
+                    Text(meetup['time'],
+                        style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500)),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: Colors.black54),
+                    const Icon(Icons.location_on,
+                        size: 16, color: Colors.black54),
                     const SizedBox(width: 6),
-                    Text(meetup['location'], style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500)),
+                    Text(meetup['location'],
+                        style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500)),
                   ],
                 ),
                 const Padding(
@@ -326,18 +391,27 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.favorite_border, size: 18, color: Colors.grey),
+                        const Icon(Icons.favorite_border,
+                            size: 18, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Text('${meetup['likes']}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                        Text('${meetup['likes']}',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.black54)),
                         const SizedBox(width: 12),
-                        const Icon(Icons.chat_bubble_outline, size: 18, color: Colors.grey),
+                        const Icon(Icons.chat_bubble_outline,
+                            size: 18, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Text('${meetup['comments']}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                        Text('${meetup['comments']}',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.black54)),
                       ],
                     ),
                     Row(
                       children: [
-                        Text('참여 ${meetup['currentMembers']}/${meetup['maxMembers']}명', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                        Text(
+                            '참여 ${meetup['currentMembers']}/${meetup['maxMembers']}명',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.black54)),
                         const SizedBox(width: 8),
                         InkWell(
                           borderRadius: BorderRadius.circular(20),
@@ -353,7 +427,8 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                                     'loc': meetup['location'],
                                     'date': meetup['time'],
                                     'author': meetup['hostName'],
-                                    'authorInfo': '${meetup['hostTemp']}°C · 동네 이웃',
+                                    'authorInfo':
+                                        '${meetup['hostTemp']}°C · 동네 이웃',
                                     'img': meetup['image'],
                                   },
                                 ),
@@ -361,12 +436,17 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
                             );
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: primaryColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Text('참여하기', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                            child: const Text('참여하기',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
@@ -389,21 +469,31 @@ class _LocalFriendsScreenState extends State<LocalFriendsScreen> {
       selectedItemColor: coralAccent,
       unselectedItemColor: const Color(0xFF767676),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+      selectedLabelStyle:
+          const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+      unselectedLabelStyle:
+          const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       elevation: 20,
       backgroundColor: Colors.white,
       onTap: (index) {
         if (index == 0) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 0)));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const OOMUHomeScreen(initialTab: 0)));
         } else if (index == 1) {
           // current tab
         } else if (index == 2) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OOMUHomeScreen(initialTab: 2)));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const OOMUHomeScreen(initialTab: 2)));
         } else if (index == 3) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => const ChatScreen()));
         } else if (index == 4) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
         }
       },
       items: const [

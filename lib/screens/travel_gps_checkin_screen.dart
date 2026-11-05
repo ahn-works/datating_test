@@ -24,7 +24,10 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
       appBar: AppBar(
         title: const Text(
           '목포역 광장 카카오 GPS 체크인',
-          style: TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 17),
+          style: TextStyle(
+              color: Color(0xFF111111),
+              fontWeight: FontWeight.bold,
+              fontSize: 17),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -37,11 +40,12 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
       body: Stack(
         children: [
           // 1. 카카오 공식 지도 뷰
-          Positioned.fill(
-            child: KakaoMapView(
+          const Positioned.fill(
+            child: const KakaoMapView(
               lat: mokpoLat,
               lng: mokpoLng,
-              locationName: placeName, hideActions: true,
+              locationName: placeName,
+              hideActions: true,
             ),
           ),
 
@@ -53,9 +57,11 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
               backgroundColor: const Color(0xFFFEE500),
               foregroundColor: const Color(0xFF191919),
               elevation: 4,
-              onPressed: () => KakaoMapService.launchDirections(placeName, lat: mokpoLat, lng: mokpoLng),
+              onPressed: () => KakaoMapService.launchDirections(placeName,
+                  lat: mokpoLat, lng: mokpoLng),
               icon: const Icon(Icons.directions_rounded, size: 20),
-              label: const Text('카카오 길찾기', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              label: const Text('카카오 길찾기',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             ),
           ),
 
@@ -70,12 +76,13 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 20,
                     offset: const Offset(0, -5),
                   ),
                 ],
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(28)),
               ),
               child: SafeArea(
                 child: Column(
@@ -85,7 +92,8 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFFECFDF5),
                             borderRadius: BorderRadius.circular(20),
@@ -93,7 +101,8 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                              Icon(Icons.check_circle_rounded,
+                                  color: Color(0xFF10B981), size: 16),
                               SizedBox(width: 6),
                               Text(
                                 '카카오 위치 인증 완료 (오차 10m 이내)',
@@ -116,31 +125,40 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
                         SizedBox(width: 6),
                         Text(
                           '현재 위치: 목포역 광장 (체크인 정상)',
-                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F172A)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     const Text(
                       '모임 장소 도착이 확인되었습니다. 보증금이 안심 환불 처리됩니다.',
-                      style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
+                      style:
+                          TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () => Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const TravelRoomScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const TravelRoomScreen()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: coralAccent,
                         minimumSize: const Size(double.infinity, 54),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
                       child: const Text(
                         '보증금 환불 받고 단톡방 입장',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ),
                   ],

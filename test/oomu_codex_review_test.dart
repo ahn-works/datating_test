@@ -14,17 +14,26 @@ import 'package:spot10_app/screens/soso_car_host_screen.dart';
 import 'package:spot10_app/utils/event_meetup_category.dart';
 
 void main() {
-  test('event categories map to the existing meetup taxonomy without inventing a category', () {
+  test(
+      'event categories map to the existing meetup taxonomy without inventing a category',
+      () {
     expect(eventMeetupCategory('카페')?.sub, '카페 & 디저트');
     expect(eventMeetupCategory('전시')?.sub, '전시 & 팝업스토어');
     expect(eventMeetupCategory('뮤지컬')?.main, '문화 & 엔터');
     expect(eventMeetupCategory('알 수 없는 분류'), isNull);
   });
-  testWidgets('a place opens meetup creation with its title, place and correct cafe category', (tester) async {
+  testWidgets(
+      'a place opens meetup creation with its title, place and correct cafe category',
+      (tester) async {
     await mockNetworkImagesFor(() async {
-      await tester.pumpWidget(MaterialApp(theme: OomuUiHelpers.buildTheme(), home: const EventDetailScreen(event: {
-        'id': 'cafe_example', 'title': '소금빵 카페', 'location': '여수 화장동', 'category': '카페',
-      })));
+      await tester.pumpWidget(MaterialApp(
+          theme: OomuUiHelpers.buildTheme(),
+          home: const EventDetailScreen(event: {
+            'id': 'cafe_example',
+            'title': '소금빵 카페',
+            'location': '여수 화장동',
+            'category': '카페',
+          })));
       await tester.pumpAndSettle();
       await tester.tap(find.text('이곳에 같이 갈 모임 열기'));
       await tester.pumpAndSettle();
@@ -36,18 +45,28 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
-  testWidgets('two-line Korean event heading breaks at an existing word boundary', (tester) async {
+  testWidgets(
+      'two-line Korean event heading breaks at an existing word boundary',
+      (tester) async {
     const title = '여수 화장동 소금빵 카페 함께 둘러보기 🥐';
     await tester.binding.setSurfaceSize(const Size(390, 844));
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: Padding(
-      padding: const EdgeInsets.all(20),
-      child: const BalancedHeading(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+    await tester.pumpWidget(const MaterialApp(
+        home: Scaffold(
+            body: Padding(
+      padding: EdgeInsets.all(20),
+      child: BalancedHeading(title,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
     ))));
     await tester.pump();
     expect(find.text(title), findsOneWidget);
     final paragraph = tester.renderObject<RenderParagraph>(find.text(title));
-    final end = paragraph.getPositionForOffset(Offset(paragraph.size.width, 1)).offset;
-    expect(end == title.length || RegExp(r'\s').hasMatch(title[end]) || RegExp(r'\s').hasMatch(title[end - 1]), isTrue);
+    final end =
+        paragraph.getPositionForOffset(Offset(paragraph.size.width, 1)).offset;
+    expect(
+        end == title.length ||
+            RegExp(r'\s').hasMatch(title[end]) ||
+            RegExp(r'\s').hasMatch(title[end - 1]),
+        isTrue);
     expect(tester.takeException(), isNull);
     await tester.binding.setSurfaceSize(null);
   });

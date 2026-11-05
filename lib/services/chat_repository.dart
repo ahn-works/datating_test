@@ -81,6 +81,7 @@ class FirestoreChatRepository implements ChatRepository {
     if (authUid != null && authUid.isNotEmpty) return authUid;
     return null;
   }
+
   @override
   Stream<String?> get sessionChanges => Firebase.apps.isEmpty
       ? const Stream.empty()
@@ -165,8 +166,9 @@ class FirestoreChatRepository implements ChatRepository {
       final snapshot = await tx.get(roomRef);
       if (currentUid != uid ||
           session != globalData.sessionGeneration ||
-          !isChatParticipant(snapshot.data(), uid))
+          !isChatParticipant(snapshot.data(), uid)) {
         throw StateError('참여 확인이 필요해요.');
+      }
       tx.update(roomRef.collection('messages').doc(messageId), changes);
     });
   }
@@ -181,8 +183,9 @@ class FirestoreChatRepository implements ChatRepository {
       final snapshot = await tx.get(ref);
       if (currentUid != uid ||
           session != globalData.sessionGeneration ||
-          !isChatParticipant(snapshot.data(), uid))
+          !isChatParticipant(snapshot.data(), uid)) {
         throw StateError('참여 확인이 필요해요.');
+      }
       tx.update(ref, {
         'participants': FieldValue.arrayRemove([uid]),
         'leftUserIds': FieldValue.arrayUnion([uid])

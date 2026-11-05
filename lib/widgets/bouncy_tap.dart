@@ -48,7 +48,8 @@ class BouncyTap extends StatefulWidget {
   State<BouncyTap> createState() => _BouncyTapState();
 }
 
-class _BouncyTapState extends State<BouncyTap> with SingleTickerProviderStateMixin {
+class _BouncyTapState extends State<BouncyTap>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
 
@@ -162,7 +163,7 @@ class BouncyCoralButton extends StatelessWidget {
               ? null
               : [
                   BoxShadow(
-                    color: bg.withOpacity(0.24),
+                    color: bg.withValues(alpha: 0.24),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

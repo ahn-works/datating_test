@@ -12,7 +12,8 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OnboardingScreen()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => const OnboardingScreen()));
     });
   }
 
@@ -26,9 +27,15 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             const Icon(Icons.favorite, size: 80, color: Colors.white),
             const SizedBox(height: 24),
-            const Text('우무(OOMU)', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+            const Text('우무(OOMU)',
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white)),
             const SizedBox(height: 8),
-            Text('우리끼리 무드있게, 자만추 드라이브', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16)),
+            Text('우리끼리 무드있게, 자만추 드라이브',
+                style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8), fontSize: 16)),
           ],
         ),
       ),

@@ -25,7 +25,10 @@ class MiddleSpotMapScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           '중간 지점 카카오 지도 찾기',
-          style: TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 17),
+          style: TextStyle(
+              color: Color(0xFF111111),
+              fontWeight: FontWeight.bold,
+              fontSize: 17),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -44,21 +47,23 @@ class MiddleSpotMapScreen extends StatelessWidget {
                 KakaoMapView(
                   lat: lat,
                   lng: lng,
-                  locationName: spotName, hideActions: true,
-            ),
+                  locationName: spotName,
+                  hideActions: true,
+                ),
                 // 상단 안내 뱃지
                 Positioned(
                   top: 16,
                   left: 16,
                   right: 16,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.95),
+                      color: Colors.white.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -72,7 +77,10 @@ class MiddleSpotMapScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             '카카오맵 기반 정밀 중간 지점 탐색 완료',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1E293B)),
                           ),
                         ),
                       ],
@@ -107,7 +115,8 @@ class MiddleSpotMapScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.location_on, color: coralAccent, size: 24),
+                          child: const Icon(Icons.location_on,
+                              color: coralAccent, size: 24),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -116,12 +125,16 @@ class MiddleSpotMapScreen extends StatelessWidget {
                             children: [
                               Text(
                                 spotName,
-                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF0F172A)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                    color: Color(0xFF0F172A)),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 description,
-                                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12.5),
+                                style: const TextStyle(
+                                    color: Color(0xFF64748B), fontSize: 12.5),
                               ),
                             ],
                           ),
@@ -134,28 +147,41 @@ class MiddleSpotMapScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => KakaoMapService.launchMap(spotName, lat: lat, lng: lng),
+                          onPressed: () => KakaoMapService.launchMap(spotName,
+                              lat: lat, lng: lng),
                           icon: const Icon(Icons.map_rounded, size: 18),
-                          label: const Text('카카오맵 열기', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                          label: const Text('카카오맵 열기',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 14)),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: const Color(0xFF1E293B),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             side: const BorderSide(color: Color(0xFFCBD5E1)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => KakaoMapService.launchDirections(spotName, lat: lat, lng: lng),
-                          icon: const Icon(Icons.directions_rounded, size: 18, color: Color(0xFF191919)),
-                          label: const Text('카카오 길찾기', style: TextStyle(color: Color(0xFF191919), fontWeight: FontWeight.w800, fontSize: 14)),
+                          onPressed: () => KakaoMapService.launchDirections(
+                              spotName,
+                              lat: lat,
+                              lng: lng),
+                          icon: const Icon(Icons.directions_rounded,
+                              size: 18, color: Color(0xFF191919)),
+                          label: const Text('카카오 길찾기',
+                              style: TextStyle(
+                                  color: Color(0xFF191919),
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 14)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFEE500),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
                           ),
                         ),
                       ),
@@ -170,11 +196,15 @@ class MiddleSpotMapScreen extends StatelessWidget {
                         backgroundColor: coralAccent,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                       ),
                       child: const Text(
                         '이 지점으로 모임 장소 확정',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ),
                   ),

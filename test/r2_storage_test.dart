@@ -83,7 +83,7 @@ void main() {
       r2.publicBaseUrl = '';
       r2.accessKeyId = '';
       r2.secretAccessKey = '';
-      expect(r2.getPublicViewUrl('profiles/any.jpg'), 'assets/images/kr_female_1.jpg');
+      expect(r2.getPublicViewUrl('profiles/any.jpg'), 'assets/images/민지.png');
       expect(r2.getPublicViewUrl('covers/cafe_spot.jpg'), 'assets/images/cover_cafe.jpg');
       expect(r2.getPublicViewUrl('covers/wine_spot.jpg'), 'assets/images/cover_wine.jpg');
       expect(r2.getPublicViewUrl('covers/run_spot.jpg'), 'assets/images/cover_running.jpg');
