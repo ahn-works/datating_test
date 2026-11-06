@@ -3062,9 +3062,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               'poster': 'assets/images/cover_cafe.jpg',
           };
         }).toList();
-        final guaranteedPool = const bool.fromEnvironment('dart.vm.product')
-            ? <Map<String, dynamic>>[]
-            : _getGuaranteedRichCategoryPool();
+        final guaranteedPool = _getGuaranteedRichCategoryPool();
         final Set<String> seenTitles = {};
         final List<Map<String, dynamic>> items = [];
 
