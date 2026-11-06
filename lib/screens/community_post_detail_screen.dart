@@ -257,6 +257,28 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
         return data;
       }).toList();
+
+      // 안전한 인메모리 시간순 정렬 (Timestamp 및 ISO 문자열 혼용 완벽 지원)
+      docs.sort((a, b) {
+        final aTime = a['createdAt'];
+        final bTime = b['createdAt'];
+        DateTime? dtA, dtB;
+        if (aTime is Timestamp) {
+          dtA = aTime.toDate();
+        } else if (aTime is String) {
+          dtA = DateTime.tryParse(aTime);
+        }
+        if (bTime is Timestamp) {
+          dtB = bTime.toDate();
+        } else if (bTime is String) {
+          dtB = DateTime.tryParse(bTime);
+        }
+        if (dtA != null && dtB != null) {
+          return dtA.compareTo(dtB);
+        }
+        return 0;
+      });
+
       try {
         widget.post['comments'] = docs.length;
       } catch (_) {}
@@ -972,7 +994,6 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         .collection('community_posts')
                         .doc(postId)
                         .collection('comments')
-                        .orderBy('createdAt', descending: false)
                         .snapshots(),
                     builder: (context, commentSnap) {
                       final displayComments =

@@ -650,6 +650,27 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     });
   }
 
+  void _showProfileExchangeBottomSheet() {
+    Navigator.pop(context);
+    _addMessage({
+      'type': 'profile_exchange',
+      'title': '🤝 명함/프로필 교환 요청',
+      'desc': '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
+      'acceptedMembers': <String>[],
+      'status': 'pending',
+    });
+  }
+
+  void _showSecretAfterBottomSheet() {
+    Navigator.pop(context);
+    _addMessage({
+      'type': 'secret_after',
+      'title': '💖 시크릿 애프터 1:1 호감 매칭',
+      'desc': '모임 종료 후 비공개 호감 매칭이 오픈되었습니다! 마음에 드는 멤버를 선택해 보세요.',
+      'secretChoices': <String>[],
+    });
+  }
+
   void _showHotspotSearchBottomSheet() {
     Navigator.pop(context);
 
@@ -971,56 +992,94 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      builder: (ctx) => SafeArea(
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.only(top: 14, left: 20, right: 20, bottom: 28),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
           child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('대화에 추가하기',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 20),
-              Wrap(spacing: 20, runSpacing: 24, children: [
-                _buildAttachmentIcon(Icons.image_outlined, '사진', textSecondary,
-                    onTap: _sendImageAction),
-                _buildAttachmentIcon(
-                    Icons.location_on_outlined, '현재 위치', textSecondary,
-                    onTap: _sendLocationAction),
-                _buildAttachmentIcon(
-                    Icons.calendar_month_outlined, '일정', textSecondary,
-                    onTap: _showScheduleCreatorBottomSheet),
-                _buildAttachmentIcon(Icons.poll_outlined, '투표', textSecondary,
-                    onTap: _showPollCreatorBottomSheet),
-                _buildAttachmentIcon(
-                    Icons.local_cafe_outlined, '장소 공유', textSecondary,
-                    onTap: _showHotspotSearchBottomSheet),
-                _buildAttachmentIcon(
-                    Icons.rate_review_outlined, '모임 후기', textSecondary,
-                    onTap: _showReviewBottomSheet),
-                _buildAttachmentIcon(
-                    Icons.home_outlined, '귀가 알림', textSecondary,
-                    onTap: _showSafeReturnBottomSheet),
-                _buildAttachmentIcon(
-                    Icons.auto_awesome_outlined, '대화 주제', textSecondary,
-                    onTap: () {
-                  Navigator.pop(ctx);
-                  _showAiTopicsBottomSheet();
-                }),
-              ]),
-              const SizedBox(height: 20),
-              Text('선택한 내용만 대화방에 공유돼요. 귀가 알림은 직접 남기는 메시지예요.',
-                  style: TextStyle(
-                      color: textSecondary, fontSize: 13, height: 1.5)),
-            ]),
-      )),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Row(
+                  children: [
+                    Icon(Icons.dashboard_customize_rounded, size: 18, color: Color(0xFFF25767)),
+                    SizedBox(width: 6),
+                    Text(
+                      '모임 도구 및 공유',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF191F28),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 20,
+                  alignment: WrapAlignment.start,
+                  children: [
+                    _buildAttachmentIcon(Icons.photo_library_rounded, '사진/앨범', const Color(0xFF10B981),
+                        onTap: _sendImageAction),
+                    _buildAttachmentIcon(Icons.location_on_rounded, '위치 공유', const Color(0xFFEF4444),
+                        onTap: _sendLocationAction),
+                    _buildAttachmentIcon(Icons.local_cafe_rounded, '동네 핫플', const Color(0xFFD97706),
+                        onTap: _showHotspotSearchBottomSheet),
+                    _buildAttachmentIcon(Icons.event_available_rounded, '일정 제안', const Color(0xFF3B82F6),
+                        onTap: _showScheduleCreatorBottomSheet),
+                    _buildAttachmentIcon(Icons.how_to_vote_rounded, '투표 만들기', const Color(0xFF8B5CF6),
+                        onTap: _showPollCreatorBottomSheet),
+                    _buildAttachmentIcon(Icons.nightlife_rounded, '안심 귀가', const Color(0xFFF43F5E),
+                        onTap: _showSafeReturnBottomSheet),
+                    _buildAttachmentIcon(Icons.auto_awesome_rounded, 'AI 대화주제', const Color(0xFF6366F1),
+                        onTap: () {
+                      Navigator.pop(ctx);
+                      _showAiTopicsBottomSheet();
+                    }),
+                    _buildAttachmentIcon(Icons.badge_outlined, '프로필 교환', const Color(0xFF0D9488),
+                        onTap: _showProfileExchangeBottomSheet),
+                    _buildAttachmentIcon(Icons.favorite_rounded, '시크릿 애프터', const Color(0xFFEC4899),
+                        onTap: _showSecretAfterBottomSheet),
+                    _buildAttachmentIcon(Icons.rate_review_rounded, '모임 후기', const Color(0xFFF59E0B),
+                        onTap: _showReviewBottomSheet),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Center(
+                  child: Text(
+                    '선택한 도구 카드가 대화방 멤버들에게 실시간으로 공유돼요.',
+                    style: TextStyle(color: Color(0xFF8C94A0), fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildAttachmentIcon(IconData icon, String label, Color color,
       {VoidCallback? onTap}) {
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
       onTap: onTap ??
           () {
             Navigator.pop(context);
@@ -1028,21 +1087,30 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 .showSnackBar(SnackBar(content: Text('$label 기능이 준비중입니다.')));
           },
       child: SizedBox(
-        width: 72,
+        width: 68,
         child: Column(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 54,
+              height: 54,
               decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 28),
+                color: color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 8),
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                textAlign: TextAlign.center),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF333D4B),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
@@ -1213,11 +1281,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
     if (type == 'system') return _buildSystemMessage(data['text'] ?? '');
     if (type == 'ai_spot_summary') return _buildAiSpotSummaryCard(data);
-    if (type == 'settlement')
-      return _buildTextMessage({
-        ...data,
-        'text': '${data['title'] ?? '공유한 내용'}\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'
-      });
+    if (type == 'settlement') return const SizedBox.shrink(); // 1/N 정산 카드 삭제
     if (type == 'image') return _buildImageMessage(data);
     if (type == 'location') return _buildLocationMessage(data);
 
@@ -1244,15 +1308,17 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           chatRoomId: widget.chatRoomId,
           onUpdate: updateThisMessage);
     if (type == 'profile_exchange')
-      return _buildTextMessage({
-        ...data,
-        'text': '${data['title'] ?? '공유한 내용'}\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'
-      });
+      return InteractiveProfileExchangeCard(
+          msg: data,
+          isMe: isMe,
+          chatRoomId: widget.chatRoomId,
+          onUpdate: updateThisMessage);
     if (type == 'secret_after')
-      return _buildTextMessage({
-        ...data,
-        'text': '${data['title'] ?? '공유한 내용'}\n이 메시지의 추가 기능은 아직 연결되지 않았어요.'
-      });
+      return InteractiveSecretAfterMatchCard(
+          msg: data,
+          isMe: isMe,
+          chatRoomId: widget.chatRoomId,
+          onUpdate: updateThisMessage);
     if (['carpool'].contains(type)) {
       return _buildInteractiveCardMessage(data);
     }
@@ -3076,3 +3142,591 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
 // ===========================================================================
 // 동적 컴포넌트: 프로필 교환 (Profile Exchange)
 // ===========================================================================
+class InteractiveProfileExchangeCard extends StatefulWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+  final String chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
+
+  const InteractiveProfileExchangeCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    required this.chatRoomId,
+    this.onUpdate,
+  });
+
+  @override
+  State<InteractiveProfileExchangeCard> createState() =>
+      _InteractiveProfileExchangeCardState();
+}
+
+class _InteractiveProfileExchangeCardState
+    extends State<InteractiveProfileExchangeCard> {
+  void _showProfileModal(String nickname) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircleAvatar(
+                radius: 36,
+                backgroundImage: AssetImage('assets/images/민지.png'),
+              ),
+              const SizedBox(height: 12),
+              Text(nickname,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              const Text('인증된 이웃 · 매너온도 41.2℃ 🔥',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.teal,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12)),
+                child: const Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.verified_user, color: Colors.teal, size: 16),
+                        SizedBox(width: 6),
+                        Text('OOMU 본인 인증 및 매너 검증 완료',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal)),
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                    Text('관심사: 맛집 탐방, 주말 러닝, 로컬 아지트 탐험',
+                        style:
+                            TextStyle(fontSize: 12, color: Color(0xFF555555))),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12))),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('닫기',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentNick = globalData.userNickname.value.isNotEmpty
+        ? globalData.userNickname.value
+        : '이웃';
+    final List<String> acceptedMembers =
+        List<String>.from(widget.msg['acceptedMembers'] ?? []);
+    final bool isAccepted =
+        acceptedMembers.isNotEmpty || widget.msg['status'] == 'accepted';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment:
+            widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!widget.isMe)
+            const CircleAvatar(
+                radius: 16,
+                backgroundImage: AssetImage('assets/images/민지.png')),
+          if (!widget.isMe) const SizedBox(width: 8),
+          if (widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+          if (widget.isMe) const SizedBox(width: 4),
+          Container(
+            width: 260,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                  colors: [Color(0xFFE0F2F1), Color(0xFFB2DFDB)]),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.teal.withValues(alpha: 0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4))
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.badge, color: Colors.teal, size: 26)),
+                const SizedBox(height: 10),
+                Text(widget.msg['title'] ?? '명함/프로필 교환',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.teal)),
+                const SizedBox(height: 6),
+                Text(
+                    widget.msg['desc'] ??
+                        '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                const SizedBox(height: 14),
+                if (isAccepted)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          _showProfileModal(widget.msg['sender'] ?? '상대방'),
+                      icon: const Icon(Icons.person,
+                          size: 16, color: Colors.white),
+                      label: const Text('교환 완료 · 프로필 보기 🤝',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12))),
+                    ),
+                  )
+                else if (!widget.isMe)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final newAccepted = List<String>.from(acceptedMembers)
+                          ..add(currentNick);
+                        if (widget.onUpdate != null) {
+                          widget.onUpdate!({
+                            'acceptedMembers': newAccepted,
+                            'status': 'accepted'
+                          });
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  '🎉 프로필 교환을 수락했습니다! 상세 프로필이 공개됩니다.')),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12))),
+                      child: const Text('수락하기 🤝',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: const Center(
+                        child: Text('상대방의 수락을 대기중입니다...',
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.teal,
+                                fontWeight: FontWeight.bold))),
+                  ),
+              ],
+            ),
+          ),
+          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe)
+            Text(widget.msg['time'] ?? '',
+                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+        ],
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// 동적 컴포넌트: 시크릿 애프터 1:1 호감 매칭 (Secret After Match)
+// ===========================================================================
+class InteractiveSecretAfterMatchCard extends StatefulWidget {
+  final Map<String, dynamic> msg;
+  final bool isMe;
+  final String? chatRoomId;
+  final Function(Map<String, dynamic> delta)? onUpdate;
+
+  const InteractiveSecretAfterMatchCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+    this.chatRoomId,
+    this.onUpdate,
+  });
+
+  @override
+  State<InteractiveSecretAfterMatchCard> createState() =>
+      _InteractiveSecretAfterMatchCardState();
+}
+
+class _InteractiveSecretAfterMatchCardState
+    extends State<InteractiveSecretAfterMatchCard> {
+  final List<Map<String, String>> _candidates = [
+    {'name': '민지', 'tag': '여수 신기동 · 카페/베이킹', 'avatar': 'assets/images/민지.png'},
+    {'name': '지훈', 'tag': '여수 웅천동 · 한강 러닝', 'avatar': 'assets/images/지훈.png'},
+    {'name': '지연', 'tag': '여수 여서동 · 와인/다이닝', 'avatar': 'assets/images/지연.png'},
+  ];
+
+  final Set<String> _selectedMembers = {};
+  bool _isSubmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final choices = widget.msg['secretChoices'];
+    if (choices is List) {
+      _selectedMembers.addAll(choices.map((e) => e.toString()));
+      if (_selectedMembers.isNotEmpty) {
+        _isSubmitted = true;
+      }
+    }
+  }
+
+  void _toggleMember(String name) {
+    if (_isSubmitted) return;
+    setState(() {
+      if (_selectedMembers.contains(name)) {
+        _selectedMembers.remove(name);
+      } else {
+        if (_selectedMembers.length >= 2) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('시크릿 애프터 호감은 최대 2명까지만 선택할 수 있습니다.')),
+          );
+          return;
+        }
+        _selectedMembers.add(name);
+      }
+    });
+  }
+
+  void _submitSecretAfter() {
+    if (_selectedMembers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('호감을 표시할 멤버를 1명 이상 선택해 주세요!')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitted = true;
+    });
+
+    if (widget.onUpdate != null) {
+      widget.onUpdate!({
+        'secretChoices': _selectedMembers.toList(),
+        'submittedAt': DateTime.now().toIso8601String(),
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            '💌 ${_selectedMembers.join(", ")}님에게 비공개 호감이 전달되었습니다! (0% 노출 보장)'),
+        backgroundColor: Colors.pinkAccent,
+      ),
+    );
+  }
+
+  void _simulateMutualMatch() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.celebration, color: Colors.pinkAccent),
+            SizedBox(width: 8),
+            Text('💖 시크릿 매칭 성사!',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 36,
+              backgroundImage: AssetImage('assets/images/민지.png'),
+            ),
+            SizedBox(height: 12),
+            Text(
+              '민지님도 당신에게 호감을 표시했습니다! 💕',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              '두 분만의 1:1 소개팅 단독 대화방이 생성되었습니다.\n자연스럽게 대화를 이어가 보세요!',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pinkAccent,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('💬 1:1 시크릿 소개팅 대화방으로 이동합니다!'),
+                    backgroundColor: Colors.pinkAccent,
+                  ),
+                );
+              },
+              child: const Text('1:1 소개팅 대화방 열기 💬',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFF0F5), Color(0xFFFFE4E1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: Colors.pinkAccent.withValues(alpha: 0.4), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.pink.withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.pinkAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.favorite,
+                        color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '시크릿 애프터 1:1 호감 매칭',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFC2185B)),
+                        ),
+                        Text(
+                          '상호 선택 시에만 1:1 대화방 개설 (거절 부담 0%)',
+                          style: TextStyle(
+                              fontSize: 11, color: Color(0xFF880E4F)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                '오늘 모임에서 대화가 가장 잘 통했던 멤버 1~2명을 선택하세요.',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF333333)),
+              ),
+              const SizedBox(height: 12),
+              Column(
+                children: _candidates.map((cand) {
+                  final isSelected = _selectedMembers.contains(cand['name']);
+                  return GestureDetector(
+                    onTap: () => _toggleMember(cand['name']!),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected
+                              ? Colors.pinkAccent
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                    color: Colors.pinkAccent
+                                        .withValues(alpha: 0.2),
+                                    blurRadius: 8)
+                              ]
+                            : [],
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundImage: appImg(cand['avatar']!),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  cand['name']!,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                Text(
+                                  cand['tag']!,
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            isSelected ? Icons.favorite : Icons.favorite_border,
+                            color: isSelected ? Colors.pinkAccent : Colors.grey,
+                            size: 22,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              if (!_isSubmitted)
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: _submitSecretAfter,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      '비공개 호감 전달하기 (${_selectedMembers.length}명 선택)',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
+                    ),
+                  ),
+                )
+              else ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock, size: 16, color: Colors.pinkAccent),
+                      SizedBox(width: 6),
+                      Text(
+                        '💌 비공개 호감 전송 완료! (상대방 응답 대기 중)',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.pinkAccent,
+                            fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _simulateMutualMatch,
+                    icon: const Icon(Icons.flash_on,
+                        size: 16, color: Colors.purple),
+                    label: const Text(
+                      '🧪 상호 매칭 성사 시뮬레이션 테스트',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
