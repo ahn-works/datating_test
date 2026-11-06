@@ -91,7 +91,7 @@
     const zoomControl = new kakao.maps.ZoomControl();
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
-    // Default Marker
+    // Default Center Marker
     const markerPosition = new kakao.maps.LatLng(lat, lng);
     const marker = new kakao.maps.Marker({
       position: markerPosition
@@ -107,6 +107,40 @@
       yAnchor: 1
     });
     customOverlay.setMap(map);
+
+    // Support multiple meetup markers
+    const rawMarkers = params.get('markers');
+    if (rawMarkers) {
+      try {
+        const markerList = JSON.parse(decodeURIComponent(rawMarkers));
+        if (Array.isArray(markerList)) {
+          markerList.forEach(m => {
+            if (m.lat && m.lng) {
+              const mLat = parseFloat(m.lat);
+              const mLng = parseFloat(m.lng);
+              const mPos = new kakao.maps.LatLng(mLat, mLng);
+              if (Math.abs(mLat - lat) > 0.0003 || Math.abs(mLng - lng) > 0.0003) {
+                const subMarker = new kakao.maps.Marker({
+                  position: mPos,
+                  map: map
+                });
+                const mTitle = m.title || m.name || '모임';
+                const sTitle = mTitle.length > 10 ? (mTitle.substring(0, 9) + '..') : mTitle;
+                const emoji = (m.category && m.category.includes('번개')) ? '⚡' : ((m.category && m.category.includes('와인')) ? '🍷' : ((m.category && m.category.includes('러닝')) ? '🏃' : '📍'));
+                const subOverlay = new kakao.maps.CustomOverlay({
+                  position: mPos,
+                  content: `<div class="custom-marker" style="background:#F25767;border-color:#F25767;color:#fff;" title="${mTitle}">${emoji} ${sTitle}</div>`,
+                  yAnchor: 1
+                });
+                subOverlay.setMap(map);
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.warn('Error parsing map markers:', err);
+      }
+    }
 
     // Button actions
     document.getElementById('btnMap').onclick = function() {

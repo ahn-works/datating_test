@@ -11,6 +11,11 @@ class UserProfileScreen extends StatelessWidget {
   final String? userAvatar;
   final double? userManner;
   final List<String>? userTags;
+  final String? userJob;
+  final String? userMbti;
+  final List<String>? userDrinking;
+  final List<String>? userPhotos;
+  final String? userGender;
   final bool isSelf;
 
   const UserProfileScreen({
@@ -22,6 +27,11 @@ class UserProfileScreen extends StatelessWidget {
     this.userAvatar,
     this.userManner,
     this.userTags,
+    this.userJob,
+    this.userMbti,
+    this.userDrinking,
+    this.userPhotos,
+    this.userGender,
     this.isSelf = false,
   });
 
@@ -204,10 +214,16 @@ class UserProfileScreen extends StatelessWidget {
     final double? displayManner =
         userManner ?? OomuUiHelpers.parseMannerValue(resolvedData['manner']);
     final Color mannerColor = OomuUiHelpers.mannerTempColor(displayManner);
-    final displayJob = (resolvedData['job'] as String?) ?? 'IT/콘텐츠 기획';
-    final displayTags = userTags ??
-        (resolvedData['tags'] as List<String>?) ??
-        ['#동네친구', '#취향공유', '#소소한일상'];
+    final displayJob = (userJob != null && userJob!.isNotEmpty)
+        ? userJob!
+        : ((resolvedData['job'] as String?) ?? '');
+    final displayTags = (userTags != null && userTags!.isNotEmpty)
+        ? userTags!
+        : ((resolvedData['tags'] as List<String>?) ??
+            ['#동네친구', '#취향공유', '#소소한일상']);
+    final displayMbti = (userMbti != null && userMbti!.isNotEmpty)
+        ? userMbti!
+        : ((resolvedData['mbti'] as String?) ?? '');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -240,11 +256,13 @@ class UserProfileScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   PageView(
-                    children: [
-                      appNetImage(displayAvatar, fit: BoxFit.cover),
-                      appNetImage('assets/images/민지.png',
-                          fit: BoxFit.cover),
-                    ],
+                    children: (userPhotos != null && userPhotos!.isNotEmpty)
+                        ? userPhotos!
+                            .map((p) => appNetImage(p, fit: BoxFit.cover))
+                            .toList()
+                        : [
+                            appNetImage(displayAvatar, fit: BoxFit.cover),
+                          ],
                   ),
                   Positioned(
                     bottom: 0,
@@ -454,13 +472,24 @@ class UserProfileScreen extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 12,
                     children: [
-                      _buildProfileTag(
-                          '🎓', '서울 상위권 대학교', surfaceColor, textPrimary),
-                      _buildProfileTag(
-                          '📏', '178cm', surfaceColor, textPrimary),
-                      _buildProfileTag('🎨', 'ENFP', surfaceColor, textPrimary),
-                      _buildProfileTag(
-                          '🍻', '가볍게 한잔', surfaceColor, textPrimary),
+                      if (displayJob.isNotEmpty)
+                        _buildProfileTag(
+                            '💼', displayJob, surfaceColor, textPrimary),
+                      if (displayMbti.isNotEmpty)
+                        _buildProfileTag(
+                            '🎨', displayMbti, surfaceColor, textPrimary),
+                      if (userDrinking != null && userDrinking!.isNotEmpty)
+                        _buildProfileTag('🍻', userDrinking!.join(', '),
+                            surfaceColor, textPrimary)
+                      else
+                        _buildProfileTag(
+                            '🍻', '가볍게 한잔', surfaceColor, textPrimary),
+                      if (displayAge.isNotEmpty)
+                        _buildProfileTag(
+                            '🎂', '${displayAge}세', surfaceColor, textPrimary),
+                      if (userGender != null && userGender!.isNotEmpty)
+                        _buildProfileTag(
+                            '👤', userGender!, surfaceColor, textPrimary),
                       _buildProfileTag('🚭', '비흡연', surfaceColor, textPrimary),
                       _buildProfileTag(
                           '🐶', '반려동물 있음', surfaceColor, textPrimary),

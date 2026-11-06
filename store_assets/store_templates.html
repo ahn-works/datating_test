@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OOMU Google Play Store Assets Generator</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background: #0B0F19;
+      color: #191F28;
+    }
+
+    /* SCREENSHOT CANVAS (1080 x 2400) */
+    .screenshot-canvas {
+      width: 1080px;
+      height: 2400px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 130px 60px 0 60px;
+      margin-bottom: 80px;
+    }
+
+    /* 5가지 배경 테마 (2030 프리미엄 라이프스타일 톤) */
+    .theme-1 { background: linear-gradient(180deg, #FFF0F2 0%, #FFE4E8 35%, #F8FAFC 100%); }
+    .theme-2 { background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 35%, #F8FAFC 100%); }
+    .theme-3 { background: linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 35%, #F8FAFC 100%); }
+    .theme-4 { background: linear-gradient(180deg, #FAF5FF 0%, #F3E8FF 35%, #F8FAFC 100%); }
+    .theme-5 { background: linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 35%, #F8FAFC 100%); }
+
+    /* 상단 카피 영역 */
+    .header-section {
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .badge-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 34px;
+      background: #FFFFFF;
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+      font-size: 32px;
+      font-weight: 800;
+      color: #F25767;
+      margin-bottom: 34px;
+      border: 2px solid rgba(242, 87, 103, 0.16);
+    }
+
+    .headline {
+      font-size: 74px;
+      font-weight: 900;
+      line-height: 1.28;
+      letter-spacing: -0.04em;
+      color: #0F172A;
+      margin-bottom: 22px;
+      word-break: keep-all;
+    }
+
+    .headline span.highlight {
+      color: #F25767;
+    }
+    .headline span.blue-highlight {
+      color: #2563EB;
+    }
+    .headline span.purple-highlight {
+      color: #7C3AED;
+    }
+    .headline span.orange-highlight {
+      color: #EA580C;
+    }
+    .headline span.green-highlight {
+      color: #059669;
+    }
+
+    .sub-copy {
+      font-size: 36px;
+      font-weight: 600;
+      color: #475569;
+      line-height: 1.45;
+      letter-spacing: -0.02em;
+      margin-bottom: 64px;
+    }
+
+    /* 플래그십 스마트폰 베젤 목업 */
+    .device-mockup {
+      width: 860px;
+      height: 1720px;
+      background: #000000;
+      border-radius: 96px;
+      padding: 22px;
+      box-shadow: 
+        0 40px 100px -20px rgba(15, 23, 42, 0.45),
+        0 20px 40px -10px rgba(15, 23, 42, 0.30),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.20),
+        inset 0 0 0 6px #1e293b;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .island {
+      position: absolute;
+      top: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 50px;
+      background: #000000;
+      border-radius: 30px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 18px;
+    }
+    .island-camera {
+      width: 18px;
+      height: 18px;
+      background: #111e38;
+      border-radius: 50%;
+    }
+
+    .screen-content {
+      width: 100%;
+      height: 100%;
+      background: #FFFFFF;
+      border-radius: 76px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 공통 폰 상단 상태바 */
+    .status-bar {
+      height: 60px;
+      padding: 0 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 19px;
+      font-weight: 700;
+      color: #191f28;
+      margin-top: 10px;
+      z-index: 40;
+    }
+
+    /* FEATURE GRAPHIC CANVAS (1024 x 500) */
+    .feature-canvas {
+      width: 1024px;
+      height: 500px;
+      background: linear-gradient(135deg, #FFF0F2 0%, #FFE4E8 35%, #F0F4FF 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 70px;
+      margin-bottom: 80px;
+    }
+
+    .feature-left {
+      max-width: 530px;
+      z-index: 10;
+    }
+
+    .feature-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .feature-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #F25767 0%, #FF7E8B 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 24px;
+      box-shadow: 0 8px 18px rgba(242, 87, 103, 0.35);
+    }
+
+    .feature-logo-text {
+      font-size: 28px;
+      font-weight: 900;
+      color: #191f28;
+      letter-spacing: -0.04em;
+    }
+
+    .feature-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: #FFFFFF;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #F25767;
+      border: 1px solid rgba(242, 87, 103, 0.2);
+      margin-left: 8px;
+    }
+
+    .feature-title {
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1.30;
+      letter-spacing: -0.04em;
+      color: #0F172A;
+      margin-bottom: 14px;
+    }
+
+    .feature-title span {
+      color: #F25767;
+    }
+
+    .feature-desc {
+      font-size: 18px;
+      font-weight: 600;
+      color: #475569;
+      line-height: 1.45;
+      margin-bottom: 24px;
+    }
+
+    .feature-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feature-tag-chip {
+      padding: 8px 16px;
+      background: #FFFFFF;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #E2E8F0;
+    }
+
+    .feature-right {
+      position: relative;
+      width: 370px;
+      height: 380px;
+      z-index: 10;
+    }
+
+    .feat-card {
+      position: absolute;
+      width: 310px;
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 16px 18px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      transition: all 0.3s;
+    }
+
+    .feat-card-1 {
+      top: 15px;
+      right: 0px;
+      transform: rotate(3deg);
+    }
+    .feat-card-2 {
+      top: 130px;
+      right: 25px;
+      transform: rotate(-2deg);
+      z-index: 5;
+    }
+    .feat-card-3 {
+      top: 245px;
+      right: 10px;
+      transform: rotate(2deg);
+      z-index: 8;
+    }
+
+    /* 공통 카드 스타일링 */
+    .card-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .card-meta-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1E293B;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-meta-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748B;
+      margin-top: 2px;
+    }
+    .card-badge-status {
+      margin-left: auto;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 0. FEATURE GRAPHIC (1024 x 500) -->
+  <!-- ========================================== -->
+  <div class="feature-canvas" id="feature-graphic">
+    <div class="feature-left">
+      <div class="feature-logo-row">
+        <div class="feature-logo-icon">❤️</div>
+        <div class="feature-logo-text">OOMU</div>
+        <span class="feature-badge">2030 동네 취향 모임</span>
+      </div>
+      <h1 class="feature-title">
+        야구 직관부터 성수 핫플까지,<br>
+        <span>우리 동네 취향 모임</span> OOMU
+      </h1>
+      <p class="feature-desc">
+        혼자 가기 아쉬웠던 순간, 취향 맞는 동네 이웃과 함께하세요.
+      </p>
+      <div class="feature-tags">
+        <div class="feature-tag-chip">⚾ 야구 직관 치맥</div>
+        <div class="feature-tag-chip">🥐 망원·성수 핫플</div>
+        <div class="feature-tag-chip">🎸 공연·페스티벌</div>
+        <div class="feature-tag-chip">🏃 한강 노을 러닝</div>
+      </div>
+    </div>
+
+    <div class="feature-right">
+      <!-- 카드 1 (야구) -->
+      <div class="feat-card feat-card-1">
+        <div class="card-row">
+          <div class="card-icon-box" style="background: #EFF6FF; color: #2563EB;">⚾</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="card-meta-title">잠실 3루 야구 직관 치맥 팟</div>
+            <div class="card-meta-sub">송파구 잠실야구장 · 오늘 18:30</div>
+          </div>
+          <div class="card-badge-status" style="background: #DBEAFE; color: #1E40AF;">3/4명</div>
+        </div>
+      </div>
+
+      <!-- 카드 2 (핫플) -->
+      <div class="feat-card feat-card-2">
+        <div class="card-row">
+          <div class="card-icon-box" style="background: #FFF1F2; color: #E11D48;">🥐</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="card-meta-title">망원 소금빵 오픈런 원정대</div>
+            <div class="card-meta-sub">마포구 망원동 · 일 11:00</div>
+          </div>
+          <div class="card-badge-status" style="background: #FFE4E6; color: #BE123C;">4/4명 마감</div>
+        </div>
+      </div>
+
+      <!-- 카드 3 (러닝) -->
+      <div class="feat-card feat-card-3">
+        <div class="card-row">
+          <div class="card-icon-box" style="background: #FEF3C7; color: #D97706;">🏃‍♀️</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="card-meta-title">망원 한강공원 노을 5km 러닝</div>
+            <div class="card-meta-sub">망원나들목 앞 · 오늘 20:00</div>
+          </div>
+          <div class="card-badge-status" style="background: #FDE68A; color: #92400E;">5/8명</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 1. SCREENSHOT 01: 요기요 스타일 클린 로그인 -->
+  <!-- ========================================== -->
+  <div class="screenshot-canvas theme-1" id="screenshot-1">
+    <div class="header-section">
+      <div class="badge-chip">✨ 간편하고 빠른 시작</div>
+      <h1 class="headline">가보고 싶은 곳에서,<br><span class="highlight">함께할 동네 이웃</span>을 만나요</h1>
+      <p class="sub-copy">불필요한 가입 절차 없이 카카오·구글로 3초 만에 시작</p>
+    </div>
+
+    <div class="device-mockup">
+      <div class="island"><div class="island-camera"></div></div>
+      <div class="screen-content" style="background: #FFFFFF;">
+        <!-- 상단 바 -->
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="letter-spacing: 2px;">●●●</span>
+        </div>
+
+        <!-- 내부 요기요 스타일 로그인 레이아웃 -->
+        <div style="padding: 24px 36px; display: flex; flex-direction: column; height: calc(100% - 70px); justify-content: space-between;">
+          <!-- 최상단 헤더 액션 -->
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 28px; color: #333D4B; font-weight: 300; cursor: pointer;">✕</div>
+            <div style="font-size: 19px; font-weight: 800; color: #191F28; cursor: pointer;">둘러보기 ›</div>
+          </div>
+
+          <!-- 중앙 로고 & 카피 -->
+          <div style="text-align: center; margin-top: 40px;">
+            <div style="width: 100px; height: 100px; margin: 0 auto 28px auto; background: linear-gradient(135deg, #F25767 0%, #FF7E8B 100%); border-radius: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 16px 36px rgba(242, 87, 103, 0.35); font-size: 50px; color: #ffffff;">
+              ❤️
+            </div>
+            <div style="font-size: 46px; font-weight: 900; color: #191F28; letter-spacing: -0.05em; margin-bottom: 14px;">
+              OOMU
+            </div>
+            <div style="font-size: 25px; font-weight: 800; color: #333D4B; line-height: 1.45; letter-spacing: -0.03em;">
+              가보고 싶은 곳에서,<br>함께할 동네 이웃을 만나요
+            </div>
+            <div style="font-size: 19px; font-weight: 600; color: #8B95A1; margin-top: 10px;">
+              야구 직관, 핫플 오픈런, 주말 공연 동행까지
+            </div>
+          </div>
+
+          <!-- 하단 버튼군 (요기요 스타일 3단) -->
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+            <!-- 1) 카카오 -->
+            <div style="height: 72px; background: #FEE500; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: 800; color: #191919; box-shadow: 0 4px 12px rgba(254, 229, 0, 0.30);">
+              <span style="font-size: 26px;">💬</span>
+              <span>카카오로 계속하기</span>
+            </div>
+
+            <!-- 2) Google -->
+            <div style="height: 72px; background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 21px; font-weight: 800; color: #191F28;">
+              <span style="font-size: 24px; font-weight: 900; color: #4285F4;">G</span>
+              <span>Google로 계속하기</span>
+            </div>
+
+            <!-- 3) 이메일 -->
+            <div style="height: 72px; background: #F2F4F7; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 21px; font-weight: 800; color: #333D4B;">
+              <span style="font-size: 24px;">✉️</span>
+              <span>이메일로 계속하기</span>
+            </div>
+
+            <!-- 서브 링크 -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 10px;">
+              <span style="font-size: 18px; font-weight: 700; color: #6B7684;">이메일 회원가입</span>
+              <span style="color: #CBD5E1;">|</span>
+              <span style="font-size: 18px; font-weight: 800; color: #F25767;">로그인 없이 둘러보기</span>
+            </div>
+
+            <div style="text-align: center; font-size: 15px; color: #94A3B8; margin-top: 6px;">
+              로그인 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 2. SCREENSHOT 02: 성수·망원 핫플 & 팝업스토어 오픈런 -->
+  <!-- ========================================== -->
+  <div class="screenshot-canvas theme-2" id="screenshot-2">
+    <div class="header-section">
+      <div class="badge-chip" style="color: #059669; border-color: rgba(5, 150, 105, 0.2);">🥐 핫플 투어 & 팝업스토어 오픈런</div>
+      <h1 class="headline">가보고 싶었던 성수·망원,<br><span class="green-highlight">혼자 가지 말고 함께!</span></h1>
+      <p class="sub-copy">웨이팅 긴 맛집부터 감성 카페, 신규 팝업스토어 도장깨기</p>
+    </div>
+
+    <div class="device-mockup">
+      <div class="island"><div class="island-camera"></div></div>
+      <div class="screen-content" style="background: #F8FAFC;">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="letter-spacing: 2px;">●●●</span>
+        </div>
+
+        <!-- 앱 헤더 -->
+        <div style="padding: 16px 28px; background: #FFFFFF; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px; font-weight: 900; color: #191F28;">성동구 성수동</span>
+            <span style="font-size: 18px; color: #64748B;">▾</span>
+          </div>
+          <div style="display: flex; gap: 14px; font-size: 24px;">
+            <span>🔍</span>
+            <span>🔔</span>
+          </div>
+        </div>
+
+        <!-- 카테고리 칩 -->
+        <div style="padding: 16px 28px; background: #FFFFFF; display: flex; gap: 10px; overflow: hidden; border-bottom: 1px solid #F1F5F9;">
+          <div style="padding: 10px 20px; background: #191F28; color: #fff; border-radius: 20px; font-size: 16px; font-weight: 800;">전체</div>
+          <div style="padding: 10px 20px; background: #F1F5F9; color: #334155; border-radius: 20px; font-size: 16px; font-weight: 700;">☕ 카페·디저트</div>
+          <div style="padding: 10px 20px; background: #F1F5F9; color: #334155; border-radius: 20px; font-size: 16px; font-weight: 700;">🎪 팝업스토어</div>
+          <div style="padding: 10px 20px; background: #F1F5F9; color: #334155; border-radius: 20px; font-size: 16px; font-weight: 700;">🍽️ 맛집투어</div>
+        </div>
+
+        <!-- 피드 리스트 -->
+        <div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; overflow: hidden;">
+          <!-- 카드 1 -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+              <span style="padding: 6px 14px; background: #DCFCE7; color: #15803D; font-size: 14px; font-weight: 800; border-radius: 8px;">🎪 팝업 투어</span>
+              <span style="font-size: 15px; font-weight: 800; color: #DC2626;">마감임박 (3/4명)</span>
+            </div>
+            <div style="font-size: 23px; font-weight: 800; color: #191F28; line-height: 1.35; margin-bottom: 10px;">
+              성수 신규 뷰티·패션 팝업 & 디저트 카페 도장깨기 팟 ☕
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 16px; color: #64748B; margin-bottom: 18px;">
+              <span>📍 성수역 3번 출구 앞</span>
+              <span>·</span>
+              <span>🗓️ 이번 주 토 14:00</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid #F1F5F9;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 32px; height: 32px; border-radius: 50%; background: #FFD2D7; display: flex; align-items: center; justify-content: center; font-size: 14px;">👩</span>
+                <span style="font-size: 16px; font-weight: 700; color: #334155;">성수와인_지연 (호스트)</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <span style="padding: 4px 10px; background: #F1F5F9; border-radius: 6px; font-size: 13px; color: #64748B; font-weight: 600;">#팝업스토어</span>
+                <span style="padding: 4px 10px; background: #F1F5F9; border-radius: 6px; font-size: 13px; color: #64748B; font-weight: 600;">#사진촬영</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 카드 2 -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+              <span style="padding: 6px 14px; background: #FEF3C7; color: #B45309; font-size: 14px; font-weight: 800; border-radius: 8px;">🥐 빵지순례</span>
+              <span style="font-size: 15px; font-weight: 800; color: #059669;">모집완료 (4/4명)</span>
+            </div>
+            <div style="font-size: 23px; font-weight: 800; color: #191F28; line-height: 1.35; margin-bottom: 10px;">
+              망원동 소금빵 & 수제 베이글 오픈런 원정대 🥐
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 16px; color: #64748B; margin-bottom: 18px;">
+              <span>📍 마포구 망원시장 입구</span>
+              <span>·</span>
+              <span>🗓️ 이번 주 일 11:00</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid #F1F5F9;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 32px; height: 32px; border-radius: 50%; background: #FDE68A; display: flex; align-items: center; justify-content: center; font-size: 14px;">👧</span>
+                <span style="font-size: 16px; font-weight: 700; color: #334155;">망원치즈_민지 (호스트)</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <span style="padding: 4px 10px; background: #F1F5F9; border-radius: 6px; font-size: 13px; color: #64748B; font-weight: 600;">#오픈런</span>
+                <span style="padding: 4px 10px; background: #F1F5F9; border-radius: 6px; font-size: 13px; color: #64748B; font-weight: 600;">#소금빵</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 카드 3 -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+              <span style="padding: 6px 14px; background: #EDE9FE; color: #6D28D9; font-size: 14px; font-weight: 800; border-radius: 8px;">🍷 감성 와인바</span>
+              <span style="font-size: 15px; font-weight: 800; color: #2563EB;">2/4명 모집 중</span>
+            </div>
+            <div style="font-size: 23px; font-weight: 800; color: #191F28; line-height: 1.35; margin-bottom: 10px;">
+              연남동 분위기 좋은 캐주얼 와인바 금요 번개 🍷
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 16px; color: #64748B;">
+              <span>📍 홍대입구역 3번 출구 앞</span>
+              <span>·</span>
+              <span>🗓️ 금 19:30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 3. SCREENSHOT 03: 야구 직관 & 스포츠 번개 -->
+  <!-- ========================================== -->
+  <div class="screenshot-canvas theme-3" id="screenshot-3">
+    <div class="header-section">
+      <div class="badge-chip" style="color: #2563EB; border-color: rgba(37, 99, 235, 0.2);">⚾ 야구 직관 & 스포츠 번개</div>
+      <h1 class="headline">퇴근 후 야구장 직관,<br><span class="blue-highlight">응원석 함께 앉을 메이트!</span></h1>
+      <p class="sub-copy">잠실·고척 테이블석 치맥부터 불금 스포츠 펍 응원까지</p>
+    </div>
+
+    <div class="device-mockup">
+      <div class="island"><div class="island-camera"></div></div>
+      <div class="screen-content" style="background: #F8FAFC;">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="letter-spacing: 2px;">●●●</span>
+        </div>
+
+        <!-- 상단 헤더 -->
+        <div style="padding: 16px 28px; background: #FFFFFF; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px; font-weight: 900; color: #191F28;">송파구 잠실동</span>
+            <span style="font-size: 18px; color: #64748B;">▾</span>
+          </div>
+          <span style="padding: 6px 14px; background: #EFF6FF; color: #2563EB; border-radius: 12px; font-size: 15px; font-weight: 800;">⚾ 야구 시즌 ON</span>
+        </div>
+
+        <div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 20px;">
+          <!-- 메인 하이라이트 야구 카드 -->
+          <div style="background: #FFFFFF; border-radius: 28px; padding: 26px; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.08); border: 2px solid #BFDBFE;">
+            <!-- 빅매치 배너 -->
+            <div style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; border-radius: 16px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+              <span style="font-size: 16px; font-weight: 800;">🔥 잠실 라이벌전 빅매치</span>
+              <span style="font-size: 15px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 8px;">오늘 18:30 시작</span>
+            </div>
+
+            <div style="font-size: 25px; font-weight: 900; color: #191F28; line-height: 1.35; margin-bottom: 12px;">
+              ⚾ 잠실 3루 네이비석 같이 가요! 치맥 + 열혈 응원 팟
+            </div>
+            
+            <div style="font-size: 16px; color: #475569; line-height: 1.5; margin-bottom: 16px; background: #F1F5F9; padding: 14px; border-radius: 14px;">
+              "혼자 예매해서 외로우셨던 분! 같이 유니폼 입고 치맥 먹으며 목청껏 응원해요! 응원가 몰라도 대환영 🍗🍻"
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 16px; color: #334155; font-weight: 600;">
+              <div>📍 송파구 잠실종합운동장 3루 출입구 앞</div>
+              <div>🎟️ 연석 2자리 추가 확보 완료 (총 4명 팟)</div>
+            </div>
+
+            <!-- 참여자 현황 및 신청 버튼 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+              <div>
+                <div style="font-size: 13px; color: #64748B; font-weight: 700;">현재 참여 멤버</div>
+                <div style="font-size: 18px; font-weight: 900; color: #2563EB;">3 / 4명 (1자리 남음!)</div>
+              </div>
+              <div style="padding: 12px 24px; background: #2563EB; color: #FFFFFF; font-size: 17px; font-weight: 800; border-radius: 14px;">
+                참여 신청하기
+              </div>
+            </div>
+          </div>
+
+          <!-- 서브 카드 1 (고척돔) -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="padding: 4px 10px; background: #FEE2E2; color: #B91C1C; font-size: 13px; font-weight: 800; border-radius: 6px;">구로구 고척동</span>
+              <span style="font-size: 14px; font-weight: 800; color: #2563EB;">2/4명 모집 중</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #191F28; margin-bottom: 8px;">
+              고척 스카이돔 버건디석 직관 동행 구해요 🍗
+            </div>
+            <div style="font-size: 15px; color: #64748B;">
+              🗓️ 이번 주 토 14:00 경기 · 시원한 돔구장에서 직관!
+            </div>
+          </div>
+
+          <!-- 서브 카드 2 (스포츠 펍) -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="padding: 4px 10px; background: #EFF6FF; color: #1D4ED8; font-size: 13px; font-weight: 800; border-radius: 6px;">강남구 역삼동</span>
+              <span style="font-size: 14px; font-weight: 800; color: #059669;">모집 중</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #191F28; margin-bottom: 8px;">
+              대형 빔프로젝터 축구 국가대표 응원전 ⚽
+            </div>
+            <div style="font-size: 15px; color: #64748B;">
+              강남역 11번 출구 스포츠 펍 · 목 20:00 · 시원한 맥주 한잔
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 4. SCREENSHOT 04: 콘서트 & 페스티벌 동행 -->
+  <!-- ========================================== -->
+  <div class="screenshot-canvas theme-4" id="screenshot-4">
+    <div class="header-section">
+      <div class="badge-chip" style="color: #7C3AED; border-color: rgba(124, 58, 237, 0.2);">🎸 콘서트 & 페스티벌 동행</div>
+      <h1 class="headline">티켓팅은 성공했는데 혼자 갈 때?<br><span class="purple-highlight">취향 맞는 페스티벌 메이트</span></h1>
+      <p class="sub-copy">락페스티벌, 샤롯데 뮤지컬, 재즈 페스티벌까지 혼자여도 든든하게</p>
+    </div>
+
+    <div class="device-mockup">
+      <div class="island"><div class="island-camera"></div></div>
+      <div class="screen-content" style="background: #F8FAFC;">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="letter-spacing: 2px;">●●●</span>
+        </div>
+
+        <!-- 상단 헤더 -->
+        <div style="padding: 16px 28px; background: #FFFFFF; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px; font-weight: 900; color: #191F28;">문화·공연 메이트</span>
+          </div>
+          <span style="padding: 6px 14px; background: #F3E8FF; color: #7C3AED; border-radius: 12px; font-size: 15px; font-weight: 800;">🎪 페스티벌 시즌</span>
+        </div>
+
+        <div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 20px;">
+          <!-- 메인 락페스티벌 카드 -->
+          <div style="background: #FFFFFF; border-radius: 28px; padding: 26px; box-shadow: 0 12px 30px rgba(124, 58, 237, 0.08); border: 2px solid #DDD6FE;">
+            <div style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: #FFFFFF; border-radius: 16px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+              <span style="font-size: 16px; font-weight: 800;">🎸 여름 최대 락 페스티벌</span>
+              <span style="font-size: 15px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 8px;">3일권 동행</span>
+            </div>
+
+            <div style="font-size: 24px; font-weight: 900; color: #191F28; line-height: 1.35; margin-bottom: 12px;">
+              송도 펜타포트 락페스티벌 3일권 같이 뛰어놀 분! 🎸
+            </div>
+
+            <div style="font-size: 16px; color: #475569; line-height: 1.5; margin-bottom: 16px; background: #F5F3FF; padding: 14px; border-radius: 14px;">
+              "타임테이블 겹치면 같이 슬램존 가고, 돗자리 피크닉 존에서 짐 지켜주며 맥주 한잔 마셔요! 편하게 어울릴 분 🍻"
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 16px; color: #334155; font-weight: 600;">
+              <div>📍 인천 송도달빛축제공원</div>
+              <div>🎪 대형 돗자리 & 쿨러백 구비 완료</div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+              <div>
+                <div style="font-size: 13px; color: #64748B; font-weight: 700;">현재 동행 현황</div>
+                <div style="font-size: 18px; font-weight: 900; color: #7C3AED;">4 / 6명 모집 중</div>
+              </div>
+              <div style="padding: 12px 24px; background: #7C3AED; color: #FFFFFF; font-size: 17px; font-weight: 800; border-radius: 14px;">
+                동행 참여하기
+              </div>
+            </div>
+          </div>
+
+          <!-- 서브 카드 1 (샤롯데 뮤지컬) -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="padding: 4px 10px; background: #FCE7F3; color: #BE185D; font-size: 13px; font-weight: 800; border-radius: 6px;">송파구 잠실동</span>
+              <span style="font-size: 14px; font-weight: 800; color: #059669;">2/2명 확정</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #191F28; margin-bottom: 8px;">
+              뮤지컬 지킬앤하이드 주말 낮공 동행 🎭
+            </div>
+            <div style="font-size: 15px; color: #64748B;">
+              잠실 샤롯데씨어터 로비 · 일 14:00 · 공연 후 카페 감상 토크
+            </div>
+          </div>
+
+          <!-- 서브 카드 2 (재즈 페스티벌) -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="padding: 4px 10px; background: #EDE9FE; color: #6D28D9; font-size: 13px; font-weight: 800; border-radius: 6px;">송파구 방이동</span>
+              <span style="font-size: 14px; font-weight: 800; color: #7C3AED;">3/4명 모집 중</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #191F28; margin-bottom: 8px;">
+              가을 잔디마당 재즈 페스티벌 와인 피크닉 🍷
+            </div>
+            <div style="font-size: 15px; color: #64748B;">
+              올림픽공원 88잔디마당 · 토 15:00 · 칠링 와인 & 핑거푸드
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 5. SCREENSHOT 05: 퇴근 후 30분 번개 & 한강 러닝 -->
+  <!-- ========================================== -->
+  <div class="screenshot-canvas theme-5" id="screenshot-5">
+    <div class="header-section">
+      <div class="badge-chip" style="color: #EA580C; border-color: rgba(234, 88, 12, 0.2);">⚡ 퇴근 후 번개 & 한강 러닝</div>
+      <h1 class="headline">오늘 밤 코노 갈 사람?<br><span class="orange-highlight">퇴근 후 가벼운 30분 번개</span></h1>
+      <p class="sub-copy">술 강요 없는 클린 모임! 코인노래방, 보드게임, 한강 노을 러닝</p>
+    </div>
+
+    <div class="device-mockup">
+      <div class="island"><div class="island-camera"></div></div>
+      <div class="screen-content" style="background: #F8FAFC;">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="letter-spacing: 2px;">●●●</span>
+        </div>
+
+        <!-- 상단 헤더 -->
+        <div style="padding: 16px 28px; background: #FFFFFF; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px; font-weight: 900; color: #191F28;">마포구 합정동</span>
+            <span style="font-size: 18px; color: #64748B;">▾</span>
+          </div>
+          <span style="padding: 6px 14px; background: #FFEDD5; color: #C2410C; border-radius: 12px; font-size: 15px; font-weight: 800;">⚡ 오늘 밤 번개</span>
+        </div>
+
+        <div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 20px;">
+          <!-- 메인 코인노래방 번개 카드 -->
+          <div style="background: #FFFFFF; border-radius: 28px; padding: 26px; box-shadow: 0 12px 30px rgba(234, 88, 12, 0.08); border: 2px solid #FED7AA;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+              <span style="padding: 6px 14px; background: #FFEDD5; color: #C2410C; font-size: 14px; font-weight: 800; border-radius: 8px;">🎤 코노 번개</span>
+              <span style="font-size: 15px; font-weight: 800; color: #EA580C;">오늘 19:30 번개</span>
+            </div>
+
+            <div style="font-size: 24px; font-weight: 900; color: #191F28; line-height: 1.35; margin-bottom: 12px;">
+              퇴근 후 합정 수코인노래방 1시간 힐링 번개 🎤
+            </div>
+
+            <div style="font-size: 16px; color: #475569; line-height: 1.5; margin-bottom: 16px; background: #FFF7ED; padding: 14px; border-radius: 14px;">
+              "퇴근하고 머리 복잡해서 노래 딱 10곡만 부르고 가실 분! 음치 박치 대환영, 편하게 스트레스 풀고 각자 귀가해요 🎶"
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 16px; color: #334155; font-weight: 600;">
+              <div>📍 합정역 5번 출구 앞 수코인노래방</div>
+              <div>⚡ 소요시간 1시간 (부담 ZERO)</div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+              <div>
+                <div style="font-size: 13px; color: #64748B; font-weight: 700;">참여 인원</div>
+                <div style="font-size: 18px; font-weight: 900; color: #EA580C;">2 / 3명 (1자리 남음)</div>
+              </div>
+              <div style="padding: 12px 24px; background: #EA580C; color: #FFFFFF; font-size: 17px; font-weight: 800; border-radius: 14px;">
+                1초 번개 참여
+              </div>
+            </div>
+          </div>
+
+          <!-- 서브 카드 1 (한강 노을 러닝) -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="padding: 4px 10px; background: #DCFCE7; color: #15803D; font-size: 13px; font-weight: 800; border-radius: 6px;">🏃‍♀️ 나이트 러닝</span>
+              <span style="font-size: 14px; font-weight: 800; color: #059669;">5/8명 참여 중</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #191F28; margin-bottom: 8px;">
+              망원 한강공원 노을 5km 샤베트 러닝 (페이스 630) 🍜
+            </div>
+            <div style="font-size: 15px; color: #64748B;">
+              망원나들목 앞 · 오늘 20:00 · 러닝 후 한강 라면 야식!
+            </div>
+          </div>
+
+          <!-- 서브 카드 2 (보드게임) -->
+          <div style="background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="padding: 4px 10px; background: #EFF6FF; color: #1D4ED8; font-size: 13px; font-weight: 800; border-radius: 6px;">🎲 보드게임</span>
+              <span style="font-size: 14px; font-weight: 800; color: #2563EB;">3/4명 모집</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #191F28; margin-bottom: 8px;">
+              강남역 레드버튼 보드게임 카페 가실 분 🎲
+            </div>
+            <div style="font-size: 15px; color: #64748B;">
+              신논현역 6번 출구 · 금 19:30 · 초보자 룰 친절 설명
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

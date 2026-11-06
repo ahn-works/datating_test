@@ -1,12 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import '../utils/oomu_ui_helpers.dart';
 import 'dart:async';
 import 'profile_setup_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'soso_car_home_screen.dart';
 import '../services/auth_service.dart';
 import '../utils/global_data.dart';
+import '../utils/web_redirect_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,67 +16,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final Color brandCoral = const Color(0xFFF25767);
-  final Color textPrimary = OomuUiHelpers.textPrimary;
-  final Color textSecondary = OomuUiHelpers.textSecondary;
-  final Color surfaceColor = const Color(0xFFF7F8FA);
+  final Color textPrimary = const Color(0xFF191F28);
+  final Color textSecondary = const Color(0xFF6B7684);
 
   bool _isLoading = false;
   bool _hasProcessedKakaoCode = false;
 
-  late final PageController _pageController;
-  int _currentPage = 0;
-  Timer? _carouselTimer;
-
-  final List<Map<String, dynamic>> _onboardingSlides = const [
-    {
-      'image': 'assets/images/cover_cafe.jpg',
-      'badge': '☕ 우리 동네 취향 아지트',
-      'title': '가보고 싶었던 동네 핫플,\n함께 갈 취향 이웃 찾기',
-      'desc': '망원·성수 감성 카페부터 소소한 주말 전시회까지',
-      'tags': ['#동네카페', '#주말전시', '#소소한취향'],
-    },
-    {
-      'image': 'assets/images/cover_running_hangang.jpg',
-      'badge': '⚡ 부담 없는 일상 번개',
-      'title': '혼자 가긴 망설여질 때,\n동네 친구와 30분 번개',
-      'desc': '한강 나이트 러닝부터 불금 보드게임 한판까지',
-      'tags': ['#야간러닝', '#보드게임', '#2030찐친'],
-    },
-    {
-      'image': 'assets/images/cover_food.jpg',
-      'badge': '🛡️ 1/N 투명 안심 정산',
-      'title': '믿을 수 있는 동네 인증과\n호스트 승인제로 안전하게',
-      'desc': '36.5℃ 매너온도와 투명한 영수증 정산으로 든든해요',
-      'tags': ['#투명정산', '#매너온도', '#여성안심'],
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
-    _startCarouselTimer();
     _checkKakaoOAuthRedirect();
-  }
-
-  void _startCarouselTimer() {
-    _carouselTimer?.cancel();
-    _carouselTimer = Timer.periodic(const Duration(milliseconds: 3800), (_) {
-      if (!mounted || !_pageController.hasClients) return;
-      final nextPage = (_currentPage + 1) % _onboardingSlides.length;
-      _pageController.animateToPage(
-        nextPage,
-        duration: const Duration(milliseconds: 650),
-        curve: Curves.easeInOutCubic,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _carouselTimer?.cancel();
-    _pageController.dispose();
-    super.dispose();
   }
 
   void _checkKakaoOAuthRedirect() {
@@ -85,9 +33,41 @@ class _LoginScreenState extends State<LoginScreen> {
       if (_hasProcessedKakaoCode) return;
       try {
         final uri = Uri.base;
-        if (uri.queryParameters.containsKey('code')) {
+        String? code = uri.queryParameters['code'];
+        String? error = uri.queryParameters['error'];
+        String? errorDesc = uri.queryParameters['error_description'];
+
+        // 모바일 브라우저 또는 Flutter Web HashUrlStrategy로 인해 # 뒤에 파라미터가 붙는 경우 파싱
+        if ((code == null || code.isEmpty) && uri.fragment.isNotEmpty) {
+          final fragmentStr = uri.fragment;
+          final qIndex = fragmentStr.indexOf('?');
+          if (qIndex != -1) {
+            final queryPart = fragmentStr.substring(qIndex + 1);
+            final params = Uri.splitQueryString(queryPart);
+            code ??= params['code'];
+            error ??= params['error'];
+            errorDesc ??= params['error_description'];
+          }
+        }
+
+        // 카카오 OAuth 에러 파라미터 응답 시 사용자에게 명확한 원인 안내
+        if (error != null && error.isNotEmpty) {
           _hasProcessedKakaoCode = true;
-          final code = uri.queryParameters['code']!;
+          if (mounted) {
+            _hideLoading();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('카카오 인증 알림 [$error]: ${errorDesc ?? "인증이 취소되었거나 거절되었습니다."}'),
+                backgroundColor: const Color(0xFFD9384A),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+
+        if (code != null && code.isNotEmpty) {
+          _hasProcessedKakaoCode = true;
           _showLoading('💬 카카오 공식 인증 정보 확인 중...');
           await authService.handleKakaoOAuthCode(code);
           if (mounted) {
@@ -105,7 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           _hideLoading();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('카카오 인증 실패: $e')),
+            SnackBar(
+              content: Text('카카오 인증 실패: $e'),
+              backgroundColor: const Color(0xFFD9384A),
+              duration: const Duration(seconds: 5),
+            ),
           );
         }
       }
@@ -170,21 +154,20 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // 1. 카카오 로그인 (1초 간편 시작 & 공식 OAuth 지원)
+  // 1. 카카오 로그인 (모바일 브라우저 팝업 차단 원천 방지 redirectToExternalUrl 적용)
   Future<void> _handleKakaoLogin() async {
     if (_isLoading) return;
-    _showLoading('카카오 1초 간편가입 연결 중…');
+    _showLoading('카카오 로그인 페이지로 이동 중…');
     try {
-      final opened = await launchUrl(Uri.parse(authService.kakaoOAuthUrl),
-          webOnlyWindowName: '_self');
+      final opened = await redirectToExternalUrl(authService.kakaoOAuthUrl);
       if (!opened && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('카카오 로그인 페이지를 열지 못했어요. 다시 시도해 주세요.')));
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('카카오 로그인 연결 상태를 확인해 주세요.')));
+            SnackBar(content: Text('카카오 로그인 연결 실패: $e')));
       }
     } finally {
       if (mounted) _hideLoading();
@@ -216,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // 3. 게스트 둘러보기
+  // 3. 게스트 둘러보기 (로그인 없이 바로 앱 체험)
   Future<void> _handleGuestLogin() async {
     _showLoading('동네 모임 둘러보기 입장 중...');
     try {
@@ -227,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // 4. 체험용 3대 테스트 계정 선택 바텀시트
+  // 4. 체험용 테스트 계정 바텀시트
   void _showTestUserModal() {
     showModalBottomSheet(
       context: context,
@@ -403,6 +386,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // 4. 휴대폰 SMS 인증 바텀시트
+  void _showPhoneAuthModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => _PhoneAuthSheet(
+        onSuccess: () {
+          Navigator.pop(ctx);
+          _navigateHome();
+        },
+      ),
+    );
+  }
+
   // 5. 이메일 로그인 / 회원가입 바텀시트
   void _showEmailAuthModal({bool isSignUp = false}) {
     showModalBottomSheet(
@@ -422,455 +423,278 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // 6. 휴대폰 번호 SMS 인증 바텀시트
-  void _showPhoneAuthModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => _PhoneAuthSheet(
-        onSuccess: () {
-          Navigator.pop(ctx);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('🎉 휴대폰 번호 인증이 완료되었습니다! 환영합니다.'),
-              backgroundColor: Color(0xFFF25767),
-            ),
-          );
-          _navigateHome();
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // 1. 감성 스토리텔링 히어로 비주얼 (PageView 슬라이더)
-          Positioned.fill(
-            bottom: 300,
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (idx) => setState(() => _currentPage = idx),
-              itemCount: _onboardingSlides.length,
-              itemBuilder: (context, index) {
-                final slide = _onboardingSlides[index];
-                final tags = (slide['tags'] as List<String>?) ?? [];
-
-                return Stack(
-                  fit: StackFit.expand,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // 배경 이미지
-                    Image.asset(
-                      slide['image']!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFF1E293B),
-                        child: const Icon(Icons.image, color: Colors.white24, size: 48),
-                      ),
-                    ),
-                    // 정교한 멀티스텝 그라디언트 (가독성 & 무드)
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withValues(alpha: 0.55),
-                            Colors.black.withValues(alpha: 0.15),
-                            Colors.black.withValues(alpha: 0.80),
-                            Colors.black.withValues(alpha: 0.95),
-                          ],
-                          stops: const [0.0, 0.35, 0.75, 1.0],
-                        ),
-                      ),
-                    ),
-                    // 이미지 위 헤드 카피 & 감성 뱃지
-                    Positioned(
-                      left: 24,
-                      right: 24,
-                      bottom: 40,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                    // 1. 상단 액션 바 (닫기 X & 둘러보기/테스트 계정)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // 상단 카테고리 뱃지
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.20),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
-                            ),
-                            child: Text(
-                              slide['badge']!,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.2,
+                          // 좌측 닫기 버튼 (누르면 둘러보기로 홈 진입)
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded,
+                                size: 26, color: Color(0xFF333D4B)),
+                            onPressed: _isLoading ? null : _handleGuestLogin,
+                            tooltip: '둘러보기로 이동',
+                          ),
+                          // 우측 체험 계정 & 둘러보기 (대형 글자 시 자동 스케일 다운)
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextButton(
+                                    onPressed:
+                                        _isLoading ? null : _showTestUserModal,
+                                    child: const Text(
+                                      '🧪 테스트 계정',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF6B7684),
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed:
+                                        _isLoading ? null : _handleGuestLogin,
+                                    child: const Text(
+                                      '둘러보기 ›',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF191F28),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          // 메인 슬로건 대제목
-                          Text(
-                            slide['title']!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              height: 1.35,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          // 서브 설명
-                          Text(
-                            slide['desc']!,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.85),
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w500,
-                              height: 1.45,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          // 감성 태그 목록
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: tags.map((t) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.35),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                t,
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            )).toList(),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                );
-              },
-            ),
-          ),
 
-          // 2. 상단 헤더 네비게이션 (브랜드 로고 & 둘러보기/테스트 계정)
-          Positioned(
-            top: topPadding + 8,
-            left: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // 브랜드 로고
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [brandCoral, const Color(0xFFFF7E8B)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: brandCoral.withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                    const SizedBox(height: 24),
+
+              // 2. 중앙 브랜드 심볼 & 슬로건 (요기요 스타일의 깔끔한 중앙 정렬)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // OOMU 브랜드 엠블럼
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [brandCoral, const Color(0xFFFF7E8B)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      child: const Center(
-                        child: Icon(Icons.favorite_rounded, color: Colors.white, size: 18),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'OOMU',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                // 우측 액션 (체험 계정 & 둘러보기)
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 테스트 계정
-                        GestureDetector(
-                          onTap: _isLoading ? null : _showTestUserModal,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.35),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '🧪 테스트 계정',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // 둘러보기 버튼
-                        GestureDetector(
-                          onTap: _isLoading ? null : _handleGuestLogin,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.95),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.15),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '둘러보기',
-                                  style: TextStyle(
-                                    color: textPrimary,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                Icon(Icons.arrow_forward_ios_rounded, size: 10, color: textPrimary),
-                              ],
-                            ),
-                          ),
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: [
+                        BoxShadow(
+                          color: brandCoral.withValues(alpha: 0.28),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
+                    child: const Center(
+                      child: Icon(Icons.favorite_rounded, color: Colors.white, size: 36),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                  const SizedBox(height: 20),
 
-
-          // 3. 하단 인터랙티브 간편가입 바텀 시트 (White Curved Surface)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(24, 20, 24, bottomPadding > 0 ? bottomPadding + 8 : 20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x1A000000),
-                    blurRadius: 24,
-                    offset: Offset(0, -6),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // 슬림 도트 인디케이터 (━━ • •)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_onboardingSlides.length, (idx) {
-                      final isActive = idx == _currentPage;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        height: 4,
-                        width: isActive ? 22 : 6,
-                        decoration: BoxDecoration(
-                          color: isActive ? brandCoral : const Color(0xFFE2E8F0),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 1. 카카오로 1초 간편가입 (1순위 메인 CTA)
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleKakaoLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFEE500),
-                            foregroundColor: const Color(0xFF191919),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                          ),
-                          child: const FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.chat_bubble_rounded,
-                                  size: 19,
-                                  color: Color(0xFF191919),
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  '카카오로 1초 간편가입',
-                                style: TextStyle(
-                                  fontSize: 15.5,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.3,
-                                  color: Color(0xFF191919),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),),
-                      ),
-                      // 상단 '1초 완성' 뱃지
-                      Positioned(
-                        top: -9,
-                        right: 14,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: brandCoral,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: brandCoral.withValues(alpha: 0.35),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '⚡ 가장 빨라요',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  // 메인 브랜드명
+                  Text(
+                    'OOMU',
+                    style: TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w900,
+                      color: textPrimary,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                   const SizedBox(height: 10),
 
-                  // 2. Google 계정으로 계속하기 (2순위 간편가입)
+                  // 친근하고 감성적인 슬로건
+                  const Text(
+                    '가보고 싶은 곳에서,\n함께할 동네 이웃을 만나요',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF333D4B),
+                      height: 1.45,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    '야구 직관, 핫플 오픈런, 주말 공연 동행까지',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF8B95A1),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+
+              // 3. 하단 간편가입 / 로그인 버튼군 (요기요 스타일 3단 버튼)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 1) 카카오로 계속하기
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _handleKakaoLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFEE500),
+                        foregroundColor: const Color(0xFF191919),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.chat_bubble_rounded,
+                                size: 18, color: Color(0xFF191919)),
+                            SizedBox(width: 8),
+                            Text(
+                              '카카오로 계속하기',
+                              style: TextStyle(
+                                fontSize: 15.5,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF191919),
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 2) Google로 계속하기
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
                     child: OutlinedButton(
                       onPressed: _isLoading ? null : _handleGoogleLogin,
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: textPrimary,
-                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
+                        side: const BorderSide(
+                            color: Color(0xFFE2E8F0), width: 1.2),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
-                      child: FittedBox(
+                      child: const FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              width: 20,
-                              height: 20,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  'G',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF4285F4),
-                                ),
+                            Text(
+                              'G',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF4285F4),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Google 계정으로 계속하기',
-                            style: TextStyle(
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.2,
-                              color: textPrimary,
+                            SizedBox(width: 8),
+                            Text(
+                              'Google로 계속하기',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF191F28),
+                                letterSpacing: -0.3,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
 
-                  // 3. 다른 방법으로 로그인 (휴대폰 번호 / 이메일)
+                  // 3) 이메일로 계속하기 (요기요 서피스 버튼 스타일)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () => _showEmailAuthModal(isSignUp: false),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF2F4F7),
+                        foregroundColor: const Color(0xFF333D4B),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.mail_outline_rounded,
+                                size: 19, color: Color(0xFF333D4B)),
+                            SizedBox(width: 8),
+                            Text(
+                              '이메일로 계속하기',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF333D4B),
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // 4) 직접 회원가입 / 휴대폰 / 비밀번호 찾기 (Kiwiplay 스타일 서브 액션)
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Row(
@@ -878,13 +702,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         GestureDetector(
                           onTap: _isLoading ? null : _showPhoneAuthModal,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
                             child: Text(
                               '휴대폰 번호로 시작하기',
                               style: TextStyle(
-                                fontSize: 13,
-                                color: textSecondary,
+                                fontSize: 12.5,
+                                color: Color(0xFF6B7684),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -897,14 +722,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: const Color(0xFFCBD5E1),
                         ),
                         GestureDetector(
-                          onTap: _isLoading ? null : () => _showEmailAuthModal(isSignUp: true),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          onTap: _isLoading
+                              ? null
+                              : () => _showEmailAuthModal(isSignUp: true),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
                             child: Text(
                               '이메일 가입',
                               style: TextStyle(
-                                fontSize: 13,
-                                color: textSecondary,
+                                fontSize: 12.5,
+                                color: Color(0xFF6B7684),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -917,71 +745,42 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: const Color(0xFFCBD5E1),
                         ),
                         GestureDetector(
-                          onTap: _isLoading ? null : () => _showEmailAuthModal(isSignUp: false),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            child: Text(
-                              '기존 계정 로그인',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: brandCoral,
-                                fontWeight: FontWeight.w700,
-                              ),
+                          onTap: _isLoading ? null : _handleGuestLogin,
+                          child: Text(
+                            '둘러보기',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: brandCoral,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
 
-                  // 4. 안심 인증 뱃지 & 약관 동의 캡션
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFF1F5F9)),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.shield_outlined, size: 13, color: Color(0xFF10B981)),
-                          SizedBox(width: 4),
-                          Text(
-                            'PASS 본인인증 & 1/N 정산으로 안전한 동네 모임',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF475569),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // 법적 약관 캡션
+                  // 5) 약관 안내
                   Text(
-                    '가입 시 OOMU 이용약관 및 개인정보처리방침에 동의하게 됩니다.',
+                    '로그인 시 OOMU 이용약관 및 개인정보처리방침에 동의하게 됩니다.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 10.5,
-                      color: const Color(0xFF94A3B8),
+                      fontSize: 11,
+                      color: const Color(0xFF8B95A1),
                       letterSpacing: -0.2,
                     ),
                   ),
+                  SizedBox(height: bottomPadding > 0 ? bottomPadding : 12),
                 ],
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      )))),
     );
   }
 }
+
 
 class _EmailAuthSheet extends StatefulWidget {
   final bool initialIsSignUp;

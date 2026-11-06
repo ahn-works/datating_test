@@ -8,6 +8,7 @@ Widget buildKakaoMapWidget({
   required double height,
   required double width,
   bool hideActions = false,
+  List<Map<String, dynamic>>? markers,
 }) {
   return Container(
     width: width,

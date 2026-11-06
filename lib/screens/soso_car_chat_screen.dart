@@ -1750,53 +1750,136 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   Widget _buildTextMessage(Map<String, dynamic> msg) {
     final isMe = msg['isMe'] == true;
     final sender = (msg['sender'] ?? '이웃').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+    final timeStr = (msg['time'] ?? '').toString();
+
+    final bubbleRadius = isMe
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(4),
+            bottomLeft: Radius.circular(18),
+            bottomRight: Radius.circular(18),
+          )
+        : const BorderRadius.only(
+            topLeft: Radius.circular(4),
+            topRight: Radius.circular(18),
+            bottomLeft: Radius.circular(18),
+            bottomRight: Radius.circular(18),
+          );
+
+    final bubbleColor = isMe ? accentColor : const Color(0xFFF2F4F7);
+    final textColor = isMe ? Colors.white : const Color(0xFF191F28);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Align(
-        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-        child: ConstrainedBox(
-          constraints:
-              BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * .8),
-          child: Column(
-              crossAxisAlignment:
-                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                if (!isMe)
-                  Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(sender,
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textSecondary))),
-                GestureDetector(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) ...[
+            _buildAvatar(avatarUrl: senderAvatar, name: sender),
+            const SizedBox(width: 8),
+          ],
+          if (isMe && timeStr.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(
+                timeStr,
+                style: const TextStyle(fontSize: 11, color: Color(0xFF8C94A0)),
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Flexible(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.72),
+              child: Column(
+                crossAxisAlignment:
+                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  if (!isMe)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5, left: 2),
+                      child: Text(
+                        sender,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  GestureDetector(
                     onLongPress: () => _showMessageActionSheet(msg),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                          horizontal: 16, vertical: 11),
                       decoration: BoxDecoration(
-                          color: isMe ? const Color(0xFFFFF0F2) : Colors.white,
-                          borderRadius: BorderRadius.circular(16)),
-                      child: Text((msg['text'] ?? '').toString(),
-                          style: TextStyle(
-                              fontSize: 15, height: 1.5, color: textPrimary)),
-                    )),
-                if ((msg['time'] ?? '').toString().isNotEmpty)
-                  Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(msg['time'].toString(),
-                          style:
-                              TextStyle(fontSize: 12, color: textSecondary))),
-              ]),
-        ),
+                        color: bubbleColor,
+                        borderRadius: bubbleRadius,
+                        border: isMe
+                            ? null
+                            : Border.all(
+                                color: const Color(0xFFE5E7EB), width: 0.8),
+                        boxShadow: isMe
+                            ? [
+                                BoxShadow(
+                                  color: accentColor.withValues(alpha: 0.22),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ]
+                            : [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                      ),
+                      child: Text(
+                        (msg['text'] ?? '').toString(),
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          height: 1.45,
+                          fontWeight: isMe ? FontWeight.w500 : FontWeight.w400,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (!isMe && timeStr.isNotEmpty) ...[
+            const SizedBox(width: 6),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(
+                timeStr,
+                style: const TextStyle(fontSize: 11, color: Color(0xFF8C94A0)),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildAvatar({String? name}) => CircleAvatar(
-      radius: 16,
+  Widget _buildAvatar({String? avatarUrl, String? name}) {
+    final avatar = (avatarUrl != null && avatarUrl.isNotEmpty)
+        ? avatarUrl
+        : 'assets/images/민지.png';
+    return CircleAvatar(
+      radius: 17,
       backgroundColor: const Color(0xFFEAECF0),
-      child: Icon(Icons.person_outline, size: 18, color: textSecondary));
+      backgroundImage: appImg(avatar),
+    );
+  }
   Widget _buildMessageInput() => SafeArea(
       top: false,
       child: Container(

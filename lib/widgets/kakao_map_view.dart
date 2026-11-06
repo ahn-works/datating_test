@@ -9,6 +9,7 @@ class KakaoMapView extends StatelessWidget {
   final double height;
   final double width;
   final bool hideActions;
+  final List<Map<String, dynamic>>? markers;
 
   const KakaoMapView({
     super.key,
@@ -18,6 +19,7 @@ class KakaoMapView extends StatelessWidget {
     this.height = 300,
     this.width = double.infinity,
     this.hideActions = false,
+    this.markers,
   });
 
   @override
@@ -29,6 +31,7 @@ class KakaoMapView extends StatelessWidget {
       height: height,
       width: width,
       hideActions: hideActions,
+      markers: markers,
     );
   }
 }

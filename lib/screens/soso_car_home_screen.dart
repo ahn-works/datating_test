@@ -4381,11 +4381,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   stream: _getMeetupStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                          padding: EdgeInsets.all(40),
-                          child: Center(
-                              child: CircularProgressIndicator(
-                                  color: Colors.black)));
+                      return _buildDummyMeetups();
                     }
                     if (snapshot.hasError ||
                         !snapshot.hasData ||
@@ -4551,9 +4547,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         final Map<String, Map<String, dynamic>> postMap = {};
 
         // 1. Initial 3-persona and preset posts (세션 간 참조 오염 방지를 위해 복제)
-        final activeInitialPosts = Firebase.apps.isEmpty
-            ? _getActiveCommunityPosts()
-            : <Map<String, dynamic>>[];
+        final activeInitialPosts = _getActiveCommunityPosts();
         for (var p in activeInitialPosts) {
           final cloned = Map<String, dynamic>.from(p);
           final pid = cloned['id']?.toString() ?? '';
@@ -5844,8 +5838,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       {
         'id': 'yeosu_dummy_02',
         'title': '화장동 성산공원 호수 둘레길 저녁 5km 런닝 크루 🏃‍♀️',
-        'mainCategory': '문화 & 엔터',
-        'category': '야외 액티비티',
+        'mainCategory': '액티비티 & 스포츠',
+        'category': '라이프 메이트',
         'location': '전남 여수시 화장동 성산공원 수변무대',
         'date': '오늘 저녁 7:30',
         'imageUrl': 'assets/images/cover_running.jpg',
@@ -5858,7 +5852,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'price': '각자 결제',
         'transport': '성산공원 입구 집결',
         'schedule': '스트레칭 10분 ➔ 성산공원 호수 둘레길 5km 러닝 ➔ 이온음료 쿨다운',
-        'tags': ['성산공원', '화장동러닝', '오운완', '둘레길산책', '러닝·운동', '오늘번개'],
+        'tags': ['라이프 메이트', '러닝·운동', '운동', '성산공원', '화장동러닝', '오운완', '둘레길산책', '오늘번개'],
         'photos': ['assets/images/cover_running.jpg'],
       },
       {

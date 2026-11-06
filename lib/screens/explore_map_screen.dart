@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:latlong2/latlong.dart';
 import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';
 import '../utils/app_image.dart';
@@ -164,6 +163,93 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'date': '토요일 오전 11:30',
       'description': '주말 아침 여유롭게 에그 베네딕트 먹으면서 다양한 직종 이야기 나눠요.',
     },
+    // 여수 지역 모임 프리셋
+    {
+      'id': 'exp_yeosu_01',
+      'title': '여수 학동 선소상가 찐맛집 털기 & 2:2 캐주얼 소셜 다이닝 🥘',
+      'location': '전남 여수시 학동 선소상가 맛집골목',
+      'lat': 35.1540,
+      'lng': 127.6530,
+      'distance': '도보 120m',
+      'category': '🍽️ 맛집 탐방',
+      'members': '2/4',
+      'host': '우리동네_초연',
+      'hostAvatar':
+          'https://pub-2e97ef227fa24fa9ad20e502cfa19515.r2.dev/avatars/user_yeosu_01.jpg',
+      'manner': 45.0,
+      'imageUrl': 'assets/images/cover_food.jpg',
+      'isLightning': false,
+      'date': '이번 주 금요일 7시',
+      'description': '학동 선소상가 맛집골목에서 맛있는 저녁 먹으며 편하게 수다 떨어요!',
+    },
+    {
+      'id': 'exp_yeosu_02',
+      'title': '불금엔 화장동 무선상가 코노 & 시원한 하이볼 한잔 🎤',
+      'location': '전남 여수시 화장동 무선지구 상가',
+      'lat': 35.1610,
+      'lng': 127.6580,
+      'distance': '도보 200m',
+      'category': '⚡ 오늘 번개',
+      'members': '2/4',
+      'host': '무선지킴이',
+      'hostAvatar': 'assets/images/정재.png',
+      'manner': 42.8,
+      'imageUrl': 'assets/images/cover_running.jpg',
+      'isLightning': true,
+      'date': '오늘 저녁 8시',
+      'description': '퇴근 후 무선상가에서 시원하게 하이볼 한잔하고 코노에서 스트레스 풀어요!',
+    },
+    {
+      'id': 'exp_yeosu_03',
+      'title': '여수 웅천친수공원 바다 캔맥주 소셜 피크닉 & 수다 🍺',
+      'location': '전남 여수시 웅천동 해변문화공원',
+      'lat': 35.1480,
+      'lng': 127.6620,
+      'distance': '도보 350m',
+      'category': '🍷 와인/펍',
+      'members': '3/4',
+      'host': '노을사냥꾼',
+      'hostAvatar': 'assets/images/지훈.png',
+      'manner': 43.5,
+      'imageUrl': 'assets/images/cover_wine.jpg',
+      'isLightning': false,
+      'date': '이번 주말 6시',
+      'description': '웅천 바다 노을을 바라보며 시원한 캔맥주 피크닉 즐겨요.',
+    },
+    {
+      'id': 'exp_yeosu_04',
+      'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
+      'location': '전남 여수시 화장동 성산공원 수변무대',
+      'lat': 35.1630,
+      'lng': 127.6540,
+      'distance': '도보 400m',
+      'category': '🏃 러닝/산책',
+      'members': '2/5',
+      'host': '성산러너',
+      'hostAvatar': 'assets/images/민지.png',
+      'manner': 44.0,
+      'imageUrl': 'assets/images/cover_running.jpg',
+      'isLightning': true,
+      'date': '오늘 저녁 8시반',
+      'description': '성산공원 호수 둘레길 따라 천천히 5km 페이스 6분대로 달립니다.',
+    },
+    {
+      'id': 'exp_yeosu_05',
+      'title': '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
+      'location': '전남 여수시 화장동 선소상가 카페거리',
+      'lat': 35.1590,
+      'lng': 127.6560,
+      'distance': '도보 280m',
+      'category': '☕ 카페/디저트',
+      'members': '2/3',
+      'host': '소금빵러버',
+      'hostAvatar': 'assets/images/시연.png',
+      'manner': 44.2,
+      'imageUrl': 'assets/images/cover_cafe.jpg',
+      'isLightning': false,
+      'date': '이번 주 토요일 11시',
+      'description': '화장동에 새로 생긴 감성 베이커리에서 갓 구운 소금빵 함께 즐겨요!',
+    },
   ];
 
   @override
@@ -174,6 +260,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       _currentLng = widget.initialLng!;
       if (widget.initialSpotName != null) {
         _currentSpotName = widget.initialSpotName!;
+      }
+    } else {
+      final loc = globalData.userLocation.value;
+      if (loc.contains('여수') || loc.contains('화장동')) {
+        _currentLat = 35.1610;
+        _currentLng = 127.6580;
+        _currentSpotName = '여수시 화장동';
       }
     }
   }
@@ -342,11 +435,36 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         children: [
           // 1. 카카오 공식 지도 뷰 (배경 전체)
           Positioned.fill(
-            child: KakaoMapView(
-              lat: _currentLat,
-              lng: _currentLng,
-              locationName: _currentSpotName,
-              hideActions: true,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('meetups')
+                  .limit(20)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                final List<Map<String, dynamic>> allMapMeetups = [];
+                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                  for (final doc in snapshot.data!.docs) {
+                    final d = Map<String, dynamic>.from(
+                        doc.data() as Map<String, dynamic>);
+                    d['id'] = doc.id;
+                    if (d['lat'] != null && d['lng'] != null) {
+                      allMapMeetups.add(d);
+                    }
+                  }
+                }
+                for (final p in _presetMeetups) {
+                  if (!allMapMeetups.any((m) => m['title'] == p['title'])) {
+                    allMapMeetups.add(p);
+                  }
+                }
+                return KakaoMapView(
+                  lat: _currentLat,
+                  lng: _currentLng,
+                  locationName: _currentSpotName,
+                  hideActions: true,
+                  markers: allMapMeetups,
+                );
+              },
             ),
           ),
 

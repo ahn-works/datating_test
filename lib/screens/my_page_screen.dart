@@ -1062,7 +1062,17 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     jobAndMbti = metaParts.isNotEmpty
                         ? metaParts.join(' • ')
                         : '프로필 정보 미설정';
-                    hobbies = _parseSafeList(data['hobbies'], hobbies);
+                    final rawInterests =
+                        _parseSafeList(data['interests'], <String>[]);
+                    final rawHobbies =
+                        _parseSafeList(data['hobbies'], <String>[]);
+                    final combinedHobbies =
+                        <String>{...rawInterests, ...rawHobbies}.toList();
+                    if (combinedHobbies.isNotEmpty) {
+                      hobbies = combinedHobbies;
+                    } else {
+                      hobbies = _parseSafeList(data['hobbies'], hobbies);
+                    }
                     personalities =
                         _parseSafeList(data['personalities'], personalities);
                     drinking = _parseSafeList(data['drinking'], drinking);
@@ -1352,6 +1362,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                           userTags: hobbies.isNotEmpty
                                               ? hobbies
                                               : personalities,
+                                          userJob: job,
+                                          userMbti: mbti,
+                                          userDrinking: drinking,
+                                          userPhotos: userPhotos,
+                                          userGender: gender,
                                           isSelf: true,
                                         ),
                                       ),

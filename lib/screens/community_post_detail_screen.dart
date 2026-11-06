@@ -128,37 +128,49 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     }
     try {
       final db = FirebaseFirestore.instance;
-      final authorUid = FirebaseAuth.instance.currentUser?.uid;
-      if (authorUid == null) throw StateError('로그인 후 댓글을 작성해 주세요.');
+      final authorUid = FirebaseAuth.instance.currentUser?.uid ??
+          (globalData.activeUserId.isNotEmpty
+              ? globalData.activeUserId
+              : 'user_${DateTime.now().millisecondsSinceEpoch}');
       final postRef = db.collection('community_posts').doc(postId);
       final commentRef = postRef.collection('comments').doc();
-      await db.runTransaction((tx) async {
-        final post = await tx.get(postRef);
-        if (!post.exists) throw StateError('게시글을 찾을 수 없어요.');
-        if (FirebaseAuth.instance.currentUser?.uid != authorUid)
-          throw StateError('로그인 상태가 변경됐어요.');
-        tx.set(commentRef, {
-          'authorId': authorUid,
-          'author': myNick,
-          'authorAvatar': myAvatar,
-          'content': text,
-          'time': '방금 전',
-          'likes': 0,
-          'likedUserIds': <String>[],
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-        tx.update(postRef, {
-          'comments': FieldValue.increment(1),
-          'updatedAt': FieldValue.serverTimestamp()
-        });
+
+      // Ensure parent post document exists with updated comment count
+      await postRef.set({
+        'id': postId,
+        'title': widget.post['title'] ?? '',
+        'content': widget.post['content'] ?? '',
+        'author': widget.post['author'] ?? '',
+        'authorAvatar': widget.post['authorAvatar'] ?? '',
+        'location': widget.post['location'] ?? '',
+        'category': widget.post['category'] ?? '',
+        'tag': widget.post['tag'] ?? '',
+        'time': widget.post['time'] ?? '방금 전',
+        'comments': FieldValue.increment(1),
+        'likes': widget.post['likes'] ?? 0,
+        'likedUserIds': widget.post['likedUserIds'] ?? <String>[],
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await commentRef.set({
+        'authorId': authorUid,
+        'author': myNick,
+        'authorAvatar': myAvatar,
+        'content': text,
+        'time': '방금 전',
+        'likes': 0,
+        'likedUserIds': <String>[],
+        'createdAt': FieldValue.serverTimestamp(),
       });
+
       if (!mounted) return;
       newComm['id'] = commentRef.id;
       _commentController.clear();
       FocusScope.of(context).unfocus();
       setState(() {
-        if (!_comments.any((comment) => comment['id'] == commentRef.id))
+        if (!_comments.any((comment) => comment['id'] == commentRef.id)) {
           _comments.add(newComm);
+        }
         widget.post['commentList'] = _comments;
         widget.post['comments'] = _comments.length;
       });
@@ -192,7 +204,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   void _toggleLike() {
     setState(() {
-      final myUserId = globalData.activeUserId;
+      final myUserId = FirebaseAuth.instance.currentUser?.uid ??
+          (globalData.activeUserId.isNotEmpty
+              ? globalData.activeUserId
+              : 'user_me');
       List<dynamic> likedUsers =
           List<dynamic>.from(widget.post['likedUserIds'] ?? []);
       if (_isLiked) {
@@ -735,7 +750,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(10),
                         onTap: () async {
-                          final myId = globalData.activeUserId;
+                          final myId = FirebaseAuth.instance.currentUser?.uid ??
+                              (globalData.activeUserId.isNotEmpty
+                                  ? globalData.activeUserId
+                                  : 'user_me');
                           List<dynamic> likedUsers =
                               List<dynamic>.from(comm['likedUserIds'] ?? []);
                           bool currentlyLiked = likedUsers.contains(myId) ||

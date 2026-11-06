@@ -50,8 +50,24 @@ class AuthService {
   String get kakaoRedirectUri {
     if (kIsWeb) {
       final base = Uri.base;
+      // 1. PC 로컬 호스트 (localhost / 127.0.0.1)
       if (base.host.contains('localhost') || base.host.contains('127.0.0.1')) {
         return '${base.origin}/';
+      }
+      // 2. 모바일 기기 로컬 Wi-Fi 접속 (192.168.x.x, 10.x.x.x, 172.x.x.x 등 사설 IP)
+      if (base.host.startsWith('192.168.') ||
+          base.host.startsWith('10.') ||
+          base.host.startsWith('172.')) {
+        return '${base.origin}/';
+      }
+      // 3. GitHub Pages
+      if (base.host.contains('github.io')) {
+        return 'https://ahn-works.github.io/datating_test/';
+      }
+      // 4. 기타 웹 호스팅 환경
+      if (base.origin.isNotEmpty && !base.origin.startsWith('null')) {
+        final path = base.path.isNotEmpty && base.path != '/' ? base.path : '/';
+        return '${base.origin}${path.endsWith('/') ? path : '$path/'}';
       }
     }
     return 'https://ahn-works.github.io/datating_test/';
