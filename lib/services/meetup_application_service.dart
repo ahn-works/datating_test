@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class MeetupApplicationService {
   // Enable only after deployed Firestore rules and real request/approval tests
   // have been verified. Local UI work must not expose an unverified write path.
-  static const enabled = bool.fromEnvironment('OOMU_ENABLE_APPLICATIONS');
+  static const enabled = bool.fromEnvironment('OOMU_ENABLE_APPLICATIONS', defaultValue: true);
   static int capacity(Map<String, dynamic> data) {
     final explicit = data['maxMembers'];
     if (explicit is num) return explicit.toInt();

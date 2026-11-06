@@ -49,7 +49,7 @@ class Spot10App extends StatelessWidget {
       ),
       theme: OomuUiHelpers.buildTheme(),
       builder: (context, child) => Container(
-        color: const Color(0xFFE5E8EB),
+        color: const Color(0xFFFBEFE0),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
@@ -60,7 +60,21 @@ class Spot10App extends StatelessWidget {
                   MediaQuery.of(context).size.height,
                 ),
               ),
-              child: Container(color: const Color(0xFFF7F8FA), child: child!),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9F2),
+                  boxShadow: MediaQuery.of(context).size.width > 480
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF4A3014).withValues(alpha: 0.12),
+                            blurRadius: 32,
+                            offset: const Offset(0, 10),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: child!,
+              ),
             ),
           ),
         ),
@@ -70,9 +84,9 @@ class Spot10App extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              backgroundColor: Color(0xFFF7F8FA),
+              backgroundColor: Color(0xFFFFF9F2),
               body: Center(
-                child: CircularProgressIndicator(color: Color(0xFFF25767)),
+                child: CircularProgressIndicator(color: Color(0xFFFF5C39)),
               ),
             );
           }

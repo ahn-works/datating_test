@@ -326,6 +326,150 @@ class AuthService {
     );
   }
 
+  // 5-4. 네이버 OAuth 리다이렉트 인가 코드(Code) 처리
+  Future<UserCredential> handleNaverOAuthCode(String code, String state) async {
+    final creds = await _getNaverCredentials();
+    final clientId = creds['clientId']!;
+    final clientSecret = creds['clientSecret']!;
+
+    // 1. 네이버 토큰 발급 요청
+    final tokenUri = Uri.parse(
+        'https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=$clientId&client_secret=$clientSecret&code=$code&state=$state');
+    final tokenResponse =
+        await http.get(tokenUri).timeout(const Duration(seconds: 10));
+
+    if (tokenResponse.statusCode != 200) {
+      throw Exception('네이버 인증 토큰 응답 오류 (${tokenResponse.statusCode})');
+    }
+
+    final tokenData = jsonDecode(tokenResponse.body);
+    final accessToken = tokenData['access_token'];
+    if (accessToken == null) {
+      throw Exception(
+          '네이버 토큰 정보가 올바르지 않습니다: ${tokenData['error_description'] ?? tokenData['error']}');
+    }
+
+    // 2. 네이버 사용자 프로필 조회
+    final userResponse = await http.get(
+      Uri.parse('https://openapi.naver.com/v1/nid/me'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    ).timeout(const Duration(seconds: 10));
+
+    if (userResponse.statusCode != 200) {
+      throw Exception('네이버 사용자 정보 조회 실패 (${userResponse.statusCode})');
+    }
+
+    final userData = jsonDecode(userResponse.body);
+    final responseObj = userData['response'] as Map<String, dynamic>? ?? {};
+    final String naverId = (responseObj['id'] ?? '').toString();
+    if (naverId.isEmpty) {
+      throw Exception('네이버 고유 회원 번호를 확인할 수 없습니다.');
+    }
+
+    final naverNickname =
+        (responseObj['nickname'] ?? responseObj['name'] ?? '네이버회원').toString();
+    final naverName = (responseObj['name'] ?? naverNickname).toString();
+    final naverEmail = responseObj['email']?.toString();
+    final naverMobile = responseObj['mobile']?.toString();
+    final naverProfileImg = responseObj['profile_image']?.toString();
+
+    return await signInWithRealNaverAccount(
+      naverId: naverId,
+      naverNickname: naverNickname,
+      naverName: naverName,
+      naverEmail: naverEmail,
+      naverMobile: naverMobile,
+      naverProfileImg: naverProfileImg,
+    );
+  }
+
+  Future<Map<String, String>> _getNaverCredentials() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('config')
+          .doc('api_keys')
+          .get();
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        final cId = (data['naverClientId'] ?? '').toString().trim();
+        final cSec = (data['naverClientSecret'] ?? '').toString().trim();
+        if (cId.isNotEmpty && cSec.isNotEmpty) {
+          return {'clientId': cId, 'clientSecret': cSec};
+        }
+      }
+    } catch (_) {}
+    return {
+      'clientId': '8GUg95zrKv0Cw6g4aTmi',
+      'clientSecret': 'GzKOBpP14Y',
+    };
+  }
+
+  Future<UserCredential> signInWithRealNaverAccount({
+    required String naverId,
+    required String naverNickname,
+    String? naverName,
+    String? naverEmail,
+    String? naverMobile,
+    String? naverProfileImg,
+  }) async {
+    final cleanId = naverId.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
+    final authEmail = 'naver_$cleanId@auth.oomu.app';
+    final cleanNick =
+        naverNickname.trim().isNotEmpty ? naverNickname.trim() : '네이버회원';
+    const String tempPw = 'naver_oomu_auth_2026!';
+
+    UserCredential credential;
+    try {
+      credential = await _auth.signInWithEmailAndPassword(
+        email: authEmail,
+        password: tempPw,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
+        try {
+          credential = await _auth.createUserWithEmailAndPassword(
+            email: authEmail,
+            password: tempPw,
+          );
+        } on FirebaseAuthException catch (createErr) {
+          if (createErr.code == 'email-already-in-use') {
+            credential = await _auth.signInWithEmailAndPassword(
+              email: authEmail,
+              password: tempPw,
+            );
+          } else {
+            rethrow;
+          }
+        }
+      } else {
+        rethrow;
+      }
+    }
+
+    await _syncUserWithFirestore(
+      credential.user!,
+      customNickname: cleanNick,
+      customName: naverName ?? cleanNick,
+      provider: 'naver',
+      extraData: {
+        'naverApp': '우무(OOMU)',
+        'naverId': cleanId,
+        'naverEmail': naverEmail ?? '',
+        'isVerified': true,
+        'isPhoneVerified': naverMobile != null && naverMobile.isNotEmpty,
+        if (naverMobile != null && naverMobile.isNotEmpty)
+          'phoneNumber': naverMobile,
+        if (naverProfileImg != null && naverProfileImg.isNotEmpty)
+          'photoUrl': naverProfileImg,
+        if (naverProfileImg != null && naverProfileImg.isNotEmpty)
+          'avatarUrl': naverProfileImg,
+      },
+    );
+    return credential;
+  }
+
   // 5-3. 카카오 계정 빠른 시작 (테스트 및 로컬 환경용 고정 계정)
   Future<UserCredential> signInWithKakao(
       {String? testId, String? nickname}) async {

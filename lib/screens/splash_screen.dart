@@ -1,44 +1,13 @@
 import 'package:flutter/material.dart';
-import 'onboarding_screen.dart';
+import 'login_screen.dart';
 
-class SplashScreen extends StatefulWidget {
+/// OOMU 스플래시 화면
+/// 신규 'assets/images/OOMU 앱 UI 디자인.html' 규격의 스플래시 인트로(initialStage: 0)를 제공합니다.
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const OnboardingScreen()));
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFF7A59),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.favorite, size: 80, color: Colors.white),
-            const SizedBox(height: 24),
-            const Text('우무(OOMU)',
-                style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
-            const SizedBox(height: 8),
-            Text('우리끼리 무드있게, 자만추 드라이브',
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8), fontSize: 16)),
-          ],
-        ),
-      ),
-    );
+    return const LoginScreen(initialStage: 0);
   }
 }

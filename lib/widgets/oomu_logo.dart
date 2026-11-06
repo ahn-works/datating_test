@@ -39,36 +39,41 @@ class OomuLogo extends StatelessWidget {
         return _buildSymbol(size, coral);
 
       case OomuLogoStyle.stacked:
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildSymbol(size * 1.1, coral),
-            const SizedBox(height: 12),
-            Text(
-              'OOMU',
-              style: TextStyle(
-                fontSize: size * 0.55,
-                fontWeight: FontWeight.w900,
-                color: coral,
-                letterSpacing: -0.5,
-                height: 1.1,
-              ),
-            ),
-            if (showKoreanSubtitle) ...[
-              const SizedBox(height: 4),
+        return Image.asset(
+          'assets/images/oomu_logo_transparent.png',
+          height: size * 1.4,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildSymbol(size * 1.1, coral),
+              const SizedBox(height: 12),
               Text(
-                '우무',
+                'oomu',
                 style: TextStyle(
-                  fontSize: size * 0.28,
-                  fontWeight: FontWeight.w700,
-                  color: coral.withValues(alpha: 0.9),
-                  letterSpacing: 3.0,
-                  height: 1.0,
+                  fontSize: size * 0.55,
+                  fontWeight: FontWeight.w900,
+                  color: coral,
+                  letterSpacing: -0.5,
+                  height: 1.1,
                 ),
               ),
+              if (showKoreanSubtitle) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '우리 동네 무드',
+                  style: TextStyle(
+                    fontSize: size * 0.28,
+                    fontWeight: FontWeight.w700,
+                    color: coral.withValues(alpha: 0.9),
+                    letterSpacing: 1.0,
+                    height: 1.0,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         );
 
       case OomuLogoStyle.horizontal:
@@ -76,7 +81,7 @@ class OomuLogo extends StatelessWidget {
         return SizedBox(
           height: size,
           child: Image.asset(
-            'assets/images/oomu_logo_clean.png',
+            'assets/images/oomu_logo_transparent.png',
             height: size,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) => Row(

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
+import '../utils/app_image.dart';
 import '../services/r2_storage_service.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -15,8 +16,8 @@ class ProfileEditScreen extends StatefulWidget {
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final Color textPrimary = const Color(0xFF111111);
   final Color textSecondary = const Color(0xFF767676);
-  final Color surfaceColor = const Color(0xFFF5F5F7);
-  final Color accentColor = const Color(0xFFF19E39);
+  final Color surfaceColor = const Color(0xFFF8FAFC);
+  final Color accentColor = const Color(0xFFF25767);
 
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -28,7 +29,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   String _gender = '여성';
   String _role = 'user';
-  String _avatarUrl = 'assets/images/민지.png';
+  String _avatarUrl = 'assets/images/초연.png';
 
   final List<String> _availableHobbies = [
     '맛집탐방',
@@ -89,56 +90,60 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _loadProfile() async {
     try {
+      final gAvatar = globalData.userAvatar.value;
+      final gNick = globalData.userNickname.value;
+      final gLoc = globalData.userLocation.value;
+
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(globalData.activeUserId)
           .get();
       if (doc.exists) {
         final data = doc.data()!;
-        _nicknameController.text = data['nickname'] ??
-            (globalData.activeUserId == 'admin_user' ? '오오무 운영팀' : '매운맛킬러');
-        _nameController.text = data['name'] ??
-            (globalData.activeUserId == 'admin_user' ? '총괄관리자' : '김민우');
-        _ageController.text =
-            (data['age'] ?? (globalData.activeUserId == 'admin_user' ? 29 : 27))
-                .toString();
-        _gender = data['gender'] ??
-            (globalData.activeUserId == 'admin_user' ? '여성' : '남성');
-        _role = data['role'] ??
-            (globalData.activeUserId == 'admin_user' ? 'admin' : 'user');
-        _locationController.text = data['location'] ?? '서울 마포구 연남동';
-        _bioController.text = data['bio'] ?? '새로운 사람 만나는 걸 좋아해요! 잘 부탁드립니다 😊';
-        _jobController.text = data['job'] ?? 'IT/개발';
+        _nicknameController.text =
+            data['nickname'] ?? (gNick.isNotEmpty ? gNick : '우리동네_초연');
+        _nameController.text = data['name'] ?? '초연';
+        _ageController.text = (data['age'] ?? 28).toString();
+        _gender = data['gender'] ?? '여성';
+        _role = data['role'] ?? 'user';
+        _locationController.text =
+            data['location'] ?? (gLoc.isNotEmpty ? gLoc : '전남 여수시 화장동');
+        _bioController.text =
+            data['bio'] ?? '동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊';
+        _jobController.text = data['job'] ?? '프리랜서 디자이너';
         _mbtiController.text = data['mbti'] ?? 'ENFP';
-        _selectedHobbies = _parseSafeList(data['hobbies'], ['맛집탐방', '보드게임']);
+        _selectedHobbies = _parseSafeList(data['hobbies'], ['맛집탐방', '카페투어']);
         _selectedPersonalities =
             _parseSafeList(data['personalities'], ['리액션 요정', '친화력 갑']);
         _selectedDrinking = _parseSafeList(data['drinking'], ['가볍게 한잔']);
-        _avatarUrl = (data['photoUrl'] ??
-                data['avatarUrl'] ??
-                'assets/images/민지.png')
-            .toString();
+        final loadedAvatar =
+            (data['photoUrl'] ?? data['avatarUrl'])?.toString().trim();
+        _avatarUrl = (loadedAvatar != null && loadedAvatar.isNotEmpty)
+            ? loadedAvatar
+            : (gAvatar.isNotEmpty ? gAvatar : 'assets/images/초연.png');
       } else {
-        _nicknameController.text = '오오무 운영팀';
-        _nameController.text = '총괄관리자';
-        _ageController.text = '29';
+        _nicknameController.text = gNick.isNotEmpty ? gNick : '우리동네_초연';
+        _nameController.text = '초연';
+        _ageController.text = '28';
         _gender = '여성';
-        _role = 'admin';
-        _locationController.text = '서울 마포구 연남동';
-        _bioController.text = '건전하고 따뜻한 동네 모임 문화를 만들어가는 오오무 공식 계정입니다 🌿';
-        _jobController.text = '서비스 기획/운영';
-        _mbtiController.text = 'ENFJ';
-        _selectedHobbies = ['맛집탐방', '보드게임'];
-        _selectedPersonalities = ['리액션 요정', '친화력 갑'];
+        _role = 'user';
+        _locationController.text = gLoc.isNotEmpty ? gLoc : '전남 여수시 화장동';
+        _bioController.text = '동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 🌿';
+        _jobController.text = '디자인/기획';
+        _mbtiController.text = 'ENFP';
+        _selectedHobbies = ['맛집탐방', '카페투어'];
+        _selectedPersonalities = ['경청하는 편', '긍정적'];
         _selectedDrinking = ['가볍게 한잔'];
+        _avatarUrl = gAvatar.isNotEmpty ? gAvatar : 'assets/images/초연.png';
       }
     } catch (e) {
       debugPrint("Error loading profile: $e");
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 
@@ -190,19 +195,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       globalData.userNickname.value = _nicknameController.text.trim();
       globalData.userLocation.value = _locationController.text.trim();
+      globalData.userAvatar.value = _avatarUrl;
 
       if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✨ 프로필이 성공적으로 업데이트되었습니다.')));
+          const SnackBar(content: Text('✨ 프로필이 성공적으로 업데이트되었습니다.')),
+        );
       }
     } catch (e) {
       debugPrint("Error saving profile: $e");
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isSaving = false;
         });
+      }
     }
   }
 
@@ -256,7 +264,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             content: Text(source == ImageSource.camera
                 ? '📸 카메라로 촬영한 새 프로필 사진이 설정되었습니다!'
                 : '🖼️ 갤러리에서 선택한 새 프로필 사진이 설정되었습니다!'),
-            backgroundColor: const Color(0xFFF38020),
+            backgroundColor: const Color(0xFFF25767),
           ),
         );
       }
@@ -322,13 +330,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             color: const Color(0xFFFFF5F0),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                                color: const Color(0xFFFF5E36)
+                                color: const Color(0xFFF25767)
                                     .withValues(alpha: 0.3)),
                           ),
                           child: const Column(
                             children: [
                               Icon(Icons.photo_camera_rounded,
-                                  color: Color(0xFFFF5E36), size: 28),
+                                  color: Color(0xFFF25767), size: 28),
                               SizedBox(height: 8),
                               Text('사진 찍기',
                                   style: TextStyle(
@@ -353,13 +361,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             color: const Color(0xFFFFF7EE),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                                color: const Color(0xFFF38020)
+                                color: const Color(0xFFF25767)
                                     .withValues(alpha: 0.3)),
                           ),
                           child: const Column(
                             children: [
                               Icon(Icons.photo_library_rounded,
-                                  color: Color(0xFFF38020), size: 28),
+                                  color: Color(0xFFF25767), size: 28),
                               SizedBox(height: 8),
                               Text('앨범에서 선택',
                                   style: TextStyle(
@@ -401,8 +409,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             'avatarUrl': pAvatar,
                             'updatedAt': FieldValue.serverTimestamp(),
                           }, SetOptions(merge: true));
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               const SnackBar(
                                   content: Text('✨ 프로필 캐릭터가 설정되었습니다.')),
                             );
@@ -415,7 +423,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFFFF5E36)
+                                  ? const Color(0xFFF25767)
                                   : const Color(0xFFE5E5EA),
                               width: isSelected ? 3 : 1.5,
                             ),
@@ -437,10 +445,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   ImageProvider _getAvatarProvider(String url) {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return NetworkImage(url);
-    }
-    return AssetImage(url);
+    if (url.trim().isEmpty) return const AssetImage('assets/images/초연.png');
+    return appImg(url);
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
@@ -710,7 +716,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(colors: [
-                                    Color(0xFFF19E39),
+                                    Color(0xFFF25767),
                                     Color(0xFFF25767)
                                   ]),
                                   borderRadius: BorderRadius.circular(10),

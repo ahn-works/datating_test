@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../utils/global_data.dart';
+import '../utils/app_image.dart';
 import 'login_screen.dart';
 import 'my_page_sub_screens.dart';
+import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,12 +18,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _marketingNotifications = false;
   bool _meetingAlerts = true;
 
-  static const Color _bgLight = Color(0xFFFAF6F7);
+  static const Color _bgLight = Color(0xFFF8FAFC);
   static const Color _coralAccent = Color(0xFFF25767);
   static const Color _coralLight = Color(0xFFFDE8EC);
-  static const Color _textPrimary = Color(0xFF221B1D);
-  static const Color _textSecondary = Color(0xFF635559);
-  static const Color _cardBorder = Color(0xFFEFE4E6);
+  static const Color _textPrimary = Color(0xFF0F172A);
+  static const Color _textSecondary = Color(0xFF64748B);
+  static const Color _cardBorder = Color(0xFFE2E8F0);
 
   @override
   Widget build(BuildContext context) {
@@ -46,80 +50,116 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
-          // 1. 프로필 요약 카드
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _cardBorder),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: _coralAccent.withValues(alpha: 0.3), width: 2),
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/민지.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            '김민서',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: _textPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: _coralLight,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text(
-                              '36.5°C',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: _coralAccent,
+          // 1. 프로필 요약 카드 (동적 글로벌 데이터 연동)
+          ValueListenableBuilder<String>(
+            valueListenable: globalData.userNickname,
+            builder: (context, nickname, _) {
+              return ValueListenableBuilder<double>(
+                valueListenable: globalData.temperature,
+                builder: (context, temp, _) {
+                  return ValueListenableBuilder<String>(
+                    valueListenable: globalData.userLocation,
+                    builder: (context, location, _) {
+                      return ValueListenableBuilder<String>(
+                        valueListenable: globalData.userAvatar,
+                        builder: (context, avatar, _) {
+                          final displayName = nickname.isNotEmpty ? nickname : '우리동네_초연';
+                          final displayTemp = temp > 0 ? temp.toStringAsFixed(1) : '42.0';
+                          final displayLoc = location.isNotEmpty ? location : '전남 여수시 화장동';
+                          final displayAvatar = avatar.isNotEmpty ? avatar : 'assets/images/초연.png';
+
+                          return GestureDetector(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: _cardBorder),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.02),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 52,
+                                    height: 52,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: _coralAccent.withValues(alpha: 0.3), width: 2),
+                                      image: DecorationImage(
+                                        image: appImg(displayAvatar),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              displayName,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
+                                                color: _textPrimary,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: _coralLight,
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                '$displayTemp°C',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: _coralAccent,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          '$displayLoc · 본인인증 완료',
+                                          style: const TextStyle(fontSize: 12, color: _textSecondary),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios_rounded,
+                                      size: 15, color: _textSecondary),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      const Text(
-                        '서울 강남구 역삼동 · 본인인증 완료',
-                        style: TextStyle(fontSize: 12, color: _textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
           ),
 
           const SizedBox(height: 20),
@@ -440,7 +480,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Switch.adaptive(
             value: value,
-            activeColor: _coralAccent,
+            activeTrackColor: _coralAccent,
             onChanged: onChanged,
           ),
         ],

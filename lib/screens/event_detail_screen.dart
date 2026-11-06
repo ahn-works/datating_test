@@ -290,9 +290,57 @@ class EventDetailScreen extends StatelessWidget {
                                   .isNotEmpty ==
                               true
                           ? (event['description'] ?? event['intro']).toString()
-                          : '아직 자세한 소개가 없어요. 방문 전 운영 시간과 예약 여부를 확인해 주세요.',
+                          : (title.contains('딸기모찌')
+                              ? '여수 이순신광장의 명물 수제 딸기모찌 본점입니다. 얇고 쫀득한 찹쌀떡 속 신선한 생딸기와 백앙금이 어우러져 전국 디저트 러버들이 오픈런하는 필수 코스입니다. 돌산 갓버터도나스와 함께 달콤한 투어를 즐겨보세요.'
+                              : '아직 자세한 소개가 없어요. 방문 전 운영 시간과 예약 여부를 확인해 주세요.'),
                       style: const TextStyle(
                           fontSize: 13.5, height: 1.6, color: textSecondary),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Editor's Local Guide Tips Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.lightbulb_outline_rounded,
+                                size: 18, color: coralAccent),
+                            SizedBox(width: 6),
+                            Text(
+                              '동네 발견 꿀팁',
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                                color: textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          title.contains('딸기모찌')
+                              ? '• 보냉백 포장 가능하며 당일 섭취 시 생딸기 과즙을 가장 신선하게 즐길 수 있어요.\n• 주말 낮 시간대에는 대기줄이 있을 수 있으니 여유 있게 방문하세요.\n• 이순신광장 벤치에서 바다를 보며 디저트를 즐기기 좋아요.'
+                              : (category.contains('카페') || category.contains('디저트')
+                                  ? '• 주말 오후에는 대기가 발생할 수 있으니 오전 시간대 방문을 추천해요.\n• 동네 친구와 2~3인 소규모로 방문하기 좋은 아늑한 공간이에요.'
+                                  : '• 방문 전 정확한 위치와 일정을 확인해 주세요.\n• 동네 이웃과 함께 가면 더 즐겁게 경험할 수 있어요.'),
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            height: 1.6,
+                            color: Color(0xFF475569),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
@@ -307,20 +355,40 @@ class EventDetailScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
-              offset: const Offset(0, -4),
+              offset: const Offset(0, -3),
             ),
           ],
         ),
         child: SafeArea(
           child: Row(
             children: [
+              // 지도/길찾기 버튼 (균형 잡힌 서브 액션)
+              SizedBox(
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: location.isEmpty
+                      ? null
+                      : () => KakaoMapService.launchDirections(location),
+                  icon: const Icon(Icons.directions_outlined, size: 17),
+                  label: const Text('길찾기'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: textPrimary,
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              // 모임 열기 버튼 (메인 액션)
               Expanded(
                 child: SizedBox(
                   height: 48,
@@ -346,7 +414,7 @@ class EventDetailScreen extends StatelessWidget {
                     icon: const Icon(Icons.add_circle_outline,
                         size: 18, color: Colors.white),
                     label: const Text(
-                      '이곳에 같이 갈 모임 열기',
+                      '함께 갈 모임 열기',
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -355,7 +423,7 @@ class EventDetailScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: coralAccent,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
                   ),

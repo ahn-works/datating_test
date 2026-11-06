@@ -293,6 +293,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   Widget _buildBodyContent(List<Map<String, dynamic>> displayComments) {
     final post = widget.post;
     final author = (post['author'] ?? '동네주민').toString();
+    final isAuthorMe = author == globalData.userNickname.value ||
+        (post['authorId'] != null && post['authorId'] == globalData.activeUserId);
+    final effectiveAuthorAvatar = (isAuthorMe && globalData.userAvatar.value.isNotEmpty)
+        ? globalData.userAvatar.value
+        : ((post['authorAvatar'] != null && post['authorAvatar'].toString().isNotEmpty)
+            ? post['authorAvatar'].toString()
+            : 'assets/images/초연.png');
     final location = (post['location'] ?? '마포구 서교동').toString();
     final time = (post['time'] ?? '방금 전').toString();
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
@@ -323,7 +330,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         MaterialPageRoute(
                           builder: (_) => UserProfileScreen(
                             userName: author,
-                            userAvatar: post['authorAvatar']?.toString(),
+                            userAvatar: effectiveAuthorAvatar,
                             userLocation: location,
                             userManner: authorManner,
                           ),
@@ -332,9 +339,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     },
                     child: CircleAvatar(
                       radius: 20,
-                      backgroundImage: appImg((post['authorAvatar'] ??
-                              'assets/images/민지.png')
-                          .toString()),
+                      backgroundImage: appImg(effectiveAuthorAvatar),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -633,6 +638,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   (comm['likes'] is num) ? (comm['likes'] as num).toInt() : 0;
               final commId = comm['id']?.toString();
 
+              final commAuthor = (comm['author'] ?? '이웃').toString();
+              final isCommMe = commAuthor == globalData.userNickname.value ||
+                  (comm['authorId'] != null && comm['authorId'] == globalData.activeUserId);
+              final effectiveCommAvatar = (isCommMe && globalData.userAvatar.value.isNotEmpty)
+                  ? globalData.userAvatar.value
+                  : ((comm['authorAvatar'] != null && comm['authorAvatar'].toString().isNotEmpty)
+                      ? comm['authorAvatar'].toString()
+                      : 'assets/images/초연.png');
+
               return Container(
                 color: Colors.white,
                 padding:
@@ -646,17 +660,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => UserProfileScreen(
-                              userName: (comm['author'] ?? '이웃').toString(),
-                              userAvatar: comm['authorAvatar']?.toString(),
+                              userName: commAuthor,
+                              userAvatar: effectiveCommAvatar,
                             ),
                           ),
                         );
                       },
                       child: CircleAvatar(
                         radius: 16,
-                        backgroundImage: appImg((comm['authorAvatar'] ??
-                                'assets/images/민지.png')
-                            .toString()),
+                        backgroundImage: appImg(effectiveCommAvatar),
                       ),
                     ),
                     const SizedBox(width: 10),

@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/r2_storage_service.dart';
 import '../widgets/ugc_action_sheets.dart';
+import '../widgets/bouncy_tap.dart';
 import '../services/ai_service.dart';
 import '../services/chat_repository.dart';
 import '../utils/oomu_ui_helpers.dart';
@@ -987,6 +988,174 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
+  void _showStickerPickerBottomSheet() {
+    if (!_canSend || _readFailed) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.55,
+        minChildSize: 0.35,
+        maxChildSize: 0.85,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.only(top: 14, left: 16, right: 16, bottom: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE5E7EB),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  const Icon(Icons.auto_awesome_rounded,
+                      size: 20, color: Color(0xFFF25767)),
+                  const SizedBox(width: 6),
+                  const Text(
+                    '🔥 실시간 인기 움짤 스티커',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF191F28),
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF0F2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '인기순 TOP 100',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFF25767),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '탭하면 채팅방에 바로 전송돼요 · Cloudflare R2 무제한 CDN',
+                style: TextStyle(fontSize: 12, color: Color(0xFF8B95A1)),
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('config')
+                      .doc('curated_stickers')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    List<Map<String, dynamic>> stickers = [];
+                    if (snapshot.hasData && snapshot.data!.exists) {
+                      final data = snapshot.data!.data() as Map<String, dynamic>?;
+                      final rawList = data?['stickers'] as List<dynamic>? ?? [];
+                      stickers = rawList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+                    }
+                    if (stickers.isEmpty) {
+                      return const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFFF25767),
+                          ),
+                        ),
+                      );
+                    }
+                    return GridView.builder(
+                      controller: scrollController,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                        childAspectRatio: 1.0,
+                      ),
+                      itemCount: stickers.length,
+                      itemBuilder: (context, index) {
+                        final s = stickers[index];
+                        final rawUrl = (s['url'] ?? '').toString();
+                        final rank = s['rank'] ?? (index + 1);
+                        final title = (s['title'] ?? '').toString();
+
+                        return BouncyTap(
+                          scaleDown: 0.92,
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _addMessage({
+                              'type': 'sticker',
+                              'imageUrl': rawUrl,
+                              'title': title,
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: appNetImage(rawUrl, fit: BoxFit.contain),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 4,
+                                  left: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.6),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '$rank위',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showAttachmentMenu() {
     if (!_canSend || _readFailed) return;
     showModalBottomSheet(
@@ -1038,6 +1207,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   runSpacing: 20,
                   alignment: WrapAlignment.start,
                   children: [
+                    _buildAttachmentIcon(Icons.sentiment_satisfied_alt_rounded, '인기 움짤',
+                        const Color(0xFFF25767), onTap: () {
+                      Navigator.pop(ctx);
+                      _showStickerPickerBottomSheet();
+                    }),
                     _buildAttachmentIcon(Icons.photo_library_rounded, '사진/앨범',
                         const Color(0xFF10B981),
                         onTap: _sendImageAction),
@@ -1358,6 +1532,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     if (type == 'ai_spot_summary') return _buildAiSpotSummaryCard(data);
     if (type == 'settlement') return const SizedBox.shrink(); // 1/N 정산 카드 삭제
     if (type == 'image') return _buildImageMessage(data);
+    if (type == 'sticker') return _buildStickerMessage(data);
     if (type == 'location') return _buildLocationMessage(data);
 
     if (type == 'schedule')
@@ -1534,6 +1709,46 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 fit: BoxFit.cover,
                 width: 200,
                 height: 200,
+              ),
+            ),
+          ),
+          if (!isMe) const SizedBox(width: 4),
+          if (!isMe)
+            Text(msg['time'] ?? '방금',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStickerMessage(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final rawUrl = (msg['imageUrl'] ?? '').toString();
+    final imageUrl = r2Storage.getPublicViewUrl(rawUrl);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) _buildAvatar(),
+          if (!isMe) const SizedBox(width: 8),
+          if (isMe)
+            Text(msg['time'] ?? '방금',
+                style: TextStyle(fontSize: 10, color: textSecondary)),
+          if (isMe) const SizedBox(width: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              color: const Color(0xFFF8FAFC),
+              padding: const EdgeInsets.all(4),
+              child: appNetImage(
+                imageUrl,
+                fit: BoxFit.contain,
+                width: 140,
+                height: 140,
               ),
             ),
           ),
@@ -2087,6 +2302,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     fillColor: const Color(0xFFFAF7F8),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 11),
+                    suffixIcon: IconButton(
+                      tooltip: '인기 움짤 스티커',
+                      icon: const Icon(
+                        Icons.sentiment_satisfied_alt_rounded,
+                        color: Color(0xFF8B95A1),
+                        size: 24,
+                      ),
+                      onPressed: _sending ? null : _showStickerPickerBottomSheet,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(22),
                       borderSide:

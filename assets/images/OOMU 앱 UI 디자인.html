@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OOMU · 우리 동네 모임 — 앱 UI 디자인</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='26' fill='%23FFF3E4'/%3E%3Ccircle cx='38' cy='48' r='20' fill='%23FF5C39'/%3E%3Ccircle cx='58' cy='48' r='20' fill='%232FA98C'/%3E%3Cpath d='M48 53.5c-3.6-2.3-5.8-4.2-5.8-6.6 0-1.9 1.5-3.4 3.2-3.4 1.1 0 2 .5 2.6 1.3.6-.8 1.5-1.3 2.6-1.3 1.7 0 3.2 1.5 3.2 3.4 0 2.4-2.2 4.3-5.8 6.6z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --font-body: 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+    --color-bg: #FBEFE0;
+    --color-app-bg: #FFF9F2;
+    --color-surface: #FFFFFF;
+    --color-text: #2B2118;
+    --color-text-muted: #7D6F5E;
+    --color-text-faint: #A99A87;
+    --color-primary: #FF5C39;
+    --color-primary-hover: #F04A26;
+    --color-primary-deep: #D83F1E;
+    --color-primary-soft: #FFE7DD;
+    --color-teal: #2FA98C;
+    --color-teal-deep: #1D7A66;
+    --color-mustard: #FFC24B;
+    --color-kakao: #FEE500;
+    --color-google-border: #E8E0D4;
+
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+    --space-12: 48px; --space-16: 64px;
+
+    --radius-btn: 16px;
+    --shadow-card: 0 10px 30px rgba(74, 48, 20, 0.10);
+    --transition: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  html { -webkit-text-size-adjust: none; text-size-adjust: none; }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background:
+      radial-gradient(rgba(255, 92, 57, 0.06) 1.5px, transparent 1.5px) 0 0 / 26px 26px,
+      linear-gradient(165deg, #FDF6EC 0%, #FBEAD6 100%);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-10) var(--space-6) var(--space-16);
+  }
+
+  /* ---------- 데스크톱 헤더 ---------- */
+  .page-head { text-align: center; margin-bottom: var(--space-10); }
+  .page-head .kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.14em;
+    color: var(--color-primary); text-transform: uppercase;
+  }
+  .page-head h1 { font-size: 28px; font-weight: 800; margin-top: var(--space-2); letter-spacing: -0.01em; }
+  .page-head p { font-size: 15px; color: var(--color-text-muted); margin-top: var(--space-2); }
+
+  /* ---------- 폰 프레임 ---------- */
+  .phone {
+    width: 390px; height: 812px;
+    border-radius: 52px;
+    padding: 10px;
+    background: linear-gradient(160deg, #3A332C, #17130F);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+      0 40px 90px rgba(74, 48, 20, 0.28),
+      0 12px 30px rgba(74, 48, 20, 0.18);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::after { /* 다이나믹 아일랜드 */
+    content: '';
+    position: absolute; top: 21px; left: 50%; transform: translateX(-50%);
+    width: 108px; height: 30px; border-radius: 20px; background: #0B0908;
+    z-index: 60; pointer-events: none;
+  }
+  .screen-viewport {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 42px;
+    overflow: hidden;
+    background: var(--color-app-bg);
+    isolation: isolate;
+  }
+
+  .statusbar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px 0;
+    font-size: 15px; font-weight: 700;
+    color: var(--color-text);
+    pointer-events: none;
+  }
+  .statusbar .icons { display: flex; align-items: center; gap: 6px; }
+
+  .home-indicator {
+    position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px;
+    background: rgba(43, 33, 24, 0.28);
+    z-index: 50; pointer-events: none;
+  }
+
+  /* ---------- 화면 공통 ---------- */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 76px var(--space-6) 40px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 420ms ease, visibility 0s 420ms;
+  }
+  .screen.active { opacity: 1; visibility: visible; transition: opacity 420ms ease; }
+
+  /* ---------- 스플래시 ---------- */
+  #splash { align-items: center; justify-content: center; text-align: center; }
+  .logo-mark-lg { width: 148px; height: 148px; animation: pop-in 700ms cubic-bezier(0.22, 1.4, 0.36, 1) both; }
+  .splash-word {
+    font-size: 44px; font-weight: 800; letter-spacing: 0.02em;
+    margin-top: var(--space-6);
+    animation: rise-in 600ms 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .splash-word .oo { color: var(--color-primary); }
+  .splash-tag {
+    font-size: 16px; font-weight: 500; color: var(--color-text-muted);
+    margin-top: var(--space-2); letter-spacing: 0.02em;
+    animation: rise-in 600ms 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .splash-dots { margin-top: 40px; display: flex; gap: 8px; }
+  .splash-dots span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(43, 33, 24, 0.38);
+    animation: blink 1s infinite;
+  }
+  .splash-dots span:nth-child(2) { animation-delay: 200ms; }
+  .splash-dots span:nth-child(3) { animation-delay: 400ms; }
+
+  @keyframes pop-in { from { transform: scale(0.4); opacity: 0; } }
+  @keyframes rise-in { from { transform: translateY(16px); opacity: 0; } }
+  @keyframes blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+  /* ---------- 온보딩 ---------- */
+  .ob-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+  .ob-top .logo-mark { width: 40px; height: 40px; }
+  .skip-btn {
+    font-size: 15px; font-weight: 600; color: var(--color-text-muted);
+    padding: var(--space-1) var(--space-2);
+  }
+  .skip-btn:hover { color: var(--color-text); }
+
+  .slides-wrap { flex: 1; display: flex; overflow: hidden; }
+  .slides {
+    display: flex; width: 100%;
+    transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+    touch-action: pan-y;
+  }
+  .slide { flex: 0 0 100%; display: flex; flex-direction: column; padding-top: var(--space-4); }
+  .illust {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    min-height: 0;
+  }
+  .illust svg { width: min(300px, 78%); height: auto; }
+  .slide.active .illust svg { animation: rise-in 500ms 120ms both; }
+  .slide.active .ob-copy { animation: rise-in 500ms 200ms both; }
+  .ob-copy { text-align: center; padding: 0 var(--space-2); }
+  .ob-copy h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.3; }
+  .ob-copy h2 em { font-style: normal; color: var(--color-primary); }
+  .ob-copy p { font-size: 16px; color: var(--color-text-muted); margin-top: var(--space-3); line-height: 1.6; }
+
+  .dots { display: flex; justify-content: center; gap: 8px; margin: var(--space-8) 0; }
+  .dots button {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: #E4D5C2;
+    transition: all 260ms ease;
+    padding: 0;
+  }
+  .dots button.on { width: 26px; background: var(--color-primary); }
+
+  .btn-primary {
+    width: 100%; height: 58px;
+    border-radius: var(--radius-btn);
+    background: var(--color-primary);
+    color: #fff; font-size: 17px; font-weight: 700;
+    box-shadow: 0 8px 20px rgba(255, 92, 57, 0.32);
+    transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+  }
+  .btn-primary:hover { background: var(--color-primary-hover); box-shadow: 0 10px 26px rgba(255, 92, 57, 0.4); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  /* ---------- 로그인 ---------- */
+  #login { justify-content: flex-end; }
+  .login-hero { text-align: center; margin-bottom: var(--space-12); }
+  .login-hero .logo-mark-lg { width: 96px; height: 96px; margin: 0 auto; }
+  .login-hero .word { font-size: 26px; font-weight: 800; margin-top: var(--space-4); }
+  .login-hero .word .oo { color: var(--color-primary); }
+  .login-hero h2 { font-size: 23px; font-weight: 800; line-height: 1.35; margin-top: var(--space-6); letter-spacing: -0.01em; }
+  .login-hero p { font-size: 15px; color: var(--color-text-muted); margin-top: var(--space-2); }
+
+  #login.active .stagger > * { animation: rise-in 480ms both; }
+  #login.active .stagger > *:nth-child(1) { animation-delay: 60ms; }
+  #login.active .stagger > *:nth-child(2) { animation-delay: 130ms; }
+  #login.active .stagger > *:nth-child(3) { animation-delay: 200ms; }
+  #login.active .stagger > *:nth-child(4) { animation-delay: 270ms; }
+
+  .sns-btn {
+    width: 100%; height: 58px;
+    border-radius: var(--radius-btn);
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  }
+  .sns-btn:active { transform: scale(0.97); }
+  .sns-btn .icon { display: flex; align-items: center; }
+
+  .btn-kakao { background: var(--color-kakao); color: #191919; }
+  .btn-kakao:hover { box-shadow: 0 8px 20px rgba(222, 186, 22, 0.35); }
+
+  .btn-google { background: #fff; color: #3C3C3C; border: 1px solid var(--color-google-border); }
+  .btn-google:hover { box-shadow: var(--shadow-card); }
+
+  .divider {
+    display: flex; align-items: center; gap: var(--space-4);
+    margin: var(--space-5) 0;
+    font-size: 13px; color: #8A7B68;
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #EFE4D4; }
+
+  .guest-btn {
+    width: 100%; height: 54px; border-radius: var(--radius-btn);
+    border: 1.5px solid #EADBC8;
+    font-size: 15px; font-weight: 600; color: var(--color-text-muted);
+    transition: all var(--transition);
+  }
+  .guest-btn:hover { border-color: #D8C3A6; color: var(--color-text); }
+
+  .terms { margin-top: var(--space-6); text-align: center; font-size: 12px; color: #8A7B68; line-height: 1.6; }
+  .terms a { color: var(--color-text-muted); font-weight: 600; text-decoration: none; border-bottom: 1px solid #DCCDB8; }
+  .terms a:hover { color: var(--color-text); }
+
+  /* ---------- 하단 화면 선택 칩 ---------- */
+  .stage-chips {
+    margin-top: var(--space-8);
+    display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center;
+  }
+  .stage-chips button {
+    font-size: 14px; font-weight: 600;
+    padding: 10px 18px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--color-text-muted);
+    border: 1px solid rgba(210, 180, 130, 0.45);
+    backdrop-filter: blur(6px);
+    transition: all var(--transition);
+  }
+  .stage-chips button:hover { color: var(--color-text); transform: translateY(-1px); }
+  .stage-chips button.on {
+    background: var(--color-text); color: #FFF6E9; border-color: var(--color-text);
+  }
+
+  /* ---------- 짧은 화면: 컴팩트 ---------- */
+  @media (min-width: 541px) and (max-height: 1040px) {
+    body { padding: 20px var(--space-6) 24px; }
+    .page-head { margin-bottom: 16px; }
+    .page-head h1 { font-size: 22px; }
+    .page-head p { font-size: 14px; }
+    .stage-chips { margin-top: 16px; }
+    .phone { zoom: 0.86; }
+  }
+
+  /* ---------- 모바일: 프레임 제거 ---------- */
+  @media (max-width: 540px) {
+    body { padding: 0; }
+    .page-head, .stage-chips { display: none; }
+    .phone {
+      width: 100%; height: 100dvh;
+      border-radius: 0; padding: 0;
+      background: var(--color-app-bg);
+      box-shadow: none;
+    }
+    .phone::after { display: none; }
+    .screen-viewport { border-radius: 0; }
+    .home-indicator { background: rgba(43, 33, 24, 0.2); }
+    .screen { padding-top: 64px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="page-head">
+    <div class="kicker">OOMU · App UI Design</div>
+    <h1>우리 동네 모임, OOMU</h1>
+    <p>앱 로고 · 인트로 온보딩 · SNS 로그인 화면 디자인</p>
+  </header>
+
+  <div class="phone">
+    <div class="screen-viewport">
+
+      <!-- 상태바 -->
+      <div class="statusbar" aria-hidden="true">
+        <span>9:41</span>
+        <span class="icons">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" width="3" height="12" rx="1"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M1.5 4.6a9.4 9.4 0 0 1 13 0"/><path d="M4.1 7.3a5.8 5.8 0 0 1 7.8 0"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3.2" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="13" height="8" rx="2" fill="currentColor"/><path d="M23 4.2v3.6a1.9 1.9 0 0 0 0-3.6z" fill="currentColor" opacity="0.5"/></svg>
+        </span>
+      </div>
+
+      <div class="home-indicator" aria-hidden="true"></div>
+
+      <!-- ===== 스크린 1: 스플래시 ===== -->
+      <section class="screen active" id="splash" aria-label="스플래시 화면">
+        <svg class="logo-mark-lg" viewBox="0 0 96 96" role="img" aria-label="OOMU 로고">
+          <defs>
+            <clipPath id="clipL"><circle cx="38" cy="48" r="20"/></clipPath>
+            <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFF6EC"/><stop offset="1" stop-color="#FFE8D5"/>
+            </linearGradient>
+          </defs>
+          <rect width="96" height="96" rx="27" fill="url(#bgGrad)"/>
+          <circle cx="38" cy="48" r="20" fill="#FF5C39"/>
+          <circle cx="58" cy="48" r="20" fill="#2FA98C"/>
+          <g clip-path="url(#clipL)"><circle cx="58" cy="48" r="20" fill="#1D7A66" opacity="0.72"/></g>
+          <path d="M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z" fill="#fff"/>
+        </svg>
+        <div class="splash-word"><span class="oo">OO</span>MU</div>
+        <div class="splash-tag">우리 동네 모임</div>
+        <div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      </section>
+
+      <!-- ===== 스크린 2: 온보딩 ===== -->
+      <section class="screen" id="onboarding" aria-label="앱 소개">
+        <div class="ob-top">
+          <svg class="logo-mark" viewBox="0 0 96 96" role="img" aria-label="OOMU 로고">
+            <rect width="96" height="96" rx="27" fill="#FFF3E4"/>
+            <circle cx="38" cy="48" r="20" fill="#FF5C39"/>
+            <circle cx="58" cy="48" r="20" fill="#2FA98C"/>
+            <g clip-path="url(#clipL)"><circle cx="58" cy="48" r="20" fill="#1D7A66" opacity="0.72"/></g>
+            <path d="M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z" fill="#fff"/>
+          </svg>
+          <button class="skip-btn" type="button" data-action="skip">건너뛰기</button>
+        </div>
+
+        <div class="slides-wrap">
+          <div class="slides" id="slides">
+
+            <!-- 슬라이드 1: 발견 -->
+            <div class="slide active" aria-label="동네 장소 발견">
+              <div class="illust">
+                <svg viewBox="0 0 300 230" fill="none" aria-hidden="true">
+                  <circle cx="60" cy="40" r="4" fill="#FFD9B8"/>
+                  <circle cx="250" cy="30" r="5" fill="#FFD9B8"/>
+                  <circle cx="270" cy="180" r="4" fill="#FFD9B8"/>
+                  <circle cx="30" cy="150" r="4" fill="#FFD9B8"/>
+                  <path d="M22 96l-8 18h16l-8-18z" fill="#FFC24B"/>
+                  <path d="M268 100l-6 14h12l-6-14z" fill="#FFC24B"/>
+                  <!-- 지도 카드 -->
+                  <rect x="58" y="60" width="184" height="140" rx="18" fill="#FFF3E4"/>
+                  <path d="M58 132h184" stroke="#F3DFC4" stroke-width="2"/>
+                  <path d="M120 60v140" stroke="#F3DFC4" stroke-width="2"/>
+                  <path d="M180 60v140" stroke="#F3DFC4" stroke-width="2"/>
+                  <!-- 집 1 -->
+                  <rect x="74" y="146" width="34" height="26" rx="6" fill="#FFD9A8"/>
+                  <path d="M71 148l20-14 20 14" stroke="#E89A4F" stroke-width="4" stroke-linecap="round"/>
+                  <!-- 집 2 -->
+                  <rect x="196" y="142" width="30" height="30" rx="6" fill="#CDE8DC"/>
+                  <path d="M193 144l15-12 15 12" stroke="#2FA98C" stroke-width="4" stroke-linecap="round"/>
+                  <!-- 핀 -->
+                  <g>
+                    <ellipse cx="150" cy="176" rx="26" ry="7" fill="#2B2118" opacity="0.08"/>
+                    <path d="M150 64c-19.9 0-36 16.1-36 36 0 25.5 36 60 36 60s36-34.5 36-60c0-19.9-16.1-36-36-36z" fill="#2FA98C"/>
+                    <path d="M150 108c-7.6-4.8-12.2-8.8-12.2-13.8 0-4 3.2-7.2 6.8-7.2 2.2 0 4.2 1 5.4 2.8 1.2-1.8 3.2-2.8 5.4-2.8 3.6 0 6.8 3.2 6.8 7.2 0 5-4.6 9-12.2 13.8z" fill="#fff"/>
+                  </g>
+                  <!-- 반짝 -->
+                  <path d="M214 70l3.5 8 8 3.5-8 3.5-3.5 8-3.5-8-8-3.5 8-3.5 3.5-8z" fill="#FFC24B"/>
+                </svg>
+              </div>
+              <div class="ob-copy">
+                <h2>동네의 <em>숨은 장소</em>를 발견</h2>
+                <p>우리 동네 카페부터 공원까지<br>가볼 곳을 지도에서 한눈에 알려줘요</p>
+              </div>
+            </div>
+
+            <!-- 슬라이드 2: 취향 -->
+            <div class="slide" aria-label="취향이 맞는 이웃과 연결">
+              <div class="illust">
+                <svg viewBox="0 0 300 230" fill="none" aria-hidden="true">
+                  <!-- 채팅 버블 -->
+                  <g>
+                    <rect x="30" y="24" width="86" height="34" rx="14" fill="#FFE7DD"/>
+                    <path d="M46 56l-6 10 14-10" fill="#FFE7DD"/>
+                  </g>
+                  <g>
+                    <rect x="186" y="14" width="84" height="34" rx="14" fill="#D9EEE2"/>
+                    <path d="M254 46l6 10-14-10" fill="#D9EEE2"/>
+                  </g>
+                  <!-- 두 사람(로고 모티프) -->
+                  <g>
+                    <circle cx="118" cy="140" r="44" fill="#FF5C39"/>
+                    <circle cx="182" cy="140" r="44" fill="#2FA98C"/>
+                    <defs><clipPath id="pL"><circle cx="118" cy="140" r="44"/></clipPath></defs>
+                    <g clip-path="url(#pL)"><circle cx="182" cy="140" r="44" fill="#1D7A66" opacity="0.72"/></g>
+                    <!-- 얼굴 왼쪽 -->
+                    <circle cx="102" cy="132" r="5" fill="#fff"/>
+                    <circle cx="126" cy="132" r="5" fill="#fff"/>
+                    <path d="M104 148c3 4 16 4 19 0" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>
+                    <!-- 얼굴 오른쪽 -->
+                    <circle cx="176" cy="132" r="5" fill="#fff"/>
+                    <circle cx="200" cy="132" r="5" fill="#fff"/>
+                    <path d="M178 148c3 4 16 4 19 0" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>
+                    <!-- 교차 하트 -->
+                    <path d="M150 152c-8-5-12.8-9.3-12.8-14.6 0-4.2 3.4-7.6 7.2-7.6 2.4 0 4.4 1.1 5.6 3 1.2-1.9 3.2-3 5.6-3 3.8 0 7.2 3.4 7.2 7.6 0 5.3-4.8 9.6-12.8 14.6z" fill="#fff"/>
+                  </g>
+                  <ellipse cx="150" cy="196" rx="64" ry="8" fill="#2B2118" opacity="0.07"/>
+                  <!-- 반짝 -->
+                  <path d="M62 92l3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7z" fill="#FFC24B"/>
+                  <path d="M244 96l2.6 6 6 2.6-6 2.6-2.6 6-2.6-6-6-2.6 6-2.6 2.6-6z" fill="#FFC24B"/>
+                </svg>
+              </div>
+              <div class="ob-copy">
+                <h2><em>취향이 맞는</em> 이웃과 연결</h2>
+                <p>관심사가 비슷한 이웃을 추천해 주고<br>자연스럽게 대화를 시작할 수 있어요</p>
+              </div>
+            </div>
+
+            <!-- 슬라이드 3: 모임 -->
+            <div class="slide" aria-label="모임 만들기">
+              <div class="illust">
+                <svg viewBox="0 0 300 230" fill="none" aria-hidden="true">
+                  <!-- 달력 카드 -->
+                  <rect x="52" y="30" width="196" height="152" rx="20" fill="#fff"/>
+                  <rect x="52" y="30" width="196" height="44" rx="20" fill="#FF5C39"/>
+                  <rect x="52" y="54" width="196" height="20" fill="#FF5C39"/>
+                  <text x="150" y="59" text-anchor="middle" font-family="Pretendard Variable, sans-serif" font-size="17" font-weight="700" fill="#fff">이번 주말 모임</text>
+                  <circle cx="74" cy="74" r="10" fill="#FFE7DD"/>
+                  <circle cx="226" cy="74" r="10" fill="#FFE7DD"/>
+                  <!-- 날짜 칩 -->
+                  <g font-family="Pretendard Variable, sans-serif" font-weight="700">
+                    <rect x="76" y="92" width="34" height="46" rx="10" fill="#FFF3E4"/>
+                    <text x="93" y="112" text-anchor="middle" font-size="12" fill="#9A8C7C">금</text>
+                    <text x="93" y="130" text-anchor="middle" font-size="15" fill="#2B2118">11</text>
+
+                    <rect x="124" y="88" width="34" height="50" rx="10" fill="#2FA98C"/>
+                    <text x="141" y="108" text-anchor="middle" font-size="12" fill="#D9EEE2">토</text>
+                    <text x="141" y="126" text-anchor="middle" font-size="15" fill="#fff">12</text>
+
+                    <rect x="172" y="92" width="34" height="46" rx="10" fill="#FFF3E4"/>
+                    <text x="189" y="112" text-anchor="middle" font-size="12" fill="#9A8C7C">일</text>
+                    <text x="189" y="130" text-anchor="middle" font-size="15" fill="#2B2118">13</text>
+                    <path d="M141 134c-3.4-2.2-5.5-4.2-5.5-6.6 0-1.9 1.5-3.4 3.1-3.4 1 0 1.9.5 2.4 1.3.5-.8 1.4-1.3 2.4-1.3 1.6 0 3.1 1.5 3.1 3.4 0 2.4-2.1 4.4-5.5 6.6z" fill="#fff"/>
+                  </g>
+                  <!-- 멤버 -->
+                  <g>
+                    <circle cx="112" cy="204" r="14" fill="#FFC24B"/>
+                    <circle cx="138" cy="204" r="14" fill="#FF5C39"/>
+                    <circle cx="164" cy="204" r="14" fill="#2FA98C"/>
+                    <circle cx="190" cy="204" r="14" fill="#FFE7DD"/>
+                    <path d="M214 196a14 14 0 1 0 0 16v-4h-4" stroke="#9A8C7C" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+                    <circle cx="112" cy="203" r="4" fill="#fff"/>
+                    <circle cx="138" cy="203" r="4" fill="#fff"/>
+                    <circle cx="164" cy="203" r="4" fill="#fff"/>
+                    <circle cx="190" cy="203" r="4" fill="#fff"/>
+                  </g>
+                  <text x="76" y="230" font-family="Pretendard Variable, sans-serif" font-size="13" font-weight="600" fill="#9A8C7C">7명이 참여 중</text>
+                </svg>
+              </div>
+              <div class="ob-copy">
+                <h2>함께하는 <em>모임</em>을 만들어요</h2>
+                <p>동네 산책, 카페 투어, 독서 모임까지<br>원하는 모임을 직접 만들고 참여해요</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="dots" id="dots" role="tablist" aria-label="온보딩 페이지">
+          <button class="on" aria-label="1번째" aria-selected="true"></button>
+          <button aria-label="2번째" aria-selected="false"></button>
+          <button aria-label="3번째" aria-selected="false"></button>
+        </div>
+        <button class="btn-primary" type="button" id="nextBtn" data-action="next">다음</button>
+      </section>
+
+      <!-- ===== 스크린 3: 로그인 ===== -->
+      <section class="screen" id="login" aria-label="로그인">
+        <div class="login-hero">
+          <svg class="logo-mark-lg" viewBox="0 0 96 96" role="img" aria-label="OOMU 로고">
+            <rect width="96" height="96" rx="27" fill="#FFF3E4"/>
+            <circle cx="38" cy="48" r="20" fill="#FF5C39"/>
+            <circle cx="58" cy="48" r="20" fill="#2FA98C"/>
+            <g clip-path="url(#clipL)"><circle cx="58" cy="48" r="20" fill="#1D7A66" opacity="0.72"/></g>
+            <path d="M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z" fill="#fff"/>
+          </svg>
+          <div class="word"><span class="oo">OO</span>MU</div>
+          <h2>우리 동네에서<br>새로운 이웃을 만나요</h2>
+          <p>3초 만에 간편하게 로그인하고 동네 모임을 시작하세요</p>
+        </div>
+
+        <div class="stagger" style="display:flex; flex-direction:column;">
+          <button class="sns-btn btn-kakao" type="button" data-action="kakao">
+            <span class="icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#191919" d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.874 6.615 4.813 8.652-.311 1.468-1.131 3.128-2.144 4.329-.488.578-.014 1.481.737 1.264 2.644-.763 5.16-2.187 6.943-3.388.53.086 1.077.131 1.651.131 6.627 0 12-4.974 12-11.188S18.627 0 12 0z"/></svg>
+            </span>
+            카카오톡으로 시작하기
+          </button>
+
+          <button class="sns-btn btn-google" type="button" data-action="google" style="margin-top:12px;">
+            <span class="icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.54 5.54 0 0 1-2.4 3.64v3.02h3.88c2.26-2.09 3.54-5.17 3.54-8.9z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.95-2.91l-3.88-3.02c-1.08.72-2.46 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.27a7.19 7.19 0 0 1 0-4.54V6.64H1.29a12 12 0 0 0 0 10.72l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.58 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.7 0 3.99 2.47 1.29 6.64l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+            </span>
+            Google로 시작하기
+          </button>
+
+          <div class="divider">또는</div>
+
+          <button class="guest-btn" type="button" data-action="guest">일단 둘러볼래요</button>
+
+          <p class="terms">
+            가입하면 OOMU <a href="#">이용약관</a>과<br>
+            <a href="#">개인정보 처리방침</a>에 동의하게 됩니다
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="stage-chips" role="tablist" aria-label="화면 선택">
+    <button type="button" class="on" data-goto="splash">스플래시</button>
+    <button type="button" data-goto="onboarding">인트로</button>
+    <button type="button" data-goto="login">로그인</button>
+  </div>
+
+<script>
+(function () {
+  var screens = {
+    splash: document.getElementById('splash'),
+    onboarding: document.getElementById('onboarding'),
+    login: document.getElementById('login')
+  };
+  var slides = document.getElementById('slides');
+  var slideEls = slides.querySelectorAll('.slide');
+  var dots = document.querySelectorAll('#dots button');
+  var nextBtn = document.getElementById('nextBtn');
+  var chips = document.querySelectorAll('.stage-chips button');
+  var current = 'splash';
+  var slideIdx = 0;
+  var splashTimer = null;
+
+  function showScreen(name) {
+    current = name;
+    Object.keys(screens).forEach(function (k) {
+      screens[k].classList.toggle('active', k === name);
+    });
+    chips.forEach(function (c) {
+      c.classList.toggle('on', c.dataset.goto === name);
+    });
+    if (name === 'splash') {
+      clearTimeout(splashTimer);
+      splashTimer = setTimeout(function () { showScreen('onboarding'); }, 2400);
+    }
+  }
+
+  function goToSlide(idx) {
+    slideIdx = Math.max(0, Math.min(slideEls.length - 1, idx));
+    slides.style.transform = 'translateX(' + (-slideIdx * 100) + '%)';
+    slideEls.forEach(function (s, i) { s.classList.toggle('active', i === slideIdx); });
+    dots.forEach(function (d, i) {
+      d.classList.toggle('on', i === slideIdx);
+      d.setAttribute('aria-selected', i === slideIdx ? 'true' : 'false');
+    });
+    nextBtn.textContent = slideIdx === slideEls.length - 1 ? '시작하기' : '다음';
+  }
+
+  nextBtn.addEventListener('click', function () {
+    if (slideIdx === slideEls.length - 1) showScreen('login');
+    else goToSlide(slideIdx + 1);
+  });
+
+  dots.forEach(function (d, i) {
+    d.addEventListener('click', function () { goToSlide(i); });
+  });
+
+  document.querySelectorAll('[data-action]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var a = btn.dataset.action;
+      if (a === 'skip' || a === 'guest') showScreen('login');
+      if (a === 'kakao' || a === 'google') showScreen('splash'); // 데모: 다시 스플래시로
+    });
+  });
+
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { showScreen(c.dataset.goto); });
+  });
+
+  /* 스와이프 */
+  var startX = null, dragging = false;
+  slides.addEventListener('pointerdown', function (e) {
+    startX = e.clientX; dragging = true;
+    slides.style.transition = 'none';
+  });
+  slides.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - startX;
+    var w = slides.clientWidth;
+    var x = -slideIdx * w + dx;
+    var min = -(slideEls.length - 1) * w, max = 0;
+    slides.style.transform = 'translateX(' + Math.max(min, Math.min(max, x)) + 'px)';
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    slides.style.transition = '';
+    var dx = (e.clientX - startX) || 0;
+    var w = slides.clientWidth;
+    if (Math.abs(dx) > w * 0.18) goToSlide(slideIdx + (dx < 0 ? 1 : -1));
+    else goToSlide(slideIdx);
+  }
+  slides.addEventListener('pointerup', endDrag);
+  slides.addEventListener('pointercancel', endDrag);
+
+  /* 데모 시작: 스플래시 -> 인트로 */
+  splashTimer = setTimeout(function () { showScreen('onboarding'); }, 2400);
+})();
+</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,26 +27,37 @@ class ExploreMapScreen extends StatefulWidget {
 }
 
 class _ExploreMapScreenState extends State<ExploreMapScreen> {
-  // 기본 좌표: 홍대/연남권 (기본 핫스팟)
-  double _currentLat = 37.5568;
-  double _currentLng = 126.9238;
-  String _currentSpotName = '마포구 서교동 (홍대입구역)';
+  // 기본 좌표: 여수 또는 사용자 동네 기반 초기화
+  double _currentLat = 34.7677;
+  double _currentLng = 127.6534;
+  String _currentSpotName = '여수시 화장동 (성산공원)';
 
   String _selectedRadius = '1km';
   String _selectedCategory = '전체';
   final TextEditingController _searchController = TextEditingController();
 
   bool _isLoading = false;
-  Map<String, dynamic>? _selectedMeetup;
 
-  // 주요 핫스팟 프리셋 (원터치 이동)
-  final List<Map<String, dynamic>> _hotspots = const [
-    {'name': '홍대/연남', 'lat': 37.5568, 'lng': 126.9238, 'dong': '마포구 서교동'},
-    {'name': '성수/서울숲', 'lat': 37.5446, 'lng': 127.0440, 'dong': '성동구 성수동'},
-    {'name': '강남/신사', 'lat': 37.4981, 'lng': 127.0276, 'dong': '강남구 역삼동'},
-    {'name': '을지로/종로', 'lat': 37.5663, 'lng': 126.9921, 'dong': '중구 을지로'},
-    {'name': '여의도/한강', 'lat': 37.5256, 'lng': 126.9242, 'dong': '영등포구 여의도동'},
-  ];
+  // 주요 핫스팟 프리셋 (원터치 이동 - 사용자 동네 맥락 연동)
+  List<Map<String, dynamic>> get _currentHotspots {
+    final loc = globalData.userLocation.value;
+    if (loc.contains('여수') || loc.contains('화장동') || loc.contains('전남')) {
+      return const [
+        {'name': '여수 화장동', 'lat': 34.7677, 'lng': 127.6534, 'dong': '전남 여수시 화장동'},
+        {'name': '여수 학동', 'lat': 34.7615, 'lng': 127.6580, 'dong': '전남 여수시 학동 (선소)'},
+        {'name': '여수 웅천', 'lat': 34.7430, 'lng': 127.6740, 'dong': '전남 여수시 웅천동'},
+        {'name': '여수 해양공원', 'lat': 34.7390, 'lng': 127.7410, 'dong': '전남 여수시 중앙동'},
+        {'name': '홍대/연남', 'lat': 37.5568, 'lng': 126.9238, 'dong': '마포구 서교동'},
+      ];
+    }
+    return const [
+      {'name': '홍대/연남', 'lat': 37.5568, 'lng': 126.9238, 'dong': '마포구 서교동'},
+      {'name': '성수/서울숲', 'lat': 37.5446, 'lng': 127.0440, 'dong': '성동구 성수동'},
+      {'name': '강남/신사', 'lat': 37.4981, 'lng': 127.0276, 'dong': '강남구 역삼동'},
+      {'name': '을지로/종로', 'lat': 37.5663, 'lng': 126.9921, 'dong': '중구 을지로'},
+      {'name': '여수 화장동', 'lat': 34.7677, 'lng': 127.6534, 'dong': '전남 여수시 화장동'},
+    ];
+  }
 
   // 카테고리 필터
   final List<String> _categories = const [
@@ -168,8 +180,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'id': 'exp_yeosu_01',
       'title': '여수 학동 선소상가 찐맛집 털기 & 2:2 캐주얼 소셜 다이닝 🥘',
       'location': '전남 여수시 학동 선소상가 맛집골목',
-      'lat': 35.1540,
-      'lng': 127.6530,
+      'lat': 34.7615,
+      'lng': 127.6580,
       'distance': '도보 120m',
       'category': '🍽️ 맛집 탐방',
       'members': '2/4',
@@ -186,8 +198,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'id': 'exp_yeosu_02',
       'title': '불금엔 화장동 무선상가 코노 & 시원한 하이볼 한잔 🎤',
       'location': '전남 여수시 화장동 무선지구 상가',
-      'lat': 35.1610,
-      'lng': 127.6580,
+      'lat': 34.7677,
+      'lng': 127.6534,
       'distance': '도보 200m',
       'category': '⚡ 오늘 번개',
       'members': '2/4',
@@ -203,8 +215,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'id': 'exp_yeosu_03',
       'title': '여수 웅천친수공원 바다 캔맥주 소셜 피크닉 & 수다 🍺',
       'location': '전남 여수시 웅천동 해변문화공원',
-      'lat': 35.1480,
-      'lng': 127.6620,
+      'lat': 34.7430,
+      'lng': 127.6740,
       'distance': '도보 350m',
       'category': '🍷 와인/펍',
       'members': '3/4',
@@ -220,8 +232,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'id': 'exp_yeosu_04',
       'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
       'location': '전남 여수시 화장동 성산공원 수변무대',
-      'lat': 35.1630,
-      'lng': 127.6540,
+      'lat': 34.7677,
+      'lng': 127.6534,
       'distance': '도보 400m',
       'category': '🏃 러닝/산책',
       'members': '2/5',
@@ -237,8 +249,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'id': 'exp_yeosu_05',
       'title': '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
       'location': '전남 여수시 화장동 선소상가 카페거리',
-      'lat': 35.1590,
-      'lng': 127.6560,
+      'lat': 34.7660,
+      'lng': 127.6545,
       'distance': '도보 280m',
       'category': '☕ 카페/디저트',
       'members': '2/3',
@@ -263,10 +275,14 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       }
     } else {
       final loc = globalData.userLocation.value;
-      if (loc.contains('여수') || loc.contains('화장동')) {
-        _currentLat = 35.1610;
-        _currentLng = 127.6580;
-        _currentSpotName = '여수시 화장동';
+      if (loc.contains('여수') || loc.contains('화장동') || loc.contains('전남')) {
+        _currentLat = 34.7677;
+        _currentLng = 127.6534;
+        _currentSpotName = '여수시 화장동 (성산공원)';
+      } else {
+        _currentLat = 37.5568;
+        _currentLng = 126.9238;
+        _currentSpotName = '마포구 서교동 (홍대입구역)';
       }
     }
   }
@@ -284,7 +300,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       _currentLat = lat;
       _currentLng = lng;
       _currentSpotName = name;
-      _selectedMeetup = null;
     });
   }
 
@@ -302,7 +317,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('📍 \'${first.name}\' 카카오 지도로 이동했습니다.'),
-              backgroundColor: const Color(0xFFFF5E36),
+              backgroundColor: const Color(0xFFF25767),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -330,14 +345,22 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
     try {
-      final text = await KakaoMapService.getDistanceTextFromCurrent(
-          _currentLat, _currentLng);
-      // 서울 홍대 기준 안심 위치 반영
-      await _moveToLocation(37.5568, 126.9238, '내 GPS 현재 위치 (마포구 서교동)');
+      final loc = globalData.userLocation.value;
+      double targetLat = 34.7677;
+      double targetLng = 127.6534;
+      String targetName = '여수시 화장동 (성산공원)';
+
+      if (!loc.contains('여수') && !loc.contains('화장동') && !loc.contains('전남') && loc.isNotEmpty) {
+        targetLat = 37.5568;
+        targetLng = 126.9238;
+        targetName = '마포구 서교동 (홍대입구역)';
+      }
+
+      await _moveToLocation(targetLat, targetLng, '내 GPS 현재 위치 ($targetName)');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('🎯 $text (카카오 정밀 GPS 동기화 완료)'),
+            content: Text('🎯 $targetName (동네 위치 정밀 동기화 완료)'),
             backgroundColor: const Color(0xFF10B981),
             duration: const Duration(seconds: 2),
           ),
@@ -348,10 +371,76 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     }
   }
 
-  // 현재 필터에 따른 모임 목록 필터링
+  // 두 위경도 좌표 간 거리 계산 (Haversine 공식, km 단위)
+  double _calculateDistanceKm(double lat1, double lon1, double lat2, double lon2) {
+    const p = 0.017453292519943295; // Math.PI / 180
+    final a = 0.5 - math.cos((lat2 - lat1) * p) / 2 +
+        math.cos(lat1 * p) * math.cos(lat2 * p) *
+        (1 - math.cos((lon2 - lon1) * p)) / 2;
+    return 12742 * math.asin(math.sqrt(a)); // 2 * R, R = 6371 km
+  }
+
+  // 참여 인원 문자열 포맷팅 (UID 배열 노출 방지)
+  String _formatMemberCount(dynamic members, [dynamic maxMembers]) {
+    final max = maxMembers ?? 4;
+    if (members is List) {
+      return '${members.length}/$max명 참여';
+    } else if (members is int) {
+      return '$members/$max명 참여';
+    } else if (members is String) {
+      if (members.contains('/')) return '$members명 참여';
+      final parsed = int.tryParse(members);
+      if (parsed != null) return '$parsed/$max명 참여';
+      return '$members명 참여';
+    }
+    return '2/$max명 참여';
+  }
+
+  // 현재 필터 및 반경에 따른 모임 목록 필터링
   List<Map<String, dynamic>> _getFilteredMeetups(
       List<Map<String, dynamic>> rawList) {
-    return rawList.where((m) {
+    // 1. 거리 계산
+    final listWithDistance = rawList.map((m) {
+      final copy = Map<String, dynamic>.from(m);
+      final lat = (copy['lat'] as num?)?.toDouble();
+      final lng = (copy['lng'] as num?)?.toDouble();
+      if (lat != null && lng != null) {
+        final dist = _calculateDistanceKm(_currentLat, _currentLng, lat, lng);
+        copy['_distanceKm'] = dist;
+        copy['distance'] = dist < 1.0
+            ? '도보 ${(dist * 1000).toInt()}m'
+            : '${dist.toStringAsFixed(1)}km';
+      } else {
+        final locStr = (copy['location'] ?? '').toString();
+        if (_currentSpotName.contains('여수') && locStr.contains('여수')) {
+          copy['_distanceKm'] = 0.4;
+          copy['distance'] = '도보 400m';
+        } else if (!_currentSpotName.contains('여수') && !locStr.contains('여수')) {
+          copy['_distanceKm'] = 0.6;
+          copy['distance'] = '도보 600m';
+        } else {
+          copy['_distanceKm'] = 310.0;
+          copy['distance'] = '310km';
+        }
+      }
+      return copy;
+    }).toList();
+
+    // 2. 반경 기준 설정
+    double maxRadiusKm = double.infinity;
+    if (_selectedRadius == '1km') {
+      maxRadiusKm = 1.8; // 반경 1km 기준 (오차 고려 1.8km)
+    } else if (_selectedRadius == '3km') {
+      maxRadiusKm = 3.5;
+    } else if (_selectedRadius == '5km') {
+      maxRadiusKm = 5.5;
+    }
+
+    final filtered = listWithDistance.where((m) {
+      // 반경 필터 (다른 도시 모임 배제)
+      final distKm = (m['_distanceKm'] as num?)?.toDouble() ?? 0.0;
+      if (distKm > maxRadiusKm) return false;
+
       // 카테고리 필터
       if (_selectedCategory != '전체') {
         final cat = (m['category'] ?? m['mainCategory'] ?? '').toString();
@@ -375,11 +464,20 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
 
       return true;
     }).toList();
+
+    // 3. 거리순 정렬
+    filtered.sort((a, b) {
+      final da = (a['_distanceKm'] as num?)?.toDouble() ?? 999.0;
+      final db = (b['_distanceKm'] as num?)?.toDouble() ?? 999.0;
+      return da.compareTo(db);
+    });
+
+    return filtered;
   }
 
   @override
   Widget build(BuildContext context) {
-    const coralAccent = Color(0xFFFF5E36);
+    const coralAccent = Color(0xFFF25767);
     const textPrimary = Color(0xFF0F172A);
     const textSecondary = Color(0xFF64748B);
 
@@ -395,7 +493,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         titleSpacing: 0,
         title: const Text(
           '동네 지도 탐색 (카카오맵)',
-          style: const TextStyle(
+          style: TextStyle(
             color: textPrimary,
             fontWeight: FontWeight.w800,
             fontSize: 17,
@@ -541,9 +639,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                   height: 34,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _hotspots.length,
+                    itemCount: _currentHotspots.length,
                     itemBuilder: (context, index) {
-                      final spot = _hotspots[index];
+                      final spot = _currentHotspots[index];
                       final isSelected =
                           _currentSpotName.contains(spot['name'] as String);
                       return GestureDetector(
@@ -907,9 +1005,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
 
   // 100점 풀-피니시 모임 카드 위젯 (당근/문토/29CM 표준 규격)
   Widget _buildMeetupCard(BuildContext context, Map<String, dynamic> m) {
-    const coralAccent = Color(0xFFFF5E36);
     const textPrimary = Color(0xFF0F172A);
-    const textSecondary = Color(0xFF64748B);
     final isLightning = m['isLightning'] == true;
 
     void openDetail() {
@@ -987,7 +1083,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2.5),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF5E36),
+                              color: const Color(0xFFF25767),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
@@ -1027,24 +1123,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF475569)),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2.5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFECFDF5),
-                                borderRadius: BorderRadius.circular(6),
-                                border:
-                                    Border.all(color: const Color(0xFFA7F3D0)),
-                              ),
-                              child: const Text(
-                                '1/N 안심 정산',
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF047857)),
                               ),
                             ),
                           ],
@@ -1107,7 +1185,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               ],
                             ),
                             Text(
-                              '${m['members'] ?? '2/4'}명 참여',
+                              _formatMemberCount(m['members'], m['maxMembers']),
                               style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -1136,7 +1214,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     Row(
                       children: [
                         const Icon(Icons.location_on_rounded,
-                            size: 15, color: Color(0xFFFF5E36)),
+                            size: 15, color: Color(0xFFF25767)),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -1162,7 +1240,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               style: const TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFFFF5E36)),
+                                  color: Color(0xFFF25767)),
                             ),
                           ),
                       ],
@@ -1180,7 +1258,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               : Icons.calendar_month_rounded,
                           size: 14.5,
                           color: isLightning
-                              ? const Color(0xFFFF5E36)
+                              ? const Color(0xFFF25767)
                               : const Color(0xFF2563EB),
                         ),
                         const SizedBox(width: 6),
@@ -1192,7 +1270,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: isLightning
-                                  ? const Color(0xFFFF5E36)
+                                  ? const Color(0xFFF25767)
                                   : const Color(0xFF334155),
                             ),
                             maxLines: 1,
@@ -1266,7 +1344,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       return ChoiceChip(
                         label: Text(r),
                         selected: isSel,
-                        selectedColor: const Color(0xFFFF5E36),
+                        selectedColor: const Color(0xFFF25767),
                         labelStyle: TextStyle(
                           color: isSel ? Colors.white : const Color(0xFF0F172A),
                           fontWeight: FontWeight.bold,
@@ -1284,7 +1362,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     height: 52,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF5E36),
+                        backgroundColor: const Color(0xFFF25767),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16)),

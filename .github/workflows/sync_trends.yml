@@ -9,7 +9,7 @@ on:
       keywords:
         description: '추가로 포스터를 크롤링할 공연/스포츠/영화 키워드 (쉼표 구분, 비워두면 자동 수집)'
         required: false
-        default: '서울재즈페스티벌, LG 트윈스, 파묘'
+        default: '서울재즈페스티벌, LG 트윈스, 명탐정 코난'
 
 jobs:
   sync-trends-and-posters:
@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install boto3
+          pip install boto3 beautifulsoup4
 
       - name: Crawl KOPIS / Sports / Movie Posters & Sync to R2 + Firestore
         env:

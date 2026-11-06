@@ -84,6 +84,14 @@ Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, St
   );
 }
 
+/// DiceBear 기반 2030 감성 캐릭터 아바타 PNG URL 생성 (무료, 무인증, 영구 캐시)
+/// - seed: 유저 이메일 주소 또는 닉네임 (동일한 시드 = 언제나 동일한 얼굴 보장)
+/// - style: 'lorelei' (2030 세련된 감성 일러스트 캐릭터, OOMU 1순위 추천)
+String getDiceBearAvatarUrl(String seed, {String style = 'lorelei', int size = 128}) {
+  final cleanSeed = Uri.encodeComponent(seed.trim().toLowerCase());
+  return 'https://api.dicebear.com/9.x/$style/png?seed=$cleanSeed&size=$size';
+}
+
 const Map<String, String> _bundledProfileMap = {
   '민지.png': '민지.png',
   '민지2.png': '민지2.png',

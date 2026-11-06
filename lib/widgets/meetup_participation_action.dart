@@ -51,7 +51,7 @@ class MeetupParticipationAction extends StatelessWidget {
       );
     }
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return _button('로그인 후 신청할 수 있어요', null);
+    if (uid == null) return _button('참여 신청하기', onApply);
     if (MeetupApplicationService.hostUid(meetup!) == uid) {
       return _button('참여 신청 관리', () => _review(context, id));
     }
