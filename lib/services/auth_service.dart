@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/global_data.dart';
+import 'solapi_sms_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -376,7 +377,7 @@ class AuthService {
     globalData.applyProfileData(data);
   }
 
-  // 8. 휴대폰 번호 SMS 인증번호 발송 (Firebase Phone Auth - Web & Mobile 겸용)
+  // 8. 휴대폰 번호 SMS 인증번호 발송 (Solapi 직접 발송 우선 + Firebase Phone Auth 폴백)
   Future<void> sendPhoneSmsCode({
     required String rawPhone,
     required Function(String verificationId) onCodeSent,
@@ -384,6 +385,31 @@ class AuthService {
     VoidCallback? onAutoVerified,
   }) async {
     try {
+      final clean = solapiSmsService.normalizePhone(rawPhone);
+      if (clean.length < 10 || clean.length > 11 || !clean.startsWith('010')) {
+        onError('010으로 시작하는 올바른 휴대폰 번호를 확인해 주세요.');
+        return;
+      }
+
+      // [1순위] 솔라피 (SOLAPI) 직접 SMS 전송 시도
+      try {
+        final solapiResult =
+            await solapiSmsService.sendVerificationCode(rawPhone);
+        if (solapiResult.isSuccess && solapiResult.verificationId != null) {
+          debugPrint(
+              '[AuthService] Solapi SMS code successfully dispatched: ${solapiResult.verificationId}');
+          onCodeSent(solapiResult.verificationId!);
+          return;
+        } else if (solapiResult.errorMessage != null &&
+            !solapiResult.errorMessage!.contains('불러오지 못했습니다')) {
+          onError(solapiResult.errorMessage!);
+          return;
+        }
+      } catch (e) {
+        debugPrint('[AuthService] Solapi attempt exception, falling back: $e');
+      }
+
+      // [2순위] Firebase Phone Auth 폴백
       final formattedE164 = normalizeKoreanMobile(rawPhone);
       if (formattedE164 == null) {
         onError('010으로 시작하는 휴대폰 번호를 확인해 주세요.');
@@ -423,7 +449,7 @@ class AuthService {
                   userCred.user!,
                   provider: 'phone',
                   extraData: {
-                    'phone': rawPhone,
+                    'phone': clean,
                     'isPhoneVerified': true,
                   },
                 );
@@ -455,12 +481,74 @@ class AuthService {
     }
   }
 
-  // 9. 휴대폰 SMS 인증번호 검증 및 로그인 완료 (Web & Mobile 겸용)
+  // 9. 휴대폰 SMS 인증번호 검증 및 로그인 완료 (Solapi + Web & Mobile 겸용)
   Future<UserCredential> verifyPhoneSmsCodeAndSignIn({
     required String verificationId,
     required String smsCode,
     required String rawPhone,
   }) async {
+    final cleanPhone = solapiSmsService.normalizePhone(rawPhone);
+
+    // [1] Solapi 인증 검증 처리
+    if (verificationId.startsWith('solapi_')) {
+      final isValid = await solapiSmsService.verifyCode(
+        rawPhone: rawPhone,
+        inputCode: smsCode,
+      );
+      if (!isValid) {
+        throw Exception('인증번호가 일치하지 않거나 만료되었습니다. 다시 확인해 주세요.');
+      }
+
+      UserCredential userCredential;
+      final currentUser = _auth.currentUser;
+      final emailAccount = 'phone_$cleanPhone@oomu.app';
+      final pwAccount =
+          'oomu_phone_pw_${cleanPhone.length >= 7 ? cleanPhone.substring(cleanPhone.length - 7) : "0000000"}';
+
+      if (currentUser != null && !currentUser.isAnonymous) {
+        userCredential = await currentUser.linkWithCredential(
+          EmailAuthProvider.credential(
+            email: emailAccount,
+            password: pwAccount,
+          ),
+        ).catchError((_) async {
+          return await _auth.signInAnonymously();
+        });
+      } else {
+        try {
+          userCredential = await _auth.signInWithEmailAndPassword(
+            email: emailAccount,
+            password: pwAccount,
+          );
+        } catch (_) {
+          try {
+            userCredential = await _auth.createUserWithEmailAndPassword(
+              email: emailAccount,
+              password: pwAccount,
+            );
+          } catch (_) {
+            userCredential = await _auth.signInAnonymously();
+          }
+        }
+      }
+
+      globalData.userPhone.value = cleanPhone;
+      globalData.isPhoneVerified.value = true;
+
+      if (userCredential.user != null) {
+        await _syncUserWithFirestore(
+          userCredential.user!,
+          provider: 'phone',
+          extraData: {
+            'phone': cleanPhone,
+            'isPhoneVerified': true,
+          },
+        );
+      }
+      return userCredential;
+    }
+
+    // [2] Firebase Phone Auth 검증 처리
     UserCredential userCredential;
     if (kIsWeb) {
       if (_webConfirmationResult == null) {
@@ -480,7 +568,7 @@ class AuthService {
         userCredential.user!,
         provider: 'phone',
         extraData: {
-          'phone': rawPhone,
+          'phone': cleanPhone,
           'isPhoneVerified': true,
         },
       );

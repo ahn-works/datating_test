@@ -1182,8 +1182,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 });
           }
           return Scaffold(
-            backgroundColor: OomuUiHelpers.backgroundNeutral,
+            backgroundColor: const Color(0xFFFAF6F7),
             appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              bottom: const PreferredSize(
+                preferredSize: Size.fromHeight(1),
+                child: Divider(height: 1, color: Color(0xFFF0E4E6)),
+              ),
               toolbarHeight:
                   MediaQuery.textScalerOf(context).scale(16) > 22 ? 112 : 80,
               leading: IconButton(
@@ -1201,38 +1207,96 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.w700)),
                     if (_canSend)
-                      Text('$memberCount명 참여 중',
-                          style: TextStyle(color: textSecondary, fontSize: 13)),
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF0F2),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: const Color(0xFFFCD3D9), width: 0.8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF25767),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              '$memberCount명 참여 중',
+                              style: const TextStyle(
+                                color: Color(0xFFD9384A),
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ]),
               actions: [
                 IconButton(
                     tooltip: '대화방 정보',
-                    icon: const Icon(Icons.more_horiz),
+                    icon: const Icon(Icons.more_horiz_rounded),
                     onPressed: _canSend ? _showChatRoomSafetyDrawer : null)
               ],
             ),
             body: Column(children: [
               if (_canSend &&
                   (_roomData?['location'] ?? '').toString().isNotEmpty)
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.place_outlined,
-                              size: 18, color: textSecondary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Text(
-                                  [_roomData?['date'], _roomData?['location']]
-                                      .whereType<String>()
-                                      .where((s) => s.isNotEmpty)
-                                      .join(' · '),
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      height: 1.5,
-                                      color: textSecondary))),
-                        ])),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border:
+                        Border.all(color: const Color(0xFFFCE7E9), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFF25767).withValues(alpha: 0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF0F2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(Icons.place_rounded,
+                            size: 14, color: Color(0xFFF25767)),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          [_roomData?['date'], _roomData?['location']]
+                              .whereType<String>()
+                              .where((s) => s.isNotEmpty)
+                              .join(' · '),
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF4E5968),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Expanded(child: content),
               if (_canSend) _buildMessageInput(),
             ]),
@@ -1834,7 +1898,34 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             bottomRight: Radius.circular(18),
           );
 
-    final bubbleColor = isMe ? accentColor : const Color(0xFFF2F4F7);
+    final bubbleDecoration = isMe
+        ? BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF25767), Color(0xFFFF6978)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: bubbleRadius,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFF25767).withValues(alpha: 0.28),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          )
+        : BoxDecoration(
+            color: Colors.white,
+            borderRadius: bubbleRadius,
+            border: Border.all(color: const Color(0xFFF0E4E6), width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFF25767).withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          );
     final textColor = isMe ? Colors.white : const Color(0xFF191F28);
 
     return Padding(
@@ -1873,8 +1964,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         sender,
                         style: const TextStyle(
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFE14D5D),
                         ),
                       ),
                     ),
@@ -1883,29 +1974,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 11),
-                      decoration: BoxDecoration(
-                        color: bubbleColor,
-                        borderRadius: bubbleRadius,
-                        border: isMe
-                            ? null
-                            : Border.all(
-                                color: const Color(0xFFE5E7EB), width: 0.8),
-                        boxShadow: isMe
-                            ? [
-                                BoxShadow(
-                                  color: accentColor.withValues(alpha: 0.22),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ]
-                            : [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
-                      ),
+                      decoration: bubbleDecoration,
                       child: Text(
                         (msg['text'] ?? '').toString(),
                         style: TextStyle(
@@ -1940,55 +2009,127 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     final avatar = (avatarUrl != null && avatarUrl.isNotEmpty)
         ? avatarUrl
         : 'assets/images/민지.png';
-    return CircleAvatar(
-      radius: 17,
-      backgroundColor: const Color(0xFFEAECF0),
-      backgroundImage: appImg(avatar),
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFFCD3D9), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF25767).withValues(alpha: 0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: 17,
+        backgroundColor: const Color(0xFFFFF0F2),
+        backgroundImage: appImg(avatar),
+      ),
     );
   }
+
   Widget _buildMessageInput() => SafeArea(
-      top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        color: Colors.white,
-        child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          IconButton(
-              tooltip: '대화에 추가하기',
-              onPressed: _sending ? null : _showAttachmentMenu,
-              icon: const Icon(Icons.add)),
-          Expanded(
-              child: TextField(
-            controller: _controller,
-            minLines: 1,
-            maxLines: 4,
-            textInputAction: TextInputAction.newline,
-            keyboardType: TextInputType.multiline,
-            decoration: const InputDecoration(
-                hintText: '메시지 입력',
-                filled: true,
-                fillColor: Color(0xFFF2F4F7),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    borderSide: BorderSide.none)),
-          )),
-          const SizedBox(width: 8),
-          IconButton.filled(
-              tooltip: '메시지 전송',
-              style: IconButton.styleFrom(
-                  backgroundColor: accentColor,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(48, 48)),
-              onPressed: _sending ? null : _sendMessage,
-              icon: _sending
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.arrow_upward_rounded)),
-        ]),
-      ));
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border:
+                Border(top: BorderSide(color: Color(0xFFF0E4E6), width: 1)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 2, right: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0F2),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFFCD3D9), width: 1),
+                ),
+                child: IconButton(
+                  tooltip: '도구함 열기',
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 40, minHeight: 40),
+                  onPressed: _sending ? null : _showAttachmentMenu,
+                  icon: const Icon(Icons.add_rounded,
+                      color: Color(0xFFF25767), size: 24),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  minLines: 1,
+                  maxLines: 4,
+                  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.multiline,
+                  style: const TextStyle(
+                      fontSize: 14.5, color: Color(0xFF191F28)),
+                  decoration: InputDecoration(
+                    hintText: '메시지를 입력하세요...',
+                    hintStyle: const TextStyle(
+                        fontSize: 14, color: Color(0xFFA0A7B1)),
+                    filled: true,
+                    fillColor: const Color(0xFFFAF7F8),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 11),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(22),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFF0E4E6), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(22),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFF0E4E6), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(22),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFF25767), width: 1.5),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 2, left: 8),
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF25767), Color(0xFFFF6978)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFF25767).withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  tooltip: '메시지 전송',
+                  padding: EdgeInsets.zero,
+                  onPressed: _sending ? null : _sendMessage,
+                  icon: _sending
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.arrow_upward_rounded,
+                          color: Colors.white, size: 22),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 
   void _showAiTopicsBottomSheet() {
     final topics = oomuAi.generateIcebreakerTopics(

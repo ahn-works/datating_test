@@ -79,14 +79,25 @@ class _ChatScreenState extends State<ChatScreen> {
           ])));
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: OomuUiHelpers.backgroundNeutral,
+        backgroundColor: const Color(0xFFFAF6F7),
         appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            bottom: const PreferredSize(
+              preferredSize: Size.fromHeight(1),
+              child: Divider(height: 1, color: Color(0xFFF0E4E6)),
+            ),
             automaticallyImplyLeading: !widget.isEmbedded,
-            title: const Text('채팅'),
+            title: const Text('채팅',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF191F28))),
             actions: [
               IconButton(
                   tooltip: _searching ? '검색 닫기' : '대화방 검색',
-                  icon: Icon(_searching ? Icons.close : Icons.search),
+                  icon: Icon(_searching ? Icons.close : Icons.search,
+                      color: const Color(0xFF4E5968)),
                   onPressed: () => setState(() {
                         _searching = !_searching;
                         _search = '';
@@ -95,12 +106,35 @@ class _ChatScreenState extends State<ChatScreen> {
         body: Column(children: [
           if (_searching)
             Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
                 child: TextField(
                   autofocus: true,
                   onChanged: (value) => setState(() => _search = value.trim()),
-                  decoration: const InputDecoration(
-                      hintText: '대화방 이름 검색', prefixIcon: Icon(Icons.search)),
+                  decoration: InputDecoration(
+                    hintText: '대화방 이름 검색',
+                    hintStyle: const TextStyle(color: Color(0xFFA0A7B1)),
+                    prefixIcon:
+                        const Icon(Icons.search, color: Color(0xFFF25767)),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFF0E4E6), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFF0E4E6), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFF25767), width: 1.5),
+                    ),
+                  ),
                 )),
           Expanded(
               child: _uid == null
@@ -134,7 +168,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             itemCount: rooms.length,
                             separatorBuilder: (_, __) => const Divider(
-                                indent: 20, endIndent: 20, height: 1),
+                                indent: 20,
+                                endIndent: 20,
+                                height: 1,
+                                color: Color(0xFFF0E4E6)),
                             itemBuilder: (context, index) {
                               final room = rooms[index];
                               final id = (room['id'] ?? '').toString();
@@ -145,28 +182,60 @@ class _ChatScreenState extends State<ChatScreen> {
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 12),
-                                leading: const CircleAvatar(
-                                    backgroundColor: Color(0xFFF2F4F7),
-                                    child: Icon(Icons.forum_outlined,
-                                        color: OomuUiHelpers.textSecondary)),
+                                leading: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFFFFF0F2),
+                                        Color(0xFFFFE4E8)
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: const Color(0xFFFCE7E9),
+                                      width: 1.2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFF25767)
+                                            .withValues(alpha: 0.08),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Center(
+                                    child: Icon(Icons.forum_rounded,
+                                        color: OomuUiHelpers.brandCoral,
+                                        size: 22),
+                                  ),
+                                ),
                                 title: Text(title,
-                                    maxLines: 2,
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.w600)),
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF191F28))),
                                 subtitle: Padding(
                                     padding: const EdgeInsets.only(top: 6),
                                     child: Text(
                                         preview.isEmpty
-                                            ? '아직 대화가 없어요'
+                                            ? '아직 대화가 없어요 · 인사를 건네보세요'
                                             : preview,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                            fontSize: 13,
-                                            color:
-                                                OomuUiHelpers.textSecondary))),
+                                            fontSize: 13.5,
+                                            color: Color(0xFF6B7684)))),
+                                trailing: const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Color(0xFFB0B8C1),
+                                    size: 20),
                                 onTap: id.isEmpty
                                     ? null
                                     : () => Navigator.push(

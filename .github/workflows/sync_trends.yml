@@ -1,15 +1,15 @@
-name: OOMU Trend & KOPIS Poster Crawler Auto-Sync
+name: OOMU Trend Crawler (KOPIS·스포츠·영화·R2)
 
 on:
   schedule:
-    # 매일 한국 시간 새벽 4시 (UTC 19:00) KOPIS 공연/페스티벌 포스터 자동 크롤링 및 동기화
+    # 매일 한국 시간 새벽 4시 (UTC 19:00) KOPIS 공연 + KBO/K리그 스포츠 + 실시간 영화 포스터 자동 크롤링 및 동기화
     - cron: '0 19 * * *'
   workflow_dispatch:
     inputs:
       keywords:
-        description: '추가로 포스터를 크롤링할 특정 페스티벌/공연/뮤지컬 키워드 (쉼표로 구분, 비워두면 KOPIS 박스오피스+축제 전체 자동 크롤링)'
+        description: '추가로 포스터를 크롤링할 공연/스포츠/영화 키워드 (쉼표 구분, 비워두면 자동 수집)'
         required: false
-        default: '서울재즈페스티벌, 뷰티풀 민트 라이프, 워터밤 서울'
+        default: '서울재즈페스티벌, LG 트윈스, 파묘'
 
 jobs:
   sync-trends-and-posters:
@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Crawl KOPIS / Festival Posters & Sync to R2 + Firestore
+      - name: Crawl KOPIS / Sports / Movie Posters & Sync to R2 + Firestore
         env:
           INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
         run: |

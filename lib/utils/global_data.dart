@@ -60,6 +60,8 @@ class GlobalData {
     userAvatar.value = '';
     userLocation.value = '';
     userNickname.value = '';
+    userPhone.value = '';
+    isPhoneVerified.value = false;
     temperature.value = 0.0;
     rating.value = 0.0;
     reviewCount.value = 0;
@@ -110,6 +112,15 @@ class GlobalData {
           .where((e) => e.isNotEmpty)
           .toList();
     }
+    final phone = (data['phone'] ?? data['phoneNumber'] ?? data['contactPhone'])
+        ?.toString()
+        .trim();
+    if (phone != null && phone.isNotEmpty) {
+      userPhone.value = phone;
+    }
+    if (data['isPhoneVerified'] is bool) {
+      isPhoneVerified.value = data['isPhoneVerified'] as bool;
+    }
   }
 
   Future<void> syncUserProfileFromFirestore(String uid) async {
@@ -141,6 +152,8 @@ class GlobalData {
   final ValueNotifier<String> userAvatar = ValueNotifier<String>('');
   final ValueNotifier<String> userLocation = ValueNotifier<String>('');
   final ValueNotifier<String> userNickname = ValueNotifier<String>('');
+  final ValueNotifier<String> userPhone = ValueNotifier<String>('');
+  final ValueNotifier<bool> isPhoneVerified = ValueNotifier<bool>(false);
 
   // 내가 찜한 모임 (사용자별 상태)
   final ValueNotifier<List<Map<String, dynamic>>> savedMeetups =

@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../services/solapi_sms_service.dart';
+import '../utils/global_data.dart';
 import '../utils/profile_policy.dart';
 
 /// Links a verified number to the signed-in account; never signs into a second
@@ -24,7 +27,10 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
   ConfirmationResult? _confirmation;
   bool _busy = false;
   String? _error;
+  bool _solapiVerified = false;
+
   bool get _verified {
+    if (_solapiVerified || globalData.isPhoneVerified.value) return true;
     if (Firebase.apps.isEmpty) return false;
     final user = FirebaseAuth.instance.currentUser;
     final number = normalizeKoreanMobile(widget.controller.text);
@@ -95,6 +101,29 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
     });
     _requestedNumber = number;
     _requestUid = user.uid;
+
+    // 1순위: 솔라피 (SOLAPI) SMS 발송
+    try {
+      final solResult =
+          await solapiSmsService.sendVerificationCode(widget.controller.text);
+      if (solResult.isSuccess && solResult.verificationId != null) {
+        if (!mounted) return;
+        setState(() {
+          _verificationId = solResult.verificationId;
+          _busy = false;
+        });
+        return;
+      } else if (solResult.errorMessage != null &&
+          !solResult.errorMessage!.contains('불러오지 못했습니다')) {
+        setState(() {
+          _busy = false;
+          _error = solResult.errorMessage;
+        });
+        return;
+      }
+    } catch (_) {}
+
+    // 2순위: Firebase Phone Auth 폴백
     try {
       if (kIsWeb) {
         final result = await user.linkWithPhoneNumber(number);
@@ -164,6 +193,47 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
       _busy = true;
       _error = null;
     });
+
+    // 1순위: Solapi 인증번호 검증
+    if (_verificationId != null && _verificationId!.startsWith('solapi_')) {
+      final ok = await solapiSmsService.verifyCode(
+        rawPhone: widget.controller.text,
+        inputCode: _code.text.trim(),
+      );
+      if (!mounted) return;
+      if (ok) {
+        final user = FirebaseAuth.instance.currentUser;
+        final cleanPhone =
+            solapiSmsService.normalizePhone(widget.controller.text);
+        if (user != null) {
+          try {
+            await FirebaseFirestore.instance
+                .collection('user_profiles')
+                .doc(user.uid)
+                .set({
+              'phone': cleanPhone,
+              'isPhoneVerified': true,
+            }, SetOptions(merge: true));
+          } catch (_) {}
+        }
+        globalData.userPhone.value = cleanPhone;
+        globalData.isPhoneVerified.value = true;
+        setState(() {
+          _solapiVerified = true;
+          _busy = false;
+          _error = null;
+        });
+        widget.onVerified(true);
+        return;
+      } else {
+        setState(() {
+          _busy = false;
+          _error = '인증번호가 일치하지 않거나 만료되었습니다.';
+        });
+        return;
+      }
+    }
+
     try {
       if (kIsWeb && _confirmation != null) {
         await _confirmation!.confirm(_code.text.trim());

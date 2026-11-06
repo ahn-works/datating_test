@@ -2147,6 +2147,96 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'rank': 27,
         'isHotspot': true,
       },
+      // 스포츠 (KBO 프로야구 직관 & K리그 축구) 시드
+      {
+        'id': 'sports_guaranteed_01',
+        'title': '[KBO 프로야구] LG 트윈스 vs 두산 베어스 잠실 더비 3루 네이비석 직관 & 치맥 파티',
+        'category': '스포츠 > KBO 프로야구 직관',
+        'location': '서울 송파구 잠실야구장',
+        'tag': '⚾ KBO 잠실더비',
+        'vibe': '활기찬',
+        'poster': 'assets/images/cover_running.jpg',
+        'period': '주말 직관 팟',
+        'rank': 28,
+      },
+      {
+        'id': 'sports_guaranteed_02',
+        'title': '[KBO 프로야구] 기아 타이거즈 vs 한화 이글스 주말 원정 응원단 & 챔피언스필드 직관',
+        'category': '스포츠 > KBO 프로야구 직관',
+        'location': '광주 북구 광주기아챔피언스필드',
+        'tag': '⚾ 호랑이 군단 직관',
+        'vibe': '활기찬',
+        'poster': 'assets/images/cover_running.jpg',
+        'period': '이번 주말 경기',
+        'rank': 29,
+      },
+      {
+        'id': 'sports_guaranteed_03',
+        'title': '[KBO 프로야구] 삼성 라이온즈 vs 롯데 자이언츠 클래식 시리즈 사직 원정 응원 팟',
+        'category': '스포츠 > KBO 프로야구 직관',
+        'location': '부산 동래구 사직야구장',
+        'tag': '⚾ 클래식 시리즈',
+        'vibe': '활기찬',
+        'poster': 'assets/images/cover_running.jpg',
+        'period': '주말 원정 팟',
+        'rank': 30,
+      },
+      {
+        'id': 'sports_guaranteed_04',
+        'title': '[K리그 축구] FC 서울 vs 전북 현대 서울월드컵경기장 슈퍼매치 N석 응원전',
+        'category': '스포츠 > K리그 축구',
+        'location': '서울 마포구 서울월드컵경기장',
+        'tag': '⚽ K리그 슈퍼매치',
+        'vibe': '활기찬',
+        'poster': 'assets/images/cover_running.jpg',
+        'period': '토요일 16:30',
+        'rank': 31,
+      },
+      {
+        'id': 'sports_guaranteed_05',
+        'title': '[K리그 축구] 울산 HD vs 포항 스틸러스 동해안 더비 문수경기장 라이브 직관',
+        'category': '스포츠 > K리그 축구',
+        'location': '울산 남구 울산문수축구경기장',
+        'tag': '⚽ 동해안 더비',
+        'vibe': '활기찬',
+        'poster': 'assets/images/cover_running.jpg',
+        'period': '일요일 14:00',
+        'rank': 32,
+      },
+      // 실시간 박스오피스 영화 시드
+      {
+        'id': 'movie_guaranteed_01',
+        'title': '[실시간 박스오피스 1위] 최신 개봉 대작 관람 & CGV 아이맥스 팝콘 메이트',
+        'category': '문화 & 엔터 > 영화·CGV',
+        'location': '전국 CGV · 롯데시네마 · 메가박스',
+        'tag': '🎬 박스오피스 1위',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '절찬 상영 중',
+        'rank': 33,
+      },
+      {
+        'id': 'movie_guaranteed_02',
+        'title': '[실시간 박스오피스 2위] 감성 로맨스 영화 보고 심야 맥주 한잔할 동네 친구',
+        'category': '문화 & 엔터 > 영화·CGV',
+        'location': '전국 멀티플렉스 극장가',
+        'tag': '🎬 심야 영화 번개',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '절찬 상영 중',
+        'rank': 34,
+      },
+      {
+        'id': 'movie_guaranteed_03',
+        'title': '[실시간 박스오피스 3위] 주말 조조 영화 번개 & 메가박스 돌비시네마 직관',
+        'category': '문화 & 엔터 > 영화·CGV',
+        'location': '메가박스 코엑스 / 스타필드',
+        'tag': '🎬 돌비시네마 사운드',
+        'vibe': '소소하게',
+        'poster': 'assets/images/cover_wine.jpg',
+        'period': '주말 조조',
+        'rank': 35,
+      },
     ];
   }
 
@@ -2227,6 +2317,39 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           tag.contains('소금빵') ||
           tag.contains('두쫀쿠') ||
           tag.contains('SNS');
+    } else if (filter == '⚾ 스포츠') {
+      return cat.contains('스포츠') ||
+          cat.contains('야구') ||
+          cat.contains('축구') ||
+          tag.contains('스포츠') ||
+          tag.contains('직관') ||
+          tag.contains('KBO') ||
+          tag.contains('K리그') ||
+          title.contains('야구') ||
+          title.contains('축구') ||
+          title.contains('KBO') ||
+          title.contains('K리그') ||
+          title.contains('트윈스') ||
+          title.contains('타이거즈') ||
+          title.contains('라이온즈') ||
+          title.contains('이글스') ||
+          title.contains('베어스') ||
+          title.contains('랜더스') ||
+          title.contains('FC') ||
+          title.contains('더비');
+    } else if (filter == '🎬 영화') {
+      return cat.contains('영화') ||
+          cat.contains('CGV') ||
+          cat.contains('시네마') ||
+          tag.contains('영화') ||
+          tag.contains('박스오피스') ||
+          tag.contains('무비') ||
+          title.contains('박스오피스') ||
+          title.contains('영화') ||
+          title.contains('극장') ||
+          title.contains('CGV') ||
+          title.contains('시네마') ||
+          title.contains('메가박스');
     }
     return true;
   }
@@ -2318,7 +2441,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '핫플·팝업']
+                      children: ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '⚾ 스포츠', '🎬 영화', '핫플·팝업']
                           .map((c) {
                         final isSel = modalFilter == c;
                         final count = items
@@ -3056,7 +3179,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children:
-                      ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '핫플·팝업'].map((c) {
+                      ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '⚾ 스포츠', '🎬 영화', '핫플·팝업'].map((c) {
                     final bool isSel = _selectedTrendCategory == c;
                     final int count =
                         items.where((it) => _matchesTrendFilter(it, c)).length;
