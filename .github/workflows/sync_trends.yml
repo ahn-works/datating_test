@@ -23,9 +23,17 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Dependencies
+        run: |
+          pip install boto3
+
       - name: Crawl KOPIS / Sports / Movie Posters & Sync to R2 + Firestore
         env:
           INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
         run: |
           python scripts/sync_trends.py
+
+      - name: 🧹 Purge 3-Day Expired Events & Clean Cloudflare R2
+        run: |
+          python scripts/cleanup_stale_data.py --days 3
 

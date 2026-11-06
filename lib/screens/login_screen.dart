@@ -26,7 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
   // 로그인/회원가입 탭 상태 및 인라인 폼 컨트롤러
   int _selectedTabIndex = 0; // 0: 로그인, 1: 회원가입
   final TextEditingController _inlineEmailController = TextEditingController();
-  final TextEditingController _inlinePasswordController = TextEditingController();
+  final TextEditingController _inlinePasswordController =
+      TextEditingController();
   bool _inlineObscurePassword = true;
   bool _keepLoggedIn = true;
   String _inlineErrorMessage = '';
@@ -73,7 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
             _hideLoading();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('카카오 인증 알림 [$error]: ${errorDesc ?? "인증이 취소되었거나 거절되었습니다."}'),
+                content: Text(
+                    '카카오 인증 알림 [$error]: ${errorDesc ?? "인증이 취소되었거나 거절되었습니다."}'),
                 backgroundColor: const Color(0xFFD9384A),
                 duration: const Duration(seconds: 4),
               ),
@@ -182,8 +184,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('카카오 로그인 연결 실패: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('카카오 로그인 연결 실패: $e')));
       }
     } finally {
       if (mounted) _hideLoading();
@@ -254,7 +256,9 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           final code = e is FirebaseAuthException ? e.code : '';
           _inlineErrorMessage = switch (code) {
-            'user-not-found' || 'wrong-password' || 'invalid-credential' =>
+            'user-not-found' ||
+            'wrong-password' ||
+            'invalid-credential' =>
               '이메일 또는 비밀번호가 일치하지 않습니다.',
             'invalid-email' => '올바른 이메일 형식을 입력해 주세요.',
             'user-disabled' => '사용이 정지된 계정입니다. 고객센터에 문의해 주세요.',
@@ -267,7 +271,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // 2-3. 비밀번호 찾기 모달
   void _showFindPasswordDialog() {
-    final emailCtrl = TextEditingController(text: _inlineEmailController.text.trim());
+    final emailCtrl =
+        TextEditingController(text: _inlineEmailController.text.trim());
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -287,7 +292,8 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Text(
               '가입하신 이메일 주소를 입력하시면 비밀번호를 다시 설정할 수 있는 링크를 보내드립니다.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF6B7684), height: 1.4),
+              style: TextStyle(
+                  fontSize: 13, color: Color(0xFF6B7684), height: 1.4),
             ),
             const SizedBox(height: 14),
             TextField(
@@ -313,7 +319,8 @@ class _LoginScreenState extends State<LoginScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('취소',
-                style: TextStyle(color: Color(0xFF8B95A1), fontWeight: FontWeight.w600)),
+                style: TextStyle(
+                    color: Color(0xFF8B95A1), fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -341,11 +348,13 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: brandCoral,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             child: const Text('이메일 전송',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -689,8 +698,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       margin: const EdgeInsets.only(top: 8, bottom: 20),
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom: BorderSide(
-                              color: Color(0xFFE5E8EB), width: 1.5),
+                          bottom:
+                              BorderSide(color: Color(0xFFE5E8EB), width: 1.5),
                         ),
                       ),
                       child: Row(
@@ -985,8 +994,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             GestureDetector(
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('아이디는 가입하신 이메일 또는 휴대폰 번호입니다.')),
+                const SnackBar(content: Text('아이디는 가입하신 이메일 또는 휴대폰 번호입니다.')),
               ),
               child: const Text(
                 '아이디 찾기',
@@ -1362,7 +1370,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
 
 class _EmailAuthSheet extends StatefulWidget {
   final bool initialIsSignUp;

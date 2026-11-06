@@ -42,6 +42,10 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Operations Dependencies
+        run: |
+          pip install boto3 requests
+
       # 1. 아침 작업 (08:30 KST) 또는 수동 전체/밸런스게임
       - name: 🗳️ Post Daily Romance Balance Game
         if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'balance_game') }}
@@ -65,10 +69,10 @@ jobs:
           python scripts/content_moderator.py
 
       # 3. 자정 작업 (23:59 KST) 또는 수동 전체/청소/경영보고서
-      - name: 🧹 Cleanup Stale & Ghost Meetups
+      - name: 🧹 Cleanup Stale & Ghost Meetups (3-Day Policy) & Purge R2
         if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'cleanup') }}
         run: |
-          python scripts/cleanup_stale_data.py
+          python scripts/cleanup_stale_data.py --days 3
 
       - name: 📱 Generate Executive Daily Business Report & Sync to Notion
         if: ${{ github.event_name == 'schedule' || contains(github.event.inputs.task, 'all') || contains(github.event.inputs.task, 'daily_report') }}
