@@ -994,7 +994,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.only(top: 14, left: 20, right: 20, bottom: 28),
+        padding:
+            const EdgeInsets.only(top: 14, left: 20, right: 20, bottom: 28),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -1018,7 +1019,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 const SizedBox(height: 16),
                 const Row(
                   children: [
-                    Icon(Icons.dashboard_customize_rounded, size: 18, color: Color(0xFFF25767)),
+                    Icon(Icons.dashboard_customize_rounded,
+                        size: 18, color: Color(0xFFF25767)),
                     SizedBox(width: 6),
                     Text(
                       '모임 도구 및 공유',
@@ -1036,28 +1038,37 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   runSpacing: 20,
                   alignment: WrapAlignment.start,
                   children: [
-                    _buildAttachmentIcon(Icons.photo_library_rounded, '사진/앨범', const Color(0xFF10B981),
+                    _buildAttachmentIcon(Icons.photo_library_rounded, '사진/앨범',
+                        const Color(0xFF10B981),
                         onTap: _sendImageAction),
-                    _buildAttachmentIcon(Icons.location_on_rounded, '위치 공유', const Color(0xFFEF4444),
+                    _buildAttachmentIcon(Icons.location_on_rounded, '위치 공유',
+                        const Color(0xFFEF4444),
                         onTap: _sendLocationAction),
-                    _buildAttachmentIcon(Icons.local_cafe_rounded, '동네 핫플', const Color(0xFFD97706),
+                    _buildAttachmentIcon(Icons.local_cafe_rounded, '동네 핫플',
+                        const Color(0xFFD97706),
                         onTap: _showHotspotSearchBottomSheet),
-                    _buildAttachmentIcon(Icons.event_available_rounded, '일정 제안', const Color(0xFF3B82F6),
+                    _buildAttachmentIcon(Icons.event_available_rounded, '일정 제안',
+                        const Color(0xFF3B82F6),
                         onTap: _showScheduleCreatorBottomSheet),
-                    _buildAttachmentIcon(Icons.how_to_vote_rounded, '투표 만들기', const Color(0xFF8B5CF6),
+                    _buildAttachmentIcon(Icons.how_to_vote_rounded, '투표 만들기',
+                        const Color(0xFF8B5CF6),
                         onTap: _showPollCreatorBottomSheet),
-                    _buildAttachmentIcon(Icons.nightlife_rounded, '안심 귀가', const Color(0xFFF43F5E),
+                    _buildAttachmentIcon(Icons.nightlife_rounded, '안심 귀가',
+                        const Color(0xFFF43F5E),
                         onTap: _showSafeReturnBottomSheet),
-                    _buildAttachmentIcon(Icons.auto_awesome_rounded, 'AI 대화주제', const Color(0xFF6366F1),
-                        onTap: () {
+                    _buildAttachmentIcon(Icons.auto_awesome_rounded, 'AI 대화주제',
+                        const Color(0xFF6366F1), onTap: () {
                       Navigator.pop(ctx);
                       _showAiTopicsBottomSheet();
                     }),
-                    _buildAttachmentIcon(Icons.badge_outlined, '프로필 교환', const Color(0xFF0D9488),
+                    _buildAttachmentIcon(
+                        Icons.badge_outlined, '프로필 교환', const Color(0xFF0D9488),
                         onTap: _showProfileExchangeBottomSheet),
-                    _buildAttachmentIcon(Icons.favorite_rounded, '시크릿 애프터', const Color(0xFFEC4899),
+                    _buildAttachmentIcon(Icons.favorite_rounded, '시크릿 애프터',
+                        const Color(0xFFEC4899),
                         onTap: _showSecretAfterBottomSheet),
-                    _buildAttachmentIcon(Icons.rate_review_rounded, '모임 후기', const Color(0xFFF59E0B),
+                    _buildAttachmentIcon(Icons.rate_review_rounded, '모임 후기',
+                        const Color(0xFFF59E0B),
                         onTap: _showReviewBottomSheet),
                   ],
                 ),
@@ -1765,113 +1776,115 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(Icons.copy, color: Colors.black87),
-                title: const Text('메시지 내용 복사',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  Clipboard.setData(ClipboardData(text: text));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('📋 메시지가 클립보드에 복사되었습니다.')),
-                  );
-                },
-              ),
-              if (isMe) ...[
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 16),
                 ListTile(
-                  leading: const Icon(Icons.delete_outline, color: Colors.red),
-                  title: const Text('메시지 삭제',
-                      style: TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('이 메시지를 대화방에서 완전히 삭제합니다',
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
-                  onTap: () async {
+                  leading: const Icon(Icons.copy, color: Colors.black87),
+                  title: const Text('메시지 내용 복사',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  onTap: () {
                     Navigator.pop(ctx);
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (dCtx) => AlertDialog(
-                        title: const Text('메시지를 삭제할까요?'),
-                        content: const Text('삭제된 메시지는 대화방 참여자 모두에게 더 이상 보이지 않아요.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(dCtx, false),
-                            child: const Text('취소'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(dCtx, true),
-                            child: const Text('삭제',
-                                style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                      ),
+                    Clipboard.setData(ClipboardData(text: text));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('📋 메시지가 클립보드에 복사되었습니다.')),
                     );
-                    if (confirm == true && mounted) {
-                      final msgId = (msg['id'] ?? '').toString();
-                      if (msgId.isNotEmpty) {
-                        try {
-                          await _repo.deleteMessage(widget.chatRoomId, msgId);
-                        } catch (_) {}
-                      }
-                      if (mounted) setState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('메시지가 삭제되었습니다.')),
+                  },
+                ),
+                if (isMe) ...[
+                  ListTile(
+                    leading:
+                        const Icon(Icons.delete_outline, color: Colors.red),
+                    title: const Text('메시지 삭제',
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.w600)),
+                    subtitle: const Text('이 메시지를 대화방에서 완전히 삭제합니다',
+                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    onTap: () async {
+                      Navigator.pop(ctx);
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (dCtx) => AlertDialog(
+                          title: const Text('메시지를 삭제할까요?'),
+                          content:
+                              const Text('삭제된 메시지는 대화방 참여자 모두에게 더 이상 보이지 않아요.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(dCtx, false),
+                              child: const Text('취소'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(dCtx, true),
+                              child: const Text('삭제',
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
                       );
-                    }
-                  },
-                ),
+                      if (confirm == true && mounted) {
+                        final msgId = (msg['id'] ?? '').toString();
+                        if (msgId.isNotEmpty) {
+                          try {
+                            await _repo.deleteMessage(widget.chatRoomId, msgId);
+                          } catch (_) {}
+                        }
+                        if (mounted) setState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('메시지가 삭제되었습니다.')),
+                        );
+                      }
+                    },
+                  ),
+                ],
+                if (!isMe) ...[
+                  ListTile(
+                    leading: const Icon(Icons.flag_outlined, color: Colors.red),
+                    title: const Text('이 메시지 신고하기',
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.w600)),
+                    subtitle: const Text('부적절한 언어, 스팸, 혐오 표현 등',
+                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      UgcActionSheets.showReportDialog(
+                        context: context,
+                        targetType: '채팅 메시지',
+                        targetId: msg['id'] ??
+                            'msg_${DateTime.now().millisecondsSinceEpoch}',
+                        targetUser: sender,
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.block, color: Colors.deepOrange),
+                    title: Text('$sender님 차단하기',
+                        style: const TextStyle(
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.w600)),
+                    subtitle: const Text('이 사용자의 모든 메시지가 즉시 가려집니다',
+                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      UgcActionSheets.showBlockConfirmDialog(
+                        context: context,
+                        userName: sender,
+                        onUserBlocked: () => setState(() {}),
+                      );
+                    },
+                  ),
+                ],
               ],
-              if (!isMe) ...[
-                ListTile(
-                  leading: const Icon(Icons.flag_outlined, color: Colors.red),
-                  title: const Text('이 메시지 신고하기',
-                      style: TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('부적절한 언어, 스팸, 혐오 표현 등',
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    UgcActionSheets.showReportDialog(
-                      context: context,
-                      targetType: '채팅 메시지',
-                      targetId: msg['id'] ??
-                          'msg_${DateTime.now().millisecondsSinceEpoch}',
-                      targetUser: sender,
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.block, color: Colors.deepOrange),
-                  title: Text('$sender님 차단하기',
-                      style: const TextStyle(
-                          color: Colors.deepOrange,
-                          fontWeight: FontWeight.w600)),
-                  subtitle: const Text('이 사용자의 모든 메시지가 즉시 가려집니다',
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    UgcActionSheets.showBlockConfirmDialog(
-                      context: context,
-                      userName: sender,
-                      onUserBlocked: () => setState(() {}),
-                    );
-                  },
-                ),
-              ],
-            ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -2035,8 +2048,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
           decoration: const BoxDecoration(
             color: Colors.white,
-            border:
-                Border(top: BorderSide(color: Color(0xFFF0E4E6), width: 1)),
+            border: Border(top: BorderSide(color: Color(0xFFF0E4E6), width: 1)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -2065,12 +2077,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   maxLines: 4,
                   textInputAction: TextInputAction.newline,
                   keyboardType: TextInputType.multiline,
-                  style: const TextStyle(
-                      fontSize: 14.5, color: Color(0xFF191F28)),
+                  style:
+                      const TextStyle(fontSize: 14.5, color: Color(0xFF191F28)),
                   decoration: InputDecoration(
                     hintText: '메시지를 입력하세요...',
-                    hintStyle: const TextStyle(
-                        fontSize: 14, color: Color(0xFFA0A7B1)),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Color(0xFFA0A7B1)),
                     filled: true,
                     fillColor: const Color(0xFFFAF7F8),
                     contentPadding: const EdgeInsets.symmetric(
@@ -2087,8 +2099,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(22),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFF25767), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFF25767), width: 1.5),
                     ),
                   ),
                 ),
@@ -3433,11 +3445,10 @@ class _InteractiveProfileExchangeCardState
                         fontSize: 15,
                         color: Colors.teal)),
                 const SizedBox(height: 6),
-                Text(
-                    widget.msg['desc'] ??
-                        '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
+                Text(widget.msg['desc'] ?? '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                    style:
+                        const TextStyle(fontSize: 12, color: Colors.black87)),
                 const SizedBox(height: 14),
                 if (isAccepted)
                   SizedBox(
@@ -3473,8 +3484,8 @@ class _InteractiveProfileExchangeCardState
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text(
-                                  '🎉 프로필 교환을 수락했습니다! 상세 프로필이 공개됩니다.')),
+                              content:
+                                  Text('🎉 프로필 교환을 수락했습니다! 상세 프로필이 공개됩니다.')),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -3567,8 +3578,7 @@ class _InteractiveSecretAfterMatchCardState
       } else {
         if (_selectedMembers.length >= 2) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('시크릿 애프터 호감은 최대 2명까지만 선택할 수 있습니다.')),
+            const SnackBar(content: Text('시크릿 애프터 호감은 최대 2명까지만 선택할 수 있습니다.')),
           );
           return;
         }
@@ -3720,8 +3730,8 @@ class _InteractiveSecretAfterMatchCardState
                         ),
                         Text(
                           '상호 선택 시에만 1:1 대화방 개설 (거절 부담 0%)',
-                          style: TextStyle(
-                              fontSize: 11, color: Color(0xFF880E4F)),
+                          style:
+                              TextStyle(fontSize: 11, color: Color(0xFF880E4F)),
                         ),
                       ],
                     ),
@@ -3781,7 +3791,8 @@ class _InteractiveSecretAfterMatchCardState
                                 Text(
                                   cand['name']!,
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 13),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13),
                                 ),
                                 Text(
                                   cand['tag']!,
@@ -3870,4 +3881,3 @@ class _InteractiveSecretAfterMatchCardState
     );
   }
 }
-

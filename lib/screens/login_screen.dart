@@ -6,6 +6,7 @@ import 'soso_car_home_screen.dart';
 import '../services/auth_service.dart';
 import '../utils/global_data.dart';
 import '../utils/web_redirect_helper.dart';
+import '../widgets/oomu_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLoading = false;
   bool _hasProcessedKakaoCode = false;
+
+  // 로그인/회원가입 탭 상태 및 인라인 폼 컨트롤러
+  int _selectedTabIndex = 0; // 0: 로그인, 1: 회원가입
+  final TextEditingController _inlineEmailController = TextEditingController();
+  final TextEditingController _inlinePasswordController = TextEditingController();
+  bool _inlineObscurePassword = true;
+  bool _keepLoggedIn = true;
+  String _inlineErrorMessage = '';
+
+  @override
+  void dispose() {
+    _inlineEmailController.dispose();
+    _inlinePasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -197,6 +213,143 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) _hideLoading();
     }
+  }
+
+  // 2-1. 네이버 간편로그인 안내/연동
+  void _handleNaverLogin() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('네이버 로그인은 현재 솔라피 SMS 문자인증 또는 카카오 간편인증과 통합 제공됩니다.'),
+        backgroundColor: Color(0xFF03C75A),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
+  // 2-2. 인라인 이메일/비밀번호 로그인
+  Future<void> _handleInlineEmailLogin() async {
+    final email = _inlineEmailController.text.trim();
+    final password = _inlinePasswordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _inlineErrorMessage = '이메일과 비밀번호를 모두 입력해 주세요.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _inlineErrorMessage = '';
+    });
+    _showLoading('로그인 확인 중…');
+
+    try {
+      await authService.signInWithEmail(email, password);
+      if (mounted) {
+        _hideLoading();
+        await _navigateHome();
+      }
+    } catch (e) {
+      if (mounted) {
+        _hideLoading();
+        setState(() {
+          final code = e is FirebaseAuthException ? e.code : '';
+          _inlineErrorMessage = switch (code) {
+            'user-not-found' || 'wrong-password' || 'invalid-credential' =>
+              '이메일 또는 비밀번호가 일치하지 않습니다.',
+            'invalid-email' => '올바른 이메일 형식을 입력해 주세요.',
+            'user-disabled' => '사용이 정지된 계정입니다. 고객센터에 문의해 주세요.',
+            _ => '로그인 실패: 이메일과 비밀번호를 다시 확인해 주세요.',
+          };
+        });
+      }
+    }
+  }
+
+  // 2-3. 비밀번호 찾기 모달
+  void _showFindPasswordDialog() {
+    final emailCtrl = TextEditingController(text: _inlineEmailController.text.trim());
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '비밀번호 재설정',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+            color: Color(0xFF191F28),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '가입하신 이메일 주소를 입력하시면 비밀번호를 다시 설정할 수 있는 링크를 보내드립니다.',
+              style: TextStyle(fontSize: 13, color: Color(0xFF6B7684), height: 1.4),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: '이메일 주소 입력',
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE5E8EB)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: brandCoral, width: 1.5),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소',
+                style: TextStyle(color: Color(0xFF8B95A1), fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final em = emailCtrl.text.trim();
+              if (em.isNotEmpty) {
+                Navigator.pop(ctx);
+                try {
+                  await FirebaseAuth.instance.sendPasswordResetEmail(email: em);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('📧 비밀번호 재설정 이메일을 전송했습니다.'),
+                        backgroundColor: Color(0xFFF25767),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('이메일 전송 실패: $e')),
+                    );
+                  }
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: brandCoral,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            child: const Text('이메일 전송',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   // 3. 게스트 둘러보기 (로그인 없이 바로 앱 체험)
@@ -440,20 +593,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // 1. 상단 액션 바 (닫기 X & 둘러보기/테스트 계정)
+                    // 1. 상단 액션 바 (닫기 X & 체험용 테스트 계정 & 둘러보기)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // 좌측 닫기 버튼 (누르면 둘러보기로 홈 진입)
                           IconButton(
                             icon: const Icon(Icons.close_rounded,
                                 size: 26, color: Color(0xFF333D4B)),
                             onPressed: _isLoading ? null : _handleGuestLogin,
                             tooltip: '둘러보기로 이동',
                           ),
-                          // 우측 체험 계정 & 둘러보기 (대형 글자 시 자동 스케일 다운)
                           Flexible(
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
@@ -493,290 +644,721 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
+                    // 2. 상단 브랜드 헤더 & 소개 영역 (공식 OOMU 로고 + 감성 슬로건)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 공식 이중 버블 심볼 + OOMU 워드마크 + '우무'
+                          const OomuLogo(
+                            size: 54,
+                            style: OomuLogoStyle.stacked,
+                            showKoreanSubtitle: true,
+                          ),
+                          const SizedBox(height: 14),
+
+                          // 친근하고 감성적인 슬로건 카피
+                          const Text(
+                            '취향과 관심사로 만나는 우리 동네 소셜 모임',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16.5,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF191F28),
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          const Text(
+                            '야구 직관 · 러닝 · 동네 핫플 · 실시간 영화 팟',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF8B95A1),
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // 3. 2단 세그먼트 탭 [ 로그인 | 회원가입 ] (H.Point / JoongAng 레퍼런스 스타일)
+                    Container(
+                      margin: const EdgeInsets.only(top: 8, bottom: 20),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                              color: Color(0xFFE5E8EB), width: 1.5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () =>
+                                  setState(() => _selectedTabIndex = 0),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 13),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: _selectedTabIndex == 0
+                                          ? brandCoral
+                                          : Colors.transparent,
+                                      width: 2.8,
+                                    ),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '로그인',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: _selectedTabIndex == 0
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
+                                      color: _selectedTabIndex == 0
+                                          ? const Color(0xFF191F28)
+                                          : const Color(0xFF8B95A1),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () =>
+                                  setState(() => _selectedTabIndex = 1),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 13),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: _selectedTabIndex == 1
+                                          ? brandCoral
+                                          : Colors.transparent,
+                                      width: 2.8,
+                                    ),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '회원가입',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: _selectedTabIndex == 1
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
+                                      color: _selectedTabIndex == 1
+                                          ? const Color(0xFF191F28)
+                                          : const Color(0xFF8B95A1),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // 4. 탭별 컨텐츠 바디
+                    if (_selectedTabIndex == 0)
+                      _buildLoginTabContent()
+                    else
+                      _buildSignUpTabContent(),
+
                     const SizedBox(height: 24),
 
-              // 2. 중앙 브랜드 심볼 & 슬로건 (요기요 스타일의 깔끔한 중앙 정렬)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // OOMU 브랜드 엠블럼
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [brandCoral, const Color(0xFFFF7E8B)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(22),
-                      boxShadow: [
-                        BoxShadow(
-                          color: brandCoral.withValues(alpha: 0.28),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
+                    // 5. 하단 약관 안내
+                    Padding(
+                      padding: EdgeInsets.only(
+                          bottom: bottomPadding > 0 ? bottomPadding : 16.0),
+                      child: const Text(
+                        '가입 및 로그인 시 OOMU 이용약관 및 개인정보처리방침에 동의하게 됩니다.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF8B95A1),
+                          letterSpacing: -0.2,
                         ),
-                      ],
+                      ),
                     ),
-                    child: const Center(
-                      child: Icon(Icons.favorite_rounded, color: Colors.white, size: 36),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // 메인 브랜드명
-                  Text(
-                    'OOMU',
-                    style: TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w900,
-                      color: textPrimary,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // 친근하고 감성적인 슬로건
-                  const Text(
-                    '가보고 싶은 곳에서,\n함께할 동네 이웃을 만나요',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF333D4B),
-                      height: 1.45,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    '야구 직관, 핫플 오픈런, 주말 공연 동행까지',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF8B95A1),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-              const SizedBox(height: 32),
+  // --- 탭 1: 로그인 컨텐츠 (사진 1 & 2 스타일) ---
+  Widget _buildLoginTabContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 상단 안내
+        const Text(
+          '로그인을 하시면 동네 모임과 번개, 취향 친구를 만날 수 있어요.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            color: Color(0xFF6B7684),
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 18),
 
-              // 3. 하단 간편가입 / 로그인 버튼군 (요기요 스타일 3단 버튼)
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 1) 카카오로 계속하기
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleKakaoLogin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFEE500),
-                        foregroundColor: const Color(0xFF191919),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      child: const FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat_bubble_rounded,
-                                size: 18, color: Color(0xFF191919)),
-                            SizedBox(width: 8),
-                            Text(
-                              '카카오로 계속하기',
-                              style: TextStyle(
-                                fontSize: 15.5,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF191919),
-                                letterSpacing: -0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+        // 1) 이메일 / 아이디 인풋
+        TextField(
+          controller: _inlineEmailController,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            hintText: '이메일 주소를 입력하세요',
+            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFFA0A7B1)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E8EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E8EB)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: brandCoral, width: 1.5),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 2) 비밀번호 인풋 (눈 아이콘 토글 포함)
+        TextField(
+          controller: _inlinePasswordController,
+          obscureText: _inlineObscurePassword,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _handleInlineEmailLogin(),
+          decoration: InputDecoration(
+            hintText: '비밀번호를 입력하세요',
+            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFFA0A7B1)),
+            suffixIcon: IconButton(
+              tooltip: _inlineObscurePassword ? '비밀번호 보기' : '비밀번호 숨기기',
+              icon: Icon(
+                _inlineObscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                color: const Color(0xFF8B95A1),
+                size: 20,
+              ),
+              onPressed: () => setState(
+                  () => _inlineObscurePassword = !_inlineObscurePassword),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E8EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E8EB)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: brandCoral, width: 1.5),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+
+        // 3) 로그인 유지 체크박스 & 비밀번호 찾기 링크 (사진 1 & 2 스타일)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 22,
+                height: 22,
+                child: Checkbox(
+                  value: _keepLoggedIn,
+                  activeColor: brandCoral,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4)),
+                  side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
+                  onChanged: (val) =>
+                      setState(() => _keepLoggedIn = val ?? true),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => setState(() => _keepLoggedIn = !_keepLoggedIn),
+                child: const Text(
+                  '로그인 유지',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF4E5968),
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 10),
-
-                  // 2) Google로 계속하기
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: OutlinedButton(
-                      onPressed: _isLoading ? null : _handleGoogleLogin,
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: textPrimary,
-                        side: const BorderSide(
-                            color: Color(0xFFE2E8F0), width: 1.2),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      child: const FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'G',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF4285F4),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Google로 계속하기',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF191F28),
-                                letterSpacing: -0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: _showFindPasswordDialog,
+                child: const Text(
+                  '비밀번호 찾기',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7684),
+                    decoration: TextDecoration.underline,
                   ),
-                  const SizedBox(height: 10),
-
-                  // 3) 이메일로 계속하기 (요기요 서피스 버튼 스타일)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () => _showEmailAuthModal(isSignUp: false),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF2F4F7),
-                        foregroundColor: const Color(0xFF333D4B),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      child: const FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.mail_outline_rounded,
-                                size: 19, color: Color(0xFF333D4B)),
-                            SizedBox(width: 8),
-                            Text(
-                              '이메일로 계속하기',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF333D4B),
-                                letterSpacing: -0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // 4) 직접 회원가입 / 휴대폰 / 비밀번호 찾기 (Kiwiplay 스타일 서브 액션)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: _isLoading ? null : _showPhoneAuthModal,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 4),
-                            child: Text(
-                              '휴대폰 번호로 시작하기',
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                color: Color(0xFF6B7684),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 1,
-                          height: 12,
-                          color: const Color(0xFFCBD5E1),
-                        ),
-                        GestureDetector(
-                          onTap: _isLoading
-                              ? null
-                              : () => _showEmailAuthModal(isSignUp: true),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 4),
-                            child: Text(
-                              '이메일 가입',
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                color: Color(0xFF6B7684),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 1,
-                          height: 12,
-                          color: const Color(0xFFCBD5E1),
-                        ),
-                        GestureDetector(
-                          onTap: _isLoading ? null : _handleGuestLogin,
-                          child: Text(
-                            '둘러보기',
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              color: brandCoral,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 5) 약관 안내
-                  Text(
-                    '로그인 시 OOMU 이용약관 및 개인정보처리방침에 동의하게 됩니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: const Color(0xFF8B95A1),
-                      letterSpacing: -0.2,
-                    ),
-                  ),
-                  SizedBox(height: bottomPadding > 0 ? bottomPadding : 12),
-                ],
+                ),
               ),
             ],
           ),
         ),
-      )))),
+
+        if (_inlineErrorMessage.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+            child: Text(
+              _inlineErrorMessage,
+              style: const TextStyle(
+                fontSize: 12.5,
+                color: Color(0xFFE14D5D),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 12),
+
+        // 4) 메인 로그인 버튼 (풀-와이드 코랄 버튼)
+        SizedBox(
+          height: 52,
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : _handleInlineEmailLogin,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: brandCoral,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        color: Colors.white, strokeWidth: 2),
+                  )
+                : const Text(
+                    '로그인',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 5) 서브 링크 라인 (아이디 찾기 | 비밀번호 찾기 | 회원가입)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('아이디는 가입하신 이메일 또는 휴대폰 번호입니다.')),
+              ),
+              child: const Text(
+                '아이디 찾기',
+                style: TextStyle(fontSize: 13, color: Color(0xFF6B7684)),
+              ),
+            ),
+            _buildLinkDivider(),
+            GestureDetector(
+              onTap: _showFindPasswordDialog,
+              child: const Text(
+                '비밀번호 찾기',
+                style: TextStyle(fontSize: 13, color: Color(0xFF6B7684)),
+              ),
+            ),
+            _buildLinkDivider(),
+            GestureDetector(
+              onTap: () => setState(() => _selectedTabIndex = 1),
+              child: Text(
+                '회원가입',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: brandCoral,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        // 6) SNS 간편로그인 구분선
+        _buildSnsDivider('SNS 간편로그인'),
+
+        const SizedBox(height: 18),
+
+        // 7) 4구 SNS 원형 아이콘 그리드 (카카오, 네이버, 구글, 문자인증)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSnsButton(
+              onTap: _handleKakaoLogin,
+              bgColor: const Color(0xFFFEE500),
+              iconWidget: const Icon(Icons.chat_bubble_rounded,
+                  size: 22, color: Color(0xFF191919)),
+              label: '카카오',
+            ),
+            const SizedBox(width: 22),
+            _buildSnsButton(
+              onTap: _handleNaverLogin,
+              bgColor: const Color(0xFF03C75A),
+              iconWidget: const Text(
+                'N',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  fontFamily: 'sans-serif',
+                ),
+              ),
+              label: '네이버',
+            ),
+            const SizedBox(width: 22),
+            _buildSnsButton(
+              onTap: _handleGoogleLogin,
+              bgColor: Colors.white,
+              border: Border.all(color: const Color(0xFFE5E8EB), width: 1.2),
+              iconWidget: const Text(
+                'G',
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF4285F4),
+                ),
+              ),
+              label: '구글',
+            ),
+            const SizedBox(width: 22),
+            _buildSnsButton(
+              onTap: _showPhoneAuthModal,
+              bgColor: const Color(0xFFFFF0F2),
+              border: Border.all(color: const Color(0xFFFCDADF), width: 1.2),
+              iconWidget: const Icon(Icons.smartphone_rounded,
+                  size: 22, color: Color(0xFFF25767)),
+              label: '문자인증',
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        // 8) 하단 비회원 둘러보기 버튼 (사진 1 '비회원 주문조회' 위치)
+        SizedBox(
+          height: 48,
+          child: OutlinedButton(
+            onPressed: _isLoading ? null : _handleGuestLogin,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF333D4B),
+              side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              '둘러보기 (로그인 없이 모임 구경하기)',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF4E5968),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- 탭 2: 회원가입 컨텐츠 (사진 3 스타일) ---
+  Widget _buildSignUpTabContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 상단 타이틀 & 안내
+        const Text(
+          '회원가입 방식을 선택해 주세요',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF191F28),
+            letterSpacing: -0.3,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          '동네 인증과 신뢰 기반으로 안전하게 활동할 수 있어요.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            color: Color(0xFF8B95A1),
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 22),
+
+        // 1) SNS 간편 가입 원형 아이콘 그리드 (3초 빠른 가입)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSnsButton(
+              onTap: _handleKakaoLogin,
+              bgColor: const Color(0xFFFEE500),
+              iconWidget: const Icon(Icons.chat_bubble_rounded,
+                  size: 22, color: Color(0xFF191919)),
+              label: '카카오',
+            ),
+            const SizedBox(width: 22),
+            _buildSnsButton(
+              onTap: _handleNaverLogin,
+              bgColor: const Color(0xFF03C75A),
+              iconWidget: const Text(
+                'N',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  fontFamily: 'sans-serif',
+                ),
+              ),
+              label: '네이버',
+            ),
+            const SizedBox(width: 22),
+            _buildSnsButton(
+              onTap: _handleGoogleLogin,
+              bgColor: Colors.white,
+              border: Border.all(color: const Color(0xFFE5E8EB), width: 1.2),
+              iconWidget: const Text(
+                'G',
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF4285F4),
+                ),
+              ),
+              label: '구글',
+            ),
+            const SizedBox(width: 22),
+            _buildSnsButton(
+              onTap: _showPhoneAuthModal,
+              bgColor: const Color(0xFFFFF0F2),
+              border: Border.all(color: const Color(0xFFFCDADF), width: 1.2),
+              iconWidget: const Icon(Icons.smartphone_rounded,
+                  size: 22, color: Color(0xFFF25767)),
+              label: '문자인증',
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        // 2) 구분선 '또는' (사진 3 스타일)
+        _buildSnsDivider('또는'),
+
+        const SizedBox(height: 20),
+
+        // 3) 외곽선 가입 방식 카드 2종 (사진 3 스타일)
+        // A. 솔라피 실시간 SMS 문자인증 회원가입
+        InkWell(
+          onTap: _isLoading ? null : _showPhoneAuthModal,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            height: 54,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.smartphone_rounded,
+                    size: 20, color: Color(0xFFF25767)),
+                SizedBox(width: 10),
+                Text(
+                  '휴대폰 번호로 회원가입',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF191F28),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // B. 이메일로 회원가입
+        InkWell(
+          onTap: _isLoading ? null : () => _showEmailAuthModal(isSignUp: true),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            height: 54,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.mail_outline_rounded,
+                    size: 20, color: Color(0xFF4E5968)),
+                SizedBox(width: 10),
+                Text(
+                  '이메일로 회원가입',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF191F28),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // 4) 하단 로그인 전환 링크
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              '이미 회원이신가요?',
+              style: TextStyle(fontSize: 13.5, color: Color(0xFF6B7684)),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => setState(() => _selectedTabIndex = 0),
+              child: Text(
+                '로그인',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.bold,
+                  color: brandCoral,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // --- 보조 위젯: SNS 원형 버튼 ---
+  Widget _buildSnsButton({
+    required VoidCallback onTap,
+    required Color bgColor,
+    required Widget iconWidget,
+    required String label,
+    Border? border,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: _isLoading ? null : onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: bgColor,
+              shape: BoxShape.circle,
+              border: border,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Center(child: iconWidget),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF4E5968),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- 보조 위젯: 구분선 (텍스트 중앙 정렬) ---
+  Widget _buildSnsDivider(String text) {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: Color(0xFFE5E8EB), height: 1)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14.0),
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF8B95A1),
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: Color(0xFFE5E8EB), height: 1)),
+      ],
+    );
+  }
+
+  // --- 보조 위젯: 링크 구분 바 ---
+  Widget _buildLinkDivider() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      width: 1,
+      height: 12,
+      color: const Color(0xFFCBD5E1),
     );
   }
 }
