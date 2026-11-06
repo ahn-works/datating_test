@@ -29,14 +29,29 @@ class BalancedText extends StatelessWidget {
 
   static bool _isHangulSyllable(int rune) => rune >= 0xAC00 && rune <= 0xD7A3;
 
+  static bool _isShortTailOrEmoji(String word) {
+    if (word.isEmpty) return true;
+    final runes = word.runes.toList();
+    if (runes.length <= 2) return true;
+    // Check if word contains any Hangul syllable; if pure emoji/symbols, it is a short tail
+    return !runes.any(_isHangulSyllable);
+  }
+
   /// 표시용 문자열. 원문과 글자 내용은 같고 제어 문자만 추가/치환됩니다.
   static String display(String text) {
     if (text.isEmpty) return text;
     final trimmedEnd = text.trimRight();
-    final lastSpace = trimmedEnd.lastIndexOf(' ');
-    final glued = lastSpace > 0
-        ? text.replaceRange(lastSpace, lastSpace + 1, '\u00A0')
-        : text;
+    final words = trimmedEnd.split(' ');
+    String glued;
+    if (words.length >= 3 && _isShortTailOrEmoji(words.last)) {
+      final prefix = words.sublist(0, words.length - 2).join(' ');
+      glued = '$prefix\u00A0${words[words.length - 2]}\u00A0${words.last}';
+    } else {
+      final lastSpace = trimmedEnd.lastIndexOf(' ');
+      glued = lastSpace > 0
+          ? text.replaceRange(lastSpace, lastSpace + 1, '\u00A0')
+          : text;
+    }
 
     final b = StringBuffer();
     int? prev;

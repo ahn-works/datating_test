@@ -1064,16 +1064,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     final int reqSession = globalData.sessionGeneration;
     if (Firebase.apps.isEmpty) return;
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      final uid = user?.uid ?? globalData.activeUserId;
+      final activeUid = globalData.activeUserId;
+      final uid = (activeUid.isNotEmpty && activeUid != 'guest')
+          ? activeUid
+          : (FirebaseAuth.instance.currentUser?.uid ?? '');
       if (uid.isNotEmpty && uid != 'guest') {
         final doc =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
-        final currentAuthUid = FirebaseAuth.instance.currentUser?.uid;
         if (!mounted ||
             reqGen != _locationLoadGeneration ||
-            !globalData.isActiveSession(reqSession, uid) ||
-            (currentAuthUid != null && currentAuthUid != uid)) {
+            !globalData.isActiveSession(reqSession, uid)) {
           return;
         }
         if (doc.exists && doc.data() != null) {

@@ -51,6 +51,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     return OomuUiHelpers.calcRemainingSeats(memberRaw);
   }
 
+  int _getMemberCount(dynamic raw) {
+    if (raw is List) return raw.length;
+    if (raw is num) return raw.toInt();
+    if (raw is String) return int.tryParse(raw) ?? (raw.isNotEmpty ? 1 : 0);
+    return 0;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -646,7 +653,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              widget.meetup?['members'] == null ? '참여 인원 확인 필요' : '${widget.meetup!['members']}명 참여',
+                              _getMemberCount(widget.meetup?['members']) > 0
+                                  ? '${_getMemberCount(widget.meetup?['members'])}명 참여 중'
+                                  : '참여 인원 확인 필요',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(fontSize: 12.5, color: coralAccent, fontWeight: FontWeight.w700),
