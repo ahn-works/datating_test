@@ -35,7 +35,7 @@ void main() {
             'category': '카페',
           })));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('이곳에 같이 갈 모임 열기'));
+      await tester.tap(find.textContaining('모임 열기'));
       await tester.pumpAndSettle();
       final screen = tester.widget<OOMUHostScreen>(find.byType(OOMUHostScreen));
       expect(screen.initialTitle, '소금빵 카페 함께 가요');
@@ -80,10 +80,10 @@ void main() {
             data: MediaQueryData(
                 size: const Size(360, 640),
                 textScaler: TextScaler.linear(scale)),
-            child: const LoginScreen(),
+            child: const LoginScreen(initialStage: 2),
           )));
       await tester.pump();
-      expect(find.text('휴대폰 번호로 시작하기'), findsOneWidget);
+      expect(find.text('로그인'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
     await tester.binding.setSurfaceSize(null);
@@ -166,7 +166,7 @@ void main() {
       await tester.scrollUntilVisible(find.textContaining('아직 자세한 소개'), 200,
           scrollable: find.byType(Scrollable).first);
       expect(find.textContaining('아직 자세한 소개'), findsOneWidget);
-      expect(find.text('이곳에 같이 갈 모임 열기'), findsOneWidget);
+      expect(find.textContaining('모임 열기'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

@@ -242,11 +242,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('발견').last);
       await tester.pumpAndSettle();
-      expect(find.text('우리 동네 2:2 · 3:3 미팅 팟'), findsOneWidget);
-      expect(find.textContaining('동네 미팅 모임은 아직 없어요'), findsOneWidget);
-      expect(find.text('미팅 팟 참여하기'), findsNothing);
-      expect(find.textContaining('불금 홍대 2:2'), findsNothing);
-      expect(tester.takeException(), isNull, reason: 'dating tab');
+      expect(find.text('우리 동네 2:2 · 3:3 미팅 팟'), findsNothing);
+      expect(find.text('날씨·맛집'), findsWidgets);
+      expect(find.text('할인·이벤트'), findsWidgets);
+      expect(find.text('청년지원금'), findsWidgets);
+      expect(tester.takeException(), isNull, reason: 'discovery tab');
       await tester.tap(find.text('채팅').last);
       await tester.pumpAndSettle();
       expect(find.byType(ChatScreen), findsOneWidget);

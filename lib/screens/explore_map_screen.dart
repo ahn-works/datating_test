@@ -37,6 +37,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   bool _isLoading = false;
+  String? _selectedMeetupId;
+  int _mapZoomLevel = 3;
 
   // 주요 핫스팟 프리셋 (원터치 이동 - 사용자 동네 맥락 연동)
   List<Map<String, dynamic>> get _currentHotspots {
@@ -75,7 +77,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
   final List<Map<String, dynamic>> _presetMeetups = [
     {
       'id': 'exp_01',
-      'title': '홍대입구역 9번 출구 인생네컷 & 와플 🧇',
+      'title': '홍대입구 9번 출구 인생네컷·와플 🧇',
       'location': '마포구 홍대입구역 9번 출구 앞',
       'lat': 37.5568,
       'lng': 126.9238,
@@ -92,7 +94,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     },
     {
       'id': 'exp_02',
-      'title': '연남동 연트럴파크 돗자리 캔맥주 급구 🍺',
+      'title': '연트럴파크 돗자리 캔맥주 번개 모임 🍺',
       'location': '마포구 경의선숲길 잔디광장',
       'lat': 37.5620,
       'lng': 126.9255,
@@ -475,6 +477,33 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     return filtered;
   }
 
+  void _focusMeetupOnMap(Map<String, dynamic> m, {bool openDetail = false}) {
+    HapticFeedback.selectionClick();
+    final double? lat =
+        (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
+    final double? lng =
+        (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
+    setState(() {
+      _selectedMeetupId = (m['id'] ?? '').toString();
+      if (lat != null && lng != null) {
+        _currentLat = lat;
+        _currentLng = lng;
+      }
+      final loc = (m['location'] ?? '').toString();
+      if (loc.isNotEmpty) {
+        _currentSpotName = loc;
+      }
+    });
+    if (openDetail && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OOMUDetailScreen(meetup: m),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const coralAccent = Color(0xFFF25767);
@@ -482,7 +511,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     const textSecondary = Color(0xFF64748B);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -529,518 +558,580 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           child: Container(color: const Color(0xFFF1F5F9), height: 1),
         ),
       ),
-      body: Stack(
-        children: [
-          // 1. 카카오 공식 지도 뷰 (배경 전체)
-          Positioned.fill(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('meetups')
-                  .limit(20)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                final List<Map<String, dynamic>> allMapMeetups = [];
-                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                  for (final doc in snapshot.data!.docs) {
-                    final d = Map<String, dynamic>.from(
-                        doc.data() as Map<String, dynamic>);
-                    d['id'] = doc.id;
-                    if (d['lat'] != null && d['lng'] != null) {
-                      allMapMeetups.add(d);
-                    }
-                  }
-                }
-                for (final p in _presetMeetups) {
-                  if (!allMapMeetups.any((m) => m['title'] == p['title'])) {
-                    allMapMeetups.add(p);
-                  }
-                }
-                return KakaoMapView(
-                  lat: _currentLat,
-                  lng: _currentLng,
-                  locationName: _currentSpotName,
-                  hideActions: true,
-                  markers: allMapMeetups,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('meetups')
+            .orderBy('createdAt', descending: true)
+            .limit(20)
+            .snapshots(),
+        builder: (context, snapshot) {
+          final List<Map<String, dynamic>> meetups = [];
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            for (final doc in snapshot.data!.docs) {
+              final data =
+                  Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+              data['id'] = doc.id;
+              meetups.add(data);
+            }
+          }
+          final Set<String> existingTitles =
+              meetups.map((m) => (m['title'] ?? '').toString()).toSet();
+          for (final preset in _presetMeetups) {
+            if (!existingTitles.contains(preset['title'])) {
+              meetups.add(preset);
+            }
+          }
+
+          final filtered = _getFilteredMeetups(meetups);
+          Map<String, dynamic>? selectedMeetup;
+          if (_selectedMeetupId != null && _selectedMeetupId!.isNotEmpty) {
+            for (final item in filtered) {
+              if ((item['id'] ?? '').toString() == _selectedMeetupId) {
+                selectedMeetup = item;
+                break;
+              }
+            }
+            selectedMeetup ??= meetups.cast<Map<String, dynamic>?>().firstWhere(
+                  (item) =>
+                      (item?['id'] ?? '').toString() == _selectedMeetupId,
+                  orElse: () => null,
                 );
-              },
-            ),
-          ),
+          }
+          if (selectedMeetup == null && filtered.isNotEmpty) {
+            selectedMeetup = filtered.first;
+          }
 
-          // 2. 상단 플로팅 검색 & 필터 바
-          Positioned(
-            top: 12,
-            left: 16,
-            right: 16,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 검색 입력창
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.96),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
+          return Column(
+            children: [
+              // 1. 상단 고정 검색 & 핫스팟/카테고리 바 (지도 영역과 분리되어 터치 간섭 없음)
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
-                    ],
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 14, right: 8),
-                        child: Icon(Icons.search_rounded,
-                            color: coralAccent, size: 22),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          style: const TextStyle(
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w600,
-                              color: textPrimary),
-                          decoration: const InputDecoration(
-                            hintText: '동네, 지하철역, 취향 키워드 검색 (예: 성수, 와인)',
-                            hintStyle: TextStyle(
-                                fontSize: 13, color: Color(0xFF94A3B8)),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 14),
+                      child: Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 12, right: 8),
+                            child: Icon(Icons.search_rounded,
+                                color: coralAccent, size: 20),
                           ),
-                          onSubmitted: _searchLocation,
-                          onChanged: (val) => setState(() {}),
-                        ),
-                      ),
-                      if (_searchController.text.isNotEmpty)
-                        IconButton(
-                          icon: const Icon(Icons.clear,
-                              size: 18, color: Color(0xFF94A3B8)),
-                          onPressed: () {
-                            setState(() => _searchController.clear());
-                          },
-                        ),
-                      Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        child: IconButton(
-                          icon: const Icon(Icons.tune_rounded,
-                              size: 20, color: textSecondary),
-                          onPressed: () => _showFilterModal(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // 주요 핫스팟 퀵 칩 리스트 (가로 스크롤)
-                SizedBox(
-                  height: 34,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _currentHotspots.length,
-                    itemBuilder: (context, index) {
-                      final spot = _currentHotspots[index];
-                      final isSelected =
-                          _currentSpotName.contains(spot['name'] as String);
-                      return GestureDetector(
-                        onTap: () => _moveToLocation(
-                          (spot['lat'] as num).toDouble(),
-                          (spot['lng'] as num).toDouble(),
-                          spot['dong'] as String,
-                        ),
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? coralAccent
-                                : Colors.white.withValues(alpha: 0.95),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.06),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              style: const TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: textPrimary),
+                              decoration: const InputDecoration(
+                                hintText: '동네, 지하철역, 취향 키워드 검색',
+                                hintStyle: TextStyle(
+                                    fontSize: 12.5, color: Color(0xFF94A3B8)),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 11),
                               ),
-                            ],
-                            border: Border.all(
-                              color: isSelected
-                                  ? coralAccent
-                                  : const Color(0xFFE2E8F0),
+                              onSubmitted: _searchLocation,
+                              onChanged: (val) => setState(() {}),
                             ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.place_rounded,
-                                size: 14,
-                                color: isSelected ? Colors.white : coralAccent,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                spot['name'] as String,
-                                style: TextStyle(
-                                  color:
-                                      isSelected ? Colors.white : textPrimary,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // 카테고리 필터 칩 (가로 스크롤)
-                SizedBox(
-                  height: 32,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _categories.length,
-                    itemBuilder: (context, index) {
-                      final cat = _categories[index];
-                      final isSelected = _selectedCategory == cat;
-                      return GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selectedCategory = cat);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 6),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 11, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color(0xFF0F172A)
-                                : Colors.white.withValues(alpha: 0.92),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? const Color(0xFF0F172A)
-                                  : const Color(0xFFE2E8F0),
+                          if (_searchController.text.isNotEmpty)
+                            IconButton(
+                              icon: const Icon(Icons.clear,
+                                  size: 18, color: Color(0xFF94A3B8)),
+                              onPressed: () {
+                                setState(() => _searchController.clear());
+                              },
                             ),
+                          IconButton(
+                            icon: const Icon(Icons.tune_rounded,
+                                size: 19, color: textSecondary),
+                            onPressed: () => _showFilterModal(context),
                           ),
-                          child: Text(
-                            cat,
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF475569),
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.w600,
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 3. 로딩 인디케이터
-          if (_isLoading)
-            Positioned(
-              top: 150,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.75),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Text('카카오 지도 동기화 중...',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // 4. Mobbin 1티어 Draggable Sheet-over-Map
-          DraggableScrollableSheet(
-            initialChildSize: 0.38,
-            minChildSize: 0.18,
-            maxChildSize: 0.88,
-            snap: true,
-            snapSizes: const [0.18, 0.38, 0.88],
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(28)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.12),
-                      blurRadius: 24,
-                      offset: const Offset(0, -6),
                     ),
-                  ],
-                ),
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('meetups')
-                      .orderBy('createdAt', descending: true)
-                      .limit(20)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    List<Map<String, dynamic>> meetups = [];
-
-                    if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                      meetups = snapshot.data!.docs.map((doc) {
-                        final data = Map<String, dynamic>.from(
-                            doc.data() as Map<String, dynamic>);
-                        data['id'] = doc.id;
-                        return data;
-                      }).toList();
-                    }
-
-                    // 기본 프리셋과 병합하여 풍성한 탐색 피드 제공
-                    final Set<String> existingTitles = meetups
-                        .map((m) => (m['title'] ?? '').toString())
-                        .toSet();
-                    for (var preset in _presetMeetups) {
-                      if (!existingTitles.contains(preset['title'])) {
-                        meetups.add(preset);
-                      }
-                    }
-
-                    final filtered = _getFilteredMeetups(meetups);
-
-                    return CustomScrollView(
-                      controller: scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      slivers: [
-                        // 시트 상단 드래그 핸들 및 상태 요약 바
-                        SliverToBoxAdapter(
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              Container(
-                                width: 42,
-                                height: 4.5,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFCBD5E1),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.explore_rounded,
-                                            color: coralAccent, size: 20),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          '현재 반경 모임 (${filtered.length}개)',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w800,
-                                            color: textPrimary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF0EB),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        '$_selectedRadius 반경',
-                                        style: const TextStyle(
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.bold,
-                                          color: coralAccent,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Divider(
-                                  height: 1, color: Color(0xFFF1F5F9)),
-                            ],
-                          ),
-                        ),
-
-                        // 빈 상태 (Empty State: 따뜻한 감성 일러스트 + 즉시 행동 유도 CTA)
-                        if (filtered.isEmpty)
-                          SliverToBoxAdapter(
-                            child: Padding(
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 32,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _currentHotspots.length,
+                        itemBuilder: (context, index) {
+                          final spot = _currentHotspots[index];
+                          final isSelected = _currentSpotName
+                              .contains(spot['name'] as String);
+                          return GestureDetector(
+                            onTap: () => _moveToLocation(
+                              (spot['lat'] as num).toDouble(),
+                              (spot['lng'] as num).toDouble(),
+                              spot['dong'] as String,
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 6),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 40),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                  horizontal: 11, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? coralAccent
+                                    : const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? coralAccent
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Container(
-                                    width: 72,
-                                    height: 72,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF8FAFC),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                          color: const Color(0xFFE2E8F0)),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Icon(Icons.explore_off_rounded,
-                                        size: 36, color: Color(0xFF94A3B8)),
+                                  Icon(
+                                    Icons.place_rounded,
+                                    size: 13,
+                                    color:
+                                        isSelected ? Colors.white : coralAccent,
                                   ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    '현재 필터 조건에 맞는 모임이 없어요',
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    spot['name'] as String,
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: textPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  const Text(
-                                    '반경을 넓히거나 다른 카테고리를 선택해 보세요.\n이 동네의 첫 번째 호스트가 되어볼 수도 있어요!',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: textSecondary,
-                                        height: 1.4),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  ElevatedButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => OOMUHostScreen(
-                                            initialLocation: _currentSpotName,
-                                            initialLat: _currentLat,
-                                            initialLng: _currentLng,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.add, size: 18),
-                                    label: const Text('이 동네 첫 모임 열기',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: coralAccent,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(14)),
-                                      elevation: 0,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : textPrimary,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
+                                      fontSize: 11.5,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          )
-                        else
-                          // 100점 풀-피니시 모임 카드 리스트
-                          SliverPadding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            sliver: SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final m = filtered[index];
-                                  return _buildMeetupCard(context, m);
-                                },
-                                childCount: filtered.length,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    SizedBox(
+                      height: 30,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _categories.length,
+                        itemBuilder: (context, index) {
+                          final cat = _categories[index];
+                          final isSelected = _selectedCategory == cat;
+                          return GestureDetector(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() => _selectedCategory = cat);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? const Color(0xFF0F172A)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xFF0F172A)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: Text(
+                                cat,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF475569),
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 2. 독립된 지도 캔버스 영역 (확대/축소가 지도 내부에만 적용됨)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          height: 220,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: KakaoMapView(
+                            lat: _currentLat,
+                            lng: _currentLng,
+                            locationName: _currentSpotName,
+                            height: 220,
+                            hideActions: true,
+                            markers: filtered.isNotEmpty ? filtered : meetups,
+                            selectedMarkerId:
+                                (selectedMeetup?['id'] ?? '').toString(),
+                            zoomLevel: _mapZoomLevel,
+                            onMarkerTap: (markerId, shouldOpenDetail) {
+                              final target = meetups.firstWhere(
+                                (m) => (m['id'] ?? '').toString() == markerId,
+                                orElse: () => <String, dynamic>{},
+                              );
+                              if (target.isNotEmpty) {
+                                _focusMeetupOnMap(target,
+                                    openDetail: shouldOpenDetail);
+                              }
+                            },
+                          ),
+                        ),
+                        // 지도 전용 확대/축소 컨트롤 (지도 박스 우측 하단에 격리)
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.95),
+                              borderRadius: BorderRadius.circular(10),
+                              border:
+                                  Border.all(color: const Color(0xFFE2E8F0)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.08),
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _mapZoomLevel =
+                                          (_mapZoomLevel - 1).clamp(1, 9);
+                                    });
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
+                                    child: Text('+',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w900,
+                                            color: textPrimary)),
+                                  ),
+                                ),
+                                Container(
+                                    width: 1,
+                                    height: 18,
+                                    color: const Color(0xFFE2E8F0)),
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _mapZoomLevel =
+                                          (_mapZoomLevel + 1).clamp(1, 9);
+                                    });
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
+                                    child: Text('−',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w900,
+                                            color: textPrimary)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (_isLoading)
+                          Positioned.fill(
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.72),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: const Text(
+                                  '지도 이동 중...',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                           ),
                       ],
-                    );
-                  },
+                    ),
+                    // 지도 마커 빠른 선택 칩 & 선택된 모임 즉시 이동 바
+                    if (selectedMeetup != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF191F28),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: coralAccent,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                '📍 선택된 모임',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                (selectedMeetup['title'] ?? '').toString(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => OOMUDetailScreen(
+                                        meetup: selectedMeetup!),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '모임 이동',
+                                      style: TextStyle(
+                                        color: Color(0xFF191F28),
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    SizedBox(width: 2),
+                                    Icon(Icons.chevron_right_rounded,
+                                        size: 15, color: Color(0xFF191F28)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              );
-            },
-          ),
-        ],
+              ),
+
+              // 3. 하단 모임 리스트 (특정 모임 지도 위치 선택 + 모임 상세 이동)
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.explore_rounded,
+                                      color: coralAccent, size: 19),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '현재 반경 모임 (${filtered.length}개)',
+                                    style: const TextStyle(
+                                      fontSize: 15.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0EB),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '$_selectedRadius 반경',
+                                  style: const TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: coralAccent,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      ),
+                      if (filtered.isEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 32),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.explore_off_rounded,
+                                    size: 36, color: Color(0xFF94A3B8)),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  '현재 필터 조건에 맞는 모임이 없어요',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedCategory = '전체';
+                                      _selectedRadius = '전체';
+                                      _searchController.clear();
+                                    });
+                                  },
+                                  icon: const Icon(Icons.refresh_rounded,
+                                      size: 16),
+                                  label: const Text('필터 초기화',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: coralAccent,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final m = filtered[index];
+                                return _buildMeetupCard(context, m,
+                                    isSelectedOnMap: (m['id'] ?? '').toString() ==
+                                        (selectedMeetup?['id'] ?? '')
+                                            .toString());
+                              },
+                              childCount: filtered.length,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   // 100점 풀-피니시 모임 카드 위젯 (당근/문토/29CM 표준 규격)
-  Widget _buildMeetupCard(BuildContext context, Map<String, dynamic> m) {
+  Widget _buildMeetupCard(BuildContext context, Map<String, dynamic> m,
+      {bool isSelectedOnMap = false}) {
     const textPrimary = Color(0xFF0F172A);
+    const coralAccent = Color(0xFFF25767);
     final isLightning = m['isLightning'] == true;
-
-    void openDetail() {
-      HapticFeedback.lightImpact();
-      final double? lat =
-          (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
-      final double? lng =
-          (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
-      if (lat != null && lng != null) {
-        setState(() {
-          _currentLat = lat;
-          _currentLng = lng;
-          _currentSpotName = (m['location'] ?? '').toString();
-        });
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => OOMUDetailScreen(meetup: m),
-        ),
-      );
-    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: openDetail,
+      onTap: () => _focusMeetupOnMap(m, openDetail: true),
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color:
-                isLightning ? const Color(0xFFFFD8A8) : const Color(0xFFE2E8F0),
-            width: 1.0,
+            color: isSelectedOnMap
+                ? coralAccent
+                : (isLightning
+                    ? const Color(0xFFFFD8A8)
+                    : const Color(0xFFE2E8F0)),
+            width: isSelectedOnMap ? 1.8 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
@@ -1104,7 +1195,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 카테고리 태그 & 안심 정산 뱃지
+                        // 카테고리 태그 & 선택 상태 뱃지
                         Row(
                           children: [
                             Container(
@@ -1125,6 +1216,24 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     color: Color(0xFF475569)),
                               ),
                             ),
+                            if (isSelectedOnMap) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0F2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text(
+                                  '지도 선택됨',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: coralAccent),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -1199,7 +1308,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              // 🌟 1티어 에디토리얼 위치 & 일정 하이라이트 박스
+              // 위치 & 일정 요약 + [지도 위치 선택] / [모임 상세 이동] 액션 바
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1210,7 +1319,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                 ),
                 child: Column(
                   children: [
-                    // 1) 위치 정보 (눈에 띄는 15px 라운드 핀 아이콘 + 볼드 텍스트 + 거리 칩)
                     Row(
                       children: [
                         const Icon(Icons.location_on_rounded,
@@ -1246,43 +1354,66 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       ],
                     ),
                     const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5),
+                      padding: EdgeInsets.symmetric(vertical: 6),
                       child: Divider(height: 1, color: Color(0xFFEDF2F7)),
                     ),
-                    // 2) 일정 및 시간 정보 (또렷한 14.5px 캘린더 아이콘 + 볼드 텍스트 + 카카오 지도 뱃지)
                     Row(
                       children: [
-                        Icon(
-                          isLightning
-                              ? Icons.bolt_rounded
-                              : Icons.calendar_month_rounded,
-                          size: 14.5,
-                          color: isLightning
-                              ? const Color(0xFFF25767)
-                              : const Color(0xFF2563EB),
-                        ),
-                        const SizedBox(width: 6),
                         Expanded(
-                          child: Text(
-                            (m['date'] ?? (isLightning ? '오늘 번개' : '이번 주말'))
-                                .toString(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isLightning
-                                  ? const Color(0xFFF25767)
-                                  : const Color(0xFF334155),
+                          child: InkWell(
+                            onTap: () => _focusMeetupOnMap(m, openDetail: false),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 7),
+                              decoration: BoxDecoration(
+                                color: isSelectedOnMap
+                                    ? const Color(0xFFFFF0F2)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelectedOnMap
+                                      ? coralAccent
+                                      : const Color(0xFFCBD5E1),
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                isSelectedOnMap
+                                    ? '📍 지도에 표시 중'
+                                    : '📍 지도에서 위치 보기',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelectedOnMap
+                                      ? coralAccent
+                                      : textPrimary,
+                                ),
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Text(
-                          '카카오 지도 연결',
-                          style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF059669)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _focusMeetupOnMap(m, openDetail: true),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 7),
+                              decoration: BoxDecoration(
+                                color: textPrimary,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                '해당 모임으로 이동 ›',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

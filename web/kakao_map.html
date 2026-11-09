@@ -7,8 +7,43 @@
   <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=277e860aee05a0dd1504f70ce7ac8e74"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, Roboto, sans-serif; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, Roboto, sans-serif;
+    }
     #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .map-zoom-box {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+      border: 1px solid #E2E8F0;
+      overflow: hidden;
+    }
+    .btn-zoom {
+      width: 38px;
+      height: 38px;
+      border: none;
+      background: transparent;
+      color: #191F28;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .btn-zoom:active { background: #F1F5F9; }
+    .btn-zoom + .btn-zoom { border-top: 1px solid #E2E8F0; }
     .overlay-box {
       position: absolute;
       bottom: 16px;
@@ -37,25 +72,54 @@
     .btn-map { background: #FEE500; color: #191919; }
     .btn-navi { background: #191919; color: #FFFFFF; }
     .custom-marker {
-      background: #191919;
-      color: #FEE500;
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 900;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      background: #FFFFFF;
+      color: #191F28;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
       white-space: nowrap;
-      max-width: 150px;
+      max-width: 190px;
       overflow: hidden;
       text-overflow: ellipsis;
-      border: 1.5px solid #FEE500;
+      border: 2px solid #F25767;
       transform: translate(-50%, -100%);
-      margin-top: -38px;
+      margin-top: -40px;
+      cursor: pointer;
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .custom-marker:hover {
+      transform: translate(-50%, -104%) scale(1.04);
+    }
+    .custom-marker.is-selected {
+      background: #191F28;
+      color: #FFFFFF;
+      border-color: #FEE500;
+      box-shadow: 0 6px 16px rgba(242, 87, 103, 0.38);
+      z-index: 30;
+    }
+    .custom-marker .go-pill {
+      background: #F25767;
+      color: #FFFFFF;
+      border-radius: 999px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-left: 2px;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <div class="map-zoom-box" aria-label="지도 확대 축소">
+    <button class="btn-zoom" id="btnZoomIn" type="button" title="지도 확대">+</button>
+    <button class="btn-zoom" id="btnZoomOut" type="button" title="지도 축소">−</button>
+  </div>
   <div class="overlay-box">
     <button class="btn-kakao-action btn-map" id="btnMap" type="button">
       <span>카카오맵 보기</span>
@@ -66,10 +130,19 @@
   </div>
 
   <script>
+    // Prevent browser-level pinch/ctrl+wheel zoom from scaling the entire UI
+    window.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
     const params = new URLSearchParams(window.location.search);
     const lat = parseFloat(params.get('lat') || '37.4988');
     const lng = parseFloat(params.get('lng') || '127.0279');
+    const levelParam = parseInt(params.get('level') || '3', 10);
     const name = decodeURIComponent(params.get('name') || '모임 장소');
+    let selectedId = params.get('selectedId') || '';
     const hideActions = params.get('hideActions') === 'true' || params.get('preview') === 'true';
 
     if (hideActions) {
@@ -77,70 +150,184 @@
       if (overlayBox) {
         overlayBox.style.display = 'none';
       }
+      const zoomBox = document.querySelector('.map-zoom-box');
+      if (zoomBox) {
+        zoomBox.style.display = 'none';
+      }
     }
 
     const container = document.getElementById('map');
     const options = {
       center: new kakao.maps.LatLng(lat, lng),
-      level: 3
+      level: isNaN(levelParam) ? 3 : Math.min(Math.max(levelParam, 1), 9)
     };
 
     const map = new kakao.maps.Map(container, options);
 
-    // Zoom control
-    const zoomControl = new kakao.maps.ZoomControl();
-    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+    document.getElementById('btnZoomIn').onclick = function(e) {
+      e.stopPropagation();
+      map.setLevel(Math.max(1, map.getLevel() - 1), { animate: true });
+    };
+    document.getElementById('btnZoomOut').onclick = function(e) {
+      e.stopPropagation();
+      map.setLevel(Math.min(10, map.getLevel() + 1), { animate: true });
+    };
 
-    // Default Center Marker
-    const markerPosition = new kakao.maps.LatLng(lat, lng);
-    const marker = new kakao.maps.Marker({
-      position: markerPosition
-    });
-    marker.setMap(map);
+    const markerDomMap = {};
+    const markerPosMap = {};
 
-    // Custom Overlay (Place Name Label - shortened to prevent clipping)
-    const shortName = name.length > 14 ? (name.substring(0, 12) + '..') : name;
-    const overlayContent = `<div class="custom-marker" title="${name}">${shortName}</div>`;
-    const customOverlay = new kakao.maps.CustomOverlay({
-      position: markerPosition,
-      content: overlayContent,
-      yAnchor: 1
-    });
-    customOverlay.setMap(map);
+    function notifyMarkerClick(item, actionType) {
+      if (item && item.id) {
+        selectedId = String(item.id);
+        Object.keys(markerDomMap).forEach(function(k) {
+          const el = markerDomMap[k];
+          if (!el) return;
+          if (k === selectedId) {
+            el.classList.add('is-selected');
+          } else {
+            el.classList.remove('is-selected');
+          }
+        });
+      }
+      if (item && item.lat && item.lng) {
+        map.panTo(new kakao.maps.LatLng(parseFloat(item.lat), parseFloat(item.lng)));
+      }
+      try {
+        window.parent.postMessage(JSON.stringify({
+          type: 'oomu_marker_click',
+          id: item.id || '',
+          title: item.title || '',
+          lat: item.lat,
+          lng: item.lng,
+          action: actionType || 'select'
+        }), '*');
+      } catch (err) {
+        console.warn('postMessage error:', err);
+      }
+    }
 
-    // Support multiple meetup markers
     const rawMarkers = params.get('markers');
+    let parsedMarkers = [];
     if (rawMarkers) {
       try {
-        const markerList = JSON.parse(decodeURIComponent(rawMarkers));
-        if (Array.isArray(markerList)) {
-          markerList.forEach(m => {
-            if (m.lat && m.lng) {
-              const mLat = parseFloat(m.lat);
-              const mLng = parseFloat(m.lng);
-              const mPos = new kakao.maps.LatLng(mLat, mLng);
-              if (Math.abs(mLat - lat) > 0.0003 || Math.abs(mLng - lng) > 0.0003) {
-                const subMarker = new kakao.maps.Marker({
-                  position: mPos,
-                  map: map
-                });
-                const mTitle = m.title || m.name || '모임';
-                const sTitle = mTitle.length > 10 ? (mTitle.substring(0, 9) + '..') : mTitle;
-                const emoji = (m.category && m.category.includes('번개')) ? '⚡' : ((m.category && m.category.includes('와인')) ? '🍷' : ((m.category && m.category.includes('러닝')) ? '🏃' : '📍'));
-                const subOverlay = new kakao.maps.CustomOverlay({
-                  position: mPos,
-                  content: `<div class="custom-marker" style="background:#F25767;border-color:#F25767;color:#fff;" title="${mTitle}">${emoji} ${sTitle}</div>`,
-                  yAnchor: 1
-                });
-                subOverlay.setMap(map);
-              }
-            }
-          });
+        const list = JSON.parse(decodeURIComponent(rawMarkers));
+        if (Array.isArray(list)) {
+          parsedMarkers = list;
         }
       } catch (err) {
         console.warn('Error parsing map markers:', err);
       }
     }
+
+    if (parsedMarkers.length === 0) {
+      // Single destination marker mode
+      const markerPosition = new kakao.maps.LatLng(lat, lng);
+      const marker = new kakao.maps.Marker({
+        position: markerPosition,
+        map: map
+      });
+      const shortName = name.length > 14 ? (name.substring(0, 12) + '..') : name;
+      const overlayEl = document.createElement('div');
+      overlayEl.className = 'custom-marker is-selected';
+      overlayEl.title = name;
+      overlayEl.textContent = '📍 ' + shortName;
+      const customOverlay = new kakao.maps.CustomOverlay({
+        position: markerPosition,
+        content: overlayEl,
+        yAnchor: 1,
+        clickable: true
+      });
+      customOverlay.setMap(map);
+    } else {
+      parsedMarkers.forEach(function(m, idx) {
+        if (!m.lat || !m.lng) return;
+        const mLat = parseFloat(m.lat);
+        const mLng = parseFloat(m.lng);
+        if (isNaN(mLat) || isNaN(mLng)) return;
+        const mId = String(m.id || ('idx_' + idx));
+        const mPos = new kakao.maps.LatLng(mLat, mLng);
+        markerPosMap[mId] = mPos;
+
+        const subMarker = new kakao.maps.Marker({
+          position: mPos,
+          map: map,
+          clickable: true
+        });
+
+        const mTitle = m.title || m.name || '모임';
+        const sTitle = mTitle.length > 11 ? (mTitle.substring(0, 10) + '..') : mTitle;
+        const emoji = (m.category && m.category.includes('번개'))
+          ? '⚡'
+          : ((m.category && m.category.includes('와인'))
+            ? '🍷'
+            : ((m.category && m.category.includes('러닝')) ? '🏃' : '📍'));
+
+        const isSel = (selectedId && selectedId === mId) ||
+          (!selectedId && Math.abs(mLat - lat) < 0.0004 && Math.abs(mLng - lng) < 0.0004);
+
+        const el = document.createElement('div');
+        el.className = 'custom-marker' + (isSel ? ' is-selected' : '');
+        el.title = mTitle;
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = emoji + ' ' + sTitle;
+        el.appendChild(textSpan);
+
+        const goPill = document.createElement('span');
+        goPill.className = 'go-pill';
+        goPill.textContent = '이동 ›';
+        el.appendChild(goPill);
+
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const alreadySelected = selectedId === mId;
+          notifyMarkerClick({ id: mId, title: mTitle, lat: mLat, lng: mLng }, alreadySelected ? 'open' : 'select');
+        };
+        goPill.onclick = function(e) {
+          e.stopPropagation();
+          notifyMarkerClick({ id: mId, title: mTitle, lat: mLat, lng: mLng }, 'open');
+        };
+
+        kakao.maps.event.addListener(subMarker, 'click', function() {
+          const alreadySelected = selectedId === mId;
+          notifyMarkerClick({ id: mId, title: mTitle, lat: mLat, lng: mLng }, alreadySelected ? 'open' : 'select');
+        });
+
+        markerDomMap[mId] = el;
+
+        const subOverlay = new kakao.maps.CustomOverlay({
+          position: mPos,
+          content: el,
+          yAnchor: 1,
+          clickable: true
+        });
+        subOverlay.setMap(map);
+      });
+    }
+
+    // Listen to parent Flutter messages for smooth pan/zoom without reload
+    window.addEventListener('message', function(e) {
+      try {
+        const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (!msg || !msg.type) return;
+        if (msg.type === 'oomu_map_focus' && msg.lat && msg.lng) {
+          const pos = new kakao.maps.LatLng(parseFloat(msg.lat), parseFloat(msg.lng));
+          map.panTo(pos);
+          if (msg.id) {
+            selectedId = String(msg.id);
+            Object.keys(markerDomMap).forEach(function(k) {
+              const el = markerDomMap[k];
+              if (!el) return;
+              if (k === selectedId) {
+                el.classList.add('is-selected');
+              } else {
+                el.classList.remove('is-selected');
+              }
+            });
+          }
+        }
+      } catch (_) {}
+    });
 
     // Button actions
     document.getElementById('btnMap').onclick = function() {

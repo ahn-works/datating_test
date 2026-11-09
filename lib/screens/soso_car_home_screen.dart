@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../services/kakao_map_service.dart';
-import 'soso_car_host_screen.dart';
 import 'chat_screen.dart';
 import 'my_page_screen.dart';
 import 'soso_car_detail_screen.dart';
@@ -606,11 +605,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Stream<QuerySnapshot>? _trendStream;
   List<Map<String, dynamic>> _lastTrendItems = [];
   bool _showAllMeetups = false;
-  int get _initialMeetupCount => _selectedCategoryIndex == 0 ? 1 : 2;
+  int get _initialMeetupCount => _selectedCategoryIndex == 0 ? 4 : 6;
   Position? _devicePosition;
   final Map<String, Future<KakaoPlace?>> _placeLookupCache = {};
   bool _isListView = false;
   bool _isSubCategoryExpanded = false;
+
+  void _resetAllMeetupFilters() {
+    setState(() {
+      _selectedCategoryIndex = 0;
+      _selectedSubCategory = '전체';
+      _selectedVibe = null;
+      _isSubCategoryExpanded = false;
+    });
+  }
 
   final List<Map<String, dynamic>> _categories = [
     {'icon': '🔥', 'name': '전체', 'desc': '실시간 전체 모임 & 트렌드 큐레이션'},
@@ -3506,7 +3514,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   Expanded(
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
                       itemCount: subList.length,
                       itemBuilder: (context, idx) {
                         final subName = subList[idx];
@@ -3735,9 +3742,28 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           ),
                         ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(ctx),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              _resetAllMeetupFilters();
+                              Navigator.pop(ctx);
+                            },
+                            child: Text(
+                              '필터 초기화',
+                              style: TextStyle(
+                                color: coralAccent,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12.5,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(ctx),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -3824,16 +3850,29 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
-                                                final catIdx = _categories
-                                                    .indexWhere((c) =>
-                                                        c['name'] ==
-                                                        mainCat.name);
+                                                int mappedCatIdx = 0;
+                                                if (mainCat.id == 'food') {
+                                                  mappedCatIdx =
+                                                      sub.name.contains('생활')
+                                                          ? 3
+                                                          : 1;
+                                                } else if (mainCat.id ==
+                                                        'culture' ||
+                                                    mainCat.id == 'game' ||
+                                                    mainCat.id == 'hobby') {
+                                                  mappedCatIdx = 2;
+                                                } else if (mainCat.id ==
+                                                        'activity' ||
+                                                    mainCat.id == 'travel') {
+                                                  mappedCatIdx = 3;
+                                                }
                                                 setState(() {
-                                                  if (catIdx != -1)
-                                                    _selectedCategoryIndex =
-                                                        catIdx;
-                                                  _selectedSubCategory =
-                                                      sub.name;
+                                                  _selectedCategoryIndex =
+                                                      mappedCatIdx;
+                                                  _selectedSubCategory = '전체';
+                                                  _selectedVibe = null;
+                                                  _isSubCategoryExpanded =
+                                                      false;
                                                 });
                                                 Navigator.pop(ctx);
                                               },
@@ -3864,16 +3903,31 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                                   sub.exampleTags.map((tag) {
                                                 return GestureDetector(
                                                   onTap: () {
-                                                    final catIdx = _categories
-                                                        .indexWhere((c) =>
-                                                            c['name'] ==
-                                                            mainCat.name);
+                                                    int mappedCatIdx = 0;
+                                                    if (mainCat.id == 'food') {
+                                                      mappedCatIdx = sub.name
+                                                              .contains('생활')
+                                                          ? 3
+                                                          : 1;
+                                                    } else if (mainCat.id ==
+                                                            'culture' ||
+                                                        mainCat.id == 'game' ||
+                                                        mainCat.id == 'hobby') {
+                                                      mappedCatIdx = 2;
+                                                    } else if (mainCat.id ==
+                                                            'activity' ||
+                                                        mainCat.id ==
+                                                            'travel') {
+                                                      mappedCatIdx = 3;
+                                                    }
                                                     setState(() {
-                                                      if (catIdx != -1)
-                                                        _selectedCategoryIndex =
-                                                            catIdx;
+                                                      _selectedCategoryIndex =
+                                                          mappedCatIdx;
                                                       _selectedSubCategory =
-                                                          sub.name;
+                                                          '전체';
+                                                      _selectedVibe = null;
+                                                      _isSubCategoryExpanded =
+                                                          false;
                                                     });
                                                     Navigator.pop(ctx);
                                                   },
@@ -4129,7 +4183,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(
-                    top: 14, bottom: 8, left: 20, right: 20),
+                    top: 14, bottom: 8, left: 16, right: 16),
                 child: Row(
                   children: [
                     Expanded(
@@ -4137,7 +4191,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         height: 40,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          clipBehavior: Clip.none,
                           itemCount: _categories.length + 1,
                           itemBuilder: (context, index) {
                             if (index == _categories.length) {
@@ -4145,9 +4198,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 scaleDown: 0.94,
                                 onTap: _showFullCategoryBottomSheet,
                                 child: Container(
-                                  margin: const EdgeInsets.only(right: 8),
+                                  margin: const EdgeInsets.only(right: 6),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 14),
+                                      horizontal: 11),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFF2F4F7),
@@ -4158,14 +4211,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   child: const Row(
                                     children: [
                                       Icon(Icons.grid_view_rounded,
-                                          size: 15, color: Color(0xFF4E5968)),
-                                      SizedBox(width: 5),
+                                          size: 14, color: Color(0xFF4E5968)),
+                                      SizedBox(width: 4),
                                       Text(
                                         '전체보기',
                                         style: TextStyle(
                                             color: Color(0xFF4E5968),
                                             fontWeight: FontWeight.w700,
-                                            fontSize: 12.5),
+                                            fontSize: 12),
                                       ),
                                     ],
                                   ),
@@ -4176,15 +4229,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             return BouncyTap(
                               scaleDown: 0.94,
                               onHaptic: OomuHaptics.selection,
-                              onTap: () => setState(() {
-                                _selectedCategoryIndex = index;
-                                _selectedSubCategory = '전체';
-                              }),
+                              onTap: () {
+                                if (index == 0) {
+                                  _resetAllMeetupFilters();
+                                } else {
+                                  setState(() {
+                                    _selectedCategoryIndex = index;
+                                    _selectedSubCategory = '전체';
+                                    _selectedVibe = null;
+                                    _isSubCategoryExpanded = false;
+                                  });
+                                }
+                              },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
-                                margin: const EdgeInsets.only(right: 8),
+                                margin: const EdgeInsets.only(right: 6),
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 15),
+                                    const EdgeInsets.symmetric(horizontal: 11),
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   color: isSelected
@@ -4202,8 +4263,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(_categories[index]['icon'],
-                                        style: const TextStyle(fontSize: 14)),
-                                    const SizedBox(width: 6),
+                                        style: const TextStyle(fontSize: 13)),
+                                    const SizedBox(width: 4),
                                     Text(
                                       _categories[index]['name'],
                                       style: TextStyle(
@@ -4213,7 +4274,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                         fontWeight: isSelected
                                             ? FontWeight.w700
                                             : FontWeight.w600,
-                                        fontSize: 13,
+                                        fontSize: 12.5,
                                       ),
                                     ),
                                   ],
@@ -4508,24 +4569,45 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               : StreamBuilder<QuerySnapshot>(
                   stream: _getMeetupStream(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return _buildDummyMeetups();
-                    }
-                    if (snapshot.hasError ||
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        snapshot.hasError ||
                         !snapshot.hasData ||
                         snapshot.data!.docs.isEmpty) {
                       return _buildDummyMeetups();
                     }
 
-                    final filteredDocs = snapshot.data!.docs.where((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      return _matchesFilters(data);
-                    }).toList();
+                    final List<Map<String, dynamic>> mergedItems = [];
+                    final Set<String> seenKeys = {};
+
+                    for (final doc in snapshot.data!.docs) {
+                      final data = Map<String, dynamic>.from(
+                          doc.data() as Map<String, dynamic>)
+                        ..['id'] = doc.id;
+                      final key =
+                          '${data['id']}_${(data['title'] ?? '').toString().trim()}';
+                      seenKeys.add(key);
+                      seenKeys.add((data['title'] ?? '').toString().trim());
+                      mergedItems.add(data);
+                    }
+
+                    for (final dummy
+                        in _getDummyMeetupsForLocation(_currentLocation)) {
+                      final titleKey = (dummy['title'] ?? '').toString().trim();
+                      final idKey = '${dummy['id']}_$titleKey';
+                      if (!seenKeys.contains(idKey) &&
+                          !seenKeys.contains(titleKey)) {
+                        seenKeys.add(idKey);
+                        seenKeys.add(titleKey);
+                        mergedItems.add(Map<String, dynamic>.from(dummy));
+                      }
+                    }
+
+                    final filteredDocs = mergedItems
+                        .where((data) => _matchesFilters(data))
+                        .toList();
 
                     // 지역 적합도(_calculateLocationRelevanceScore) 최우선 정렬 후 최신순 정렬
-                    filteredDocs.sort((a, b) {
-                      final dataA = a.data() as Map<String, dynamic>;
-                      final dataB = b.data() as Map<String, dynamic>;
+                    filteredDocs.sort((dataA, dataB) {
                       final scoreA = _calculateLocationRelevanceScore(
                           dataA['location']?.toString() ?? '');
                       final scoreB = _calculateLocationRelevanceScore(
@@ -4556,10 +4638,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                               : filteredDocs.length
                                   .clamp(0, _initialMeetupCount),
                           itemBuilder: (context, index) {
-                            final doc = filteredDocs[index];
-                            final data = Map<String, dynamic>.from(
-                                doc.data() as Map<String, dynamic>)
-                              ..['id'] = doc.id;
+                            final data = filteredDocs[index];
                             return (_isListView || index > 0)
                                 ? _buildMeetupListRow(data)
                                 : _buildMeetupCard(data);
@@ -4857,7 +4936,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
                 child: Row(
                   children: simpleTopics.map((topic) {
                     final isSelected = _communityCategoryFilter == topic;
@@ -5279,148 +5357,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 40, top: 8),
       children: [
-        _buildTrendCurationSection(),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
-          child: Divider(height: 1, color: Color(0xFFEAECF0)),
-        ),
-        // Group Dating Banner & Host CTA (원색 파란 배너를 걷어내고 브랜드 톤과 통일)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFEAECF0)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF0F2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text('🥂', style: TextStyle(fontSize: 19)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '우리 동네 2:2 · 3:3 미팅 팟',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: textPrimary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '친구와 편하게 만나는 동네 미팅',
-                        style: TextStyle(fontSize: 12, color: textSecondary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OOMUHostScreen(
-                          initialTitle:
-                              '${_currentLocation.split(' ').last} 2:2 직장인 미팅 팟',
-                          initialLocation: _currentLocation,
-                          initialMainCategory: '소개팅 & 미팅 > 2:2 / 3:3 미팅',
-                          initialVibe: '소개팅',
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: textPrimary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text('+ 팟 만들기',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        StreamBuilder<QuerySnapshot>(
-          stream: _getMeetupStream(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                  child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(),
-              ));
-            }
-            if (snapshot.hasError) {
-              return _datingNotice('미팅 모임을 불러오지 못했어요. 다시 시도해 주세요.');
-            }
-            final docs = snapshot.data?.docs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  final category =
-                      '${data['mainCategory'] ?? ''} ${data['category'] ?? ''} ${data['vibe'] ?? ''}';
-                  return category.contains('소개팅') || category.contains('미팅');
-                }).toList() ??
-                [];
-            if (docs.isEmpty) {
-              return _datingNotice('동네 미팅 모임은 아직 없어요. 관심 가는 공연과 장소부터 둘러보세요.');
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                final doc = docs[index];
-                final data = {
-                  ...doc.data() as Map<String, dynamic>,
-                  'id': doc.id
-                };
-                return _buildMeetupCard(data);
-              },
-            );
-          },
-        ),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 12, 20, 16),
-          child: Divider(height: 1, color: Color(0xFFEAECF0)),
-        ),
         OomuDiscoveryLifestyleHub(currentLocation: _currentLocation),
       ],
     );
   }
-
-  Widget _datingNotice(String message) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-        child: Center(
-            child: Text(message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: textSecondary, fontSize: 14, height: 1.5))),
-      );
 
   Widget _buildEmptyFilterState() {
     return Padding(
@@ -5445,12 +5385,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              onPressed: () {
-                setState(() {
-                  _selectedVibe = null;
-                  _selectedCategoryIndex = 0;
-                });
-              },
+              onPressed: _resetAllMeetupFilters,
               child: const Text('필터 초기화',
                   style: TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold)),
@@ -5896,9 +5831,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   Widget _buildDummyMeetups() {
-    if (const bool.fromEnvironment('dart.vm.product')) {
-      return _buildEmptyFilterState();
-    }
     final List<Map<String, dynamic>> allDummyData =
         _getDummyMeetupsForLocation(_currentLocation);
 
@@ -6085,6 +6017,82 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'schedule': '바다 위 데크길 산책 40분 ➔ 오션뷰 카페 차 한잔',
         'tags': ['동네산책', '라이프메이트', '소호동동다리', '야경산책', '힐링'],
         'photos': ['assets/images/cover_running.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_08',
+        'title': '화장동 무선 롯데마트 1인 가구 대용량 식재료 장보기 & 소분 메이트 🛒',
+        'mainCategory': '라이프 메이트',
+        'category': '1인가구장보기/소분',
+        'location': '전남 여수시 화장동 무선 롯데마트 1층 입구',
+        'date': '이번 주 토요일 오후 4:00',
+        'imageUrl': 'assets/images/cover_food.jpg',
+        'isFemaleOnly': false,
+        'host': '자취9단_수아',
+        'hostAvatar': 'assets/images/시연.png',
+        'manner': 44.5,
+        'members': '2/4',
+        'price': '1/N 안심 정산',
+        'transport': '무선 롯데마트 정문 집결',
+        'schedule': '제철 과일·삼겹살·생필품 대용량 구매 ➔ 깔끔 1/N 소분 정산',
+        'tags': ['라이프 메이트', '1인가구장보기/소분', '1인 가구', '장보기', '소분', '배달비'],
+        'photos': ['assets/images/cover_food.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_09',
+        'title': '화장동 피트니스 퇴근 후 득근 헬스 & 오운완 인증 메이트 💪',
+        'mainCategory': '라이프 메이트',
+        'category': '헬스메이트',
+        'location': '전남 여수시 화장동 성산공원 앞 피트니스',
+        'date': '평일 저녁 7:30 상시',
+        'imageUrl': 'assets/images/cover_running.jpg',
+        'isFemaleOnly': false,
+        'host': '득근러_현우',
+        'hostAvatar': 'assets/images/정재.png',
+        'manner': 43.2,
+        'members': '2/3',
+        'price': '무료 참여',
+        'transport': '화장동 성산사거리 집결',
+        'schedule': '상·하체 분할 웨이트 50분 + 유산소 20분 함께 인증',
+        'tags': ['라이프 메이트', '헬스메이트', '러닝·운동', '헬스', '운동', '메이트'],
+        'photos': ['assets/images/cover_running.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_10',
+        'title': '성산공원 잔디광장 저녁 강아지·반려동물 산책 메이트 모임 🐕',
+        'mainCategory': '라이프 메이트',
+        'category': '반려동물산책',
+        'location': '전남 여수시 화장동 성산공원 잔디광장',
+        'date': '내일 저녁 7:00',
+        'imageUrl': 'assets/images/cover_running.jpg',
+        'isFemaleOnly': false,
+        'host': '비숑맘_하은',
+        'hostAvatar': 'assets/images/지안.png',
+        'manner': 45.0,
+        'members': '3/5',
+        'price': '무료 참여',
+        'transport': '성산공원 주차장 입구',
+        'schedule': '반려견 인사 & 호수 산책로 1바퀴 ➔ 야외 벤치 간식 타임',
+        'tags': ['라이프 메이트', '반려동물산책', '동네산책', '반려견', '댕댕이', '산책'],
+        'photos': ['assets/images/cover_running.jpg'],
+      },
+      {
+        'id': 'yeosu_dummy_11',
+        'title': '여수 돌산 오션뷰 여성전용 감성 글램핑 & 불멍 바비큐 팟 ⛺',
+        'mainCategory': '라이프 메이트',
+        'category': '동성캠핑',
+        'location': '전남 여수시 돌산읍 오션뷰 글램핑장',
+        'date': '이번 주 토요일 오후 4:00',
+        'imageUrl': 'assets/images/cover_wine.jpg',
+        'isFemaleOnly': true,
+        'host': '캠핑요정_유진',
+        'hostAvatar': 'assets/images/민지.png',
+        'manner': 44.8,
+        'members': '3/4',
+        'price': '1/N 안심 정산',
+        'transport': '화장동에서 카풀 이동',
+        'schedule': '오션뷰 노을 감상 ➔ 바비큐 파티 & 모닥불 불멍 토크',
+        'tags': ['라이프 메이트', '동성캠핑', '캠핑', '글램핑', '동성', '불멍'],
+        'photos': ['assets/images/cover_wine.jpg'],
       },
     ];
   }
@@ -6319,6 +6327,69 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'transport': '홍대입구역 3번출구',
         'schedule': '가벼운 와인과 식사 & 편안한 동네 인연 찾기',
         'tags': ['소개팅', '2:2', '미팅', '인연', '소셜다이닝'],
+        'photos': [
+          'assets/images/cover_wine.jpg',
+        ],
+      },
+      {
+        'id': 'dummy_meetup_12',
+        'title': '망원시장·합정 홈플러스 1인 가구 대용량 장보기 & 소분 메이트 🛒',
+        'mainCategory': '라이프 메이트',
+        'category': '1인가구장보기/소분',
+        'location': '마포구 망원시장 정문 / 합정역 홈플러스',
+        'date': '이번 주 토요일 오후 3:00',
+        'imageUrl': 'assets/images/cover_food.jpg',
+        'isFemaleOnly': false,
+        'host': '망원자취러_소연',
+        'hostAvatar': 'assets/images/시연.png',
+        'manner': 44.3,
+        'members': '3/4',
+        'price': '1/N 안심 정산',
+        'transport': '망원역 2번 출구 집결',
+        'schedule': '제철 과일·구이용 고기·대용량 식재료 공동 구매 후 1/N 소분',
+        'tags': ['라이프 메이트', '1인가구장보기/소분', '1인 가구', '장보기', '소분', '배달비'],
+        'photos': [
+          'assets/images/cover_food.jpg',
+        ],
+      },
+      {
+        'id': 'dummy_meetup_13',
+        'title': '연트럴파크 경의선숲길 저녁 반려동물·강아지 동네산책 모임 🐕',
+        'mainCategory': '라이프 메이트',
+        'category': '반려동물산책',
+        'location': '마포구 연남동 경의선숲길 잔디광장',
+        'date': '오늘 저녁 7:30',
+        'imageUrl': 'assets/images/cover_running.jpg',
+        'isFemaleOnly': false,
+        'host': '보리언니_민서',
+        'hostAvatar': 'assets/images/민지.png',
+        'manner': 43.9,
+        'members': '3/5',
+        'price': '무료 참여',
+        'transport': '홍대입구역 3번 출구 숲길 시작점',
+        'schedule': '경의선숲길 왕복 40분 산책 ➔ 애견 동반 테라스 카페 수다',
+        'tags': ['라이프 메이트', '반려동물산책', '동네산책', '반려견', '댕댕이', '산책'],
+        'photos': [
+          'assets/images/cover_running.jpg',
+        ],
+      },
+      {
+        'id': 'dummy_meetup_14',
+        'title': '난지한강공원 여성전용 감성 글램핑 & 노을 불멍 바비큐 팟 ⛺',
+        'mainCategory': '라이프 메이트',
+        'category': '동성캠핑',
+        'location': '마포구 상암동 난지캠핑장 바비큐존',
+        'date': '이번 주 일요일 오후 4:30',
+        'imageUrl': 'assets/images/cover_wine.jpg',
+        'isFemaleOnly': true,
+        'host': '캠핑메이트_지유',
+        'hostAvatar': 'assets/images/지연.png',
+        'manner': 44.6,
+        'members': '3/4',
+        'price': '1/N 안심 정산',
+        'transport': '마포구청역 픽업/집결',
+        'schedule': '한강 노을 감상 ➔ 그릴 바비큐 & 마시멜로 불멍 토크',
+        'tags': ['라이프 메이트', '동성캠핑', '캠핑', '글램핑', '동성', '불멍'],
         'photos': [
           'assets/images/cover_wine.jpg',
         ],

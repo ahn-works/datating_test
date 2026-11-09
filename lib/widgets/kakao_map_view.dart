@@ -10,6 +10,9 @@ class KakaoMapView extends StatelessWidget {
   final double width;
   final bool hideActions;
   final List<Map<String, dynamic>>? markers;
+  final String? selectedMarkerId;
+  final int zoomLevel;
+  final void Function(String markerId, bool shouldOpenDetail)? onMarkerTap;
 
   const KakaoMapView({
     super.key,
@@ -20,6 +23,9 @@ class KakaoMapView extends StatelessWidget {
     this.width = double.infinity,
     this.hideActions = false,
     this.markers,
+    this.selectedMarkerId,
+    this.zoomLevel = 3,
+    this.onMarkerTap,
   });
 
   @override
@@ -32,6 +38,9 @@ class KakaoMapView extends StatelessWidget {
       width: width,
       hideActions: hideActions,
       markers: markers,
+      selectedMarkerId: selectedMarkerId,
+      zoomLevel: zoomLevel,
+      onMarkerTap: onMarkerTap,
     );
   }
 }

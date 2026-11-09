@@ -1003,7 +1003,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.only(top: 14, left: 16, right: 16, bottom: 20),
+          padding:
+              const EdgeInsets.only(top: 14, left: 16, right: 16, bottom: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1034,7 +1035,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF0F2),
                       borderRadius: BorderRadius.circular(8),
@@ -1065,9 +1067,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   builder: (context, snapshot) {
                     List<Map<String, dynamic>> stickers = [];
                     if (snapshot.hasData && snapshot.data!.exists) {
-                      final data = snapshot.data!.data() as Map<String, dynamic>?;
+                      final data =
+                          snapshot.data!.data() as Map<String, dynamic>?;
                       final rawList = data?['stickers'] as List<dynamic>? ?? [];
-                      stickers = rawList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+                      stickers = rawList
+                          .map((e) => Map<String, dynamic>.from(e as Map))
+                          .toList();
                     }
                     if (stickers.isEmpty) {
                       return const Center(
@@ -1083,7 +1088,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     }
                     return GridView.builder(
                       controller: scrollController,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         mainAxisSpacing: 10,
                         crossAxisSpacing: 10,
@@ -1110,7 +1116,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                             decoration: BoxDecoration(
                               color: const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border:
+                                  Border.all(color: const Color(0xFFE2E8F0)),
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: Stack(
@@ -1118,16 +1125,19 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                                 Positioned.fill(
                                   child: Padding(
                                     padding: const EdgeInsets.all(4.0),
-                                    child: appNetImage(rawUrl, fit: BoxFit.contain),
+                                    child: appNetImage(rawUrl,
+                                        fit: BoxFit.contain),
                                   ),
                                 ),
                                 Positioned(
                                   top: 4,
                                   left: 4,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 1),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.6),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.6),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
@@ -1207,8 +1217,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   runSpacing: 20,
                   alignment: WrapAlignment.start,
                   children: [
-                    _buildAttachmentIcon(Icons.sentiment_satisfied_alt_rounded, '인기 움짤',
-                        const Color(0xFFF25767), onTap: () {
+                    _buildAttachmentIcon(Icons.sentiment_satisfied_alt_rounded,
+                        '인기 움짤', const Color(0xFFF25767), onTap: () {
                       Navigator.pop(ctx);
                       _showStickerPickerBottomSheet();
                     }),
@@ -2214,7 +2224,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               padding: const EdgeInsets.only(bottom: 2),
               child: Text(
                 timeStr,
-                style: const TextStyle(fontSize: 10.5, color: Color(0xFFA99A87)),
+                style:
+                    const TextStyle(fontSize: 10.5, color: Color(0xFFA99A87)),
               ),
             ),
             const SizedBox(width: 6),
@@ -2266,7 +2277,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               padding: const EdgeInsets.only(bottom: 2),
               child: Text(
                 timeStr,
-                style: const TextStyle(fontSize: 10.5, color: Color(0xFFA99A87)),
+                style:
+                    const TextStyle(fontSize: 10.5, color: Color(0xFFA99A87)),
               ),
             ),
           ],
@@ -2343,7 +2355,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         color: Color(0xFF7D6F5E),
                         size: 22,
                       ),
-                      onPressed: _sending ? null : _showStickerPickerBottomSheet,
+                      onPressed:
+                          _sending ? null : _showStickerPickerBottomSheet,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(999),

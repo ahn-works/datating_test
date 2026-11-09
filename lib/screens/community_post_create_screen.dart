@@ -190,89 +190,83 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                     fontWeight: FontWeight.bold,
                     color: textSecondary)),
             const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              child: Row(
-                children: _categories.map((cat) {
-                  final isSelected = _selectedCategory == cat;
-                  return GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() => _selectedCategory = cat);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? const Color(0xFFFFF0F2) : surfaceColor,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: isSelected
-                                ? coralAccent
-                                : const Color(0xFFEAECF0)),
-                      ),
-                      child: Text(
-                        cat,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? coralAccent : textPrimary,
-                        ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _categories.map((cat) {
+                final isSelected = _selectedCategory == cat;
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _selectedCategory = cat);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 7),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? const Color(0xFFFFF0F2) : surfaceColor,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                          color: isSelected
+                              ? coralAccent
+                              : const Color(0xFFEAECF0)),
+                    ),
+                    child: Text(
+                      cat,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            isSelected ? FontWeight.w800 : FontWeight.w600,
+                        color: isSelected ? coralAccent : textPrimary,
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
 
-            // Tag selector chips
+            // Tag selector chips (Wrap 배치로 화면 밖 넘침 원천 차단)
             Text('트렌드 태그 선택',
                 style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                     color: textSecondary)),
             const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              child: Row(
-                children: _tags.map((t) {
-                  final isSelected = _selectedTag == t;
-                  return GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() => _selectedTag = t);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? coralAccent : const Color(0xFFF3EAEB),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '#$t',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight:
-                              isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected
-                              ? Colors.white
-                              : const Color(0xFF555555),
-                        ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _tags.map((t) {
+                final isSelected = _selectedTag == t;
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _selectedTag = t);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 11, vertical: 6),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? coralAccent : const Color(0xFFF3EAEB),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '#$t',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight:
+                            isSelected ? FontWeight.w800 : FontWeight.w600,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF555555),
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
 
             const SizedBox(height: 16),
@@ -330,7 +324,6 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
             const SizedBox(height: 8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
               child: Row(
                 children: [
                   GestureDetector(

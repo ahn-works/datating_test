@@ -1325,8 +1325,9 @@ class _LoginScreenState extends State<LoginScreen>
                     const SizedBox(height: 16),
 
                     // 회원가입 · 이메일 찾기 링크 (로그인 화면의 어색한 '휴대폰 인증' 링크 제거)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         InkWell(
                           onTap: () => _goToStage(3),
@@ -1394,7 +1395,9 @@ class _LoginScreenState extends State<LoginScreen>
                       onTap: _handleKakaoLogin,
                       child: Container(
                         width: double.infinity,
-                        height: 52,
+                        constraints: const BoxConstraints(minHeight: 52),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: colorKakao,
                           borderRadius: BorderRadius.circular(16),
@@ -1407,12 +1410,16 @@ class _LoginScreenState extends State<LoginScreen>
                               painter: _KakaoSymbolPainter(),
                             ),
                             const SizedBox(width: 10),
-                            const Text(
-                              '카카오톡으로 시작하기',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF191919),
+                            const Flexible(
+                              child: Text(
+                                '카카오톡으로 시작하기',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF191919),
+                                ),
                               ),
                             ),
                           ],
@@ -1426,7 +1433,9 @@ class _LoginScreenState extends State<LoginScreen>
                       onTap: _handleNaverLogin,
                       child: Container(
                         width: double.infinity,
-                        height: 52,
+                        constraints: const BoxConstraints(minHeight: 52),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: colorNaver,
                           borderRadius: BorderRadius.circular(16),
@@ -1443,12 +1452,16 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                             SizedBox(width: 10),
-                            Text(
-                              '네이버로 시작하기',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                            Flexible(
+                              child: Text(
+                                '네이버로 시작하기',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ],
@@ -1462,7 +1475,9 @@ class _LoginScreenState extends State<LoginScreen>
                       onTap: _handleGoogleLogin,
                       child: Container(
                         width: double.infinity,
-                        height: 52,
+                        constraints: const BoxConstraints(minHeight: 52),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -1476,12 +1491,16 @@ class _LoginScreenState extends State<LoginScreen>
                               painter: _GoogleLogoPainter(),
                             ),
                             const SizedBox(width: 10),
-                            const Text(
-                              'Google로 시작하기',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF3C3C3C),
+                            const Flexible(
+                              child: Text(
+                                'Google로 시작하기',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF3C3C3C),
+                                ),
                               ),
                             ),
                           ],
@@ -1497,7 +1516,9 @@ class _LoginScreenState extends State<LoginScreen>
                           child: BouncyTap(
                             onTap: _handleGuestLogin,
                             child: Container(
-                              height: 48,
+                              constraints: const BoxConstraints(minHeight: 48),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
@@ -1506,6 +1527,8 @@ class _LoginScreenState extends State<LoginScreen>
                               child: const Center(
                                 child: Text(
                                   '일단 둘러볼래요',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w700,
@@ -1517,22 +1540,28 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        BouncyTap(
-                          onTap: _showTestUserModal,
-                          child: Container(
-                            height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            decoration: BoxDecoration(
-                              color: colorPrimarySoft,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '🧪 테스트 계정',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: colorPrimary,
+                        Flexible(
+                          child: BouncyTap(
+                            onTap: _showTestUserModal,
+                            child: Container(
+                              constraints: const BoxConstraints(minHeight: 48),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: colorPrimarySoft,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Center(
+                                widthFactor: 1.0,
+                                child: Text(
+                                  '🧪 테스트 계정',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: colorPrimary,
+                                  ),
                                 ),
                               ),
                             ),
