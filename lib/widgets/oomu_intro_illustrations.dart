@@ -599,9 +599,9 @@ class _OomuSlide1MapState extends State<OomuSlide1Map>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  '주말 아침 망원 한강공원 가벼운 5km 러닝 크루 🏃',
+                                  '망원 한강공원 아침 5km 러닝 크루 🏃',
                                   style: TextStyle(
-                                    fontSize: 13.5,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w800,
                                     color: Color(0xFF2B2118),
                                     height: 1.3,
@@ -696,22 +696,22 @@ class _OomuSlide1MapState extends State<OomuSlide1Map>
                   ),
                 ),
 
-                // 우상단 플로팅 배지
+                // 우상단 플로팅 배지 (일러스트 배너 상단 영역에 배치하여 텍스트 가림 방지)
                 Positioned(
-                  top: 2,
-                  right: 0,
+                  top: 72,
+                  right: 2,
                   child: Transform.translate(
-                    offset: Offset(0, floatOpposite),
+                    offset: Offset(0, floatOpposite * 0.7),
                     child: _buildFloatingMockChip('🏃 러닝 크루 · 3명 참여'),
                   ),
                 ),
 
-                // 좌하단 플로팅 배지
+                // 좌중단 플로팅 배지 (일러스트 배너 하단 영역에 배치하여 호스트명 가림 방지)
                 Positioned(
-                  bottom: 6,
-                  left: 0,
+                  top: 146,
+                  left: 2,
                   child: Transform.translate(
-                    offset: Offset(0, floatY),
+                    offset: Offset(0, floatY * 0.7),
                     child: _buildFloatingMockChip('📍 도보 8분 · 동네 인증'),
                   ),
                 ),
@@ -943,7 +943,7 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends>
                                 child: _buildDiscoveryMiniCard(
                                   badge: '공연·전시',
                                   badgeColor: const Color(0xFF2FA98C),
-                                  title: '성수 미디어아트 전시 & 카페 산책 🎨',
+                                  title: '성수 미디어아트 전시 동행 🎨',
                                   time: '🕒 토요일 오후 3시',
                                   place: '📍 성수 문화공간',
                                   customArt: CustomPaint(
@@ -957,7 +957,7 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends>
                                 child: _buildDiscoveryMiniCard(
                                   badge: 'SNS 맛집',
                                   badgeColor: const Color(0xFFFF5C39),
-                                  title: '성수 비건 베이커리 신메뉴 탐방 🥐',
+                                  title: '성수 비건 베이커리 탐방 🥐',
                                   time: '🕒 토요일 오후 2시',
                                   place: '📍 성수동 카페거리',
                                   customArt: CustomPaint(
@@ -1015,22 +1015,22 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends>
                   ),
                 ),
 
-                // 좌상단 플로팅 배지
+                // 좌상단 플로팅 배지 (카드 상단 경계 바깥쪽에 배치)
                 Positioned(
-                  top: 0,
-                  left: 0,
+                  top: -12,
+                  left: 4,
                   child: Transform.translate(
-                    offset: Offset(floatY * 0.6, -floatY * 0.5),
+                    offset: Offset(floatY * 0.5, -floatY * 0.4),
                     child: _buildFloatingMockChip('🎭 콘서트·뮤지컬·전시 46건'),
                   ),
                 ),
 
-                // 우하단 플로팅 배지
+                // 우하단 플로팅 배지 (카드 하단 경계 바깥쪽에 배치)
                 Positioned(
-                  bottom: 4,
-                  right: 0,
+                  bottom: -12,
+                  right: 4,
                   child: Transform.translate(
-                    offset: Offset(-floatY * 0.6, floatY * 0.5),
+                    offset: Offset(-floatY * 0.5, floatY * 0.4),
                     child: _buildFloatingMockChip('🥐 동네 핫플·맛집 투어'),
                   ),
                 ),
@@ -1407,22 +1407,22 @@ class _OomuSlide3MeetupState extends State<OomuSlide3Meetup>
                   ),
                 ),
 
-                // 우상단 플로팅 배지
+                // 우상단 플로팅 배지 (카드 상단 경계 바깥쪽에 배치)
                 Positioned(
-                  top: 0,
-                  right: 2,
+                  top: -12,
+                  right: 4,
                   child: Transform.translate(
-                    offset: Offset(0, -floatY * 0.7),
+                    offset: Offset(0, -floatY * 0.6),
                     child: _buildFloatingMockChip('💬 실시간 모임 그룹톡'),
                   ),
                 ),
 
-                // 좌하단 플로팅 배지
+                // 좌하단 플로팅 배지 (카드 하단 경계 바깥쪽에 배치)
                 Positioned(
-                  bottom: 4,
-                  left: 2,
+                  bottom: -12,
+                  left: 4,
                   child: Transform.translate(
-                    offset: Offset(0, floatY * 0.7),
+                    offset: Offset(0, floatY * 0.6),
                     child: _buildFloatingMockChip('♥ 취향 메이트 연결'),
                   ),
                 ),
