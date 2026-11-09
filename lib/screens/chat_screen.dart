@@ -289,7 +289,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
           Expanded(
             child: _uid == null
-                ? _notice('로그인 후 대화를 이어가세요', '참여가 확인된 모임의 대화방이 여기에 표시돼요.')
+                ? _notice(
+                    '로그인 후 대화를 이어가세요',
+                    '참여가 확인된 모임의 대화방이\n여기에 표시돼요.',
+                  )
                 : StreamBuilder<List<ChatData>>(
                     key: ValueKey(_generation),
                     stream: _rooms,
