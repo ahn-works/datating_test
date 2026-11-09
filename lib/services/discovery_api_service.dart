@@ -207,7 +207,9 @@ class DiscoveryApiService {
       return (lat: 34.7604, lon: 127.6622, shortName: '여수시');
     } else if (location.contains('성수') || location.contains('성동')) {
       return (lat: 37.5446, lon: 127.0560, shortName: '성수동');
-    } else if (location.contains('망원') || location.contains('연남') || location.contains('마포')) {
+    } else if (location.contains('망원') ||
+        location.contains('연남') ||
+        location.contains('마포')) {
       return (lat: 37.5560, lon: 126.9100, shortName: '마포·망원');
     } else if (location.contains('강남') || location.contains('역삼')) {
       return (lat: 37.4979, lon: 127.0276, shortName: '강남·역삼');
@@ -215,7 +217,8 @@ class DiscoveryApiService {
       return (lat: 35.1631, lon: 129.1636, shortName: '부산');
     }
     final parts = location.trim().split(' ');
-    final short = parts.isNotEmpty && parts.last.isNotEmpty ? parts.last : '우리 동네';
+    final short =
+        parts.isNotEmpty && parts.last.isNotEmpty ? parts.last : '우리 동네';
     return (lat: 37.5665, lon: 126.9780, shortName: short);
   }
 
@@ -237,7 +240,8 @@ class DiscoveryApiService {
         if (wResp.statusCode == 200) {
           final wJson = jsonDecode(wResp.body);
           tempC = (wJson['main']?['temp'] as num?)?.toDouble() ?? tempC;
-          final mainCond = (wJson['weather']?[0]?['main'] ?? '').toString().toLowerCase();
+          final mainCond =
+              (wJson['weather']?[0]?['main'] ?? '').toString().toLowerCase();
           if (mainCond.contains('rain') || mainCond.contains('drizzle')) {
             condition = '비';
           } else if (mainCond.contains('cloud')) {
@@ -260,8 +264,10 @@ class DiscoveryApiService {
         final results = await Future.wait([meteoFuture, airFuture]);
         if (results[0].statusCode == 200) {
           final mJson = jsonDecode(results[0].body);
-          tempC = (mJson['current']?['temperature_2m'] as num?)?.toDouble() ?? tempC;
-          final wCode = (mJson['current']?['weather_code'] as num?)?.toInt() ?? 0;
+          tempC = (mJson['current']?['temperature_2m'] as num?)?.toDouble() ??
+              tempC;
+          final wCode =
+              (mJson['current']?['weather_code'] as num?)?.toInt() ?? 0;
           if (wCode >= 51 && wCode <= 67 || wCode >= 80 && wCode <= 82) {
             condition = '비';
           } else if (wCode >= 1 && wCode <= 3 || wCode == 45 || wCode == 48) {
@@ -279,25 +285,28 @@ class DiscoveryApiService {
       debugPrint('[DiscoveryApiService] Weather fallback used: $e');
     }
 
-    final String airLabel = pm10 >= 80
-        ? '나쁨'
-        : (pm10 >= 45 ? '보통(미세먼지 주의)' : '좋음');
+    final String airLabel =
+        pm10 >= 80 ? '나쁨' : (pm10 >= 45 ? '보통(미세먼지 주의)' : '좋음');
 
     // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합
     String headline;
     String subcopy;
     if (pm10 >= 45) {
       headline = '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?';
-      subcopy = '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 미세먼지($pm10㎍/㎥) 달래줄 감성 식탁과 가벼운 다이어트 레시피를 모았어요.';
+      subcopy =
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 미세먼지($pm10㎍/㎥) 달래줄 감성 식탁과 가벼운 다이어트 레시피를 모았어요.';
     } else if (condition == '비') {
       headline = '빗소리 들리는 오늘, 바삭한 해물부추전과 따뜻한 국물 요리';
-      subcopy = '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 비 오는 날 동네 친구와 나누기 좋은 메뉴와 저칼로리 레시피예요.';
+      subcopy =
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 비 오는 날 동네 친구와 나누기 좋은 메뉴와 저칼로리 레시피예요.';
     } else if (tempC >= 22) {
       headline = '화창한 날씨에 딱 맞는 산뜻한 아보카도 연어 포케 & 삼겹살 구이';
-      subcopy = '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 가볍게 챙기는 다이어트 식단부터 저녁 미식 메뉴까지 확인해보세요.';
+      subcopy =
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 가볍게 챙기는 다이어트 식단부터 저녁 미식 메뉴까지 확인해보세요.';
     } else {
       headline = '선선한 바람 부는 날, 노릇한 미나리 삼겹살과 따뜻한 스튜 어때요?';
-      subcopy = '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C ($condition) · 오늘 날씨와 어울리는 감성 요리와 다이어트 식단이에요.';
+      subcopy =
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C ($condition) · 오늘 날씨와 어울리는 감성 요리와 다이어트 식단이에요.';
     }
 
     return WeatherMoodRecipe(
@@ -323,7 +332,13 @@ class DiscoveryApiService {
       prepTime: '20분',
       imageUrl: 'assets/images/cover_food.jpg',
       tags: ['미세먼지추천', '미나리삼겹살', '저녁미식'],
-      ingredients: ['두툼한 통삼겹살 300g', '신선한 미나리 한 줌', '통마늘 8알', '멜젓 또는 쌈장', '구운 소금·후추'],
+      ingredients: [
+        '두툼한 통삼겹살 300g',
+        '신선한 미나리 한 줌',
+        '통마늘 8알',
+        '멜젓 또는 쌈장',
+        '구운 소금·후추'
+      ],
       tip: '삼겹살에서 나온 기름에 미나리를 마지막 30초만 살짝 구워내면 향이 살아나고 느끼함이 싹 잡혀요.',
     ),
     RecipeItem(
@@ -336,7 +351,13 @@ class DiscoveryApiService {
       prepTime: '25분',
       imageUrl: 'assets/images/cover_wine.jpg',
       tags: ['비오는날', '고단백스튜', '홈파티'],
-      ingredients: ['손질 새우 8마리', '오징어 또는 바지락', '홀토마토 1캔', '마늘·양파·올리브오일', '바질·페퍼론치노'],
+      ingredients: [
+        '손질 새우 8마리',
+        '오징어 또는 바지락',
+        '홀토마토 1캔',
+        '마늘·양파·올리브오일',
+        '바질·페퍼론치노'
+      ],
       tip: '통곡물 바게트를 살짝 구워 국물에 찍어 먹으면 와인이나 하이볼 안주로도 잘 어울립니다.',
     ),
     RecipeItem(
@@ -349,7 +370,13 @@ class DiscoveryApiService {
       prepTime: '15분',
       imageUrl: 'assets/images/cover_food.jpg',
       tags: ['385kcal', '저속노화식단', '고단백'],
-      ingredients: ['생연어 120g', '잘 익은 아보카도 1/2개', '귀리·현미밥 100g', '양파·오이·어린잎 채소', '스리라차+간장+알룰로스 드레싱'],
+      ingredients: [
+        '생연어 120g',
+        '잘 익은 아보카도 1/2개',
+        '귀리·현미밥 100g',
+        '양파·오이·어린잎 채소',
+        '스리라차+간장+알룰로스 드레싱'
+      ],
       tip: '설탕 대신 알룰로스와 레몬즙을 섞어 드레싱을 만들면 혈당 스파이크 없이 든든하게 포만감이 유지돼요.',
     ),
     RecipeItem(
@@ -362,7 +389,13 @@ class DiscoveryApiService {
       prepTime: '10분',
       imageUrl: 'assets/images/cover_cafe.jpg',
       tags: ['290kcal', '저탄수고단백', '10분완성'],
-      ingredients: ['면 두부(포두부) 1팩', '바질페스토 1.5큰술', '방울토마토 6알', '보코치니 치즈 4알', '발사믹 글레이즈'],
+      ingredients: [
+        '면 두부(포두부) 1팩',
+        '바질페스토 1.5큰술',
+        '방울토마토 6알',
+        '보코치니 치즈 4알',
+        '발사믹 글레이즈'
+      ],
       tip: '면 두부를 끓는 물에 30초 데친 뒤 찬물에 헹궈 물기를 꼭 짜주면 생면 파스타처럼 쫄깃해집니다.',
     ),
     RecipeItem(
@@ -375,7 +408,13 @@ class DiscoveryApiService {
       prepTime: '10분',
       imageUrl: 'assets/images/cover_salt_bread.jpg',
       tags: ['홈브런치', '사워도우', '와인페어링'],
-      ingredients: ['통밀 사워도우 1쪽', '수제 리코타 치즈 3큰술', '생무화과 또는 사과 슬라이스', '호두·피칸 분태', '아카시아 꿀 약간'],
+      ingredients: [
+        '통밀 사워도우 1쪽',
+        '수제 리코타 치즈 3큰술',
+        '생무화과 또는 사과 슬라이스',
+        '호두·피칸 분태',
+        '아카시아 꿀 약간'
+      ],
       tip: '사워도우를 버터 없이 토스터에 바삭하게 구운 뒤 리코타 치즈를 듬뿍 올려 식감 대비를 살려보세요.',
     ),
     RecipeItem(
@@ -388,7 +427,13 @@ class DiscoveryApiService {
       prepTime: '12분',
       imageUrl: 'assets/images/cover_cafe.jpg',
       tags: ['그릭요거트', '웰니스디저트', '홈카페'],
-      ingredients: ['무가당 그릭요거트 100g', '얼그레이 찻잎 1티백', '단단한 복숭아 또는 사과', '그래놀라 한 줌', '시나몬 파우더'],
+      ingredients: [
+        '무가당 그릭요거트 100g',
+        '얼그레이 찻잎 1티백',
+        '단단한 복숭아 또는 사과',
+        '그래놀라 한 줌',
+        '시나몬 파우더'
+      ],
       tip: '과일을 팬에 살짝 구우면 자연스러운 단맛이 올라와 시럽 없이도 깊은 풍미가 납니다.',
     ),
   ];
@@ -410,7 +455,8 @@ class DiscoveryApiService {
               final posterPath = (m['poster_path'] ?? '').toString();
               return TrendMovieItem(
                 id: 'tmdb_${m['id']}',
-                title: (m['title'] ?? m['original_title'] ?? '트렌드 영화').toString(),
+                title:
+                    (m['title'] ?? m['original_title'] ?? '트렌드 영화').toString(),
                 genre: '트렌드 화제작',
                 rating: ((m['vote_average'] as num?)?.toDouble() ?? 8.2),
                 releaseInfo: (m['release_date'] ?? '현재 상영·스트리밍').toString(),
@@ -433,7 +479,8 @@ class DiscoveryApiService {
         genre: '미스터리 · 추리 애니메이션',
         rating: 9.1,
         releaseInfo: '박스오피스 1위 · 절찬 상영중',
-        synopsis: '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 가장 인기가 높아요.',
+        synopsis:
+            '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 가장 인기가 높아요.',
         posterUrl: 'assets/images/cover_wine.jpg',
         badge: '박스오피스 1위',
       ),
@@ -443,7 +490,8 @@ class DiscoveryApiService {
         genre: '힐링 · 판타지 애니메이션',
         rating: 9.3,
         releaseInfo: '2030 여성 예매율 상위권',
-        synopsis: '귀여운 치이카와와 친구들이 신비로운 섬으로 떠나며 펼쳐지는 힐링 어드벤처. 굿즈 오픈런 및 관람 모임 추천작!',
+        synopsis:
+            '귀여운 치이카와와 친구들이 신비로운 섬으로 떠나며 펼쳐지는 힐링 어드벤처. 굿즈 오픈런 및 관람 모임 추천작!',
         posterUrl: 'assets/images/cover_cafe.jpg',
         badge: '2030 여성 인기',
       ),
@@ -453,7 +501,8 @@ class DiscoveryApiService {
         genre: '서스펜스 · 심리 드라마',
         rating: 8.6,
         releaseInfo: '실시간 예매 TOP 3',
-        synopsis: '마지막 관문에 모인 지원자들 사이의 숨 막히는 심리전. 영화 관람 후 카페에서 결말 해석 토크하기 딱 좋은 작품이에요.',
+        synopsis:
+            '마지막 관문에 모인 지원자들 사이의 숨 막히는 심리전. 영화 관람 후 카페에서 결말 해석 토크하기 딱 좋은 작품이에요.',
         posterUrl: 'assets/images/cover_food.jpg',
         badge: '토크 모임 추천',
       ),
@@ -463,7 +512,8 @@ class DiscoveryApiService {
         genre: '판타지 · 아트 애니메이션',
         rating: 9.0,
         releaseInfo: '마니아 화제작 상영중',
-        synopsis: '독보적인 영상미와 음악으로 호평받는 극장판 신작. 감각적인 연출과 OST를 좋아하는 이웃과 함께 감상해보세요.',
+        synopsis:
+            '독보적인 영상미와 음악으로 호평받는 극장판 신작. 감각적인 연출과 OST를 좋아하는 이웃과 함께 감상해보세요.',
         posterUrl: 'assets/images/cover_running_hangang.jpg',
         badge: '영상미 호평',
       ),
@@ -487,7 +537,8 @@ class DiscoveryApiService {
         title: '일상과 운동의 경계를 허문 러닝코어(Running-core)',
         category: '패션·스타일',
         summary: '가벼운 윈드브레이커와 러닝화, 볼캡을 매치해 저녁 산책부터 러닝 크루까지 소화하는 애슬레저 스타일.',
-        detailTip: '러닝 후 동네 베이글 카페에서 브런치까지 이어지는 주말 아침 루틴 모임이 2030 여성 사이에서 인기예요.',
+        detailTip:
+            '러닝 후 동네 베이글 카페에서 브런치까지 이어지는 주말 아침 루틴 모임이 2030 여성 사이에서 인기예요.',
         keywords: ['러닝코어', '애슬레저', '모닝루틴'],
         imageUrl: 'assets/images/cover_running_hangang.jpg',
       ),
@@ -521,7 +572,8 @@ class DiscoveryApiService {
         players: '2~4명',
         playTime: '30분',
         difficulty: '입문 · 쉬움',
-        summary: '보석 토큰을 모아 카드를 구매하고 귀족의 방문을 받는 전략 게임. 규칙이 직관적이라 첫 모임에 가장 인기 있어요.',
+        summary:
+            '보석 토큰을 모아 카드를 구매하고 귀족의 방문을 받는 전략 게임. 규칙이 직관적이라 첫 모임에 가장 인기 있어요.',
         meetupTip: '말수가 적은 분들도 보석 칩을 모으다 보면 자연스럽게 몰입하며 친해져요.',
       ),
       BoardGameItem(
@@ -623,9 +675,8 @@ class DiscoveryApiService {
               ? capList.first.toString()
               : d.capital;
           final pop = (live['population'] as num?)?.toInt();
-          final popStr = pop != null
-              ? '약 ${(pop / 10000).round()}만 명'
-              : d.populationText;
+          final popStr =
+              pop != null ? '약 ${(pop / 10000).round()}만 명' : d.populationText;
           return CountrySpotItem(
             code: d.code,
             nameKo: d.nameKo,
@@ -646,7 +697,8 @@ class DiscoveryApiService {
   /// 6. Quotes Free API + Bored API 연동 (오늘의 감성 문장 & 소소한 일 추천)
   static const List<QuoteAndQuest> _curatedQuotesAndQuests = [
     QuoteAndQuest(
-      quoteEn: 'Happiness is not something ready made. It comes from your own actions.',
+      quoteEn:
+          'Happiness is not something ready made. It comes from your own actions.',
       quoteKo: '행복은 이미 만들어진 채로 기다리지 않아요. 오늘 나의 작은 발걸음에서 시작됩니다.',
       author: 'Dalai Lama',
       questTitle: '동네 독립서점이나 도서관에서 표지가 마음에 드는 책 1권 골라 읽기',
@@ -680,8 +732,9 @@ class DiscoveryApiService {
   ];
 
   Future<QuoteAndQuest> fetchQuoteAndQuest({int? seedIndex}) async {
-    final idx = (seedIndex ?? Random().nextInt(_curatedQuotesAndQuests.length)) %
-        _curatedQuotesAndQuests.length;
+    final idx =
+        (seedIndex ?? Random().nextInt(_curatedQuotesAndQuests.length)) %
+            _curatedQuotesAndQuests.length;
     final base = _curatedQuotesAndQuests[idx];
 
     try {
@@ -741,7 +794,9 @@ class DiscoveryApiService {
       if (res[1].statusCode == 200) {
         final gJson = jsonDecode(res[1].body);
         final g = (gJson['gender'] ?? '').toString();
-        final prob = (((gJson['probability'] as num?)?.toDouble() ?? 0.85) * 100).round();
+        final prob =
+            (((gJson['probability'] as num?)?.toDouble() ?? 0.85) * 100)
+                .round();
         genderProb = prob.clamp(50, 99);
         if (g == 'female') {
           genderLabel = '다정하고 감각적인 페미닌 무드 ($genderProb%)';

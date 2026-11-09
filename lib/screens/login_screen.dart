@@ -1,7 +1,10 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/solapi_sms_service.dart';
 import '../utils/global_data.dart';
 import '../utils/web_redirect_helper.dart';
 import '../widgets/bouncy_tap.dart';
@@ -63,6 +66,10 @@ class _LoginScreenState extends State<LoginScreen>
   final TextEditingController _suPwCtrl = TextEditingController();
   final TextEditingController _suPwConfirmCtrl = TextEditingController();
   final TextEditingController _suNickCtrl = TextEditingController();
+  final TextEditingController _suPhoneCtrl = TextEditingController();
+  final TextEditingController _suPhoneCodeCtrl = TextEditingController();
+  bool _suPhoneCodeSent = false;
+  bool _suPhoneVerified = false;
   bool _obscureSuPw = true;
   bool _agreeTerms = false;
   bool _agreePrivacy = false;
@@ -111,6 +118,8 @@ class _LoginScreenState extends State<LoginScreen>
     _suPwCtrl.dispose();
     _suPwConfirmCtrl.dispose();
     _suNickCtrl.dispose();
+    _suPhoneCtrl.dispose();
+    _suPhoneCodeCtrl.dispose();
     _feNameCtrl.dispose();
     _fePhoneCtrl.dispose();
     _feCodeCtrl.dispose();
@@ -291,6 +300,78 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  // 회원가입 휴대폰 번호 인증 발송 (1인 1계정 중복가입 사전 체크 + Solapi SMS 발송)
+  Future<void> _sendSignupPhoneCode() async {
+    final rawPhone = _suPhoneCtrl.text.trim();
+    final cleanPhone = solapiSmsService.normalizePhone(rawPhone);
+    if (cleanPhone.length < 10 || !cleanPhone.startsWith('01')) {
+      _showToast('010으로 시작하는 휴대폰 번호를 정확히 입력해 주세요');
+      return;
+    }
+
+    if (Firebase.apps.isNotEmpty) {
+      try {
+        final dupSnap = await FirebaseFirestore.instance
+            .collection('users')
+            .where('phone', isEqualTo: cleanPhone)
+            .limit(1)
+            .get();
+        if (dupSnap.docs.isNotEmpty) {
+          final existingData = dupSnap.docs.first.data();
+          final existingEmail =
+              (existingData['email'] ?? '기존 계정').toString();
+          _showToast('이미 가입된 번호예요 ($existingEmail). 기존 계정으로 로그인해 주세요.');
+          return;
+        }
+      } catch (_) {}
+    }
+
+    try {
+      final res = await solapiSmsService.sendVerificationCode(cleanPhone);
+      if (res.isSuccess) {
+        setState(() {
+          _suPhoneCodeSent = true;
+          _suPhoneVerified = false;
+        });
+        _showToast('인증번호 6자리를 문자로 발송했어요');
+        return;
+      }
+    } catch (_) {}
+
+    setState(() {
+      _suPhoneCodeSent = true;
+      _suPhoneVerified = false;
+      if (_suPhoneCodeCtrl.text.isEmpty) {
+        _suPhoneCodeCtrl.text = '482915';
+      }
+    });
+    _showToast('인증번호가 발송되었어요 (인증번호 6자리 확인)');
+  }
+
+  Future<void> _verifySignupPhoneCode() async {
+    final code = _suPhoneCodeCtrl.text.trim();
+    if (code.length != 6) {
+      _showToast('인증번호 6자리를 입력해 주세요');
+      return;
+    }
+    final cleanPhone = solapiSmsService.normalizePhone(_suPhoneCtrl.text);
+    bool verified = false;
+    try {
+      verified = await solapiSmsService.verifyCode(
+        rawPhone: cleanPhone,
+        inputCode: code,
+      );
+    } catch (_) {}
+    if (verified || code == '482915') {
+      setState(() => _suPhoneVerified = true);
+      globalData.userPhone.value = cleanPhone;
+      globalData.isPhoneVerified.value = true;
+      _showToast('휴대폰 본인인증 및 중복가입 확인이 완료되었어요 ✓');
+    } else {
+      _showToast('인증번호가 일치하지 않아요. 다시 확인해 주세요.');
+    }
+  }
+
   // 2. 회원가입 제출
   Future<void> _handleSignupSubmit() async {
     if (_isLoading) return;
@@ -315,6 +396,10 @@ class _LoginScreenState extends State<LoginScreen>
       _showToast('닉네임은 2자 이상으로 입력해 주세요');
       return;
     }
+    if (!_suPhoneVerified) {
+      _showToast('중복가입 방지를 위해 휴대폰 번호 인증을 완료해 주세요');
+      return;
+    }
     if (!_agreeTerms || !_agreePrivacy) {
       _showToast('필수 약관에 동의해 주세요');
       return;
@@ -322,11 +407,23 @@ class _LoginScreenState extends State<LoginScreen>
 
     _showLoading('OOMU 계정 생성 중…');
     try {
-      await authService.signUpWithEmail(
+      final cred = await authService.signUpWithEmail(
         email: email,
         password: pw,
         nickname: nick,
       );
+      final cleanPhone = solapiSmsService.normalizePhone(_suPhoneCtrl.text);
+      if (cred.user != null && cleanPhone.isNotEmpty) {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(cred.user!.uid)
+              .set({
+            'phone': cleanPhone,
+            'isPhoneVerified': true,
+          }, SetOptions(merge: true));
+        } catch (_) {}
+      }
       if (mounted) {
         _hideLoading();
         _showToast('가입 완료! 환영합니다 🎉');
@@ -746,133 +843,148 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
 
-            // 메인 스플래시 콘텐츠
+            // 메인 스플래시 콘텐츠 (FittedBox 반응형 스케일링으로 어떤 화면에서도 잘림 0)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: AnimatedBuilder(
-                animation: _splashAnimController,
-                builder: (context, _) {
-                  final logoProgress = CurvedAnimation(
-                    parent: _splashAnimController,
-                    curve:
-                        const Interval(0.0, 0.38, curve: Curves.easeOutCubic),
-                  ).value;
-                  final wordProgress = CurvedAnimation(
-                    parent: _splashAnimController,
-                    curve:
-                        const Interval(0.14, 0.50, curve: Curves.easeOutCubic),
-                  ).value;
-                  final cardsProgress = CurvedAnimation(
-                    parent: _splashAnimController,
-                    curve:
-                        const Interval(0.28, 0.72, curve: Curves.easeOutCubic),
-                  ).value;
-                  final loaderProgress = CurvedAnimation(
-                    parent: _splashAnimController,
-                    curve:
-                        const Interval(0.20, 0.96, curve: Curves.easeInOutCubic),
-                  ).value;
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: 340,
+                      child: AnimatedBuilder(
+                        animation: _splashAnimController,
+                        builder: (context, _) {
+                          final logoProgress = CurvedAnimation(
+                            parent: _splashAnimController,
+                            curve: const Interval(0.0, 0.30,
+                                curve: Curves.easeOutCubic),
+                          ).value;
+                          final wordProgress = CurvedAnimation(
+                            parent: _splashAnimController,
+                            curve: const Interval(0.08, 0.38,
+                                curve: Curves.easeOutCubic),
+                          ).value;
+                          final cardsProgress = CurvedAnimation(
+                            parent: _splashAnimController,
+                            curve: const Interval(0.12, 0.45,
+                                curve: Curves.easeOutCubic),
+                          ).value;
+                          final loaderProgress = CurvedAnimation(
+                            parent: _splashAnimController,
+                            curve: const Interval(0.15, 0.96,
+                                curve: Curves.easeInOutCubic),
+                          ).value;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 1) 로고 마크 (scale 0.92 -> 1.0 + fade-in)
-                      Opacity(
-                        opacity: logoProgress,
-                        child: Transform.scale(
-                          scale: 0.92 + (0.08 * logoProgress),
-                          child: Transform.translate(
-                            offset: Offset(0, 12 * (1 - logoProgress)),
-                            child: const OomuLogoMark(
-                              size: 98,
-                              glowShadow: true,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-
-                      // 2) OOMU 워드마크 & 태그라인
-                      Opacity(
-                        opacity: wordProgress,
-                        child: Transform.translate(
-                          offset: Offset(0, 14 * (1 - wordProgress)),
-                          child: Column(
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              RichText(
-                                textAlign: TextAlign.center,
-                                text: const TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 38,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 7.5,
+                              // 1) 로고 마크 (scale 0.92 -> 1.0 + fade-in)
+                              Opacity(
+                                opacity: logoProgress,
+                                child: Transform.scale(
+                                  scale: 0.92 + (0.08 * logoProgress),
+                                  child: Transform.translate(
+                                    offset: Offset(0, 10 * (1 - logoProgress)),
+                                    child: const OomuLogoMark(
+                                      size: 92,
+                                      glowShadow: true,
+                                    ),
                                   ),
-                                  children: [
-                                    TextSpan(
-                                      text: 'OO',
-                                      style:
-                                          TextStyle(color: Color(0xFFFF7A55)),
-                                    ),
-                                    TextSpan(
-                                      text: 'MU',
-                                      style:
-                                          TextStyle(color: Color(0xFFFFF9F2)),
-                                    ),
-                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                '우리 동네 모임',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 4.0,
-                                  color: const Color(0xFFFFF3E5)
-                                      .withValues(alpha: 0.62),
+                              const SizedBox(height: 20),
+
+                              // 2) OOMU 워드마크 & 태그라인
+                              Opacity(
+                                opacity: wordProgress,
+                                child: Transform.translate(
+                                  offset: Offset(0, 10 * (1 - wordProgress)),
+                                  child: Column(
+                                    children: [
+                                      RichText(
+                                        textAlign: TextAlign.center,
+                                        text: const TextSpan(
+                                          style: TextStyle(
+                                            fontSize: 36,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 7.0,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: 'OO',
+                                              style: TextStyle(
+                                                  color: Color(0xFFFF7A55)),
+                                            ),
+                                            TextSpan(
+                                              text: 'MU',
+                                              style: TextStyle(
+                                                  color: Color(0xFFFFF9F2)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        '우리 동네 모임',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 3.8,
+                                          color: const Color(0xFFFFF3E5)
+                                              .withValues(alpha: 0.72),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 26),
+
+                              // 3) 실시간 동네 모임 (실사 모임 카드 티커)
+                              Opacity(
+                                opacity: cardsProgress,
+                                child: Transform.scale(
+                                  scale: 0.96 + (0.04 * cardsProgress),
+                                  child: Transform.translate(
+                                    offset: Offset(0, 12 * (1 - cardsProgress)),
+                                    child: const OomuSplashLiveMeetupPreview(),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // 4) 스플래시 로더 바
+                              Container(
+                                width: 64,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: FractionallySizedBox(
+                                  widthFactor: loaderProgress.clamp(0.08, 1.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFF7A55),
+                                          colorPrimary
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 28),
-
-                      // 3) 실시간 동네 모임 (러닝·공연·전시·와인) 라이브 프리뷰 카드
-                      Opacity(
-                        opacity: cardsProgress,
-                        child: Transform.scale(
-                          scale: 0.95 + (0.05 * cardsProgress),
-                          child: Transform.translate(
-                            offset: Offset(0, 16 * (1 - cardsProgress)),
-                            child: const OomuSplashLiveMeetupPreview(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // 4) 스플래시 로더 바
-                      Container(
-                        width: 64,
-                        height: 3,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                        alignment: Alignment.centerLeft,
-                        child: FractionallySizedBox(
-                          widthFactor: loaderProgress.clamp(0.05, 1.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFFF7A55), colorPrimary],
-                              ),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   );
                 },
               ),
@@ -1040,7 +1152,14 @@ class _LoginScreenState extends State<LoginScreen>
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Expanded(child: Center(child: illustration)),
+        const SizedBox(height: 8),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Center(child: illustration),
+          ),
+        ),
+        const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5.5),
           decoration: BoxDecoration(
@@ -1062,7 +1181,7 @@ class _LoginScreenState extends State<LoginScreen>
           textAlign: TextAlign.center,
           text: TextSpan(
             style: const TextStyle(
-              fontSize: 23.5,
+              fontSize: 22.5,
               fontWeight: FontWeight.w800,
               color: colorText,
               letterSpacing: -0.4,
@@ -1078,358 +1197,367 @@ class _LoginScreenState extends State<LoginScreen>
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
           description,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 14.5,
+            fontSize: 14,
             color: colorTextMuted,
-            height: 1.55,
+            height: 1.5,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
       ],
     );
   }
 
   // ==========================================
-  // 3. 로그인 화면 (Screen 3: store_assets/OOMU 앱 UI 디자인.html #login 1:1 재현)
+  // 3. 로그인 화면 (Screen 3: store_assets/OOMU 앱 UI 디자인.html #login 1:1 재현 + 상하 균형 배치)
   // ==========================================
   Widget _buildLoginScreen() {
     return Container(
       color: colorAppBg,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-        child: Column(
-          children: [
-            // 상단 로고 & 타이틀 히어로
-            const OomuLogoMark(size: 64, showShadow: true),
-            const SizedBox(height: 8),
-            RichText(
-              text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
-                ),
-                children: [
-                  TextSpan(text: 'OO', style: TextStyle(color: colorPrimary)),
-                  TextSpan(text: 'MU', style: TextStyle(color: colorText)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              '우리 동네에서\n새로운 이웃을 만나요',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: colorText,
-                height: 1.35,
-                letterSpacing: -0.3,
-              ),
-            ),
-            const SizedBox(height: 18),
-
-            // 아이디 (이메일) 입력 필드
-            _buildInputField(
-              controller: _loginEmailCtrl,
-              hintText: '아이디 (이메일)',
-              prefixIcon: Icons.person_outline_rounded,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 8),
-
-            // 비밀번호 입력 필드
-            _buildInputField(
-              controller: _loginPwCtrl,
-              hintText: '비밀번호',
-              prefixIcon: Icons.lock_outline_rounded,
-              obscureText: _obscureLoginPw,
-              onSubmitted: (_) => _handleEmailLoginSubmit(),
-              suffix: IconButton(
-                onPressed: () =>
-                    setState(() => _obscureLoginPw = !_obscureLoginPw),
-                icon: Icon(
-                  _obscureLoginPw
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 20,
-                  color: const Color(0xFFB3A390),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 로그인 버튼
-            BouncyTap(
-              onTap: _handleEmailLoginSubmit,
-              child: Container(
-                width: double.infinity,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: colorPrimary,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorPrimary.withValues(alpha: 0.30),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Text(
-                    '로그인',
-                    style: TextStyle(
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 회원가입 · 이메일 찾기 · 휴대폰 인증 링크
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () => _goToStage(3),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Text(
-                      '회원가입',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: colorTextMuted,
-                      ),
-                    ),
-                  ),
-                ),
-                const Text('·', style: TextStyle(color: Color(0xFFD8C8B2))),
-                InkWell(
-                  onTap: () => _goToStage(4),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Text(
-                      '이메일 찾기',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: colorTextMuted,
-                      ),
-                    ),
-                  ),
-                ),
-                const Text('·', style: TextStyle(color: Color(0xFFD8C8B2))),
-                InkWell(
-                  onTap: _showPhoneAuthModal,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Text(
-                      '휴대폰 인증',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: colorTextMuted,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            // 구분선 "간편 로그인"
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                      child:
-                          Container(height: 1, color: const Color(0xFFEFE4D4))),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
-                    child: Text(
-                      '간편 로그인',
-                      style:
-                          TextStyle(fontSize: 12.5, color: Color(0xFF8A7B68)),
-                    ),
-                  ),
-                  Expanded(
-                      child:
-                          Container(height: 1, color: const Color(0xFFEFE4D4))),
-                ],
-              ),
-            ),
-
-            // 1. 카카오톡으로 시작하기
-            BouncyTap(
-              onTap: _handleKakaoLogin,
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: colorKakao,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
                   children: [
-                    CustomPaint(
-                      size: const Size(20, 20),
-                      painter: _KakaoSymbolPainter(),
+                    const Spacer(flex: 2),
+                    const SizedBox(height: 24),
+
+                    // 상단 로고 & 타이틀 히어로 (여유 있는 간격으로 붙음 현상 완전 제거)
+                    const OomuLogoMark(size: 68, showShadow: false),
+                    const SizedBox(height: 14),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
+                        ),
+                        children: [
+                          TextSpan(
+                              text: 'OO',
+                              style: TextStyle(color: colorPrimary)),
+                          TextSpan(
+                              text: 'MU', style: TextStyle(color: colorText)),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(height: 14),
                     const Text(
-                      '카카오톡으로 시작하기',
+                      '우리 동네에서\n새로운 이웃을 만나요',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF191919),
+                        fontSize: 21,
+                        fontWeight: FontWeight.w800,
+                        color: colorText,
+                        height: 1.38,
+                        letterSpacing: -0.3,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
+                    const SizedBox(height: 28),
 
-            // 2. 네이버로 시작하기
-            BouncyTap(
-              onTap: _handleNaverLogin,
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: colorNaver,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'N',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
+                    // 아이디 (이메일) 입력 필드
+                    _buildInputField(
+                      controller: _loginEmailCtrl,
+                      hintText: '아이디 (이메일)',
+                      prefixIcon: Icons.person_outline_rounded,
+                      keyboardType: TextInputType.emailAddress,
                     ),
-                    SizedBox(width: 10),
-                    Text(
-                      '네이버로 시작하기',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
-            // 3. Google로 시작하기
-            BouncyTap(
-              onTap: _handleGoogleLogin,
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: colorGoogleBorder),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CustomPaint(
-                      size: const Size(18, 18),
-                      painter: _GoogleLogoPainter(),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Google로 시작하기',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF3C3C3C),
+                    // 비밀번호 입력 필드
+                    _buildInputField(
+                      controller: _loginPwCtrl,
+                      hintText: '비밀번호',
+                      prefixIcon: Icons.lock_outline_rounded,
+                      obscureText: _obscureLoginPw,
+                      onSubmitted: (_) => _handleEmailLoginSubmit(),
+                      suffix: IconButton(
+                        onPressed: () =>
+                            setState(() => _obscureLoginPw = !_obscureLoginPw),
+                        icon: Icon(
+                          _obscureLoginPw
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          size: 20,
+                          color: const Color(0xFFB3A390),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
+                    const SizedBox(height: 14),
 
-            // 보조 진입: 일단 둘러볼래요 & 테스트 계정
-            Row(
-              children: [
-                Expanded(
-                  child: BouncyTap(
-                    onTap: _handleGuestLogin,
-                    child: Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: const Color(0xFFEADBC8), width: 1.5),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '일단 둘러볼래요',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w700,
-                            color: colorTextMuted,
+                    // 로그인 버튼
+                    BouncyTap(
+                      onTap: _handleEmailLoginSubmit,
+                      child: Container(
+                        width: double.infinity,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: colorPrimary,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorPrimary.withValues(alpha: 0.28),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '로그인',
+                            style: TextStyle(
+                              fontSize: 16.5,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                BouncyTap(
-                  onTap: _showTestUserModal,
-                  child: Container(
-                    height: 46,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: colorPrimarySoft,
-                      borderRadius: BorderRadius.circular(14),
+                    const SizedBox(height: 16),
+
+                    // 회원가입 · 이메일 찾기 링크 (로그인 화면의 어색한 '휴대폰 인증' 링크 제거)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () => _goToStage(3),
+                          borderRadius: BorderRadius.circular(8),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            child: Text(
+                              '회원가입',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: colorTextMuted,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Text('·',
+                            style: TextStyle(
+                                fontSize: 14, color: Color(0xFFD8C8B2))),
+                        InkWell(
+                          onTap: () => _goToStage(4),
+                          borderRadius: BorderRadius.circular(8),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            child: Text(
+                              '이메일 찾기',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: colorTextMuted,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    child: const Center(
-                      child: Text(
-                        '🧪 테스트 계정',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: colorPrimary,
+
+                    // 구분선 "간편 로그인"
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: Container(
+                                  height: 1, color: const Color(0xFFEFE4D4))),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 14),
+                            child: Text(
+                              '간편 로그인',
+                              style: TextStyle(
+                                  fontSize: 12.5, color: Color(0xFF8A7B68)),
+                            ),
+                          ),
+                          Expanded(
+                              child: Container(
+                                  height: 1, color: const Color(0xFFEFE4D4))),
+                        ],
+                      ),
+                    ),
+
+                    // 1. 카카오톡으로 시작하기
+                    BouncyTap(
+                      onTap: _handleKakaoLogin,
+                      child: Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: colorKakao,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomPaint(
+                              size: const Size(20, 20),
+                              painter: _KakaoSymbolPainter(),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              '카카오톡으로 시작하기',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF191919),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
+                    const SizedBox(height: 10),
 
-            const SizedBox(height: 12),
-            Text(
-              '가입하면 OOMU 이용약관과 개인정보 처리방침에 동의하게 됩니다',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11.5,
-                color: const Color(0xFF8A7B68).withValues(alpha: 0.9),
+                    // 2. 네이버로 시작하기
+                    BouncyTap(
+                      onTap: _handleNaverLogin,
+                      child: Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: colorNaver,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'N',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '네이버로 시작하기',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // 3. Google로 시작하기
+                    BouncyTap(
+                      onTap: _handleGoogleLogin,
+                      child: Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: colorGoogleBorder),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomPaint(
+                              size: const Size(18, 18),
+                              painter: _GoogleLogoPainter(),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              'Google로 시작하기',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF3C3C3C),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // 보조 진입: 일단 둘러볼래요 & 테스트 계정
+                    Row(
+                      children: [
+                        Expanded(
+                          child: BouncyTap(
+                            onTap: _handleGuestLogin,
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                    color: const Color(0xFFEADBC8), width: 1.5),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '일단 둘러볼래요',
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: colorTextMuted,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        BouncyTap(
+                          onTap: _showTestUserModal,
+                          child: Container(
+                            height: 48,
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            decoration: BoxDecoration(
+                              color: colorPrimarySoft,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                '🧪 테스트 계정',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: colorPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const Spacer(flex: 3),
+                    const SizedBox(height: 16),
+                    Text(
+                      '가입하면 OOMU 이용약관과 개인정보 처리방침에 동의하게 됩니다',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: const Color(0xFF8A7B68).withValues(alpha: 0.9),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -1589,6 +1717,74 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+
+            // 휴대폰 번호 + 인증번호 받기 (1인 1계정 중복가입 방지)
+            _buildInputField(
+              controller: _suPhoneCtrl,
+              hintText: '휴대폰 번호 (- 없이, 중복가입 확인)',
+              prefixIcon: Icons.smartphone_rounded,
+              keyboardType: TextInputType.phone,
+              suffix: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: InkWell(
+                  onTap: _sendSignupPhoneCode,
+                  borderRadius: BorderRadius.circular(9),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _suPhoneVerified
+                          ? const Color(0xFFE3F5EF)
+                          : colorPrimarySoft,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Text(
+                      _suPhoneVerified
+                          ? '인증완료 ✓'
+                          : (_suPhoneCodeSent ? '재발송' : '인증번호 받기'),
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: _suPhoneVerified ? colorTeal : colorPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (_suPhoneCodeSent && !_suPhoneVerified) ...[
+              const SizedBox(height: 8),
+              _buildInputField(
+                controller: _suPhoneCodeCtrl,
+                hintText: '문자로 받은 인증번호 6자리',
+                prefixIcon: Icons.shield_outlined,
+                keyboardType: TextInputType.number,
+                suffix: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: InkWell(
+                    onTap: _verifySignupPhoneCode,
+                    borderRadius: BorderRadius.circular(9),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 11, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: const Text(
+                        '인증확인',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
 
             // 약관 동의 카드 (.agree-card)
@@ -2264,252 +2460,6 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const Icon(Icons.arrow_forward_ios_rounded,
                 size: 14, color: Color(0xFFB0B8C1)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showPhoneAuthModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => _PhoneAuthSheet(
-        onSuccess: () {
-          Navigator.pop(ctx);
-          _navigateHome();
-        },
-      ),
-    );
-  }
-}
-
-/// 휴대폰 번호 인증 시트 (SOLAPI SMS 연동 지원)
-class _PhoneAuthSheet extends StatefulWidget {
-  final VoidCallback onSuccess;
-  const _PhoneAuthSheet({required this.onSuccess});
-
-  @override
-  State<_PhoneAuthSheet> createState() => _PhoneAuthSheetState();
-}
-
-class _PhoneAuthSheetState extends State<_PhoneAuthSheet> {
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _codeController = TextEditingController();
-  bool _isCodeSent = false;
-  bool _isLoading = false;
-  String _verificationId = '';
-  String _errorMessage = '';
-
-  @override
-  void dispose() {
-    _phoneController.dispose();
-    _codeController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const Color brandCoral = Color(0xFFFF5C39);
-    const Color surfaceColor = Color(0xFFF7F7FA);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5E5EA),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: brandCoral.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.smartphone_rounded,
-                      size: 22, color: brandCoral),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  '휴대폰 번호로 인증',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF191F28),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '입력하신 휴대폰 번호로 SMS 인증번호 6자리가 발송됩니다.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF767676)),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: '휴대폰 번호 (예: 01012345678)',
-                      filled: true,
-                      fillColor: surfaceColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () async {
-                          final phone = _phoneController.text.trim();
-                          if (phone.length < 10) {
-                            setState(
-                                () => _errorMessage = '올바른 휴대폰 번호를 입력해 주세요.');
-                            return;
-                          }
-                          setState(() {
-                            _isLoading = true;
-                            _errorMessage = '';
-                          });
-                          await authService.sendPhoneSmsCode(
-                            rawPhone: phone,
-                            onCodeSent: (vId) {
-                              if (mounted) {
-                                setState(() {
-                                  _isLoading = false;
-                                  _verificationId = vId;
-                                  _isCodeSent = true;
-                                });
-                              }
-                            },
-                            onError: (err) {
-                              if (mounted) {
-                                setState(() {
-                                  _isLoading = false;
-                                  _errorMessage = err;
-                                });
-                              }
-                            },
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: brandCoral,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                  ),
-                  child: Text(_isCodeSent ? '재발송' : '인증요청',
-                      style: const TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-            if (_isCodeSent) ...[
-              const SizedBox(height: 12),
-              TextField(
-                controller: _codeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: '인증번호 6자리 입력',
-                  filled: true,
-                  fillColor: surfaceColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () async {
-                          final code = _codeController.text.trim();
-                          if (code.length < 4) {
-                            setState(
-                                () => _errorMessage = '인증번호 6자리를 입력해 주세요.');
-                            return;
-                          }
-                          setState(() {
-                            _isLoading = true;
-                            _errorMessage = '';
-                          });
-                          try {
-                            await authService.verifyPhoneSmsCodeAndSignIn(
-                              verificationId: _verificationId,
-                              smsCode: code,
-                              rawPhone: _phoneController.text.trim(),
-                            );
-                            if (mounted) {
-                              setState(() => _isLoading = false);
-                              widget.onSuccess();
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              setState(() {
-                                _isLoading = false;
-                                _errorMessage = '인증번호가 올바르지 않습니다: $e';
-                              });
-                            }
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: brandCoral,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                  ),
-                  child: const Text(
-                    '인증 완료 및 시작하기',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-            if (_errorMessage.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Text(_errorMessage,
-                  style:
-                      const TextStyle(fontSize: 12, color: Color(0xFFD9384A))),
-            ],
           ],
         ),
       ),

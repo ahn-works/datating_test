@@ -189,9 +189,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     final allRecipes = data?.recommendedRecipes ?? const <RecipeItem>[];
     final filtered = _selectedRecipeFilter == '전체'
         ? allRecipes
-        : allRecipes
-            .where((r) => r.category == _selectedRecipeFilter)
-            .toList();
+        : allRecipes.where((r) => r.category == _selectedRecipeFilter).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -451,15 +449,19 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
-                        '${recipe.calories}kcal · 단백질 ${recipe.protein}',
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: brandCoral,
+                      Expanded(
+                        child: Text(
+                          '${recipe.calories}kcal · 단백질 ${recipe.protein}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: brandCoral,
+                          ),
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 6),
                       Text(
                         recipe.prepTime,
                         style: const TextStyle(

@@ -5281,11 +5281,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       children: [
         _buildTrendCurationSection(),
         const Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: Divider(height: 1, color: Color(0xFFEAECF0)),
-        ),
-        OomuDiscoveryLifestyleHub(currentLocation: _currentLocation),
-        const Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
           child: Divider(height: 1, color: Color(0xFFEAECF0)),
         ),
@@ -5409,6 +5404,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             );
           },
         ),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 16),
+          child: Divider(height: 1, color: Color(0xFFEAECF0)),
+        ),
+        OomuDiscoveryLifestyleHub(currentLocation: _currentLocation),
       ],
     );
   }
