@@ -1,17 +1,22 @@
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// OOMU 앱 인트로 및 온보딩 전용 고품질 벡터 일러스트 컴포넌트
-/// 'assets/images/OOMU 앱 UI 디자인.html'의 정밀 SVG 좌표 및 컬러를 1:1 재현합니다.
+/// OOMU 앱 스플래시 및 인트로 온보딩 전용 실시간 모임 쇼케이스 & 일러스트 위젯
+/// 'store_assets/OOMU 앱 UI 디자인.html'을 기반으로 실제 동네 모임(러닝 크루, 공연·전시, 핫플, 실시간 채팅)
+/// UI와 부드러운 물리 애니메이션(Emil Kowalski 모션 원칙: scale 0.92->1.0, easeOutCubic, GPU Transform)을 결합합니다.
 
 /// 1. OOMU 시그니처 로고 마크 (소프트 라운드 스퀘어 + 코랄/틸 오버랩 서클 + 화이트 하트)
 class OomuLogoMark extends StatelessWidget {
   final double size;
   final bool showShadow;
+  final bool glowShadow;
 
   const OomuLogoMark({
     super.key,
     this.size = 96.0,
     this.showShadow = false,
+    this.glowShadow = false,
   });
 
   @override
@@ -21,15 +26,23 @@ class OomuLogoMark extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(size * (27.0 / 96.0)),
-        boxShadow: showShadow
+        boxShadow: glowShadow
             ? [
                 BoxShadow(
-                  color: const Color(0xFF4A3014).withValues(alpha: 0.12),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  color: const Color(0xFFFF5C39).withValues(alpha: 0.36),
+                  blurRadius: 48,
+                  offset: const Offset(0, 18),
                 ),
               ]
-            : null,
+            : (showShadow
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF4A3014).withValues(alpha: 0.12),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null),
       ),
       child: CustomPaint(
         size: Size(size, size),
@@ -51,7 +64,6 @@ class _OomuLogoMarkPainter extends CustomPainter {
       const Radius.circular(27),
     );
 
-    // 배경 그래디언트 (#FFF6EC -> #FFE8D5)
     final bgPaint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,
@@ -61,26 +73,34 @@ class _OomuLogoMarkPainter extends CustomPainter {
     canvas.drawRRect(bgRect, bgPaint);
 
     // 1. 코랄 서클 (cx=38, cy=48, r=20, #FF5C39)
-    final coralPaint = Paint()..color = const Color(0xFFFF5C39);
-    canvas.drawCircle(const Offset(38, 48), 20, coralPaint);
+    canvas.drawCircle(
+      const Offset(38, 48),
+      20,
+      Paint()..color = const Color(0xFFFF5C39),
+    );
 
     // 2. 틸 서클 (cx=58, cy=48, r=20, #2FA98C)
-    final tealPaint = Paint()..color = const Color(0xFF2FA98C);
-    canvas.drawCircle(const Offset(58, 48), 20, tealPaint);
+    canvas.drawCircle(
+      const Offset(58, 48),
+      20,
+      Paint()..color = const Color(0xFF2FA98C),
+    );
 
     // 3. 교차 영역 (#1D7A66, opacity 0.72)
     canvas.save();
-    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: const Offset(38, 48), radius: 20)));
-    final overlapPaint = Paint()..color = const Color(0xFF1D7A66).withValues(alpha: 0.72);
-    canvas.drawCircle(const Offset(58, 48), 20, overlapPaint);
+    canvas.clipPath(
+      Path()..addOval(Rect.fromCircle(center: const Offset(38, 48), radius: 20)),
+    );
+    canvas.drawCircle(
+      const Offset(58, 48),
+      20,
+      Paint()..color = const Color(0xFF1D7A66).withValues(alpha: 0.72),
+    );
     canvas.restore();
 
     // 4. 중앙 화이트 하트
-    final heartPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
     final heartPath = _buildHeartPath(48, 54, 1.0);
-    canvas.drawPath(heartPath, heartPaint);
+    canvas.drawPath(heartPath, Paint()..color = Colors.white);
 
     canvas.restore();
   }
@@ -89,455 +109,1640 @@ class _OomuLogoMarkPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// 2. 온보딩 슬라이드 1: 동네 숨은 장소 지도 일러스트
-class OomuSlide1Map extends StatelessWidget {
+/// 2. 스플래시 화면 하단 실시간 동네 모임 라이브 프리뷰 티커
+/// 스플래시 진입 시 현재 동네에서 뜨는 러닝·공연·전시·와인 모임 카드를 부드러운 애니메이션으로 보여줍니다.
+class OomuSplashLiveMeetupPreview extends StatefulWidget {
+  const OomuSplashLiveMeetupPreview({super.key});
+
+  @override
+  State<OomuSplashLiveMeetupPreview> createState() =>
+      _OomuSplashLiveMeetupPreviewState();
+}
+
+class _OomuSplashLiveMeetupPreviewState
+    extends State<OomuSplashLiveMeetupPreview>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _floatCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _floatCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _floatCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _floatCtrl,
+        builder: (context, _) {
+          final t = Curves.easeInOutSine.transform(_floatCtrl.value);
+          final dy1 = -4.0 + (8.0 * t);
+          final dy2 = 4.0 - (8.0 * t);
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 실시간 카테고리 필 바
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                alignment: WrapAlignment.center,
+                children: [
+                  _buildSplashPill('🔥 지금 뜨는 모임', isHighlight: true),
+                  _buildSplashPill('🏃 한강 러닝'),
+                  _buildSplashPill('🎭 공연·전시 46'),
+                  _buildSplashPill('🍷 와인·다이닝'),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // 라이브 미니 모임 카드 1: 러닝 크루
+              Transform.translate(
+                offset: Offset(0, dy1),
+                child: Container(
+                  width: 310,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2E241B).withValues(alpha: 0.92),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFFF7A55).withValues(alpha: 0.35),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.28),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // 미니 한강 선셋 썸네일
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: CustomPaint(
+                            painter: _HanRiverRunSunrisePainter(phase: t),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFF5C39),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: const Text(
+                                    '라이프 메이트',
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Expanded(
+                                  child: Text(
+                                    '망원러너_지안 · 46.5°C',
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFFD5C5B3),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              '주말 아침 망원 한강공원 5km 러닝 크루 🏃',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFFFF9F2),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // 라이브 미니 모임 카드 2: 공연·전시 & 동네 핫플
+              Transform.translate(
+                offset: Offset(0, dy2),
+                child: Container(
+                  width: 294,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2E241B).withValues(alpha: 0.82),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: const Color(0xFF2FA98C).withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF2FA98C), Color(0xFF1D7A66)],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(
+                          child: Text('🎭', style: TextStyle(fontSize: 18)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '공연·전시 동행 & 성수 베이커리 탐방 🥐',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFFFF9F2),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              '📍 우리동네 8건 · 콘서트 6 · 뮤지컬 7 진행 중',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF8FD4CB),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSplashPill(String label, {bool isHighlight = false}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+      decoration: BoxDecoration(
+        color: isHighlight
+            ? const Color(0xFFFF5C39).withValues(alpha: 0.24)
+            : Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: isHighlight
+              ? const Color(0xFFFF7A55).withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.14),
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: isHighlight
+              ? const Color(0xFFFFB299)
+              : const Color(0xFFE6D8C7),
+        ),
+      ),
+    );
+  }
+}
+
+/// 3. 온보딩 슬라이드 1: 실제 동네모임 피드 & 한강 러닝 크루 라이브 쇼케이스
+class OomuSlide1Map extends StatefulWidget {
   final double width;
   final double height;
 
   const OomuSlide1Map({
     super.key,
-    this.width = 300,
-    this.height = 230,
+    this.width = 320,
+    this.height = 310,
   });
 
   @override
+  State<OomuSlide1Map> createState() => _OomuSlide1MapState();
+}
+
+class _OomuSlide1MapState extends State<OomuSlide1Map>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  Timer? _chipTimer;
+  int _activeCategoryIdx = 0;
+
+  static const List<String> _categories = [
+    '🔥 전체',
+    '⚡ 오늘 번개',
+    '🏃 라이프 메이트',
+    '🍷 와인 모임',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    )..repeat(reverse: true);
+    _chipTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (mounted) {
+        setState(() {
+          _activeCategoryIdx = (_activeCategoryIdx + 1) % _categories.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _chipTimer?.cancel();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (context, _) {
+          final t = Curves.easeInOutSine.transform(_ctrl.value);
+          final floatY = -5.0 + (10.0 * t);
+          final floatOpposite = 5.0 - (10.0 * t);
+
+          return SizedBox(
+            width: widget.width,
+            height: widget.height,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                // 은은한 방사형 배경 글로우
+                Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFFFF5C39).withValues(alpha: 0.14),
+                        const Color(0xFF2FA98C).withValues(alpha: 0.05),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+
+                // 메인 실제 모임 UI 쇼케이스 카드
+                Transform.translate(
+                  offset: Offset(0, floatY * 0.45),
+                  child: Transform.rotate(
+                    angle: -0.024, // -1.4deg 감성 틸트
+                    child: Container(
+                      width: 292,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFF0E6D4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                const Color(0xFF4A3014).withValues(alpha: 0.18),
+                            blurRadius: 36,
+                            offset: const Offset(0, 18),
+                          ),
+                        ],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 미니 동네 헤더 + 실시간 카테고리 칩 바
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+                            color: const Color(0xFFFFFDF9),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_rounded,
+                                      size: 14,
+                                      color: Color(0xFFFF5C39),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Text(
+                                      '우리 동네에서 지금 뜨는 모임',
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF2B2118),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFEDE7),
+                                        borderRadius:
+                                            BorderRadius.circular(999),
+                                      ),
+                                      child: const Text(
+                                        'LIVE',
+                                        style: TextStyle(
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFFFF5C39),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 7),
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  child: Row(
+                                    children:
+                                        List.generate(_categories.length, (i) {
+                                      final isOn = i == _activeCategoryIdx;
+                                      return AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 260),
+                                        margin: const EdgeInsets.only(right: 5),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 3.5),
+                                        decoration: BoxDecoration(
+                                          color: isOn
+                                              ? const Color(0xFFFF5C39)
+                                              : Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                          border: Border.all(
+                                            color: isOn
+                                                ? const Color(0xFFFF5C39)
+                                                : const Color(0xFFEFE3D0),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _categories[i],
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w700,
+                                            color: isOn
+                                                ? Colors.white
+                                                : const Color(0xFF7D6F5E),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // 한강공원 아침 러닝 일러스트 배너 (store_assets/OOMU 앱 UI 디자인.html 동일)
+                          SizedBox(
+                            height: 112,
+                            width: double.infinity,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CustomPaint(
+                                  painter: _HanRiverRunSunrisePainter(phase: t),
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  left: 10,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 9, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.94),
+                                      borderRadius: BorderRadius.circular(999),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.12),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Text(
+                                      '라이프 메이트',
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF2B2118),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // 모임 본문 정보
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(14, 11, 14, 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '주말 아침 망원 한강공원 가벼운 5km 러닝 크루 🏃',
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF2B2118),
+                                    height: 1.3,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 5),
+                                const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_rounded,
+                                      size: 11.5,
+                                      color: Color(0xFFFF5C39),
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      '이번 주 토요일 오전 9시 · 망원한강공원 입구',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF7D6F5E),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 9),
+                                Container(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(color: Color(0xFFF5EDDD)),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      _buildAvatarStack(),
+                                      const SizedBox(width: 6),
+                                      const Text(
+                                        '망원러너_지안',
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF2B2118),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFEDE7),
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Text(
+                                          '46.5°C',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFFE8542F),
+                                          ),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFF5C39),
+                                          borderRadius:
+                                              BorderRadius.circular(999),
+                                        ),
+                                        child: const Text(
+                                          '참여하기',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 우상단 플로팅 배지
+                Positioned(
+                  top: 2,
+                  right: 0,
+                  child: Transform.translate(
+                    offset: Offset(0, floatOpposite),
+                    child: _buildFloatingMockChip('🏃 러닝 크루 · 3명 참여'),
+                  ),
+                ),
+
+                // 좌하단 플로팅 배지
+                Positioned(
+                  bottom: 6,
+                  left: 0,
+                  child: Transform.translate(
+                    offset: Offset(0, floatY),
+                    child: _buildFloatingMockChip('📍 도보 8분 · 동네 인증'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAvatarStack() {
+    final colors = [
+      const Color(0xFF2FA98C),
+      const Color(0xFFFF8A5C),
+      const Color(0xFFFFC24B),
+    ];
+    final labels = ['지', '민', '현'];
     return SizedBox(
-      width: width,
-      height: height,
-      child: CustomPaint(
-        size: Size(width, height),
-        painter: _OomuSlide1Painter(),
+      width: 52,
+      height: 22,
+      child: Stack(
+        children: List.generate(3, (i) {
+          return Positioned(
+            left: i * 14.0,
+            child: Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: colors[i],
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+              child: Center(
+                child: Text(
+                  labels[i],
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
 }
 
-class _OomuSlide1Painter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final scale = size.width / 300.0;
-    canvas.save();
-    canvas.scale(scale);
-
-    final dotPaint = Paint()..color = const Color(0xFFFFD9B8);
-    canvas.drawCircle(const Offset(60, 40), 4, dotPaint);
-    canvas.drawCircle(const Offset(250, 30), 5, dotPaint);
-    canvas.drawCircle(const Offset(270, 180), 4, dotPaint);
-    canvas.drawCircle(const Offset(30, 150), 4, dotPaint);
-
-    final sparklePaint = Paint()..color = const Color(0xFFFFC24B);
-    _drawSparkleTriangle(canvas, 22, 96, 16, 18, sparklePaint);
-    _drawSparkleTriangle(canvas, 268, 100, 12, 14, sparklePaint);
-
-    // 지도 카드 베이스
-    final mapRect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(58, 60, 184, 140),
-      const Radius.circular(18),
-    );
-    canvas.drawRRect(mapRect, Paint()..color = const Color(0xFFFFF3E4));
-
-    // 도로 격자선
-    final gridLinePaint = Paint()
-      ..color = const Color(0xFFF3DFC4)
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-    canvas.drawLine(const Offset(58, 132), const Offset(242, 132), gridLinePaint);
-    canvas.drawLine(const Offset(120, 60), const Offset(120, 200), gridLinePaint);
-    canvas.drawLine(const Offset(180, 60), const Offset(180, 200), gridLinePaint);
-
-    // 집 1 (피치 베이지)
-    final house1Rect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(74, 146, 34, 26),
-      const Radius.circular(6),
-    );
-    canvas.drawRRect(house1Rect, Paint()..color = const Color(0xFFFFD9A8));
-    final roof1Paint = Paint()
-      ..color = const Color(0xFFE89A4F)
-      ..strokeWidth = 4.0
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    final roof1 = Path()
-      ..moveTo(71, 148)
-      ..lineTo(91, 134)
-      ..lineTo(111, 148);
-    canvas.drawPath(roof1, roof1Paint);
-
-    // 집 2 (민트 그린)
-    final house2Rect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(196, 142, 30, 30),
-      const Radius.circular(6),
-    );
-    canvas.drawRRect(house2Rect, Paint()..color = const Color(0xFFCDE8DC));
-    final roof2Paint = Paint()
-      ..color = const Color(0xFF2FA98C)
-      ..strokeWidth = 4.0
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    final roof2 = Path()
-      ..moveTo(193, 144)
-      ..lineTo(208, 132)
-      ..lineTo(223, 144);
-    canvas.drawPath(roof2, roof2Paint);
-
-    // 핀 그림자
-    final shadowPaint = Paint()..color = const Color(0xFF2B2118).withValues(alpha: 0.08);
-    canvas.drawOval(const Rect.fromLTWH(150 - 26, 176 - 7, 52, 14), shadowPaint);
-
-    // 핀 본체 (틸 #2FA98C)
-    final pinPath = Path()
-      ..moveTo(150, 64)
-      ..cubicTo(150 - 19.9, 64, 114, 64 + 16.1, 114, 100)
-      ..cubicTo(114, 125.5, 150, 160, 150, 160)
-      ..cubicTo(150, 160, 186, 125.5, 186, 100)
-      ..cubicTo(186, 64 + 16.1, 150 + 19.9, 64, 150, 64)
-      ..close();
-    canvas.drawPath(pinPath, Paint()..color = const Color(0xFF2FA98C));
-
-    // 핀 내부 화이트 하트
-    final heartPath = _buildHeartPath(150, 108, 2.0);
-    canvas.drawPath(heartPath, Paint()..color = Colors.white);
-
-    // 오른쪽 상단 8방향 반짝이
-    _drawSparkleStar8(canvas, 214, 70, sparklePaint);
-
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// 3. 온보딩 슬라이드 2: 취향 이웃 연결 일러스트
-class OomuSlide2Friends extends StatelessWidget {
+/// 4. 온보딩 슬라이드 2: 공연·전시 & 동네 핫플 발견 라이브 쇼케이스
+class OomuSlide2Friends extends StatefulWidget {
   final double width;
   final double height;
 
   const OomuSlide2Friends({
     super.key,
-    this.width = 300,
-    this.height = 230,
+    this.width = 320,
+    this.height = 310,
   });
 
   @override
+  State<OomuSlide2Friends> createState() => _OomuSlide2FriendsState();
+}
+
+class _OomuSlide2FriendsState extends State<OomuSlide2Friends>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  Timer? _filterTimer;
+  int _selectedFilter = 0;
+
+  static const List<String> _filters = [
+    '전체 46',
+    '📍 우리동네 8',
+    '콘서트 6',
+    '뮤지컬 7',
+    '전시·페스티벌 12',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat(reverse: true);
+    _filterTimer = Timer.periodic(const Duration(milliseconds: 1300), (_) {
+      if (mounted) {
+        setState(() {
+          _selectedFilter = (_selectedFilter + 1) % _filters.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _filterTimer?.cancel();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: CustomPaint(
-        size: Size(width, height),
-        painter: _OomuSlide2Painter(),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (context, _) {
+          final t = Curves.easeInOutSine.transform(_ctrl.value);
+          final floatY = -5.0 + (10.0 * t);
+
+          return SizedBox(
+            width: widget.width,
+            height: widget.height,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                // 배경 서클 글로우
+                Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFF2FA98C).withValues(alpha: 0.14),
+                        const Color(0xFFFFC24B).withValues(alpha: 0.08),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+
+                // 공연·전시 & 동네 발견 UI 카드
+                Transform.translate(
+                  offset: Offset(0, floatY * 0.4),
+                  child: Transform.rotate(
+                    angle: 0.02, // +1.1deg 틸트
+                    child: Container(
+                      width: 294,
+                      padding: const EdgeInsets.all(13),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFF0E6D4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                const Color(0xFF4A3014).withValues(alpha: 0.18),
+                            blurRadius: 36,
+                            offset: const Offset(0, 18),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 섹션 헤더
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '공연·전시와 동네 발견',
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF2B2118),
+                                ),
+                              ),
+                              Text(
+                                '전체보기 >',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFFF5C39),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          // 필터 칩 (전체 46 | 📍 우리동네 8 | 콘서트 6 | 뮤지컬 7)
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: const NeverScrollableScrollPhysics(),
+                            child: Row(
+                              children: List.generate(_filters.length, (i) {
+                                final isDark = i == _selectedFilter;
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 240),
+                                  margin: const EdgeInsets.only(right: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 9, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF2B2118)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? const Color(0xFF2B2118)
+                                          : const Color(0xFFEFE3D0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _filters[i],
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF7D6F5E),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // 2열 실제 발견 카드 그리드 (공연·전시 + SNS 맛집/러닝)
+                          Row(
+                            children: [
+                              // 카드 1: 공연·전시 / 뮤지컬 동행
+                              Expanded(
+                                child: _buildDiscoveryMiniCard(
+                                  badge: '공연·전시',
+                                  badgeColor: const Color(0xFF2FA98C),
+                                  title: '성수 미디어아트 전시 & 카페 산책 🎨',
+                                  time: '🕒 토요일 오후 3시',
+                                  place: '📍 성수 문화공간',
+                                  customArt: CustomPaint(
+                                    painter: _ExhibitionArtPainter(phase: t),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // 카드 2: SNS 맛집 베이커리 탐방 (HTML 시안 1:1)
+                              Expanded(
+                                child: _buildDiscoveryMiniCard(
+                                  badge: 'SNS 맛집',
+                                  badgeColor: const Color(0xFFFF5C39),
+                                  title: '성수 비건 베이커리 신메뉴 탐방 🥐',
+                                  time: '🕒 토요일 오후 2시',
+                                  place: '📍 성수동 카페거리',
+                                  customArt: CustomPaint(
+                                    painter: _BakeryArtPainter(phase: t),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          // 하단 미니 지도 핀 배너
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFBF6EC),
+                              borderRadius: BorderRadius.circular(12),
+                              border:
+                                  Border.all(color: const Color(0xFFF0E5D4)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 26,
+                                  height: 26,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFECE5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.map_rounded,
+                                    size: 14,
+                                    color: Color(0xFFFF5C39),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Expanded(
+                                  child: Text(
+                                    '지도에서 내 주변 1km 공연·핫플 모임 한눈에 보기',
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF2B2118),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 좌상단 플로팅 배지
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Transform.translate(
+                    offset: Offset(floatY * 0.6, -floatY * 0.5),
+                    child: _buildFloatingMockChip('🎭 콘서트·뮤지컬·전시 46건'),
+                  ),
+                ),
+
+                // 우하단 플로팅 배지
+                Positioned(
+                  bottom: 4,
+                  right: 0,
+                  child: Transform.translate(
+                    offset: Offset(-floatY * 0.6, floatY * 0.5),
+                    child: _buildFloatingMockChip('🥐 동네 핫플·맛집 투어'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDiscoveryMiniCard({
+    required String badge,
+    required Color badgeColor,
+    required String title,
+    required String time,
+    required String place,
+    required Widget customArt,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEFE3D0)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 76,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                customArt,
+                Positioned(
+                  top: 6,
+                  left: 6,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                    decoration: BoxDecoration(
+                      color: badgeColor,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      badge,
+                      style: const TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF2B2118),
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  time,
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFA99A87),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  place,
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFA99A87),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _OomuSlide2Painter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final scale = size.width / 300.0;
-    canvas.save();
-    canvas.scale(scale);
-
-    // 1. 좌상단 코랄빛 말풍선
-    final bubble1Rect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(30, 24, 86, 34),
-      const Radius.circular(14),
-    );
-    canvas.drawRRect(bubble1Rect, Paint()..color = const Color(0xFFFFE7DD));
-    final tail1 = Path()
-      ..moveTo(46, 56)
-      ..lineTo(40, 66)
-      ..lineTo(54, 56)
-      ..close();
-    canvas.drawPath(tail1, Paint()..color = const Color(0xFFFFE7DD));
-
-    // 2. 우상단 민트빛 말풍선
-    final bubble2Rect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(186, 14, 84, 34),
-      const Radius.circular(14),
-    );
-    canvas.drawRRect(bubble2Rect, Paint()..color = const Color(0xFFD9EEE2));
-    final tail2 = Path()
-      ..moveTo(254, 46)
-      ..lineTo(260, 56)
-      ..lineTo(246, 46)
-      ..close();
-    canvas.drawPath(tail2, Paint()..color = const Color(0xFFD9EEE2));
-
-    // 3. 두 사람 그림자
-    final shadowPaint = Paint()..color = const Color(0xFF2B2118).withValues(alpha: 0.07);
-    canvas.drawOval(const Rect.fromLTWH(150 - 64, 196 - 8, 128, 16), shadowPaint);
-
-    // 4. 왼쪽 친구 (코랄 #FF5C39)
-    canvas.drawCircle(const Offset(118, 140), 44, Paint()..color = const Color(0xFFFF5C39));
-
-    // 5. 오른쪽 친구 (틸 #2FA98C)
-    canvas.drawCircle(const Offset(182, 140), 44, Paint()..color = const Color(0xFF2FA98C));
-
-    // 6. 교차 오버랩
-    canvas.save();
-    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: const Offset(118, 140), radius: 44)));
-    canvas.drawCircle(
-      const Offset(182, 140),
-      44,
-      Paint()..color = const Color(0xFF1D7A66).withValues(alpha: 0.72),
-    );
-    canvas.restore();
-
-    // 7. 왼쪽 얼굴 눈 & 미소
-    final eyePaint = Paint()..color = Colors.white;
-    canvas.drawCircle(const Offset(102, 132), 5, eyePaint);
-    canvas.drawCircle(const Offset(126, 132), 5, eyePaint);
-    final smilePaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 4.5
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    final smile1 = Path()
-      ..moveTo(104, 148)
-      ..cubicTo(107, 152, 120, 152, 123, 148);
-    canvas.drawPath(smile1, smilePaint);
-
-    // 8. 오른쪽 얼굴 눈 & 미소
-    canvas.drawCircle(const Offset(176, 132), 5, eyePaint);
-    canvas.drawCircle(const Offset(200, 132), 5, eyePaint);
-    final smile2 = Path()
-      ..moveTo(178, 148)
-      ..cubicTo(181, 152, 194, 152, 197, 148);
-    canvas.drawPath(smile2, smilePaint);
-
-    // 9. 교차 하트
-    final heartPath = _buildHeartPath(150, 152, 2.1);
-    canvas.drawPath(heartPath, Paint()..color = Colors.white);
-
-    // 10. 반짝이 별
-    final sparklePaint = Paint()..color = const Color(0xFFFFC24B);
-    _drawSparkleStar4(canvas, 62, 92, 10, sparklePaint);
-    _drawSparkleStar4(canvas, 244, 96, 9, sparklePaint);
-
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// 4. 온보딩 슬라이드 3: 주말 모임 캘린더 & 참여자 일러스트
-class OomuSlide3Meetup extends StatelessWidget {
+/// 5. 온보딩 슬라이드 3: 실제 모임 채팅방 & 일정 배너 라이브 쇼케이스
+class OomuSlide3Meetup extends StatefulWidget {
   final double width;
   final double height;
 
   const OomuSlide3Meetup({
     super.key,
-    this.width = 300,
-    this.height = 230,
+    this.width = 320,
+    this.height = 310,
   });
 
   @override
+  State<OomuSlide3Meetup> createState() => _OomuSlide3MeetupState();
+}
+
+class _OomuSlide3MeetupState extends State<OomuSlide3Meetup>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2600),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: CustomPaint(
-        size: Size(width, height),
-        painter: _OomuSlide3Painter(),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (context, _) {
+          final t = Curves.easeInOutSine.transform(_ctrl.value);
+          final floatY = -5.0 + (10.0 * t);
+
+          return SizedBox(
+            width: widget.width,
+            height: widget.height,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                // 배경 서클 글로우
+                Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFFFFC24B).withValues(alpha: 0.16),
+                        const Color(0xFFFF5C39).withValues(alpha: 0.10),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+
+                // 실제 모임 채팅방 쇼케이스 카드
+                Transform.translate(
+                  offset: Offset(0, floatY * 0.4),
+                  child: Transform.rotate(
+                    angle: -0.018,
+                    child: Container(
+                      width: 292,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFBF6EC),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFF0E6D4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                const Color(0xFF4A3014).withValues(alpha: 0.18),
+                            blurRadius: 36,
+                            offset: const Offset(0, 18),
+                          ),
+                        ],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 채팅방 상단 헤더
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 10),
+                            color: Colors.white,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFE3D8),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Text('🍷',
+                                        style: TextStyle(fontSize: 15)),
+                                  ),
+                                ),
+                                const SizedBox(width: 9),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        '성수 소소스팟 비스트로 와인 모임',
+                                        style: TextStyle(
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF2B2118),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF2FA98C),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Text(
+                                            '멤버 8명 · 방금 활동',
+                                            style: TextStyle(
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF2FA98C),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // 코랄 모임 일정 공지 배너
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 9),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFF7A55), Color(0xFFFF5C39)],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFFF5C39)
+                                      .withValues(alpha: 0.35),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.wine_bar_rounded,
+                                    size: 16, color: Colors.white),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '이번 주 와인 & 다이닝 모임',
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        '금요일 저녁 7시 · 성수동 비스트로',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFFFFF3E5),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  '모임 정보 >',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // 실시간 대화 말풍선 영역
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _buildChatBubbleLeft(
+                                  sender: '초연',
+                                  avatarColor: const Color(0xFFFF8A5C),
+                                  text: '안녕하세요! 이번 주 와인 모임 반가워요 🙌',
+                                ),
+                                const SizedBox(height: 6),
+                                _buildChatBubbleLeft(
+                                  sender: '민지',
+                                  avatarColor: const Color(0xFFFFC24B),
+                                  text: '와인 모임 처음인데 가볍게 가도 될까요?',
+                                ),
+                                const SizedBox(height: 6),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 11, vertical: 7),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF5C39),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(14),
+                                        topRight: Radius.circular(4),
+                                        bottomLeft: Radius.circular(14),
+                                        bottomRight: Radius.circular(14),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFFFF5C39)
+                                              .withValues(alpha: 0.3),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Text(
+                                      '환영해요! 금요일 7시 성수역 3번 출구에서 봐요 🍷',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 우상단 플로팅 배지
+                Positioned(
+                  top: 0,
+                  right: 2,
+                  child: Transform.translate(
+                    offset: Offset(0, -floatY * 0.7),
+                    child: _buildFloatingMockChip('💬 실시간 모임 그룹톡'),
+                  ),
+                ),
+
+                // 좌하단 플로팅 배지
+                Positioned(
+                  bottom: 4,
+                  left: 2,
+                  child: Transform.translate(
+                    offset: Offset(0, floatY * 0.7),
+                    child: _buildFloatingMockChip('♥ 취향 메이트 연결'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildChatBubbleLeft({
+    required String sender,
+    required Color avatarColor,
+    required String text,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: avatarColor,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              sender.substring(0, 1),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6.5),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(14),
+                bottomLeft: Radius.circular(14),
+                bottomRight: Radius.circular(14),
+              ),
+            ),
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2B2118),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _OomuSlide3Painter extends CustomPainter {
+// ==========================================
+// 공통 플로팅 칩 & 커스텀 페인터
+// ==========================================
+
+Widget _buildFloatingMockChip(String text) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6.5),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(999),
+      border: Border.all(color: const Color(0xFFF0E6D4)),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF4A3014).withValues(alpha: 0.14),
+          blurRadius: 16,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    ),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontSize: 11.5,
+        fontWeight: FontWeight.w800,
+        color: Color(0xFF2B2118),
+      ),
+    ),
+  );
+}
+
+/// 한강 노을 & 러닝 크루 라이브 일러스트 페인터 (store_assets/OOMU 앱 UI 디자인.html #hmSky 재현)
+class _HanRiverRunSunrisePainter extends CustomPainter {
+  final double phase;
+  _HanRiverRunSunrisePainter({required this.phase});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final scale = size.width / 300.0;
-    canvas.save();
-    canvas.scale(scale);
+    final rect = Offset.zero & size;
 
-    // 달력 카드 화이트 베이스
-    final cardRRect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(52, 30, 196, 152),
-      const Radius.circular(20),
+    // 노을 하늘 그래디언트
+    final skyPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFFFFE9C4), Color(0xFFFFB477), Color(0xFFF0764E)],
+        stops: [0.0, 0.55, 1.0],
+      ).createShader(rect);
+    canvas.drawRect(rect, skyPaint);
+
+    // 태양 글로우
+    final sunCenter = Offset(
+      size.width * 0.80,
+      size.height * (0.30 - 0.04 * math.sin(phase * math.pi)),
     );
-    canvas.drawRRect(cardRRect, Paint()..color = Colors.white);
-
-    // 상단 코랄 헤더 바
-    final headerClip = Path()
-      ..addRRect(cardRRect);
-    canvas.save();
-    canvas.clipPath(headerClip);
-    canvas.drawRect(const Rect.fromLTWH(52, 30, 196, 44), Paint()..color = const Color(0xFFFF5C39));
-    canvas.restore();
-
-    // 헤더 텍스트: "이번 주말 모임"
-    final textPainter = TextPainter(
-      text: const TextSpan(
-        text: '이번 주말 모임',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 16.5,
-          fontWeight: FontWeight.w700,
-          fontFamily: 'Pretendard',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    textPainter.paint(canvas, Offset(150 - textPainter.width / 2, 42));
-
-    // 스프링 링 도트 (좌우)
-    canvas.drawCircle(const Offset(74, 74), 10, Paint()..color = const Color(0xFFFFE7DD));
-    canvas.drawCircle(const Offset(226, 74), 10, Paint()..color = const Color(0xFFFFE7DD));
-
-    // 금 11 칩
-    final chip1 = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(76, 92, 34, 46),
-      const Radius.circular(10),
+    canvas.drawCircle(
+      sunCenter,
+      size.height * 0.22,
+      Paint()..color = const Color(0xFFFFDFA3).withValues(alpha: 0.45),
     );
-    canvas.drawRRect(chip1, Paint()..color = const Color(0xFFFFF3E4));
-    _drawCenteredText(canvas, '금', const Offset(93, 103), 11.5, const Color(0xFF9A8C7C));
-    _drawCenteredText(canvas, '11', const Offset(93, 123), 14.5, const Color(0xFF2B2118), isBold: true);
-
-    // 토 12 칩 (선택 하이라이트 - 틸 #2FA98C)
-    final chip2 = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(124, 88, 34, 52),
-      const Radius.circular(10),
+    canvas.drawCircle(
+      sunCenter,
+      size.height * 0.13,
+      Paint()..color = const Color(0xFFFFF3D6),
     );
-    canvas.drawRRect(chip2, Paint()..color = const Color(0xFF2FA98C));
-    _drawCenteredText(canvas, '토', const Offset(141, 100), 11.5, const Color(0xFFD9EEE2));
-    _drawCenteredText(canvas, '12', const Offset(141, 118), 14.5, Colors.white, isBold: true);
-    final tinyHeart = _buildHeartPath(141, 134, 0.9);
-    canvas.drawPath(tinyHeart, Paint()..color = Colors.white);
 
-    // 일 13 칩
-    final chip3 = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(172, 92, 34, 46),
-      const Radius.circular(10),
+    // 한강 물결 영역
+    final riverTop = size.height * 0.60;
+    final riverHeight = size.height * 0.22;
+    final riverRect = Rect.fromLTWH(0, riverTop, size.width, riverHeight);
+    canvas.drawRect(
+      riverRect,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF8FD4CB), Color(0xFF55A8A0)],
+        ).createShader(riverRect),
     );
-    canvas.drawRRect(chip3, Paint()..color = const Color(0xFFFFF3E4));
-    _drawCenteredText(canvas, '일', const Offset(189, 103), 11.5, const Color(0xFF9A8C7C));
-    _drawCenteredText(canvas, '13', const Offset(189, 123), 14.5, const Color(0xFF2B2118), isBold: true);
 
-    // 하단 참여자 서클 (4명 스택)
-    final avatarColors = [
-      const Color(0xFFFFC24B), // 머스타드
-      const Color(0xFFFF5C39), // 코랄
-      const Color(0xFF2FA98C), // 틸
-      const Color(0xFFFFE7DD), // 소프트 피치
-    ];
-    final avatarCenters = [112.0, 138.0, 164.0, 190.0];
+    // 강변 산책로 트랙
+    final trackTop = size.height * 0.80;
+    canvas.drawRect(
+      Rect.fromLTWH(0, trackTop, size.width, size.height - trackTop),
+      Paint()..color = const Color(0xFFF2DDBB),
+    );
 
-    for (int i = 0; i < 4; i++) {
-      final cx = avatarCenters[i];
-      canvas.drawCircle(Offset(cx, 204), 14, Paint()..color = avatarColors[i]);
-      canvas.drawCircle(Offset(cx, 203), 3.5, Paint()..color = Colors.white);
-    }
-
-    // +3 추가 참가자 원형 화살표/인디케이터
-    final plusRingPaint = Paint()
-      ..color = const Color(0xFF9A8C7C)
-      ..strokeWidth = 2.2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final plusRing = Path()
-      ..addArc(const Rect.fromLTWH(214 - 12, 204 - 12, 24, 24), -1.2, 4.8);
-    canvas.drawPath(plusRing, plusRingPaint);
-
-    // 캡션 텍스트: "7명이 참여 중"
-    final countPainter = TextPainter(
-      text: const TextSpan(
-        text: '7명이 참여 중',
-        style: TextStyle(
-          color: Color(0xFF9A8C7C),
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          fontFamily: 'Pretendard',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    countPainter.paint(canvas, Offset(150 - countPainter.width / 2, 226));
-
-    canvas.restore();
+    // 달리는 러너 실루엣 3명 (살짝 앞으로 움직이는 애니메이션)
+    final shift = (phase - 0.5) * 8.0;
+    _drawRunner(
+        canvas, Offset(size.width * 0.32 + shift, size.height * 0.90), 0.85);
+    _drawRunner(
+        canvas, Offset(size.width * 0.50 + shift, size.height * 0.92), 0.90);
+    _drawRunner(
+        canvas, Offset(size.width * 0.68 + shift, size.height * 0.93), 0.85);
   }
 
-  void _drawCenteredText(
-    Canvas canvas,
-    String text,
-    Offset center,
-    double fontSize,
-    Color color, {
-    bool isBold = false,
-  }) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          color: color,
-          fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
-          fontFamily: 'Pretendard',
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, Offset(center.dx - tp.width / 2, center.dy - tp.height / 2));
+  void _drawRunner(Canvas canvas, Offset base, double s) {
+    final p = Paint()
+      ..color = const Color(0xFF4A3014)
+      ..strokeWidth = 3.2 * s
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawCircle(
+      Offset(base.dx + 4 * s, base.dy - 22 * s),
+      3.4 * s,
+      Paint()..color = const Color(0xFF4A3014),
+    );
+    canvas.drawLine(
+      Offset(base.dx + 3 * s, base.dy - 17 * s),
+      Offset(base.dx - 1 * s, base.dy - 6 * s),
+      p,
+    );
+    canvas.drawLine(
+      Offset(base.dx + 3 * s, base.dy - 16 * s),
+      Offset(base.dx + 10 * s, base.dy - 11 * s),
+      p,
+    );
+    canvas.drawLine(
+      Offset(base.dx - 1 * s, base.dy - 6 * s),
+      Offset(base.dx + 7 * s, base.dy),
+      p,
+    );
+    canvas.drawLine(
+      Offset(base.dx - 1 * s, base.dy - 6 * s),
+      Offset(base.dx - 8 * s, base.dy - 2 * s),
+      p,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _HanRiverRunSunrisePainter oldDelegate) =>
+      oldDelegate.phase != phase;
 }
 
-// ==========================================
-// 공통 벡터 헬퍼 함수
-// ==========================================
+/// 공연·전시 카드 일러스트 페인터
+class _ExhibitionArtPainter extends CustomPainter {
+  final double phase;
+  _ExhibitionArtPainter({required this.phase});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF23332F), Color(0xFF2FA98C), Color(0xFF8FD4CB)],
+        ).createShader(rect),
+    );
+
+    // 갤러리 아치 프레임
+    final archRRect = RRect.fromRectAndCorners(
+      Rect.fromCenter(
+        center: Offset(size.width * 0.52, size.height * 0.58),
+        width: size.width * 0.38,
+        height: size.height * 0.68,
+      ),
+      topLeft: const Radius.circular(30),
+      topRight: const Radius.circular(30),
+    );
+    canvas.drawRRect(
+      archRRect,
+      Paint()..color = const Color(0xFFFFF6E4).withValues(alpha: 0.92),
+    );
+
+    // 프레임 안 오브제
+    canvas.drawCircle(
+      Offset(size.width * 0.52, size.height * (0.48 - 0.04 * phase)),
+      9,
+      Paint()..color = const Color(0xFFFF5C39),
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.78, size.height * 0.28),
+      12,
+      Paint()..color = const Color(0xFFFFC24B).withValues(alpha: 0.45),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _ExhibitionArtPainter oldDelegate) =>
+      oldDelegate.phase != phase;
+}
+
+/// SNS 맛집 베이커리 카드 일러스트 페인터 (store_assets/OOMU 앱 UI 디자인.html #hdBak 재현)
+class _BakeryArtPainter extends CustomPainter {
+  final double phase;
+  _BakeryArtPainter({required this.phase});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFFF6E4), Color(0xFFFFE9C6)],
+        ).createShader(rect),
+    );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.82, size.height * 0.22),
+      18,
+      Paint()..color = const Color(0xFFFFD9A0).withValues(alpha: 0.55),
+    );
+
+    // 우드 테이블
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.height * 0.68, size.width, size.height * 0.32),
+      Paint()..color = const Color(0xFFC98F5B),
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.height * 0.64, size.width, size.height * 0.06),
+      Paint()..color = const Color(0xFFE8B87F),
+    );
+
+    // 크루아상 & 브레드 오브제
+    final center = Offset(size.width * 0.46, size.height * 0.52);
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: 28, height: 18),
+      Paint()..color = const Color(0xFFD98E3F),
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.74, size.height * 0.54),
+      11,
+      Paint()..color = const Color(0xFFE3A75F),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _BakeryArtPainter oldDelegate) =>
+      oldDelegate.phase != phase;
+}
 
 /// 정밀 하트 패스 생성 (cx, cy를 하트 최하단 첨점으로 위치)
 Path _buildHeartPath(double cx, double cy, double scale) {
   final path = Path();
-  // SVG: M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z
   final s = scale;
   path.moveTo(cx, cy);
-  path.cubicTo(cx - 3.8 * s, cy - 2.4 * s, cx - 6.1 * s, cy - 4.4 * s, cx - 6.1 * s, cy - 6.9 * s);
-  path.cubicTo(cx - 6.1 * s, cy - 8.9 * s, cx - 4.5 * s, cy - 10.5 * s, cx - 2.7 * s, cy - 10.5 * s);
-  path.cubicTo(cx - 1.6 * s, cy - 10.5 * s, cx - 0.6 * s, cy - 10.0 * s, cx, cy - 9.1 * s);
-  path.cubicTo(cx + 0.6 * s, cy - 10.0 * s, cx + 1.6 * s, cy - 10.5 * s, cx + 2.7 * s, cy - 10.5 * s);
-  path.cubicTo(cx + 4.5 * s, cy - 10.5 * s, cx + 6.1 * s, cy - 8.9 * s, cx + 6.1 * s, cy - 6.9 * s);
-  path.cubicTo(cx + 6.1 * s, cy - 4.4 * s, cx + 3.8 * s, cy - 2.4 * s, cx, cy);
+  path.cubicTo(cx - 3.8 * s, cy - 2.4 * s, cx - 6.1 * s, cy - 4.4 * s,
+      cx - 6.1 * s, cy - 6.9 * s);
+  path.cubicTo(cx - 6.1 * s, cy - 8.9 * s, cx - 4.5 * s, cy - 10.5 * s,
+      cx - 2.7 * s, cy - 10.5 * s);
+  path.cubicTo(
+      cx - 1.6 * s, cy - 10.5 * s, cx - 0.6 * s, cy - 10.0 * s, cx, cy - 9.1 * s);
+  path.cubicTo(cx + 0.6 * s, cy - 10.0 * s, cx + 1.6 * s, cy - 10.5 * s,
+      cx + 2.7 * s, cy - 10.5 * s);
+  path.cubicTo(cx + 4.5 * s, cy - 10.5 * s, cx + 6.1 * s, cy - 8.9 * s,
+      cx + 6.1 * s, cy - 6.9 * s);
+  path.cubicTo(
+      cx + 6.1 * s, cy - 4.4 * s, cx + 3.8 * s, cy - 2.4 * s, cx, cy);
   path.close();
   return path;
-}
-
-void _drawSparkleTriangle(Canvas canvas, double cx, double cy, double w, double h, Paint paint) {
-  final path = Path()
-    ..moveTo(cx, cy - h / 2)
-    ..lineTo(cx + w / 2, cy + h / 2)
-    ..lineTo(cx - w / 2, cy + h / 2)
-    ..close();
-  canvas.drawPath(path, paint);
-}
-
-void _drawSparkleStar4(Canvas canvas, double cx, double cy, double r, Paint paint) {
-  final path = Path()
-    ..moveTo(cx, cy - r)
-    ..quadraticBezierTo(cx, cy, cx + r, cy)
-    ..quadraticBezierTo(cx, cy, cx, cy + r)
-    ..quadraticBezierTo(cx, cy, cx - r, cy)
-    ..quadraticBezierTo(cx, cy, cx, cy - r)
-    ..close();
-  canvas.drawPath(path, paint);
-}
-
-void _drawSparkleStar8(Canvas canvas, double cx, double cy, Paint paint) {
-  final path = Path();
-  // SVG: M214 70l3.5 8 8 3.5-8 3.5-3.5 8-3.5-8-8-3.5 8-3.5 3.5-8z
-  path.moveTo(cx, cy - 8);
-  path.lineTo(cx + 3.5, cy - 2);
-  path.lineTo(cx + 10, cy);
-  path.lineTo(cx + 3.5, cy + 2);
-  path.lineTo(cx, cy + 8);
-  path.lineTo(cx - 3.5, cy + 2);
-  path.lineTo(cx - 10, cy);
-  path.lineTo(cx - 3.5, cy - 2);
-  path.close();
-  canvas.drawPath(path, paint);
 }

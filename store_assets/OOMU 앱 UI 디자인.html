@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OOMU · 우리 동네 모임 — 앱 UI 디자인</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='26' fill='%23FFF3E4'/%3E%3Ccircle cx='38' cy='48' r='20' fill='%23FF5C39'/%3E%3Ccircle cx='58' cy='48' r='20' fill='%232FA98C'/%3E%3Cpath d='M48 53.5c-3.6-2.3-5.8-4.2-5.8-6.6 0-1.9 1.5-3.4 3.2-3.4 1.1 0 2 .5 2.6 1.3.6-.8 1.5-1.3 2.6-1.3 1.7 0 3.2 1.5 3.2 3.4 0 2.4-2.2 4.3-5.8 6.6z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --font-body: 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+    --color-bg: #FBEFE0;
+    --color-app-bg: #FFF9F2;
+    --color-surface: #FFFFFF;
+    --color-text: #2B2118;
+    --color-text-muted: #7D6F5E;
+    --color-text-faint: #A99A87;
+    --color-primary: #FF5C39;
+    --color-primary-hover: #F04A26;
+    --color-primary-deep: #D83F1E;
+    --color-primary-soft: #FFE7DD;
+    --color-teal: #2FA98C;
+    --color-teal-deep: #1D7A66;
+    --color-mustard: #FFC24B;
+    --color-kakao: #FEE500;
+    --color-google-border: #E8E0D4;
+
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+    --space-12: 48px; --space-16: 64px;
+
+    --radius-btn: 16px;
+    --shadow-card: 0 10px 30px rgba(74, 48, 20, 0.10);
+    --transition: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  html { -webkit-text-size-adjust: none; text-size-adjust: none; }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background:
+      radial-gradient(rgba(255, 92, 57, 0.06) 1.5px, transparent 1.5px) 0 0 / 26px 26px,
+      linear-gradient(165deg, #FDF6EC 0%, #FBEAD6 100%);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-10) var(--space-6) var(--space-16);
+  }
+
+  /* ---------- 데스크톱 헤더 ---------- */
+  .page-head { text-align: center; margin-bottom: var(--space-10); }
+  .page-head .kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.14em;
+    color: var(--color-primary); text-transform: uppercase;
+  }
+  .page-head h1 { font-size: 28px; font-weight: 800; margin-top: var(--space-2); letter-spacing: -0.01em; }
+  .page-head p { font-size: 15px; color: var(--color-text-muted); margin-top: var(--space-2); }
+
+  /* ---------- 폰 프레임 ---------- */
+  .phone {
+    width: 390px; height: 812px;
+    border-radius: 52px;
+    padding: 10px;
+    background: linear-gradient(160deg, #3A332C, #17130F);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+      0 40px 90px rgba(74, 48, 20, 0.28),
+      0 12px 30px rgba(74, 48, 20, 0.18);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::after { /* 다이나믹 아일랜드 */
+    content: '';
+    position: absolute; top: 21px; left: 50%; transform: translateX(-50%);
+    width: 108px; height: 30px; border-radius: 20px; background: #0B0908;
+    z-index: 60; pointer-events: none;
+  }
+  .screen-viewport {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 42px;
+    overflow: hidden;
+    background: var(--color-app-bg);
+    isolation: isolate;
+  }
+
+  .statusbar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px 0;
+    font-size: 15px; font-weight: 700;
+    color: var(--color-text);
+    pointer-events: none;
+  }
+  .statusbar .icons { display: flex; align-items: center; gap: 6px; }
+  .statusbar.dark { color: #FFF9F2; }
+  .home-indicator.dark { background: rgba(255, 249, 242, 0.45); }
+
+  .home-indicator {
+    position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px;
+    background: rgba(43, 33, 24, 0.28);
+    z-index: 50; pointer-events: none;
+  }
+
+  /* ---------- 화면 공통 ---------- */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 76px var(--space-6) 40px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 420ms ease, visibility 0s 420ms;
+  }
+  .screen.active { opacity: 1; visibility: visible; transition: opacity 420ms ease; }
+
+  .hidden { display: none !important; }
+
+  /* ---------- 스플래시 ---------- */
+  #splash {
+    align-items: center; justify-content: center; text-align: center;
+    background:
+      radial-gradient(130% 105% at 50% 118%, rgba(255, 92, 57, 0.32), transparent 56%),
+      radial-gradient(95% 70% at 84% -14%, rgba(47, 169, 140, 0.13), transparent 62%),
+      #221A13;
+    overflow: hidden;
+  }
+  .splash-logo { position: relative; z-index: 1; }
+  .splash-logo .logo-mark-lg {
+    width: 112px; height: 112px;
+    filter: drop-shadow(0 26px 60px rgba(255, 92, 57, 0.35));
+    animation: logo-in 1000ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes logo-in {
+    from { transform: scale(0.6) translateY(16px); opacity: 0; filter: blur(10px); }
+  }
+  .splash-word {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center;
+    font-size: 42px; font-weight: 800; letter-spacing: 0.24em;
+    margin-top: 32px; margin-right: -0.24em; color: #FFF9F2;
+  }
+  .splash-word .lt { display: inline-block; animation: lt-in 640ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .splash-word .lt:nth-child(1) { animation-delay: 340ms; }
+  .splash-word .lt:nth-child(2) { animation-delay: 420ms; }
+  .splash-word .lt:nth-child(3) { animation-delay: 500ms; }
+  .splash-word .lt:nth-child(4) { animation-delay: 580ms; }
+  .splash-word .lt.oo { color: #FF7A55; }
+  @keyframes lt-in { from { opacity: 0; transform: translateY(18px); } }
+
+  .splash-tag {
+    position: relative; z-index: 1;
+    font-size: 13px; font-weight: 600; color: rgba(255, 243, 229, 0.55);
+    margin-top: 16px; letter-spacing: 0.32em; margin-right: -0.32em;
+    animation: tag-in 800ms 950ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes tag-in { from { opacity: 0; letter-spacing: 0.14em; } }
+
+  .splash-loader {
+    position: relative; z-index: 1;
+    margin-top: 28px; width: 64px; height: 3px;
+    border-radius: 2px; background: rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+    animation: rise-in 500ms 1250ms both;
+  }
+  .splash-live-wrap {
+    position: relative; z-index: 1;
+    margin-top: 26px; width: 100%;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: rise-in 680ms 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .splash-pills {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 4px;
+  }
+  .splash-pill {
+    font-size: 11px; font-weight: 700; color: #E6D8C7;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .splash-pill.hot {
+    background: rgba(255, 92, 57, 0.24);
+    border-color: rgba(255, 122, 85, 0.5);
+    color: #FFB299;
+  }
+  .splash-live-card {
+    width: 100%; max-width: 310px;
+    display: flex; align-items: center; gap: 10px; text-align: left;
+    padding: 10px 12px; border-radius: 16px;
+    background: rgba(46, 36, 27, 0.92);
+    border: 1px solid rgba(255, 122, 85, 0.35);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+  }
+  .splash-live-card.teal {
+    max-width: 296px;
+    background: rgba(46, 36, 27, 0.82);
+    border-color: rgba(47, 169, 140, 0.35);
+  }
+  .slc-thumb {
+    width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px;
+    background: linear-gradient(135deg, #FF7A55, #FF5C39);
+  }
+  .slc-thumb.teal { background: linear-gradient(135deg, #2FA98C, #1D7A66); }
+  .slc-info { flex: 1; min-width: 0; }
+  .slc-top { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #D5C5B3; font-weight: 600; }
+  .slc-badge { background: #FF5C39; color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 999px; }
+  .slc-title { font-size: 12.5px; font-weight: 800; color: #FFF9F2; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slc-sub { font-size: 10.5px; font-weight: 600; color: #8FD4CB; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .splash-loader::after {
+    content: ''; display: block; height: 100%;
+    border-radius: 2px; background: linear-gradient(90deg, #FF7A55, #FF5C39);
+    transform-origin: left;
+    animation: loader-fill 1.5s 700ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  @keyframes loader-fill { from { transform: scaleX(0); } }
+
+  @keyframes pop-in { from { transform: scale(0.4); opacity: 0; } }
+  @keyframes rise-in { from { transform: translateY(16px); opacity: 0; } }
+
+  /* ---------- 온보딩 ---------- */
+  #onboarding { overflow: hidden; background: linear-gradient(180deg, #FFFDF9 0%, #FBF3E5 100%); }
+
+  .ob-top {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: var(--space-2);
+  }
+  .ob-top .logo-mark { width: 38px; height: 38px; flex-shrink: 0; }
+  .ob-progress { display: flex; gap: 6px; flex: 1; }
+  .ob-progress span {
+    height: 4px; flex: 1; border-radius: 2px;
+    background: #E9DCC6; transition: background 300ms ease;
+  }
+  .ob-progress span.on { background: var(--color-primary); }
+  .skip-btn {
+    font-size: 14px; font-weight: 600; color: var(--color-text-muted);
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid #E4D5C2; flex-shrink: 0;
+    transition: all var(--transition);
+  }
+  .skip-btn:hover { color: var(--color-text); border-color: #D2BEA2; }
+
+  .slides-wrap { flex: 1; display: flex; overflow: hidden; position: relative; z-index: 1; }
+  .slides {
+    display: flex; width: 100%;
+    transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+    touch-action: pan-y;
+  }
+  .slide { flex: 0 0 100%; display: flex; flex-direction: column; padding-top: var(--space-4); }
+  .illust {
+    position: relative; flex: 1; display: flex;
+    align-items: center; justify-content: center;
+    min-height: 0;
+  }
+  .illust::before {
+    content: ''; position: absolute; inset: -8% -14%;
+    border-radius: 50%;
+  }
+  .slide.s1 .illust::before { background: radial-gradient(circle, rgba(47, 169, 140, 0.13), transparent 66%); }
+  .slide.s2 .illust::before { background: radial-gradient(circle, rgba(255, 92, 57, 0.11), transparent 66%); }
+  .slide.s3 .illust::before { background: radial-gradient(circle, rgba(255, 194, 75, 0.16), transparent 66%); }
+
+  .mock-wrap { position: relative; width: min(292px, 92%); z-index: 1; }
+  .slide.active .mock-wrap { animation: rise-in 560ms 80ms both; }
+  .mock-card {
+    background: #FFFFFF; border-radius: 26px; border: 1px solid #F0E6D4;
+    box-shadow: 0 34px 64px -22px rgba(74, 48, 20, 0.26), 0 2px 8px rgba(74, 48, 20, 0.06);
+    overflow: hidden; transform: rotate(-2deg);
+  }
+  .mock-card.tilt-r { transform: rotate(2deg); }
+  .mock-chip {
+    position: absolute; z-index: 2;
+    display: flex; align-items: center; gap: 6px;
+    background: #FFFFFF; border: 1px solid #F0E6D4; border-radius: 999px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: 700; color: var(--color-text);
+    box-shadow: 0 10px 24px -6px rgba(74, 48, 20, 0.18);
+  }
+
+  /* 슬라이드 1: 지도 + 장소 카드 */
+  .mk-map { position: relative; }
+  .mk-map svg { display: block; width: 100%; height: auto; }
+  .mk-place {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 16px 15px; border-top: 1px solid #F5EDDD;
+  }
+  .mk-ava { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; }
+  .mk-ava svg { width: 100%; height: 100%; display: block; }
+  .mk-pi { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .mk-pt { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+  .mk-ps { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
+  .mk-heart {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #FFF1EC; color: #FF5C39;
+  }
+
+  /* 슬라이드 2: 채팅 카드 */
+  .mk-chat-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; border-bottom: 1px solid #F5EDDD;
+  }
+  .mk-ch { display: flex; flex-direction: column; }
+  .mk-cn { font-size: 14px; font-weight: 800; }
+  .mk-cs { font-size: 11px; color: #2FA98C; font-weight: 600; margin-top: 1px; display: flex; align-items: center; gap: 4px; }
+  .mk-cs::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #2FA98C; box-shadow: 0 0 0 2px rgba(47, 169, 140, 0.18);
+  }
+  .mk-chat-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .mkb {
+    max-width: 82%; padding: 9px 13px; font-size: 13px; line-height: 1.45;
+    border-radius: 16px;
+  }
+  .mkb.left { align-self: flex-start; background: #F6F0E4; color: var(--color-text); border-top-left-radius: 5px; }
+  .mkb.right {
+    align-self: flex-end; background: var(--color-primary); color: #fff;
+    border-top-right-radius: 5px; box-shadow: 0 6px 14px -4px rgba(255, 92, 57, 0.5);
+  }
+
+  /* 슬라이드 3: 모임 카드 */
+  .mk-photo { position: relative; }
+  .mk-photo svg { display: block; width: 100%; height: auto; }
+  .mk-badge {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(255, 255, 255, 0.94); border-radius: 999px;
+    padding: 5px 11px; font-size: 11px; font-weight: 800; color: var(--color-text);
+    box-shadow: 0 2px 8px rgba(43, 24, 10, 0.18); backdrop-filter: blur(4px);
+  }
+  .mk-body { padding: 14px 16px 16px; }
+  .mk-title { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+  .mk-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-muted); margin-top: 7px; font-weight: 500; }
+  .mk-foot { display: flex; align-items: center; gap: 8px; margin-top: 13px; padding-top: 12px; border-top: 1px solid #F5EDDD; }
+  .mk-stack { display: flex; }
+  .mk-stack .mk-ava {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid #fff; margin-right: -8px;
+    box-shadow: 0 1px 3px rgba(74, 48, 20, 0.12);
+  }
+  .mk-count { font-size: 12px; color: var(--color-text-muted); font-weight: 600; }
+  .mk-join {
+    margin-left: auto; background: var(--color-primary); color: #fff;
+    font-size: 12.5px; font-weight: 800; padding: 8px 14px; border-radius: 999px;
+    box-shadow: 0 6px 14px -4px rgba(255, 92, 57, 0.5);
+  }
+
+  .slide.active .ob-copy > * { animation: rise-in 480ms both; }
+  .slide.active .ob-copy > *:nth-child(2) { animation-delay: 130ms; }
+  .slide.active .ob-copy > *:nth-child(3) { animation-delay: 210ms; }
+  .ob-copy { text-align: center; padding: 0 var(--space-2); margin-bottom: 26px; position: relative; z-index: 1; }
+  .ob-eyebrow { display: flex; justify-content: center; margin-bottom: 14px; }
+  .ob-eyebrow span {
+    font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    padding: 6px 14px; border-radius: 999px;
+  }
+  .ob-copy h2 { font-size: 25px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.32; }
+  .ob-copy h2 em { font-style: normal; color: var(--color-primary); }
+  .ob-copy p { font-size: 15.5px; color: var(--color-text-muted); margin-top: var(--space-3); line-height: 1.65; }
+
+  /* 일러스트 내부 라이브 애니메이션 */
+  .illust svg .float-y, .illust svg .drift-x, .illust svg .twinkle,
+  .illust svg .bob, .illust svg .pulse-soft {
+    transform-box: fill-box; transform-origin: center;
+  }
+  .float-y { animation: float-y 3.4s ease-in-out infinite alternate; }
+  .drift-x { animation: drift-x 4.2s ease-in-out infinite alternate; }
+  .twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+  .bob { animation: bob 2.8s ease-in-out infinite; }
+  .pulse-soft { animation: pulse-soft 2.2s ease-in-out infinite; }
+  @keyframes float-y { from { transform: translateY(-6px); } to { transform: translateY(7px); } }
+  @keyframes drift-x { from { transform: translateX(-7px); } to { transform: translateX(7px); } }
+  @keyframes twinkle { 0%, 100% { opacity: 0.25; transform: scale(0.66); } 50% { opacity: 1; transform: scale(1); } }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes pulse-soft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+
+  .btn-primary {
+    width: 100%; height: 58px;
+    border-radius: var(--radius-btn);
+    background: var(--color-primary);
+    color: #fff; font-size: 17px; font-weight: 700;
+    box-shadow: 0 8px 20px rgba(255, 92, 57, 0.32);
+    transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+  }
+  .btn-primary:hover { background: var(--color-primary-hover); box-shadow: 0 10px 26px rgba(255, 92, 57, 0.4); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  /* ---------- 로그인 ---------- */
+  #login { overflow-y: auto; }
+  .login-hero { text-align: center; margin-bottom: auto; }
+  .login-hero .logo-mark-lg { width: 64px; height: 64px; margin: 0 auto; }
+  .login-hero .word { font-size: 21px; font-weight: 800; margin-top: var(--space-2); }
+  .login-hero .word .oo { color: var(--color-primary); }
+  .login-hero h2 { font-size: 20px; font-weight: 800; line-height: 1.35; margin-top: var(--space-3); letter-spacing: -0.01em; }
+  .login-hero p { font-size: 15px; color: var(--color-text-muted); margin-top: var(--space-2); }
+
+  :is(#login, #signup, #findemail).active .stagger > * { animation: rise-in 480ms both; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(1) { animation-delay: 50ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(2) { animation-delay: 110ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(3) { animation-delay: 170ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(4) { animation-delay: 230ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(5) { animation-delay: 290ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(6) { animation-delay: 350ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(7) { animation-delay: 410ms; }
+  :is(#login, #signup, #findemail).active .stagger > *:nth-child(8) { animation-delay: 470ms; }
+
+  /* ---------- 회원가입 ---------- */
+  .signup-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--space-5);
+  }
+  .signup-top h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+  .back-btn { display: flex; padding: 6px; margin-left: -6px; color: var(--color-text); }
+  .back-spacer { width: 30px; flex-shrink: 0; }
+
+  .inline-check {
+    font-size: 13px; font-weight: 700; color: var(--color-primary);
+    padding: 7px 12px; border-radius: 9px;
+    background: var(--color-primary-soft);
+    flex-shrink: 0;
+    transition: background var(--transition);
+  }
+  .inline-check:hover { background: #FFD9C9; }
+  .inline-check:active { transform: scale(0.95); }
+
+  .field-hint { font-size: 12px; color: var(--color-text-faint); margin: 6px 2px 0; }
+
+  .pw-match { display: flex; color: #2FA98C; opacity: 0; transition: opacity 200ms ease; flex-shrink: 0; }
+  .pw-match.on { opacity: 1; }
+
+  .agree-card {
+    margin-top: 16px;
+    background: #fff;
+    border: 1.5px solid #EADBC8;
+    border-radius: 14px;
+    padding: 2px 14px;
+  }
+  .agree-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 0; cursor: pointer; position: relative;
+  }
+  .agree-divider { height: 1px; background: #F3E9DB; }
+  .agree-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .agree-row .checkbox {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 1.5px solid #D8C8B2; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: #fff;
+    transition: background 160ms ease, border-color 160ms ease;
+  }
+  .agree-row input:checked + .checkbox { background: var(--color-primary); border-color: var(--color-primary); }
+  .agree-row .checkbox svg { opacity: 0; transform: scale(0.4); transition: all 160ms ease; }
+  .agree-row input:checked + .checkbox svg { opacity: 1; transform: scale(1); }
+  .agree-row.all { padding: 13px 0; }
+  .agree-row.all .agree-text { font-weight: 800; font-size: 15px; }
+  .agree-row .agree-text { font-size: 14px; color: var(--color-text); }
+  .agree-row .agree-text em { font-style: normal; color: var(--color-text-muted); font-size: 12px; margin-left: 3px; }
+  .agree-row .chev { margin-left: auto; color: #C9BBA8; display: flex; }
+
+  .swap-link {
+    margin-top: var(--space-5); text-align: center;
+    font-size: 14px; color: var(--color-text-muted);
+  }
+  .swap-link a { color: var(--color-primary); font-weight: 700; text-decoration: none; }
+  .swap-link a:hover { text-decoration: underline; }
+
+  /* ---------- 이메일 찾기 ---------- */
+  .fe-desc {
+    font-size: 14px; color: var(--color-text-muted); line-height: 1.6;
+    margin: calc(var(--space-4) * -1) 0 var(--space-5);
+  }
+  .fe-timer {
+    font-size: 13px; font-weight: 700; color: var(--color-primary);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+  .fe-form { display: flex; flex-direction: column; }
+
+  .fe-result { display: none; flex-direction: column; justify-content: center; flex: 1; }
+  .fe-result.show { display: flex; }
+  .result-hero { display: flex; justify-content: center; }
+  .result-check {
+    width: 76px; height: 76px; border-radius: 50%;
+    background: var(--color-primary-soft); color: var(--color-primary);
+    display: flex; align-items: center; justify-content: center;
+    animation: pop-in 550ms cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+  .result-title {
+    text-align: center; font-size: 20px; font-weight: 800;
+    margin-top: var(--space-5); letter-spacing: -0.01em;
+    animation: rise-in 450ms 150ms both;
+  }
+  .result-sub {
+    text-align: center; font-size: 14px; color: var(--color-text-muted);
+    margin-top: var(--space-2); animation: rise-in 450ms 220ms both;
+  }
+  .email-card {
+    margin-top: var(--space-6);
+    background: #fff; border: 1.5px solid #EADBC8; border-radius: 14px;
+    padding: var(--space-4); text-align: center;
+    font-size: 17px; font-weight: 700; letter-spacing: 0.02em;
+    animation: rise-in 450ms 300ms both;
+  }
+  .email-card .at { color: var(--color-primary); }
+  .fe-result .btn-login { margin-top: var(--space-6); animation: rise-in 450ms 380ms both; }
+  .text-btn {
+    margin-top: var(--space-2); text-align: center; width: 100%;
+    font-size: 14px; font-weight: 600; color: var(--color-text-muted);
+    padding: var(--space-2); animation: rise-in 450ms 450ms both;
+  }
+  .text-btn:hover { color: var(--color-text); }
+
+  /* ---------- 동네모임(홈) ---------- */
+  #home { background: linear-gradient(180deg, #FBF3E6, #F6ECDA); }
+  .home-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 20px 13px; background: #FFFFFF;
+    border-bottom: 1px solid #F3E7D6; position: relative; z-index: 2;
+  }
+  .loc-btn {
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+    font-size: 17px; font-weight: 800; color: var(--color-text);
+    transition: opacity var(--transition);
+  }
+  .loc-btn:hover { opacity: 0.75; }
+  .loc-btn svg { color: #A99A87; }
+  .home-icons { display: flex; gap: 2px; }
+  .icon-wrap { position: relative; }
+  .icon-dot {
+    position: absolute; top: 8px; right: 9px; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--color-primary);
+    border: 1.5px solid #fff;
+  }
+  .home-scroll {
+    flex: 1; overflow-y: auto; overscroll-behavior: contain;
+    padding: 14px 16px 24px;
+  }
+  .cat-chips {
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    -ms-overflow-style: none; padding: 2px 16px 4px; margin: 0 -16px 14px;
+  }
+  .cat-chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; height: 34px; padding: 0 14px; border-radius: 17px;
+    background: #FFFFFF; border: 1px solid #EFE3D0;
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13.5px; font-weight: 700; color: #7D6F5E;
+    cursor: pointer; white-space: nowrap;
+    transition: all var(--transition);
+  }
+  .chip:hover { border-color: #E0CDB0; }
+  .chip.active {
+    background: var(--color-primary); border-color: transparent; color: #fff;
+    box-shadow: 0 3px 10px rgba(255, 92, 57, 0.30);
+  }
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .quick-card {
+    background: #FFFFFF; border: 1px solid #EFE3D0; border-radius: 16px;
+    padding: 13px 14px; display: flex; align-items: center; gap: 9px;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(74, 48, 20, 0.05);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  }
+  .quick-card:hover {
+    transform: translateY(-1px); border-color: #E0CDB0;
+    box-shadow: 0 6px 16px rgba(74, 48, 20, 0.10);
+  }
+  .quick-card span { flex: 1; font-size: 13.5px; font-weight: 800; color: var(--color-text); }
+  .quick-card svg { flex-shrink: 0; }
+  .sec-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .sec-title { font-size: 17px; font-weight: 800; color: var(--color-text); }
+  .sec-sub { font-size: 12.5px; color: #A99A87; margin-top: 3px; font-weight: 500; }
+  .sec-more { font-size: 12.5px; font-weight: 700; color: #7D6F5E; cursor: pointer; padding-top: 3px; }
+  .sec-more:hover { color: var(--color-primary); }
+  .view-toggle { background: #F3E9D9; border-radius: 12px; padding: 3px; display: flex; gap: 2px; margin-top: 2px; }
+  .view-toggle button {
+    border: none; background: transparent; font-size: 12px; font-weight: 700;
+    color: #A99A87; padding: 5px 10px; border-radius: 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 4px; white-space: nowrap;
+    transition: all var(--transition);
+  }
+  .view-toggle button.on { background: #fff; color: var(--color-text); box-shadow: 0 1px 4px rgba(74, 48, 20, 0.12); }
+  .meet-card {
+    background: #FFFFFF; border: 1px solid #EFE3D0; border-radius: 18px;
+    overflow: hidden; box-shadow: 0 3px 14px rgba(74, 48, 20, 0.07); margin-bottom: 12px;
+  }
+  .meet-photo { height: 150px; position: relative; }
+  .meet-photo svg { width: 100%; height: 100%; display: block; }
+  .photo-badge {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    background: rgba(255, 255, 255, 0.92); border-radius: 999px; padding: 5px 11px;
+    font-size: 11.5px; font-weight: 800; color: var(--color-text);
+    box-shadow: 0 2px 6px rgba(74, 48, 20, 0.18); backdrop-filter: blur(4px);
+  }
+  .meet-body { padding: 14px 16px; }
+  .meet-title { font-size: 15.5px; font-weight: 800; color: var(--color-text); line-height: 1.4; margin-bottom: 9px; }
+  .meet-meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .meet-meta div { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #7D6F5E; font-weight: 500; }
+  .meet-host { display: flex; align-items: center; gap: 8px; padding-top: 11px; border-top: 1px solid #F6EEE0; }
+  .host-ava {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #2FB99C, #2FA98C); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; box-shadow: 0 2px 6px rgba(74, 48, 20, 0.16);
+  }
+  .host-name { font-size: 12.5px; font-weight: 700; color: var(--color-text); }
+  .manner {
+    background: #FFEDE7; color: #E8542F; font-size: 11px; font-weight: 800;
+    padding: 3px 8px; border-radius: 999px;
+  }
+  .join-count { margin-left: auto; font-size: 12px; color: #A99A87; font-weight: 600; }
+  .more-btn {
+    width: 100%; height: 46px; border-radius: 16px; background: #FFFFFF;
+    border: 1.5px dashed #E3D4BF; color: #7D6F5E; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; margin-bottom: 26px; transition: all var(--transition);
+  }
+  .more-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .filter-chips {
+    display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px;
+    padding: 2px 0 4px; scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .fchip {
+    flex-shrink: 0; height: 32px; padding: 0 13px; border-radius: 16px;
+    background: #FFFFFF; border: 1px solid #EFE3D0;
+    display: flex; align-items: center; font-size: 12.5px; font-weight: 700;
+    color: #7D6F5E; cursor: pointer; white-space: nowrap;
+    transition: all var(--transition);
+  }
+  .fchip:hover { border-color: #E0CDB0; }
+  .fchip.dark { background: #2B2118; color: #fff; border-color: transparent; }
+  .disc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .disc-card {
+    background: #FFFFFF; border-radius: 16px; overflow: hidden;
+    border: 1px solid #EFE3D0; box-shadow: 0 2px 8px rgba(74, 48, 20, 0.05);
+    cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .disc-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(74, 48, 20, 0.10); }
+  .disc-photo { height: 110px; position: relative; }
+  .disc-photo svg { width: 100%; height: 100%; display: block; }
+  .disc-badge {
+    position: absolute; top: 8px; left: 8px; z-index: 2;
+    background: var(--color-primary); border-radius: 999px; padding: 3px 9px;
+    font-size: 10.5px; font-weight: 800; color: #fff;
+    box-shadow: 0 2px 6px rgba(255, 92, 57, 0.35);
+  }
+  .disc-body { padding: 10px 12px 12px; }
+  .disc-title { font-size: 13px; font-weight: 800; color: var(--color-text); line-height: 1.35; margin-bottom: 6px; }
+  .disc-meta { display: flex; flex-direction: column; gap: 3px; }
+  .disc-meta div { font-size: 10.5px; color: #A99A87; font-weight: 600; }
+
+  /* ---------- 채팅 목록 ---------- */
+  #chatlist, #chatroom, #home { padding: 76px 0 0; overflow: hidden; }
+
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 20px 13px; background: #FFFFFF;
+    border-bottom: 1px solid #F3E7D6;
+    position: relative; z-index: 2;
+  }
+  .chat-header h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+  .icon-btn {
+    display: flex; padding: 7px; border-radius: 11px;
+    color: var(--color-text); transition: background var(--transition);
+  }
+  .icon-btn:hover { background: rgba(43, 33, 24, 0.06); }
+
+  .chat-scroll {
+    flex: 1; overflow-y: auto; min-height: 0;
+    padding: 2px 16px 10px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .chat-search {
+    display: flex; align-items: center; gap: 8px;
+    height: 40px; margin: 10px 16px 4px; padding: 0 14px;
+    background: #F5EFE3; border-radius: 13px; border: none;
+    color: #A99A87; font-size: 14px; font-weight: 500;
+    cursor: pointer; text-align: left; width: calc(100% - 32px);
+    font-family: inherit;
+    transition: background var(--transition);
+  }
+  .chat-search:hover { background: #EFE7D7; }
+  .meet-banner {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    padding: 14px 16px; border: none; cursor: pointer; font-family: inherit;
+    background: linear-gradient(120deg, #FF7A55 0%, #FF5C39 75%);
+    border-radius: 20px; color: #fff; margin-top: 4px;
+    box-shadow: 0 10px 24px -8px rgba(255, 92, 57, 0.55);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .meet-banner:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -8px rgba(255, 92, 57, 0.62); }
+  .mb-icon {
+    width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mb-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .mb-title { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+  .mb-sub { font-size: 12px; opacity: 0.88; margin-top: 2px; font-weight: 500; }
+  .mb-go {
+    flex-shrink: 0; font-size: 12px; font-weight: 800;
+    background: rgba(255, 255, 255, 0.22); padding: 7px 12px; border-radius: 999px;
+  }
+  .list-label {
+    display: flex; align-items: baseline; gap: 6px;
+    font-size: 12.5px; font-weight: 800; color: var(--color-text-muted);
+    padding: 8px 4px 0; letter-spacing: -0.01em;
+  }
+  .list-label b { color: var(--color-primary); }
+  .chat-row {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; text-align: left; padding: 12px 14px;
+    background: #FFFFFF; border: 1px solid #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(74, 48, 20, 0.04), 0 6px 18px -6px rgba(74, 48, 20, 0.10);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .chat-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(74, 48, 20, 0.05), 0 12px 26px -8px rgba(74, 48, 20, 0.16);
+  }
+  .room-avatar {
+    width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(74, 48, 20, 0.14), inset 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+  }
+  .room-avatar svg { width: 100%; height: 100%; display: block; }
+  .room-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .room-name {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .room-msg {
+    font-size: 13px; color: var(--color-text-muted); margin-top: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .room-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .room-time { font-size: 11.5px; color: var(--color-text-faint); font-weight: 500; }
+  .room-badge {
+    min-width: 19px; height: 19px; border-radius: 999px; padding: 0 5.5px;
+    background: var(--color-primary); color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 8px -2px rgba(255, 92, 57, 0.5);
+  }
+  .room-chev { color: #D6C8B2; flex-shrink: 0; display: flex; }
+
+  .tabbar {
+    display: flex; background: #fff; border-top: 1px solid #F0E5D4;
+    padding: 7px 6px 26px; position: relative; z-index: 2;
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 11px; font-weight: 600; color: #A99A87;
+    padding: 6px 0; transition: color var(--transition);
+  }
+  .tab.on { color: var(--color-primary); }
+
+  /* ---------- 채팅방 ---------- */
+  #chatroom { background: #FBF6EC; }
+  .cr-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px 12px; border-bottom: 1px solid #F3E7D6;
+    background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px);
+    position: relative; z-index: 3;
+  }
+  .cr-header .back-btn { margin-left: -4px; }
+  .cr-ava {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(74, 48, 20, 0.14), inset 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+  }
+  .cr-ava svg { width: 100%; height: 100%; display: block; }
+  .cr-title { flex: 1; min-width: 0; text-align: left; }
+  .cr-title .t {
+    font-size: 15px; font-weight: 800; letter-spacing: -0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cr-title .s { font-size: 11.5px; color: #2FA98C; font-weight: 600; margin-top: 2px; }
+
+  .cr-banner {
+    display: flex; align-items: center; gap: 11px;
+    margin: 12px 16px 0; padding: 12px 14px;
+    background: linear-gradient(120deg, #FF7A55 0%, #FF5C39 80%);
+    border-radius: 18px; color: #fff; border: none; cursor: pointer; font-family: inherit;
+    text-align: left;
+    box-shadow: 0 8px 20px -8px rgba(255, 92, 57, 0.5);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .cr-banner:hover { transform: translateY(-1px); box-shadow: 0 12px 24px -8px rgba(255, 92, 57, 0.58); }
+  .crb-icon {
+    width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .crb-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .crb-t { font-size: 13px; font-weight: 800; letter-spacing: -0.01em; }
+  .crb-s { font-size: 11.5px; opacity: 0.88; margin-top: 2px; font-weight: 500; }
+  .crb-more { flex-shrink: 0; font-size: 11.5px; font-weight: 700; opacity: 0.9; display: flex; align-items: center; gap: 2px; }
+
+  .msgs {
+    flex: 1; overflow-y: auto; min-height: 0;
+    padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .day-divider { display: flex; justify-content: center; }
+  .day-divider span {
+    font-size: 11.5px; font-weight: 600; color: #9A8C7C;
+    background: rgba(233, 222, 202, 0.55);
+    padding: 4px 12px; border-radius: 999px;
+  }
+  .sys-msg { text-align: center; font-size: 12px; color: var(--color-text-faint); }
+
+  .msg { display: flex; gap: 8px; max-width: 78%; }
+  .msg.me { align-self: flex-end; flex-direction: row-reverse; }
+  .msg-ava {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    margin-top: 4px;
+    box-shadow: 0 2px 6px rgba(74, 48, 20, 0.14);
+  }
+  .msg-ava svg { width: 100%; height: 100%; display: block; }
+  .msg-body { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+  .msg.me .msg-body { align-items: flex-end; }
+  .msg-name { font-size: 11.5px; font-weight: 700; color: var(--color-text-muted); margin: 0 0 4px 4px; }
+  .msg-row { display: flex; align-items: flex-end; gap: 6px; max-width: 100%; }
+  .msg.me .msg-row { flex-direction: row-reverse; }
+  .bubble {
+    background: #FFFFFF;
+    padding: 10px 14px; font-size: 15px; line-height: 1.5;
+    border-radius: 18px; border-top-left-radius: 6px;
+    overflow-wrap: break-word; word-break: keep-all; text-align: left;
+    box-shadow: 0 1px 2px rgba(74, 48, 20, 0.05), 0 4px 12px -4px rgba(74, 48, 20, 0.10);
+  }
+  .msg.me .bubble {
+    background: var(--color-primary); color: #fff;
+    border-top-left-radius: 18px; border-top-right-radius: 6px;
+    box-shadow: 0 4px 14px -4px rgba(255, 92, 57, 0.45);
+    animation: msg-in 280ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  }
+  @keyframes msg-in { from { transform: scale(0.85) translateY(6px); opacity: 0; } }
+  .bubble-photo {
+    width: 200px; height: 148px; border-radius: 16px;
+    padding: 10px;
+    background: linear-gradient(140deg, #FFC24B 0%, #FF9A62 45%, #E0674A 100%);
+    display: flex; align-items: flex-end;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 20px -6px rgba(200, 80, 40, 0.4);
+  }
+  .bubble-photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .bubble-photo .cap {
+    font-size: 11.5px; font-weight: 600; color: #fff;
+    background: rgba(43, 33, 24, 0.45); backdrop-filter: blur(4px);
+    padding: 4px 10px; border-radius: 8px;
+    position: relative; z-index: 1;
+  }
+  .msg-time { font-size: 10.5px; color: #B3A48F; font-weight: 500; padding-bottom: 3px; white-space: nowrap; }
+
+  .bubble.typing { display: flex; align-items: center; gap: 5px; padding: 13px 16px; }
+  .bubble.typing span {
+    width: 6px; height: 6px; border-radius: 50%; background: #C4B5A1;
+    animation: typing-bob 1s ease-in-out infinite;
+  }
+  .bubble.typing span:nth-child(2) { animation-delay: 180ms; }
+  .bubble.typing span:nth-child(3) { animation-delay: 360ms; }
+  @keyframes typing-bob {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  .cr-input {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px calc(14px + 18px); background: #FFFFFF;
+    border-top: 1px solid #F3E7D6;
+    box-shadow: 0 -8px 24px rgba(74, 48, 20, 0.06);
+    position: relative; z-index: 2;
+  }
+  .cr-attach {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: #F6F0E4; color: #7D6F5E; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--transition);
+  }
+  .cr-attach:hover { background: #EFE7D7; }
+  .cr-field {
+    flex: 1; height: 42px; border-radius: 21px; background: #F6F0E4;
+    display: flex; align-items: center; padding: 0 16px; min-width: 0;
+    border: 1px solid transparent;
+    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  }
+  .cr-field:focus-within {
+    background: #FFFFFF;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255, 92, 57, 0.10);
+  }
+  .cr-field input {
+    flex: 1; min-width: 0; border: none; outline: none; background: none;
+    font-size: 15px; color: var(--color-text);
+  }
+  .cr-field input::placeholder { color: #BFB1A0; }
+  .send-btn {
+    width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+    background: var(--color-primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 14px -4px rgba(255, 92, 57, 0.5);
+    transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+  }
+  .send-btn:disabled { background: #E8DCC8; color: #A99A87; cursor: default; }
+  .send-btn:not(:disabled):active { transform: scale(0.9); }
+
+  /* 입력 필드 */
+  .login-form { display: flex; flex-direction: column; }
+  .field {
+    display: flex; align-items: center; gap: 12px;
+    background: #fff;
+    border: 1.5px solid #EADBC8;
+    border-radius: 14px;
+    height: 50px;
+    padding: 0 14px 0 16px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .field + .field { margin-top: 8px; }
+  .field:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255, 92, 57, 0.12);
+  }
+  .field-icon { width: 20px; height: 20px; color: #B3A390; flex-shrink: 0; }
+  .field input {
+    flex: 1; min-width: 0;
+    border: none; outline: none; background: none;
+    font-size: 16px; color: var(--color-text);
+  }
+  .field input::placeholder { color: #BFB1A0; }
+  .eye-btn { display: flex; padding: 4px; color: #B3A390; }
+  .eye-btn:hover { color: var(--color-text-muted); }
+  .btn-login { margin-top: 12px; height: 52px; }
+
+  .auth-links {
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    margin-top: 12px; font-size: 14px;
+  }
+  .auth-links a { color: var(--color-text-muted); font-weight: 600; text-decoration: none; }
+  .auth-links a:hover { color: var(--color-text); }
+  .auth-links .dot { color: #D8C8B2; }
+
+  .sns-btn {
+    width: 100%; height: 50px;
+    border-radius: var(--radius-btn);
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  }
+  .sns-btn:active { transform: scale(0.97); }
+  .sns-btn .icon { display: flex; align-items: center; }
+  .login-form .sns-btn + .sns-btn { margin-top: 8px; }
+
+  .btn-kakao { background: var(--color-kakao); color: #191919; }
+  .btn-kakao:hover { box-shadow: 0 8px 20px rgba(222, 186, 22, 0.35); }
+
+  .btn-google { background: #fff; color: #3C3C3C; border: 1px solid var(--color-google-border); }
+  .btn-google:hover { box-shadow: var(--shadow-card); }
+
+  .btn-naver { background: #03C75A; color: #fff; }
+  .btn-naver:hover { box-shadow: 0 8px 20px rgba(3, 199, 90, 0.32); }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 118px;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(43, 33, 24, 0.9); color: #FFF6E9;
+    font-size: 13px; font-weight: 500;
+    padding: 10px 16px; border-radius: 10px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 240ms ease, transform 240ms ease;
+    z-index: 70; white-space: nowrap;
+    max-width: calc(100% - 48px);
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .divider {
+    display: flex; align-items: center; gap: var(--space-4);
+    margin: 14px 0 10px;
+    font-size: 13px; color: #8A7B68;
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #EFE4D4; }
+
+  .guest-btn {
+    width: 100%; height: 54px; border-radius: var(--radius-btn);
+    border: 1.5px solid #EADBC8;
+    font-size: 15px; font-weight: 600; color: var(--color-text-muted);
+    transition: all var(--transition);
+  }
+  .guest-btn:hover { border-color: #D8C3A6; color: var(--color-text); }
+
+  .terms { margin-top: 14px; text-align: center; font-size: 12px; color: #8A7B68; line-height: 1.6; }
+  .terms a { color: var(--color-text-muted); font-weight: 600; text-decoration: none; border-bottom: 1px solid #DCCDB8; }
+  .terms a:hover { color: var(--color-text); }
+
+  /* ---------- 하단 화면 선택 칩 ---------- */
+  .stage-chips {
+    margin-top: var(--space-8);
+    display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center;
+  }
+  .stage-chips button {
+    font-size: 14px; font-weight: 600;
+    padding: 10px 18px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--color-text-muted);
+    border: 1px solid rgba(210, 180, 130, 0.45);
+    backdrop-filter: blur(6px);
+    transition: all var(--transition);
+  }
+  .stage-chips button:hover { color: var(--color-text); transform: translateY(-1px); }
+  .stage-chips button.on {
+    background: var(--color-text); color: #FFF6E9; border-color: var(--color-text);
+  }
+
+  /* ---------- 짧은 화면: 컴팩트 ---------- */
+  @media (min-width: 541px) and (max-height: 1040px) {
+    body { padding: 20px var(--space-6) 24px; }
+    .page-head { margin-bottom: 16px; }
+    .page-head h1 { font-size: 22px; }
+    .page-head p { font-size: 14px; }
+    .stage-chips { margin-top: 16px; }
+    .phone { zoom: 0.86; }
+  }
+
+  /* ---------- 모바일: 프레임 제거 ---------- */
+  @media (max-width: 540px) {
+    body { padding: 0; }
+    .page-head, .stage-chips { display: none; }
+    .phone {
+      width: 100%; height: 100dvh;
+      border-radius: 0; padding: 0;
+      background: var(--color-app-bg);
+      box-shadow: none;
+    }
+    .phone::after { display: none; }
+    .screen-viewport { border-radius: 0; }
+    .home-indicator { background: rgba(43, 33, 24, 0.2); }
+    .screen { padding-top: 64px; }
+    #chatlist, #chatroom, #home { padding-top: 64px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="page-head">
+    <div class="kicker">OOMU · App UI Design</div>
+    <h1>우리 동네 모임, OOMU</h1>
+    <p>스플래시 · 인트로 · 로그인 · 회원가입 · 동네모임 · 채팅 화면 디자인</p>
+  </header>
+
+  <div class="phone">
+    <div class="screen-viewport">
+
+      <!-- 상태바 -->
+      <div class="statusbar dark" aria-hidden="true">
+        <span>9:41</span>
+        <span class="icons">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" width="3" height="12" rx="1"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M1.5 4.6a9.4 9.4 0 0 1 13 0"/><path d="M4.1 7.3a5.8 5.8 0 0 1 7.8 0"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3.2" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="13" height="8" rx="2" fill="currentColor"/><path d="M23 4.2v3.6a1.9 1.9 0 0 0 0-3.6z" fill="currentColor" opacity="0.5"/></svg>
+        </span>
+      </div>
+
+      <div class="home-indicator dark" aria-hidden="true"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <!-- 아바타 심벌 정의 -->
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="av-1" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="#FFE3D8"/>
+          <path d="M9 48a15 15 0 0 1 30 0z" fill="#FF8A5C"/>
+          <path d="M10 22h6v14a3 3 0 0 1-6 0z" fill="#4A3222"/>
+          <path d="M32 22h6v14a3 3 0 0 1-6 0z" fill="#4A3222"/>
+          <circle cx="24" cy="21" r="11" fill="#F2C094"/>
+          <path d="M13 20a11 11 0 0 1 22 0c1.2-8.5-4.2-13-11-13s-12.2 4.5-11 13z" fill="#4A3222"/>
+          <circle cx="20" cy="22" r="1.7" fill="#33241A"/>
+          <circle cx="28" cy="22" r="1.7" fill="#33241A"/>
+          <path d="M21.5 27.5q2.5 2.2 5 0" stroke="#B4684A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="av-2" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="#D9EEE2"/>
+          <path d="M9 48a15 15 0 0 1 30 0z" fill="#2FA98C"/>
+          <circle cx="24" cy="21" r="11" fill="#E8B183"/>
+          <path d="M13 19.5a11 11 0 0 1 22 0v1c.5-7.5-4.5-12-11-12s-11.5 4.5-11 12z" fill="#2B2118"/>
+          <circle cx="20" cy="22.5" r="1.7" fill="#33241A"/>
+          <circle cx="28" cy="22.5" r="1.7" fill="#33241A"/>
+          <path d="M21.5 28q2.5 2 5 0" stroke="#9A6A48" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="av-3" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="#FFF0CC"/>
+          <path d="M9 48a15 15 0 0 1 30 0z" fill="#FFC24B"/>
+          <circle cx="24" cy="21" r="11" fill="#D9A06B"/>
+          <path d="M13 20a11 11 0 0 1 22 0c1.2-8.5-4.2-13-11-13s-12.2 4.5-11 13z" fill="#7A4A22"/>
+          <path d="M13 20q11 6 22 0" stroke="#7A4A22" stroke-width="5" fill="none"/>
+          <circle cx="20" cy="22" r="1.7" fill="#33241A"/>
+          <circle cx="28" cy="22" r="1.7" fill="#33241A"/>
+          <path d="M21.5 27.5q2.5 2.2 5 0" stroke="#8E5B33" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="av-4" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="#E8EFE7"/>
+          <path d="M9 48a15 15 0 0 1 30 0z" fill="#7E9B6E"/>
+          <circle cx="24" cy="21" r="11" fill="#F2C094"/>
+          <path d="M13 19.5a11 11 0 0 1 22 0v1c.5-7.5-4.5-12-11-12s-11.5 4.5-11 12z" fill="#33241A"/>
+          <circle cx="20" cy="22.5" r="1.7" fill="#33241A"/>
+          <circle cx="28" cy="22.5" r="1.7" fill="#33241A"/>
+          <path d="M21.5 28q2.5 2 5 0" stroke="#B4684A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="av-5" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="24" fill="#FFE7DD"/>
+          <path d="M9 48a15 15 0 0 1 30 0z" fill="#E8542F"/>
+          <path d="M34 15l6-5-2 7z" fill="#33241A"/>
+          <circle cx="24" cy="21" r="11" fill="#E8B183"/>
+          <path d="M13 20a11 11 0 0 1 22 0c1.2-8.5-4.2-13-11-13s-12.2 4.5-11 13z" fill="#33241A"/>
+          <path d="M13 20q11 6 22 0" stroke="#33241A" stroke-width="5" fill="none"/>
+          <circle cx="20" cy="22" r="1.7" fill="#33241A"/>
+          <circle cx="28" cy="22" r="1.7" fill="#33241A"/>
+          <path d="M21.5 27.5q2.5 2.2 5 0" stroke="#9A6A48" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </symbol>
+      </svg>
+
+      <!-- ===== 스크린 1: 스플래시 ===== -->
+      <section class="screen active" id="splash" aria-label="스플래시 화면">
+        <div class="splash-logo">
+          <svg class="logo-mark-lg" viewBox="0 0 96 96" role="img" aria-label="OOMU 로고">
+            <defs>
+              <clipPath id="clipL"><circle cx="38" cy="48" r="20"/></clipPath>
+              <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFF6EC"/><stop offset="1" stop-color="#FFE8D5"/>
+              </linearGradient>
+            </defs>
+            <rect width="96" height="96" rx="27" fill="url(#bgGrad)"/>
+            <circle cx="38" cy="48" r="20" fill="#FF5C39"/>
+            <circle cx="58" cy="48" r="20" fill="#2FA98C"/>
+            <g clip-path="url(#clipL)"><circle cx="58" cy="48" r="20" fill="#1D7A66" opacity="0.72"/></g>
+            <path d="M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="splash-word" aria-label="OOMU"><span class="lt oo">O</span><span class="lt oo">O</span><span class="lt">M</span><span class="lt">U</span></div>
+        <div class="splash-tag">우리 동네 모임</div>
+        <div class="splash-live-wrap" aria-hidden="true">
+          <div class="splash-pills">
+            <span class="splash-pill hot">🔥 지금 뜨는 모임</span>
+            <span class="splash-pill">🏃 한강 러닝</span>
+            <span class="splash-pill">🎭 공연·전시 46</span>
+            <span class="splash-pill">🍷 와인·다이닝</span>
+          </div>
+          <div class="splash-live-card float-y">
+            <span class="slc-thumb">🏃</span>
+            <div class="slc-info">
+              <div class="slc-top"><span class="slc-badge">라이프 메이트</span><span>망원러너_지안 · 46.5°C</span></div>
+              <div class="slc-title">주말 아침 망원 한강공원 5km 러닝 크루 🏃</div>
+            </div>
+          </div>
+          <div class="splash-live-card teal float-y" style="animation-delay:.9s">
+            <span class="slc-thumb teal">🎭</span>
+            <div class="slc-info">
+              <div class="slc-title">공연·전시 동행 & 성수 베이커리 탐방 🥐</div>
+              <div class="slc-sub">📍 우리동네 8건 · 콘서트 6 · 뮤지컬 7 진행 중</div>
+            </div>
+          </div>
+        </div>
+        <div class="splash-loader" aria-hidden="true"></div>
+      </section>
+
+      <!-- ===== 스크린 2: 온보딩 ===== -->
+      <section class="screen" id="onboarding" aria-label="앱 소개">
+        <div class="ob-top">
+          <svg class="logo-mark" viewBox="0 0 96 96" role="img" aria-label="OOMU 로고">
+            <rect width="96" height="96" rx="27" fill="#FFF3E4"/>
+            <circle cx="38" cy="48" r="20" fill="#FF5C39"/>
+            <circle cx="58" cy="48" r="20" fill="#2FA98C"/>
+            <g clip-path="url(#clipL)"><circle cx="58" cy="48" r="20" fill="#1D7A66" opacity="0.72"/></g>
+            <path d="M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z" fill="#fff"/>
+          </svg>
+          <div class="ob-progress" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+          <button class="skip-btn" type="button" data-action="skip">건너뛰기</button>
+        </div>
+
+        <div class="slides-wrap">
+          <div class="slides" id="slides">
+            <!-- 슬라이드 1: 발견 -->
+            <div class="slide active s1" aria-label="동네 장소 발견">
+              <div class="illust">
+                <div class="mock-wrap">
+                  <div class="mock-card">
+                    <div class="mk-map">
+                      <svg viewBox="0 0 292 176" fill="none" aria-hidden="true">
+                        <defs>
+                          <linearGradient id="obMapBg" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#F6F1E6"/><stop offset="1" stop-color="#EFE8D8"/>
+                          </linearGradient>
+                        </defs>
+                        <rect width="292" height="176" fill="url(#obMapBg)"/>
+                        <!-- 강 -->
+                        <path d="M-8 150q70-26 150-8t158-14v56H-8z" fill="#CDE8E2"/>
+                        <path d="M-8 150q70-26 150-8t158-14" stroke="#B4DCD4" stroke-width="1.6" fill="none"/>
+                        <!-- 도로 -->
+                        <path d="M0 62h292" stroke="#FFFFFF" stroke-width="12"/>
+                        <path d="M0 116h292" stroke="#FFFFFF" stroke-width="9"/>
+                        <path d="M74 0v176" stroke="#FFFFFF" stroke-width="10"/>
+                        <path d="M212 0v150" stroke="#FFFFFF" stroke-width="8"/>
+                        <!-- 공원 -->
+                        <rect x="96" y="72" width="46" height="32" rx="10" fill="#D9EEE2"/>
+                        <circle cx="108" cy="84" r="4.5" fill="#2FA98C" opacity="0.5"/>
+                        <circle cx="120" cy="92" r="3.5" fill="#2FA98C" opacity="0.4"/>
+                        <circle cx="130" cy="80" r="3" fill="#2FA98C" opacity="0.45"/>
+                        <!-- 건물 블록 -->
+                        <rect x="18" y="74" width="40" height="34" rx="6" fill="#FFFFFF"/>
+                        <rect x="232" y="70" width="44" height="36" rx="6" fill="#FFFFFF"/>
+                        <rect x="232" y="70" width="44" height="36" rx="6" fill="#F3EBDA"/>
+                        <!-- 핀 -->
+                        <g class="float-y">
+                          <ellipse cx="160" cy="46" rx="13" ry="4" fill="#7A4A22" opacity="0.16"/>
+                          <circle cx="160" cy="26" r="17" fill="#FF5C39" opacity="0.14"/>
+                          <path d="M160 8c-10.5 0-19 8.5-19 19 0 13.5 19 30 19 30s19-16.5 19-30c0-10.5-8.5-19-19-19z" fill="#FF5C39"/>
+                          <circle cx="160" cy="26" r="6.5" fill="#fff"/>
+                        </g>
+                        <g class="float-y" style="animation-delay:.8s">
+                          <ellipse cx="246" cy="126" rx="10" ry="3.2" fill="#7A4A22" opacity="0.14"/>
+                          <path d="M246 106c-8 0-14.5 6.5-14.5 14.5 0 10.3 14.5 23 14.5 23s14.5-12.7 14.5-23c0-8-6.5-14.5-14.5-14.5z" fill="#2FA98C"/>
+                          <circle cx="246" cy="120" r="5" fill="#fff"/>
+                        </g>
+                        <g class="float-y" style="animation-delay:1.4s">
+                          <ellipse cx="42" cy="128" rx="10" ry="3.2" fill="#7A4A22" opacity="0.14"/>
+                          <path d="M42 108c-8 0-14.5 6.5-14.5 14.5 0 10.3 14.5 23 14.5 23s14.5-12.7 14.5-23c0-8-6.5-14.5-14.5-14.5z" fill="#FFC24B"/>
+                          <circle cx="42" cy="122" r="5" fill="#fff"/>
+                        </g>
+                      </svg>
+                    </div>
+                    <div class="mk-place">
+                      <span class="mk-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-2"/></svg></span>
+                      <span class="mk-pi">
+                        <span class="mk-pt">성수 카페 거리 산책</span>
+                        <span class="mk-ps">도보 8분 · 이번 주말 오전</span>
+                      </span>
+                      <span class="mk-heart" aria-hidden="true">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21c-4.9-3.1-8-5.7-8-9 0-2.6 2.1-4.7 4.4-4.7 1.4 0 2.7.7 3.6 1.8.9-1.1 2.2-1.8 3.6-1.8 2.3 0 4.4 2.1 4.4 4.7 0 3.3-3.1 5.9-8 9z"/></svg>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mock-chip float-y" style="top:-16px; right:-8px;">☕ 동네 카페 투어</div>
+                  <div class="mock-chip float-y" style="bottom:70px; left:-18px; animation-delay:.9s;">📍 도보 8분</div>
+                </div>
+              </div>
+              <div class="ob-copy">
+                <div class="ob-eyebrow"><span>01 · 발견</span></div>
+                <h2>동네의 <em>숨은 장소</em>를 발견</h2>
+                <p>우리 동네 카페부터 공원까지<br>가볼 곳을 지도에서 한눈에 알려줘요</p>
+              </div>
+            </div>
+
+            <!-- 슬라이드 2: 연결 -->
+            <div class="slide s2" aria-label="취향이 맞는 이웃과 연결">
+              <div class="illust">
+                <div class="mock-wrap">
+                  <div class="mock-card tilt-r">
+                    <div class="mk-chat-head">
+                      <span class="mk-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span>
+                      <span class="mk-ch">
+                        <span class="mk-cn">지안</span>
+                        <span class="mk-cs">온라인</span>
+                      </span>
+                    </div>
+                    <div class="mk-chat-body">
+                      <div class="mkb left">이번 주말 성수 산책 어때요?</div>
+                      <div class="mkb left">날씨가 정말 좋대요 ☀️</div>
+                      <div class="mkb right">좋아요! 오전 10시 어때요?</div>
+                    </div>
+                  </div>
+                  <div class="mock-chip drift-x" style="top:-14px; left:-10px;">♥ 산책 메이트</div>
+                  <div class="mock-chip drift-x" style="bottom:22px; right:-14px; animation-delay:.7s;">💬 대화 시작</div>
+                </div>
+              </div>
+              <div class="ob-copy">
+                <div class="ob-eyebrow"><span>02 · 연결</span></div>
+                <h2><em>취향이 맞는</em> 이웃과 연결</h2>
+                <p>관심사가 비슷한 이웃을 추천해 주고<br>자연스럽게 대화를 시작할 수 있어요</p>
+              </div>
+            </div>
+
+            <!-- 슬라이드 3: 모임 -->
+            <div class="slide s3" aria-label="모임 만들기">
+              <div class="illust">
+                <div class="mock-wrap">
+                  <div class="mock-card">
+                    <div class="mk-photo">
+                      <svg viewBox="0 0 292 130" fill="none" aria-hidden="true">
+                        <defs>
+                          <linearGradient id="obPh" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#2E3A59"/><stop offset=".55" stop-color="#E0674A"/><stop offset="1" stop-color="#FFB25E"/>
+                          </linearGradient>
+                        </defs>
+                        <rect width="292" height="130" fill="url(#obPh)"/>
+                        <circle cx="228" cy="82" r="22" fill="#FFF1C9" opacity=".92"/>
+                        <rect y="102" width="292" height="28" fill="#3B2A1A" opacity=".85"/>
+                        <g stroke="#FFE082" stroke-linecap="round" fill="none">
+                          <g transform="translate(96,116)">
+                            <circle cx="10" cy="-27" r="4.6" fill="#FFE082" stroke="none"/>
+                            <path d="M8-21L1-6" stroke-width="7.5"/>
+                            <path d="M8-20l11 7" stroke-width="4.2"/>
+                            <path d="M8-20l-11 7" stroke-width="4.2"/>
+                            <path d="M1-6l11 8" stroke-width="4.8"/>
+                            <path d="M1-6l-10 4.5" stroke-width="4.8"/>
+                          </g>
+                          <g transform="translate(150,118)" opacity=".85">
+                            <circle cx="10" cy="-27" r="4.6" fill="#FFE082" stroke="none"/>
+                            <path d="M8-21L1-6" stroke-width="7.5"/>
+                            <path d="M8-20l11 7" stroke-width="4.2"/>
+                            <path d="M8-20l-11 7" stroke-width="4.2"/>
+                            <path d="M1-6l11 8" stroke-width="4.8"/>
+                            <path d="M1-6l-10 4.5" stroke-width="4.8"/>
+                          </g>
+                        </g>
+                      </svg>
+                      <span class="mk-badge">러닝 크루</span>
+                    </div>
+                    <div class="mk-body">
+                      <div class="mk-title">망원한강공원 아침 러닝</div>
+                      <div class="mk-meta">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF5C39" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                        이번 주 토요일 오전 9시
+                      </div>
+                      <div class="mk-meta">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF5C39" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+                        망원한강공원 입구
+                      </div>
+                      <div class="mk-foot">
+                        <span class="mk-stack">
+                          <span class="mk-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span>
+                          <span class="mk-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-3"/></svg></span>
+                          <span class="mk-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-5"/></svg></span>
+                        </span>
+                        <span class="mk-count">3명 참여</span>
+                        <span class="mk-join">참여하기</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mock-chip bob" style="top:-16px; right:-6px;">🏃 러닝 크루</div>
+                </div>
+              </div>
+              <div class="ob-copy">
+                <div class="ob-eyebrow"><span>03 · 모임</span></div>
+                <h2>함께하는 <em>모임</em>을 만들어요</h2>
+                <p>동네 산책, 카페 투어, 독서 모임까지<br>원하는 모임을 직접 만들고 참여해요</p>
+              </div>
+            </div>
+</div>
+        </div>
+
+        <button class="btn-primary" type="button" id="nextBtn" data-action="next">다음</button>
+      </section>
+
+      <!-- ===== 스크린 3: 로그인 ===== -->
+      <section class="screen" id="login" aria-label="로그인">
+        <div class="login-hero">
+          <svg class="logo-mark-lg" viewBox="0 0 96 96" role="img" aria-label="OOMU 로고">
+            <rect width="96" height="96" rx="27" fill="#FFF3E4"/>
+            <circle cx="38" cy="48" r="20" fill="#FF5C39"/>
+            <circle cx="58" cy="48" r="20" fill="#2FA98C"/>
+            <g clip-path="url(#clipL)"><circle cx="58" cy="48" r="20" fill="#1D7A66" opacity="0.72"/></g>
+            <path d="M48 54c-3.8-2.4-6.1-4.4-6.1-6.9 0-2 1.6-3.6 3.4-3.6 1.1 0 2.1.5 2.7 1.4.7-.9 1.6-1.4 2.7-1.4 1.8 0 3.4 1.6 3.4 3.6 0 2.5-2.3 4.5-6.1 6.9z" fill="#fff"/>
+          </svg>
+          <div class="word"><span class="oo">OO</span>MU</div>
+          <h2>우리 동네에서<br>새로운 이웃을 만나요</h2>
+        </div>
+
+        <form class="login-form stagger" id="loginForm" novalidate>
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M4.5 20c.9-3.6 4-5.6 7.5-5.6s6.6 2 7.5 5.6"/></svg>
+            <input type="email" placeholder="아이디 (이메일)" autocomplete="username" aria-label="아이디" name="username">
+          </div>
+
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/><path d="M12 13.5v3"/></svg>
+            <input type="password" id="loginPw" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호" name="password">
+            <button type="button" class="eye-btn" id="pwToggle" aria-label="비밀번호 표시" aria-pressed="false">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+
+          <button class="btn-primary btn-login" type="submit">로그인</button>
+
+          <div class="auth-links">
+            <a href="#" data-action="signup">회원가입</a>
+            <span class="dot" aria-hidden="true">·</span>
+            <a href="#" data-action="find-email">이메일 찾기</a>
+          </div>
+
+          <div class="divider">간편 로그인</div>
+
+          <button class="sns-btn btn-kakao" type="button" data-action="kakao">
+            <span class="icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#191919" d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.874 6.615 4.813 8.652-.311 1.468-1.131 3.128-2.144 4.329-.488.578-.014 1.481.737 1.264 2.644-.763 5.16-2.187 6.943-3.388.53.086 1.077.131 1.651.131 6.627 0 12-4.974 12-11.188S18.627 0 12 0z"/></svg>
+            </span>
+            카카오톡으로 시작하기
+          </button>
+
+          <button class="sns-btn btn-naver" type="button" data-action="naver">
+            <span class="icon">
+              <svg width="20" height="20" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 3h2.8v5.8L11.2 3H14v12h-2.8V9.2L5.8 15H3z" fill="#fff"/></svg>
+            </span>
+            네이버로 시작하기
+          </button>
+
+          <button class="sns-btn btn-google" type="button" data-action="google">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.54 5.54 0 0 1-2.4 3.64v3.02h3.88c2.26-2.09 3.54-5.17 3.54-8.9z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.95-2.91l-3.88-3.02c-1.08.72-2.46 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.27a7.19 7.19 0 0 1 0-4.54V6.64H1.29a12 12 0 0 0 0 10.72l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.58 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.7 0 3.99 2.47 1.29 6.64l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+            </span>
+            Google로 시작하기
+          </button>
+
+          <p class="terms">
+            가입하면 OOMU <a href="#">이용약관</a>과 <a href="#">개인정보 처리방침</a>에 동의하게 됩니다
+          </p>
+        </form>
+      </section>
+
+      <!-- ===== 스크린 4: 회원가입 ===== -->
+      <section class="screen" id="signup" aria-label="회원가입">
+        <div class="signup-top">
+          <button class="back-btn" type="button" data-action="back-login" aria-label="뒤로 가기">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <h2>회원가입</h2>
+          <span class="back-spacer" aria-hidden="true"></span>
+        </div>
+
+        <form class="login-form stagger" id="signupForm" novalidate>
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M4.5 7.5l7.5 5.5 7.5-5.5"/></svg>
+            <input type="email" name="su-email" placeholder="이메일" autocomplete="email" aria-label="이메일">
+            <button type="button" class="inline-check" data-action="dup-email">중복확인</button>
+          </div>
+
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/><path d="M12 13.5v3"/></svg>
+            <input type="password" id="suPw" name="su-pw" placeholder="비밀번호" autocomplete="new-password" aria-label="비밀번호">
+            <button type="button" class="eye-btn" id="suPwToggle" aria-label="비밀번호 표시" aria-pressed="false">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <p class="field-hint">영문, 숫자를 조합해 8자 이상으로 입력해 주세요</p>
+
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/><path d="M9.5 14.2l1.8 1.8 3.5-3.5"/></svg>
+            <input type="password" id="suPw2" name="su-pw2" placeholder="비밀번호 확인" autocomplete="new-password" aria-label="비밀번호 확인">
+            <span class="pw-match" id="pwMatch" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            </span>
+          </div>
+
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M4.5 20c.9-3.6 4-5.6 7.5-5.6s6.6 2 7.5 5.6"/></svg>
+            <input type="text" name="su-nick" placeholder="닉네임 (2~10자)" maxlength="10" aria-label="닉네임">
+            <button type="button" class="inline-check" data-action="dup-nick">중복확인</button>
+          </div>
+
+          <div class="agree-card">
+            <label class="agree-row all">
+              <input type="checkbox" id="agreeAll">
+              <span class="checkbox"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <span class="agree-text">전체 동의</span>
+            </label>
+            <div class="agree-divider" aria-hidden="true"></div>
+            <label class="agree-row">
+              <input type="checkbox" class="agree-item" data-required>
+              <span class="checkbox"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <span class="agree-text">이용약관<em>(필수)</em></span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </label>
+            <label class="agree-row">
+              <input type="checkbox" class="agree-item" data-required>
+              <span class="checkbox"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <span class="agree-text">개인정보 수집·이용<em>(필수)</em></span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </label>
+            <label class="agree-row">
+              <input type="checkbox" class="agree-item">
+              <span class="checkbox"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <span class="agree-text">마케팅 정보 수신<em>(선택)</em></span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </label>
+          </div>
+
+          <button class="btn-primary btn-login" type="submit">가입하기</button>
+
+          <p class="swap-link">이미 계정이 있나요? <a href="#" data-action="goto-login">로그인</a></p>
+        </form>
+      </section>
+
+      <!-- ===== 스크린 5: 이메일 찾기 ===== -->
+      <section class="screen" id="findemail" aria-label="이메일 찾기">
+        <div class="signup-top">
+          <button class="back-btn" type="button" data-action="fe-back" aria-label="뒤로 가기">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <h2>이메일 찾기</h2>
+          <span class="back-spacer" aria-hidden="true"></span>
+        </div>
+
+        <p class="fe-desc">가입할 때 사용한 이름과 휴대폰 번호로<br>가입된 이메일을 찾을 수 있어요</p>
+
+        <div class="fe-form stagger" id="feForm">
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M4.5 20c.9-3.6 4-5.6 7.5-5.6s6.6 2 7.5 5.6"/></svg>
+            <input type="text" name="fe-name" placeholder="이름" aria-label="이름">
+          </div>
+
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg>
+            <input type="tel" name="fe-phone" placeholder="휴대폰 번호 (- 없이)" maxlength="11" inputmode="numeric" aria-label="휴대폰 번호">
+            <button type="button" class="inline-check" data-action="fe-send">인증번호 받기</button>
+          </div>
+
+          <div class="field">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 9.5C8 19 5 15.5 5 11V6l7-3z"/><path d="M9.2 11.8l2 2 3.6-3.6"/></svg>
+            <input type="text" name="fe-code" placeholder="인증번호 6자리" maxlength="6" inputmode="numeric" aria-label="인증번호">
+            <span class="fe-timer hidden" id="feTimer">5:00</span>
+          </div>
+
+          <button class="btn-primary btn-login" type="button" data-action="fe-find">이메일 찾기</button>
+
+          <p class="swap-link">아직 계정이 없나요? <a href="#" data-action="fe-signup">회원가입</a></p>
+        </div>
+
+        <div class="fe-result" id="feResult" aria-live="polite">
+          <div class="result-hero">
+            <span class="result-check">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            </span>
+          </div>
+          <h3 class="result-title">가입된 이메일을 찾았어요</h3>
+          <p class="result-sub">고객님의 OOMU 계정 이메일이에요</p>
+          <div class="email-card">ansim<span class="at">****</span>25@gmail.com</div>
+          <button class="btn-primary btn-login" type="button" data-action="fe-login">로그인 하러 가기</button>
+          <button class="text-btn" type="button" data-action="fe-retry">다른 정보로 다시 찾기</button>
+        </div>
+      </section>
+
+      <!-- ===== 스크린 6: 동네모임(홈) ===== -->
+      <section class="screen" id="home" aria-label="동네모임">
+        <div class="home-header">
+          <button class="loc-btn" type="button" data-action="loc-change">
+            마포구 서교동
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="home-icons">
+            <button class="icon-btn" type="button" data-action="home-map" aria-label="지도 보기">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+            </button>
+            <button class="icon-btn icon-wrap" type="button" data-action="home-notify" aria-label="알림">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 10-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.3 20a2 2 0 003.4 0"/></svg>
+              <span class="icon-dot" aria-hidden="true"></span>
+            </button>
+            <button class="icon-btn" type="button" data-action="home-filter" aria-label="필터">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="7" cy="17" r="2.2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-scroll" id="homeScroll">
+          <div class="cat-chips" role="tablist" aria-label="모임 카테고리">
+            <button class="chip active" type="button" data-action="cat">🔥 전체</button>
+            <button class="chip" type="button" data-action="cat">⚡ 오늘 번개</button>
+            <button class="chip" type="button" data-action="cat">☕ 취향 아지트</button>
+            <button class="chip" type="button" data-action="cat">🏃 라이프 메이트</button>
+            <button class="chip" type="button" data-action="cat">🍷 와인 모임</button>
+          </div>
+
+          <div class="quick-grid">
+            <button class="quick-card" type="button" data-action="quick-map">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E8542F" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <span>지도에서 모임</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9BBA6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="quick-card" type="button" data-action="quick-show">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF5C39" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 012-2h3l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M3 12h18"/></svg>
+              <span>공연·핫플</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9BBA6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <div class="sec-head">
+            <div>
+              <h3 class="sec-title">마포구에서 지금 뜨는 모임</h3>
+              <p class="sec-sub">가까운 이웃과 편하게 만나는 동네 모임</p>
+            </div>
+            <div class="view-toggle" role="tablist" aria-label="보기 방식">
+              <button class="on" type="button" data-action="view-block">▦ 블럭</button>
+              <button type="button" data-action="view-list">▤ 목록</button>
+            </div>
+          </div>
+
+          <article class="meet-card">
+            <div class="meet-photo">
+              <svg viewBox="0 0 360 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <defs>
+                  <linearGradient id="hmSky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#FFE9C4"/><stop offset=".55" stop-color="#FFB477"/><stop offset="1" stop-color="#F0764E"/>
+                  </linearGradient>
+                  <linearGradient id="hmRiv" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#8FD4CB"/><stop offset="1" stop-color="#55A8A0"/>
+                  </linearGradient>
+                </defs>
+                <rect width="360" height="150" fill="url(#hmSky)"/>
+                <circle cx="292" cy="46" r="34" fill="#FFDFA3" opacity=".4"/>
+                <circle cx="292" cy="46" r="21" fill="#FFF3D6"/>
+                <g fill="#D96F49" opacity=".45">
+                  <rect x="14" y="66" width="18" height="26" rx="2"/><rect x="36" y="58" width="14" height="34" rx="2"/><rect x="54" y="70" width="20" height="22" rx="2"/>
+                </g>
+                <g stroke="#B85C3F" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round">
+                  <path d="M150 32q4-4 8 0"/><path d="M166 24q3-3 6 0"/>
+                </g>
+                <rect y="90" width="360" height="34" fill="url(#hmRiv)"/>
+                <g stroke="#fff" stroke-width="1.6" opacity=".45" stroke-linecap="round" fill="none">
+                  <path d="M40 102q10-4 20 0t20 0"/><path d="M250 112q12-5 24 0t24 0"/>
+                </g>
+                <rect y="120" width="360" height="30" fill="#F2DDBB"/>
+                <rect y="120" width="360" height="3" fill="#E3C79A"/>
+                <g stroke="#4A3014" stroke-linecap="round" fill="none" opacity=".92">
+                  <g transform="translate(108,138)">
+                    <circle cx="11" cy="-31" r="4.8" fill="#4A3014" stroke="none"/>
+                    <path d="M9-25L1-7" stroke-width="8.5"/>
+                    <path d="M9-24l12 8" stroke-width="4.6"/><path d="M9-24l-12 9" stroke-width="4.6"/>
+                    <path d="M1-7l12 9" stroke-width="5.4"/><path d="M1-7l-11 5" stroke-width="5.4"/>
+                  </g>
+                  <g transform="translate(172,140)">
+                    <circle cx="11" cy="-31" r="4.8" fill="#4A3014" stroke="none"/>
+                    <path d="M9-25L1-7" stroke-width="8.5"/>
+                    <path d="M9-24l12 8" stroke-width="4.6"/><path d="M9-24l-12 9" stroke-width="4.6"/>
+                    <path d="M1-7l12 9" stroke-width="5.4"/><path d="M1-7l-11 5" stroke-width="5.4"/>
+                  </g>
+                  <g transform="translate(238,142)">
+                    <circle cx="11" cy="-31" r="4.8" fill="#4A3014" stroke="none"/>
+                    <path d="M9-25L1-7" stroke-width="8.5"/>
+                    <path d="M9-24l12 8" stroke-width="4.6"/><path d="M9-24l-12 9" stroke-width="4.6"/>
+                    <path d="M1-7l12 9" stroke-width="5.4"/><path d="M1-7l-11 5" stroke-width="5.4"/>
+                  </g>
+                </g>
+              </svg>
+              <span class="photo-badge">라이프 메이트</span>
+            </div>
+            <div class="meet-body">
+              <h4 class="meet-title">주말 아침 망원 한강공원 가벼운 5km 러닝 크루 🏃</h4>
+              <div class="meet-meta">
+                <div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF5C39" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                  이번 주 토요일 아침 9시
+                </div>
+                <div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF5C39" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+                  서울 마포구 망원한강공원 입구
+                </div>
+              </div>
+              <div class="meet-host">
+                <span class="host-ava">지</span>
+                <span class="host-name">망원러너_지안</span>
+                <span class="manner">46.5°C</span>
+                <span class="join-count">3명 참여</span>
+              </div>
+            </div>
+          </article>
+
+          <button class="more-btn" type="button" data-action="more-meet">모임 더보기 · 7개</button>
+
+          <div class="sec-head">
+            <div>
+              <h3 class="sec-title">공연·전시와 동네 발견</h3>
+              <p class="sec-sub">공연·전시와 동네 핫플을 가볍게 둘러보세요</p>
+            </div>
+            <button class="sec-more" type="button" data-action="sec-more">전체보기 ></button>
+          </div>
+
+          <div class="filter-chips">
+            <button class="fchip dark" type="button" data-action="fchip">전체 46</button>
+            <button class="fchip" type="button" data-action="fchip">📍 우리동네 8</button>
+            <button class="fchip" type="button" data-action="fchip">콘서트 6</button>
+            <button class="fchip" type="button" data-action="fchip">뮤지컬 7</button>
+            <button class="fchip" type="button" data-action="fchip">페스티벌 12</button>
+          </div>
+
+          <div class="disc-grid">
+            <button class="disc-card" type="button" data-action="disc-card">
+              <div class="disc-photo">
+                <svg viewBox="0 0 170 110" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="hdBak" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stop-color="#FFF6E4"/><stop offset="1" stop-color="#FFE9C6"/>
+                    </linearGradient>
+                  </defs>
+                  <rect width="170" height="110" fill="url(#hdBak)"/>
+                  <circle cx="140" cy="18" r="26" fill="#FFD9A0" opacity=".5"/>
+                  <rect y="76" width="170" height="34" fill="#C98F5B"/>
+                  <rect y="72" width="170" height="6" fill="#E8B87F"/>
+                  <g transform="translate(58,56)">
+                    <g fill="#D98E3F">
+                      <ellipse cx="-11" cy="6" rx="10" ry="7.5" transform="rotate(-22 -11 6)"/>
+                      <ellipse cx="0" cy="0" rx="11" ry="8.5"/>
+                      <ellipse cx="11" cy="6" rx="10" ry="7.5" transform="rotate(22 11 6)"/>
+                    </g>
+                    <g stroke="#B26F2A" stroke-width="1.2" fill="none" opacity=".6">
+                      <path d="M-4 -4q4 3 8 0"/><path d="M-13 3q4 3 8 1"/><path d="M5 3q4 3 8 1"/>
+                    </g>
+                  </g>
+                  <g transform="translate(118,58)">
+                    <circle r="15" fill="#E3A75F"/>
+                    <circle r="8.5" fill="#F0C085"/>
+                    <g stroke="#C9863E" stroke-width="1.3" stroke-linecap="round">
+                      <path d="M-6 -3h12M-6 1h12"/>
+                    </g>
+                  </g>
+                </svg>
+                <span class="disc-badge">SNS 맛집</span>
+              </div>
+              <div class="disc-body">
+                <div class="disc-title">성수 비건 베이커리 신메뉴 탐방 🥐</div>
+                <div class="disc-meta">
+                  <div>🕒 이번 주 토요일 오후 2시</div>
+                  <div>📍 성수동 카페거리</div>
+                </div>
+              </div>
+            </button>
+
+            <button class="disc-card" type="button" data-action="disc-card">
+              <div class="disc-photo">
+                <svg viewBox="0 0 170 110" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="hdRun" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stop-color="#2E3A59"/><stop offset=".6" stop-color="#E0674A"/><stop offset="1" stop-color="#FFB25E"/>
+                    </linearGradient>
+                  </defs>
+                  <rect width="170" height="110" fill="url(#hdRun)"/>
+                  <circle cx="128" cy="66" r="20" fill="#FFF1C9" opacity=".9"/>
+                  <text x="49" y="50" text-anchor="middle" font-size="26" font-weight="900" fill="#2E3A59" opacity=".35" font-family="Pretendard, sans-serif">러닝</text>
+                  <text x="46" y="47" text-anchor="middle" font-size="26" font-weight="900" fill="#FFF6D8" font-family="Pretendard, sans-serif">러닝</text>
+                  <rect y="84" width="170" height="26" fill="#3B2A1A" opacity=".85"/>
+                  <g stroke="#FFE082" stroke-linecap="round" fill="none">
+                    <g transform="translate(122,100)">
+                      <circle cx="9" cy="-24" r="4" fill="#FFE082" stroke="none"/>
+                      <path d="M7-19L1-6" stroke-width="7"/><path d="M7-18l10 6" stroke-width="4"/><path d="M7-18l-10 6" stroke-width="4"/><path d="M1-6l10 7" stroke-width="4.6"/><path d="M1-6l-9 4" stroke-width="4.6"/>
+                    </g>
+                  </g>
+                </svg>
+                <span class="disc-badge">러닝 크루</span>
+              </div>
+              <div class="disc-body">
+                <div class="disc-title">퇴근 후 반포 한강 5.4km 달리기</div>
+                <div class="disc-meta">
+                  <div>🕒 퇴근 후 90분</div>
+                  <div>📍 반포한강공원</div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <nav class="tabbar" aria-label="하단 내비게이션">
+          <button class="tab active" type="button" data-action="tab-home">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9"/></svg>
+            동네모임
+          </button>
+          <button class="tab" type="button" data-action="tab-community">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.7-3 3-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15 14.6c2.6.2 4.7 1.7 5.5 4.4"/></svg>
+            커뮤니티
+          </button>
+          <button class="tab" type="button" data-action="tab-discover">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor" stroke="none"/></svg>
+            발견
+          </button>
+          <button class="tab" type="button" data-action="tab-chat">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-8 8H4l2.5-3A8 8 0 1121 12z"/></svg>
+            채팅
+          </button>
+          <button class="tab" type="button" data-action="tab-my">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.9-3.6 3.6-5.5 7-5.5s6.1 1.9 7 5.5"/></svg>
+            MY
+          </button>
+        </nav>
+      </section>
+
+      <!-- ===== 스크린 7: 채팅 목록 ===== -->
+      <section class="screen" id="chatlist" aria-label="채팅 목록">
+        <div class="chat-header">
+          <h2>채팅</h2>
+          <button class="icon-btn" type="button" data-action="chat-search" aria-label="채팅 검색">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+          </button>
+        </div>
+
+        <button class="chat-search" type="button" data-action="chat-search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+          모임방·이웃 검색
+        </button>
+
+        <div class="chat-scroll" id="chatScroll">
+          <button class="meet-banner" type="button" data-action="open-chat">
+            <span class="mb-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21c-2 0-3.5-1.6-3.5-3.6 0-1.3.6-2.2 1.5-3.2M16 21c2 0 3.5-1.6 3.5-3.6 0-1.3-.6-2.2-1.5-3.2"/><path d="M9.5 8.5V7a2.5 2.5 0 015 0v1.5"/><path d="M7.5 8.5h9a1.5 1.5 0 011.4 2l-1.2 2.9a2 2 0 01-1.9 1.3h-5.6a2 2 0 01-1.9-1.3l-1.2-2.9a1.5 1.5 0 011.4-2z" fill="rgba(255,255,255,.25)"/></svg>
+            </span>
+            <span class="mb-info">
+              <span class="mb-title">성수 소소스팟 비스트로 와인 모임</span>
+              <span class="mb-sub">금요일 저녁 7시 · 멤버 8명</span>
+            </span>
+            <span class="mb-go">채팅하기</span>
+          </button>
+          <div class="list-label">참여 중인 모임 <b>5</b></div>
+          <button class="chat-row" type="button" data-action="open-chat">
+            <span class="room-avatar"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span>
+            <span class="room-info">
+              <span class="room-name">성수 소소스팟 비스트로 와인 모임</span>
+              <span class="room-msg">안녕하세요 여수 화장동 초연입니다! 반가워요~</span>
+            </span>
+            <span class="room-side">
+              <span class="room-time">오후 8:42</span>
+              <span class="room-badge">3</span>
+            </span>
+            <span class="room-chev" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+
+          <button class="chat-row" type="button" data-action="open-chat">
+            <span class="room-avatar"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-2"/></svg></span>
+            <span class="room-info">
+              <span class="room-name">여수 학동 선소상가 찐맛집 털기 & 2:2 소셜 다이닝</span>
+              <span class="room-msg">선소상가 숨은 해산물 맛집 예약 완료했습니다! 금요일 저녁 ...</span>
+            </span>
+            <span class="room-side">
+              <span class="room-time">오후 12:31</span>
+            </span>
+            <span class="room-chev" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+
+          <button class="chat-row" type="button" data-action="open-chat">
+            <span class="room-avatar"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-3"/></svg></span>
+            <span class="room-info">
+              <span class="room-name">주말 아침 망원 한강공원 가벼운 5km 러닝 크루 🏃</span>
+              <span class="room-msg">초보자도 무리 없는 6분 30초 페이스로 편하게 달립니다. 일...</span>
+            </span>
+            <span class="room-side">
+              <span class="room-time">어제</span>
+              <span class="room-badge">12</span>
+            </span>
+            <span class="room-chev" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+
+          <button class="chat-row" type="button" data-action="open-chat">
+            <span class="room-avatar"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-4"/></svg></span>
+            <span class="room-info">
+              <span class="room-name">여수 화장동 선셋 요가 모임</span>
+              <span class="room-msg">수요일 아침 7시 여수 중앙시장 앞에서 만나요 🧘</span>
+            </span>
+            <span class="room-side">
+              <span class="room-time">일요일</span>
+            </span>
+            <span class="room-chev" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+
+          <button class="chat-row" type="button" data-action="open-chat">
+            <span class="room-avatar"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-5"/></svg></span>
+            <span class="room-info">
+              <span class="room-name">성수 비건 베이커리 탐방</span>
+              <span class="room-msg">이번 주 신메뉴 씨앗빵 리뷰 올려봤어요 🥐</span>
+            </span>
+            <span class="room-side">
+              <span class="room-time">토요일</span>
+              <span class="room-badge">1</span>
+            </span>
+            <span class="room-chev" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+          </button>
+        </div>
+
+        <nav class="tabbar" aria-label="하단 내비게이션">
+          <button class="tab" type="button" data-action="tab-home">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9"/></svg>
+            동네모임
+          </button>
+          <button class="tab" type="button" data-action="tab-community">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.7-3 3-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15 14.6c2.6.2 4.7 1.7 5.5 4.4"/></svg>
+            커뮤니티
+          </button>
+          <button class="tab" type="button" data-action="tab-discover">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor" stroke="none"/></svg>
+            발견
+          </button>
+          <button class="tab on" type="button" data-action="tab-chat">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4c-4.7 0-8.5 3.1-8.5 7 0 2.2 1.3 4.2 3.3 5.5-.2 1.1-.8 2.3-1.6 3.2-.3.4 0 .9.5.8 1.9-.5 3.7-1.5 5-2.4.4.1.9.1 1.3.1 4.7 0 8.5-3.1 8.5-7s-3.8-7.2-8.5-7.2z" fill="currentColor"/></svg>
+            채팅
+          </button>
+          <button class="tab" type="button" data-action="tab-my">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.4 3.8-5.4 7-5.4s6.2 2 7 5.4"/></svg>
+            MY
+          </button>
+        </nav>
+      </section>
+
+      <!-- ===== 스크린 7: 채팅방 ===== -->
+      <section class="screen" id="chatroom" aria-label="채팅방">
+        <div class="cr-header">
+          <button class="back-btn" type="button" data-action="cr-back" aria-label="뒤로 가기">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <span class="cr-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span>
+          <div class="cr-title">
+            <div class="t">성수 소소스팟 비스트로 와인 모임</div>
+            <div class="s">멤버 8명 · 방금 활동</div>
+          </div>
+          <button class="icon-btn" type="button" data-action="chat-search" aria-label="채팅 검색">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+          </button>
+        </div>
+
+        <button class="cr-banner" type="button" data-action="cr-banner">
+          <span class="crb-icon" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21c-2 0-3.5-1.6-3.5-3.6 0-1.3.6-2.2 1.5-3.2M16 21c2 0 3.5-1.6 3.5-3.6 0-1.3-.6-2.2-1.5-3.2"/><path d="M9.5 8.5V7a2.5 2.5 0 015 0v1.5"/><path d="M7.5 8.5h9a1.5 1.5 0 011.4 2l-1.2 2.9a2 2 0 01-1.9 1.3h-5.6a2 2 0 01-1.9-1.3l-1.2-2.9a1.5 1.5 0 011.4-2z" fill="rgba(255,255,255,.25)"/></svg>
+          </span>
+          <span class="crb-info">
+            <span class="crb-t">이번 주 와인 모임</span>
+            <span class="crb-s">금요일 저녁 7시 · 성수동 비스트로</span>
+          </span>
+          <span class="crb-more">모임 정보 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+        </button>
+
+        <div class="msgs" id="crMsgs">
+          <div class="day-divider"><span>오늘</span></div>
+          <p class="sys-msg">초연님이 들어왔습니다</p>
+
+          <div class="msg">
+            <span class="msg-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span>
+            <div class="msg-body">
+              <div class="msg-name">초연</div>
+              <div class="msg-row"><div class="bubble">안녕하세요 여수 화장동 초연입니다! 반가워요~</div><span class="msg-time">오후 8:35</span></div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <span class="msg-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-3"/></svg></span>
+            <div class="msg-body">
+              <div class="msg-name">민지</div>
+              <div class="msg-row"><div class="bubble">와인 모임 처음인데 어떤 와인 가져가면 될까요?</div><span class="msg-time">오후 8:37</span></div>
+            </div>
+          </div>
+
+          <div class="msg me">
+            <div class="msg-body">
+              <div class="msg-row"><div class="bubble">초연님 반가워요! 저도 성수 근처 살아요</div><span class="msg-time">오후 8:38</span></div>
+            </div>
+          </div>
+
+          <div class="msg me">
+            <div class="msg-body">
+              <div class="bubble bubble-photo">
+                <svg viewBox="0 0 200 148" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="phG" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0" stop-color="#FFB25E"/><stop offset="0.55" stop-color="#F0764E"/><stop offset="1" stop-color="#C9503B"/>
+                    </linearGradient>
+                  </defs>
+                  <rect width="200" height="148" fill="url(#phG)"/>
+                  <circle cx="40" cy="30" r="10" fill="#FFD9A0" opacity="0.35"/>
+                  <circle cx="170" cy="24" r="14" fill="#FFE3B8" opacity="0.25"/>
+                  <circle cx="150" cy="60" r="7" fill="#FFD9A0" opacity="0.3"/>
+                  <circle cx="24" cy="70" r="5" fill="#FFE3B8" opacity="0.3"/>
+                  <path d="M-4 18Q100 34 204 14" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+                  <circle cx="30" cy="24" r="2.5" fill="#FFF3D6"/>
+                  <circle cx="100" cy="27" r="2.5" fill="#FFF3D6"/>
+                  <circle cx="170" cy="21" r="2.5" fill="#FFF3D6"/>
+                  <rect x="0" y="112" width="200" height="36" fill="#5E3629" opacity="0.55"/>
+                  <g stroke="#fff" stroke-width="2.5" fill="rgba(255,255,255,0.22)" stroke-linejoin="round" stroke-linecap="round">
+                    <path d="M60 62h24c0 11-5.4 18-12 18s-12-7-12-18z"/>
+                    <path d="M72 80v13"/><path d="M65 95.5h14"/>
+                    <path d="M104 62h24c0 11-5.4 18-12 18s-12-7-12-18z"/>
+                    <path d="M116 80v13"/><path d="M109 95.5h14"/>
+                  </g>
+                  <path d="M61.8 69c1.6 7.6 5.7 12.8 10.2 12.8s8.6-5.2 10.2-12.8z" fill="#8E2F3C" stroke="none"/>
+                  <path d="M105.8 69c1.6 7.6 5.7 12.8 10.2 12.8s8.6-5.2 10.2-12.8z" fill="#8E2F3C" stroke="none"/>
+                </svg>
+                <span class="cap">이번 주 갈집 비스트로 내부</span>
+              </div>
+              <span class="msg-time">오후 8:39</span>
+            </div>
+          </div>
+
+          <div class="msg">
+            <span class="msg-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-3"/></svg></span>
+            <div class="msg-body">
+              <div class="msg-name">민지</div>
+              <div class="msg-row"><div class="bubble">오 감성 좋네요 기대되네요 😋</div><span class="msg-time">오후 8:40</span></div>
+            </div>
+          </div>
+
+          <div class="msg me">
+            <div class="msg-body">
+              <div class="msg-row"><div class="bubble">금요일 저녁 7시 성수역 3번 출구에서 만나요!</div><span class="msg-time">오후 8:41</span></div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <span class="msg-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span>
+            <div class="msg-body">
+              <div class="msg-name">초연</div>
+              <div class="msg-row"><div class="bubble">네 좋아요! 늦지 않게 갈게요 🍷</div><span class="msg-time">오후 8:42</span></div>
+            </div>
+          </div>
+        </div>
+
+        <form class="cr-input" id="crForm" novalidate>
+          <button class="cr-attach" type="button" data-action="cr-plus" aria-label="사진 보내기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg>
+          </button>
+          <div class="cr-field">
+            <input type="text" id="crInput" placeholder="메시지를 입력하세요" autocomplete="off" aria-label="메시지">
+          </div>
+          <button class="send-btn" type="submit" id="crSend" disabled aria-label="보내기">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6M5.5 12.5L12 6l6.5 6.5"/></svg>
+          </button>
+        </form>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="stage-chips" role="tablist" aria-label="화면 선택">
+    <button type="button" class="on" data-goto="splash">스플래시</button>
+    <button type="button" data-goto="onboarding">인트로</button>
+    <button type="button" data-goto="login">로그인</button>
+    <button type="button" data-goto="signup">회원가입</button>
+    <button type="button" data-goto="findemail">이메일 찾기</button>
+    <button type="button" data-goto="home">동네모임</button>
+    <button type="button" data-goto="chatlist">채팅 목록</button>
+    <button type="button" data-goto="chatroom">채팅방</button>
+  </div>
+
+<script>
+(function () {
+  var screens = {
+    splash: document.getElementById('splash'),
+    onboarding: document.getElementById('onboarding'),
+    login: document.getElementById('login'),
+    signup: document.getElementById('signup'),
+    findemail: document.getElementById('findemail'),
+    home: document.getElementById('home'),
+    chatlist: document.getElementById('chatlist'),
+    chatroom: document.getElementById('chatroom')
+  };
+  var slides = document.getElementById('slides');
+  var slideEls = slides.querySelectorAll('.slide');
+  var obSegs = document.querySelectorAll('.ob-progress span');
+  var nextBtn = document.getElementById('nextBtn');
+  var chips = document.querySelectorAll('.stage-chips button');
+  var current = 'splash';
+  var slideIdx = 0;
+  var splashTimer = null;
+
+  var statusbarEl = document.querySelector('.statusbar');
+  var indicatorEl = document.querySelector('.home-indicator');
+
+  function showScreen(name) {
+    current = name;
+    clearTimeout(splashTimer);
+    if (statusbarEl) { statusbarEl.classList.toggle('dark', name === 'splash'); }
+    if (indicatorEl) { indicatorEl.classList.toggle('dark', name === 'splash'); }
+    Object.keys(screens).forEach(function (k) {
+      screens[k].classList.toggle('active', k === name);
+    });
+    chips.forEach(function (c) {
+      c.classList.toggle('on', c.dataset.goto === name);
+    });
+    if (name === 'splash') {
+      splashTimer = setTimeout(function () { showScreen('onboarding'); }, 2400);
+    }
+    if (name === 'chatroom') {
+      var crMsgsEl = document.getElementById('crMsgs');
+      requestAnimationFrame(function () { crMsgsEl.scrollTop = crMsgsEl.scrollHeight; });
+    }
+  }
+
+  function goToSlide(idx) {
+    slideIdx = Math.max(0, Math.min(slideEls.length - 1, idx));
+    slides.style.transform = 'translateX(' + (-slideIdx * 100) + '%)';
+    slideEls.forEach(function (s, i) { s.classList.toggle('active', i === slideIdx); });
+    obSegs.forEach(function (g, i) { g.classList.toggle('on', i <= slideIdx); });
+    nextBtn.textContent = slideIdx === slideEls.length - 1 ? '시작하기' : '다음';
+  }
+
+  nextBtn.addEventListener('click', function () {
+    if (slideIdx === slideEls.length - 1) showScreen('login');
+    else goToSlide(slideIdx + 1);
+  });
+
+  /* 토스트 메시지 */
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2000);
+  }
+
+  document.querySelectorAll('[data-action]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      var a = btn.dataset.action;
+      if (a === 'skip') { showScreen('login'); return; }
+      if (a === 'open-chat') { showScreen('chatroom'); return; }
+      if (a === 'cr-back') { showScreen('chatlist'); return; }
+      if (a === 'chat-search') { e.preventDefault(); toast('채팅 검색은 앱 연동 후 사용할 수 있어요'); return; }
+      if (a === 'cr-plus') { e.preventDefault(); toast('사진 첨부는 앱 연동 후 사용할 수 있어요'); return; }
+      if (a === 'cr-banner') { e.preventDefault(); toast('모임 정보는 앱 연동 후 볼 수 있어요'); return; }
+      if (a.indexOf('tab-') === 0) {
+        e.preventDefault();
+        if (a === 'tab-home') { showScreen('home'); return; }
+        if (a === 'tab-chat') { showScreen('chatlist'); return; }
+        toast('데모에서는 동네모임·채팅 화면만 볼 수 있어요');
+        return;
+      }
+      if (a === 'home-act') { e.preventDefault(); toast('준비 중인 기능이에요'); return; }
+      /* 동네모임 화면 인터랙션 */
+      var homeMsgs = {
+        'loc-change': '동네 선택은 앱 연동 후 사용할 수 있어요',
+        'home-map': '지도에서 모임은 앱 연동 후 사용할 수 있어요',
+        'home-notify': '알림 목록은 앱 연동 후 사용할 수 있어요',
+        'home-filter': '필터는 앱 연동 후 사용할 수 있어요',
+        'quick-map': '지도에서 모임은 앱 연동 후 사용할 수 있어요',
+        'quick-show': '공연·핫플 목록은 앱 연동 후 사용할 수 있어요',
+        'more-meet': '모임 더보기는 앱 연동 후 사용할 수 있어요',
+        'sec-more': '전체보기는 앱 연동 후 사용할 수 있어요',
+        'disc-card': '모임 상세는 앱 연동 후 볼 수 있어요'
+      };
+      if (homeMsgs[a]) { e.preventDefault(); toast(homeMsgs[a]); return; }
+      if (a === 'cat') {
+        e.preventDefault();
+        var row = btn.parentElement;
+        row.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('active', c === btn); });
+        return;
+      }
+      if (a === 'fchip') {
+        e.preventDefault();
+        var frow = btn.parentElement;
+        frow.querySelectorAll('.fchip').forEach(function (c) { c.classList.toggle('dark', c === btn); });
+        return;
+      }
+      if (a === 'view-block' || a === 'view-list') {
+        e.preventDefault();
+        var vt = btn.parentElement;
+        vt.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b === btn); });
+        toast('데모에서는 블럭 보기만 제공돼요');
+        return;
+      }
+      e.preventDefault();
+      if (a === 'signup') { showScreen('signup'); return; }
+      if (a === 'back-login' || a === 'goto-login' || a === 'fe-back') { showScreen('login'); return; }
+      if (a === 'find-email' || a === 'fe-signup') { showScreen(a === 'find-email' ? 'findemail' : 'signup'); return; }
+      if (a === 'kakao') toast('카카오톡 로그인은 배포 시 연결돼요');
+      if (a === 'google') toast('Google 로그인은 배포 시 연결돼요');
+      if (a === 'naver') toast('네이버 로그인은 배포 시 연결돼요');
+      if (a === 'dup-email') {
+        var em = document.querySelector('[name="su-email"]');
+        if (!em.value.trim()) toast('이메일을 먼저 입력해 주세요');
+        else toast('사용 가능한 이메일이에요');
+      }
+      if (a === 'dup-nick') {
+        var nk = document.querySelector('[name="su-nick"]');
+        if (!nk.value.trim()) toast('닉네임을 먼저 입력해 주세요');
+        else toast('사용 가능한 닉네임이에요');
+      }
+    });
+  });
+
+  /* 로그인 폼 */
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var id = this.querySelector('[name="username"]');
+    if (!id.value.trim()) { toast('아이디(이메일)를 입력해 주세요'); id.focus(); return; }
+    toast('로그인 기능은 앱 연동 후 사용할 수 있어요');
+  });
+
+  /* 비밀번호 표시/숨기기 */
+  var pw = document.getElementById('loginPw');
+  var pwToggle = document.getElementById('pwToggle');
+  var eyeOn = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var eyeOff = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/></svg>';
+  pwToggle.addEventListener('click', function () {
+    var show = pw.type === 'password';
+    pw.type = show ? 'text' : 'password';
+    pwToggle.setAttribute('aria-pressed', String(show));
+    pwToggle.setAttribute('aria-label', show ? '비밀번호 숨기기' : '비밀번호 표시');
+    pwToggle.innerHTML = show ? eyeOff : eyeOn;
+  });
+
+  /* 이메일 찾기 */
+  var DEMO_CODE = '482915';
+  var feTimerEl = document.getElementById('feTimer');
+  var feTimerInt = null;
+  var feSeconds = 0;
+
+  function feStartTimer() {
+    clearInterval(feTimerInt);
+    feSeconds = 300;
+    feTimerEl.classList.remove('hidden');
+    feTimerEl.textContent = '5:00';
+    feTimerInt = setInterval(function () {
+      feSeconds--;
+      if (feSeconds <= 0) {
+        clearInterval(feTimerInt);
+        feTimerEl.textContent = '만료';
+        toast('인증번호가 만료되었어요. 다시 받아 주세요');
+        return;
+      }
+      var m = Math.floor(feSeconds / 60), s = feSeconds % 60;
+      feTimerEl.textContent = m + ':' + (s < 10 ? '0' + s : s);
+    }, 1000);
+  }
+
+  document.querySelectorAll('[data-action]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      var a = btn.dataset.action;
+      var feForm = document.getElementById('feForm');
+      var feResult = document.getElementById('feResult');
+      if (a === 'fe-send') {
+        var ph = document.querySelector('[name="fe-phone"]');
+        if (!ph.value.trim()) { toast('휴대폰 번호를 먼저 입력해 주세요'); return; }
+        toast('인증번호가 발송되었어요 (데모: ' + DEMO_CODE + ')');
+        feStartTimer();
+        return;
+      }
+      if (a === 'fe-find') {
+        var nm = document.querySelector('[name="fe-name"]');
+        var ph2 = document.querySelector('[name="fe-phone"]');
+        var cd = document.querySelector('[name="fe-code"]');
+        if (!nm.value.trim()) { toast('이름을 입력해 주세요'); return; }
+        if (!ph2.value.trim()) { toast('휴대폰 번호를 입력해 주세요'); return; }
+        if (cd.value !== DEMO_CODE) { toast('인증번호가 일치하지 않아요'); return; }
+        clearInterval(feTimerInt);
+        feForm.classList.add('hidden');
+        feResult.classList.add('show');
+        return;
+      }
+      if (a === 'fe-retry') {
+        feResult.classList.remove('show');
+        feForm.classList.remove('hidden');
+        document.querySelector('[name="fe-code"]').value = '';
+        feTimerEl.classList.add('hidden');
+        return;
+      }
+      if (a === 'fe-login') { showScreen('login'); return; }
+    });
+  });
+
+  /* 회원가입 폼 */
+  var suForm = document.getElementById('signupForm');
+  var agreeAll = document.getElementById('agreeAll');
+  var agreeItems = suForm.querySelectorAll('.agree-item');
+
+  agreeAll.addEventListener('change', function () {
+    agreeItems.forEach(function (c) { c.checked = agreeAll.checked; });
+  });
+  agreeItems.forEach(function (c) {
+    c.addEventListener('change', function () {
+      var all = true;
+      agreeItems.forEach(function (x) { if (!x.checked) all = false; });
+      agreeAll.checked = all;
+    });
+  });
+
+  var suPw = document.getElementById('suPw');
+  var suPw2 = document.getElementById('suPw2');
+  var pwMatch = document.getElementById('pwMatch');
+  function checkPwMatch() {
+    pwMatch.classList.toggle('on', suPw2.value.length > 0 && suPw.value === suPw2.value);
+  }
+  suPw.addEventListener('input', checkPwMatch);
+  suPw2.addEventListener('input', checkPwMatch);
+
+  var suPwToggle = document.getElementById('suPwToggle');
+  suPwToggle.addEventListener('click', function () {
+    var show = suPw.type === 'password';
+    suPw.type = show ? 'text' : 'password';
+    suPwToggle.setAttribute('aria-pressed', String(show));
+    suPwToggle.setAttribute('aria-label', show ? '비밀번호 숨기기' : '비밀번호 표시');
+    suPwToggle.innerHTML = show ? eyeOff : eyeOn;
+  });
+
+  suForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = this.querySelector('[name="su-email"]');
+    var nick = this.querySelector('[name="su-nick"]');
+    if (!email.value.trim()) return toast('이메일을 입력해 주세요');
+    if (suPw.value.length < 8) return toast('비밀번호는 8자 이상으로 입력해 주세요');
+    if (suPw.value !== suPw2.value) return toast('비밀번호가 일치하지 않아요');
+    if (!nick.value.trim() || nick.value.trim().length < 2) return toast('닉네임은 2자 이상으로 입력해 주세요');
+    var req = this.querySelectorAll('.agree-item[data-required]');
+    for (var i = 0; i < req.length; i++) {
+      if (!req[i].checked) return toast('필수 약관에 동의해 주세요');
+    }
+    toast('가입 완료! 로그인 화면으로 이동해요');
+    setTimeout(function () { showScreen('login'); }, 1400);
+  });
+
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { showScreen(c.dataset.goto); });
+  });
+
+  /* 채팅방: 메시지 보내기 */
+  var crForm = document.getElementById('crForm');
+  var crInput = document.getElementById('crInput');
+  var crSend = document.getElementById('crSend');
+  var crMsgs = document.getElementById('crMsgs');
+
+  function crNow() {
+    var d = new Date();
+    var h = d.getHours(), m = d.getMinutes();
+    var ap = h < 12 ? '오전' : '오후';
+    var hh = h % 12 || 12;
+    return ap + ' ' + hh + ':' + (m < 10 ? '0' + m : m);
+  }
+
+  function crAddMsg(side, name, text) {
+    var wrap = document.createElement('div');
+    wrap.className = 'msg' + (side === 'me' ? ' me' : '');
+    if (side !== 'me') {
+      var ava = document.createElement('span');
+      ava.className = 'msg-ava';
+      ava.innerHTML = '<svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg>';
+      wrap.appendChild(ava);
+    }
+    var body = document.createElement('div');
+    body.className = 'msg-body';
+    if (side !== 'me') {
+      var nm = document.createElement('div');
+      nm.className = 'msg-name';
+      nm.textContent = name;
+      body.appendChild(nm);
+    }
+    var row = document.createElement('div');
+    row.className = 'msg-row';
+    var bub = document.createElement('div');
+    bub.className = 'bubble';
+    bub.textContent = text;
+    row.appendChild(bub);
+    var tm = document.createElement('span');
+    tm.className = 'msg-time';
+    tm.textContent = crNow();
+    row.appendChild(tm);
+    body.appendChild(row);
+    wrap.appendChild(body);
+    crMsgs.appendChild(wrap);
+    crMsgs.scrollTop = crMsgs.scrollHeight;
+    return wrap;
+  }
+
+  crInput.addEventListener('input', function () {
+    crSend.disabled = !crInput.value.trim();
+  });
+
+  crForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = crInput.value.trim();
+    if (!text) return;
+    crAddMsg('me', '', text);
+    crInput.value = '';
+    crSend.disabled = true;
+
+    var typing = document.createElement('div');
+    typing.className = 'msg';
+    typing.innerHTML = '<span class="msg-ava"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#av-1"/></svg></span><div class="msg-body"><div class="msg-name">초연</div><div class="msg-row"><div class="bubble typing" aria-label="입력 중"><span></span><span></span><span></span></div></div></div>';
+    setTimeout(function () {
+      crMsgs.appendChild(typing);
+      crMsgs.scrollTop = crMsgs.scrollHeight;
+    }, 500);
+    setTimeout(function () {
+      typing.remove();
+      crAddMsg('other', '초연', '네 좋아요! 그럼 금요일에 뵈어요 🍷');
+    }, 2100);
+  });
+
+  /* 스와이프 */
+  var startX = null, dragging = false;
+  slides.addEventListener('pointerdown', function (e) {
+    startX = e.clientX; dragging = true;
+    slides.style.transition = 'none';
+  });
+  slides.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - startX;
+    var w = slides.clientWidth;
+    var x = -slideIdx * w + dx;
+    var min = -(slideEls.length - 1) * w, max = 0;
+    slides.style.transform = 'translateX(' + Math.max(min, Math.min(max, x)) + 'px)';
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    slides.style.transition = '';
+    var dx = (e.clientX - startX) || 0;
+    var w = slides.clientWidth;
+    if (Math.abs(dx) > w * 0.18) goToSlide(slideIdx + (dx < 0 ? 1 : -1));
+    else goToSlide(slideIdx);
+  }
+  slides.addEventListener('pointerup', endDrag);
+  slides.addEventListener('pointercancel', endDrag);
+
+  /* 데모 시작: 스플래시 -> 인트로 */
+  splashTimer = setTimeout(function () { showScreen('onboarding'); }, 2400);
+})();
+</script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>
