@@ -26,6 +26,7 @@ import 'event_detail_screen.dart';
 import 'user_profile_screen.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/balanced_text.dart';
+import '../widgets/oomu_discovery_lifestyle_hub.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   final int initialTab;
@@ -5279,6 +5280,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       padding: const EdgeInsets.only(bottom: 40, top: 8),
       children: [
         _buildTrendCurationSection(),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+          child: Divider(height: 1, color: Color(0xFFEAECF0)),
+        ),
+        OomuDiscoveryLifestyleHub(currentLocation: _currentLocation),
         const Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
           child: Divider(height: 1, color: Color(0xFFEAECF0)),

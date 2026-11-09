@@ -56,7 +56,9 @@ class Spot10App extends StatelessWidget {
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(
                 size: Size(
-                  MediaQuery.of(context).size.width > 480 ? 480 : MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.width > 480
+                      ? 480
+                      : MediaQuery.of(context).size.width,
                   MediaQuery.of(context).size.height,
                 ),
               ),
@@ -66,7 +68,8 @@ class Spot10App extends StatelessWidget {
                   boxShadow: MediaQuery.of(context).size.width > 480
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF4A3014).withValues(alpha: 0.12),
+                            color:
+                                const Color(0xFF4A3014).withValues(alpha: 0.12),
                             blurRadius: 32,
                             offset: const Offset(0, 10),
                           ),
