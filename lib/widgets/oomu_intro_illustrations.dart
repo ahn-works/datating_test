@@ -185,22 +185,22 @@ class _OomuSplashLiveMeetupPreviewState
   static const List<Map<String, String>> _liveMeetups = [
     {
       'badge': '🏃 러닝 크루',
-      'title': '주말 아침 망원 한강공원 5km 러닝 크루',
-      'sub': '망원러너_지안 · 토요일 오전 9:00 · 4/6명 참여',
+      'title': '주말 아침 망원 한강 5km 러닝 크루',
+      'sub': '망원러너_지안 · 토 오전 9:00 · 4/6명',
       'cover': 'assets/images/cover_running_hangang.jpg',
       'avatar': 'assets/images/지안.png',
     },
     {
       'badge': '🍷 와인·다이닝',
-      'title': '성수 소소스팟 비스트로 내추럴 와인 모임',
-      'sub': '성수와인_초연 · 금요일 저녁 7:30 · 6/8명 참여',
+      'title': '성수 소소스팟 비스트로 와인 모임',
+      'sub': '성수와인_초연 · 금 저녁 7:30 · 6/8명',
       'cover': 'assets/images/cover_wine.jpg',
       'avatar': 'assets/images/초연.png',
     },
     {
       'badge': '🎭 공연·전시',
-      'title': '성수 디올 & 미디어아트 전시 동행 모임',
-      'sub': '전시메이트_시연 · 일요일 오후 2:00 · 5/6명 참여',
+      'title': '성수 디올 & 미디어아트 전시 동행',
+      'sub': '전시메이트_시연 · 일 오후 2:00 · 5/6명',
       'cover': 'assets/images/cover_cafe.jpg',
       'avatar': 'assets/images/시연.png',
     },
@@ -438,7 +438,7 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
       'chipIndex': 1,
       'badge': '라이프 메이트',
       'distance': '📍 도보 8분 · 망원한강공원',
-      'title': '주말 아침 망원 한강공원 가벼운 5km 러닝 크루 🏃',
+      'title': '주말 아침 망원 한강공원 5km 러닝 크루 🏃',
       'schedule': '이번 주 토요일 오전 9:00 · 망원나들목 집결',
       'cover': 'assets/images/cover_running_hangang.jpg',
       'hostName': '망원러너_지안',
@@ -455,7 +455,7 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
       'chipIndex': 2,
       'badge': '와인·다이닝',
       'distance': '📍 도보 5분 · 성수 연무장길',
-      'title': '성수 소소스팟 비스트로 내추럴 와인 & 대화 모임 🍷',
+      'title': '성수 소소스팟 비스트로 내추럴 와인 모임 🍷',
       'schedule': '이번 주 금요일 저녁 7:30 · 성수동 비스트로',
       'cover': 'assets/images/cover_wine.jpg',
       'hostName': '성수와인_초연',
@@ -472,7 +472,7 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
       'chipIndex': 3,
       'badge': '⚡ 오늘 번개',
       'distance': '📍 도보 6분 · 서울숲 카페거리',
-      'title': '서울숲 잔디마당 플랫화이트 & 주말 산책 번개 ☕',
+      'title': '서울숲 잔디마당 플랫화이트 & 산책 번개 ☕',
       'schedule': '오늘 오후 2:00 · 서울숲역 3번 출구 앞',
       'cover': 'assets/images/cover_cafe.jpg',
       'hostName': '숲길산책_시연',
@@ -600,9 +600,9 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       margin: EdgeInsets.only(
-                          right: i < _categories.length - 1 ? 6 : 0),
+                          right: i < _categories.length - 1 ? 5 : 0),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
+                          horizontal: 8, vertical: 5),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? const Color(0xFFFF5C39)
@@ -617,7 +617,7 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
                       child: Text(
                         _categories[i],
                         style: TextStyle(
-                          fontSize: 10.5,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: isSelected
                               ? Colors.white
@@ -878,7 +878,7 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '성수 겉바속촉 수제 소금빵 오픈런 번개 🥐',
+                              '성수 겉바속촉 수제 소금빵 오픈런 🥐',
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w800,
@@ -889,7 +889,7 @@ class _OomuSlide1MapState extends State<OomuSlide1Map> {
                             ),
                             SizedBox(height: 2),
                             Text(
-                              '⚡ 오늘 오후 1시 · 성수동 카페거리 · 3/4명',
+                              '⚡ 오늘 오후 1시 · 성수동 카페거리',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -1053,38 +1053,40 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends> {
                 const SizedBox(height: 8),
 
                 // 실시간 필터 칩 바
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Row(
-                    children: List.generate(_filters.length, (i) {
-                      final isDark = i == _selectedFilter;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 240),
-                        margin: const EdgeInsets.only(right: 5),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 9, vertical: 4.5),
-                        decoration: BoxDecoration(
-                          color:
-                              isDark ? const Color(0xFF2B2118) : Colors.white,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF2B2118)
-                                : const Color(0xFFEFE3D0),
-                          ),
-                        ),
-                        child: Text(
-                          _filters[i],
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                ClipRect(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const NeverScrollableScrollPhysics(),
+                    child: Row(
+                      children: List.generate(_filters.length, (i) {
+                        final isDark = i == _selectedFilter;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 240),
+                          margin: const EdgeInsets.only(right: 5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 9, vertical: 4.5),
+                          decoration: BoxDecoration(
                             color:
-                                isDark ? Colors.white : const Color(0xFF7D6F5E),
+                                isDark ? const Color(0xFF2B2118) : Colors.white,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF2B2118)
+                                  : const Color(0xFFEFE3D0),
+                            ),
                           ),
-                        ),
-                      );
-                    }),
+                          child: Text(
+                            _filters[i],
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color:
+                                  isDark ? Colors.white : const Color(0xFF7D6F5E),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -1097,7 +1099,7 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends> {
                         coverPath: 'assets/images/cover_cafe.jpg',
                         badge: '공연·전시',
                         badgeColor: const Color(0xFF2FA98C),
-                        title: '성수 디올 & 미디어아트 전시 동행 🎨',
+                        title: '성수 디올 팝업 &\n미디어아트 전시 🎨',
                         placeAndMembers: '📍 성수동 · 4/6명',
                         hostAvatar: 'assets/images/시연.png',
                         hostName: '시연',
@@ -1111,7 +1113,7 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends> {
                         coverPath: 'assets/images/cover_salt_bread.jpg',
                         badge: 'SNS 맛집',
                         badgeColor: const Color(0xFFFF5C39),
-                        title: '성수 비건 베이커리 & 소금빵 투어 🥐',
+                        title: '성수 비건 베이커리\n& 소금빵 투어 🥐',
                         placeAndMembers: '📍 서울숲 · 3/4명',
                         hostAvatar: 'assets/images/민지.png',
                         hostName: '민지',
@@ -1129,7 +1131,7 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends> {
                         coverPath: 'assets/images/cover_food.jpg',
                         badge: '뮤지컬·콘서트',
                         badgeColor: const Color(0xFF2FA98C),
-                        title: '샤롯데씨어터 뮤지컬 관람 & 뒷풀이 🎭',
+                        title: '샤롯데씨어터 뮤지컬\n관람 & 뒷풀이 🎭',
                         placeAndMembers: '📍 잠실역 · 5/6명',
                         hostAvatar: 'assets/images/주아.png',
                         hostName: '주아',
@@ -1142,7 +1144,7 @@ class _OomuSlide2FriendsState extends State<OomuSlide2Friends> {
                         coverPath: 'assets/images/cover_running.jpg',
                         badge: '러닝 크루',
                         badgeColor: const Color(0xFFFF5C39),
-                        title: '반포 한강 야경 시티런 5km 모임 🏃',
+                        title: '반포 한강 야경\n5km 시티런 모임 🏃',
                         placeAndMembers: '📍 반포한강 · 6/8명',
                         hostAvatar: 'assets/images/정재.png',
                         hostName: '정재',
