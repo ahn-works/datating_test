@@ -1,9 +1,7 @@
 import '../services/kakao_map_service.dart';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 
 class LocationHelper {
   static String? _cachedDongName;
