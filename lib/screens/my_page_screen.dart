@@ -2,7 +2,6 @@ import 'login_screen.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/global_data.dart';
-import '../utils/app_image.dart';
 import '../utils/oomu_ui_helpers.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,6 +16,11 @@ import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
 import 'user_profile_screen.dart';
 import '../widgets/bouncy_tap.dart';
+import '../ui/oomu_tokens.dart';
+import '../ui/oomu_button.dart';
+import '../ui/oomu_tag.dart';
+import '../ui/oomu_avatar.dart';
+import '../ui/oomu_sheet.dart';
 
 class MyPageScreen extends StatefulWidget {
   final bool isEmbedded;
@@ -27,11 +31,11 @@ class MyPageScreen extends StatefulWidget {
 }
 
 class _MyPageScreenState extends State<MyPageScreen> {
-  final Color textPrimary = const Color(0xFF191F28);
-  final Color textSecondary = const Color(0xFF6B7684);
-  final Color surfaceColor = const Color(0xFFF7F8FA);
-  final Color accentColor = const Color(0xFFF25767);
-  final Color coralAccent = const Color(0xFFF25767);
+  final Color textPrimary = OomuTokens.textPrimary;
+  final Color textSecondary = OomuTokens.textSecondary;
+  final Color surfaceColor = OomuTokens.surface;
+  final Color accentColor = OomuTokens.coral;
+  final Color coralAccent = OomuTokens.coral;
 
   List<String> _parseSafeList(dynamic value, List<String> defaultValue) {
     if (value == null) return defaultValue;
@@ -963,29 +967,23 @@ class _MyPageScreenState extends State<MyPageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: OomuTokens.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFF7F8FA),
+        backgroundColor: OomuTokens.surface,
         elevation: 0,
-        title: Text('마이페이지',
+        title: const Text('마이페이지',
             style: TextStyle(
-                color: textPrimary, fontSize: 22, fontWeight: FontWeight.w700)),
+                color: OomuTokens.textPrimary,
+                fontSize: OomuTokens.fs22,
+                fontWeight: OomuTokens.w700)),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined, color: textSecondary),
+            icon: const Icon(Icons.settings_outlined, color: OomuTokens.textSecondary),
             tooltip: '설정',
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen()));
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.edit_outlined, color: accentColor),
-            tooltip: '프로필 수정',
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ProfileEditScreen()));
             },
           ),
         ],
@@ -1060,7 +1058,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       if (mbti.isNotEmpty) mbti,
                     ];
                     jobAndMbti = metaParts.isNotEmpty
-                        ? metaParts.join(' • ')
+                        ? metaParts.join(' · ')
                         : '프로필 정보 미설정';
                     final rawInterests =
                         _parseSafeList(data['interests'], <String>[]);
@@ -1182,21 +1180,16 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         ],
                       ),
                     ),
-                  // User Profile Card (Rich Style)
+                  // User Profile Card
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(OomuTokens.s20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0xFFEFE4E6)),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 16,
-                            offset: const Offset(0, 4))
-                      ],
+                      color: OomuTokens.surface,
+                      borderRadius: BorderRadius.circular(OomuTokens.r16),
+                      border: Border.all(color: OomuTokens.border),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -1207,19 +1200,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   ValueListenableBuilder<String>(
                                     valueListenable: globalData.userAvatar,
                                     builder: (context, avatar, _) {
-                                      return Container(
-                                        width: 76,
-                                        height: 76,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                              color: coralAccent.withValues(
-                                                  alpha: 0.4),
-                                              width: 2),
-                                          image: DecorationImage(
-                                              image: appImg(avatar),
-                                              fit: BoxFit.cover),
-                                        ),
+                                      return OomuAvatar(
+                                        radius: 36,
+                                        imageUrl: avatar,
                                       );
                                     },
                                   ),
@@ -1229,83 +1212,80 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
-                                          color: coralAccent,
-                                          shape: BoxShape.circle),
+                                        color: OomuTokens.textPrimary,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: OomuTokens.surface, width: 2),
+                                      ),
                                       child: const Icon(Icons.camera_alt,
-                                          size: 14, color: Colors.white),
+                                          size: 12, color: Colors.white),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: OomuTokens.s16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 6,
-                                    runSpacing: 4,
+                                  Row(
                                     children: [
-                                      Text(
-                                        nickname,
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w800,
-                                            color: textPrimary),
-                                        overflow: TextOverflow.ellipsis,
+                                      Flexible(
+                                        child: Text(
+                                          nickname,
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                              fontSize: OomuTokens.fs18,
+                                              fontWeight: OomuTokens.w700,
+                                              color: OomuTokens.textPrimary),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                      if (role == 'admin')
+                                      if (role == 'admin') ...[
+                                        const SizedBox(width: 6),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 3),
+                                              horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                                colors: [
-                                                  Color(0xFFF19E39),
-                                                  Color(0xFFF25767)
-                                                ]),
+                                            color: OomuTokens.background,
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                                BorderRadius.circular(OomuTokens.r8),
                                           ),
                                           child: const Text(
-                                            '👑 총괄 관리자',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                            '운영팀',
                                             style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w800),
+                                                color: OomuTokens.textSecondary,
+                                                fontSize: 11,
+                                                fontWeight: OomuTokens.w600),
                                           ),
                                         ),
+                                      ],
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 4),
                                   Text(jobAndMbti,
-                                      style: TextStyle(
-                                          color: accentColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700)),
+                                      style: const TextStyle(
+                                          color: OomuTokens.textSecondary,
+                                          fontSize: OomuTokens.fs12,
+                                          fontWeight: OomuTokens.w400)),
                                   const SizedBox(height: 4),
                                   ValueListenableBuilder<String>(
                                     valueListenable: globalData.userLocation,
                                     builder: (context, loc, _) {
+                                      final displayLoc =
+                                          loc.isNotEmpty ? loc : location;
                                       return Row(
                                         children: [
-                                          Icon(Icons.location_on,
-                                              size: 13, color: textSecondary),
+                                          const Icon(Icons.location_on,
+                                              size: 13, color: OomuTokens.textMuted),
                                           const SizedBox(width: 2),
                                           Flexible(
                                               child: Text(
-                                                  loc.isNotEmpty
-                                                      ? loc
-                                                      : location,
-                                                  style: TextStyle(
-                                                      color: textSecondary,
-                                                      fontSize: 13),
+                                                  displayLoc,
+                                                  style: const TextStyle(
+                                                      color: OomuTokens.textSecondary,
+                                                      fontSize: OomuTokens.fs12),
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis)),
@@ -1318,225 +1298,238 @@ class _MyPageScreenState extends State<MyPageScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 14),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: surfaceColor,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFFEFE4E6)),
-                          ),
-                          child: Text(
-                            '"$bio"',
-                            style: TextStyle(
-                                fontSize: 13.5,
-                                color: textSecondary,
-                                height: 1.5),
-                          ),
+                        const SizedBox(height: OomuTokens.s16),
+                        // 소개 (박스 없이 본문 14)
+                        Text(
+                          bio,
+                          style: const TextStyle(
+                              fontSize: OomuTokens.fs14,
+                              color: OomuTokens.textBody,
+                              height: 1.5),
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: OomuTokens.s16),
 
-                        // 명확한 '내 프로필 보기' & '프로필 수정' 액션 바 (역할 분리, 360px 및 2.0배 확대 대응)
+                        // 명확한 '내 프로필 보기' & '프로필 수정' 액션 바: 같은 폭의 Secondary 버튼 2개
                         Row(
                           children: [
                             Expanded(
                               child: Tooltip(
                                 message: '내 프로필 보기',
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => UserProfileScreen(
-                                          userName: nickname,
-                                          userAge: age > 0 ? '$age' : '',
-                                          userLocation: location,
-                                          userBio: bio,
-                                          userAvatar:
-                                              globalData.userAvatar.value,
-                                          userManner:
-                                              OomuUiHelpers.parseMannerValue(
-                                                  globalData.temperature.value),
-                                          userTags: hobbies.isNotEmpty
-                                              ? hobbies
-                                              : personalities,
-                                          userJob: job,
-                                          userMbti: mbti,
-                                          userDrinking: drinking,
-                                          userPhotos: userPhotos,
-                                          userGender: gender,
-                                          isSelf: true,
+                                child: SizedBox(
+                                  height: 48,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => UserProfileScreen(
+                                            userName: nickname,
+                                            userAge: age > 0 ? '' : '',
+                                            userLocation: location,
+                                            userBio: bio,
+                                            userAvatar:
+                                                globalData.userAvatar.value,
+                                            userManner:
+                                                OomuUiHelpers.parseMannerValue(
+                                                    globalData.temperature.value),
+                                            userTags: hobbies.isNotEmpty
+                                                ? hobbies
+                                                : personalities,
+                                            userJob: job,
+                                            userMbti: mbti,
+                                            userDrinking: drinking,
+                                            userPhotos: userPhotos,
+                                            userGender: gender,
+                                            isSelf: true,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: coralAccent,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12)),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 12),
-                                    minimumSize: const Size.fromHeight(48),
-                                  ),
-                                  icon: const Icon(Icons.visibility_outlined,
-                                      size: 16),
-                                  label: const Text(
-                                    '내 프로필 보기',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 13.5,
-                                        fontWeight: FontWeight.w700),
+                                      );
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                          color: OomuTokens.border),
+                                      backgroundColor: OomuTokens.surface,
+                                      foregroundColor: OomuTokens.textPrimary,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(OomuTokens.r12)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                    ),
+                                    child: const Text(
+                                      '내 프로필 보기',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: OomuTokens.fs14,
+                                          fontWeight: OomuTokens.w600,
+                                          color: OomuTokens.textPrimary),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: OomuTokens.s8),
                             Expanded(
                               child: Tooltip(
                                 message: '내 프로필 수정',
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                const ProfileEditScreen()));
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(
-                                        color: Color(0xFFE5E5EA)),
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: textPrimary,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12)),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 12),
-                                    minimumSize: const Size.fromHeight(48),
-                                  ),
-                                  icon: Icon(Icons.edit_outlined,
-                                      size: 15, color: textSecondary),
-                                  label: Text(
-                                    '프로필 수정',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 13.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: textPrimary),
+                                child: SizedBox(
+                                  height: 48,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const ProfileEditScreen()));
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                          color: OomuTokens.border),
+                                      backgroundColor: OomuTokens.surface,
+                                      foregroundColor: OomuTokens.textPrimary,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(OomuTokens.r12)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                    ),
+                                    child: const Text(
+                                      '프로필 수정',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: OomuTokens.fs14,
+                                          fontWeight: OomuTokens.w600,
+                                          color: OomuTokens.textPrimary),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: OomuTokens.s16),
 
-                        // OOMU Plus 멤버십 보조 영역 (버튼을 묻히지 않도록 슬림하게 배치)
-                        GestureDetector(
+                        // OOMU Plus 멤버십 보조 영역 (흰 카드의 한 줄 항목)
+                        InkWell(
                           onTap: () => _showOomuPlusModal(context),
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
                           child: Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
+                                horizontal: 14, vertical: 12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF232326),
-                              borderRadius: BorderRadius.circular(12),
+                              color: OomuTokens.background,
+                              borderRadius: BorderRadius.circular(OomuTokens.r12),
                             ),
-                            child: const Wrap(
-                              spacing: 10,
-                              runSpacing: 4,
-                              crossAxisAlignment: WrapCrossAlignment.center,
+                            child: const Row(
                               children: [
-                                Text(
-                                  'OOMU Plus',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
+                                Icon(Icons.workspace_premium_outlined,
+                                    color: OomuTokens.textSecondary, size: 20),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'OOMU Plus',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: OomuTokens.textPrimary,
+                                      fontWeight: OomuTokens.w700,
+                                      fontSize: OomuTokens.fs12,
+                                    ),
                                   ),
                                 ),
-                                Text(
-                                  '시크릿 프로필 · 무제한 탐색',
-                                  style: TextStyle(
-                                      color: Colors.white70, fontSize: 12),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '시크릿 프로필 · 무제한 탐색',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: OomuTokens.textSecondary,
+                                        fontSize: OomuTokens.fs12),
+                                  ),
                                 ),
-                                Text(
-                                  '혜택 보기 ›',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
-                                ),
+                                Icon(Icons.chevron_right,
+                                    size: 16, color: OomuTokens.textMuted),
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(height: 18),
-                        Container(height: 1, color: const Color(0xFFF1E6E8)),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                '나의 매너 온도',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: textPrimary,
-                                    fontSize: 14),
-                              ),
-                            ),
-                            Row(
+                        const SizedBox(height: OomuTokens.s20),
+                        const Divider(height: 1, color: OomuTokens.border),
+                        const SizedBox(height: OomuTokens.s16),
+
+                        // 매너온도 (숫자와 얇은 막대, 코랄 대신 진한 중립색)
+                        ValueListenableBuilder<double>(
+                          valueListenable: globalData.temperature,
+                          builder: (context, temp, _) {
+                            final manner = OomuUiHelpers.parseMannerValue(temp);
+                            final hasManner = manner != null;
+                            final progress = hasManner
+                                ? ((manner - 30.0) / 70.0).clamp(0.0, 1.0)
+                                : 0.0;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ValueListenableBuilder<double>(
-                                  valueListenable: globalData.temperature,
-                                  builder: (context, temp, _) => Text(
-                                    OomuUiHelpers.formatMannerTemp(
-                                        OomuUiHelpers.parseMannerValue(temp)),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18,
-                                        color: accentColor),
-                                  ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Flexible(
+                                      child: Text(
+                                        '나의 매너온도',
+                                        style: TextStyle(
+                                            fontWeight: OomuTokens.w600,
+                                            color: OomuTokens.textSecondary,
+                                            fontSize: OomuTokens.fs14),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      OomuUiHelpers.formatMannerTemp(manner),
+                                      style: const TextStyle(
+                                          fontWeight: OomuTokens.w700,
+                                          fontSize: OomuTokens.fs16,
+                                          color: OomuTokens.textPrimary),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 4),
-                                Icon(Icons.thermostat,
-                                    color: accentColor, size: 20),
+                                if (hasManner) ...[
+                                  const SizedBox(height: 8),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: LinearProgressIndicator(
+                                      value: progress,
+                                      minHeight: 4,
+                                      backgroundColor: OomuTokens.background,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                              OomuTokens.textPrimary),
+                                    ),
+                                  ),
+                                ],
                               ],
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: OomuTokens.s24),
 
-                  // 성향 및 라이프스타일 (OOMU 로즈 코랄 카드 스타일)
+                  // 성향 및 라이프스타일
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(OomuTokens.s20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                          color: const Color(0xFFF1E6E8), width: 1.2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: coralAccent.withValues(alpha: 0.04),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      color: OomuTokens.surface,
+                      borderRadius: BorderRadius.circular(OomuTokens.r16),
+                      border: Border.all(color: OomuTokens.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1544,181 +1537,101 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF0F2),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(Icons.auto_awesome,
-                                        color: coralAccent, size: 16),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      '성향 및 라이프스타일',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w800,
-                                          color: textPrimary),
-                                    ),
-                                  ),
-                                ],
+                            const Expanded(
+                              child: Text(
+                                '성향 및 라이프스타일',
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fs16,
+                                    fontWeight: OomuTokens.w700,
+                                    color: OomuTokens.textPrimary),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Tooltip(
                               message: '성향 및 라이프스타일 수정',
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r8),
                                 onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) =>
                                             const ProfileEditScreen())),
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                      minWidth: 48, minHeight: 48),
+                                child: const SizedBox(
+                                  width: 48,
+                                  height: 48,
                                   child: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF0F2),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                            color: const Color(0xFFF8C6CD)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.edit_outlined,
-                                              size: 13, color: coralAccent),
-                                          const SizedBox(width: 4),
-                                          Text('수정',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: coralAccent)),
-                                        ],
-                                      ),
-                                    ),
+                                    child: Icon(Icons.edit_outlined,
+                                        size: 18,
+                                        color: OomuTokens.textSecondary),
                                   ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 18),
-                        _buildLifestyleRow(
-                            '성격', '✨', personalities, coralAccent, textPrimary),
+                        const SizedBox(height: OomuTokens.s16),
+                        _buildLifestyleRow('성격', personalities),
                         if (drinking.isNotEmpty) ...[
-                          const SizedBox(height: 14),
-                          const Divider(height: 1, color: Color(0xFFF6ECEE)),
-                          const SizedBox(height: 14),
-                          _buildLifestyleRow('음주', '🍷', drinking,
-                              const Color(0xFF8B5CF6), textPrimary),
+                          const SizedBox(height: OomuTokens.s12),
+                          _buildLifestyleRow('음주', drinking),
                         ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: OomuTokens.s24),
 
                   if (hobbies.isNotEmpty) ...[
-                    Text('나의 관심사 / 취향',
+                    const Text('나의 관심사 / 취향',
                         style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: textPrimary)),
-                    const SizedBox(height: 16),
+                            fontSize: OomuTokens.fs16,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textPrimary)),
+                    const SizedBox(height: OomuTokens.s12),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6,
+                      runSpacing: 6,
                       children: hobbies
-                          .map((hobby) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: const Color(0xFFEFE4E6))),
-                                child: Text(hobby,
-                                    style: TextStyle(
-                                        color: textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13)),
-                              ))
+                          .map((hobby) => OomuTag(label: hobby))
                           .toList(),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: OomuTokens.s24),
                   ],
 
                   if (closeFriendPersonalities.isNotEmpty) ...[
-                    Text('찐친이랑 있을 때 내 성격 🤪',
+                    const Text('찐친이랑 있을 때 내 성격 🤪',
                         style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: textPrimary)),
-                    const SizedBox(height: 16),
+                            fontSize: OomuTokens.fs16,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textPrimary)),
+                    const SizedBox(height: OomuTokens.s12),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6,
+                      runSpacing: 6,
                       children: closeFriendPersonalities
-                          .map((p) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: const Color(0xFFEFE4E6))),
-                                child: Text(p.toString(),
-                                    style: TextStyle(
-                                        color: textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13)),
-                              ))
+                          .map((p) => OomuTag(label: p.toString()))
                           .toList(),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: OomuTokens.s24),
                   ],
 
                   if (values.isNotEmpty) ...[
-                    Text('내가 중요하게 생각하는 가치관 💎',
+                    const Text('내가 중요하게 생각하는 가치관 💎',
                         style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: textPrimary)),
-                    const SizedBox(height: 16),
+                            fontSize: OomuTokens.fs16,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textPrimary)),
+                    const SizedBox(height: OomuTokens.s12),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6,
+                      runSpacing: 6,
                       children: values
-                          .map((v) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: const Color(0xFFEFE4E6))),
-                                child: Text(v.toString(),
-                                    style: TextStyle(
-                                        color: textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13)),
-                              ))
+                          .map((v) => OomuTag(label: v.toString()))
                           .toList(),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: OomuTokens.s24),
                   ],
 
-                  // 설정 및 관리 Section
                   Text('설정 및 관리',
                       style: TextStyle(
                           fontSize: 18,
@@ -1862,96 +1775,31 @@ class _MyPageScreenState extends State<MyPageScreen> {
     );
   }
 
-  Widget _buildLifestyleRow(String label, String emoji, List<String> tags,
-      Color accent, Color textPrimary) {
-    if (tags.isEmpty) return const SizedBox.shrink();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          constraints: const BoxConstraints(minWidth: 66),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 12)),
-              const SizedBox(width: 3),
-              Text(label,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
-                      color: accent)),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: tags
-                .map((t) => Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF5F6),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: const Color(0xFFF9CCD4), width: 1.1),
-                      ),
-                      child: Text(
-                        '# $t',
-                        style: const TextStyle(
-                          color: Color(0xFFE11D48),
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ))
-                .toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(
-      String title, List<String> tags, Color surfaceColor, Color textPrimary) {
+  Widget _buildLifestyleRow(String label, List<String> tags) {
     if (tags.isEmpty) return const SizedBox.shrink();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-            width: 60,
-            child: Text(title,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: Color(0xFF767676),
-                    height: 1.5))),
+          width: 52,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: OomuTokens.fs12,
+                fontWeight: OomuTokens.w600,
+                color: OomuTokens.textSecondary,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
         Expanded(
           child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: tags
-                .map((t) => Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                          color: surfaceColor,
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Text(t,
-                          style: TextStyle(
-                              color: textPrimary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600)),
-                    ))
-                .toList(),
+            spacing: 6,
+            runSpacing: 6,
+            children: tags.map((t) => OomuTag(label: t)).toList(),
           ),
         ),
       ],
@@ -1959,114 +1807,114 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   void _showOomuPlusModal(BuildContext context) {
-    showModalBottomSheet(
+    OomuSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        height: MediaQuery.of(context).size.height * 0.65,
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 30),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
+      builder: (ctx) => OomuSheet(
+        title: 'OOMU Plus 멤버십',
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              padding: const EdgeInsets.all(OomuTokens.s16),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                    colors: [Color(0xFF333333), Color(0xFF111111)]),
-                borderRadius: BorderRadius.circular(20),
+                color: OomuTokens.surfaceMuted,
+                borderRadius: BorderRadius.circular(OomuTokens.r12),
+                border: Border.all(color: OomuTokens.border),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.star, color: Color(0xFFF19E39), size: 36),
-                  SizedBox(width: 14),
+                  Icon(Icons.workspace_premium_outlined,
+                      color: OomuTokens.textPrimary, size: 28),
+                  SizedBox(width: OomuTokens.s12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('OOMU Plus 멤버십',
-                          style: TextStyle(
-                              color: Color(0xFFF19E39),
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18,
-                              fontStyle: FontStyle.italic)),
-                      SizedBox(height: 4),
-                      Text('나만의 특별한 동네 라이프스타일',
-                          style:
-                              TextStyle(color: Colors.white70, fontSize: 13)),
+                      Text(
+                        'OOMU Plus',
+                        style: TextStyle(
+                          color: OomuTokens.textPrimary,
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs16,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        '나만의 특별한 동네 라이프스타일',
+                        style: TextStyle(
+                          color: OomuTokens.textSecondary,
+                          fontSize: OomuTokens.fs12,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: const [
-                  ListTile(
-                    leading: Icon(Icons.visibility_outlined,
-                        color: Color(0xFFF25767)),
-                    title: Text('시크릿 프로필 무제한 열람',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text('내 프로필을 열람한 사람을 실시간 확인',
-                        style:
-                            TextStyle(fontSize: 12, color: Color(0xFF767676))),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.favorite, color: Color(0xFFF25767)),
-                    title: Text('매일 슈퍼라이크 5개 증정',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text('더 빠르고 확실한 호감 매칭',
-                        style:
-                            TextStyle(fontSize: 12, color: Color(0xFF767676))),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.bolt, color: Color(0xFFF19E39)),
-                    title: Text('실시간 번개 우선 노출',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text('내가 주최한 번개 모임이 동네 상단에 고정',
-                        style:
-                            TextStyle(fontSize: 12, color: Color(0xFF767676))),
-                  ),
-                ],
+            const SizedBox(height: OomuTokens.s16),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(Icons.visibility_outlined,
+                  color: OomuTokens.textSecondary),
+              title: Text(
+                '시크릿 프로필 무제한 열람',
+                style: TextStyle(
+                    fontWeight: OomuTokens.w600,
+                    fontSize: OomuTokens.fs14,
+                    color: OomuTokens.textPrimary),
+              ),
+              subtitle: Text(
+                '내 프로필을 열람한 사람을 실시간 확인',
+                style: TextStyle(
+                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: coralAccent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                ),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('🎉 OOMU Plus 7일 무료 체험이 활성화되었습니다!')),
-                  );
-                },
-                child: const Text('7일 무료 체험 시작하기',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold)),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(Icons.favorite_outline,
+                  color: OomuTokens.textSecondary),
+              title: Text(
+                '매일 슈퍼라이크 5개 증정',
+                style: TextStyle(
+                    fontWeight: OomuTokens.w600,
+                    fontSize: OomuTokens.fs14,
+                    color: OomuTokens.textPrimary),
+              ),
+              subtitle: Text(
+                '더 빠르고 확실한 호감 매칭',
+                style: TextStyle(
+                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
               ),
             ),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading:
+                  Icon(Icons.bolt_outlined, color: OomuTokens.textSecondary),
+              title: Text(
+                '실시간 번개 우선 노출',
+                style: TextStyle(
+                    fontWeight: OomuTokens.w600,
+                    fontSize: OomuTokens.fs14,
+                    color: OomuTokens.textPrimary),
+              ),
+              subtitle: Text(
+                '내가 주최한 번개 모임이 동네 상단에 고정',
+                style: TextStyle(
+                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
+              ),
+            ),
+            const SizedBox(height: OomuTokens.s20),
+            OomuButton(
+              label: '7일 무료 체험 시작하기',
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('🎉 OOMU Plus 7일 무료 체험이 활성화되었습니다!')),
+                );
+              },
+            ),
+            const SizedBox(height: OomuTokens.s12),
           ],
         ),
       ),
@@ -2081,18 +1929,24 @@ class _MyPageScreenState extends State<MyPageScreen> {
     required Color textPrimary,
     required VoidCallback onTap,
   }) {
+    final showBadge = badge != null &&
+        badge != '0' &&
+        badge != '0개' &&
+        badge != '0명' &&
+        !badge.startsWith('0');
+
     return BouncyTap(
       scaleDown: 0.98,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (iconColor ?? textPrimary).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                color: (iconColor ?? textPrimary).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(OomuTokens.r8),
               ),
               child: Icon(icon, color: iconColor ?? textPrimary, size: 20),
             ),
@@ -2100,29 +1954,34 @@ class _MyPageScreenState extends State<MyPageScreen> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: textPrimary,
-                    height: 1.3),
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs14,
+                  fontWeight: OomuTokens.w600,
+                  color: OomuTokens.textPrimary,
+                  height: 1.3,
+                ),
               ),
             ),
             const SizedBox(width: 8),
-            if (badge != null)
+            if (showBadge)
               Container(
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                    color: coralAccent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Text(badge,
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: coralAccent)),
+                  color: OomuTokens.background,
+                  borderRadius: BorderRadius.circular(OomuTokens.r8),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    fontWeight: OomuTokens.w600,
+                    color: OomuTokens.textSecondary,
+                  ),
+                ),
               ),
             const Icon(Icons.arrow_forward_ios,
-                size: 15, color: Color(0xFFB9ADB0)),
+                size: 14, color: OomuTokens.textMuted),
           ],
         ),
       ),
@@ -2133,15 +1992,15 @@ class _MyPageScreenState extends State<MyPageScreen> {
     return BottomNavigationBar(
       currentIndex: 4,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: coralAccent,
-      unselectedItemColor: const Color(0xFF767676),
+      selectedItemColor: OomuTokens.coral,
+      unselectedItemColor: OomuTokens.textSecondary,
       showUnselectedLabels: true,
       selectedLabelStyle:
-          const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+          const TextStyle(fontWeight: OomuTokens.w700, fontSize: 11),
       unselectedLabelStyle:
-          const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
-      elevation: 20,
-      backgroundColor: Colors.white,
+          const TextStyle(fontWeight: OomuTokens.w400, fontSize: 11),
+      elevation: 0,
+      backgroundColor: OomuTokens.surface,
       onTap: (index) {
         if (index <= 2) {
           Navigator.pushReplacement(

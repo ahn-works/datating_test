@@ -6,6 +6,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/soso_car_home_screen.dart';
 import 'screens/soso_car_detail_screen.dart';
+import 'screens/my_page_screen.dart';
+import 'screens/user_profile_screen.dart';
+import 'screens/profile_edit_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
@@ -91,6 +94,9 @@ class Spot10App extends StatelessWidget {
           final isHome = uri.queryParameters['home'] == 'true' || uri.fragment.contains('home=true');
           final isGallery = uri.queryParameters['gallery'] == 'true' || uri.fragment.contains('gallery=true');
           final isDetail = uri.queryParameters['detail'] == 'true' || uri.fragment.contains('detail=true');
+          final isMy = uri.queryParameters['my'] == 'true' || uri.fragment.contains('my=true');
+          final isProfile = uri.queryParameters['profile'] == 'true' || uri.fragment.contains('profile=true');
+          final isEdit = uri.queryParameters['edit'] == 'true' || uri.fragment.contains('edit=true');
 
           if (isGallery) {
             return const OomuComponentGallery();
@@ -98,6 +104,18 @@ class Spot10App extends StatelessWidget {
           if (isHome) {
             globalData.switchUser('guest');
             return const OOMUHomeScreen();
+          }
+          if (isMy) {
+            globalData.switchUser('guest');
+            return const MyPageScreen();
+          }
+          if (isProfile) {
+            globalData.switchUser('guest');
+            return const UserProfileScreen(userName: '김민서');
+          }
+          if (isEdit) {
+            globalData.switchUser('guest');
+            return const ProfileEditScreen();
           }
           if (isDetail) {
             globalData.switchUser('guest');

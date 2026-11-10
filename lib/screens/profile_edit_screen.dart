@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
 import '../services/r2_storage_service.dart';
+import '../ui/oomu_tokens.dart';
+import '../ui/oomu_button.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -14,10 +16,10 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  final Color textPrimary = const Color(0xFF111111);
-  final Color textSecondary = const Color(0xFF767676);
-  final Color surfaceColor = const Color(0xFFF8FAFC);
-  final Color accentColor = const Color(0xFFF25767);
+  final Color textPrimary = OomuTokens.textPrimary;
+  final Color textSecondary = OomuTokens.textSecondary;
+  final Color surfaceColor = OomuTokens.surface;
+  final Color accentColor = OomuTokens.coral;
 
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -458,10 +460,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: textSecondary)),
+            style: const TextStyle(
+                fontWeight: OomuTokens.w700,
+                fontSize: OomuTokens.fs14,
+                color: OomuTokens.textPrimary)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -469,22 +471,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           keyboardType: keyboardType,
           textInputAction: textInputAction ??
               (maxLines > 1 ? TextInputAction.newline : TextInputAction.next),
-          style: TextStyle(
-              fontSize: 16, color: textPrimary, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+              fontSize: OomuTokens.fs16,
+              color: OomuTokens.textPrimary,
+              fontWeight: OomuTokens.w600),
           decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
             hintText: hint,
             hintStyle: const TextStyle(
-                color: Color(0xFFC7C7CC),
-                fontSize: 15,
-                fontWeight: FontWeight.normal),
-            fillColor: surfaceColor,
+                color: OomuTokens.textMuted,
+                fontSize: OomuTokens.fs14,
+                fontWeight: OomuTokens.w400),
+            fillColor: OomuTokens.surfaceMuted,
             filled: true,
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none),
+                borderRadius: BorderRadius.circular(OomuTokens.r12),
+                borderSide: const BorderSide(color: OomuTokens.border)),
+            enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(OomuTokens.r12),
+                borderSide: const BorderSide(color: OomuTokens.border)),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: accentColor, width: 2)),
+                borderRadius: BorderRadius.circular(OomuTokens.r12),
+                borderSide:
+                    const BorderSide(color: OomuTokens.coral, width: 1.5)),
           ),
         ),
         const SizedBox(height: 20),
@@ -496,11 +506,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('성별',
+        const Text('성별',
             style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: textSecondary)),
+                fontWeight: OomuTokens.w700,
+                fontSize: OomuTokens.fs14,
+                color: OomuTokens.textPrimary)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -511,24 +521,24 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   setState(() => _gender = '여성');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  height: 52,
                   decoration: BoxDecoration(
                     color: _gender == '여성'
-                        ? const Color(0xFFF25767)
-                        : surfaceColor,
-                    borderRadius: BorderRadius.circular(14),
+                        ? OomuTokens.coral
+                        : OomuTokens.surfaceMuted,
+                    borderRadius: BorderRadius.circular(OomuTokens.r12),
                     border: Border.all(
                         color: _gender == '여성'
-                            ? const Color(0xFFF25767)
-                            : const Color(0xFFEBEBEF)),
+                            ? OomuTokens.coral
+                            : OomuTokens.border),
                   ),
                   child: Center(
                     child: Text(
                       '👩 여성',
                       style: TextStyle(
-                        color: _gender == '여성' ? Colors.white : textPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        color: _gender == '여성' ? Colors.white : OomuTokens.textPrimary,
+                        fontWeight: OomuTokens.w700,
+                        fontSize: OomuTokens.fs14,
                       ),
                     ),
                   ),
@@ -543,24 +553,24 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   setState(() => _gender = '남성');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  height: 52,
                   decoration: BoxDecoration(
                     color: _gender == '남성'
-                        ? const Color(0xFF4A90E2)
-                        : surfaceColor,
-                    borderRadius: BorderRadius.circular(14),
+                        ? OomuTokens.textPrimary
+                        : OomuTokens.surfaceMuted,
+                    borderRadius: BorderRadius.circular(OomuTokens.r12),
                     border: Border.all(
                         color: _gender == '남성'
-                            ? const Color(0xFF4A90E2)
-                            : const Color(0xFFEBEBEF)),
+                            ? OomuTokens.textPrimary
+                            : OomuTokens.border),
                   ),
                   child: Center(
                     child: Text(
                       '👨 남성',
                       style: TextStyle(
-                        color: _gender == '남성' ? Colors.white : textPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        color: _gender == '남성' ? Colors.white : OomuTokens.textPrimary,
+                        fontWeight: OomuTokens.w700,
+                        fontSize: OomuTokens.fs14,
                       ),
                     ),
                   ),
@@ -580,14 +590,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title,
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: textSecondary)),
+            style: const TextStyle(
+                fontWeight: OomuTokens.w700,
+                fontSize: OomuTokens.fs14,
+                color: OomuTokens.textPrimary)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
-          runSpacing: 12,
+          runSpacing: 10,
           children: available.map((item) {
             final isSelected = selected.contains(item);
             return GestureDetector(
@@ -602,28 +612,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               },
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? accentColor : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: isSelected ? OomuTokens.coral : OomuTokens.surfaceMuted,
+                  borderRadius: BorderRadius.circular(OomuTokens.r12),
                   border: Border.all(
                       color:
-                          isSelected ? accentColor : const Color(0xFFEBEBEF)),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                              color: accentColor.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3))
-                        ]
-                      : [],
+                          isSelected ? OomuTokens.coral : OomuTokens.border),
                 ),
                 child: Text(item,
                     style: TextStyle(
-                        color: isSelected ? Colors.white : textPrimary,
+                        color: isSelected ? Colors.white : OomuTokens.textPrimary,
                         fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.w500,
-                        fontSize: 14)),
+                            isSelected ? OomuTokens.w700 : OomuTokens.w600,
+                        fontSize: OomuTokens.fs14)),
               ),
             );
           }).toList(),
@@ -783,29 +785,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: SizedBox(
-            height: 56,
-            child: ElevatedButton(
-              onPressed: _isSaving ? null : _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: accentColor,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-              ),
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2))
-                  : const Text('저장하기',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
-            ),
+          padding: EdgeInsets.fromLTRB(
+            OomuTokens.s20,
+            OomuTokens.s8,
+            OomuTokens.s20,
+            MediaQuery.of(context).viewInsets.bottom + OomuTokens.s12,
+          ),
+          child: OomuButton(
+            label: '저장하기',
+            isLoading: _isSaving,
+            onPressed: _isSaving ? null : _saveProfile,
           ),
         ),
       ),

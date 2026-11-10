@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
+import '../ui/oomu_tokens.dart';
+import '../ui/oomu_button.dart';
+import '../ui/oomu_tag.dart';
+import 'chat_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final String userName;
@@ -165,11 +169,6 @@ class UserProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color textPrimary = OomuUiHelpers.textPrimary;
-    const Color textSecondary = OomuUiHelpers.textSecondary;
-    const Color surfaceColor = OomuUiHelpers.backgroundNeutral;
-    const Color accentColor = OomuUiHelpers.brandCoral;
-
     // 3인 페르소나 데이터 사전 정의
     final personaMap = {
       '김민서': {
@@ -213,7 +212,6 @@ class UserProfileScreen extends StatelessWidget {
         'assets/images/민지.png';
     final double? displayManner =
         userManner ?? OomuUiHelpers.parseMannerValue(resolvedData['manner']);
-    final Color mannerColor = OomuUiHelpers.mannerTempColor(displayManner);
     final displayJob = (userJob != null && userJob!.isNotEmpty)
         ? userJob!
         : ((resolvedData['job'] as String?) ?? '');
@@ -296,74 +294,17 @@ class UserProfileScreen extends StatelessWidget {
                           children: [
                             Text(userName,
                                 style: const TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.w800,
+                                    fontSize: 28,
+                                    fontWeight: OomuTokens.w700,
                                     color: Colors.white)),
-                            Text(displayAge,
-                                style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.white)),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                  color: accentColor,
-                                  borderRadius: BorderRadius.circular(6)),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.verified,
-                                      color: Colors.white, size: 12),
-                                  SizedBox(width: 4),
-                                  Text('본명인증',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFF4A90E2),
-                                  borderRadius: BorderRadius.circular(6)),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.work,
-                                      color: Colors.white, size: 12),
-                                  SizedBox(width: 4),
-                                  Text('N사 재직',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFF34C759),
-                                  borderRadius: BorderRadius.circular(6)),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.school,
-                                      color: Colors.white, size: 12),
-                                  SizedBox(width: 4),
-                                  Text('홍대졸업',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
+                            if (displayAge.isNotEmpty)
+                              Text('$displayAge세',
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: OomuTokens.w400,
+                                      color: Colors.white70)),
+                            const Icon(Icons.verified,
+                                color: OomuTokens.coral, size: 20),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -422,128 +363,111 @@ class UserProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFEBEBEF)),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4))
-                      ],
+                      color: OomuTokens.surface,
+                      borderRadius: BorderRadius.circular(OomuTokens.r16),
+                      border: Border.all(color: OomuTokens.border),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('매너 온도',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: textPrimary,
-                                fontSize: 16)),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            const Text('매너 온도',
+                                style: TextStyle(
+                                    fontWeight: OomuTokens.w700,
+                                    color: OomuTokens.textPrimary,
+                                    fontSize: OomuTokens.fs16)),
                             Text(
                               OomuUiHelpers.formatMannerTemp(displayManner,
                                   shortEmpty: false),
                               style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: displayManner == null ? 14 : 18,
-                                color: mannerColor,
+                                fontWeight: OomuTokens.w700,
+                                fontSize: displayManner == null
+                                    ? OomuTokens.fs14
+                                    : OomuTokens.fs18,
+                                color: displayManner == null
+                                    ? OomuTokens.textMuted
+                                    : OomuTokens.textPrimary,
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            Icon(Icons.thermostat,
-                                color: mannerColor, size: 20),
                           ],
                         ),
+                        if (displayManner != null) ...[
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: ((displayManner - 30.0) / 70.0)
+                                  .clamp(0.0, 1.0),
+                              minHeight: 4,
+                              backgroundColor: OomuTokens.background,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  OomuTokens.textPrimary),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: OomuTokens.s24),
 
-                  // Basic Profile Info Tags (Social App Style)
-                  Text('기본 정보',
+                  // Basic Profile Info Tags
+                  const Text('기본 정보',
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: textPrimary)),
-                  const SizedBox(height: 16),
+                          fontSize: OomuTokens.fs16,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary)),
+                  const SizedBox(height: 12),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 12,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
-                      if (displayJob.isNotEmpty)
-                        _buildProfileTag(
-                            '💼', displayJob, surfaceColor, textPrimary),
-                      if (displayMbti.isNotEmpty)
-                        _buildProfileTag(
-                            '🎨', displayMbti, surfaceColor, textPrimary),
+                      if (displayJob.isNotEmpty) OomuTag(label: '💼 $displayJob'),
+                      if (displayMbti.isNotEmpty) OomuTag(label: '🎨 $displayMbti'),
                       if (userDrinking != null && userDrinking!.isNotEmpty)
-                        _buildProfileTag('🍻', userDrinking!.join(', '),
-                            surfaceColor, textPrimary)
+                        OomuTag(label: '🍻 ${userDrinking!.join(", ")}')
                       else
-                        _buildProfileTag(
-                            '🍻', '가볍게 한잔', surfaceColor, textPrimary),
+                        const OomuTag(label: '🍻 가볍게 한잔'),
                       if (displayAge.isNotEmpty)
-                        _buildProfileTag(
-                            '🎂', '${displayAge}세', surfaceColor, textPrimary),
+                        OomuTag(label: '🎂 $displayAge세'),
                       if (userGender != null && userGender!.isNotEmpty)
-                        _buildProfileTag(
-                            '👤', userGender!, surfaceColor, textPrimary),
-                      _buildProfileTag('🚭', '비흡연', surfaceColor, textPrimary),
-                      _buildProfileTag(
-                          '🐶', '반려동물 있음', surfaceColor, textPrimary),
+                        OomuTag(label: '👤 ${userGender!}'),
+                      const OomuTag(label: '🚭 비흡연'),
+                      const OomuTag(label: '🐶 반려동물 있음'),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: OomuTokens.s24),
 
-                  // Prompts (Self Interview - Hinge Style)
-                  Text('나의 이야기',
+                  // Prompts (Self Interview)
+                  const Text('나의 이야기',
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: textPrimary)),
-                  const SizedBox(height: 16),
-                  _buildPromptCard('쉬는 날에는 주로...', displayBio, surfaceColor,
-                      textPrimary, accentColor),
+                          fontSize: OomuTokens.fs16,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary)),
+                  const SizedBox(height: 12),
+                  _buildPromptCard('쉬는 날에는 주로...', displayBio),
                   const SizedBox(height: 12),
                   _buildPromptCard(
                       '내가 찾고 있는 사람은...',
-                      '서로 긍정적인 에너지를 주고받을 수 있는 사람! 티키타카가 잘 맞으면 좋겠어요.',
-                      surfaceColor,
-                      textPrimary,
-                      accentColor),
-                  const SizedBox(height: 40),
+                      '서로 긍정적인 에너지를 주고받을 수 있는 사람! 티키타카가 잘 맞으면 좋겠어요.'),
+                  const SizedBox(height: OomuTokens.s24),
 
                   // Interests
-                  Text('관심사 / 취향',
+                  const Text('관심사 / 취향',
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: textPrimary)),
-                  const SizedBox(height: 16),
+                          fontSize: OomuTokens.fs16,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary)),
+                  const SizedBox(height: 12),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 10,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: displayTags
-                        .map((hobby) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border:
-                                    Border.all(color: const Color(0xFFEBEBEF)),
-                              ),
-                              child: Text(hobby,
-                                  style: TextStyle(
-                                      color: textPrimary,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14)),
-                            ))
+                        .map((hobby) => OomuTag(label: hobby))
                         .toList(),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: OomuTokens.s32),
                 ],
               ),
             ),
@@ -552,137 +476,53 @@ class UserProfileScreen extends StatelessWidget {
       ),
       // Sticky Bottom Action Bar
       bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5))
-            ],
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: OomuTokens.s20, vertical: OomuTokens.s12),
           child: isSelf
-              ? SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Text('프로필 닫기',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
-                  ),
+              ? OomuButton.secondary(
+                  label: '프로필 닫기',
+                  onPressed: () => Navigator.pop(context),
                 )
-              : Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(
-                              color: Color(0xFFEBEBEF), width: 1.5),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child:
-                            Icon(Icons.close, color: textSecondary, size: 28),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 3,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('호감을 보냈습니다!')));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.favorite, color: Colors.white, size: 24),
-                            SizedBox(width: 8),
-                            Text('호감 보내기',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+              : OomuButton(
+                  label: '대화 시작하기',
+                  icon: Icons.chat_bubble_outline,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const ChatScreen()),
+                    );
+                  },
                 ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileTag(
-      String emoji, String text, Color surfaceColor, Color textPrimary) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 6),
-          Text(text,
-              style: TextStyle(
-                  color: textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromptCard(String question, String answer, Color surfaceColor,
-      Color textPrimary, Color accentColor) {
+  Widget _buildPromptCard(String question, String answer) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(OomuTokens.s16),
       decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(20),
+        color: OomuTokens.surfaceMuted,
+        borderRadius: BorderRadius.circular(OomuTokens.r12),
+        border: Border.all(color: OomuTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(question,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: accentColor)),
-          const SizedBox(height: 12),
+              style: const TextStyle(
+                  fontSize: OomuTokens.fs12,
+                  fontWeight: OomuTokens.w700,
+                  color: OomuTokens.coralText)),
+          const SizedBox(height: 8),
           Text(answer,
-              style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: textPrimary,
+              style: const TextStyle(
+                  fontSize: OomuTokens.fs14,
+                  fontWeight: OomuTokens.w400,
+                  color: OomuTokens.textPrimary,
                   height: 1.5)),
         ],
       ),
