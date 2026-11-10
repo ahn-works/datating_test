@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+
 import '../services/chat_repository.dart';
-import '../utils/app_image.dart';
+import '../ui/oomu_avatar.dart';
+import '../ui/oomu_empty_state.dart';
+import '../ui/oomu_tokens.dart';
 import 'soso_car_chat_screen.dart';
 import 'soso_car_home_screen.dart';
 
@@ -9,6 +12,7 @@ class ChatScreen extends StatefulWidget {
   final bool isEmbedded;
   final VoidCallback? onExplore;
   final ChatRepository? repository;
+
   const ChatScreen({
     super.key,
     this.isEmbedded = false,
@@ -21,16 +25,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  // store_assets/OOMU 앱 UI 디자인.html (#chatlist) 컬러 토큰
-  static const Color _bgCream = Color(0xFFFFF9F2);
-  static const Color _textEspresso = Color(0xFF2B2118);
-  static const Color _textMuted = Color(0xFF7D6F5E);
-  static const Color _textFaint = Color(0xFFA99A87);
-  static const Color _surfaceSearch = Color(0xFFF5EFE3);
-  static const Color _borderWarm = Color(0xFFF3EADC);
-  static const Color _primaryCoral = Color(0xFFFF5C39);
-  static const Color _onlineTeal = Color(0xFF2FA98C);
-
   late final ChatRepository _repo;
   StreamSubscription<String?>? _session;
   Stream<List<ChatData>>? _rooms;
@@ -82,82 +76,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _notice(String title, String body, {bool retry = false}) => Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(28),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFFF0E6D4)),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF4A3014).withValues(alpha: 0.05),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFECE5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 26,
-                    color: _primaryCoral,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 17.5,
-                    fontWeight: FontWeight.w800,
-                    color: _textEspresso,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  body,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                    color: _textMuted,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  height: 46,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _primaryCoral,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 22),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: retry ? () => setState(_bind) : _explore,
-                    child: Text(
-                      retry ? '다시 불러오기' : '동네 모임 둘러보기',
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.all(OomuTokens.s20),
+          child: OomuEmptyState(
+            icon: Icons.chat_bubble_outline_rounded,
+            title: title,
+            subtitle: body,
+            buttonLabel: retry ? '다시 불러오기' : '동네 모임 둘러보기',
+            onButtonPressed: retry ? () => setState(_bind) : _explore,
           ),
         ),
       );
@@ -165,27 +90,28 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgCream,
+      backgroundColor: OomuTokens.background,
       appBar: AppBar(
-        backgroundColor: _bgCream,
+        backgroundColor: OomuTokens.surface,
         surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         elevation: 0,
         automaticallyImplyLeading: !widget.isEmbedded,
-        titleSpacing: 20,
+        titleSpacing: OomuTokens.s20,
         title: const Text(
           '채팅',
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+            fontSize: OomuTokens.fs22,
+            fontWeight: OomuTokens.w700,
             letterSpacing: -0.4,
-            color: _textEspresso,
+            color: OomuTokens.textPrimary,
           ),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: OomuTokens.s16),
             child: InkWell(
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(OomuTokens.rPill),
               onTap: () => setState(() {
                 _searching = !_searching;
                 _search = '';
@@ -196,13 +122,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   width: 38,
                   height: 38,
                   decoration: const BoxDecoration(
-                    color: _surfaceSearch,
+                    color: OomuTokens.surfaceMuted,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     _searching ? Icons.close_rounded : Icons.search_rounded,
                     size: 19,
-                    color: _textEspresso,
+                    color: OomuTokens.textPrimary,
                   ),
                 ),
               ),
@@ -212,42 +138,45 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // .chat-search (store_assets/OOMU 앱 UI 디자인.html #chatlist 1:1 재현)
+          // Search Input Bar
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            padding: const EdgeInsets.fromLTRB(
+              OomuTokens.s20,
+              OomuTokens.s8,
+              OomuTokens.s20,
+              OomuTokens.s12,
+            ),
             child: _searching
                 ? Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s12),
                     decoration: BoxDecoration(
-                      color: _surfaceSearch,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: _primaryCoral.withValues(alpha: 0.45),
-                      ),
+                      color: OomuTokens.surface,
+                      borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                      border: Border.all(color: OomuTokens.coral),
                     ),
                     child: Row(
                       children: [
                         const Icon(
                           Icons.search_rounded,
                           size: 18,
-                          color: _primaryCoral,
+                          color: OomuTokens.coral,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: OomuTokens.s8),
                         Expanded(
                           child: TextField(
                             autofocus: true,
                             onChanged: (value) =>
                                 setState(() => _search = value.trim()),
                             style: const TextStyle(
-                              fontSize: 13.5,
-                              color: _textEspresso,
+                              fontSize: OomuTokens.fs14,
+                              color: OomuTokens.textPrimary,
                             ),
                             decoration: const InputDecoration(
                               hintText: '채팅방 · 이웃 검색',
                               hintStyle: TextStyle(
-                                fontSize: 13.5,
-                                color: _textFaint,
+                                fontSize: OomuTokens.fs14,
+                                color: OomuTokens.textMuted,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -260,25 +189,26 @@ class _ChatScreenState extends State<ChatScreen> {
                 : GestureDetector(
                     onTap: () => setState(() => _searching = true),
                     child: Container(
-                      height: 42,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s12),
                       decoration: BoxDecoration(
-                        color: _surfaceSearch,
-                        borderRadius: BorderRadius.circular(999),
+                        color: OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                        border: Border.all(color: OomuTokens.border),
                       ),
                       child: const Row(
                         children: [
                           Icon(
                             Icons.search_rounded,
-                            size: 17,
-                            color: _textFaint,
+                            size: 18,
+                            color: OomuTokens.textMuted,
                           ),
-                          SizedBox(width: 8),
+                          SizedBox(width: OomuTokens.s8),
                           Text(
                             '채팅방 · 이웃 검색',
                             style: TextStyle(
-                              fontSize: 13.5,
-                              color: _textFaint,
+                              fontSize: OomuTokens.fs14,
+                              color: OomuTokens.textMuted,
                             ),
                           ),
                         ],
@@ -306,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
                       if (!snapshot.hasData) {
                         return const Center(
-                          child: CircularProgressIndicator(color: _primaryCoral),
+                          child: CircularProgressIndicator(color: OomuTokens.coral),
                         );
                       }
                       final rooms = snapshot.data!
@@ -330,13 +260,18 @@ class _ChatScreenState extends State<ChatScreen> {
                       final firstId = (firstRoom['id'] ?? '').toString();
 
                       return ListView(
-                        padding: const EdgeInsets.only(bottom: 24),
+                        padding: const EdgeInsets.only(bottom: OomuTokens.s24),
                         children: [
-                          // .meet-banner (다가오는 모임 코랄 그라데이션 배너)
+                          // 다가오는 모임 카드 (정돈된 단일 스타일)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+                            padding: const EdgeInsets.fromLTRB(
+                              OomuTokens.s20,
+                              0,
+                              OomuTokens.s20,
+                              OomuTokens.s12,
+                            ),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(18),
+                              borderRadius: BorderRadius.circular(OomuTokens.r16),
                               onTap: firstId.isEmpty
                                   ? null
                                   : () => Navigator.push(
@@ -351,46 +286,29 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                       ),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
+                                padding: const EdgeInsets.all(OomuTokens.s16),
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFF7A55),
-                                      Color(0xFFFF5C39),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          _primaryCoral.withValues(alpha: 0.25),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
+                                  color: OomuTokens.surface,
+                                  borderRadius: BorderRadius.circular(OomuTokens.r16),
+                                  border: Border.all(color: OomuTokens.border),
                                 ),
                                 child: Row(
                                   children: [
                                     Container(
-                                      width: 42,
-                                      height: 42,
+                                      width: 44,
+                                      height: 44,
                                       decoration: BoxDecoration(
-                                        color:
-                                            Colors.white.withValues(alpha: 0.22),
-                                        borderRadius: BorderRadius.circular(13),
+                                        color: OomuTokens.surfaceMuted,
+                                        borderRadius:
+                                            BorderRadius.circular(OomuTokens.r12),
                                       ),
                                       child: const Icon(
-                                        Icons.wine_bar_rounded,
-                                        color: Colors.white,
+                                        Icons.groups_rounded,
+                                        color: OomuTokens.coral,
                                         size: 22,
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
+                                    const SizedBox(width: OomuTokens.s12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -399,9 +317,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                           const Text(
                                             '다가오는 모임 · 실시간 모임톡',
                                             style: TextStyle(
-                                              fontSize: 13.5,
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.white,
+                                              fontSize: OomuTokens.fs14,
+                                              fontWeight: OomuTokens.w700,
+                                              color: OomuTokens.textPrimary,
                                             ),
                                           ),
                                           const SizedBox(height: 2),
@@ -409,10 +327,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                             '$firstTitle · 멤버 $firstMembers명',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white
-                                                  .withValues(alpha: 0.90),
+                                            style: const TextStyle(
+                                              fontSize: OomuTokens.fs12,
+                                              color: OomuTokens.textSecondary,
                                             ),
                                           ),
                                         ],
@@ -420,7 +337,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     ),
                                     const Icon(
                                       Icons.chevron_right_rounded,
-                                      color: Colors.white,
+                                      color: OomuTokens.textMuted,
                                       size: 20,
                                     ),
                                   ],
@@ -429,21 +346,26 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
 
-                          // .list-label ("전체 대화")
+                          // 전체 대화 레이블
                           const Padding(
-                            padding: EdgeInsets.fromLTRB(22, 4, 22, 6),
+                            padding: EdgeInsets.fromLTRB(
+                              OomuTokens.s20,
+                              OomuTokens.s8,
+                              OomuTokens.s20,
+                              OomuTokens.s8,
+                            ),
                             child: Text(
                               '전체 대화',
                               style: TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
-                                color: _textMuted,
+                                fontSize: OomuTokens.fs12,
+                                fontWeight: OomuTokens.w700,
+                                color: OomuTokens.textSecondary,
                                 letterSpacing: 0.3,
                               ),
                             ),
                           ),
 
-                          // .chat-row 목록
+                          // 대화방 목록
                           ...List.generate(rooms.length, (index) {
                             final room = rooms[index];
                             final id = (room['id'] ?? '').toString();
@@ -479,59 +401,27 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                       ),
                               child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: OomuTokens.s20,
+                                  vertical: OomuTokens.s12,
+                                ),
                                 decoration: const BoxDecoration(
+                                  color: OomuTokens.surface,
                                   border: Border(
-                                    bottom: BorderSide(color: _borderWarm),
+                                    bottom: BorderSide(color: OomuTokens.border),
                                   ),
                                 ),
                                 child: Row(
                                   children: [
-                                    // 52x52 아바타 + 초록 온라인 상태 점
-                                    SizedBox(
-                                      width: 52,
-                                      height: 52,
-                                      child: Stack(
-                                        children: [
-                                          Container(
-                                            width: 52,
-                                            height: 52,
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xFFFFE3D8),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: ClipOval(
-                                              child: Image(
-                                                image: appImg(avatarPath),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                          Positioned(
-                                            right: 1,
-                                            bottom: 1,
-                                            child: Container(
-                                              width: 13,
-                                              height: 13,
-                                              decoration: BoxDecoration(
-                                                color: _onlineTeal,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: _bgCream,
-                                                  width: 2.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                    // 48x48 원형 썸네일
+                                    OomuAvatar(
+                                      imageUrl: avatarPath,
+                                      name: title,
+                                      radius: 24,
                                     ),
-                                    const SizedBox(width: 12),
+                                    const SizedBox(width: OomuTokens.s12),
 
-                                    // 대화방 제목 + 인원 태그 + 미리보기
+                                    // 대화방 제목 + 인원 + 미리보기
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -546,49 +436,34 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: _textEspresso,
+                                                    fontSize: OomuTokens.fs16,
+                                                    fontWeight: OomuTokens.w600,
+                                                    color: OomuTokens.textPrimary,
                                                   ),
                                                 ),
                                               ),
                                               if (memberCount > 0) ...[
-                                                const SizedBox(width: 5),
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 6,
-                                                    vertical: 1.5,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0xFFF3E9D8),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6),
-                                                  ),
-                                                  child: Text(
-                                                    '$memberCount',
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: _textMuted,
-                                                    ),
+                                                const SizedBox(width: OomuTokens.s4),
+                                                Text(
+                                                  '$memberCount',
+                                                  style: const TextStyle(
+                                                    fontSize: OomuTokens.fs12,
+                                                    fontWeight: OomuTokens.w600,
+                                                    color: OomuTokens.textMuted,
                                                   ),
                                                 ),
                                               ],
-                                              const SizedBox(width: 8),
+                                              const Spacer(),
                                               Text(
                                                 timeText,
                                                 style: const TextStyle(
-                                                  fontSize: 11.5,
-                                                  color: _textFaint,
+                                                  fontSize: OomuTokens.fs12,
+                                                  color: OomuTokens.textMuted,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                          const SizedBox(height: 4),
+                                          const SizedBox(height: 2),
                                           Row(
                                             children: [
                                               Expanded(
@@ -600,13 +475,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: const TextStyle(
-                                                    fontSize: 13.5,
-                                                    color: _textMuted,
+                                                    fontSize: OomuTokens.fs14,
+                                                    color: OomuTokens.textSecondary,
                                                   ),
                                                 ),
                                               ),
                                               if (unreadCount > 0) ...[
-                                                const SizedBox(width: 8),
+                                                const SizedBox(width: OomuTokens.s8),
                                                 Container(
                                                   constraints:
                                                       const BoxConstraints(
@@ -616,19 +491,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   padding: const EdgeInsets
                                                       .symmetric(horizontal: 6),
                                                   decoration: BoxDecoration(
-                                                    color: _primaryCoral,
+                                                    color: OomuTokens.coral,
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            999),
+                                                            OomuTokens.rPill),
                                                   ),
                                                   alignment: Alignment.center,
                                                   child: Text(
                                                     '$unreadCount',
                                                     style: const TextStyle(
-                                                      fontSize: 11,
+                                                      fontSize: OomuTokens.fs11,
                                                       fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Colors.white,
+                                                          OomuTokens.w700,
+                                                      color: OomuTokens.surface,
                                                     ),
                                                   ),
                                                 ),

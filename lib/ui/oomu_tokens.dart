@@ -44,6 +44,7 @@ class OomuTokens {
   static const FontWeight w700 = FontWeight.w700;
 
   // ── 모서리 ──
+  static const double r4 = 4;
   static const double r8 = 8;
   static const double r12 = 12;
   static const double r16 = 16;

@@ -1,21 +1,19 @@
-import 'chat/chat_system_cards.dart';
 import 'dart:async';
-import '../services/kakao_map_service.dart';
-import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/chat_repository.dart';
+import '../services/kakao_map_service.dart';
+import '../services/r2_storage_service.dart';
+import '../ui/oomu_avatar.dart';
+import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:geolocator/geolocator.dart';
-import '../services/r2_storage_service.dart';
-import '../widgets/ugc_action_sheets.dart';
-import '../widgets/bouncy_tap.dart';
-import '../services/ai_service.dart';
-import '../services/chat_repository.dart';
-import '../utils/oomu_ui_helpers.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'chat/chat_modals.dart';
+import 'chat/chat_system_cards.dart';
 
 // Existing trip screens use this facade. Reading it never creates messages.
 class OOMUChatStore extends ChangeNotifier {
@@ -86,11 +84,6 @@ class OOMUChatScreen extends StatefulWidget {
 }
 
 class _OOMUChatScreenState extends State<OOMUChatScreen> {
-  final Color textPrimary = OomuUiHelpers.textPrimary;
-  final Color textSecondary = OomuUiHelpers.textSecondary;
-  final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
-  final Color accentColor = OomuUiHelpers.brandCoral;
-
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -168,12 +161,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       _scrollToBottom();
       return true;
     } catch (_) {
-      if (generation == _generation)
+      if (generation == _generation) {
         _showFailure('메시지를 보내지 못했어요. 입력한 내용을 확인하고 다시 시도해 주세요.');
+      }
       return false;
     } finally {
-      if (mounted && generation == _generation)
+      if (mounted && generation == _generation) {
         setState(() => _sending = false);
+      }
     }
   }
 
@@ -204,147 +199,63 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       if (jump) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       } else {
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
 
   Future<void> _sendImageAction() async {
-    Navigator.pop(context);
+    ChatModals.showPhotoPicker(
+      context,
+      onPick: (source) async {
+        try {
+          final ImagePicker picker = ImagePicker();
+          final XFile? image = await picker.pickImage(
+            source: source,
+            maxWidth: 1280,
+            maxHeight: 1280,
+            imageQuality: 85,
+          );
+          if (image == null) return;
 
-    Future<void> pickAndUpload(ImageSource source) async {
-      Navigator.pop(context);
-      try {
-        final ImagePicker picker = ImagePicker();
-        final XFile? image = await picker.pickImage(
-          source: source,
-          maxWidth: 1280,
-          maxHeight: 1280,
-          imageQuality: 85,
-        );
-        if (image == null) return;
+          if (!R2StorageService.isImageFile(image.name)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 전송할 수 있습니다.')),
+            );
+            return;
+          }
 
-        if (!R2StorageService.isImageFile(image.name)) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text('⚠️ 사진 파일(JPG, PNG, WEBP 등)만 전송할 수 있습니다.')),
+              content: Text('사진을 업로드하고 있어요.'),
+              duration: Duration(seconds: 2),
+            ),
           );
-          return;
-        }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('사진을 업로드하고 있어요.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-
-        final bytes = await image.readAsBytes();
-        final downloadUrl = await r2Storage.uploadImageBytes(
+          final bytes = await image.readAsBytes();
+          final downloadUrl = await r2Storage.uploadImageBytes(
             bytes: bytes,
             fileName: image.name,
-            category: R2UploadCategory.chatPhoto);
-        if (downloadUrl.isEmpty || !mounted) return;
-        await _addMessage(
-            {'type': 'image', 'imageUrl': downloadUrl, 'title': '사진을 보냈어요'});
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('사진 업로드 실패: $e')),
-        );
-      }
-    }
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('사진 공유',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: textPrimary)),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => pickAndUpload(ImageSource.camera),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF5F0),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                              color: const Color(0xFFFF5E36)
-                                  .withValues(alpha: 0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.photo_camera_rounded,
-                                color: Color(0xFFFF5E36), size: 24),
-                            const SizedBox(height: 6),
-                            const Text('사진 찍기',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13)),
-                            Text('카메라 촬영',
-                                style: TextStyle(
-                                    fontSize: 11, color: textSecondary)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => pickAndUpload(ImageSource.gallery),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7EE),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                              color: const Color(0xFFF38020)
-                                  .withValues(alpha: 0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.photo_library_rounded,
-                                color: Color(0xFFF38020), size: 24),
-                            const SizedBox(height: 6),
-                            const Text('사진 불러오기',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13)),
-                            Text('갤러리/앨범',
-                                style: TextStyle(
-                                    fontSize: 11, color: textSecondary)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+            category: R2UploadCategory.chatPhoto,
+          );
+          if (downloadUrl.isEmpty || !mounted) return;
+          await _addMessage(
+              {'type': 'image', 'imageUrl': downloadUrl, 'title': '사진을 보냈어요'});
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('사진 업로드 실패: $e')),
+          );
+        }
+      },
     );
   }
 
   Future<void> _sendLocationAction() async {
-    Navigator.pop(context);
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -375,969 +286,148 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         'type': 'location',
         'latitude': position.latitude,
         'longitude': position.longitude,
-        'mapUrl': kakaoMapUrl
+        'mapUrl': kakaoMapUrl,
       });
-    } catch (e) {
+    } catch (_) {
       _showFailure('현재 위치를 확인하지 못했어요. 위치는 전송하지 않았어요.');
     }
   }
 
-  // ===========================================================================
-  // [동적 작동] 일정 생성 폼 (BottomSheet)
-  // ===========================================================================
-  void _showScheduleCreatorBottomSheet() {
-    Navigator.pop(context);
-
-    DateTime? selectedDate;
-    TimeOfDay? selectedTime;
-    String location = '';
-    int maxMembers = 4;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return Padding(
-            padding:
-                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.calendar_month, color: Colors.blue),
-                        SizedBox(width: 8),
-                        Text('상세 일정 제안하기',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Date Picker
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('날짜 선택',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(selectedDate != null
-                          ? '${selectedDate!.year}년 ${selectedDate!.month}월 ${selectedDate!.day}일'
-                          : '터치하여 날짜를 선택하세요'),
-                      trailing:
-                          const Icon(Icons.edit_calendar, color: Colors.blue),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: ctx,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 365)),
-                        );
-                        if (date != null) setState(() => selectedDate = date);
-                      },
-                    ),
-                    const Divider(),
-
-                    // Time Picker
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('시간 선택',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(selectedTime != null
-                          ? selectedTime!.format(context)
-                          : '터치하여 시간을 선택하세요'),
-                      trailing:
-                          const Icon(Icons.access_time, color: Colors.blue),
-                      onTap: () async {
-                        final time = await showTimePicker(
-                          context: ctx,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) setState(() => selectedTime = time);
-                      },
-                    ),
-                    const Divider(),
-
-                    // Location
-                    TextField(
-                      onChanged: (val) => location = val,
-                      decoration: InputDecoration(
-                        labelText: '모임 장소 (예: 스타벅스 여수점)',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: const Color(0xFFF5F5F7),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Max Members
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('모임 인원',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        DropdownButton<int>(
-                          value: maxMembers,
-                          items: [2, 3, 4, 5, 6, 7, 8]
-                              .map((e) => DropdownMenuItem(
-                                  value: e, child: Text('$e명')))
-                              .toList(),
-                          onChanged: (val) {
-                            if (val != null) setState(() => maxMembers = val);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12))),
-                        onPressed: () {
-                          if (selectedDate == null ||
-                              selectedTime == null ||
-                              location.trim().isEmpty) {
-                            ScaffoldMessenger.of(ctx).showSnackBar(
-                                const SnackBar(
-                                    content: Text('날짜, 시간, 장소를 모두 입력해주세요.')));
-                            return;
-                          }
-                          Navigator.pop(ctx);
-                          _addMessage({
-                            'type': 'schedule',
-                            'title': '새로운 일정이 제안되었습니다!',
-                            'date':
-                                '${selectedDate!.month}월 ${selectedDate!.day}일',
-                            'timeStr': selectedTime!.format(ctx),
-                            'location': location,
-                            'maxMembers': maxMembers,
-                          });
-                        },
-                        child: const Text('일정 공유 및 투표 시작',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-      },
-    );
-  }
-
-  // ===========================================================================
-  // [동적 작동] 투표 생성 폼 (BottomSheet)
-  // ===========================================================================
-  void _showPollCreatorBottomSheet() {
-    Navigator.pop(context);
-    final TextEditingController titleCtrl = TextEditingController();
-    final TextEditingController opt1Ctrl = TextEditingController();
-    final TextEditingController opt2Ctrl = TextEditingController();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.how_to_vote, color: Colors.purple),
-                    SizedBox(width: 8),
-                    Text('투표 만들기',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold))
-                  ],
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                    controller: titleCtrl,
-                    decoration: InputDecoration(
-                        labelText: '투표 주제',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)))),
-                const SizedBox(height: 16),
-                TextField(
-                    controller: opt1Ctrl,
-                    decoration: InputDecoration(
-                        labelText: '옵션 1',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)))),
-                const SizedBox(height: 12),
-                TextField(
-                    controller: opt2Ctrl,
-                    decoration: InputDecoration(
-                        labelText: '옵션 2',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)))),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12))),
-                    onPressed: () {
-                      if (titleCtrl.text.isEmpty ||
-                          opt1Ctrl.text.isEmpty ||
-                          opt2Ctrl.text.isEmpty) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                            const SnackBar(content: Text('모든 항목을 입력해주세요.')));
-                        return;
-                      }
-                      Navigator.pop(ctx);
-                      _addMessage({
-                        'type': 'poll',
-                        'title': '📊 ${titleCtrl.text}',
-                        'opt1': opt1Ctrl.text,
-                        'opt2': opt2Ctrl.text
-                      });
-                    },
-                    child: const Text('투표 등록',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // [동적 작동] 핫플 검색 폼 (BottomSheet)
-  // ===========================================================================
-
-  void _showSafeReturnBottomSheet() {
-    Navigator.pop(context);
-    _addMessage({
-      'type': 'safe_return',
-      'title': '🏠 안전 귀가 알림',
-      'desc': '방금 집에 무사히 도착했습니다! 다들 푹 쉬세요.'
-    });
-  }
-
-  void _showProfileExchangeBottomSheet() {
-    Navigator.pop(context);
-    _addMessage({
-      'type': 'profile_exchange',
-      'title': '🤝 명함/프로필 교환 요청',
-      'desc': '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
-      'acceptedMembers': <String>[],
-      'status': 'pending',
-    });
-  }
-
-  void _showSecretAfterBottomSheet() {
-    Navigator.pop(context);
-    _addMessage({
-      'type': 'secret_after',
-      'title': '💖 시크릿 애프터 1:1 호감 매칭',
-      'desc': '모임 종료 후 비공개 호감 매칭이 오픈되었습니다! 마음에 드는 멤버를 선택해 보세요.',
-      'secretChoices': <String>[],
-    });
-  }
-
-  void _showHotspotSearchBottomSheet() {
-    Navigator.pop(context);
-
-    String searchQuery = '';
-    String selectedCategory = '전체';
-    List<Map<String, dynamic>> searchResults = [];
-    bool isLoading = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          Future<void> performSearch(String query) async {
-            if (query.trim().isEmpty) return;
-            setState(() {
-              isLoading = true;
-              searchResults = [];
-            });
-
-            try {
-              // 카카오 공식 장소 검색 (KakaoMapService)
-              final places =
-                  await KakaoMapService.searchKeyword(query, size: 10);
-              if (mounted) {
-                setState(() {
-                  searchResults = places.map((item) {
-                    return {
-                      'name': item.name,
-                      'category': item.category.isNotEmpty
-                          ? item.category
-                          : (selectedCategory == '전체'
-                              ? '모임장소'
-                              : selectedCategory),
-                      'address': item.roadAddress.isNotEmpty
-                          ? item.roadAddress
-                          : item.address,
-                      'lat': item.lat,
-                      'lng': item.lng,
-                    };
-                  }).toList();
-                });
-              }
-            } catch (e) {
-              print('Search error: $e');
-            } finally {
-              setState(() {
-                isLoading = false;
-              });
-            }
-          }
-
-          return Padding(
-            padding:
-                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-            child: Container(
-              height: MediaQuery.of(ctx).size.height * 0.7,
-              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(24))),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.travel_explore, color: Colors.brown),
-                      SizedBox(width: 8),
-                      Text('실시간 장소 검색 (전국)',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold))
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    onSubmitted: (val) {
-                      searchQuery = val;
-                      performSearch(val);
-                    },
-                    decoration: InputDecoration(
-                      hintText: '장소 이름 또는 지역 검색 (예: 여수 카페)',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.brown),
-                        onPressed: () => performSearch(searchQuery),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onChanged: (val) => searchQuery = val,
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: ['전체', '관광지', '카페', '술집', '빵집'].map((category) {
-                        final isSelected = selectedCategory == category;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(category),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              if (selected)
-                                setState(() => selectedCategory = category);
-                            },
-                            selectedColor: Colors.brown.withValues(alpha: 0.2),
-                            labelStyle: TextStyle(
-                                color:
-                                    isSelected ? Colors.brown : Colors.black87,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Divider(),
-                  Expanded(
-                    child: isLoading
-                        ? const Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.brown))
-                        : searchResults.isEmpty
-                            ? const Center(child: Text('장소 이름이나 지역을 검색해보세요.'))
-                            : ListView.builder(
-                                itemCount: searchResults.length,
-                                itemBuilder: (context, index) {
-                                  final place = searchResults[index];
-                                  return ListTile(
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    leading: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                          color: Colors.brown
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      child: const Icon(Icons.place,
-                                          color: Colors.brown),
-                                    ),
-                                    title: Text(place['name'],
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis),
-                                    subtitle: Text(
-                                        '${place['category']} • ${place['address']}',
-                                        style: const TextStyle(fontSize: 12),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis),
-                                    trailing: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.brown,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8))),
-                                      onPressed: () {
-                                        Navigator.pop(ctx);
-                                        _addMessage({
-                                          'type': 'hotspot',
-                                          'title': '☕ 우리 동네 핫플 추천!',
-                                          'name': place['name'],
-                                          'category': place['category'],
-                                          'address': place['address'],
-                                          'lat': place['lat'],
-                                          'lng': place['lng'],
-                                        });
-                                      },
-                                      child: const Text('공유',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12)),
-                                    ),
-                                  );
-                                },
-                              ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-      },
-    );
-  }
-
-  // ===========================================================================
-  // [동적 작동] 모임 후기 별점 폼
-  // ===========================================================================
-  void _showReviewBottomSheet() {
-    Navigator.pop(context);
-
-    int selectedStars = 5;
-    TextEditingController textCtrl = TextEditingController();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return Padding(
-            padding:
-                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(24))),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.rate_review, color: Colors.orange),
-                      SizedBox(width: 8),
-                      Text('모임 후기 남기기',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold))
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                      '이번 모임은 어떠셨나요? 별점과 솔직한 후기를 남겨주세요.\n작성하신 별점은 상대방의 매너 온도에 즉시 반영됩니다.',
-                      style: TextStyle(
-                          color: Colors.grey, fontSize: 13, height: 1.4)),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(5, (index) {
-                        return GestureDetector(
-                          onTap: () =>
-                              setState(() => selectedStars = index + 1),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(
-                              index < selectedStars
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.orange,
-                              size: 44,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: textCtrl,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: '즐거운 모임이었나요? 후기를 자유롭게 적어주세요.',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      filled: true,
-                      fillColor: const Color(0xFFF5F5F7),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12))),
-                      onPressed: () {
-                        if (textCtrl.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                              const SnackBar(content: Text('후기 내용을 입력해주세요.')));
-                          return;
-                        }
-                        Navigator.pop(ctx);
-
-                        // 글로벌 상태 업데이트 (매너 온도 및 평점 즉시 반영!)
-                        globalData.submitReview(
-                            selectedStars.toDouble(), textCtrl.text);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('후기가 프로필에 반영되었습니다!')));
-
-                        _addMessage({
-                          'type': 'review',
-                          'rating': selectedStars,
-                          'text': textCtrl.text,
-                        });
-                      },
-                      child: const Text('후기 공유하기',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-      },
-    );
-  }
-
-  void _showStickerPickerBottomSheet() {
-    if (!_canSend || _readFailed) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.55,
-        minChildSize: 0.35,
-        maxChildSize: 0.85,
-        builder: (_, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding:
-              const EdgeInsets.only(top: 14, left: 16, right: 16, bottom: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  const Icon(Icons.auto_awesome_rounded,
-                      size: 20, color: Color(0xFFF25767)),
-                  const SizedBox(width: 6),
-                  const Text(
-                    '🔥 실시간 인기 움짤 스티커',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF191F28),
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF0F2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      '인기순 TOP 100',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFF25767),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                '탭하면 채팅방에 바로 전송돼요 · Cloudflare R2 무제한 CDN',
-                style: TextStyle(fontSize: 12, color: Color(0xFF8B95A1)),
-              ),
-              const SizedBox(height: 14),
-              Expanded(
-                child: StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('config')
-                      .doc('curated_stickers')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    List<Map<String, dynamic>> stickers = [];
-                    if (snapshot.hasData && snapshot.data!.exists) {
-                      final data =
-                          snapshot.data!.data() as Map<String, dynamic>?;
-                      final rawList = data?['stickers'] as List<dynamic>? ?? [];
-                      stickers = rawList
-                          .map((e) => Map<String, dynamic>.from(e as Map))
-                          .toList();
-                    }
-                    if (stickers.isEmpty) {
-                      return const Center(
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Color(0xFFF25767),
-                          ),
-                        ),
-                      );
-                    }
-                    return GridView.builder(
-                      controller: scrollController,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: 1.0,
-                      ),
-                      itemCount: stickers.length,
-                      itemBuilder: (context, index) {
-                        final s = stickers[index];
-                        final rawUrl = (s['url'] ?? '').toString();
-                        final rank = s['rank'] ?? (index + 1);
-                        final title = (s['title'] ?? '').toString();
-
-                        return BouncyTap(
-                          scaleDown: 0.92,
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            _addMessage({
-                              'type': 'sticker',
-                              'imageUrl': rawUrl,
-                              'title': title,
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFC),
-                              borderRadius: BorderRadius.circular(14),
-                              border:
-                                  Border.all(color: const Color(0xFFE2E8F0)),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: appNetImage(rawUrl,
-                                        fit: BoxFit.contain),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  left: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5, vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.6),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      '$rank위',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showAttachmentMenu() {
     if (!_canSend || _readFailed) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding:
-            const EdgeInsets.only(top: 14, left: 20, right: 20, bottom: 28),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Row(
-                  children: [
-                    Icon(Icons.dashboard_customize_rounded,
-                        size: 18, color: Color(0xFFF25767)),
-                    SizedBox(width: 6),
-                    Text(
-                      '모임 도구 및 공유',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF191F28),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 20,
-                  alignment: WrapAlignment.start,
-                  children: [
-                    _buildAttachmentIcon(Icons.sentiment_satisfied_alt_rounded,
-                        '인기 움짤', const Color(0xFFF25767), onTap: () {
-                      Navigator.pop(ctx);
-                      _showStickerPickerBottomSheet();
-                    }),
-                    _buildAttachmentIcon(Icons.photo_library_rounded, '사진/앨범',
-                        const Color(0xFF10B981),
-                        onTap: _sendImageAction),
-                    _buildAttachmentIcon(Icons.location_on_rounded, '위치 공유',
-                        const Color(0xFFEF4444),
-                        onTap: _sendLocationAction),
-                    _buildAttachmentIcon(Icons.local_cafe_rounded, '동네 핫플',
-                        const Color(0xFFD97706),
-                        onTap: _showHotspotSearchBottomSheet),
-                    _buildAttachmentIcon(Icons.event_available_rounded, '일정 제안',
-                        const Color(0xFF3B82F6),
-                        onTap: _showScheduleCreatorBottomSheet),
-                    _buildAttachmentIcon(Icons.how_to_vote_rounded, '투표 만들기',
-                        const Color(0xFF8B5CF6),
-                        onTap: _showPollCreatorBottomSheet),
-                    _buildAttachmentIcon(Icons.nightlife_rounded, '안심 귀가',
-                        const Color(0xFFF43F5E),
-                        onTap: _showSafeReturnBottomSheet),
-                    _buildAttachmentIcon(Icons.auto_awesome_rounded, 'AI 대화주제',
-                        const Color(0xFF6366F1), onTap: () {
-                      Navigator.pop(ctx);
-                      _showAiTopicsBottomSheet();
-                    }),
-                    _buildAttachmentIcon(
-                        Icons.badge_outlined, '프로필 교환', const Color(0xFF0D9488),
-                        onTap: _showProfileExchangeBottomSheet),
-                    _buildAttachmentIcon(Icons.favorite_rounded, '시크릿 애프터',
-                        const Color(0xFFEC4899),
-                        onTap: _showSecretAfterBottomSheet),
-                    _buildAttachmentIcon(Icons.rate_review_rounded, '모임 후기',
-                        const Color(0xFFF59E0B),
-                        onTap: _showReviewBottomSheet),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Center(
-                  child: Text(
-                    '선택한 도구 카드가 대화방 멤버들에게 실시간으로 공유돼요.',
-                    style: TextStyle(color: Color(0xFF8C94A0), fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+    ChatModals.showAttachmentMenu(
+      context,
+      onSticker: () =>
+          ChatModals.showStickerPicker(context, onCreated: _addMessage),
+      onPhoto: _sendImageAction,
+      onLocation: _sendLocationAction,
+      onHotspot: () =>
+          ChatModals.showHotspotSearch(context, onCreated: _addMessage),
+      onSchedule: () =>
+          ChatModals.showScheduleCreator(context, onCreated: _addMessage),
+      onPoll: () => ChatModals.showPollCreator(context, onCreated: _addMessage),
+      onSafeReturn: () => _addMessage({
+        'type': 'safe_return',
+        'title': '🏠 안전 귀가 알림',
+        'desc': '방금 집에 무사히 도착했습니다! 다들 푹 쉬세요.',
+      }),
+      onAiTopics: () => ChatModals.showAiTopics(
+        context,
+        meetingTitle: widget.title,
+        onSelectTopic: (topic) => _controller.text = topic,
       ),
+      onProfileExchange: () => _addMessage({
+        'type': 'profile_exchange',
+        'title': '🤝 명함/프로필 교환 요청',
+        'desc': '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
+        'acceptedMembers': <String>[],
+        'status': 'pending',
+      }),
+      onSecretAfter: () => _addMessage({
+        'type': 'secret_after',
+        'title': '💖 시크릿 애프터 1:1 호감 매칭',
+        'desc': '모임 종료 후 비공개 호감 매칭이 오픈되었습니다! 마음에 드는 멤버를 선택해 보세요.',
+        'secretChoices': <String>[],
+      }),
+      onReview: () => ChatModals.showReview(context, onCreated: _addMessage),
     );
   }
 
-  Widget _buildAttachmentIcon(IconData icon, String label, Color color,
-      {VoidCallback? onTap}) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap ??
-          () {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text('$label 기능이 준비중입니다.')));
-          },
-      child: SizedBox(
-        width: 68,
-        child: Column(
-          children: [
-            Container(
-              width: 54,
-              height: 54,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 26),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF333D4B),
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
+  void _showSafetyDrawer() {
+    ChatModals.showSafetyDrawer(
+      context,
+      title: (_roomData?['title'] ?? widget.title).toString(),
+      memberCount: chatParticipantIds(_roomData).length,
+      onLeave: () async {
+        try {
+          await _repo.leave(widget.chatRoomId);
+          if (mounted) Navigator.pop(context);
+        } catch (_) {
+          _showFailure('대화방에서 나가지 못했어요. 다시 시도해 주세요.');
+        }
+      },
+    );
+  }
+
+  void _showMessageActionSheet(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final msgId = (msg['id'] ?? '').toString();
+    final sender = (msg['sender'] ?? '상대방').toString();
+
+    ChatModals.showMessageActionSheet(
+      context,
+      msg: msg,
+      isMe: isMe,
+      onDelete: () async {
+        if (msgId.isNotEmpty) {
+          try {
+            await _repo.deleteMessage(widget.chatRoomId, msgId);
+          } catch (_) {}
+        }
+        if (mounted) setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('메시지가 삭제되었습니다.')),
+        );
+      },
+      onReport: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('신고가 접수되었습니다. 검토 후 조치됩니다.')),
+        );
+      },
+      onBlock: () {
+        globalData.blockUser(sender);
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$sender님을 차단했습니다.')),
+        );
+      },
     );
   }
 
   Widget _chatNotice(String title, String description, {bool retry = false}) =>
       Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(28),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.forum_outlined, size: 36, color: textSecondary),
-            const SizedBox(height: 16),
-            Text(title,
+          padding: const EdgeInsets.all(OomuTokens.s24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.forum_outlined,
+                  size: 36, color: OomuTokens.textSecondary),
+              const SizedBox(height: OomuTokens.s16),
+              Text(
+                title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: textPrimary)),
-            const SizedBox(height: 8),
-            Text(description,
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs18,
+                  fontWeight: FontWeight.w700,
+                  color: OomuTokens.textPrimary,
+                ),
+              ),
+              const SizedBox(height: OomuTokens.s8),
+              Text(
+                description,
                 textAlign: TextAlign.center,
-                style:
-                    TextStyle(fontSize: 15, height: 1.5, color: textSecondary)),
-            if (retry)
-              TextButton(
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs14,
+                  height: 1.5,
+                  color: OomuTokens.textSecondary,
+                ),
+              ),
+              if (retry) ...[
+                const SizedBox(height: OomuTokens.s12),
+                TextButton(
                   onPressed: () => setState(_bindRoom),
-                  child: const Text('다시 불러오기')),
-          ]),
+                  child: const Text('다시 불러오기',
+                      style: TextStyle(
+                          color: OomuTokens.coral,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ],
+          ),
         ),
       );
+
   @override
   Widget build(BuildContext context) => StreamBuilder<ChatData?>(
         key: ValueKey(_generation),
@@ -1357,7 +447,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             content = _chatNotice('대화방을 불러오지 못했어요', '연결 상태와 접근 권한을 확인해 주세요.',
                 retry: true);
           } else if (roomSnapshot.connectionState == ConnectionState.waiting) {
-            content = const Center(child: CircularProgressIndicator());
+            content = const Center(
+                child: CircularProgressIndicator(color: OomuTokens.coral));
           } else if (_roomData == null) {
             content = _chatNotice('대화방을 찾을 수 없어요', '채팅 목록에서 모임을 다시 선택해 주세요.');
           } else if (!_canSend) {
@@ -1365,194 +456,180 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 '참여 확인이 필요한 대화방이에요', '모임 참여가 승인되고 대화방에 연결되면 이용할 수 있어요.');
           } else {
             content = StreamBuilder<List<ChatData>>(
-                stream: _messageStream,
-                builder: (context, snapshot) {
-                  _readFailed = snapshot.hasError;
-                  if (snapshot.hasError)
-                    return _chatNotice(
-                        '대화를 불러오지 못했어요', '연결 상태를 확인한 뒤 다시 시도해 주세요.',
-                        retry: true);
-                  if (!snapshot.hasData)
-                    return const Center(child: CircularProgressIndicator());
-                  return _buildMessageList(snapshot.data!);
-                });
+              stream: _messageStream,
+              builder: (context, snapshot) {
+                _readFailed = snapshot.hasError;
+                if (snapshot.hasError) {
+                  return _chatNotice(
+                      '대화를 불러오지 못했어요', '연결 상태를 확인한 뒤 다시 시도해 주세요.',
+                      retry: true);
+                }
+                if (!snapshot.hasData) {
+                  return const Center(
+                      child:
+                          CircularProgressIndicator(color: OomuTokens.coral));
+                }
+                return _buildMessageList(snapshot.data!);
+              },
+            );
           }
+
           return Scaffold(
-            backgroundColor: const Color(0xFFFBF6EC),
+            backgroundColor: OomuTokens.background,
             appBar: AppBar(
-              backgroundColor: const Color(0xFFFFF9F2),
+              backgroundColor: OomuTokens.surface,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               bottom: const PreferredSize(
                 preferredSize: Size.fromHeight(1),
-                child: Divider(height: 1, color: Color(0xFFF1E7D6)),
+                child: Divider(height: 1, color: OomuTokens.border),
               ),
-              toolbarHeight:
-                  MediaQuery.textScalerOf(context).scale(16) > 22 ? 112 : 76,
+              toolbarHeight: 64,
               leading: IconButton(
-                  tooltip: '뒤로',
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      size: 19, color: Color(0xFF2B2118)),
-                  onPressed: () => Navigator.maybePop(context)),
+                tooltip: '뒤로',
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: OomuTokens.textPrimary),
+                onPressed: () => Navigator.maybePop(context),
+              ),
               titleSpacing: 0,
               title: Row(
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFE3D8),
-                      shape: BoxShape.circle,
-                    ),
-                    child: ClipOval(
-                      child: Image(
-                        image: appImg(
-                          (_roomData?['avatarUrl'] ??
-                                  _roomData?['coverImage'] ??
-                                  'assets/images/초연.png')
-                              .toString(),
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                  OomuAvatar(
+                    imageUrl: (_roomData?['avatarUrl'] ??
+                            _roomData?['coverImage'] ??
+                            'assets/images/초연.png')
+                        .toString(),
+                    radius: 19,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: OomuTokens.s8),
                   Expanded(
                     child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text((_roomData?['title'] ?? widget.title).toString(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Color(0xFF2B2118),
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800)),
-                          if (_canSend)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF2FA98C),
-                                      shape: BoxShape.circle,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          (_roomData?['title'] ?? widget.title).toString(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: OomuTokens.textPrimary,
+                            fontSize: OomuTokens.fs16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (_canSend)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: OomuTokens.coral,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: OomuTokens.s4),
+                                Flexible(
+                                  child: Text(
+                                    '멤버 $memberCount명 참여 중',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: OomuTokens.textSecondary,
+                                      fontSize: OomuTokens.fs11,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
-                                  Flexible(
-                                    child: Text(
-                                      '멤버 $memberCount명 · 방금 활동',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Color(0xFF2FA98C),
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                        ]),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
               actions: [
                 IconButton(
-                    tooltip: '대화방 정보',
-                    icon: const Icon(Icons.more_horiz_rounded,
-                        color: Color(0xFF2B2118)),
-                    onPressed: _canSend ? _showChatRoomSafetyDrawer : null)
+                  tooltip: '대화방 정보',
+                  icon: const Icon(Icons.more_horiz_rounded,
+                      color: OomuTokens.textPrimary),
+                  onPressed: _canSend ? _showSafetyDrawer : null,
+                ),
               ],
             ),
-            body: Column(children: [
-              if (_canSend &&
-                  ((_roomData?['location'] ?? '').toString().isNotEmpty ||
-                      (_roomData?['date'] ?? '').toString().isNotEmpty))
-                Container(
-                  margin: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF7A55), Color(0xFFFF5C39)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+            body: Column(
+              children: [
+                if (_canSend &&
+                    ((_roomData?['location'] ?? '').toString().isNotEmpty ||
+                        (_roomData?['date'] ?? '').toString().isNotEmpty))
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(
+                        OomuTokens.s16, OomuTokens.s8, OomuTokens.s16, OomuTokens.s4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: OomuTokens.s12, vertical: OomuTokens.s8),
+                    decoration: BoxDecoration(
+                      color: OomuTokens.surface,
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      border: Border.all(color: OomuTokens.border),
                     ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFF5C39).withValues(alpha: 0.22),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.22),
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-                        child: const Icon(Icons.wine_bar_rounded,
-                            size: 18, color: Colors.white),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          [_roomData?['date'], _roomData?['location']]
-                              .whereType<String>()
-                              .where((s) => s.isNotEmpty)
-                              .join(' · '),
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.event_note_rounded,
+                            size: 18, color: OomuTokens.coral),
+                        const SizedBox(width: OomuTokens.s8),
+                        Expanded(
+                          child: Text(
+                            [_roomData?['date'], _roomData?['location']]
+                                .whereType<String>()
+                                .where((s) => s.isNotEmpty)
+                                .join(' · '),
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: FontWeight.w600,
+                              color: OomuTokens.textPrimary,
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.22),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: const Text(
-                          '모임 정보',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
+                          decoration: BoxDecoration(
+                            color: OomuTokens.surfaceMuted,
+                            borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                          ),
+                          child: const Text(
+                            '모임 정보',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs11,
+                              fontWeight: FontWeight.w600,
+                              color: OomuTokens.textSecondary,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              Expanded(child: content),
-              if (_canSend) _buildMessageInput(),
-            ]),
+                Expanded(child: content),
+                if (_canSend) _buildMessageInput(),
+              ],
+            ),
           );
         },
       );
+
   Widget _buildMessageList(List<Map<String, dynamic>> source) {
     final list = source
         .where((m) => !isLegacyChatSeed(m))
         .map((m) => presentChatMessage(m, _uid))
         .toList();
-    if (list.isEmpty)
+    if (list.isEmpty) {
       return _chatNotice(
           '아직 나눈 대화가 없어요', '첫 인사를 남겨보세요.\n일정이나 투표는 + 버튼에서 직접 추가할 수 있어요.');
+    }
     final lastId = list.last['id']?.toString();
     if (lastId != _lastMessageId) {
       final initial = _lastMessageId == null;
@@ -1562,10 +639,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       if (initial || atBottom) _scrollToBottom(jump: initial);
     }
     return ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        itemCount: list.length,
-        itemBuilder: (_, index) => _buildDynamicMessage(list[index]));
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(
+          horizontal: OomuTokens.s16, vertical: OomuTokens.s16),
+      itemCount: list.length,
+      itemBuilder: (_, index) => _buildDynamicMessage(list[index]),
+    );
   }
 
   Widget _buildDynamicMessage(Map<String, dynamic> data) {
@@ -1587,579 +666,56 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
     if (type == 'system') return _buildSystemMessage(data['text'] ?? '');
     if (type == 'ai_spot_summary') return _buildAiSpotSummaryCard(data);
-    if (type == 'settlement') return const SizedBox.shrink(); // 1/N 정산 카드 삭제
+    if (type == 'settlement') return const SizedBox.shrink();
     if (type == 'image') return _buildImageMessage(data);
     if (type == 'sticker') return _buildStickerMessage(data);
     if (type == 'location') return _buildLocationMessage(data);
 
-    if (type == 'schedule')
+    if (type == 'schedule') {
       return InteractiveScheduleCard(
-          msg: data,
-          isMe: isMe,
-          chatRoomId: widget.chatRoomId,
-          onUpdate: updateThisMessage);
-    if (type == 'poll')
+        msg: data,
+        isMe: isMe,
+        chatRoomId: widget.chatRoomId,
+        onUpdate: updateThisMessage,
+      );
+    }
+    if (type == 'poll') {
       return InteractivePollCard(
-          msg: data,
-          isMe: isMe,
-          chatRoomId: widget.chatRoomId,
-          onUpdate: updateThisMessage);
+        msg: data,
+        isMe: isMe,
+        chatRoomId: widget.chatRoomId,
+        onUpdate: updateThisMessage,
+      );
+    }
 
     if (type == 'hotspot') return InteractiveHotspotCard(msg: data, isMe: isMe);
     if (type == 'review') return InteractiveReviewCard(msg: data, isMe: isMe);
 
-    if (type == 'safe_return')
+    if (type == 'safe_return') {
       return InteractiveSafeReturnCard(
-          msg: data,
-          isMe: isMe,
-          chatRoomId: widget.chatRoomId,
-          onUpdate: updateThisMessage);
-    if (type == 'profile_exchange')
+        msg: data,
+        isMe: isMe,
+        chatRoomId: widget.chatRoomId,
+        onUpdate: updateThisMessage,
+      );
+    }
+    if (type == 'profile_exchange') {
       return InteractiveProfileExchangeCard(
-          msg: data,
-          isMe: isMe,
-          chatRoomId: widget.chatRoomId,
-          onUpdate: updateThisMessage);
-    if (type == 'secret_after')
+        msg: data,
+        isMe: isMe,
+        chatRoomId: widget.chatRoomId,
+        onUpdate: updateThisMessage,
+      );
+    }
+    if (type == 'secret_after') {
       return InteractiveSecretAfterMatchCard(
-          msg: data,
-          isMe: isMe,
-          chatRoomId: widget.chatRoomId,
-          onUpdate: updateThisMessage);
-    if (['carpool'].contains(type)) {
-      return _buildInteractiveCardMessage(data);
+        msg: data,
+        isMe: isMe,
+        chatRoomId: widget.chatRoomId,
+        onUpdate: updateThisMessage,
+      );
     }
     return _buildTextMessage(data);
-  }
-
-  Widget _buildInteractiveCardMessage(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    IconData icon = Icons.info;
-    Color iconColor = accentColor;
-
-    switch (msg['type']) {
-      case 'review':
-        icon = Icons.rate_review;
-        iconColor = Colors.orange;
-        break;
-      case 'hotspot':
-        icon = Icons.local_cafe;
-        iconColor = Colors.brown;
-        break;
-      case 'carpool':
-        icon = Icons.directions_car;
-        iconColor = Colors.indigo;
-        break;
-      case 'safe_return':
-        icon = Icons.contact_emergency;
-        iconColor = Colors.pink;
-        break;
-      case 'profile_exchange':
-        icon = Icons.badge;
-        iconColor = Colors.teal;
-        break;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) _buildAvatar(),
-          if (!isMe) const SizedBox(width: 8),
-          if (isMe)
-            Text(msg['time'] ?? '',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-          if (isMe) const SizedBox(width: 4),
-          Container(
-            width: 240,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: iconColor.withValues(alpha: 0.3)),
-              boxShadow: [
-                BoxShadow(
-                    color: iconColor.withValues(alpha: 0.05), blurRadius: 10)
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                            color: iconColor.withValues(alpha: 0.1),
-                            shape: BoxShape.circle),
-                        child: Icon(icon, color: iconColor, size: 16)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: Text(msg['title'] ?? '',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14),
-                            overflow: TextOverflow.ellipsis)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(msg['desc'] ?? '',
-                    style: TextStyle(
-                        fontSize: 13, color: textSecondary, height: 1.4)),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 40,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${msg['title']}에 반응했습니다!')));
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: iconColor,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12))),
-                    child: const Text('반응하기',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!isMe) const SizedBox(width: 4),
-          if (!isMe)
-            Text(msg['time'] ?? '',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageMessage(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    final rawUrl = (msg['imageUrl'] ?? '').toString();
-    final imageUrl = r2Storage.getPublicViewUrl(rawUrl);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) _buildAvatar(),
-          if (!isMe) const SizedBox(width: 8),
-          if (isMe)
-            Text(msg['time'] ?? '방금',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-          if (isMe) const SizedBox(width: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              width: 200,
-              height: 200,
-              child: appNetImage(
-                imageUrl,
-                fit: BoxFit.cover,
-                width: 200,
-                height: 200,
-              ),
-            ),
-          ),
-          if (!isMe) const SizedBox(width: 4),
-          if (!isMe)
-            Text(msg['time'] ?? '방금',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStickerMessage(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    final rawUrl = (msg['imageUrl'] ?? '').toString();
-    final imageUrl = r2Storage.getPublicViewUrl(rawUrl);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) _buildAvatar(),
-          if (!isMe) const SizedBox(width: 8),
-          if (isMe)
-            Text(msg['time'] ?? '방금',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-          if (isMe) const SizedBox(width: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              color: const Color(0xFFF8FAFC),
-              padding: const EdgeInsets.all(4),
-              child: appNetImage(
-                imageUrl,
-                fit: BoxFit.contain,
-                width: 140,
-                height: 140,
-              ),
-            ),
-          ),
-          if (!isMe) const SizedBox(width: 4),
-          if (!isMe)
-            Text(msg['time'] ?? '방금',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLocationMessage(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    final mapUrl = msg['mapUrl'] ?? '';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) _buildAvatar(),
-          if (!isMe) const SizedBox(width: 8),
-          if (isMe)
-            Text(msg['time'] ?? '',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-          if (isMe) const SizedBox(width: 4),
-          GestureDetector(
-            onTap: () async {
-              if (mapUrl.isNotEmpty) {
-                final Uri url = Uri.parse(mapUrl);
-                if (!await launchUrl(url))
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('지도를 열 수 없습니다.')));
-              }
-            },
-            child: Container(
-              width: 220,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: accentColor.withValues(alpha: 0.5)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: accentColor, size: 20),
-                      const SizedBox(width: 4),
-                      const Text('현재 위치 공유',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 90,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBE6),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: const Color(0xFFFEE500), width: 1.2),
-                    ),
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEE500),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2)),
-                          ],
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.location_on,
-                                size: 14, color: Color(0xFF191919)),
-                            SizedBox(width: 4),
-                            Text('카카오맵에서 위치 보기',
-                                style: TextStyle(
-                                    color: Color(0xFF191919),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (!isMe) const SizedBox(width: 4),
-          if (!isMe)
-            Text(msg['time'] ?? '',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSystemMessage(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20)),
-          child: Text(text,
-              style: TextStyle(
-                  fontSize: 12, color: textPrimary.withValues(alpha: 0.8))),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBlockedMessagePlaceholder(String sender) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E5EA)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.block, size: 14, color: Colors.grey),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              '차단된 사용자($sender)의 메시지입니다.',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              globalData.unblockUser(sender);
-              setState(() {});
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('🎉 $sender님의 차단이 해제되었습니다.')),
-              );
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              child: Text(
-                '차단 해제',
-                style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showChatRoomSafetyDrawer() {
-    showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.white,
-        builder: (ctx) => SafeArea(
-              child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text((_roomData?['title'] ?? widget.title).toString(),
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 8),
-                        Text('${chatParticipantIds(_roomData).length}명 참여 중',
-                            style: TextStyle(color: textSecondary)),
-                        const SizedBox(height: 16),
-                        const Text('메시지를 길게 누르면 복사하거나 신고·차단할 수 있어요.',
-                            style: TextStyle(fontSize: 15, height: 1.5)),
-                        const SizedBox(height: 16),
-                        ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.exit_to_app),
-                            title: const Text('대화방 나가기'),
-                            subtitle: const Text('대화방에서 나가도 모임 신청은 취소되지 않아요.'),
-                            onTap: () async {
-                              Navigator.pop(ctx);
-                              final leave = await showDialog<bool>(
-                                  context: context,
-                                  builder: (dialog) => AlertDialog(
-                                          title: const Text('대화방에서 나갈까요?'),
-                                          content: const Text(
-                                              '다시 참여하려면 모임장의 대화방 연결이 필요해요.'),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    dialog, false),
-                                                child: const Text('취소')),
-                                            TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(dialog, true),
-                                                child: const Text('나가기'))
-                                          ]));
-                              if (leave != true || !mounted) return;
-                              try {
-                                await _repo.leave(widget.chatRoomId);
-                                if (mounted) Navigator.pop(context);
-                              } catch (_) {
-                                _showFailure('대화방에서 나가지 못했어요. 다시 시도해 주세요.');
-                              }
-                            }),
-                      ])),
-            ));
-  }
-
-  void _showMessageActionSheet(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    final text = msg['text'] ?? '';
-    final sender = (msg['sender'] ?? '상대방').toString();
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Material(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2))),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: const Icon(Icons.copy, color: Colors.black87),
-                  title: const Text('메시지 내용 복사',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Clipboard.setData(ClipboardData(text: text));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('📋 메시지가 클립보드에 복사되었습니다.')),
-                    );
-                  },
-                ),
-                if (isMe) ...[
-                  ListTile(
-                    leading:
-                        const Icon(Icons.delete_outline, color: Colors.red),
-                    title: const Text('메시지 삭제',
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w600)),
-                    subtitle: const Text('이 메시지를 대화방에서 완전히 삭제합니다',
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    onTap: () async {
-                      Navigator.pop(ctx);
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (dCtx) => AlertDialog(
-                          title: const Text('메시지를 삭제할까요?'),
-                          content:
-                              const Text('삭제된 메시지는 대화방 참여자 모두에게 더 이상 보이지 않아요.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(dCtx, false),
-                              child: const Text('취소'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(dCtx, true),
-                              child: const Text('삭제',
-                                  style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirm == true && mounted) {
-                        final msgId = (msg['id'] ?? '').toString();
-                        if (msgId.isNotEmpty) {
-                          try {
-                            await _repo.deleteMessage(widget.chatRoomId, msgId);
-                          } catch (_) {}
-                        }
-                        if (mounted) setState(() {});
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('메시지가 삭제되었습니다.')),
-                        );
-                      }
-                    },
-                  ),
-                ],
-                if (!isMe) ...[
-                  ListTile(
-                    leading: const Icon(Icons.flag_outlined, color: Colors.red),
-                    title: const Text('이 메시지 신고하기',
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w600)),
-                    subtitle: const Text('부적절한 언어, 스팸, 혐오 표현 등',
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      UgcActionSheets.showReportDialog(
-                        context: context,
-                        targetType: '채팅 메시지',
-                        targetId: msg['id'] ??
-                            'msg_${DateTime.now().millisecondsSinceEpoch}',
-                        targetUser: sender,
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.block, color: Colors.deepOrange),
-                    title: Text('$sender님 차단하기',
-                        style: const TextStyle(
-                            color: Colors.deepOrange,
-                            fontWeight: FontWeight.w600)),
-                    subtitle: const Text('이 사용자의 모든 메시지가 즉시 가려집니다',
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      UgcActionSheets.showBlockConfirmDialog(
-                        context: context,
-                        userName: sender,
-                        onUserBlocked: () => setState(() {}),
-                      );
-                    },
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildTextMessage(Map<String, dynamic> msg) {
@@ -2171,65 +727,53 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
 
     final bubbleRadius = isMe
         ? const BorderRadius.only(
-            topLeft: Radius.circular(18),
-            topRight: Radius.circular(4),
-            bottomLeft: Radius.circular(18),
-            bottomRight: Radius.circular(18),
+            topLeft: Radius.circular(OomuTokens.r16),
+            topRight: Radius.circular(OomuTokens.r4),
+            bottomLeft: Radius.circular(OomuTokens.r16),
+            bottomRight: Radius.circular(OomuTokens.r16),
           )
         : const BorderRadius.only(
-            topLeft: Radius.circular(4),
-            topRight: Radius.circular(18),
-            bottomLeft: Radius.circular(18),
-            bottomRight: Radius.circular(18),
+            topLeft: Radius.circular(OomuTokens.r4),
+            topRight: Radius.circular(OomuTokens.r16),
+            bottomLeft: Radius.circular(OomuTokens.r16),
+            bottomRight: Radius.circular(OomuTokens.r16),
           );
 
     final bubbleDecoration = isMe
         ? BoxDecoration(
-            color: const Color(0xFFFF5C39),
+            color: OomuTokens.coral,
             borderRadius: bubbleRadius,
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFFF5C39).withValues(alpha: 0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
           )
         : BoxDecoration(
-            color: Colors.white,
+            color: OomuTokens.surface,
             borderRadius: bubbleRadius,
-            border: Border.all(color: const Color(0xFFF0E6D4), width: 1.0),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF4A3014).withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            border: Border.all(color: OomuTokens.border, width: 1.0),
           );
-    final textColor = isMe ? Colors.white : const Color(0xFF2B2118);
+    final textColor = isMe ? OomuTokens.surface : OomuTokens.textPrimary;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s12),
       child: Row(
         mainAxisAlignment:
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
-            _buildAvatar(avatarUrl: senderAvatar, name: sender),
-            const SizedBox(width: 8),
+            OomuAvatar(imageUrl: senderAvatar, name: sender, radius: 16),
+            const SizedBox(width: OomuTokens.s8),
           ],
           if (isMe && timeStr.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Text(
                 timeStr,
-                style:
-                    const TextStyle(fontSize: 10.5, color: Color(0xFFA99A87)),
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs11,
+                  color: OomuTokens.textMuted,
+                ),
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: OomuTokens.s8),
           ],
           Flexible(
             child: ConstrainedBox(
@@ -2245,9 +789,9 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       child: Text(
                         sender,
                         style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF7D6F5E),
+                          fontSize: OomuTokens.fs11,
+                          fontWeight: FontWeight.w600,
+                          color: OomuTokens.textSecondary,
                         ),
                       ),
                     ),
@@ -2255,14 +799,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     onLongPress: () => _showMessageActionSheet(msg),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
+                          horizontal: OomuTokens.s12, vertical: OomuTokens.s8),
                       decoration: bubbleDecoration,
                       child: Text(
                         (msg['text'] ?? '').toString(),
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: OomuTokens.fs14,
                           height: 1.45,
-                          fontWeight: isMe ? FontWeight.w500 : FontWeight.w500,
+                          fontWeight: FontWeight.w500,
                           color: textColor,
                         ),
                       ),
@@ -2273,13 +817,15 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             ),
           ),
           if (!isMe && timeStr.isNotEmpty) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: OomuTokens.s8),
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Text(
                 timeStr,
-                style:
-                    const TextStyle(fontSize: 10.5, color: Color(0xFFA99A87)),
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs11,
+                  color: OomuTokens.textMuted,
+                ),
               ),
             ),
           ],
@@ -2288,19 +834,477 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
-  Widget _buildAvatar({String? avatarUrl, String? name}) {
-    final avatar = (avatarUrl != null && avatarUrl.isNotEmpty)
-        ? avatarUrl
-        : 'assets/images/민지.png';
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFF0E6D4), width: 1.2),
+  Widget _buildImageMessage(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final sender = (msg['sender'] ?? '이웃').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+    final rawUrl = (msg['imageUrl'] ?? '').toString();
+    final imageUrl = r2Storage.getPublicViewUrl(rawUrl);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
+      child: Row(
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) ...[
+            OomuAvatar(imageUrl: senderAvatar, name: sender, radius: 16),
+            const SizedBox(width: OomuTokens.s8),
+          ],
+          if (isMe)
+            Text(msg['time'] ?? '방금',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+          if (isMe) const SizedBox(width: OomuTokens.s4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(OomuTokens.r16),
+            child: SizedBox(
+              width: 200,
+              height: 200,
+              child: appNetImage(
+                imageUrl,
+                fit: BoxFit.cover,
+                width: 200,
+                height: 200,
+              ),
+            ),
+          ),
+          if (!isMe) const SizedBox(width: OomuTokens.s4),
+          if (!isMe)
+            Text(msg['time'] ?? '방금',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+        ],
       ),
-      child: CircleAvatar(
-        radius: 16,
-        backgroundColor: const Color(0xFFFFE3D8),
-        backgroundImage: appImg(avatar),
+    );
+  }
+
+  Widget _buildStickerMessage(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final sender = (msg['sender'] ?? '이웃').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+    final rawUrl = (msg['imageUrl'] ?? '').toString();
+    final imageUrl = r2Storage.getPublicViewUrl(rawUrl);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: OomuTokens.s12),
+      child: Row(
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) ...[
+            OomuAvatar(imageUrl: senderAvatar, name: sender, radius: 16),
+            const SizedBox(width: OomuTokens.s8),
+          ],
+          if (isMe)
+            Text(msg['time'] ?? '방금',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+          if (isMe) const SizedBox(width: OomuTokens.s4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(OomuTokens.r16),
+            child: Container(
+              color: OomuTokens.surfaceMuted,
+              padding: const EdgeInsets.all(OomuTokens.s4),
+              child: appNetImage(
+                imageUrl,
+                fit: BoxFit.contain,
+                width: 140,
+                height: 140,
+              ),
+            ),
+          ),
+          if (!isMe) const SizedBox(width: OomuTokens.s4),
+          if (!isMe)
+            Text(msg['time'] ?? '방금',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationMessage(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final sender = (msg['sender'] ?? '이웃').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+    final mapUrl = msg['mapUrl'] ?? '';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
+      child: Row(
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) ...[
+            OomuAvatar(imageUrl: senderAvatar, name: sender, radius: 16),
+            const SizedBox(width: OomuTokens.s8),
+          ],
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+          if (isMe) const SizedBox(width: OomuTokens.s4),
+          GestureDetector(
+            onTap: () async {
+              if (mapUrl.isNotEmpty) {
+                final Uri url = Uri.parse(mapUrl);
+                if (!await launchUrl(url)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('지도를 열 수 없습니다.')));
+                }
+              }
+            },
+            child: Container(
+              width: 220,
+              padding: const EdgeInsets.all(OomuTokens.s12),
+              decoration: BoxDecoration(
+                color: OomuTokens.surface,
+                borderRadius: BorderRadius.circular(OomuTokens.r16),
+                border: Border.all(color: OomuTokens.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.location_on, color: OomuTokens.coral, size: 20),
+                      SizedBox(width: OomuTokens.s4),
+                      Text('현재 위치 공유',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: OomuTokens.fs14,
+                              color: OomuTokens.textPrimary)),
+                    ],
+                  ),
+                  const SizedBox(height: OomuTokens.s8),
+                  Container(
+                    height: 80,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: OomuTokens.surfaceMuted,
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      border: Border.all(color: OomuTokens.border),
+                    ),
+                    child: const Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.map_outlined,
+                              size: 16, color: OomuTokens.textPrimary),
+                          SizedBox(width: OomuTokens.s8),
+                          Text('카카오맵 길찾기',
+                              style: TextStyle(
+                                  color: OomuTokens.textPrimary,
+                                  fontSize: OomuTokens.fs12,
+                                  fontWeight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (!isMe) const SizedBox(width: OomuTokens.s4),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSystemMessage(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: OomuTokens.s12, vertical: OomuTokens.s4),
+          decoration: BoxDecoration(
+            color: OomuTokens.surfaceMuted,
+            borderRadius: BorderRadius.circular(OomuTokens.rPill),
+          ),
+          child: Text(text,
+              style: const TextStyle(
+                  fontSize: OomuTokens.fs11,
+                  color: OomuTokens.textSecondary,
+                  fontWeight: FontWeight.w500)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlockedMessagePlaceholder(String sender) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: OomuTokens.s4),
+      padding: const EdgeInsets.symmetric(
+          horizontal: OomuTokens.s12, vertical: OomuTokens.s8),
+      decoration: BoxDecoration(
+        color: OomuTokens.surfaceMuted,
+        borderRadius: BorderRadius.circular(OomuTokens.r12),
+        border: Border.all(color: OomuTokens.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.block, size: 14, color: OomuTokens.textMuted),
+          const SizedBox(width: OomuTokens.s8),
+          Expanded(
+            child: Text(
+              '차단된 사용자($sender)의 메시지입니다.',
+              style: const TextStyle(
+                  fontSize: OomuTokens.fs12, color: OomuTokens.textMuted),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              globalData.unblockUser(sender);
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('🎉 $sender님의 차단이 해제되었습니다.')),
+              );
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: OomuTokens.s4, vertical: 2),
+              child: Text(
+                '차단 해제',
+                style: TextStyle(
+                    fontSize: OomuTokens.fs11,
+                    fontWeight: FontWeight.w700,
+                    color: OomuTokens.coral),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAiSpotSummaryCard(Map<String, dynamic> msg) {
+    final isMe = msg['isMe'] == true;
+    final sender = (msg['sender'] ?? '이웃').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+    final spotName = msg['spotName'] ?? '소소스팟';
+    final summary = msg['summary'] ?? '';
+    final parkingTip = msg['parkingTip'] ?? '';
+    final popularMenu = msg['popularMenu'] ?? '';
+    final vibe = msg['vibe'] ?? '';
+    final List<dynamic> tags = msg['tags'] ?? [];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
+      child: Row(
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) ...[
+            OomuAvatar(imageUrl: senderAvatar, name: sender, radius: 16),
+            const SizedBox(width: OomuTokens.s8),
+          ],
+          if (isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+          if (isMe) const SizedBox(width: OomuTokens.s4),
+          Container(
+            width: 275,
+            padding: const EdgeInsets.all(OomuTokens.s16),
+            decoration: BoxDecoration(
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(OomuTokens.s4),
+                      decoration: const BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.auto_awesome,
+                          color: OomuTokens.coral, size: 16),
+                    ),
+                    const SizedBox(width: OomuTokens.s8),
+                    const Expanded(
+                      child: Text(
+                        'AI 1분 맛집 · 스팟 브리핑',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          fontWeight: FontWeight.w700,
+                          color: OomuTokens.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: OomuTokens.s8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        borderRadius: BorderRadius.circular(OomuTokens.r8),
+                      ),
+                      child: const Text(
+                        'AI 요약',
+                        style: TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            fontWeight: FontWeight.w700,
+                            color: OomuTokens.coral),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: OomuTokens.s12),
+                Text(
+                  spotName,
+                  style: const TextStyle(
+                      fontSize: OomuTokens.fs16,
+                      fontWeight: FontWeight.w700,
+                      color: OomuTokens.textPrimary),
+                ),
+                const SizedBox(height: OomuTokens.s4),
+                Text(
+                  summary,
+                  style: const TextStyle(
+                      fontSize: OomuTokens.fs12,
+                      height: 1.4,
+                      color: OomuTokens.textSecondary),
+                ),
+                const SizedBox(height: OomuTokens.s8),
+                Container(
+                  padding: const EdgeInsets.all(OomuTokens.s8),
+                  decoration: BoxDecoration(
+                    color: OomuTokens.surfaceMuted,
+                    borderRadius: BorderRadius.circular(OomuTokens.r8),
+                  ),
+                  child: Column(
+                    children: [
+                      if (popularMenu.isNotEmpty)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('대표메뉴: ',
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.textPrimary)),
+                            Expanded(
+                              child: Text(popularMenu,
+                                  style: const TextStyle(
+                                      fontSize: OomuTokens.fs11,
+                                      color: OomuTokens.textSecondary)),
+                            ),
+                          ],
+                        ),
+                      if (parkingTip.isNotEmpty) ...[
+                        const SizedBox(height: OomuTokens.s4),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('주차꿀팁: ',
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.textPrimary)),
+                            Expanded(
+                              child: Text(parkingTip,
+                                  style: const TextStyle(
+                                      fontSize: OomuTokens.fs11,
+                                      color: OomuTokens.textSecondary)),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (vibe.isNotEmpty) ...[
+                        const SizedBox(height: OomuTokens.s4),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('분위기: ',
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.textPrimary)),
+                            Expanded(
+                              child: Text(vibe,
+                                  style: const TextStyle(
+                                      fontSize: OomuTokens.fs11,
+                                      color: OomuTokens.textSecondary)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (tags.isNotEmpty) ...[
+                  const SizedBox(height: OomuTokens.s8),
+                  Wrap(
+                    spacing: OomuTokens.s4,
+                    runSpacing: OomuTokens.s4,
+                    children: tags
+                        .map((t) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: OomuTokens.s8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: OomuTokens.surfaceMuted,
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r8),
+                              ),
+                              child: Text(
+                                t.toString(),
+                                style: const TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    color: OomuTokens.textSecondary,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ],
+                const SizedBox(height: OomuTokens.s12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 38,
+                  child: ElevatedButton.icon(
+                    onPressed: () => KakaoMapService.launchDirections(spotName),
+                    icon: const Icon(Icons.map_outlined,
+                        size: 16, color: OomuTokens.textPrimary),
+                    label: const Text('카카오 길찾기',
+                        style: TextStyle(
+                            fontSize: OomuTokens.fs12,
+                            fontWeight: FontWeight.w700,
+                            color: OomuTokens.textPrimary)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OomuTokens.surfaceMuted,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(OomuTokens.r8)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!isMe) const SizedBox(width: OomuTokens.s4),
+          if (!isMe)
+            Text(msg['time'] ?? '',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs11, color: OomuTokens.textMuted)),
+        ],
       ),
     );
   }
@@ -2308,28 +1312,29 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   Widget _buildMessageInput() => SafeArea(
         top: false,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+          padding: const EdgeInsets.fromLTRB(
+              OomuTokens.s12, OomuTokens.s8, OomuTokens.s12, OomuTokens.s12),
           decoration: const BoxDecoration(
-            color: Color(0xFFFFF9F2),
-            border: Border(top: BorderSide(color: Color(0xFFF1E7D6), width: 1)),
+            color: OomuTokens.surface,
+            border: Border(top: BorderSide(color: OomuTokens.border, width: 1)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                margin: const EdgeInsets.only(bottom: 2, right: 8),
+                margin: const EdgeInsets.only(bottom: 2, right: OomuTokens.s8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF3E9D8),
+                  color: OomuTokens.surfaceMuted,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
                   tooltip: '도구함 열기',
                   padding: EdgeInsets.zero,
                   constraints:
-                      const BoxConstraints(minWidth: 38, minHeight: 38),
+                      const BoxConstraints(minWidth: 40, minHeight: 40),
                   onPressed: _sending ? null : _showAttachmentMenu,
                   icon: const Icon(Icons.add_rounded,
-                      color: Color(0xFF7D6F5E), size: 22),
+                      color: OomuTokens.textSecondary, size: 22),
                 ),
               ),
               Expanded(
@@ -2339,56 +1344,51 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   maxLines: 4,
                   textInputAction: TextInputAction.newline,
                   keyboardType: TextInputType.multiline,
-                  style:
-                      const TextStyle(fontSize: 14, color: Color(0xFF2B2118)),
+                  style: const TextStyle(
+                      fontSize: OomuTokens.fs14, color: OomuTokens.textPrimary),
                   decoration: InputDecoration(
                     hintText: '메시지 보내기…',
-                    hintStyle:
-                        const TextStyle(fontSize: 14, color: Color(0xFFA99A87)),
+                    hintStyle: const TextStyle(
+                        fontSize: OomuTokens.fs14, color: OomuTokens.textMuted),
                     filled: true,
-                    fillColor: const Color(0xFFF6F0E4),
+                    fillColor: OomuTokens.surfaceMuted,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
+                        horizontal: OomuTokens.s16, vertical: OomuTokens.s8),
                     suffixIcon: IconButton(
                       tooltip: '인기 움짤 스티커',
                       icon: const Icon(
                         Icons.sentiment_satisfied_alt_rounded,
-                        color: Color(0xFF7D6F5E),
+                        color: OomuTokens.textMuted,
                         size: 22,
                       ),
-                      onPressed:
-                          _sending ? null : _showStickerPickerBottomSheet,
+                      onPressed: _sending
+                          ? null
+                          : () => ChatModals.showStickerPicker(context,
+                              onCreated: _addMessage),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(OomuTokens.rPill),
                       borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(OomuTokens.rPill),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(OomuTokens.rPill),
                       borderSide: const BorderSide(
-                          color: Color(0xFFFF5C39), width: 1.2),
+                          color: OomuTokens.coral, width: 1.2),
                     ),
                   ),
                 ),
               ),
               Container(
-                margin: const EdgeInsets.only(bottom: 2, left: 8),
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF5C39),
+                margin: const EdgeInsets.only(bottom: 2, left: OomuTokens.s8),
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: OomuTokens.coral,
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF5C39).withValues(alpha: 0.30),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: IconButton(
                   tooltip: '메시지 전송',
@@ -2396,301 +1396,16 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   onPressed: _sending ? null : _sendMessage,
                   icon: _sending
                       ? const SizedBox(
-                          width: 17,
-                          height: 17,
+                          width: 16,
+                          height: 16,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
+                              strokeWidth: 2, color: OomuTokens.surface))
                       : const Icon(Icons.send_rounded,
-                          color: Colors.white, size: 17),
+                          color: OomuTokens.surface, size: 18),
                 ),
               ),
             ],
           ),
         ),
       );
-
-  void _showAiTopicsBottomSheet() {
-    final topics = oomuAi.generateIcebreakerTopics(
-        meetingTitle: widget.title, seedOffset: 0);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      builder: (ctx) => SafeArea(
-          child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('편하게 꺼내볼 이야기',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 8),
-              Text('질문을 고르면 입력창에 담겨요. 내용을 확인한 뒤 직접 보내세요.',
-                  style: TextStyle(
-                      fontSize: 15, height: 1.5, color: textSecondary)),
-              const SizedBox(height: 16),
-              FutureBuilder<List<Map<String, String>>>(
-                  future: topics,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError)
-                      return const Text('추천 질문을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-                    if (!snapshot.hasData)
-                      return const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Center(child: CircularProgressIndicator()));
-                    return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: snapshot.data!
-                            .where((t) => (t['question'] ?? '').isNotEmpty)
-                            .map((topic) => ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: Text(topic['question']!,
-                                      style: const TextStyle(
-                                          fontSize: 15, height: 1.5)),
-                                  trailing: const Icon(Icons.add),
-                                  onTap: () {
-                                    _controller.text = topic['question']!;
-                                    Navigator.pop(ctx);
-                                  },
-                                ))
-                            .toList());
-                  }),
-            ]),
-      )),
-    );
-  }
-
-  Widget _buildAiSpotSummaryCard(Map<String, dynamic> msg) {
-    final isMe = msg['isMe'] == true;
-    final spotName = msg['spotName'] ?? '소소스팟';
-    final summary = msg['summary'] ?? '';
-    final parkingTip = msg['parkingTip'] ?? '';
-    final popularMenu = msg['popularMenu'] ?? '';
-    final vibe = msg['vibe'] ?? '';
-    final List<dynamic> tags = msg['tags'] ?? [];
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) _buildAvatar(name: msg['sender']),
-          if (!isMe) const SizedBox(width: 8),
-          if (isMe)
-            Text(msg['time'] ?? '',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-          if (isMe) const SizedBox(width: 4),
-          Container(
-            width: 275,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                  color: const Color(0xFF0D9488).withValues(alpha: 0.35),
-                  width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF0D9488).withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top header
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0D9488).withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.auto_awesome,
-                          color: Color(0xFF0D9488), size: 16),
-                    ),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'AI 1분 맛집 · 스팟 브리핑',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F766E),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFCCFBF1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'AI 요약',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F766E)),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Spot Name
-                Text(
-                  spotName,
-                  style: const TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B)),
-                ),
-                const SizedBox(height: 6),
-
-                // Briefing text
-                Text(
-                  summary,
-                  style: const TextStyle(
-                      fontSize: 12.5, height: 1.4, color: Color(0xFF334155)),
-                ),
-                const SizedBox(height: 10),
-
-                // Details container
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0FDFA),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFCCFBF1)),
-                  ),
-                  child: Column(
-                    children: [
-                      if (popularMenu.isNotEmpty)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('🍽️ ', style: TextStyle(fontSize: 11)),
-                            const Text('대표메뉴: ',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF134E4A))),
-                            Expanded(
-                              child: Text(popularMenu,
-                                  style: const TextStyle(
-                                      fontSize: 11, color: Color(0xFF134E4A))),
-                            ),
-                          ],
-                        ),
-                      if (parkingTip.isNotEmpty) ...[
-                        const SizedBox(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('🚗 ', style: TextStyle(fontSize: 11)),
-                            const Text('주차꿀팁: ',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF134E4A))),
-                            Expanded(
-                              child: Text(parkingTip,
-                                  style: const TextStyle(
-                                      fontSize: 11, color: Color(0xFF134E4A))),
-                            ),
-                          ],
-                        ),
-                      ],
-                      if (vibe.isNotEmpty) ...[
-                        const SizedBox(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('✨ ', style: TextStyle(fontSize: 11)),
-                            const Text('분위기: ',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF134E4A))),
-                            Expanded(
-                              child: Text(vibe,
-                                  style: const TextStyle(
-                                      fontSize: 11, color: Color(0xFF134E4A))),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                if (tags.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: tags
-                        .map((t) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                t.toString(),
-                                style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Color(0xFF64748B),
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                ],
-
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 36,
-                  child: ElevatedButton.icon(
-                    onPressed: () => KakaoMapService.launchDirections(spotName),
-                    icon: const Icon(Icons.directions_rounded,
-                        size: 14, color: Color(0xFF191919)),
-                    label: const Text('카카오 길찾기 연동',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF191919))),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFEE500),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!isMe) const SizedBox(width: 4),
-          if (!isMe)
-            Text(msg['time'] ?? '',
-                style: TextStyle(fontSize: 10, color: textSecondary)),
-        ],
-      ),
-    );
-  }
 }
-
-// ===========================================================================
-// 동적 컴포넌트: 일정 참석 투표 카드
-// ===========================================================================

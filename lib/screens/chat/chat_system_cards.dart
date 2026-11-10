@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../services/kakao_map_service.dart';
-import '../../utils/app_image.dart';
-import '../../utils/global_data.dart';
-import '../../ui/oomu_tokens.dart';
 
+import '../../services/kakao_map_service.dart';
+import '../../ui/oomu_avatar.dart';
+import '../../ui/oomu_tokens.dart';
+import '../../utils/global_data.dart';
+
+// ===========================================================================
+// 동적 컴포넌트: 일정 참석 투표 카드
+// ===========================================================================
 class InteractiveScheduleCard extends StatefulWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
@@ -38,35 +42,35 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
     final bool isFull = attendCount >= maxMembers && !isAttending;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
         mainAxisAlignment:
             widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/민지.png')),
-          if (!widget.isMe) const SizedBox(width: 8),
+            const OomuAvatar(
+              imageUrl: 'assets/images/민지.png',
+              name: '민지',
+              radius: 16,
+            ),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
           if (widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
-          if (widget.isMe) const SizedBox(width: 4),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
+          if (widget.isMe) const SizedBox(width: OomuTokens.s4),
           Container(
             width: 270,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                  color: Colors.blue.withValues(alpha: 0.35), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.blue.withValues(alpha: 0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4))
-              ],
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,133 +79,214 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.12),
-                          shape: BoxShape.circle),
-                      child: const Icon(Icons.calendar_month,
-                          color: Colors.blue, size: 18),
+                      decoration: const BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.calendar_month,
+                        color: OomuTokens.textPrimary,
+                        size: 16,
+                      ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: OomuTokens.s8),
                     Expanded(
                       child: Text(
                         widget.msg['title'] ?? '새로운 일정 제안',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textPrimary,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (attendCount >= maxMembers)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: OomuTokens.s8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(6)),
-                        child: const Text('마감됨',
-                            style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey)),
+                          color: OomuTokens.surfaceMuted,
+                          borderRadius: BorderRadius.circular(OomuTokens.r8),
+                        ),
+                        child: const Text(
+                          '마감됨',
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textMuted,
+                          ),
+                        ),
                       ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: OomuTokens.s12),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(OomuTokens.s12),
                   decoration: BoxDecoration(
-                      color: const Color(0xFFF5F7FA),
-                      borderRadius: BorderRadius.circular(10)),
+                    color: OomuTokens.surfaceMuted,
+                    borderRadius: BorderRadius.circular(OomuTokens.r12),
+                  ),
                   child: Column(
                     children: [
-                      Row(children: [
-                        const Icon(Icons.event, size: 14, color: Colors.blue),
-                        const SizedBox(width: 6),
-                        const Text('날짜: ',
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.event,
+                            size: 14,
+                            color: OomuTokens.textSecondary,
+                          ),
+                          const SizedBox(width: OomuTokens.s8),
+                          const Text(
+                            '날짜: ',
                             style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text(widget.msg['date'] ?? '-',
-                            style: const TextStyle(fontSize: 12)),
-                      ]),
-                      const SizedBox(height: 6),
-                      Row(children: [
-                        const Icon(Icons.access_time,
-                            size: 14, color: Colors.blue),
-                        const SizedBox(width: 6),
-                        const Text('시간: ',
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: OomuTokens.w700,
+                              color: OomuTokens.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            widget.msg['date'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              color: OomuTokens.textBody,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: OomuTokens.s8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: OomuTokens.textSecondary,
+                          ),
+                          const SizedBox(width: OomuTokens.s8),
+                          const Text(
+                            '시간: ',
                             style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text(widget.msg['timeStr'] ?? widget.msg['time'] ?? '-',
-                            style: const TextStyle(fontSize: 12)),
-                      ]),
-                      const SizedBox(height: 6),
-                      Row(children: [
-                        const Icon(Icons.place, size: 14, color: Colors.blue),
-                        const SizedBox(width: 6),
-                        const Text('장소: ',
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: OomuTokens.w700,
+                              color: OomuTokens.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            widget.msg['timeStr'] ?? widget.msg['time'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              color: OomuTokens.textBody,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: OomuTokens.s8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.place,
+                            size: 14,
+                            color: OomuTokens.textSecondary,
+                          ),
+                          const SizedBox(width: OomuTokens.s8),
+                          const Text(
+                            '장소: ',
                             style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: Text(widget.msg['location'] ?? '-',
-                              style: const TextStyle(fontSize: 12),
-                              overflow: TextOverflow.ellipsis),
-                        ),
-                      ]),
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: OomuTokens.w700,
+                              color: OomuTokens.textPrimary,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              widget.msg['location'] ?? '-',
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                color: OomuTokens.textBody,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: OomuTokens.s12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.group, size: 14, color: Color(0xFF767676)),
-                        SizedBox(width: 4),
-                        Text('참석 확정 현황',
-                            style: TextStyle(
-                                fontSize: 12, color: Color(0xFF767676))),
+                        Icon(
+                          Icons.group,
+                          size: 14,
+                          color: OomuTokens.textSecondary,
+                        ),
+                        SizedBox(width: OomuTokens.s4),
+                        Text(
+                          '참석 확정 현황',
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs12,
+                            color: OomuTokens.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
-                    Text('$attendCount / $maxMembers 명',
-                        style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue)),
+                    Text(
+                      '$attendCount / $maxMembers 명',
+                      style: const TextStyle(
+                        fontSize: OomuTokens.fs12,
+                        fontWeight: OomuTokens.w700,
+                        color: OomuTokens.coral,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: OomuTokens.s8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(OomuTokens.r8),
                   child: LinearProgressIndicator(
                     value: (attendCount / maxMembers).clamp(0.0, 1.0),
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        attendCount >= maxMembers ? Colors.green : Colors.blue),
+                    backgroundColor: OomuTokens.surfaceMuted,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      OomuTokens.coral,
+                    ),
                     minHeight: 6,
                   ),
                 ),
                 if (attendees.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: OomuTokens.s8),
                   Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
+                    spacing: OomuTokens.s4,
+                    runSpacing: OomuTokens.s4,
                     children: attendees
-                        .map((name) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(4)),
-                              child: Text('✓ $name',
-                                  style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.w600)),
-                            ))
+                        .map(
+                          (name) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: OomuTokens.s8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.surfaceMuted,
+                              borderRadius: BorderRadius.circular(OomuTokens.r8),
+                            ),
+                            child: Text(
+                              '✓ $name',
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs11,
+                                color: OomuTokens.textPrimary,
+                                fontWeight: OomuTokens.w600,
+                              ),
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
-                const SizedBox(height: 14),
+                const SizedBox(height: OomuTokens.s12),
                 SizedBox(
                   width: double.infinity,
                   height: 42,
@@ -209,7 +294,8 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                     onPressed: () {
                       if (isFull) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('모집 인원이 마감되었습니다!')));
+                          const SnackBar(content: Text('모집 인원이 마감되었습니다!')),
+                        );
                         return;
                       }
                       final newAttendees = List<String>.from(attendees);
@@ -223,37 +309,49 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text(!isAttending
+                          content: Text(
+                            !isAttending
                                 ? '👍 모임 참석이 확정되었습니다!'
-                                : '일정 참석을 취소했습니다.')),
+                                : '일정 참석을 취소했습니다.',
+                          ),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isAttending
-                          ? const Color(0xFFF0F0F0)
-                          : (isFull ? Colors.grey[300] : Colors.blue),
-                      foregroundColor:
-                          isAttending ? Colors.black87 : Colors.white,
+                          ? OomuTokens.surfaceMuted
+                          : (isFull ? OomuTokens.border : OomuTokens.coral),
+                      foregroundColor: isAttending
+                          ? OomuTokens.textPrimary
+                          : OomuTokens.surface,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      ),
                     ),
                     child: Text(
                       isAttending
                           ? '참석 취소하기'
                           : (isFull ? '모집 마감' : '👍 저도 참석할게요!'),
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 13),
+                        fontWeight: OomuTokens.w700,
+                        fontSize: OomuTokens.fs12,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s4),
           if (!widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
         ],
       ),
     );
@@ -297,35 +395,35 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
     final int totalVotes = opt1Count + opt2Count;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
         mainAxisAlignment:
             widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/민지.png')),
-          if (!widget.isMe) const SizedBox(width: 8),
+            const OomuAvatar(
+              imageUrl: 'assets/images/민지.png',
+              name: '민지',
+              radius: 16,
+            ),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
           if (widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
-          if (widget.isMe) const SizedBox(width: 4),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
+          if (widget.isMe) const SizedBox(width: OomuTokens.s4),
           Container(
             width: 260,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                  color: Colors.purple.withValues(alpha: 0.35), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.purple.withValues(alpha: 0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4))
-              ],
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,62 +432,97 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                          color: Colors.purple.withValues(alpha: 0.12),
-                          shape: BoxShape.circle),
-                      child: const Icon(Icons.how_to_vote,
-                          color: Colors.purple, size: 18),
+                      decoration: const BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.how_to_vote,
+                        color: OomuTokens.textPrimary,
+                        size: 16,
+                      ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: OomuTokens.s8),
                     Expanded(
                       child: Text(
                         widget.msg['title'] ?? '투표',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textPrimary,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: OomuTokens.s8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('실시간 실명 투표',
-                        style: TextStyle(fontSize: 11, color: Colors.grey)),
-                    Text('총 $totalVotes명 참여',
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.purple)),
+                    const Text(
+                      '실시간 실명 투표',
+                      style: TextStyle(
+                        fontSize: OomuTokens.fs11,
+                        color: OomuTokens.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      '총 $totalVotes명 참여',
+                      style: const TextStyle(
+                        fontSize: OomuTokens.fs11,
+                        fontWeight: OomuTokens.w700,
+                        color: OomuTokens.coral,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                _buildPollOption(1, widget.msg['opt1'] ?? '옵션 1', opt1Count,
-                    totalVotes, selectedOption == 1, currentNick, voters),
-                const SizedBox(height: 8),
-                _buildPollOption(2, widget.msg['opt2'] ?? '옵션 2', opt2Count,
-                    totalVotes, selectedOption == 2, currentNick, voters),
+                const SizedBox(height: OomuTokens.s12),
+                _buildPollOption(
+                  1,
+                  widget.msg['opt1'] ?? '옵션 1',
+                  opt1Count,
+                  totalVotes,
+                  selectedOption == 1,
+                  currentNick,
+                  voters,
+                ),
+                const SizedBox(height: OomuTokens.s8),
+                _buildPollOption(
+                  2,
+                  widget.msg['opt2'] ?? '옵션 2',
+                  opt2Count,
+                  totalVotes,
+                  selectedOption == 2,
+                  currentNick,
+                  voters,
+                ),
               ],
             ),
           ),
-          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s4),
           if (!widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildPollOption(
-      int optionIndex,
-      String text,
-      int count,
-      int totalVotes,
-      bool isSelected,
-      String currentNick,
-      Map<String, dynamic> voters) {
+    int optionIndex,
+    String text,
+    int count,
+    int totalVotes,
+    bool isSelected,
+    String currentNick,
+    Map<String, dynamic> voters,
+  ) {
     final double percent = totalVotes > 0 ? (count / totalVotes) : 0.0;
 
     return GestureDetector(
@@ -405,17 +538,19 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: OomuTokens.s12,
+          vertical: OomuTokens.s8,
+        ),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.purple.withValues(alpha: 0.08)
-              : const Color(0xFFF7F7F9),
-          borderRadius: BorderRadius.circular(10),
+              ? OomuTokens.surfaceMuted
+              : OomuTokens.surface,
+          borderRadius: BorderRadius.circular(OomuTokens.r12),
           border: Border.all(
-              color: isSelected
-                  ? Colors.purple
-                  : Colors.grey.withValues(alpha: 0.2),
-              width: isSelected ? 1.5 : 1.0),
+            color: isSelected ? OomuTokens.coral : OomuTokens.border,
+            width: isSelected ? 1.5 : 1.0,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,22 +562,24 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                   child: Row(
                     children: [
                       Icon(
-                          isSelected
-                              ? Icons.check_circle
-                              : Icons.radio_button_unchecked,
-                          size: 16,
-                          color: isSelected ? Colors.purple : Colors.grey),
-                      const SizedBox(width: 6),
+                        isSelected
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        size: 16,
+                        color: isSelected ? OomuTokens.coral : OomuTokens.textMuted,
+                      ),
+                      const SizedBox(width: OomuTokens.s8),
                       Expanded(
                         child: Text(
                           text,
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight:
-                                isSelected ? FontWeight.bold : FontWeight.w500,
+                            fontSize: OomuTokens.fs12,
+                            fontWeight: isSelected
+                                ? OomuTokens.w700
+                                : OomuTokens.w600,
                             color: isSelected
-                                ? Colors.purple
-                                : const Color(0xFF222222),
+                                ? OomuTokens.textPrimary
+                                : OomuTokens.textBody,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -450,22 +587,29 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
                     ],
                   ),
                 ),
-                Text('$count명',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.purple : Colors.grey[700])),
+                Text(
+                  '$count명',
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    fontWeight: OomuTokens.w700,
+                    color: isSelected
+                        ? OomuTokens.coral
+                        : OomuTokens.textSecondary,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: OomuTokens.s8),
             ClipRRect(
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(OomuTokens.r8),
               child: LinearProgressIndicator(
                 value: percent,
-                backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation<Color>(isSelected
-                    ? Colors.purple
-                    : Colors.purple.withValues(alpha: 0.5)),
+                backgroundColor: OomuTokens.surfaceMuted,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isSelected
+                      ? OomuTokens.coral
+                      : OomuTokens.textMuted,
+                ),
                 minHeight: 4,
               ),
             ),
@@ -477,14 +621,17 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
 }
 
 // ===========================================================================
-// 동적 컴포넌트: 1/N 더치페이 정산 카드
+// 동적 컴포넌트: 추천 핫플 장소 카드 (카카오 길찾기 연동)
 // ===========================================================================
 class InteractiveHotspotCard extends StatelessWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
 
-  const InteractiveHotspotCard(
-      {super.key, required this.msg, required this.isMe});
+  const InteractiveHotspotCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -493,38 +640,40 @@ class InteractiveHotspotCard extends StatelessWidget {
     final double? lat = (msg['lat'] as num?)?.toDouble();
     final double? lng = (msg['lng'] as num?)?.toDouble();
 
-    // 실제 카카오맵 링크 생성 (이름과 좌표 포함)
     final String kakaoMapUrl = (lat != null && lng != null)
         ? KakaoMapService.getKakaoMapPinUrl(name, lat, lng)
         : KakaoMapService.getKakaoSearchUrl('$name $address');
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
         mainAxisAlignment:
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe)
-            const CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/민지.png')),
-          if (!isMe) const SizedBox(width: 8),
+            const OomuAvatar(
+              imageUrl: 'assets/images/민지.png',
+              name: '민지',
+              radius: 16,
+            ),
+          if (!isMe) const SizedBox(width: OomuTokens.s8),
           if (isMe)
-            Text(msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
-          if (isMe) const SizedBox(width: 4),
+            Text(
+              msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
+          if (isMe) const SizedBox(width: OomuTokens.s4),
           Container(
             width: 250,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.brown.withValues(alpha: 0.3)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.brown.withValues(alpha: 0.05), blurRadius: 10)
-              ],
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,76 +681,89 @@ class InteractiveHotspotCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                            color: Colors.brown.withValues(alpha: 0.1),
-                            shape: BoxShape.circle),
-                        child: const Icon(Icons.local_cafe,
-                            color: Colors.brown, size: 16)),
-                    const SizedBox(width: 8),
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.local_cafe,
+                        color: OomuTokens.textPrimary,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: OomuTokens.s8),
                     Expanded(
-                        child: Text(msg['title'] ?? '',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14),
-                            overflow: TextOverflow.ellipsis)),
+                      child: Text(
+                        msg['title'] ?? '동네 핫플 추천',
+                        style: const TextStyle(
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(name,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black87)),
-                const SizedBox(height: 4),
-                Text(address,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF767676))),
-                const SizedBox(height: 12),
+                const SizedBox(height: OomuTokens.s12),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: OomuTokens.fs16,
+                    fontWeight: OomuTokens.w700,
+                    color: OomuTokens.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: OomuTokens.s4),
+                Text(
+                  address,
+                  style: const TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    color: OomuTokens.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: OomuTokens.s12),
 
-                // 미니 지도 썸네일
+                // 중립 Secondary 카카오 길찾기 버튼
                 GestureDetector(
                   onTap: () async {
                     final Uri url = Uri.parse(kakaoMapUrl);
-                    if (!await launchUrl(url))
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('지도를 열 수 없습니다.')));
+                    if (!await launchUrl(url)) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('지도를 열 수 없습니다.')),
+                        );
+                      }
+                    }
                   },
                   child: Container(
-                    height: 90,
+                    height: 44,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBE6),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: const Color(0xFFFEE500), width: 1.2),
+                      color: OomuTokens.surfaceMuted,
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      border: Border.all(color: OomuTokens.border),
                     ),
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEE500),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2)),
-                          ],
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.location_on,
-                                size: 14, color: Color(0xFF191919)),
-                            SizedBox(width: 4),
-                            Text('카카오맵에서 위치 보기',
-                                style: TextStyle(
-                                    color: Color(0xFF191919),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800)),
-                          ],
-                        ),
+                    child: const Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.map_outlined,
+                            size: 16,
+                            color: OomuTokens.textPrimary,
+                          ),
+                          SizedBox(width: OomuTokens.s8),
+                          Text(
+                            '카카오 길찾기',
+                            style: TextStyle(
+                              color: OomuTokens.textPrimary,
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: OomuTokens.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -609,10 +771,15 @@ class InteractiveHotspotCard extends StatelessWidget {
               ],
             ),
           ),
-          if (!isMe) const SizedBox(width: 4),
+          if (!isMe) const SizedBox(width: OomuTokens.s4),
           if (!isMe)
-            Text(msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+            Text(
+              msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
         ],
       ),
     );
@@ -626,8 +793,11 @@ class InteractiveReviewCard extends StatelessWidget {
   final Map<String, dynamic> msg;
   final bool isMe;
 
-  const InteractiveReviewCard(
-      {super.key, required this.msg, required this.isMe});
+  const InteractiveReviewCard({
+    super.key,
+    required this.msg,
+    required this.isMe,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -635,33 +805,35 @@ class InteractiveReviewCard extends StatelessWidget {
     final String text = msg['text'] ?? '';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
         mainAxisAlignment:
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe)
-            const CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/민지.png')),
-          if (!isMe) const SizedBox(width: 8),
+            const OomuAvatar(
+              imageUrl: 'assets/images/민지.png',
+              name: '민지',
+              radius: 16,
+            ),
+          if (!isMe) const SizedBox(width: OomuTokens.s8),
           if (isMe)
-            Text(msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
-          if (isMe) const SizedBox(width: 4),
+            Text(
+              msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
+          if (isMe) const SizedBox(width: OomuTokens.s4),
           Container(
             width: 250,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.orange.withValues(alpha: 0.05),
-                    blurRadius: 10)
-              ],
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -669,47 +841,64 @@ class InteractiveReviewCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.1),
-                            shape: BoxShape.circle),
-                        child: const Icon(Icons.rate_review,
-                            color: Colors.orange, size: 16)),
-                    const SizedBox(width: 8),
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.rate_review,
+                        color: OomuTokens.textPrimary,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: OomuTokens.s8),
                     const Expanded(
-                        child: Text('✨ 모임 후기가 도착했어요!',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14))),
+                      child: Text(
+                        '✨ 모임 후기가 도착했어요!',
+                        style: TextStyle(
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textPrimary,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: OomuTokens.s12),
                 Row(
                   children: List.generate(
-                      5,
-                      (index) => Icon(
-                            index < rating ? Icons.star : Icons.star_border,
-                            color: Colors.orange,
-                            size: 20,
-                          )),
+                    5,
+                    (index) => Icon(
+                      index < rating ? Icons.star : Icons.star_border,
+                      size: 18,
+                      color: OomuTokens.coral,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F7),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Text(text,
-                      style: const TextStyle(
-                          fontSize: 14, color: Colors.black87, height: 1.4)),
-                ),
+                if (text.isNotEmpty) ...[
+                  const SizedBox(height: OomuTokens.s8),
+                  Text(
+                    text,
+                    style: const TextStyle(
+                      fontSize: OomuTokens.fs12,
+                      color: OomuTokens.textBody,
+                      height: 1.45,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-          if (!isMe) const SizedBox(width: 4),
+          if (!isMe) const SizedBox(width: OomuTokens.s4),
           if (!isMe)
-            Text(msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+            Text(
+              msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
         ],
       ),
     );
@@ -717,7 +906,7 @@ class InteractiveReviewCard extends StatelessWidget {
 }
 
 // ===========================================================================
-// 동적 컴포넌트: 안전 귀가 (Safe Return)
+// 동적 컴포넌트: 안심 귀가 확인 카드
 // ===========================================================================
 class InteractiveSafeReturnCard extends StatefulWidget {
   final Map<String, dynamic> msg;
@@ -749,35 +938,35 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
     final int likes = cheers.length;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
         mainAxisAlignment:
             widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/민지.png')),
-          if (!widget.isMe) const SizedBox(width: 8),
+            const OomuAvatar(
+              imageUrl: 'assets/images/민지.png',
+              name: '민지',
+              radius: 16,
+            ),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
           if (widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
-          if (widget.isMe) const SizedBox(width: 4),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
+          if (widget.isMe) const SizedBox(width: OomuTokens.s4),
           Container(
             width: 260,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF0F5),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                  color: Colors.pink.withValues(alpha: 0.35), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.pink.withValues(alpha: 0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4))
-              ],
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -786,83 +975,88 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                          color: Colors.pink.withValues(alpha: 0.15),
-                          shape: BoxShape.circle),
-                      child: const Icon(Icons.nightlight_round,
-                          color: Colors.pink, size: 18),
+                      decoration: const BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.nightlife_rounded,
+                        color: OomuTokens.textPrimary,
+                        size: 16,
+                      ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: OomuTokens.s8),
                     Expanded(
                       child: Text(
-                        widget.msg['title'] ?? '🏠 안전 귀가 알림',
+                        widget.msg['title'] ?? '안심 귀가 완료',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: Colors.pink),
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: OomuTokens.s8),
                 Text(
-                  widget.msg['desc'] ?? '방금 집에 무사히 도착했습니다! 다들 조심히 들어가세요.',
+                  widget.msg['desc'] ?? '모임 후 무사히 귀가했습니다 :)',
                   style: const TextStyle(
-                      fontSize: 13, height: 1.4, color: Color(0xFF333333)),
+                    fontSize: OomuTokens.fs12,
+                    color: OomuTokens.textSecondary,
+                  ),
                 ),
-                const SizedBox(height: 14),
-                InkWell(
-                  onTap: () {
-                    final newCheers = List<String>.from(cheers);
-                    if (isLiked) {
-                      newCheers.remove(currentNick);
-                    } else {
-                      newCheers.add(currentNick);
-                    }
-                    if (widget.onUpdate != null) {
-                      widget.onUpdate!({'cheers': newCheers});
-                    }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(!isLiked
-                            ? '💖 무사 귀가를 축하해 주셨습니다!'
-                            : '안심 반응을 취소했습니다.'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isLiked ? Colors.pink : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.pink),
+                const SizedBox(height: OomuTokens.s12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 38,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      final newCheers = List<String>.from(cheers);
+                      if (isLiked) {
+                        newCheers.remove(currentNick);
+                      } else {
+                        newCheers.add(currentNick);
+                      }
+                      if (widget.onUpdate != null) {
+                        widget.onUpdate!({'cheers': newCheers});
+                      }
+                    },
+                    icon: Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      size: 16,
+                      color: isLiked ? OomuTokens.coral : OomuTokens.textSecondary,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.favorite,
-                            color: isLiked ? Colors.white : Colors.pink,
-                            size: 16),
-                        const SizedBox(width: 6),
-                        Text('다행이에요! $likes',
-                            style: TextStyle(
-                                color: isLiked ? Colors.white : Colors.pink,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12)),
-                      ],
+                    label: Text(
+                      likes > 0 ? '수고하셨어요 ($likes)' : '수고하셨어요 응원하기',
+                      style: TextStyle(
+                        fontSize: OomuTokens.fs12,
+                        fontWeight: OomuTokens.w600,
+                        color: isLiked ? OomuTokens.coral : OomuTokens.textPrimary,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: OomuTokens.surfaceMuted,
+                      side: const BorderSide(color: OomuTokens.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s4),
           if (!widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
         ],
       ),
     );
@@ -870,7 +1064,7 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
 }
 
 // ===========================================================================
-// 동적 컴포넌트: 프로필 교환 (Profile Exchange)
+// 동적 컴포넌트: 프로필 교환 요청 카드
 // ===========================================================================
 class InteractiveProfileExchangeCard extends StatefulWidget {
   final Map<String, dynamic> msg;
@@ -898,67 +1092,97 @@ class _InteractiveProfileExchangeCardState
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(OomuTokens.s24),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          color: OomuTokens.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
         ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircleAvatar(
+              const OomuAvatar(
+                imageUrl: 'assets/images/민지.png',
+                name: '민지',
                 radius: 36,
-                backgroundImage: AssetImage('assets/images/민지.png'),
               ),
-              const SizedBox(height: 12),
-              Text(nickname,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              const Text('인증된 이웃 · 매너온도 41.2℃ 🔥',
-                  style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.teal,
-                      fontWeight: FontWeight.w600)),
-              const SizedBox(height: 16),
+              const SizedBox(height: OomuTokens.s12),
+              Text(
+                nickname,
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs18,
+                  fontWeight: OomuTokens.w700,
+                  color: OomuTokens.textPrimary,
+                ),
+              ),
+              const SizedBox(height: OomuTokens.s4),
+              const Text(
+                '인증된 이웃 · 매너온도 41.2℃',
+                style: TextStyle(
+                  fontSize: OomuTokens.fs12,
+                  color: OomuTokens.textSecondary,
+                  fontWeight: OomuTokens.w600,
+                ),
+              ),
+              const SizedBox(height: OomuTokens.s16),
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(OomuTokens.s12),
                 decoration: BoxDecoration(
-                    color: const Color(0xFFF0FDF4),
-                    borderRadius: BorderRadius.circular(12)),
+                  color: OomuTokens.surfaceMuted,
+                  borderRadius: BorderRadius.circular(OomuTokens.r12),
+                ),
                 child: const Column(
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.verified_user, color: Colors.teal, size: 16),
-                        SizedBox(width: 6),
-                        Text('OOMU 본인 인증 및 매너 검증 완료',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal)),
+                        Icon(
+                          Icons.verified_user,
+                          color: OomuTokens.verified,
+                          size: 16,
+                        ),
+                        SizedBox(width: OomuTokens.s8),
+                        Text(
+                          'OOMU 본인 인증 및 매너 검증 완료',
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs12,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textPrimary,
+                          ),
+                        ),
                       ],
                     ),
-                    SizedBox(height: 6),
-                    Text('관심사: 맛집 탐방, 주말 러닝, 로컬 아지트 탐험',
-                        style:
-                            TextStyle(fontSize: 12, color: Color(0xFF555555))),
+                    SizedBox(height: OomuTokens.s8),
+                    Text(
+                      '관심사: 맛집 탐방, 주말 러닝, 로컬 아지트 탐험',
+                      style: TextStyle(
+                        fontSize: OomuTokens.fs12,
+                        color: OomuTokens.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: OomuTokens.s20),
               SizedBox(
                 width: double.infinity,
+                height: 48,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12))),
+                    backgroundColor: OomuTokens.surfaceMuted,
+                    foregroundColor: OomuTokens.textPrimary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
+                    ),
+                  ),
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('닫기',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    '닫기',
+                    style: TextStyle(
+                      fontWeight: OomuTokens.w700,
+                      fontSize: OomuTokens.fs14,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -979,76 +1203,103 @@ class _InteractiveProfileExchangeCardState
         acceptedMembers.isNotEmpty || widget.msg['status'] == 'accepted';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
         mainAxisAlignment:
             widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/민지.png')),
-          if (!widget.isMe) const SizedBox(width: 8),
+            const OomuAvatar(
+              imageUrl: 'assets/images/민지.png',
+              name: '민지',
+              radius: 16,
+            ),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
           if (widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
-          if (widget.isMe) const SizedBox(width: 4),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
+          if (widget.isMe) const SizedBox(width: OomuTokens.s4),
           Container(
             width: 260,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                  colors: [Color(0xFFE0F2F1), Color(0xFFB2DFDB)]),
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.teal.withValues(alpha: 0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4))
-              ],
+              color: OomuTokens.surface,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.badge, color: Colors.teal, size: 26)),
-                const SizedBox(height: 10),
-                Text(widget.msg['title'] ?? '명함/프로필 교환',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.teal)),
-                const SizedBox(height: 6),
-                Text(widget.msg['desc'] ?? '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
-                    textAlign: TextAlign.center,
-                    style:
-                        const TextStyle(fontSize: 12, color: Colors.black87)),
-                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: OomuTokens.surfaceMuted,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.badge,
+                    color: OomuTokens.textPrimary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(height: OomuTokens.s8),
+                Text(
+                  widget.msg['title'] ?? '명함/프로필 교환',
+                  style: const TextStyle(
+                    fontWeight: OomuTokens.w700,
+                    fontSize: OomuTokens.fs14,
+                    color: OomuTokens.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: OomuTokens.s4),
+                Text(
+                  widget.msg['desc'] ?? '서로의 상세 프로필과 소셜 정보를 확인해볼까요?',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    color: OomuTokens.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: OomuTokens.s12),
                 if (isAccepted)
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
+                    height: 40,
+                    child: OutlinedButton.icon(
                       onPressed: () =>
                           _showProfileModal(widget.msg['sender'] ?? '상대방'),
-                      icon: const Icon(Icons.person,
-                          size: 16, color: Colors.white),
-                      label: const Text('교환 완료 · 프로필 보기 🤝',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12)),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12))),
+                      icon: const Icon(
+                        Icons.person,
+                        size: 16,
+                        color: OomuTokens.textPrimary,
+                      ),
+                      label: const Text(
+                        '교환 완료 · 프로필 보기 🤝',
+                        style: TextStyle(
+                          color: OomuTokens.textPrimary,
+                          fontWeight: OomuTokens.w600,
+                          fontSize: OomuTokens.fs12,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: OomuTokens.surfaceMuted,
+                        side: const BorderSide(color: OomuTokens.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        ),
+                      ),
                     ),
                   )
                 else if (!widget.isMe)
                   SizedBox(
                     width: double.infinity,
+                    height: 40,
                     child: ElevatedButton(
                       onPressed: () {
                         final newAccepted = List<String>.from(acceptedMembers)
@@ -1056,46 +1307,63 @@ class _InteractiveProfileExchangeCardState
                         if (widget.onUpdate != null) {
                           widget.onUpdate!({
                             'acceptedMembers': newAccepted,
-                            'status': 'accepted'
+                            'status': 'accepted',
                           });
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content:
-                                  Text('🎉 프로필 교환을 수락했습니다! 상세 프로필이 공개됩니다.')),
+                            content: Text('🎉 프로필 교환을 수락했습니다! 상세 프로필이 공개됩니다.'),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12))),
-                      child: const Text('수락하기 🤝',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
+                        backgroundColor: OomuTokens.coral,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        ),
+                      ),
+                      child: const Text(
+                        '수락하기 🤝',
+                        style: TextStyle(
+                          color: OomuTokens.surface,
+                          fontWeight: OomuTokens.w700,
+                          fontSize: OomuTokens.fs12,
+                        ),
+                      ),
                     ),
                   )
                 else
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: OomuTokens.s8),
                     decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(10)),
+                      color: OomuTokens.surfaceMuted,
+                      borderRadius: BorderRadius.circular(OomuTokens.r8),
+                    ),
                     child: const Center(
-                        child: Text('상대방의 수락을 대기중입니다...',
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.teal,
-                                fontWeight: FontWeight.bold))),
+                      child: Text(
+                        '상대방의 수락을 대기중입니다...',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs11,
+                          color: OomuTokens.textMuted,
+                          fontWeight: OomuTokens.w600,
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ),
           ),
-          if (!widget.isMe) const SizedBox(width: 4),
+          if (!widget.isMe) const SizedBox(width: OomuTokens.s4),
           if (!widget.isMe)
-            Text(widget.msg['time'] ?? '',
-                style: const TextStyle(fontSize: 10, color: Color(0xFF767676))),
+            Text(
+              widget.msg['time'] ?? '',
+              style: const TextStyle(
+                fontSize: OomuTokens.fs11,
+                color: OomuTokens.textMuted,
+              ),
+            ),
         ],
       ),
     );
@@ -1103,7 +1371,7 @@ class _InteractiveProfileExchangeCardState
 }
 
 // ===========================================================================
-// 동적 컴포넌트: 시크릿 애프터 1:1 호감 매칭 (Secret After Match)
+// 동적 컴포넌트: 시크릿 애프터 1:1 호감 매칭
 // ===========================================================================
 class InteractiveSecretAfterMatchCard extends StatefulWidget {
   final Map<String, dynamic> msg;
@@ -1186,70 +1454,8 @@ class _InteractiveSecretAfterMatchCardState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-            '💌 ${_selectedMembers.join(", ")}님에게 비공개 호감이 전달되었습니다! (0% 노출 보장)'),
-        backgroundColor: Colors.pinkAccent,
-      ),
-    );
-  }
-
-  void _simulateMutualMatch() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.celebration, color: Colors.pinkAccent),
-            SizedBox(width: 8),
-            Text('💖 시크릿 매칭 성사!',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
+          '💌 ${_selectedMembers.join(", ")}님에게 비공개 호감이 전달되었습니다! (0% 노출 보장)',
         ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 36,
-              backgroundImage: AssetImage('assets/images/민지.png'),
-            ),
-            SizedBox(height: 12),
-            Text(
-              '민지님도 당신에게 호감을 표시했습니다! 💕',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              '두 분만의 1:1 소개팅 단독 대화방이 생성되었습니다.\n자연스럽게 대화를 이어가 보세요!',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pinkAccent,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('💬 1:1 시크릿 소개팅 대화방으로 이동합니다!'),
-                    backgroundColor: Colors.pinkAccent,
-                  ),
-                );
-              },
-              child: const Text('1:1 소개팅 대화방 열기 💬',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1257,27 +1463,15 @@ class _InteractiveSecretAfterMatchCardState
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s20),
       child: Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.9,
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(OomuTokens.s16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFFF0F5), Color(0xFFFFE4E1)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: Colors.pinkAccent.withValues(alpha: 0.4), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.pink.withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            color: OomuTokens.surface,
+            borderRadius: BorderRadius.circular(OomuTokens.r16),
+            border: Border.all(color: OomuTokens.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1285,15 +1479,18 @@ class _InteractiveSecretAfterMatchCardState
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
-                      color: Colors.pinkAccent,
+                      color: OomuTokens.surfaceMuted,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.favorite,
-                        color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.favorite,
+                      color: OomuTokens.coral,
+                      size: 18,
+                    ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: OomuTokens.s8),
                   const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1301,66 +1498,62 @@ class _InteractiveSecretAfterMatchCardState
                         Text(
                           '시크릿 애프터 1:1 호감 매칭',
                           style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFC2185B)),
+                            fontSize: OomuTokens.fs14,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textPrimary,
+                          ),
                         ),
                         Text(
                           '상호 선택 시에만 1:1 대화방 개설 (거절 부담 0%)',
-                          style:
-                              TextStyle(fontSize: 11, color: Color(0xFF880E4F)),
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            color: OomuTokens.textSecondary,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: OomuTokens.s12),
               const Text(
                 '오늘 모임에서 대화가 가장 잘 통했던 멤버 1~2명을 선택하세요.',
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333)),
+                  fontSize: OomuTokens.fs12,
+                  fontWeight: OomuTokens.w600,
+                  color: OomuTokens.textBody,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: OomuTokens.s12),
               Column(
                 children: _candidates.map((cand) {
                   final isSelected = _selectedMembers.contains(cand['name']);
                   return GestureDetector(
                     onTap: () => _toggleMember(cand['name']!),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: OomuTokens.s8),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: OomuTokens.s12,
+                        vertical: OomuTokens.s8,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(14),
+                            ? OomuTokens.surfaceMuted
+                            : OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
                         border: Border.all(
-                          color: isSelected
-                              ? Colors.pinkAccent
-                              : Colors.transparent,
-                          width: 2,
+                          color: isSelected ? OomuTokens.coral : OomuTokens.border,
+                          width: isSelected ? 1.5 : 1.0,
                         ),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                    color: Colors.pinkAccent
-                                        .withValues(alpha: 0.2),
-                                    blurRadius: 8)
-                              ]
-                            : [],
                       ),
                       child: Row(
                         children: [
-                          CircleAvatar(
+                          OomuAvatar(
+                            imageUrl: cand['avatar']!,
+                            name: cand['name']!,
                             radius: 18,
-                            backgroundImage: appImg(cand['avatar']!),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: OomuTokens.s8),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1368,21 +1561,25 @@ class _InteractiveSecretAfterMatchCardState
                                 Text(
                                   cand['name']!,
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13),
+                                    fontSize: OomuTokens.fs14,
+                                    fontWeight: OomuTokens.w700,
+                                    color: OomuTokens.textPrimary,
+                                  ),
                                 ),
                                 Text(
                                   cand['tag']!,
                                   style: const TextStyle(
-                                      fontSize: 11, color: Colors.grey),
+                                    fontSize: OomuTokens.fs11,
+                                    color: OomuTokens.textSecondary,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           Icon(
-                            isSelected ? Icons.favorite : Icons.favorite_border,
-                            color: isSelected ? Colors.pinkAccent : Colors.grey,
-                            size: 22,
+                            isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                            color: isSelected ? OomuTokens.coral : OomuTokens.textMuted,
+                            size: 18,
                           ),
                         ],
                       ),
@@ -1390,67 +1587,30 @@ class _InteractiveSecretAfterMatchCardState
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 10),
-              if (!_isSubmitted)
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: ElevatedButton(
-                    onPressed: _submitSecretAfter,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.pinkAccent,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      '비공개 호감 전달하기 (${_selectedMembers.length}명 선택)',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14),
+              const SizedBox(height: OomuTokens.s12),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: _isSubmitted ? null : _submitSecretAfter,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: OomuTokens.coral,
+                    disabledBackgroundColor: OomuTokens.surfaceMuted,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
                     ),
                   ),
-                )
-              else ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.lock, size: 16, color: Colors.pinkAccent),
-                      SizedBox(width: 6),
-                      Text(
-                        '💌 비공개 호감 전송 완료! (상대방 응답 대기 중)',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.pinkAccent,
-                            fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: _simulateMutualMatch,
-                    icon: const Icon(Icons.flash_on,
-                        size: 16, color: Colors.purple),
-                    label: const Text(
-                      '🧪 상호 매칭 성사 시뮬레이션 테스트',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple),
+                  child: Text(
+                    _isSubmitted ? '비공개 전달 완료 💌' : '선택 완료 (비밀 유지)',
+                    style: TextStyle(
+                      color: _isSubmitted ? OomuTokens.textMuted : OomuTokens.surface,
+                      fontWeight: OomuTokens.w700,
+                      fontSize: OomuTokens.fs14,
                     ),
                   ),
                 ),
-              ],
+              ),
             ],
           ),
         ),
