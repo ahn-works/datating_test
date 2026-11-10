@@ -21,6 +21,16 @@ class OomuTokens {
   static const Color error = Color(0xFFE11D48);
   static const Color verified = Color(0xFF0D9488);
 
+  // ── 소셜 브랜드 컬러 ──
+  static const Color kakaoYellow = Color(0xFFFEE500);
+  static const Color kakaoText = Color(0xFF191919);
+  static const Color naverGreen = Color(0xFF03C75A);
+  static const Color googleText = Color(0xFF3C3C3C);
+  static const Color googleRed = Color(0xFFEA4335);
+  static const Color googleYellow = Color(0xFFFBBC05);
+  static const Color googleGreen = Color(0xFF34A853);
+  static const Color googleBlue = Color(0xFF4285F4);
+
   // ── 글자 ──
   static const String fontFamily = 'Pretendard';
   static const List<String> fontFallback = [
@@ -33,20 +43,34 @@ class OomuTokens {
 
   static const double fs11 = 11;
   static const double fs12 = 12;
+  static const double fs13 = 13;
   static const double fs14 = 14;
+  static const double fs15 = 15;
   static const double fs16 = 16;
+  static const double fs17 = 17;
   static const double fs18 = 18;
+  static const double fs20 = 20;
   static const double fs22 = 22;
+  static const double fs24 = 24;
+  static const double fs26 = 26;
   static const double fsSplash = 28;
+  static const double fs32 = 32;
+  static const double fs36 = 36;
 
   static const FontWeight w400 = FontWeight.w400;
   static const FontWeight w600 = FontWeight.w600;
   static const FontWeight w700 = FontWeight.w700;
 
   // ── 모서리 ──
+  static const double r2 = 2;
+  static const double r3 = 3;
   static const double r4 = 4;
+  static const double r6 = 6;
   static const double r8 = 8;
+  static const double r9 = 9;
+  static const double r10 = 10;
   static const double r12 = 12;
+  static const double r14 = 14;
   static const double r16 = 16;
   static const double r24 = 24;
   static const double rPill = 999;

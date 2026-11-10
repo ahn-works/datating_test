@@ -105,6 +105,8 @@ class Spot10App extends StatelessWidget {
           final isCommCreate = uri.queryParameters['comm_create'] == 'true' || uri.fragment.contains('comm_create=true');
           final isChat = uri.queryParameters['chat'] == 'true' || uri.fragment.contains('chat=true');
           final isChatRoom = uri.queryParameters['chat_room'] == 'true' || uri.fragment.contains('chat_room=true');
+          final isLogin = uri.queryParameters['login'] == 'true' || uri.fragment.contains('login=true');
+          final isProfileSetup = uri.queryParameters['profile_setup'] == 'true' || uri.fragment.contains('profile_setup=true');
 
           if (isGallery) {
             return const OomuComponentGallery();
@@ -124,6 +126,12 @@ class Spot10App extends StatelessWidget {
           if (isEdit) {
             globalData.switchUser('guest');
             return const ProfileEditScreen();
+          }
+          if (isLogin) {
+            return const LoginScreen();
+          }
+          if (isProfileSetup) {
+            return const ProfileSetupScreen();
           }
           if (isCommCreate) {
             globalData.switchUser('guest');
