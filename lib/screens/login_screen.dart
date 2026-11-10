@@ -318,8 +318,7 @@ class _LoginScreenState extends State<LoginScreen>
             .get();
         if (dupSnap.docs.isNotEmpty) {
           final existingData = dupSnap.docs.first.data();
-          final existingEmail =
-              (existingData['email'] ?? '기존 계정').toString();
+          final existingEmail = (existingData['email'] ?? '기존 계정').toString();
           _showToast('이미 가입된 번호예요 ($existingEmail). 기존 계정으로 로그인해 주세요.');
           return;
         }
@@ -1704,8 +1703,8 @@ class _LoginScreenState extends State<LoginScreen>
               suffix: pwMatched
                   ? const Padding(
                       padding: EdgeInsets.only(right: 12),
-                      child: Icon(Icons.check_rounded,
-                          color: colorTeal, size: 22),
+                      child:
+                          Icon(Icons.check_rounded, color: colorTeal, size: 22),
                     )
                   : null,
             ),

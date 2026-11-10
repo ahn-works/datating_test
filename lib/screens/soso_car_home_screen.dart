@@ -1449,7 +1449,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                           size: 12, color: Colors.white),
                                       const SizedBox(width: 3),
                                       Text(
-                                        (spot['timeLeft'] ?? '오늘 번개').toString(),
+                                        (spot['timeLeft'] ?? '오늘 번개')
+                                            .toString(),
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 10,
@@ -1587,7 +1588,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           'rank': 1,
           'isMyNeighborhood': true,
           'isHotspot': true,
-          'description': '화장동 선소상가 신상 대형 베이커리 카페로 매일 아침 구워내는 겉바속촉 수제 소금빵과 스페셜티 커피를 맛볼 수 있습니다. 쾌적한 좌석과 따뜻한 우드 인테리어로 동네 이웃과 소소한 대화를 나누기 좋습니다.',
+          'description':
+              '화장동 선소상가 신상 대형 베이커리 카페로 매일 아침 구워내는 겉바속촉 수제 소금빵과 스페셜티 커피를 맛볼 수 있습니다. 쾌적한 좌석과 따뜻한 우드 인테리어로 동네 이웃과 소소한 대화를 나누기 좋습니다.',
         },
         {
           'id': 'my_yeosu_02',
@@ -1601,7 +1603,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           'rank': 2,
           'isMyNeighborhood': true,
           'isHotspot': true,
-          'description': '여수 중앙동 이순신광장의 대표 명물로 손꼽히는 수제 딸기모찌 본점입니다. 얇고 쫀득한 찹쌀떡 속에 신선한 생딸기와 백앙금·팥앙금이 가득 차 있어 달콤상큼한 풍미를 자랑합니다. 인근 돌산 갓버터도나스와 함께 둘러보는 여수 필수 디저트 코스입니다.',
+          'description':
+              '여수 중앙동 이순신광장의 대표 명물로 손꼽히는 수제 딸기모찌 본점입니다. 얇고 쫀득한 찹쌀떡 속에 신선한 생딸기와 백앙금·팥앙금이 가득 차 있어 달콤상큼한 풍미를 자랑합니다. 인근 돌산 갓버터도나스와 함께 둘러보는 여수 필수 디저트 코스입니다.',
         },
         {
           'id': 'my_yeosu_03',
@@ -1615,7 +1618,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           'rank': 3,
           'isMyNeighborhood': true,
           'isHotspot': true,
-          'description': '웅천친수공원 바로 앞에 위치한 오션뷰 브런치 카페로, 탁 트인 에메랄드빛 바다 전망을 감상하며 갓 구운 바게트와 부드러운 카이막, 시그니처 크림라떼를 즐길 수 있는 힐링 핫플레이스입니다.',
+          'description':
+              '웅천친수공원 바로 앞에 위치한 오션뷰 브런치 카페로, 탁 트인 에메랄드빛 바다 전망을 감상하며 갓 구운 바게트와 부드러운 카이막, 시그니처 크림라떼를 즐길 수 있는 힐링 핫플레이스입니다.',
         },
         {
           'id': 'my_yeosu_04',
@@ -1629,7 +1633,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           'rank': 4,
           'isMyNeighborhood': true,
           'isHotspot': true,
-          'description': 'SNS에서 연일 화제인 두바이 피스타치오 카다이프 쫀득 쿠키(두쫀쿠)를 여수 현지에서 맛볼 수 있는 감성 디저트 숍입니다. 바삭한 카다이프 면과 진한 피스타치오 스프레드의 조화가 일품입니다.',
+          'description':
+              'SNS에서 연일 화제인 두바이 피스타치오 카다이프 쫀득 쿠키(두쫀쿠)를 여수 현지에서 맛볼 수 있는 감성 디저트 숍입니다. 바삭한 카다이프 면과 진한 피스타치오 스프레드의 조화가 일품입니다.',
         },
         {
           'id': 'my_yeosu_05',
@@ -1643,7 +1648,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           'rank': 5,
           'isMyNeighborhood': true,
           'isHotspot': true,
-          'description': '바다 위를 가로지르는 여수의 랜드마크 소호동동다리입니다. 해질녘 노을과 수변을 비추는 은은한 야간 LED 조명이 어우러져, 초보자도 무리 없이 기분 좋게 5km를 달리고 걸을 수 있는 여수 최고의 힐링 러닝 스팟입니다.',
+          'description':
+              '바다 위를 가로지르는 여수의 랜드마크 소호동동다리입니다. 해질녘 노을과 수변을 비추는 은은한 야간 LED 조명이 어우러져, 초보자도 무리 없이 기분 좋게 5km를 달리고 걸을 수 있는 여수 최고의 힐링 러닝 스팟입니다.',
         },
         {
           'id': 'my_yeosu_06',
@@ -2136,7 +2142,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'period': '상시 · 주말 투어',
         'rank': 25,
         'isHotspot': true,
-        'description': '여수 이순신광장의 명물 수제 생딸기모찌 본점입니다. 얇고 쫀득한 찹쌀떡 안에 생딸기와 백앙금이 어우러져 전국 디저트 러버들이 오픈런하는 필수 코스입니다. 돌산 갓버터도나스와 함께 달콤한 투어를 즐겨보세요.',
+        'description':
+            '여수 이순신광장의 명물 수제 생딸기모찌 본점입니다. 얇고 쫀득한 찹쌀떡 안에 생딸기와 백앙금이 어우러져 전국 디저트 러버들이 오픈런하는 필수 코스입니다. 돌산 갓버터도나스와 함께 달콤한 투어를 즐겨보세요.',
       },
       {
         'id': 'hot_guaranteed_09',
@@ -2456,8 +2463,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '⚾ 스포츠', '🎬 영화', '핫플·팝업']
-                          .map((c) {
+                      children: [
+                        '전체',
+                        '📍 우리동네',
+                        '콘서트',
+                        '뮤지컬',
+                        '페스티벌',
+                        '⚾ 스포츠',
+                        '🎬 영화',
+                        '핫플·팝업'
+                      ].map((c) {
                         final isSel = modalFilter == c;
                         final count = items
                             .where((it) => _matchesTrendFilter(it, c))
@@ -3191,8 +3206,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children:
-                      ['전체', '📍 우리동네', '콘서트', '뮤지컬', '페스티벌', '⚾ 스포츠', '🎬 영화', '핫플·팝업'].map((c) {
+                  children: [
+                    '전체',
+                    '📍 우리동네',
+                    '콘서트',
+                    '뮤지컬',
+                    '페스티벌',
+                    '⚾ 스포츠',
+                    '🎬 영화',
+                    '핫플·팝업'
+                  ].map((c) {
                     final bool isSel = _selectedTrendCategory == c;
                     final int count =
                         items.where((it) => _matchesTrendFilter(it, c)).length;
@@ -5029,7 +5052,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           if (mounted) {
             if (res is Map && res['deleted'] == true) {
               setState(() {
-                _communityPosts.removeWhere((p) => (p['id'] ?? p['title']) == res['id']);
+                _communityPosts
+                    .removeWhere((p) => (p['id'] ?? p['title']) == res['id']);
               });
             } else {
               setState(() {});
@@ -5074,8 +5098,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   },
                   child: CircleAvatar(
                     radius: 18,
-                    backgroundImage: appImg(post['authorAvatar'] ??
-                        'assets/images/민지.png'),
+                    backgroundImage:
+                        appImg(post['authorAvatar'] ?? 'assets/images/민지.png'),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -5917,7 +5941,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         'price': '각자 결제',
         'transport': '성산공원 입구 집결',
         'schedule': '스트레칭 10분 ➔ 성산공원 호수 둘레길 5km 러닝 ➔ 이온음료 쿨다운',
-        'tags': ['라이프 메이트', '러닝·운동', '운동', '성산공원', '화장동러닝', '오운완', '둘레길산책', '오늘번개'],
+        'tags': [
+          '라이프 메이트',
+          '러닝·운동',
+          '운동',
+          '성산공원',
+          '화장동러닝',
+          '오운완',
+          '둘레길산책',
+          '오늘번개'
+        ],
         'photos': ['assets/images/cover_running.jpg'],
       },
       {

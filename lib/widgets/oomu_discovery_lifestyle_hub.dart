@@ -164,7 +164,11 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           'distance': '$dong 도보 5분',
           'hours': '매일 16:00 - 23:30',
           'image': 'assets/images/cover_food.jpg',
-          'menus': ['숙성 통삼겹살 (180g) 16,000원', '생미나리 추가 5,000원', '김치말이 국수 6,000원'],
+          'menus': [
+            '숙성 통삼겹살 (180g) 16,000원',
+            '생미나리 추가 5,000원',
+            '김치말이 국수 6,000원'
+          ],
         },
         {
           'id': 'food_yeosu_2',
@@ -280,7 +284,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'badge': '대중교통 30% 환급',
         'category': '청년지원금',
         'title': 'K-패스 (구 알뜰교통카드) 청년 대중교통비 매월 30% 환급',
-        'subtitle': '월 15회 이상 지하철·버스·광역버스 이용 시 청년(만 19~34세) 사용 금액의 30%를 다음 달 계좌로 환급',
+        'subtitle':
+            '월 15회 이상 지하철·버스·광역버스 이용 시 청년(만 19~34세) 사용 금액의 30%를 다음 달 계좌로 환급',
         'benefit': '매월 교통비 30% 자동 환급 (일반 20%, 청년 30%)',
         'target': '만 19세~34세 전국 청년 누구나 (월 15회 이상 대중교통 이용)',
         'howToApply': 'K-패스 공식 앱 또는 카드사 홈페이지에서 카드 발급 후 회원가입',
@@ -302,7 +307,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'badge': '$cityLabel 청년혜택',
         'category': '청년지원금',
         'title': '$cityLabel 청년 자격증 응시료 & 이사비·중개보수 지원금',
-        'subtitle': '어학(토익·오픽)·국가기술자격증 응시료 실비 지원 및 1인 가구 청년 전월세 이사비용 최대 40만 원 지원',
+        'subtitle':
+            '어학(토익·오픽)·국가기술자격증 응시료 실비 지원 및 1인 가구 청년 전월세 이사비용 최대 40만 원 지원',
         'benefit': '자격증 응시료 최대 10만 원 · 이사비 최대 40만 원',
         'target': '$cityLabel 주민등록 거주 만 19~39세 미취업·재직 청년',
         'howToApply': '정부24 보조금24 또는 $cityLabel 시·구청 청년지원과 온라인 접수',
@@ -790,9 +796,9 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   fit: StackFit.expand,
                   children: [
                     Image(
-                      image: appImg((item['image'] ??
-                              'assets/images/cover_food.jpg')
-                          .toString()),
+                      image: appImg(
+                          (item['image'] ?? 'assets/images/cover_food.jpg')
+                              .toString()),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Image.asset(
                         'assets/images/cover_food.jpg',
@@ -1417,8 +1423,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               ),
               const SizedBox(height: 16),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: brandTint,
                   borderRadius: BorderRadius.circular(6),
@@ -1542,8 +1547,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               ),
               const SizedBox(height: 16),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: brandTint,
                   borderRadius: BorderRadius.circular(6),
@@ -1766,8 +1770,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                         child: TextField(
                           controller: _nameController,
                           onSubmitted: (v) => _runNameAnalysis(v),
-                          style:
-                              const TextStyle(fontSize: 13.5, color: textPrimary),
+                          style: const TextStyle(
+                              fontSize: 13.5, color: textPrimary),
                           decoration: InputDecoration(
                             hintText: '영문 이름 입력 (예: Sophie)',
                             filled: true,

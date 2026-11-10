@@ -292,7 +292,8 @@ void main() {
     expect(find.textContaining('내 글에 새로운 댓글'), findsNothing);
     expect(tester.takeException(), isNull);
   });
-  testWidgets('long press on user sent message allows deleting it via repository',
+  testWidgets(
+      'long press on user sent message allows deleting it via repository',
       (tester) async {
     final repo = FakeChatRepository()
       ..initial = [

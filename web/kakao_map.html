@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>카카오 지도</title>
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=277e860aee05a0dd1504f70ce7ac8e74"></script>
+  <script type="text/javascript"
+    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=277e860aee05a0dd1504f70ce7ac8e74"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
       width: 100%;
       height: 100%;
       overflow: hidden;
       touch-action: none;
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, Roboto, sans-serif;
     }
-    #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
     .map-zoom-box {
       position: absolute;
       top: 12px;
@@ -28,6 +44,7 @@
       border: 1px solid #E2E8F0;
       overflow: hidden;
     }
+
     .btn-zoom {
       width: 38px;
       height: 38px;
@@ -42,8 +59,15 @@
       justify-content: center;
       user-select: none;
     }
-    .btn-zoom:active { background: #F1F5F9; }
-    .btn-zoom + .btn-zoom { border-top: 1px solid #E2E8F0; }
+
+    .btn-zoom:active {
+      background: #F1F5F9;
+    }
+
+    .btn-zoom+.btn-zoom {
+      border-top: 1px solid #E2E8F0;
+    }
+
     .overlay-box {
       position: absolute;
       bottom: 16px;
@@ -53,6 +77,7 @@
       display: flex;
       gap: 8px;
     }
+
     .btn-kakao-action {
       flex: 1;
       height: 44px;
@@ -65,12 +90,24 @@
       font-size: 13.5px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       transition: transform 0.1s;
     }
-    .btn-kakao-action:active { transform: scale(0.97); }
-    .btn-map { background: #FEE500; color: #191919; }
-    .btn-navi { background: #191919; color: #FFFFFF; }
+
+    .btn-kakao-action:active {
+      transform: scale(0.97);
+    }
+
+    .btn-map {
+      background: #FEE500;
+      color: #191919;
+    }
+
+    .btn-navi {
+      background: #191919;
+      color: #FFFFFF;
+    }
+
     .custom-marker {
       background: #FFFFFF;
       color: #191F28;
@@ -93,9 +130,11 @@
       gap: 5px;
       transition: transform 0.15s ease, background 0.15s ease;
     }
+
     .custom-marker:hover {
       transform: translate(-50%, -104%) scale(1.04);
     }
+
     .custom-marker.is-selected {
       background: #191F28;
       color: #FFFFFF;
@@ -103,6 +142,7 @@
       box-shadow: 0 6px 16px rgba(242, 87, 103, 0.38);
       z-index: 30;
     }
+
     .custom-marker .go-pill {
       background: #F25767;
       color: #FFFFFF;
@@ -114,6 +154,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
   <div class="map-zoom-box" aria-label="지도 확대 축소">
@@ -131,7 +172,7 @@
 
   <script>
     // Prevent browser-level pinch/ctrl+wheel zoom from scaling the entire UI
-    window.addEventListener('wheel', function(e) {
+    window.addEventListener('wheel', function (e) {
       if (e.ctrlKey) {
         e.preventDefault();
       }
@@ -164,11 +205,11 @@
 
     const map = new kakao.maps.Map(container, options);
 
-    document.getElementById('btnZoomIn').onclick = function(e) {
+    document.getElementById('btnZoomIn').onclick = function (e) {
       e.stopPropagation();
       map.setLevel(Math.max(1, map.getLevel() - 1), { animate: true });
     };
-    document.getElementById('btnZoomOut').onclick = function(e) {
+    document.getElementById('btnZoomOut').onclick = function (e) {
       e.stopPropagation();
       map.setLevel(Math.min(10, map.getLevel() + 1), { animate: true });
     };
@@ -179,7 +220,7 @@
     function notifyMarkerClick(item, actionType) {
       if (item && item.id) {
         selectedId = String(item.id);
-        Object.keys(markerDomMap).forEach(function(k) {
+        Object.keys(markerDomMap).forEach(function (k) {
           const el = markerDomMap[k];
           if (!el) return;
           if (k === selectedId) {
@@ -239,7 +280,7 @@
       });
       customOverlay.setMap(map);
     } else {
-      parsedMarkers.forEach(function(m, idx) {
+      parsedMarkers.forEach(function (m, idx) {
         if (!m.lat || !m.lng) return;
         const mLat = parseFloat(m.lat);
         const mLng = parseFloat(m.lng);
@@ -278,17 +319,17 @@
         goPill.textContent = '이동 ›';
         el.appendChild(goPill);
 
-        el.onclick = function(e) {
+        el.onclick = function (e) {
           e.stopPropagation();
           const alreadySelected = selectedId === mId;
           notifyMarkerClick({ id: mId, title: mTitle, lat: mLat, lng: mLng }, alreadySelected ? 'open' : 'select');
         };
-        goPill.onclick = function(e) {
+        goPill.onclick = function (e) {
           e.stopPropagation();
           notifyMarkerClick({ id: mId, title: mTitle, lat: mLat, lng: mLng }, 'open');
         };
 
-        kakao.maps.event.addListener(subMarker, 'click', function() {
+        kakao.maps.event.addListener(subMarker, 'click', function () {
           const alreadySelected = selectedId === mId;
           notifyMarkerClick({ id: mId, title: mTitle, lat: mLat, lng: mLng }, alreadySelected ? 'open' : 'select');
         });
@@ -306,7 +347,7 @@
     }
 
     // Listen to parent Flutter messages for smooth pan/zoom without reload
-    window.addEventListener('message', function(e) {
+    window.addEventListener('message', function (e) {
       try {
         const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
         if (!msg || !msg.type) return;
@@ -315,7 +356,7 @@
           map.panTo(pos);
           if (msg.id) {
             selectedId = String(msg.id);
-            Object.keys(markerDomMap).forEach(function(k) {
+            Object.keys(markerDomMap).forEach(function (k) {
               const el = markerDomMap[k];
               if (!el) return;
               if (k === selectedId) {
@@ -326,16 +367,17 @@
             });
           }
         }
-      } catch (_) {}
+      } catch (_) { }
     });
 
     // Button actions
-    document.getElementById('btnMap').onclick = function() {
+    document.getElementById('btnMap').onclick = function () {
       window.open(`https://map.kakao.com/link/map/${encodeURIComponent(name)},${lat},${lng}`, '_blank');
     };
-    document.getElementById('btnNavi').onclick = function() {
+    document.getElementById('btnNavi').onclick = function () {
       window.open(`https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`, '_blank');
     };
   </script>
 </body>
+
 </html>
