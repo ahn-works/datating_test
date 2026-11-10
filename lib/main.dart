@@ -11,6 +11,8 @@ import 'screens/user_profile_screen.dart';
 import 'screens/profile_edit_screen.dart';
 import 'screens/community_post_detail_screen.dart';
 import 'screens/community_post_create_screen.dart';
+import 'screens/chat_screen.dart';
+import 'screens/soso_car_chat_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
@@ -101,6 +103,8 @@ class Spot10App extends StatelessWidget {
           final isEdit = uri.queryParameters['edit'] == 'true' || uri.fragment.contains('edit=true');
           final isCommDetail = uri.queryParameters['comm_detail'] == 'true' || uri.fragment.contains('comm_detail=true');
           final isCommCreate = uri.queryParameters['comm_create'] == 'true' || uri.fragment.contains('comm_create=true');
+          final isChat = uri.queryParameters['chat'] == 'true' || uri.fragment.contains('chat=true');
+          final isChatRoom = uri.queryParameters['chat_room'] == 'true' || uri.fragment.contains('chat_room=true');
 
           if (isGallery) {
             return const OomuComponentGallery();
@@ -124,6 +128,18 @@ class Spot10App extends StatelessWidget {
           if (isCommCreate) {
             globalData.switchUser('guest');
             return const CommunityPostCreateScreen();
+          }
+          if (isChat) {
+            globalData.switchUser('guest');
+            return const ChatScreen();
+          }
+          if (isChatRoom) {
+            globalData.switchUser('guest');
+            return const OOMUChatScreen(
+              title: '주말 엽떡+마라탕 팟 🔥',
+              memberCount: 4,
+              chatRoomId: 'sample_chat_room_01',
+            );
           }
           if (isCommDetail) {
             globalData.switchUser('guest');
