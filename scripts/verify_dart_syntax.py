@@ -22,7 +22,6 @@ files = [
     r'lib/screens/community_post_detail_screen.dart',
     r'lib/screens/chat_screen.dart',
     r'lib/widgets/bouncy_tap.dart',
-    r'lib/widgets/oomu_spring_sheet.dart',
 ]
 
 def verify_file(filepath):
