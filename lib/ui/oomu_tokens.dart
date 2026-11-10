@@ -70,5 +70,30 @@ class OomuTokens {
   static const double buttonHeightSmall = 48;
   static const double inputHeight = 52;
   static const double appFrameMaxWidth = 480;
+
+  // ── 의미론적 별칭 (Semantic Aliases) ──
+  static const double spacingXs = s4;
+  static const double spacingSm = s8;
+  static const double spacingMd = s16;
+  static const double spacingLg = s20;
+  static const double spacingXl = s24;
+  static const double spacingXxl = s32;
+
+  static const double fontXs = fs12;
+  static const double fontSm = fs14;
+  static const double fontBase = fs16;
+  static const double fontLg = fs18;
+  static const double fontXl = fs22;
+
+  static const FontWeight weightRegular = w400;
+  static const FontWeight weightSemiBold = w600;
+  static const FontWeight weightBold = w700;
+
+  static const double radiusCardSm = r12;
+  static const double radiusCard = r16;
+  static const double radiusCardLg = r24;
+  static const double radiusPill = rPill;
+
+  static const double touchTargetMin = touchTarget;
 }
 

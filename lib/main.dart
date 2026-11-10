@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/soso_car_home_screen.dart';
+import 'screens/soso_car_detail_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
@@ -86,8 +87,21 @@ class Spot10App extends StatelessWidget {
       ),
       home: Builder(
         builder: (context) {
-          if (Uri.base.queryParameters['gallery'] == 'true') {
+          final uri = Uri.base;
+          final isHome = uri.queryParameters['home'] == 'true' || uri.fragment.contains('home=true');
+          final isGallery = uri.queryParameters['gallery'] == 'true' || uri.fragment.contains('gallery=true');
+          final isDetail = uri.queryParameters['detail'] == 'true' || uri.fragment.contains('detail=true');
+
+          if (isGallery) {
             return const OomuComponentGallery();
+          }
+          if (isHome) {
+            globalData.switchUser('guest');
+            return const OOMUHomeScreen();
+          }
+          if (isDetail) {
+            globalData.switchUser('guest');
+            return const OOMUDetailScreen();
           }
           return StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),

@@ -359,17 +359,23 @@ class OomuMeetupCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (members != null)
-                          Text(
-                            '$members 참여',
-                            style: const TextStyle(
-                              fontFamily: OomuTokens.fontFamily,
-                              fontFamilyFallback: OomuTokens.fontFallback,
-                              fontSize: OomuTokens.fs12,
-                              fontWeight: OomuTokens.w600,
-                              color: OomuTokens.textSecondary,
+                        if (members != null) ...[
+                          const SizedBox(width: OomuTokens.s4),
+                          Flexible(
+                            child: Text(
+                              '$members 참여',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: OomuTokens.fontFamily,
+                                fontFamilyFallback: OomuTokens.fontFallback,
+                                fontSize: OomuTokens.fs12,
+                                fontWeight: OomuTokens.w600,
+                                color: OomuTokens.textSecondary,
+                              ),
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ],
