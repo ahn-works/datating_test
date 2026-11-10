@@ -1,9 +1,7 @@
 import '../services/kakao_map_service.dart';
 import 'kakao_map_view.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 
 /// 장소 및 위치 검색 데이터 모델
@@ -346,10 +344,30 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                             color: textPrimary)),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded,
-                      size: 24, color: textSecondary),
-                  onPressed: () => Navigator.pop(context),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: '현재 위치로 이동',
+                      icon: _isLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: coralAccent,
+                              ),
+                            )
+                          : const Icon(Icons.my_location_rounded,
+                              size: 22, color: coralAccent),
+                      onPressed: _isLoading ? null : _moveToCurrentGpsLocation,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded,
+                          size: 24, color: textSecondary),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
                 ),
               ],
             ),
