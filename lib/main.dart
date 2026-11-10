@@ -101,7 +101,28 @@ class Spot10App extends StatelessWidget {
           }
           if (isDetail) {
             globalData.switchUser('guest');
-            return const OOMUDetailScreen();
+            return const OOMUDetailScreen(meetup: {
+              'id': 'sample_01',
+              'title': '주말 엽떡+마라탕+꿔바로우 털러 가실 파티원 🔥',
+              'category': '맛집·카페',
+              'location': '마포구 서교동 홍대입구역 9번 출구',
+              'date': '이번주 토요일 저녁 6시',
+              'time': '저녁 6시',
+              'transport': '대중교통 / 각자 이동',
+              'fee': '각자 주문 (1/N)',
+              'cost': '각자 주문 (1/N)',
+              'members': 2,
+              'maxMembers': 4,
+              'host': '망원러너_민우',
+              'hostAvatar': 'assets/images/민지.png',
+              'hostBio': '맛있는 음식 먹으며 즐겁게 이야기 나누는 모임 좋아해요!',
+              'hostManner': 46.5,
+              'isVerified': true,
+              'isFemaleOnly': true,
+              'description': '홍대 근처 마라탕과 엽떡 맛집 같이 가실 분 구해요! 매운 음식 좋아하시는 분 환영합니다. 편하게 신청해 주세요 :)',
+              'imageUrl': 'assets/images/cover_food.jpg',
+              'praiseTags': ['친절하고 배려심 넘쳐요', '시간 약속을 잘 지켜요', '분위기를 밝게 해줘요'],
+            });
           }
           return StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
