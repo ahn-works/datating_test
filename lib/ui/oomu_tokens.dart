@@ -21,6 +21,19 @@ class OomuTokens {
   static const Color error = Color(0xFFE11D48);
   static const Color verified = Color(0xFF0D9488);
 
+  // ── 의미론적 색상 별칭 (docs/OOMU_DESIGN_SYSTEM.md) ──
+  static const Color primary = coral;
+  static const Color primarySubtle = Color(0xFFFDE8EC);
+  static const Color primaryBorder = Color(0xFFFFD8A8);
+  static const Color bgCanvas = Color(0xFFF8FAFC);
+  static const Color surfaceElevated = Color(0xFFF1F5F9);
+  static const Color divider = Color(0xFFF1F5F9);
+  static const Color textTertiary = Color(0xFF94A3B8);
+  static const Color mannerYellowBg = Color(0xFFFFFBEB);
+  static const Color mannerYellowBorder = Color(0xFFFDE68A);
+  static const Color mannerYellowText = Color(0xFFB45309);
+  static const Color warningRed = Color(0xFFE53935);
+
   // ── 소셜 브랜드 컬러 ──
   static const Color kakaoYellow = Color(0xFFFEE500);
   static const Color kakaoText = Color(0xFF191919);
@@ -72,7 +85,11 @@ class OomuTokens {
   static const double r12 = 12;
   static const double r14 = 14;
   static const double r16 = 16;
+  static const double r18 = 18;
+  static const double r20 = 20;
+  static const double r22 = 22;
   static const double r24 = 24;
+  static const double r28 = 28;
   static const double rPill = 999;
 
   // ── 간격 ──

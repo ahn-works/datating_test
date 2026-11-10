@@ -242,8 +242,8 @@ class HomeLightningSection extends StatelessWidget {
                                         ),
                                         child: Text(
                                           '${spot['members'] ?? '2/4'} 참여',
-                                          style: const TextStyle(
-                                            fontSize: 10,
+                                          style: TextStyle(
+                                            fontSize: OomuTokens.fs11,
                                             fontWeight:
                                                 OomuTokens.weightSemiBold,
                                             color: OomuTokens.textBody,

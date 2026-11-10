@@ -42,8 +42,8 @@ class UserProfileScreen extends StatelessWidget {
   void _showReportBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -54,8 +54,8 @@ class UserProfileScreen extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2))),
+                      color: OomuTokens.divider,
+                      borderRadius: BorderRadius.circular(OomuTokens.r2))),
               const SizedBox(height: 24),
               ListTile(
                 leading: const Icon(Icons.report_problem_outlined,
@@ -96,9 +96,9 @@ class UserProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r20)),
         title: Text('$targetType 신고 사유 선택',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: reasons
@@ -106,7 +106,7 @@ class UserProfileScreen extends StatelessWidget {
                     dense: true,
                     title: Text(r,
                         style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
+                            fontSize: OomuTokens.fs13, fontWeight: FontWeight.w600)),
                     onTap: () {
                       Navigator.pop(ctx);
                       globalData.submitReport(
@@ -134,7 +134,7 @@ class UserProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r20)),
         title:
             const Text('사용자 차단', style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text(
@@ -147,7 +147,7 @@ class UserProfileScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                    borderRadius: BorderRadius.circular(OomuTokens.r10)),
                 elevation: 0),
             onPressed: () {
               Navigator.pop(ctx);
@@ -293,14 +293,14 @@ class UserProfileScreen extends StatelessWidget {
                           runSpacing: 6,
                           children: [
                             Text(userName,
-                                style: const TextStyle(
-                                    fontSize: 28,
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fsSplash,
                                     fontWeight: OomuTokens.w700,
                                     color: Colors.white)),
                             if (displayAge.isNotEmpty)
                               Text('$displayAge세',
-                                  style: const TextStyle(
-                                      fontSize: 20,
+                                  style: TextStyle(
+                                      fontSize: OomuTokens.fs20,
                                       fontWeight: OomuTokens.w400,
                                       color: Colors.white70)),
                             const Icon(Icons.verified,
@@ -316,9 +316,9 @@ class UserProfileScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 '$displayLocation · 동네 이웃',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 15,
+                                    fontSize: OomuTokens.fs15,
                                     fontWeight: FontWeight.w500),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -334,9 +334,9 @@ class UserProfileScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 displayJob,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 15,
+                                    fontSize: OomuTokens.fs15,
                                     fontWeight: FontWeight.w500),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -396,7 +396,7 @@ class UserProfileScreen extends StatelessWidget {
                         if (displayManner != null) ...[
                           const SizedBox(height: 8),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(OomuTokens.r2),
                             child: LinearProgressIndicator(
                               value: ((displayManner - 30.0) / 70.0)
                                   .clamp(0.0, 1.0),

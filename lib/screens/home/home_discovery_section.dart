@@ -434,8 +434,8 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
                   const SizedBox(height: 2),
                   Text(
                     period,
-                    style: const TextStyle(
-                      fontSize: 10,
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs11,
                       color: OomuTokens.textMuted,
                       fontFamily: OomuTokens.fontFamily,
                     ),

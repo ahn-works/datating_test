@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
+import '../ui/oomu_tokens.dart';
 import 'login_screen.dart';
 import 'my_page_sub_screens.dart';
 import 'profile_edit_screen.dart';
@@ -18,33 +19,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _marketingNotifications = false;
   bool _meetingAlerts = true;
 
-  static const Color _bgLight = Color(0xFFF8FAFC);
-  static const Color _coralAccent = Color(0xFFF25767);
-  static const Color _coralLight = Color(0xFFFDE8EC);
-  static const Color _textPrimary = Color(0xFF0F172A);
-  static const Color _textSecondary = Color(0xFF64748B);
-  static const Color _cardBorder = Color(0xFFE2E8F0);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: OomuTokens.bgCanvas,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           '설정',
           style: TextStyle(
-            color: _textPrimary,
+            color: OomuTokens.textPrimary,
             fontWeight: FontWeight.w700,
-            fontSize: 18,
+            fontSize: OomuTokens.fs18,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: OomuTokens.surface,
         elevation: 0,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: _textPrimary),
+        iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: _cardBorder, height: 1),
+          child: Container(color: OomuTokens.border, height: 1),
         ),
       ),
       body: ListView(
@@ -79,9 +73,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: _cardBorder),
+                                color: OomuTokens.surface,
+                                borderRadius: BorderRadius.circular(OomuTokens.r16),
+                                border: Border.all(color: OomuTokens.border),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.02),
@@ -98,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                          color: _coralAccent.withValues(alpha: 0.3), width: 2),
+                                          color: OomuTokens.primary.withValues(alpha: 0.3), width: 2),
                                       image: DecorationImage(
                                         image: appImg(displayAvatar),
                                         fit: BoxFit.cover,
@@ -114,10 +108,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           children: [
                                             Text(
                                               displayName,
-                                              style: const TextStyle(
-                                                fontSize: 16,
+                                              style: TextStyle(
+                                                fontSize: OomuTokens.fs16,
                                                 fontWeight: FontWeight.w800,
-                                                color: _textPrimary,
+                                                color: OomuTokens.textPrimary,
                                               ),
                                             ),
                                             const SizedBox(width: 6),
@@ -125,15 +119,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               padding: const EdgeInsets.symmetric(
                                                   horizontal: 6, vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: _coralLight,
-                                                borderRadius: BorderRadius.circular(6),
+                                                color: OomuTokens.primarySubtle,
+                                                borderRadius: BorderRadius.circular(OomuTokens.r6),
                                               ),
                                               child: Text(
                                                 '$displayTemp°C',
-                                                style: const TextStyle(
-                                                  fontSize: 11,
+                                                style: TextStyle(
+                                                  fontSize: OomuTokens.fs11,
                                                   fontWeight: FontWeight.w800,
-                                                  color: _coralAccent,
+                                                  color: OomuTokens.primary,
                                                 ),
                                               ),
                                             ),
@@ -142,13 +136,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         const SizedBox(height: 3),
                                         Text(
                                           '$displayLoc · 본인인증 완료',
-                                          style: const TextStyle(fontSize: 12, color: _textSecondary),
+                                          style: TextStyle(fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.arrow_forward_ios_rounded,
-                                      size: 15, color: _textSecondary),
+                                  Icon(Icons.arrow_forward_ios_rounded,
+                                      size: 15, color: OomuTokens.textSecondary),
                                 ],
                               ),
                             ),
@@ -169,7 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildCardGroup([
             _buildTile(
               icon: Icons.shield_outlined,
-              iconColor: _coralAccent,
+              iconColor: OomuTokens.primary,
               title: '차단 사용자 관리',
               subtitle: '차단한 사용자는 내 피드와 채팅에서 즉시 숨겨집니다',
               onTap: () => Navigator.push(
@@ -177,10 +171,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MaterialPageRoute(builder: (_) => const BlockManageScreen()),
               ),
             ),
-            const Divider(height: 1, indent: 56, color: _cardBorder),
+            Divider(height: 1, indent: 56, color: OomuTokens.border),
             _buildTile(
               icon: Icons.flag_outlined,
-              iconColor: const Color(0xFFE53935),
+              iconColor: OomuTokens.warningRed,
               title: '신고 접수 및 처리 내역',
               subtitle: '24시간 내 운영팀 검토 내역 및 조치 결과 확인',
               onTap: () => Navigator.push(
@@ -202,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _pushNotifications,
               onChanged: (val) => setState(() => _pushNotifications = val),
             ),
-            const Divider(height: 1, indent: 56, color: _cardBorder),
+            Divider(height: 1, indent: 56, color: OomuTokens.border),
             _buildSwitchTile(
               icon: Icons.bolt_outlined,
               title: '동네 번개 및 모임 알림',
@@ -210,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _meetingAlerts,
               onChanged: (val) => setState(() => _meetingAlerts = val),
             ),
-            const Divider(height: 1, indent: 56, color: _cardBorder),
+            Divider(height: 1, indent: 56, color: OomuTokens.border),
             _buildSwitchTile(
               icon: Icons.campaign_outlined,
               title: '이벤트 및 혜택 알림',
@@ -227,7 +221,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildCardGroup([
             _buildTile(
               icon: Icons.announcement_outlined,
-              iconColor: _coralAccent,
+              iconColor: OomuTokens.primary,
               title: '공지사항',
               subtitle: 'OOMU의 새로운 기능과 커뮤니티 업데이트',
               onTap: () => Navigator.push(
@@ -235,10 +229,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MaterialPageRoute(builder: (_) => const NoticeScreen()),
               ),
             ),
-            const Divider(height: 1, indent: 56, color: _cardBorder),
+            Divider(height: 1, indent: 56, color: OomuTokens.border),
             _buildTile(
               icon: Icons.support_agent_outlined,
-              iconColor: const Color(0xFF0D9488),
+              iconColor: OomuTokens.verified,
               title: '고객센터 & 커뮤니티 가이드라인',
               subtitle: '1:1 문의, 안전 수칙 및 클린 커뮤니티 규칙',
               onTap: () => Navigator.push(
@@ -246,10 +240,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MaterialPageRoute(builder: (_) => const CustomerCenterScreen()),
               ),
             ),
-            const Divider(height: 1, indent: 56, color: _cardBorder),
+            Divider(height: 1, indent: 56, color: OomuTokens.border),
             _buildTile(
               icon: Icons.description_outlined,
-              iconColor: _textSecondary,
+              iconColor: OomuTokens.textSecondary,
               title: '이용약관 및 개인정보 처리방침',
               subtitle: '서비스 이용 약관, 위치정보, 개인정보 보호정책',
               onTap: () => _showTermsDialog(context),
@@ -267,18 +261,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: OutlinedButton(
                     onPressed: () => _showLogoutDialog(context),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: _cardBorder),
-                      backgroundColor: Colors.white,
+                      side: BorderSide(color: OomuTokens.border),
+                      backgroundColor: OomuTokens.surface,
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(OomuTokens.r12)),
                     ),
-                    child: const Text(
+                    child: Text(
                       '로그아웃',
                       style: TextStyle(
-                        color: _textSecondary,
+                        color: OomuTokens.textSecondary,
                         fontWeight: FontWeight.w700,
-                        fontSize: 14,
+                        fontSize: OomuTokens.fs14,
                       ),
                     ),
                   ),
@@ -289,18 +283,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: () => _showWithdrawDialog(context),
                     style: OutlinedButton.styleFrom(
                       side:
-                          BorderSide(color: Colors.red.withValues(alpha: 0.3)),
-                      backgroundColor: Colors.white,
+                          BorderSide(color: OomuTokens.warningRed.withValues(alpha: 0.3)),
+                      backgroundColor: OomuTokens.surface,
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(OomuTokens.r12)),
                     ),
-                    child: const Text(
+                    child: Text(
                       '회원 탈퇴',
                       style: TextStyle(
-                        color: Color(0xFFE53935),
+                        color: OomuTokens.warningRed,
                         fontWeight: FontWeight.w700,
-                        fontSize: 14,
+                        fontSize: OomuTokens.fs14,
                       ),
                     ),
                   ),
@@ -319,22 +313,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: _cardBorder),
+                    color: OomuTokens.surface,
+                    borderRadius: BorderRadius.circular(OomuTokens.r20),
+                    border: Border.all(color: OomuTokens.border),
                   ),
-                  child: const Text(
+                  child: Text(
                     'OOMU v1.4.0 (최신 버전)',
                     style: TextStyle(
-                        fontSize: 11.5,
-                        color: _textSecondary,
+                        fontSize: OomuTokens.fs12,
+                        color: OomuTokens.textSecondary,
                         fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   '동네와 취향을 잇는 가장 따뜻한 소셜 플랫폼',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF9E8E93)),
+                  style: TextStyle(fontSize: OomuTokens.fs11, color: OomuTokens.textMuted),
                 ),
               ],
             ),
@@ -350,10 +344,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 12.5,
+        style: TextStyle(
+          fontSize: OomuTokens.fs13,
           fontWeight: FontWeight.w700,
-          color: _textSecondary,
+          color: OomuTokens.textSecondary,
           letterSpacing: -0.2,
         ),
       ),
@@ -363,9 +357,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildCardGroup(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _cardBorder),
+        color: OomuTokens.surface,
+        borderRadius: BorderRadius.circular(OomuTokens.r16),
+        border: Border.all(color: OomuTokens.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -387,7 +381,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(OomuTokens.r16),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -397,7 +391,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 36,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(OomuTokens.r10),
               ),
               child: Icon(icon, color: iconColor, size: 20),
             ),
@@ -408,25 +402,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs14,
                       fontWeight: FontWeight.w700,
-                      color: _textPrimary,
+                      color: OomuTokens.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      color: _textSecondary,
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs12,
+                      color: OomuTokens.textSecondary,
                       height: 1.25,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFFC7C7CC), size: 20),
+            Icon(Icons.chevron_right, color: OomuTokens.textMuted, size: 20),
           ],
         ),
       ),
@@ -448,10 +442,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: _coralLight,
-              borderRadius: BorderRadius.circular(10),
+              color: OomuTokens.primarySubtle,
+              borderRadius: BorderRadius.circular(OomuTokens.r10),
             ),
-            child: Icon(icon, color: _coralAccent, size: 20),
+            child: Icon(icon, color: OomuTokens.primary, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -460,18 +454,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs14,
                     fontWeight: FontWeight.w700,
-                    color: _textPrimary,
+                    color: OomuTokens.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: _textSecondary,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    color: OomuTokens.textSecondary,
                     height: 1.25,
                   ),
                 ),
@@ -480,7 +474,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Switch.adaptive(
             value: value,
-            activeTrackColor: _coralAccent,
+            activeTrackColor: OomuTokens.primary,
             onChanged: onChanged,
           ),
         ],
@@ -492,29 +486,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Row(
+        backgroundColor: OomuTokens.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r18)),
+        title: Row(
           children: [
-            Icon(Icons.logout, color: _coralAccent, size: 22),
-            SizedBox(width: 8),
+            Icon(Icons.logout, color: OomuTokens.primary, size: 22),
+            const SizedBox(width: 8),
             Text('로그아웃',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: OomuTokens.fs16,
                     fontWeight: FontWeight.bold,
-                    color: _textPrimary)),
+                    color: OomuTokens.textPrimary)),
           ],
         ),
-        content: const Text(
+        content: Text(
           '정말 로그아웃 하시겠습니까?\n로그아웃 후에도 계정 데이터는 안전하게 보관됩니다.',
-          style: TextStyle(fontSize: 13.5, color: _textSecondary, height: 1.4),
+          style: TextStyle(fontSize: OomuTokens.fs14, color: OomuTokens.textSecondary, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('취소',
+            child: Text('취소',
                 style: TextStyle(
-                    color: _textSecondary, fontWeight: FontWeight.w600)),
+                    color: OomuTokens.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -526,14 +520,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: _coralAccent,
+              backgroundColor: OomuTokens.primary,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(OomuTokens.r8)),
             ),
-            child: const Text('로그아웃',
+            child: Text('로그아웃',
                 style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+                    color: OomuTokens.surface, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -544,30 +538,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Row(
+        backgroundColor: OomuTokens.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r18)),
+        title: Row(
           children: [
             Icon(Icons.warning_amber_rounded,
-                color: Color(0xFFE53935), size: 22),
-            SizedBox(width: 8),
+                color: OomuTokens.warningRed, size: 22),
+            const SizedBox(width: 8),
             Text('회원 탈퇴 안내',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: OomuTokens.fs16,
                     fontWeight: FontWeight.bold,
-                    color: _textPrimary)),
+                    color: OomuTokens.textPrimary)),
           ],
         ),
-        content: const Text(
+        content: Text(
           '회원 탈퇴 시 작성하신 모임, 게시글, 매너 온도 및 프로필 정보가 영구 삭제되며 복구할 수 없습니다.\n정말 탈퇴를 진행하시겠습니까?',
-          style: TextStyle(fontSize: 13, color: _textSecondary, height: 1.45),
+          style: TextStyle(fontSize: OomuTokens.fs13, color: OomuTokens.textSecondary, height: 1.45),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('취소',
+            child: Text('취소',
                 style: TextStyle(
-                    color: _textSecondary, fontWeight: FontWeight.w600)),
+                    color: OomuTokens.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -582,14 +576,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE53935),
+              backgroundColor: OomuTokens.warningRed,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(OomuTokens.r8)),
             ),
-            child: const Text('탈퇴하기',
+            child: Text('탈퇴하기',
                 style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+                    color: OomuTokens.surface, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -600,9 +594,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      backgroundColor: OomuTokens.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r22)),
       ),
       builder: (_) => DraggableScrollableSheet(
         initialChildSize: 0.75,
@@ -617,37 +611,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: const Color(0xFFDDDDDD),
-                    borderRadius: BorderRadius.circular(2)),
+                    color: OomuTokens.divider,
+                    borderRadius: BorderRadius.circular(OomuTokens.r2)),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Row(
                 children: [
-                  Icon(Icons.shield_outlined, color: _coralAccent, size: 22),
-                  SizedBox(width: 8),
+                  Icon(Icons.shield_outlined, color: OomuTokens.primary, size: 22),
+                  const SizedBox(width: 8),
                   Text('이용약관 및 커뮤니티 정책',
                       style: TextStyle(
-                          fontSize: 16,
+                          fontSize: OomuTokens.fs16,
                           fontWeight: FontWeight.w800,
-                          color: _textPrimary)),
+                          color: OomuTokens.textPrimary)),
                 ],
               ),
             ),
-            const Divider(height: 1, color: _cardBorder),
+            Divider(height: 1, color: OomuTokens.border),
             Expanded(
               child: ListView(
                 controller: scrollController,
                 padding: const EdgeInsets.all(20),
-                children: const [
+                children: [
                   Text(
                     '제1조 (목적 및 안심 플랫폼 운영)\n본 약관은 OOMU 서비스(동네 모임, 핫스팟, 문화예술 소모임, 소개팅 매칭)를 이용함에 있어 이용자와 당사 간의 권리 및 의무를 규정합니다.\n\n'
                     '제2조 (UGC 및 불건전 콘텐츠 무관용 원칙)\nOOMU는 애플 App Store 및 구글 Play 커뮤니티 가이드라인을 엄격히 준수합니다. 비방, 혐오 발언, 성희롱, 무단 광고성 게시물은 24시간 내 무관용 원칙으로 삭제되며 가해자는 즉시 영구 차단 조치됩니다.\n\n'
                     '제3조 (개인정보 보호 및 위치기반 서비스)\n이용자의 정확한 GPS 좌표는 서버에 영구 저장되지 않으며, 동네 인증 및 반경 거리 계산 목적으로만 실시간 활용됩니다. 프로필 교환은 상호 수락 시에만 제한적으로 공개됩니다.\n\n'
                     '제4조 (매너 온도 및 매칭 신뢰 시스템)\n36.5°C를 기본으로 하며, 모임 참여자들의 상호 매너 평가를 통해 신뢰도를 유지합니다.',
                     style: TextStyle(
-                        fontSize: 13, color: _textSecondary, height: 1.6),
+                        fontSize: OomuTokens.fs13, color: OomuTokens.textSecondary, height: 1.6),
                   ),
                 ],
               ),
@@ -661,14 +655,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _coralAccent,
+                      backgroundColor: OomuTokens.primary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(OomuTokens.r14)),
                     ),
-                    child: const Text('확인',
+                    child: Text('확인',
                         style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
+                            color: OomuTokens.surface, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),

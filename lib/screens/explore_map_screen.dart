@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../ui/oomu_tokens.dart';
 import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';
 import '../utils/app_image.dart';
@@ -27,12 +28,17 @@ class ExploreMapScreen extends StatefulWidget {
 }
 
 class _ExploreMapScreenState extends State<ExploreMapScreen> {
+  static const Color coralAccent = OomuTokens.coral;
+  static const Color textPrimary = OomuTokens.textPrimary;
+  static const Color textSecondary = OomuTokens.textSecondary;
+  static const Color textMuted = OomuTokens.textMuted;
+
   // 기본 좌표: 여수 또는 사용자 동네 기반 초기화
   double _currentLat = 34.7677;
   double _currentLng = 127.6534;
   String _currentSpotName = '여수시 화장동 (성산공원)';
 
-  String _selectedRadius = '1km';
+  String _selectedRadius = '3km';
   String _selectedCategory = '전체';
   final TextEditingController _searchController = TextEditingController();
 
@@ -61,16 +67,15 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     ];
   }
 
-  // 카테고리 필터
-  final List<String> _categories = const [
+  // 카테고리 필터 (홈 메인 4대 카테고리 100% 일치 동기화)
+  static const List<String> _categories = [
     '전체',
     '⚡ 오늘 번개',
+    '🎨 취향 아지트',
+    '🏃‍♂️ 라이프 메이트',
     '☕ 카페/디저트',
     '🍷 와인/펍',
     '🍽️ 맛집 탐방',
-    '🏃 러닝/산책',
-    '🎤 코노/문화',
-    '📚 독서/스터디',
   ];
 
   // 기본 탐색 모임 데이터베이스 (30대 감성 스토리형 모임)
@@ -264,6 +269,83 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       'date': '이번 주 토요일 11시',
       'description': '화장동에 새로 생긴 감성 베이커리에서 갓 구운 소금빵 함께 즐겨요!',
     },
+    // 라이프 메이트 모임 프리셋 (서울/여수)
+    {
+      'id': 'exp_life_01',
+      'title': '성산공원 둘레길 저녁 댕댕이 산책 라이프 메이트 🐕',
+      'location': '전남 여수시 화장동 성산공원 수변데크',
+      'lat': 34.7677,
+      'lng': 127.6534,
+      'distance': '도보 300m',
+      'category': '🏃‍♂️ 라이프 메이트',
+      'mainCategory': '라이프 메이트',
+      'tags': ['라이프 메이트', '반려동물산책', '동네산책'],
+      'members': '2/4',
+      'host': '댕댕이산책러',
+      'hostAvatar': 'assets/images/시연.png',
+      'manner': 43.8,
+      'imageUrl': 'assets/images/cover_running.jpg',
+      'isLightning': false,
+      'date': '오늘 저녁 7시반',
+      'description': '강아지랑 가볍게 공원 한 바퀴 돌며 산책하실 동네 이웃 구해요!',
+    },
+    {
+      'id': 'exp_life_02',
+      'title': '학동 대형마트 1인 가구 과일·대용량 식자재 소분 메이트 🛒',
+      'location': '전남 여수시 학동 선소상가 인근',
+      'lat': 34.7615,
+      'lng': 127.6580,
+      'distance': '도보 450m',
+      'category': '🏃‍♂️ 라이프 메이트',
+      'mainCategory': '라이프 메이트',
+      'tags': ['라이프 메이트', '1인가구장보기/소분', '소분'],
+      'members': '2/2',
+      'host': '알뜰살림러',
+      'hostAvatar': 'assets/images/정재.png',
+      'manner': 44.5,
+      'imageUrl': 'assets/images/cover_food.jpg',
+      'isLightning': false,
+      'date': '내일 오후 3시',
+      'description': '혼자 다 못 먹는 대용량 식재료 함께 장보고 딱 반씩 소분해요.',
+    },
+    {
+      'id': 'exp_life_03',
+      'title': '망원시장 1인 가구 제철과일 & 반찬 1/N 소분 메이트 🍎',
+      'location': '마포구 망원시장 입구',
+      'lat': 37.5558,
+      'lng': 126.9054,
+      'distance': '도보 350m',
+      'category': '🏃‍♂️ 라이프 메이트',
+      'mainCategory': '라이프 메이트',
+      'tags': ['라이프 메이트', '1인가구장보기/소분', '소분'],
+      'members': '2/3',
+      'host': '망원자취러',
+      'hostAvatar': 'assets/images/민지.png',
+      'manner': 42.9,
+      'imageUrl': 'assets/images/cover_food.jpg',
+      'isLightning': false,
+      'date': '이번 주말 15:00',
+      'description': '1인 가구라 버리기 아까운 제철 과일과 반찬 같이 소분해서 나눠요.',
+    },
+    {
+      'id': 'exp_life_04',
+      'title': '연남동 숲길 주말 아침 가벼운 조깅 & 헬스 라이프 메이트 🏃',
+      'location': '마포구 연남동 경의선숲길',
+      'lat': 37.5620,
+      'lng': 126.9255,
+      'distance': '도보 400m',
+      'category': '🏃‍♂️ 라이프 메이트',
+      'mainCategory': '라이프 메이트',
+      'tags': ['라이프 메이트', '러닝·운동', '운동'],
+      'members': '3/4',
+      'host': '건강러버',
+      'hostAvatar': 'assets/images/지훈.png',
+      'manner': 43.2,
+      'imageUrl': 'assets/images/cover_running.jpg',
+      'isLightning': false,
+      'date': '토요일 아침 8시',
+      'description': '혼자 운동하기 심심한 분들, 가볍게 뛰며 건강한 하루 시작해요!',
+    },
   ];
 
   @override
@@ -319,7 +401,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('📍 \'${first.name}\' 카카오 지도로 이동했습니다.'),
-              backgroundColor: const Color(0xFFF25767),
+              backgroundColor: coralAccent,
               duration: const Duration(seconds: 2),
             ),
           );
@@ -363,7 +445,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('🎯 $targetName (동네 위치 정밀 동기화 완료)'),
-            backgroundColor: const Color(0xFF10B981),
+            backgroundColor: OomuTokens.verified,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -446,13 +528,34 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       // 카테고리 필터
       if (_selectedCategory != '전체') {
         final cat = (m['category'] ?? m['mainCategory'] ?? '').toString();
+        final tags = ((m['tags'] as List?)?.join(' ') ?? '').toString();
+        final title = (m['title'] ?? '').toString();
+        final combined = '$cat $tags $title'.toLowerCase();
+
         if (_selectedCategory == '⚡ 오늘 번개') {
-          if (m['isLightning'] != true && !cat.contains('번개')) return false;
+          if (m['isLightning'] != true && !combined.contains('번개')) return false;
+        } else if (_selectedCategory.contains('라이프')) {
+          if (!combined.contains('라이프') &&
+              !combined.contains('메이트') &&
+              !combined.contains('소분') &&
+              !combined.contains('장보기') &&
+              !combined.contains('산책') &&
+              !combined.contains('운동')) return false;
+        } else if (_selectedCategory.contains('취향')) {
+          if (!combined.contains('취향') &&
+              !combined.contains('아지트') &&
+              !combined.contains('공연') &&
+              !combined.contains('전시') &&
+              !combined.contains('카페') &&
+              !combined.contains('와인') &&
+              !combined.contains('문화') &&
+              !combined.contains('독서')) return false;
         } else {
           final cleanCat = _selectedCategory
               .replaceAll(RegExp(r'[^\uAC00-\uD7A3a-zA-Z]'), '')
-              .trim();
-          if (!cat.contains(cleanCat)) return false;
+              .trim()
+              .toLowerCase();
+          if (!combined.contains(cleanCat)) return false;
         }
       }
 
@@ -506,12 +609,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const coralAccent = Color(0xFFF25767);
-    const textPrimary = Color(0xFF0F172A);
-    const textSecondary = Color(0xFF64748B);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: OomuTokens.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -525,7 +624,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           style: TextStyle(
             color: textPrimary,
             fontWeight: FontWeight.w800,
-            fontSize: 17,
+            fontSize: OomuTokens.fs17,
           ),
         ),
         actions: [
@@ -555,7 +654,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: const Color(0xFFF1F5F9), height: 1),
+          child: Container(color: OomuTokens.border, height: 1),
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -612,9 +711,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        color: OomuTokens.background,
+                        borderRadius: BorderRadius.circular(OomuTokens.r14),
+                        border: Border.all(color: OomuTokens.border),
                       ),
                       child: Row(
                         children: [
@@ -627,13 +726,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             child: TextField(
                               controller: _searchController,
                               style: const TextStyle(
-                                  fontSize: 13.5,
+                                  fontSize: OomuTokens.fs14,
                                   fontWeight: FontWeight.w600,
                                   color: textPrimary),
                               decoration: const InputDecoration(
                                 hintText: '동네, 지하철역, 취향 키워드 검색',
                                 hintStyle: TextStyle(
-                                    fontSize: 12.5, color: Color(0xFF94A3B8)),
+                                    fontSize: OomuTokens.fs13, color: textMuted),
                                 border: InputBorder.none,
                                 isDense: true,
                                 contentPadding:
@@ -646,7 +745,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           if (_searchController.text.isNotEmpty)
                             IconButton(
                               icon: const Icon(Icons.clear,
-                                  size: 18, color: Color(0xFF94A3B8)),
+                                  size: 18, color: textMuted),
                               onPressed: () {
                                 setState(() => _searchController.clear());
                               },
@@ -682,12 +781,12 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? coralAccent
-                                    : const Color(0xFFF8FAFC),
-                                borderRadius: BorderRadius.circular(18),
+                                    : OomuTokens.background,
+                                borderRadius: BorderRadius.circular(OomuTokens.r16),
                                 border: Border.all(
                                   color: isSelected
                                       ? coralAccent
-                                      : const Color(0xFFE2E8F0),
+                                      : OomuTokens.border,
                                 ),
                               ),
                               child: Row(
@@ -709,7 +808,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                       fontWeight: isSelected
                                           ? FontWeight.w800
                                           : FontWeight.w600,
-                                      fontSize: 11.5,
+                                      fontSize: OomuTokens.fs12,
                                     ),
                                   ),
                                 ],
@@ -739,13 +838,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF0F172A)
+                                    ? textPrimary
                                     : Colors.white,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(OomuTokens.r14),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFF0F172A)
-                                      : const Color(0xFFE2E8F0),
+                                      ? textPrimary
+                                      : OomuTokens.border,
                                 ),
                               ),
                               child: Text(
@@ -753,11 +852,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 style: TextStyle(
                                   color: isSelected
                                       ? Colors.white
-                                      : const Color(0xFF475569),
+                                      : textSecondary,
                                   fontWeight: isSelected
                                       ? FontWeight.bold
                                       : FontWeight.w600,
-                                  fontSize: 11,
+                                  fontSize: OomuTokens.fs11,
                                 ),
                               ),
                             ),
@@ -780,8 +879,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         Container(
                           height: 220,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            borderRadius: BorderRadius.circular(OomuTokens.r16),
+                            border: Border.all(color: OomuTokens.border),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.05),
@@ -819,9 +918,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.95),
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(OomuTokens.r10),
                               border:
-                                  Border.all(color: const Color(0xFFE2E8F0)),
+                                  Border.all(color: OomuTokens.border),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.08),
@@ -844,7 +943,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                         horizontal: 10, vertical: 6),
                                     child: Text('+',
                                         style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: OomuTokens.fs15,
                                             fontWeight: FontWeight.w900,
                                             color: textPrimary)),
                                   ),
@@ -852,7 +951,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 Container(
                                     width: 1,
                                     height: 18,
-                                    color: const Color(0xFFE2E8F0)),
+                                    color: OomuTokens.border),
                                 InkWell(
                                   onTap: () {
                                     setState(() {
@@ -865,7 +964,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                         horizontal: 10, vertical: 6),
                                     child: Text('−',
                                         style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: OomuTokens.fs15,
                                             fontWeight: FontWeight.w900,
                                             color: textPrimary)),
                                   ),
@@ -882,13 +981,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     horizontal: 14, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.black.withValues(alpha: 0.72),
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(OomuTokens.r16),
                                 ),
                                 child: const Text(
                                   '지도 이동 중...',
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 12,
+                                      fontSize: OomuTokens.fs12,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -903,8 +1002,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF191F28),
-                          borderRadius: BorderRadius.circular(14),
+                          color: textPrimary,
+                          borderRadius: BorderRadius.circular(OomuTokens.r14),
                         ),
                         child: Row(
                           children: [
@@ -913,13 +1012,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
                                 color: coralAccent,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(OomuTokens.r6),
                               ),
                               child: const Text(
                                 '📍 선택된 모임',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10.5,
+                                  fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -932,7 +1031,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12.5,
+                                  fontSize: OomuTokens.fs13,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -952,23 +1051,25 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: OomuTokens.surface,
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r8),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       '모임 이동',
                                       style: TextStyle(
-                                        color: Color(0xFF191F28),
-                                        fontSize: 11.5,
+                                        color: OomuTokens.textPrimary,
+                                        fontSize: OomuTokens.fs12,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                    SizedBox(width: 2),
+                                    const SizedBox(width: 2),
                                     Icon(Icons.chevron_right_rounded,
-                                        size: 15, color: Color(0xFF191F28)),
+                                        size: 15,
+                                        color: OomuTokens.textPrimary),
                                   ],
                                 ),
                               ),
@@ -984,10 +1085,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               // 3. 하단 모임 리스트 (특정 모임 지도 위치 선택 + 모임 상세 이동)
               Expanded(
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(24)),
+                  decoration: BoxDecoration(
+                    color: OomuTokens.surface,
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(OomuTokens.r24)),
                   ),
                   child: CustomScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -1000,15 +1101,15 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.explore_rounded,
-                                      color: coralAccent, size: 19),
+                                  Icon(Icons.explore_rounded,
+                                      color: OomuTokens.primary, size: 19),
                                   const SizedBox(width: 6),
                                   Text(
                                     '현재 반경 모임 (${filtered.length}개)',
-                                    style: const TextStyle(
-                                      fontSize: 15.5,
+                                    style: TextStyle(
+                                      fontSize: OomuTokens.fs16,
                                       fontWeight: FontWeight.w800,
-                                      color: textPrimary,
+                                      color: OomuTokens.textPrimary,
                                     ),
                                   ),
                                 ],
@@ -1017,15 +1118,16 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF0EB),
-                                  borderRadius: BorderRadius.circular(12),
+                                  color: OomuTokens.primarySubtle,
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r12),
                                 ),
                                 child: Text(
                                   '$_selectedRadius 반경',
-                                  style: const TextStyle(
-                                    fontSize: 11.5,
+                                  style: TextStyle(
+                                    fontSize: OomuTokens.fs12,
                                     fontWeight: FontWeight.bold,
-                                    color: coralAccent,
+                                    color: OomuTokens.primary,
                                   ),
                                 ),
                               ),
@@ -1033,8 +1135,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           ),
                         ),
                       ),
-                      const SliverToBoxAdapter(
-                        child: Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      SliverToBoxAdapter(
+                        child: Divider(height: 1, color: OomuTokens.divider),
                       ),
                       if (filtered.isEmpty)
                         SliverToBoxAdapter(
@@ -1042,44 +1144,44 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 32),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.explore_off_rounded,
-                                    size: 36, color: Color(0xFF94A3B8)),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  '현재 필터 조건에 맞는 모임이 없어요',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: textPrimary,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.explore_off_rounded,
+                                      size: 36,
+                                      color: OomuTokens.textTertiary),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    '현재 필터 조건에 맞는 모임이 없어요',
+                                    style: TextStyle(
+                                      fontSize: OomuTokens.fs15,
+                                      fontWeight: FontWeight.w700,
+                                      color: OomuTokens.textPrimary,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 12),
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedCategory = '전체';
-                                      _selectedRadius = '전체';
-                                      _searchController.clear();
-                                    });
-                                  },
-                                  icon: const Icon(Icons.refresh_rounded,
-                                      size: 16),
-                                  label: const Text('필터 초기화',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: coralAccent,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12)),
+                                  const SizedBox(height: 12),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedCategory = '전체';
+                                        _selectedRadius = '전체';
+                                        _searchController.clear();
+                                      });
+                                    },
+                                    icon: const Icon(Icons.refresh_rounded,
+                                        size: 16),
+                                    label: const Text('필터 초기화',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: OomuTokens.primary,
+                                      foregroundColor: OomuTokens.surface,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              OomuTokens.r12)),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ]),
                           ),
                         )
                       else
@@ -1113,8 +1215,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
   // 100점 풀-피니시 모임 카드 위젯 (당근/문토/29CM 표준 규격)
   Widget _buildMeetupCard(BuildContext context, Map<String, dynamic> m,
       {bool isSelectedOnMap = false}) {
-    const textPrimary = Color(0xFF0F172A);
-    const coralAccent = Color(0xFFF25767);
     final isLightning = m['isLightning'] == true;
 
     return GestureDetector(
@@ -1123,14 +1223,14 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: OomuTokens.surface,
+          borderRadius: BorderRadius.circular(OomuTokens.r20),
           border: Border.all(
             color: isSelectedOnMap
-                ? coralAccent
+                ? OomuTokens.primary
                 : (isLightning
-                    ? const Color(0xFFFFD8A8)
-                    : const Color(0xFFE2E8F0)),
+                    ? OomuTokens.primaryBorder
+                    : OomuTokens.border),
             width: isSelectedOnMap ? 1.8 : 1.0,
           ),
           boxShadow: [
@@ -1153,7 +1253,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                   Stack(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(OomuTokens.r14),
                         child: SizedBox(
                           width: 88,
                           height: 88,
@@ -1174,14 +1274,15 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2.5),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF25767),
-                              borderRadius: BorderRadius.circular(6),
+                              color: OomuTokens.primary,
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r6),
                             ),
-                            child: const Text(
+                            child: Text(
                               '⚡번개',
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
+                                  color: OomuTokens.surface,
+                                  fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w900),
                             ),
                           ),
@@ -1202,18 +1303,19 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 7, vertical: 2.5),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(6),
+                                color: OomuTokens.surfaceElevated,
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r6),
                               ),
                               child: Text(
                                 (m['category'] ??
                                         m['mainCategory'] ??
                                         '일상 & 소통')
                                     .toString(),
-                                style: const TextStyle(
-                                    fontSize: 10.5,
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF475569)),
+                                    color: OomuTokens.textSecondary),
                               ),
                             ),
                             if (isSelectedOnMap) ...[
@@ -1222,15 +1324,16 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF0F2),
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: OomuTokens.primarySubtle,
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r6),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   '지도 선택됨',
                                   style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: OomuTokens.fs11,
                                       fontWeight: FontWeight.w800,
-                                      color: coralAccent),
+                                      color: OomuTokens.primary),
                                 ),
                               ),
                             ],
@@ -1243,10 +1346,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           (m['title'] ?? '').toString(),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 15,
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs15,
                             fontWeight: FontWeight.w800,
-                            color: textPrimary,
+                            color: OomuTokens.textPrimary,
                             height: 1.32,
                             letterSpacing: -0.3,
                           ),
@@ -1268,37 +1371,38 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 const SizedBox(width: 5),
                                 Text(
                                   '${m['host'] ?? '호스트'}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
+                                  style: TextStyle(
+                                      fontSize: OomuTokens.fs12,
                                       fontWeight: FontWeight.bold,
-                                      color: textPrimary),
+                                      color: OomuTokens.textPrimary),
                                 ),
                                 const SizedBox(width: 6),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFBEB),
-                                    borderRadius: BorderRadius.circular(6),
+                                    color: OomuTokens.mannerYellowBg,
+                                    borderRadius:
+                                        BorderRadius.circular(OomuTokens.r6),
                                     border: Border.all(
-                                        color: const Color(0xFFFDE68A)),
+                                        color: OomuTokens.mannerYellowBorder),
                                   ),
                                   child: Text(
                                     '${m['manner'] ?? 41.2}°C 🔥',
-                                    style: const TextStyle(
-                                        fontSize: 10.5,
+                                    style: TextStyle(
+                                        fontSize: OomuTokens.fs11,
                                         fontWeight: FontWeight.w800,
-                                        color: Color(0xFFB45309)),
+                                        color: OomuTokens.mannerYellowText),
                                   ),
                                 ),
                               ],
                             ),
                             Text(
                               _formatMemberCount(m['members'], m['maxMembers']),
-                              style: const TextStyle(
-                                  fontSize: 11,
+                              style: TextStyle(
+                                  fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF64748B)),
+                                  color: OomuTokens.textTertiary),
                             ),
                           ],
                         ),
@@ -1313,24 +1417,24 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  color: OomuTokens.surfaceElevated,
+                  borderRadius: BorderRadius.circular(OomuTokens.r12),
+                  border: Border.all(color: OomuTokens.border),
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded,
-                            size: 15, color: Color(0xFFF25767)),
+                        Icon(Icons.location_on_rounded,
+                            size: 15, color: OomuTokens.primary),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             (m['location'] ?? '위치 미지정').toString(),
-                            style: const TextStyle(
-                                fontSize: 12.5,
+                            style: TextStyle(
+                                fontSize: OomuTokens.fs13,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF0F172A)),
+                                color: OomuTokens.textPrimary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1340,40 +1444,43 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFECE5),
-                              borderRadius: BorderRadius.circular(5),
+                              color: OomuTokens.primarySubtle,
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r6),
                             ),
                             child: Text(
                               m['distance'].toString(),
-                              style: const TextStyle(
-                                  fontSize: 10.5,
+                              style: TextStyle(
+                                  fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFFF25767)),
+                                  color: OomuTokens.primary),
                             ),
                           ),
                       ],
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 6),
-                      child: Divider(height: 1, color: Color(0xFFEDF2F7)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Divider(height: 1, color: OomuTokens.divider),
                     ),
                     Row(
                       children: [
                         Expanded(
                           child: InkWell(
                             onTap: () => _focusMeetupOnMap(m, openDetail: false),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                BorderRadius.circular(OomuTokens.r8),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 7),
                               decoration: BoxDecoration(
                                 color: isSelectedOnMap
-                                    ? const Color(0xFFFFF0F2)
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(8),
+                                    ? OomuTokens.primarySubtle
+                                    : OomuTokens.surface,
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r8),
                                 border: Border.all(
                                   color: isSelectedOnMap
-                                      ? coralAccent
-                                      : const Color(0xFFCBD5E1),
+                                      ? OomuTokens.primary
+                                      : OomuTokens.border,
                                 ),
                               ),
                               alignment: Alignment.center,
@@ -1382,11 +1489,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     ? '📍 지도에 표시 중'
                                     : '📍 지도에서 위치 보기',
                                 style: TextStyle(
-                                  fontSize: 11.5,
+                                  fontSize: OomuTokens.fs12,
                                   fontWeight: FontWeight.w700,
                                   color: isSelectedOnMap
-                                      ? coralAccent
-                                      : textPrimary,
+                                      ? OomuTokens.primary
+                                      : OomuTokens.textPrimary,
                                 ),
                               ),
                             ),
@@ -1396,20 +1503,22 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () => _focusMeetupOnMap(m, openDetail: true),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                BorderRadius.circular(OomuTokens.r8),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 7),
                               decoration: BoxDecoration(
-                                color: textPrimary,
-                                borderRadius: BorderRadius.circular(8),
+                                color: OomuTokens.textPrimary,
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r8),
                               ),
                               alignment: Alignment.center,
-                              child: const Text(
+                              child: Text(
                                 '해당 모임으로 이동 ›',
                                 style: TextStyle(
-                                  fontSize: 11.5,
+                                  fontSize: OomuTokens.fs12,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: OomuTokens.surface,
                                 ),
                               ),
                             ),
@@ -1437,9 +1546,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           builder: (context, setModalState) {
             return Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              decoration: BoxDecoration(
+                color: OomuTokens.surface,
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(OomuTokens.r24)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1448,25 +1558,90 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         '탐색 반경 및 필터 설정',
                         style: TextStyle(
-                            fontSize: 18,
+                            fontSize: OomuTokens.fs18,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0F172A)),
+                            color: OomuTokens.textPrimary),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(ctx),
+                      Row(
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              setModalState(() {
+                                _selectedCategory = '전체';
+                                _selectedRadius = '전체';
+                                _searchController.clear();
+                              });
+                              setState(() {
+                                _selectedCategory = '전체';
+                                _selectedRadius = '전체';
+                                _searchController.clear();
+                              });
+                            },
+                            icon: Icon(Icons.refresh_rounded,
+                                size: 16, color: OomuTokens.primary),
+                            label: Text(
+                              '전체 초기화',
+                              style: TextStyle(
+                                fontSize: OomuTokens.fs13,
+                                fontWeight: FontWeight.bold,
+                                color: OomuTokens.primary,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close,
+                                color: OomuTokens.textPrimary),
+                            onPressed: () => Navigator.pop(ctx),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text('탐색 반경 기준',
+                  Text('탐색 카테고리',
                       style: TextStyle(
-                          fontSize: 14,
+                          fontSize: OomuTokens.fs14,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF475569))),
+                          color: OomuTokens.textSecondary)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _categories.map((cat) {
+                      final isSel = _selectedCategory == cat;
+                      return ChoiceChip(
+                        label: Text(cat),
+                        selected: isSel,
+                        selectedColor: OomuTokens.primarySubtle,
+                        backgroundColor: OomuTokens.surfaceElevated,
+                        side: BorderSide(
+                          color: isSel
+                              ? OomuTokens.primary
+                              : OomuTokens.border,
+                        ),
+                        labelStyle: TextStyle(
+                          color: isSel
+                              ? OomuTokens.primary
+                              : OomuTokens.textPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: OomuTokens.fs12,
+                        ),
+                        onSelected: (val) {
+                          setModalState(() => _selectedCategory = cat);
+                          setState(() => _selectedCategory = cat);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('탐색 반경 기준',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          fontWeight: FontWeight.bold,
+                          color: OomuTokens.textSecondary)),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -1475,10 +1650,19 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                       return ChoiceChip(
                         label: Text(r),
                         selected: isSel,
-                        selectedColor: const Color(0xFFF25767),
+                        selectedColor: OomuTokens.primary,
+                        backgroundColor: OomuTokens.surfaceElevated,
+                        side: BorderSide(
+                          color: isSel
+                              ? OomuTokens.primary
+                              : OomuTokens.border,
+                        ),
                         labelStyle: TextStyle(
-                          color: isSel ? Colors.white : const Color(0xFF0F172A),
+                          color: isSel
+                              ? OomuTokens.surface
+                              : OomuTokens.textPrimary,
                           fontWeight: FontWeight.bold,
+                          fontSize: OomuTokens.fs12,
                         ),
                         onSelected: (val) {
                           setModalState(() => _selectedRadius = r);
@@ -1493,17 +1677,18 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     height: 52,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF25767),
+                        backgroundColor: OomuTokens.primary,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
+                            borderRadius:
+                                BorderRadius.circular(OomuTokens.r16)),
                       ),
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('필터 적용하기',
+                      child: Text('필터 적용하기',
                           style: TextStyle(
-                              color: Colors.white,
+                              color: OomuTokens.surface,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16)),
+                              fontSize: OomuTokens.fs16)),
                     ),
                   ),
                 ],
