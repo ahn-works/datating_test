@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../ui/oomu_avatar.dart';
+import '../ui/oomu_empty_state.dart';
+import '../ui/oomu_tag.dart';
+import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/balanced_heading.dart';
+import '../widgets/bouncy_tap.dart';
 import '../widgets/ugc_action_sheets.dart';
 import 'user_profile_screen.dart';
-import '../widgets/bouncy_tap.dart';
 
 class CommunityPostDetailScreen extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -21,11 +26,6 @@ class CommunityPostDetailScreen extends StatefulWidget {
 }
 
 class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
-  final Color textPrimary = OomuUiHelpers.textPrimary;
-  final Color textSecondary = OomuUiHelpers.textSecondary;
-  final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
-  final Color coralAccent = OomuUiHelpers.brandCoral;
-
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -123,7 +123,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     if (!_canUseFirestore || postId == null) {
       setState(() => _isSubmittingComment = false);
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('실제 게시글에서 댓글을 작성할 수 있어요.')));
+        const SnackBar(content: Text('실제 게시글에서 댓글을 작성할 수 있어요.')),
+      );
       return;
     }
     try {
@@ -135,7 +136,6 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       final postRef = db.collection('community_posts').doc(postId);
       final commentRef = postRef.collection('comments').doc();
 
-      // Ensure parent post document exists with updated comment count
       await postRef.set({
         'id': postId,
         'title': widget.post['title'] ?? '',
@@ -177,8 +177,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _isSubmittingComment = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('댓글을 저장하지 못했어요. 입력한 내용은 남겨두었어요. 다시 시도해 주세요.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('댓글을 저장하지 못했어요. 입력한 내용은 남겨두었어요. 다시 시도해 주세요.'),
+        ),
+      );
       return;
     }
 
@@ -258,7 +261,6 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         return data;
       }).toList();
 
-      // 안전한 인메모리 시간순 정렬 (Timestamp 및 ISO 문자열 혼용 완벽 지원)
       docs.sort((a, b) {
         final aTime = a['createdAt'];
         final bTime = b['createdAt'];
@@ -299,7 +301,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         ? globalData.userAvatar.value
         : ((post['authorAvatar'] != null && post['authorAvatar'].toString().isNotEmpty)
             ? post['authorAvatar'].toString()
-            : 'assets/images/초연.png');
+            : '');
     final location = (post['location'] ?? '마포구 서교동').toString();
     final time = (post['time'] ?? '방금 전').toString();
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
@@ -311,12 +313,17 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
     return ListView(
       controller: _scrollController,
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: OomuTokens.s24),
       children: [
         // Main Post Content Card
         Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          color: OomuTokens.surface,
+          padding: const EdgeInsets.fromLTRB(
+            OomuTokens.s20,
+            OomuTokens.s16,
+            OomuTokens.s20,
+            OomuTokens.s20,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -337,12 +344,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         ),
                       );
                     },
-                    child: CircleAvatar(
+                    child: OomuAvatar(
+                      imageUrl: effectiveAuthorAvatar,
+                      name: author,
                       radius: 20,
-                      backgroundImage: appImg(effectiveAuthorAvatar),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: OomuTokens.s12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,101 +375,76 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                 },
                                 child: Text(
                                   author,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w800,
-                                      color: textPrimary),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: OomuUiHelpers.mannerTempBgColor(
-                                      authorManner),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  OomuUiHelpers.formatMannerTemp(authorManner),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: OomuUiHelpers.mannerTempColor(
-                                        authorManner),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                                  style: const TextStyle(
+                                    fontSize: OomuTokens.fs14,
+                                    fontWeight: OomuTokens.w700,
+                                    color: OomuTokens.textPrimary,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
+                            if (authorManner != null) ...[
+                              const SizedBox(width: OomuTokens.s8),
+                              OomuTag(
+                                label: OomuUiHelpers.formatMannerTemp(authorManner),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 2),
                         Text(
                           '$location · $time',
-                          style: TextStyle(fontSize: 12, color: textSecondary),
+                          style: const TextStyle(
+                            fontSize: OomuTokens.fs12,
+                            color: OomuTokens.textSecondary,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   if (tag != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF0F2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '#$tag',
-                        style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFC83243)),
-                      ),
+                    OomuTag(
+                      label: '#$tag',
                     ),
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: OomuTokens.s16),
 
-              // Title (이모지 안전한 줄바꿈 & 선명한 타이포그래피 계층)
+              // Title
               if (title.isNotEmpty) ...[
                 BalancedHeading(
                   OomuUiHelpers.formatTitle(title, fallback: ''),
                   style: const TextStyle(
-                    fontSize: 18.5,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF19181B),
+                    fontSize: OomuTokens.fs18,
+                    fontWeight: OomuTokens.w700,
+                    color: OomuTokens.textPrimary,
                     height: 1.35,
                     letterSpacing: -0.4,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: OomuTokens.s12),
               ],
 
-              // Body Text (가독성 높은 차콜 그레이 & 쾌적한 줄간격)
+              // Body Text
               Text(
                 content,
                 style: const TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w400,
+                  fontSize: OomuTokens.fs14,
+                  fontWeight: OomuTokens.w400,
                   height: 1.65,
-                  color: Color(0xFF4A4446),
+                  color: OomuTokens.textBody,
                   letterSpacing: -0.15,
                 ),
               ),
 
               // Attached Photo
               if (image != null && image.toString().isNotEmpty) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: OomuTokens.s16),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(OomuTokens.r16),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 340),
                     child: SizedBox(
@@ -471,10 +454,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
                           height: 160,
-                          color: const Color(0xFFF3EAEB),
+                          color: OomuTokens.surfaceMuted,
                           alignment: Alignment.center,
-                          child: const Icon(Icons.image_not_supported,
-                              color: Colors.grey),
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: OomuTokens.textMuted,
+                          ),
                         ),
                       ),
                     ),
@@ -482,15 +467,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                 ),
               ],
 
-              const SizedBox(height: 16),
+              const SizedBox(height: OomuTokens.s16),
 
-              // Interaction Row (상단 댓글 수와 하단 댓글 수 단일 상태 연동 & 48x48dp 터치 영역)
+              // Interaction Row
               Row(
                 children: [
                   Expanded(
                     child: Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 12,
+                      spacing: OomuTokens.s12,
                       runSpacing: 4,
                       children: [
                         Tooltip(
@@ -501,10 +486,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             onTap: _toggleLike,
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(
-                                  minWidth: 48, minHeight: 48),
+                                minWidth: 48,
+                                minHeight: 48,
+                              ),
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: OomuTokens.s12,
+                                ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -514,18 +502,18 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                           : Icons.favorite_border_rounded,
                                       size: 19,
                                       color: _isLiked
-                                          ? coralAccent
-                                          : textSecondary,
+                                          ? OomuTokens.coral
+                                          : OomuTokens.textSecondary,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
                                       '좋아요 $_likeCount',
                                       style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: OomuTokens.fs12,
+                                        fontWeight: OomuTokens.w700,
                                         color: _isLiked
-                                            ? coralAccent
-                                            : textSecondary,
+                                            ? OomuTokens.coral
+                                            : OomuTokens.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -539,15 +527,19 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.chat_bubble_outline_rounded,
-                                  size: 18, color: textSecondary),
+                              const Icon(
+                                Icons.chat_bubble_outline_rounded,
+                                size: 18,
+                                color: OomuTokens.textSecondary,
+                              ),
                               const SizedBox(width: 5),
                               Text(
                                 '댓글 ${displayComments.length}',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: textSecondary),
+                                style: const TextStyle(
+                                  fontSize: OomuTokens.fs12,
+                                  fontWeight: OomuTokens.w700,
+                                  color: OomuTokens.textSecondary,
+                                ),
                               ),
                             ],
                           ),
@@ -557,11 +549,16 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   ),
                   IconButton(
                     tooltip: '게시글 공유',
-                    icon: Icon(Icons.share_outlined,
-                        size: 19, color: textSecondary),
+                    icon: const Icon(
+                      Icons.share_outlined,
+                      size: 19,
+                      color: OomuTokens.textSecondary,
+                    ),
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('게시글 링크가 클립보드에 복사되었습니다!')),
+                        const SnackBar(
+                          content: Text('게시글 링크가 클립보드에 복사되었습니다!'),
+                        ),
                       );
                     },
                   ),
@@ -571,57 +568,37 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
           ),
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: OomuTokens.s8),
 
-        // Comments Header
+        // Comments Header (정돈된 '댓글 N' 단일 표기)
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-          child: Row(
-            children: [
-              Text(
-                '댓글 ${displayComments.length}',
-                style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                    color: textPrimary),
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  '실시간 동네 주민 토크',
-                  style: TextStyle(fontSize: 12, color: textSecondary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          padding: const EdgeInsets.fromLTRB(
+            OomuTokens.s20,
+            OomuTokens.s16,
+            OomuTokens.s20,
+            OomuTokens.s12,
+          ),
+          child: Text(
+            '댓글 ${displayComments.length}',
+            style: const TextStyle(
+              fontSize: OomuTokens.fs14,
+              fontWeight: OomuTokens.w700,
+              color: OomuTokens.textPrimary,
+            ),
           ),
         ),
 
         // Comments Empty State or List
         if (displayComments.isEmpty)
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Icon(Icons.chat_bubble_outline_rounded,
-                    size: 28, color: textSecondary.withValues(alpha: 0.5)),
-                const SizedBox(height: 8),
-                Text(
-                  '첫 댓글을 남겨보세요',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: textPrimary),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '동네 이웃과 따뜻한 대화를 시작해 보세요 💬',
-                  style: TextStyle(fontSize: 12.5, color: textSecondary),
-                ),
-              ],
+          const Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: OomuTokens.s20,
+              vertical: OomuTokens.s16,
+            ),
+            child: OomuEmptyState(
+              icon: Icons.chat_bubble_outline_rounded,
+              title: '첫 댓글을 남겨보세요',
+              subtitle: '동네 이웃과 따뜻한 대화를 시작해 보세요 💬',
             ),
           )
         else
@@ -630,7 +607,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: displayComments.length,
             separatorBuilder: (_, __) =>
-                const Divider(height: 1, color: Color(0xFFF3EAEB)),
+                const Divider(height: 1, color: OomuTokens.border),
             itemBuilder: (context, index) {
               final comm = displayComments[index];
               final isCommLiked = comm['isLiked'] == true;
@@ -640,17 +617,22 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
               final commAuthor = (comm['author'] ?? '이웃').toString();
               final isCommMe = commAuthor == globalData.userNickname.value ||
-                  (comm['authorId'] != null && comm['authorId'] == globalData.activeUserId);
-              final effectiveCommAvatar = (isCommMe && globalData.userAvatar.value.isNotEmpty)
+                  (comm['authorId'] != null &&
+                      comm['authorId'] == globalData.activeUserId);
+              final effectiveCommAvatar = (isCommMe &&
+                      globalData.userAvatar.value.isNotEmpty)
                   ? globalData.userAvatar.value
-                  : ((comm['authorAvatar'] != null && comm['authorAvatar'].toString().isNotEmpty)
+                  : ((comm['authorAvatar'] != null &&
+                          comm['authorAvatar'].toString().isNotEmpty)
                       ? comm['authorAvatar'].toString()
-                      : 'assets/images/초연.png');
+                      : '');
 
               return Container(
-                color: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                color: OomuTokens.surface,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: OomuTokens.s20,
+                  vertical: OomuTokens.s12,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -666,12 +648,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           ),
                         );
                       },
-                      child: CircleAvatar(
+                      child: OomuAvatar(
+                        imageUrl: effectiveCommAvatar,
+                        name: commAuthor,
                         radius: 16,
-                        backgroundImage: appImg(effectiveCommAvatar),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: OomuTokens.s12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -695,49 +678,66 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                   },
                                   child: Text(
                                     (comm['author'] ?? '이웃').toString(),
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: textPrimary),
+                                    style: const TextStyle(
+                                      fontSize: OomuTokens.fs12,
+                                      fontWeight: OomuTokens.w700,
+                                      color: OomuTokens.textPrimary,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: OomuTokens.s4),
                               Text(
                                 (comm['time'] ?? '방금').toString(),
-                                style: TextStyle(
-                                    fontSize: 12, color: textSecondary),
+                                style: const TextStyle(
+                                  fontSize: OomuTokens.fs11,
+                                  color: OomuTokens.textSecondary,
+                                ),
                               ),
-                              if ((comm['authorId']?.toString() == globalData.activeUserId && globalData.activeUserId.isNotEmpty) ||
-                                  (comm['author']?.toString() == globalData.userNickname.value && globalData.userNickname.value.isNotEmpty)) ...[
+                              if ((comm['authorId']?.toString() ==
+                                          globalData.activeUserId &&
+                                      globalData.activeUserId.isNotEmpty) ||
+                                  (comm['author']?.toString() ==
+                                          globalData.userNickname.value &&
+                                      globalData.userNickname.value.isNotEmpty)) ...[
                                 const Spacer(),
                                 GestureDetector(
                                   onTap: () async {
+                                    final messenger = ScaffoldMessenger.of(context);
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (dCtx) => AlertDialog(
                                         title: const Text('댓글을 삭제할까요?'),
-                                        content: const Text('삭제된 댓글은 복구할 수 없습니다.'),
+                                        content: const Text(
+                                            '삭제된 댓글은 복구할 수 없습니다.'),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(dCtx, false),
+                                            onPressed: () =>
+                                                Navigator.pop(dCtx, false),
                                             child: const Text('취소'),
                                           ),
                                           TextButton(
-                                            onPressed: () => Navigator.pop(dCtx, true),
-                                            child: const Text('삭제',
-                                                style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontWeight: FontWeight.bold)),
+                                            onPressed: () =>
+                                                Navigator.pop(dCtx, true),
+                                            child: const Text(
+                                              '삭제',
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
                                     );
                                     if (confirm == true && mounted) {
                                       final cId = comm['id']?.toString();
-                                      if (_canUseFirestore && cId != null && !cId.startsWith('local_') && postId != null) {
+                                      if (_canUseFirestore &&
+                                          cId != null &&
+                                          !cId.startsWith('local_') &&
+                                          postId != null) {
                                         try {
                                           await FirebaseFirestore.instance
                                               .collection('community_posts')
@@ -748,22 +748,33 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                           await FirebaseFirestore.instance
                                               .collection('community_posts')
                                               .doc(postId)
-                                              .update({'comments': FieldValue.increment(-1)});
+                                              .update({
+                                            'comments':
+                                                FieldValue.increment(-1)
+                                          });
                                         } catch (_) {}
                                       }
                                       setState(() {
-                                        _comments.removeWhere((item) => item['id'] == cId);
+                                        _comments.removeWhere(
+                                            (item) => item['id'] == cId);
                                         widget.post['commentList'] = _comments;
-                                        widget.post['comments'] = _comments.length;
+                                        widget.post['comments'] =
+                                            _comments.length;
                                       });
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('댓글이 삭제되었습니다.')),
+                                      messenger.showSnackBar(
+                                        const SnackBar(
+                                          content: Text('댓글이 삭제되었습니다.'),
+                                        ),
                                       );
                                     }
                                   },
                                   child: const Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 4),
-                                    child: Icon(Icons.close, size: 14, color: Colors.grey),
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: OomuTokens.textMuted,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -772,17 +783,20 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           const SizedBox(height: 4),
                           Text(
                             (comm['content'] ?? comm['text'] ?? '').toString(),
-                            style: TextStyle(
-                                fontSize: 14, height: 1.45, color: textPrimary),
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs14,
+                              height: 1.45,
+                              color: OomuTokens.textPrimary,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    // Comment like button (최소 48x48dp 터치 영역 보장)
+                    // Comment like button
                     Tooltip(
                       message: '댓글 좋아요',
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
                         onTap: () async {
                           final myId = FirebaseAuth.instance.currentUser?.uid ??
                               (globalData.activeUserId.isNotEmpty
@@ -822,8 +836,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           }
                         },
                         child: ConstrainedBox(
-                          constraints:
-                              const BoxConstraints(minWidth: 48, minHeight: 48),
+                          constraints: const BoxConstraints(
+                            minWidth: 48,
+                            minHeight: 48,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -832,17 +848,19 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                     ? Icons.favorite
                                     : Icons.favorite_border,
                                 size: 17,
-                                color:
-                                    isCommLiked ? coralAccent : textSecondary,
+                                color: isCommLiked
+                                    ? OomuTokens.coral
+                                    : OomuTokens.textSecondary,
                               ),
                               if (commLikes > 0) ...[
                                 const SizedBox(height: 2),
                                 Text(
                                   '$commLikes',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: textSecondary),
+                                  style: const TextStyle(
+                                    fontSize: OomuTokens.fs12,
+                                    fontWeight: OomuTokens.w600,
+                                    color: OomuTokens.textSecondary,
+                                  ),
                                 ),
                               ],
                             ],
@@ -868,25 +886,35 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     final postId = _postId;
 
     return Scaffold(
-      backgroundColor: surfaceColor,
+      backgroundColor: OomuTokens.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: OomuTokens.surface,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           tooltip: '뒤로가기',
-          icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: textPrimary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: OomuTokens.textPrimary,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           category,
-          style: TextStyle(
-              color: textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
+          style: const TextStyle(
+            color: OomuTokens.textPrimary,
+            fontSize: OomuTokens.fs16,
+            fontWeight: OomuTokens.w700,
+          ),
         ),
         actions: [
           IconButton(
             tooltip: '게시글 더보기',
-            icon: Icon(Icons.more_vert, color: textPrimary),
+            icon: const Icon(
+              Icons.more_vert,
+              color: OomuTokens.textPrimary,
+            ),
             onPressed: () {
               final myUid = globalData.activeUserId;
               final myNick = globalData.userNickname.value;
@@ -901,12 +929,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   backgroundColor: Colors.transparent,
                   builder: (bCtx) => Container(
                     decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
+                      color: OomuTokens.surface,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(OomuTokens.r24),
+                      ),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 16),
+                      vertical: OomuTokens.s20,
+                      horizontal: OomuTokens.s16,
+                    ),
                     child: SafeArea(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -915,11 +946,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             width: 40,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(2),
+                              color: OomuTokens.border,
+                              borderRadius: BorderRadius.circular(OomuTokens.r8),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: OomuTokens.s16),
                           ListTile(
                             leading: Container(
                               padding: const EdgeInsets.all(8),
@@ -927,17 +958,29 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                 color: Colors.red.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.delete_outline,
-                                  color: Colors.red, size: 20),
+                              child: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
                             ),
-                            title: const Text('게시글 삭제하기',
-                                style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold)),
-                            subtitle: const Text('이 게시글과 모든 댓글을 완전히 삭제합니다',
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.grey)),
+                            title: const Text(
+                              '게시글 삭제하기',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: const Text(
+                              '이 게시글과 모든 댓글을 완전히 삭제합니다',
+                              style: TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                color: OomuTokens.textMuted,
+                              ),
+                            ),
                             onTap: () async {
+                              final navigator = Navigator.of(context);
+                              final messenger = ScaffoldMessenger.of(context);
                               Navigator.pop(bCtx);
                               final confirm = await showDialog<bool>(
                                 context: context,
@@ -947,17 +990,21 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                       '삭제된 게시글은 다시 복구할 수 없습니다.'),
                                   actions: [
                                     TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(dCtx, false),
-                                        child: const Text('취소')),
+                                      onPressed: () =>
+                                          Navigator.pop(dCtx, false),
+                                      child: const Text('취소'),
+                                    ),
                                     TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(dCtx, true),
-                                        child: const Text('삭제',
-                                            style: TextStyle(
-                                                color: Colors.red,
-                                                fontWeight:
-                                                    FontWeight.bold))),
+                                      onPressed: () =>
+                                          Navigator.pop(dCtx, true),
+                                      child: const Text(
+                                        '삭제',
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               );
@@ -970,11 +1017,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                         .delete();
                                   } catch (_) {}
                                 }
-                                Navigator.pop(
-                                    context, {'deleted': true, 'id': postId});
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                navigator.pop({'deleted': true, 'id': postId});
+                                messenger.showSnackBar(
                                   const SnackBar(
-                                      content: Text('게시글이 삭제되었습니다.')),
+                                    content: Text('게시글이 삭제되었습니다.'),
+                                  ),
                                 );
                               }
                             },
@@ -1018,44 +1065,53 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
           // Comment Input Field at Bottom (전송 버튼 48x48dp 터치 영역 보장)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(
+              horizontal: OomuTokens.s16,
+              vertical: OomuTokens.s8,
+            ),
+            decoration: const BoxDecoration(
+              color: OomuTokens.surface,
+              border: Border(
+                top: BorderSide(color: OomuTokens.border),
+              ),
             ),
             child: SafeArea(
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: surfaceColor,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFEFE4E6)),
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: OomuTokens.s12,
                       ),
-                      child: TextField(
-                        controller: _commentController,
-                        style: TextStyle(fontSize: 14, color: textPrimary),
-                        decoration: InputDecoration(
-                          hintText: '이웃들과 나눌 따뜻한 댓글을 입력하세요...',
-                          hintStyle:
-                              TextStyle(color: textSecondary, fontSize: 13),
-                          border: InputBorder.none,
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: Center(
+                        child: TextField(
+                          controller: _commentController,
+                          style: const TextStyle(
+                            fontSize: OomuTokens.fs14,
+                            color: OomuTokens.textPrimary,
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: '이웃들과 나눌 따뜻한 댓글을 입력하세요...',
+                            hintStyle: TextStyle(
+                              color: OomuTokens.textMuted,
+                              fontSize: OomuTokens.fs14,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          onSubmitted: (_) => _addComment(),
                         ),
-                        onSubmitted: (_) => _addComment(),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: OomuTokens.s8),
                   Tooltip(
                     message: '댓글 전송',
                     child: BouncyTap(
@@ -1068,13 +1124,16 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: _isSubmittingComment
-                                ? coralAccent.withValues(alpha: 0.6)
-                                : coralAccent,
-                            shape: BoxShape.circle,
+                                ? OomuTokens.coral.withValues(alpha: 0.6)
+                                : OomuTokens.coral,
+                            borderRadius: BorderRadius.circular(OomuTokens.r12),
                           ),
                           child: const Center(
-                            child: Icon(Icons.send_rounded,
-                                color: Colors.white, size: 19),
+                            child: Icon(
+                              Icons.send_rounded,
+                              color: OomuTokens.surface,
+                              size: 19,
+                            ),
                           ),
                         ),
                       ),

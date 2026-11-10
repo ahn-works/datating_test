@@ -9,6 +9,8 @@ import 'screens/soso_car_detail_screen.dart';
 import 'screens/my_page_screen.dart';
 import 'screens/user_profile_screen.dart';
 import 'screens/profile_edit_screen.dart';
+import 'screens/community_post_detail_screen.dart';
+import 'screens/community_post_create_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
@@ -97,6 +99,8 @@ class Spot10App extends StatelessWidget {
           final isMy = uri.queryParameters['my'] == 'true' || uri.fragment.contains('my=true');
           final isProfile = uri.queryParameters['profile'] == 'true' || uri.fragment.contains('profile=true');
           final isEdit = uri.queryParameters['edit'] == 'true' || uri.fragment.contains('edit=true');
+          final isCommDetail = uri.queryParameters['comm_detail'] == 'true' || uri.fragment.contains('comm_detail=true');
+          final isCommCreate = uri.queryParameters['comm_create'] == 'true' || uri.fragment.contains('comm_create=true');
 
           if (isGallery) {
             return const OomuComponentGallery();
@@ -116,6 +120,43 @@ class Spot10App extends StatelessWidget {
           if (isEdit) {
             globalData.switchUser('guest');
             return const ProfileEditScreen();
+          }
+          if (isCommCreate) {
+            globalData.switchUser('guest');
+            return const CommunityPostCreateScreen();
+          }
+          if (isCommDetail) {
+            globalData.switchUser('guest');
+            return const CommunityPostDetailScreen(post: {
+              'id': 'post_sample_01',
+              'category': '맛집·카페',
+              'title': '망원동 조용한 작업용 북카페 추천해요 ☕',
+              'content': '망원시장 근처에 콘센트 많고 잔잔한 재즈 음악 나오는 북카페 찾았어요. 주말에도 너무 시끄럽지 않아서 독서나 가벼운 노트북 작업하기 딱 좋습니다!',
+              'author': '망원러너_민우',
+              'authorAvatar': 'assets/images/민지.png',
+              'location': '마포구 망원동',
+              'time': '15분 전',
+              'likes': 12,
+              'comments': 2,
+              'commentList': [
+                {
+                  'id': 'c_01',
+                  'author': '연남책방러',
+                  'content': '오 혹시 드립커피 맛은 어떤가요? 저도 가보고 싶네요!',
+                  'time': '10분 전',
+                  'likes': 2,
+                  'isLiked': false,
+                },
+                {
+                  'id': 'c_02',
+                  'author': '망원동주민',
+                  'content': '여기 사장님도 친절하시고 쿠키도 맛있어요 ㅎㅎ',
+                  'time': '5분 전',
+                  'likes': 1,
+                  'isLiked': false,
+                }
+              ],
+            });
           }
           if (isDetail) {
             globalData.switchUser('guest');

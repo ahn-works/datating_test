@@ -465,7 +465,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                       onContentHidden: () => setState(() {}),
                     );
                   },
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(OomuTokens.r16),
                   child: const Padding(
                     padding: EdgeInsets.all(6),
                     child: Icon(

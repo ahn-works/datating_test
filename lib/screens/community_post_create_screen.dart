@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../utils/global_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../utils/oomu_ui_helpers.dart';
+
+import '../ui/oomu_tokens.dart';
+import '../ui/oomu_button.dart';
+import '../ui/oomu_chip.dart';
+import '../utils/app_image.dart';
+import '../utils/global_data.dart';
 
 class CommunityPostCreateScreen extends StatefulWidget {
   final String currentLocation;
 
-  const CommunityPostCreateScreen({super.key, required this.currentLocation});
+  const CommunityPostCreateScreen({
+    super.key,
+    this.currentLocation = '여수 화장동',
+  });
 
   @override
   State<CommunityPostCreateScreen> createState() =>
@@ -17,11 +24,6 @@ class CommunityPostCreateScreen extends StatefulWidget {
 }
 
 class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
-  final Color textPrimary = OomuUiHelpers.textPrimary;
-  final Color textSecondary = OomuUiHelpers.textSecondary;
-  final Color surfaceColor = OomuUiHelpers.backgroundNeutral;
-  final Color coralAccent = const Color(0xFFF25767);
-
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
@@ -54,6 +56,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
   ];
 
   bool _submitting = false;
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -67,7 +70,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     if (content.isEmpty) return;
     if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('로그인 후 글을 등록할 수 있어요. 입력한 내용은 유지돼요.')));
+        const SnackBar(content: Text('로그인 후 글을 등록할 수 있어요. 입력한 내용은 유지돼요.')),
+      );
       return;
     }
     final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -108,12 +112,16 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
       await ref.set(post);
       if (!mounted ||
           FirebaseAuth.instance.currentUser?.uid != uid ||
-          generation != globalData.sessionGeneration) return;
+          generation != globalData.sessionGeneration) {
+        return;
+      }
       Navigator.pop(context, {...post, 'time': '방금 전'});
     } catch (_) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -125,119 +133,107 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         !_submitting && _contentController.text.trim().isNotEmpty;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: OomuTokens.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: OomuTokens.surface,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(
+          child: const Text(
             '취소',
             style: TextStyle(
-                color: textSecondary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600),
-          ),
-        ),
-        title: Text(
-          '동네 이야기 쓰기',
-          style: TextStyle(
-              color: textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: canSubmit
-                    ? () {
-                        HapticFeedback.mediumImpact();
-                        _submit();
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: coralAccent,
-                  disabledBackgroundColor: const Color(0xFFE2E8F0),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Text(
-                  _submitting ? '저장 중' : '등록',
-                  style: TextStyle(
-                    color: canSubmit ? Colors.white : const Color(0xFF94A3B8),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
+              color: OomuTokens.textSecondary,
+              fontSize: OomuTokens.fs14,
+              fontWeight: OomuTokens.w600,
             ),
           ),
-        ],
+        ),
+        title: const Text(
+          '동네 이야기 쓰기',
+          style: TextStyle(
+            color: OomuTokens.textPrimary,
+            fontSize: OomuTokens.fs16,
+            fontWeight: OomuTokens.w700,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(
+            OomuTokens.s20,
+            OomuTokens.s8,
+            OomuTokens.s20,
+            MediaQuery.of(context).viewInsets.bottom + OomuTokens.s12,
+          ),
+          decoration: const BoxDecoration(
+            color: OomuTokens.surface,
+            border: Border(
+              top: BorderSide(color: OomuTokens.border),
+            ),
+          ),
+          child: OomuButton(
+            label: _submitting ? '저장 중' : '등록',
+            isLoading: _submitting,
+            onPressed: canSubmit
+                ? () {
+                    HapticFeedback.mediumImpact();
+                    _submit();
+                  }
+                : null,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: OomuTokens.s20,
+          vertical: OomuTokens.s16,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Category selector chips
-            Text('카테고리 선택',
-                style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.bold,
-                    color: textSecondary)),
-            const SizedBox(height: 8),
+            const Text(
+              '카테고리 선택',
+              style: TextStyle(
+                fontSize: OomuTokens.fs12,
+                fontWeight: OomuTokens.w700,
+                color: OomuTokens.textSecondary,
+              ),
+            ),
+            const SizedBox(height: OomuTokens.s8),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: OomuTokens.s8,
+              runSpacing: OomuTokens.s8,
               children: _categories.map((cat) {
                 final isSelected = _selectedCategory == cat;
-                return GestureDetector(
+                return OomuChip(
+                  label: cat,
+                  isSelected: isSelected,
                   onTap: () {
                     HapticFeedback.selectionClick();
                     setState(() => _selectedCategory = cat);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 7),
-                    decoration: BoxDecoration(
-                      color:
-                          isSelected ? const Color(0xFFFFF0F2) : surfaceColor,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                          color: isSelected
-                              ? coralAccent
-                              : const Color(0xFFEAECF0)),
-                    ),
-                    child: Text(
-                      cat,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight:
-                            isSelected ? FontWeight.w800 : FontWeight.w600,
-                        color: isSelected ? coralAccent : textPrimary,
-                      ),
-                    ),
-                  ),
                 );
               }).toList(),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: OomuTokens.s20),
 
             // Tag selector chips (Wrap 배치로 화면 밖 넘침 원천 차단)
-            Text('트렌드 태그 선택',
-                style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.bold,
-                    color: textSecondary)),
-            const SizedBox(height: 8),
+            const Text(
+              '트렌드 태그 선택',
+              style: TextStyle(
+                fontSize: OomuTokens.fs12,
+                fontWeight: OomuTokens.w700,
+                color: OomuTokens.textSecondary,
+              ),
+            ),
+            const SizedBox(height: OomuTokens.s8),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: OomuTokens.s8,
+              runSpacing: OomuTokens.s8,
               children: _tags.map((t) {
                 final isSelected = _selectedTag == t;
                 return GestureDetector(
@@ -247,21 +243,25 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 11, vertical: 6),
+                      horizontal: OomuTokens.s12,
+                      vertical: OomuTokens.s8,
+                    ),
                     decoration: BoxDecoration(
-                      color:
-                          isSelected ? coralAccent : const Color(0xFFF3EAEB),
-                      borderRadius: BorderRadius.circular(12),
+                      color: isSelected
+                          ? OomuTokens.coral
+                          : OomuTokens.surfaceMuted,
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
                     ),
                     child: Text(
                       '#$t',
                       style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight:
-                            isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontSize: OomuTokens.fs12,
+                        fontWeight: isSelected
+                            ? OomuTokens.w700
+                            : OomuTokens.w600,
                         color: isSelected
-                            ? Colors.white
-                            : const Color(0xFF555555),
+                            ? OomuTokens.surface
+                            : OomuTokens.textSecondary,
                       ),
                     ),
                   ),
@@ -269,59 +269,69 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
               }).toList(),
             ),
 
-            const SizedBox(height: 16),
-            const Divider(color: Color(0xFFF3EAEB)),
-            const SizedBox(height: 10),
+            const SizedBox(height: OomuTokens.s16),
+            const Divider(color: OomuTokens.border, height: 1),
+            const SizedBox(height: OomuTokens.s12),
 
             // Title Input
             TextField(
               controller: _titleController,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: textPrimary),
-              decoration: InputDecoration(
+              style: const TextStyle(
+                fontSize: OomuTokens.fs16,
+                fontWeight: OomuTokens.w700,
+                color: OomuTokens.textPrimary,
+              ),
+              decoration: const InputDecoration(
                 hintText: '제목을 입력하세요 (선택)',
                 hintStyle: TextStyle(
-                    color: textSecondary.withValues(alpha: 0.6),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600),
+                  color: OomuTokens.textMuted,
+                  fontSize: OomuTokens.fs16,
+                  fontWeight: OomuTokens.w600,
+                ),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
             ),
 
-            const SizedBox(height: 8),
-            const Divider(color: Color(0xFFF3EAEB)),
-            const SizedBox(height: 8),
+            const SizedBox(height: OomuTokens.s8),
+            const Divider(color: OomuTokens.border, height: 1),
+            const SizedBox(height: OomuTokens.s8),
 
             // Content Input
             TextField(
               controller: _contentController,
               maxLines: 8,
               onChanged: (_) => setState(() {}),
-              style: TextStyle(fontSize: 14.5, color: textPrimary, height: 1.5),
+              style: const TextStyle(
+                fontSize: OomuTokens.fs14,
+                color: OomuTokens.textPrimary,
+                height: 1.5,
+              ),
               decoration: InputDecoration(
                 hintText:
                     '${widget.currentLocation} 이웃들과 나누고 싶은 공연 후기, 맛집 추천, 동네 질문 등을 자유롭게 적어보세요 :)',
-                hintStyle: TextStyle(
-                    color: textSecondary.withValues(alpha: 0.6),
-                    fontSize: 13.5,
-                    height: 1.45),
+                hintStyle: const TextStyle(
+                  color: OomuTokens.textMuted,
+                  fontSize: OomuTokens.fs14,
+                  height: 1.45,
+                ),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: OomuTokens.s16),
 
             // Photo Attachment Section
-            Text('사진 첨부 (선택)',
-                style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.bold,
-                    color: textSecondary)),
-            const SizedBox(height: 8),
+            const Text(
+              '사진 첨부 (선택)',
+              style: TextStyle(
+                fontSize: OomuTokens.fs12,
+                fontWeight: OomuTokens.w700,
+                color: OomuTokens.textSecondary,
+              ),
+            ),
+            const SizedBox(height: OomuTokens.s8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -333,34 +343,38 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                     child: Container(
                       width: 68,
                       height: 68,
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsets.only(right: OomuTokens.s8),
                       decoration: BoxDecoration(
                         color: _selectedPhoto == null
-                            ? const Color(0xFFFFF0F2)
-                            : surfaceColor,
-                        borderRadius: BorderRadius.circular(12),
+                            ? OomuTokens.surfaceMuted
+                            : OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
                         border: Border.all(
-                            color: _selectedPhoto == null
-                                ? coralAccent
-                                : const Color(0xFFEAECF0)),
+                          color: _selectedPhoto == null
+                              ? OomuTokens.coral
+                              : OomuTokens.border,
+                        ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.not_interested_rounded,
-                              size: 20,
-                              color: _selectedPhoto == null
-                                  ? coralAccent
-                                  : textSecondary),
+                          Icon(
+                            Icons.not_interested_rounded,
+                            size: 20,
+                            color: _selectedPhoto == null
+                                ? OomuTokens.coral
+                                : OomuTokens.textSecondary,
+                          ),
                           const SizedBox(height: 2),
                           Text(
                             '사진 없음',
                             style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: _selectedPhoto == null
-                                    ? coralAccent
-                                    : textSecondary),
+                              fontSize: OomuTokens.fs11,
+                              fontWeight: OomuTokens.w700,
+                              color: _selectedPhoto == null
+                                  ? OomuTokens.coral
+                                  : OomuTokens.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -373,25 +387,32 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                       child: Container(
                         width: 68,
                         height: 68,
-                        margin: const EdgeInsets.only(right: 8),
+                        margin: const EdgeInsets.only(right: OomuTokens.s8),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
                           border: Border.all(
-                              color: isSel ? coralAccent : Colors.transparent,
-                              width: 2),
+                            color: isSel ? OomuTokens.coral : Colors.transparent,
+                            width: 2,
+                          ),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(OomuTokens.r12 - 2),
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.asset(photoPath, fit: BoxFit.cover),
+                              Image(
+                                image: appImg(photoPath),
+                                fit: BoxFit.cover,
+                              ),
                               if (isSel)
                                 Container(
-                                  color: coralAccent.withValues(alpha: 0.3),
+                                  color: OomuTokens.coral.withValues(alpha: 0.3),
                                   child: const Center(
-                                    child: Icon(Icons.check_circle,
-                                        color: Colors.white, size: 20),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: OomuTokens.surface,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
                             ],
