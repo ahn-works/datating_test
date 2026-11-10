@@ -6,8 +6,10 @@ void main() {
   group('🔒 OOMU 보안 및 3계층 분배 규칙 자동 테스트', () {
     test('1. 소스코드 내 Secret Access Key 및 민감정보 하드코딩 부재 검증', () {
       final r2 = R2StorageService();
-      expect(r2.secretAccessKey, isEmpty, reason: '기본 소스코드 상의 secretAccessKey는 반드시 비어 있어야 합니다.');
-      expect(r2.getMaskedSecretKey(), '미등록', reason: '키 미등록 시 UI 마스킹은 "미등록"이어야 합니다.');
+      expect(r2.secretAccessKey, isEmpty,
+          reason: '기본 소스코드 상의 secretAccessKey는 반드시 비어 있어야 합니다.');
+      expect(r2.getMaskedSecretKey(), '미등록',
+          reason: '키 미등록 시 UI 마스킹은 "미등록"이어야 합니다.');
     });
 
     test('2. 사진/미디어 확장자 화이트리스트 검증 (Cloudflare R2 전용)', () {
@@ -31,20 +33,24 @@ void main() {
       r2.secretAccessKey = 'TEST_SECRET_KEY';
       r2.publicBaseUrl = '';
 
-      final presignedUrl = r2.generatePresignedGetUrl('covers/weekend_wine.jpg');
+      final presignedUrl =
+          r2.generatePresignedGetUrl('covers/weekend_wine.jpg');
       expect(presignedUrl.contains('X-Amz-Algorithm=AWS4-HMAC-SHA256'), isTrue);
       expect(presignedUrl.contains('X-Amz-Credential='), isTrue);
       expect(presignedUrl.contains('X-Amz-Expires=604800'), isTrue);
       expect(presignedUrl.contains('X-Amz-Signature='), isTrue);
-      expect(presignedUrl.contains('oomu-spot/covers/weekend_wine.jpg'), isTrue);
+      expect(
+          presignedUrl.contains('oomu-spot/covers/weekend_wine.jpg'), isTrue);
     });
 
     test('4. 필수 보안 및 전체 지침서 존재 여부 검증 (SECURITY.md, AGENTS.md)', () {
       final securityFile = File('SECURITY.md');
       final agentsFile = File('AGENTS.md');
 
-      expect(securityFile.existsSync(), isTrue, reason: '단일 보안 지침서(SECURITY.md)가 반드시 존재해야 합니다.');
-      expect(agentsFile.existsSync(), isTrue, reason: '단일 전체 지침서(AGENTS.md)가 반드시 존재해야 합니다.');
+      expect(securityFile.existsSync(), isTrue,
+          reason: '단일 보안 지침서(SECURITY.md)가 반드시 존재해야 합니다.');
+      expect(agentsFile.existsSync(), isTrue,
+          reason: '단일 전체 지침서(AGENTS.md)가 반드시 존재해야 합니다.');
     });
   });
 }

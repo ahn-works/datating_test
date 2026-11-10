@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/app_image.dart';
 import 'chat_screen.dart';
-import 'soso_car_home_screen.dart';
+import 'oomu_home_screen.dart';
 import 'my_page_screen.dart';
 import 'party_detail_screen.dart';
 import 'party_host_screen.dart';

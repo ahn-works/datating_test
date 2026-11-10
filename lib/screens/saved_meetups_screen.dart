@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
-import 'soso_car_detail_screen.dart';
+import 'oomu_detail_screen.dart';
 import 'empty_state_screen.dart';
 
 class SavedMeetupsScreen extends StatefulWidget {

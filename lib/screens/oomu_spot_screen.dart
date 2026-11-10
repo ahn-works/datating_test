@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import 'chat_screen.dart';
-import 'soso_car_chat_screen.dart';
+import 'oomu_chat_room_screen.dart';
 
 class SoSoSpotScreen extends StatefulWidget {
   const SoSoSpotScreen({super.key});

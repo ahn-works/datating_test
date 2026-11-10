@@ -11,8 +11,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
 import '../utils/global_data.dart';
-import 'soso_car_home_screen.dart';
-import 'soso_car_chat_screen.dart';
+import 'oomu_home_screen.dart';
+import 'oomu_chat_room_screen.dart';
 
 class OOMUHostScreen extends StatefulWidget {
   final String? sourceEventId;

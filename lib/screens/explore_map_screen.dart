@@ -7,8 +7,8 @@ import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
-import 'soso_car_detail_screen.dart';
-import 'soso_car_host_screen.dart';
+import 'oomu_detail_screen.dart';
+import 'oomu_host_screen.dart';
 
 /// OOMU 신규 탐색(Explore) 화면 - Mobbin 1티어 Sheet-over-Map & 카카오맵 인터랙티브 탐색 뷰
 class ExploreMapScreen extends StatefulWidget {

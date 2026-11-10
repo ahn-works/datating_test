@@ -9,14 +9,14 @@ files = [
     r'lib/screens/travel_payment_screen.dart',
     r'lib/screens/profile_edit_screen.dart',
     r'lib/screens/empty_state_screen.dart',
-    r'lib/screens/error_screen.dart',
-    r'lib/screens/home_screen.dart',
+    r'lib/screens/oomu_home_screen.dart',
+    r'lib/screens/oomu_detail_screen.dart',
+    r'lib/screens/oomu_host_screen.dart',
+    r'lib/screens/oomu_chat_room_screen.dart',
     r'lib/screens/community_post_create_screen.dart',
     r'lib/screens/notification_screen.dart',
     r'lib/screens/saved_meetups_screen.dart',
     r'lib/screens/local_friends_screen.dart',
-    r'lib/screens/soso_car_detail_screen.dart',
-    r'lib/screens/soso_car_home_screen.dart',
     r'lib/screens/my_page_screen.dart',
     r'lib/screens/user_profile_screen.dart',
     r'lib/screens/community_post_detail_screen.dart',
@@ -54,74 +54,69 @@ def verify_file(filepath):
             escaped = False
             continue
 
-        # Handle comments when not in string
         if not in_single_str and not in_double_str:
-            if c == '/' and i + 1 < n and content[i + 1] == '/':
-                # single line comment
-                while i < n and content[i] != '\n':
-                    i += 1
-                continue
-            if c == '/' and i + 1 < n and content[i + 1] == '*':
-                # multi-line comment
-                i += 2
-                while i + 1 < n and not (content[i] == '*' and content[i + 1] == '/'):
-                    if content[i] == '\n':
-                        line += 1
-                    i += 1
-                i += 2
-                continue
+            if c == '/' and i + 1 < n:
+                if content[i+1] == '/':
+                    while i < n and content[i] != '\n':
+                        i += 1
+                    continue
+                elif content[i+1] == '*':
+                    i += 2
+                    while i + 1 < n and not (content[i] == '*' and content[i+1] == '/'):
+                        if content[i] == '\n':
+                            line += 1
+                            col = 1
+                        i += 1
+                    i += 2
+                    continue
 
-        # Handle string literals
-        if not in_single_str and not in_double_str:
-            if c == "'":
-                in_single_str = True
-                escaped = False
-            elif c == '"':
-                in_double_str = True
-                escaped = False
-            elif c in pairs:
+        if c == '\\' and (in_single_str or in_double_str):
+            escaped = not escaped
+            i += 1
+            col += 1
+            continue
+
+        if c == "'" and not in_double_str and not escaped:
+            in_single_str = not in_single_str
+        elif c == '"' and not in_single_str and not escaped:
+            in_double_str = not in_double_str
+        elif not in_single_str and not in_double_str:
+            if c in pairs.keys():
                 stack.append((c, line, col))
             elif c in pairs.values():
                 if not stack:
-                    print(f"[ERROR] {filepath}:{line}:{col} - Unexpected closing bracket '{c}'")
+                    print(f"[SYNTAX ERROR] Unmatched closing bracket '{c}' at {filepath}:{line}:{col}")
                     return False
-                top, tline, tcol = stack.pop()
+                top, t_line, t_col = stack.pop()
                 if pairs[top] != c:
-                    print(f"[ERROR] {filepath}:{line}:{col} - Mismatched '{c}', expected '{pairs[top]}' for '{top}' from line {tline}")
+                    print(f"[SYNTAX ERROR] Mismatched bracket: opened '{top}' at {t_line}:{t_col}, but closed with '{c}' at {filepath}:{line}:{col}")
                     return False
-        elif in_single_str:
-            if c == '\\' and not escaped:
-                escaped = True
-            elif c == "'" and not escaped:
-                in_single_str = False
-            else:
-                escaped = False
-        elif in_double_str:
-            if c == '\\' and not escaped:
-                escaped = True
-            elif c == '"' and not escaped:
-                in_double_str = False
-            else:
-                escaped = False
 
-        col += 1
+        escaped = False
         i += 1
+        col += 1
+
+    if in_single_str or in_double_str:
+        print(f"[SYNTAX ERROR] Unterminated string literal in {filepath}")
+        return False
 
     if stack:
-        print(f"[ERROR] {filepath} - Unclosed brackets left: {stack}")
+        top, t_line, t_col = stack[-1]
+        print(f"[SYNTAX ERROR] Unclosed bracket '{top}' opened at {filepath}:{t_line}:{t_col}")
         return False
 
     print(f"[PASS] {filepath} - Clean balance, zero syntax/bracket errors.")
     return True
 
-all_passed = True
-for f in files:
-    if not verify_file(f):
-        all_passed = False
+if __name__ == '__main__':
+    all_pass = True
+    for f in files:
+        if not verify_file(f):
+            all_pass = False
 
-if all_passed:
-    print(f"\n[ALL {len(files)} FILES VERIFIED] Every modified Dart file passed syntax and bracket verification!")
-    sys.exit(0)
-else:
-    print("\n[VERIFICATION FAILED] Please inspect the syntax errors above.")
-    sys.exit(1)
+    if all_pass:
+        print(f"\n[ALL {len(files)} FILES VERIFIED] Every modified Dart file passed syntax and bracket verification!")
+        sys.exit(0)
+    else:
+        print("\n[VERIFICATION FAILED] Please inspect the syntax errors above.")
+        sys.exit(1)

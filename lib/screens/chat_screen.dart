@@ -5,8 +5,8 @@ import '../services/chat_repository.dart';
 import '../ui/oomu_avatar.dart';
 import '../ui/oomu_empty_state.dart';
 import '../ui/oomu_tokens.dart';
-import 'soso_car_chat_screen.dart';
-import 'soso_car_home_screen.dart';
+import 'oomu_chat_room_screen.dart';
+import 'oomu_home_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final bool isEmbedded;

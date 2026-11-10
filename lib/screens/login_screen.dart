@@ -11,7 +11,7 @@ import '../utils/web_redirect_helper.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/oomu_intro_illustrations.dart';
 import 'profile_setup_screen.dart';
-import 'soso_car_home_screen.dart';
+import 'oomu_home_screen.dart';
 
 /// OOMU 앱 스플래시 · 인트로 온보딩 · 로그인 · 회원가입 · 이메일 찾기 화면
 /// 'store_assets/OOMU 앱 UI 디자인.html'을 토대로 실제 동네 모임(러닝, 공연·전시, 핫플, 채팅)

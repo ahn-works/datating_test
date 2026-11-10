@@ -4,7 +4,7 @@ import '../../ui/oomu_badge.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
 import '../../utils/oomu_ui_helpers.dart';
-import '../soso_spot_screen.dart';
+import '../oomu_spot_screen.dart';
 
 /// 홈 화면 실시간 오늘 번개 캐러셀 컴포넌트
 class HomeLightningSection extends StatelessWidget {

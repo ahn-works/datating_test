@@ -6,11 +6,11 @@ import 'package:spot10_app/utils/oomu_ui_helpers.dart';
 import 'package:spot10_app/services/meetup_application_service.dart';
 import 'package:spot10_app/widgets/meetup_card_footer.dart';
 import 'package:spot10_app/screens/event_detail_screen.dart';
-import 'package:spot10_app/screens/soso_car_detail_screen.dart';
+import 'package:spot10_app/screens/oomu_detail_screen.dart';
 import 'package:spot10_app/screens/login_screen.dart';
 import 'package:spot10_app/widgets/balanced_heading.dart';
 import 'package:flutter/rendering.dart';
-import 'package:spot10_app/screens/soso_car_host_screen.dart';
+import 'package:spot10_app/screens/oomu_host_screen.dart';
 import 'package:spot10_app/utils/event_meetup_category.dart';
 
 void main() {

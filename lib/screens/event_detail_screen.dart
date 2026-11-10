@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import '../services/kakao_map_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
-import 'soso_car_host_screen.dart';
+import 'oomu_host_screen.dart';
 
 class EventDetailScreen extends StatelessWidget {
   final Map<String, dynamic> event;

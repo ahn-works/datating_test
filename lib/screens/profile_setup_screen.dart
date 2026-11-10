@@ -9,7 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import '../services/auth_service.dart';
 import '../services/r2_storage_service.dart';
 import '../utils/app_image.dart';
-import 'soso_car_home_screen.dart';
+import 'oomu_home_screen.dart';
 
 /// 대기업(위피·글램·틴더·문토) 온보딩 UX/UI 규격을 적용한
 /// 신규 회원 프로필 등록 및 수정 화면

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
-import 'package:spot10_app/screens/soso_car_detail_screen.dart';
-import 'package:spot10_app/screens/soso_car_home_screen.dart';
+import 'package:spot10_app/screens/oomu_detail_screen.dart';
+import 'package:spot10_app/screens/oomu_home_screen.dart';
 
 const _testMeetup = <String, dynamic>{
   'title': '익명 샘플 모임',
