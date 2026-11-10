@@ -1,12 +1,12 @@
 # 🤖 Antigravity AI Agent Directive (OOMU / Spot10 Project)
 > **이 문서는 OOMU(우리 동네 취향 모임) 프로젝트를 다루는 AI 에이전트를 위한 시스템 지침서입니다.**
 
-## 🎨 00. OOMU UI/UX 단일 기준 안내 (docs/OOMU_UI_GUIDE.md)
+## 🎨 00. OOMU UI/UX 단일 기준 안내 (docs/OOMU_DESIGN_SYSTEM.md)
 
-모든 UI/UX 작업 시 색상·타이포그래피·간격·터치 타깃 수치는 여러 문서에 중복 복사하지 않고 유일한 기준 문서인 **[docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**를 참조합니다.
-- **단일 디자인 기준**: 배경·표면·텍스트·강조 포인트 색상 및 타이포그래피·여백·터치 영역 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)를 유일한 기준으로 적용합니다 (구형 분홍 배경 `#FAF6F7`, 주황 강조 `#FF6B4A`는 사용 금지 예시).
+모든 UI/UX 작업 시 색상·타이포그래피·간격·터치 타깃 수치는 여러 문서에 중복 복사하지 않고 유일한 기준 문서인 **[docs/OOMU_DESIGN_SYSTEM.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)**를 참조합니다.
+- **단일 디자인 기준**: 배경·표면·텍스트·강조 포인트 색상 및 타이포그래피·여백·터치 영역 수치는 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)를 유일한 기준으로 적용합니다 (구형 분홍 배경 `#FAF6F7`, 주황 강조 `#FF6B4A`는 사용 금지 예시).
 - **콘텐츠 중심 유연한 레이아웃**: 주소·시간·소개 등 주요 정보의 자연스러운 줄바꿈 허용 및 비대칭 짤림 방지 (Flutter `TextStyle`에 없는 `WordBreak.keepAll` 적용 지시 금지).
-- **금액 표기 원칙**: 실제 확인된 비용 정보(`fee`/`cost`/`price`)가 있을 때만 표시하며, 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지로 대체하지 않습니다 (`docs/OOMU_UI_GUIDE.md` 단일 기준).
+- **금액 표기 원칙**: 실제 확인된 비용 정보(`fee`/`cost`/`price`)가 있을 때만 표시하며, 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지로 대체하지 않습니다 (`docs/OOMU_DESIGN_SYSTEM.md` 단일 기준).
 - **실제 활성 화면 수정**: `main.dart` 기준 실제 활성 화면(`lib/screens/soso_car_home_screen.dart`, `lib/screens/soso_car_detail_screen.dart` 등)을 수정합니다.
 
 ---
@@ -44,7 +44,7 @@
 
 1. **홈·번개·커뮤니티·소개팅 및 모임 상세/개설**:
    - `lib/screens/soso_car_home_screen.dart`, `lib/screens/soso_car_detail_screen.dart`, `lib/screens/soso_car_host_screen.dart`, `lib/screens/community_post_detail_screen.dart`, `lib/screens/community_post_create_screen.dart`
-   - 모든 색상·타이포그래피·간격·배지 스타일은 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 단일 기준을 따릅니다.
+   - 모든 색상·타이포그래피·간격·배지 스타일은 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md) 단일 기준을 따릅니다.
 2. **아지트 스팟 및 정산 화면**:
    - `lib/screens/soso_spot_screen.dart`, `lib/screens/second_spot_screen.dart`, `lib/screens/middle_spot_map_screen.dart`, `lib/screens/soso_wallet_screen.dart`, `lib/screens/wallet_history_screen.dart`
 3. **채팅·마이·프로필 화면**:
@@ -53,7 +53,7 @@
 ---
 
 ## 3. ⚡ UI/UX 프론트엔드 개발 원칙
-모든 UI 컴포넌트는 **[`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**의 디자인 기준과 아래 원칙을 따릅니다.
+모든 UI 컴포넌트는 **[`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)**의 디자인 기준과 아래 원칙을 따릅니다.
 
 1. **동적(Dynamic) 상태 연동**: 사용자 상호작용이 발생하는 요소는 실제 상태가 반영되도록 구현합니다.
 2. **레이아웃 겹침(Overflow) 0%**: `Expanded`, `Flexible`, `LayoutBuilder` 등을 활용하여 다양한 화면 크기(360~430px)와 글자 확대(1.0~2.0배)에서 글자가 겹치거나 깨지지 않도록 설계합니다.

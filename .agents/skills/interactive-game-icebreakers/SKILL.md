@@ -8,9 +8,9 @@ license: MIT
 
 본 스킬은 어색한 첫 대화의 벽을 허물고 친밀감을 극대화하기 위해, 실제 유저들이 열광하는 **4대 인터랙티브 미니게임 UI 컴포넌트**를 Flutter로 구현하는 지침입니다.
 
-## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_UI_GUIDE.md`)
+## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_DESIGN_SYSTEM.md`)
 - **라이선스**: MIT License (상업적 이용, 인앱 결제 재화 연동 가능)
-- **단일 디자인 기준**: 모든 색상·타이포그래피·간격 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 및 `OomuUiHelpers`를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
+- **단일 디자인 기준**: 모든 색상·타이포그래피·간격 수치는 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md) 및 `OomuUiHelpers`를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
 
 ## 2. 밸런스 토론 배틀 (Balance Debate Game) 위젯
 채팅방 또는 피드에서 양자택일 질문을 던지고 유저들의 실시간 투표 비율을 시각화합니다:

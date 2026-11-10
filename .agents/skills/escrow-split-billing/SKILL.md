@@ -1,6 +1,6 @@
 ---
 name: escrow-split-billing
-description: 동네 소모임 투명 1/N 정산 계산서 및 송금 모달 UI 가이드. 모든 색상·타이포·금액 표기 원칙은 docs/OOMU_UI_GUIDE.md 단일 기준을 따릅니다.
+description: 동네 소모임 투명 1/N 정산 계산서 및 송금 모달 UI 가이드. 모든 색상·타이포·금액 표기 원칙은 docs/OOMU_DESIGN_SYSTEM.md 단일 기준을 따릅니다.
 license: MIT
 ---
 
@@ -8,10 +8,10 @@ license: MIT
 
 본 스킬은 모임 종료 후 참가비 정산을 돕는 Flutter 정산 계산서 바텀시트 컴포넌트 가이드입니다.
 
-## 1. 금액 표기 및 디자인 기준 (`docs/OOMU_UI_GUIDE.md` 단일 기준)
+## 1. 금액 표기 및 디자인 기준 (`docs/OOMU_DESIGN_SYSTEM.md` 단일 기준)
 - **라이선스**: MIT License
-- **금액 표기 원칙 준수**: 피드나 상세 화면에서 실제 확인된 비용 정보(`fee`/`cost`/`price`)가 있을 때만 표시하며, 확인되지 않은 모임에 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지를 일괄 강제하지 않습니다 ([`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) `[3. 레이아웃 & 컴포넌트 규칙]` 참조).
-- **컬러·타이포그래피 단일 기준**: 구형 주황(`#FF6B4A`, `#FFF4EB`) 대신 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 및 [`OomuUiHelpers`](file:///c:/Users/DT4/Downloads/oomu_app/lib/utils/oomu_ui_helpers.dart)의 컬러·타이포 토큰을 사용합니다.
+- **금액 표기 원칙 준수**: 피드나 상세 화면에서 실제 확인된 비용 정보(`fee`/`cost`/`price`)가 있을 때만 표시하며, 확인되지 않은 모임에 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지를 일괄 강제하지 않습니다 ([`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md) `[3. 레이아웃 & 컴포넌트 규칙]` 참조).
+- **컬러·타이포그래피 단일 기준**: 구형 주황(`#FF6B4A`, `#FFF4EB`) 대신 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md) 및 [`OomuUiHelpers`](file:///c:/Users/DT4/Downloads/oomu_app/lib/utils/oomu_ui_helpers.dart)의 컬러·타이포 토큰을 사용합니다.
 
 ## 2. 1/N 정산 계산서 바텀시트 (Split Bill Sheet)
 

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../ui/oomu_theme.dart';
+import '../ui/oomu_tokens.dart';
+
 /// OOMU 공통 UI/데이터 정규화 헬퍼 및 테마 토큰 (docs/OOMU_UI_GUIDE.md 60-30-10 단일 기준)
 class OomuUiHelpers {
   OomuUiHelpers._();
@@ -13,32 +16,26 @@ class OomuUiHelpers {
   }
 
   // 1. 핵심 컬러 토큰 (무채색 90% + 코랄 포인트 10% 원칙)
-  static const Color brandCoral = Color(0xFFF25767);
+  static const Color brandCoral = OomuTokens.coral;
   static const Color brandCoralSoft = Color(0xFFFFF0F2);
   static const Color brandCoralBorder = Color(0xFFFCD3D9);
-  static const Color brandCoralText = Color(0xFFD9384A);
+  static const Color brandCoralText = OomuTokens.coralText;
 
-  static const Color backgroundNeutral = Color(0xFFF7F8FA);
-  static const Color surfaceCard = Color(0xFFFFFFFF);
-  static const Color surfaceMuted = Color(0xFFF2F4F7);
-  static const Color borderSubtle = Color(0xFFEAECF0);
-  static const Color borderNeutral = Color(0xFFEAECF0);
+  static const Color backgroundNeutral = OomuTokens.background;
+  static const Color surfaceCard = OomuTokens.surface;
+  static const Color surfaceMuted = OomuTokens.surfaceMuted;
+  static const Color borderSubtle = OomuTokens.border;
+  static const Color borderNeutral = OomuTokens.border;
 
-  static const Color textPrimary = Color(0xFF191F28);
-  static const Color textBody = Color(0xFF333D4B);
-  static const Color textSecondary = Color(0xFF6B7684);
-  static const Color textMuted = Color(0xFF8B95A1);
+  static const Color textPrimary = OomuTokens.textPrimary;
+  static const Color textBody = OomuTokens.textBody;
+  static const Color textSecondary = OomuTokens.textSecondary;
+  static const Color textMuted = OomuTokens.textMuted;
 
-  static const Color safeTeal = Color(0xFF0D9488);
+  static const Color safeTeal = OomuTokens.verified;
   static const Color safeTealBg = Color(0xFFF0FDFA);
 
-  static const List<String> koreanFontFallback = [
-    'Pretendard',
-    'Malgun Gothic',
-    'Apple SD Gothic Neo',
-    'Noto Sans KR',
-    'sans-serif',
-  ];
+  static const List<String> koreanFontFallback = OomuTokens.fontFallback;
 
   /// 2. 제목 문자열 정규화 (원문 데이터 및 서로게이트 페어·ZWJ·국기 이모지 100% 보존)
   static String formatTitle(String? title, {String fallback = '취향 모임'}) {
@@ -90,8 +87,8 @@ class OomuUiHelpers {
   /// 6. 매너온도 구간별 일관된 텍스트 색상 (원색 충돌 방지를 위해 차분한 슬레이트/틸 톤 유지)
   static Color mannerTempColor(double? temp) {
     if (temp == null) return textSecondary;
-    if (temp < 36.5) return const Color(0xFF6B7684);
-    return const Color(0xFF4E5968);
+    if (temp < 36.5) return textSecondary;
+    return textBody;
   }
 
   /// 7. 매너온도 구간별 배지 배경 색상 (우측 코랄 배지와 충돌하지 않는 중립 쿨그레이 칩)
@@ -143,77 +140,6 @@ class OomuUiHelpers {
     return (lat: lat, lng: lng);
   }
 
-  /// 11. OOMU 공통 ThemeData 생성 (핑크 틴트 오염 및 하단 탭바 원형 하이라이트 제거)
-  static ThemeData buildTheme() {
-    const baseTextStyle = TextStyle(
-      fontFamilyFallback: koreanFontFallback,
-      color: textPrimary,
-    );
-    return ThemeData(
-      useMaterial3: true,
-      primaryColor: brandCoral,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: brandCoral,
-        primary: brandCoral,
-        secondary: textPrimary,
-        surface: surfaceCard,
-      ),
-      scaffoldBackgroundColor: backgroundNeutral,
-      cardColor: surfaceCard,
-      dividerColor: borderSubtle,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: surfaceCard,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceCard,
-        elevation: 0,
-        selectedItemColor: brandCoral,
-        unselectedItemColor: textMuted,
-        type: BottomNavigationBarType.fixed,
-      ),
-      textTheme: TextTheme(
-        headlineMedium: baseTextStyle.copyWith(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          height: 1.32,
-          letterSpacing: -0.4,
-        ),
-        titleLarge: baseTextStyle.copyWith(
-          fontSize: 17.5,
-          fontWeight: FontWeight.w700,
-          height: 1.35,
-          letterSpacing: -0.3,
-        ),
-        titleMedium: baseTextStyle.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          height: 1.35,
-          letterSpacing: -0.2,
-        ),
-        bodyLarge: baseTextStyle.copyWith(
-          fontSize: 14.5,
-          fontWeight: FontWeight.w400,
-          color: textBody,
-          height: 1.55,
-        ),
-        bodyMedium: baseTextStyle.copyWith(
-          fontSize: 13.5,
-          fontWeight: FontWeight.w400,
-          color: textBody,
-          height: 1.55,
-        ),
-        labelMedium: baseTextStyle.copyWith(
-          fontSize: 12.5,
-          fontWeight: FontWeight.w500,
-          color: textSecondary,
-        ),
-      ),
-    );
-  }
+  /// 11. OOMU 공통 ThemeData (정의는 lib/ui/oomu_theme.dart 단일 원천)
+  static ThemeData buildTheme() => buildOomuTheme();
 }

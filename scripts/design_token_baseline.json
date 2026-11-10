@@ -1,0 +1,444 @@
+{
+  "total": {
+    "color_kinds": 233,
+    "color_count": 1076,
+    "font_kinds": 30,
+    "font_count": 1063,
+    "radius_kinds": 27,
+    "radius_count": 662
+  },
+  "files": {
+    "lib/screens/auth_pass_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 1,
+      "font_kinds": 2,
+      "font_count": 3,
+      "radius_kinds": 1,
+      "radius_count": 2
+    },
+    "lib/screens/chat_screen.dart": {
+      "color_kinds": 14,
+      "color_count": 15,
+      "font_kinds": 10,
+      "font_count": 15,
+      "radius_kinds": 5,
+      "radius_count": 8
+    },
+    "lib/screens/community_post_create_screen.dart": {
+      "color_kinds": 7,
+      "color_count": 11,
+      "font_kinds": 9,
+      "font_count": 13,
+      "radius_kinds": 3,
+      "radius_count": 6
+    },
+    "lib/screens/community_post_detail_screen.dart": {
+      "color_kinds": 6,
+      "color_count": 7,
+      "font_kinds": 9,
+      "font_count": 20,
+      "radius_kinds": 6,
+      "radius_count": 7
+    },
+    "lib/screens/driver_profile_modal.dart": {
+      "color_kinds": 7,
+      "color_count": 16,
+      "font_kinds": 8,
+      "font_count": 16,
+      "radius_kinds": 8,
+      "radius_count": 13
+    },
+    "lib/screens/edit_profile_screen.dart": {
+      "color_kinds": 2,
+      "color_count": 2,
+      "font_kinds": 3,
+      "font_count": 4,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/empty_state_screen.dart": {
+      "color_kinds": 4,
+      "color_count": 5,
+      "font_kinds": 2,
+      "font_count": 3,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/error_screen.dart": {
+      "color_kinds": 6,
+      "color_count": 8,
+      "font_kinds": 2,
+      "font_count": 2,
+      "radius_kinds": 1,
+      "radius_count": 2
+    },
+    "lib/screens/event_detail_screen.dart": {
+      "color_kinds": 9,
+      "color_count": 11,
+      "font_kinds": 7,
+      "font_count": 13,
+      "radius_kinds": 3,
+      "radius_count": 6
+    },
+    "lib/screens/explore_map_screen.dart": {
+      "color_kinds": 19,
+      "color_count": 52,
+      "font_kinds": 13,
+      "font_count": 28,
+      "radius_kinds": 11,
+      "radius_count": 26
+    },
+    "lib/screens/filter_screen.dart": {
+      "color_kinds": 4,
+      "color_count": 4,
+      "font_kinds": 3,
+      "font_count": 7,
+      "radius_kinds": 3,
+      "radius_count": 3
+    },
+    "lib/screens/game_result_screen.dart": {
+      "color_kinds": 3,
+      "color_count": 3,
+      "font_kinds": 2,
+      "font_count": 3,
+      "radius_kinds": 1,
+      "radius_count": 2
+    },
+    "lib/screens/home_screen.dart": {
+      "color_kinds": 10,
+      "color_count": 21,
+      "font_kinds": 9,
+      "font_count": 14,
+      "radius_kinds": 6,
+      "radius_count": 9
+    },
+    "lib/screens/home_sub_screens.dart": {
+      "color_kinds": 4,
+      "color_count": 9,
+      "font_kinds": 7,
+      "font_count": 16,
+      "radius_kinds": 5,
+      "radius_count": 12
+    },
+    "lib/screens/local_friends_screen.dart": {
+      "color_kinds": 9,
+      "color_count": 12,
+      "font_kinds": 6,
+      "font_count": 16,
+      "radius_kinds": 4,
+      "radius_count": 7
+    },
+    "lib/screens/login_screen.dart": {
+      "color_kinds": 44,
+      "color_count": 61,
+      "font_kinds": 20,
+      "font_count": 55,
+      "radius_kinds": 13,
+      "radius_count": 45
+    },
+    "lib/screens/middle_spot_map_screen.dart": {
+      "color_kinds": 12,
+      "color_count": 16,
+      "font_kinds": 5,
+      "font_count": 7,
+      "radius_kinds": 3,
+      "radius_count": 6
+    },
+    "lib/screens/my_page_screen.dart": {
+      "color_kinds": 29,
+      "color_count": 74,
+      "font_kinds": 13,
+      "font_count": 77,
+      "radius_kinds": 11,
+      "radius_count": 51
+    },
+    "lib/screens/my_page_sub_screens.dart": {
+      "color_kinds": 14,
+      "color_count": 16,
+      "font_kinds": 6,
+      "font_count": 13,
+      "radius_kinds": 4,
+      "radius_count": 4
+    },
+    "lib/screens/natural_meeting_detail_screens.dart": {
+      "color_kinds": 4,
+      "color_count": 10,
+      "font_kinds": 9,
+      "font_count": 28,
+      "radius_kinds": 4,
+      "radius_count": 10
+    },
+    "lib/screens/neighborhood_crew_screen.dart": {
+      "color_kinds": 5,
+      "color_count": 8,
+      "font_kinds": 7,
+      "font_count": 16,
+      "radius_kinds": 4,
+      "radius_count": 8
+    },
+    "lib/screens/notification_screen.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 2,
+      "font_count": 3,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/onboarding_screen.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/oomu_my_trips_screen.dart": {
+      "color_kinds": 8,
+      "color_count": 10,
+      "font_kinds": 6,
+      "font_count": 14,
+      "radius_kinds": 3,
+      "radius_count": 6
+    },
+    "lib/screens/oomu_review_screen.dart": {
+      "color_kinds": 6,
+      "color_count": 18,
+      "font_kinds": 8,
+      "font_count": 37,
+      "radius_kinds": 6,
+      "radius_count": 15
+    },
+    "lib/screens/party_application_screen.dart": {
+      "color_kinds": 8,
+      "color_count": 20,
+      "font_kinds": 4,
+      "font_count": 6,
+      "radius_kinds": 2,
+      "radius_count": 7
+    },
+    "lib/screens/party_chat_preview_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 3,
+      "font_kinds": 2,
+      "font_count": 2,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/party_detail_screen.dart": {
+      "color_kinds": 19,
+      "color_count": 83,
+      "font_kinds": 10,
+      "font_count": 41,
+      "radius_kinds": 9,
+      "radius_count": 24
+    },
+    "lib/screens/party_host_screen.dart": {
+      "color_kinds": 13,
+      "color_count": 47,
+      "font_kinds": 6,
+      "font_count": 13,
+      "radius_kinds": 4,
+      "radius_count": 14
+    },
+    "lib/screens/party_screen.dart": {
+      "color_kinds": 14,
+      "color_count": 34,
+      "font_kinds": 7,
+      "font_count": 13,
+      "radius_kinds": 5,
+      "radius_count": 8
+    },
+    "lib/screens/payment_success_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 1,
+      "font_kinds": 2,
+      "font_count": 3,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/permission_screen.dart": {
+      "color_kinds": 2,
+      "color_count": 3,
+      "font_kinds": 4,
+      "font_count": 4,
+      "radius_kinds": 2,
+      "radius_count": 2
+    },
+    "lib/screens/profile_edit_screen.dart": {
+      "color_kinds": 10,
+      "color_count": 26,
+      "font_kinds": 7,
+      "font_count": 16,
+      "radius_kinds": 6,
+      "radius_count": 13
+    },
+    "lib/screens/profile_setup_screen.dart": {
+      "color_kinds": 19,
+      "color_count": 25,
+      "font_kinds": 13,
+      "font_count": 37,
+      "radius_kinds": 8,
+      "radius_count": 23
+    },
+    "lib/screens/qr_checkin_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 2,
+      "font_kinds": 2,
+      "font_count": 2,
+      "radius_kinds": 2,
+      "radius_count": 2
+    },
+    "lib/screens/review_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 3,
+      "font_kinds": 2,
+      "font_count": 3,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/saved_meetups_screen.dart": {
+      "color_kinds": 11,
+      "color_count": 14,
+      "font_kinds": 5,
+      "font_count": 6,
+      "radius_kinds": 3,
+      "radius_count": 6
+    },
+    "lib/screens/second_spot_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 2,
+      "font_kinds": 2,
+      "font_count": 2,
+      "radius_kinds": 1,
+      "radius_count": 1
+    },
+    "lib/screens/settings_screen.dart": {
+      "color_kinds": 11,
+      "color_count": 14,
+      "font_kinds": 9,
+      "font_count": 19,
+      "radius_kinds": 10,
+      "radius_count": 16
+    },
+    "lib/screens/soso_car_chat_screen.dart": {
+      "color_kinds": 65,
+      "color_count": 132,
+      "font_kinds": 13,
+      "font_count": 128,
+      "radius_kinds": 14,
+      "radius_count": 88
+    },
+    "lib/screens/soso_car_detail_screen.dart": {
+      "color_kinds": 18,
+      "color_count": 26,
+      "font_kinds": 14,
+      "font_count": 42,
+      "radius_kinds": 13,
+      "radius_count": 26
+    },
+    "lib/screens/soso_car_home_screen.dart": {
+      "color_kinds": 34,
+      "color_count": 101,
+      "font_kinds": 19,
+      "font_count": 105,
+      "radius_kinds": 18,
+      "radius_count": 66
+    },
+    "lib/screens/soso_car_host_screen.dart": {
+      "color_kinds": 18,
+      "color_count": 24,
+      "font_kinds": 11,
+      "font_count": 42,
+      "radius_kinds": 9,
+      "radius_count": 26
+    },
+    "lib/screens/soso_car_host_step2_screen.dart": {
+      "color_kinds": 9,
+      "color_count": 13,
+      "font_kinds": 9,
+      "font_count": 38,
+      "radius_kinds": 4,
+      "radius_count": 15
+    },
+    "lib/screens/soso_car_host_step3_screen.dart": {
+      "color_kinds": 5,
+      "color_count": 9,
+      "font_kinds": 5,
+      "font_count": 10,
+      "radius_kinds": 3,
+      "radius_count": 3
+    },
+    "lib/screens/soso_car_hub_screen.dart": {
+      "color_kinds": 1,
+      "color_count": 1,
+      "font_kinds": 1,
+      "font_count": 1,
+      "radius_kinds": 1,
+      "radius_count": 2
+    },
+    "lib/screens/soso_spot_screen.dart": {
+      "color_kinds": 19,
+      "color_count": 43,
+      "font_kinds": 11,
+      "font_count": 45,
+      "radius_kinds": 10,
+      "radius_count": 31
+    },
+    "lib/screens/soso_wallet_screen.dart": {
+      "color_kinds": 5,
+      "color_count": 9,
+      "font_kinds": 7,
+      "font_count": 14,
+      "radius_kinds": 4,
+      "radius_count": 6
+    },
+    "lib/screens/splash_screen.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/travel_gps_checkin_screen.dart": {
+      "color_kinds": 11,
+      "color_count": 12,
+      "font_kinds": 4,
+      "font_count": 6,
+      "radius_kinds": 3,
+      "radius_count": 3
+    },
+    "lib/screens/travel_payment_screen.dart": {
+      "color_kinds": 9,
+      "color_count": 23,
+      "font_kinds": 6,
+      "font_count": 11,
+      "radius_kinds": 3,
+      "radius_count": 5
+    },
+    "lib/screens/travel_room_screen.dart": {
+      "color_kinds": 2,
+      "color_count": 9,
+      "font_kinds": 4,
+      "font_count": 8,
+      "radius_kinds": 3,
+      "radius_count": 6
+    },
+    "lib/screens/user_profile_screen.dart": {
+      "color_kinds": 3,
+      "color_count": 5,
+      "font_kinds": 8,
+      "font_count": 20,
+      "radius_kinds": 7,
+      "radius_count": 15
+    },
+    "lib/screens/wallet_history_screen.dart": {
+      "color_kinds": 2,
+      "color_count": 2,
+      "font_kinds": 3,
+      "font_count": 3,
+      "radius_kinds": 0,
+      "radius_count": 0
+    }
+  }
+}

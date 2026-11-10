@@ -19,23 +19,23 @@
 
 ## 🎨 1. 전문가 시각 5대 자동 점검표 (코드·화면 작업 시 필수 체크)
 
-> **디자인 수치 단일 기준**: 모든 색상, 타이포그래피, 간격(Spacing), 터치 타깃 수치는 중복 복사하지 않고 유일한 기준 문서인 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)를 따릅니다.
+> **디자인 수치 단일 기준**: 모든 색상, 타이포그래피, 간격(Spacing), 터치 타깃 수치는 중복 복사하지 않고 유일한 기준 문서인 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)를 따릅니다.
 
 에이전트는 어떤 화면을 다루든 아래 5가지를 스스로 점검하고 위반 사항을 즉시 수정합니다.
 
 ### ① 컬러 조화 & 강조 포인트 절제 (60-30-10 법칙)
 - **핑크 범벅(Pink Soup) 금지**: 구형 분홍 배경(`#FAF6F7`)이나 비활성 칩, 카드 테두리, 아이콘 배경까지 전부 분홍빛으로 칠하는 구형 방식은 사용 금지 예시입니다.
-- **단일 컬러 토큰 준수**: 배경·표면·텍스트·강조 포인트의 구체적인 색상 코드와 비율은 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[1. 컬러 시스템]`을 유일한 기준으로 적용합니다.
+- **단일 컬러 토큰 준수**: 배경·표면·텍스트·강조 포인트의 구체적인 색상 코드와 비율은 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)의 `[1. 컬러 시스템]`을 유일한 기준으로 적용합니다.
 - **원색 충돌 금지**: 한 화면에 코랄(`#F25767`), 파랑(`#3B68FF`), 초록(`#0D9488`), 주황(`#FFF0EB` / `#FF6B4A`) 배지를 동시에 섞어 쓰지 않습니다.
 
 ### ② 타이포그래피 위계 & 어색한 줄바꿈(Widow/Truncation) 제거
 - **상단 앱바(AppBar) 동네 이름 잘림 금지**: `여수시 화장동`이 `여수시 화...`처럼 잘리지 않도록 상단바의 불필요한 장식 배지(`이웃 54명...`)나 과도한 아이콘 원형 배경을 덜어내어 동네 이름이 온전히 보이게 합니다.
 - **외톨이 글자(1~2글자 줄바꿈) 금지**:
   - 예: `동네 친구 & 연인 만들 / 기`, `와플집 가보신 / 분?`, `(20 / 대 중후반)`처럼 마지막 한 글자만 다음 줄로 떨어지거나 단어 중간이 끊어지지 않도록 문구 길이·패딩·자간을 다듬습니다 (Flutter `TextStyle`에 존재하지 않는 `WordBreak.keepAll` 속성은 사용하지 않음).
-- **글자 크기 및 대비**: 섹션 헤더·카드 제목·본문·메타의 폰트 크기와 줄간격 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[2. 타이포그래피 위계]`를 참조합니다.
+- **글자 크기 및 대비**: 섹션 헤더·카드 제목·본문·메타의 폰트 크기와 줄간격 수치는 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)의 `[2. 타이포그래피 위계]`를 참조합니다.
 
 ### ③ 간격(Spacing)·정렬·카드 중첩 제거
-- **카드 안의 박스(Card-in-Card) 지양**: 카드 내부에 또 두꺼운 회색 테두리 박스를 넣어 세로 공간을 낭비하지 않습니다. 구체적인 카드 패딩·외곽선·여백 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[3. 레이아웃 & 컴포넌트 규칙]`을 참조합니다.
+- **카드 안의 박스(Card-in-Card) 지양**: 카드 내부에 또 두꺼운 회색 테두리 박스를 넣어 세로 공간을 낭비하지 않습니다. 구체적인 카드 패딩·외곽선·여백 수치는 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)의 `[3. 레이아웃 & 컴포넌트 규칙]`을 참조합니다.
 - **가로 칩 바 2중 적층 지양**: 상단에 서로 다른 모양의 가로 스크롤 태그/카테고리 바가 2줄 연속으로 쌓여 시선을 어지럽히지 않도록 통합·정리합니다.
 - **하단 탭바(Bottom Navigation)**: 탭 선택 시 과도하게 큰 분홍색 원형 후광이 상하단 영역을 침범하지 않도록 깔끔한 아이콘+라벨 하이라이트로 유지합니다.
 
@@ -44,7 +44,7 @@
 - **동네 및 이미지 맥락 일치**: 유저 동네가 `여수시 화장동`이면 홈·번개·커뮤니티·소개팅 모두 여수시 모임이 노출되어야 하며, 지역 모임에 서울 랜드마크(롯데타워 등) 사진이 어색하게 매칭된 시드 데이터도 함께 교정합니다.
 
 ### ⑤ 인체공학 터치 영역 & 레이아웃 안정성
-- 모든 클릭·탭 요소의 최소 터치 영역 및 오버플로우 방지 기준은 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[3. 레이아웃 & 컴포넌트 규칙]`을 따릅니다.
+- 모든 클릭·탭 요소의 최소 터치 영역 및 오버플로우 방지 기준은 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)의 `[3. 레이아웃 & 컴포넌트 규칙]`을 따릅니다.
 - `Row` 안의 가변 텍스트는 반드시 `Expanded`/`Flexible`로 감싸 `RenderFlex overflow`가 발생하지 않게 합니다.
 
 ---

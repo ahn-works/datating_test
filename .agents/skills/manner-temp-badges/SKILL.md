@@ -8,9 +8,9 @@ license: MIT
 
 본 스킬은 C2C 커뮤니티에서 가장 중요한 **사용자 간 신뢰 지표(Manner Temperature & Verified Badges)**를 직관적이고 감성적으로 시각화하는 위젯 규격입니다.
 
-## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_UI_GUIDE.md`)
+## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_DESIGN_SYSTEM.md`)
 - **라이선스**: MIT License (상업적 이용 및 상표권 침해 없음)
-- **단일 디자인 기준**: 매너온도 표기(`OomuUiHelpers.parseMannerTemp` / `formatMannerTemp`) 및 색상·타이포그래피 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
+- **단일 디자인 기준**: 매너온도 표기(`OomuUiHelpers.parseMannerTemp` / `formatMannerTemp`) 및 색상·타이포그래피 수치는 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
 
 ## 2. 동적 매너온도 게이지 (Dynamic Temperature Gauge)
 

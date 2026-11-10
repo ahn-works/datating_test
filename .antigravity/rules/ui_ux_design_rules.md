@@ -1,19 +1,19 @@
 # 🎨 OOMU 프로덕트 UI/UX 디자인 규칙
 
-> **단일 UI/UX 기준**: 모든 화면 설계, 색상, 타이포그래피, 간격(Spacing), 터치 타깃 수치는 중복 복사하지 않고 유일한 기준 문서인 **[docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**를 준수합니다.
+> **단일 UI/UX 기준**: 모든 화면 설계, 색상, 타이포그래피, 간격(Spacing), 터치 타깃 수치는 중복 복사하지 않고 유일한 기준 문서인 **[docs/OOMU_DESIGN_SYSTEM.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)**를 준수합니다.
 
 ---
 
-## 🎨 1. OOMU UI/UX 핵심 설계 원칙 (`docs/OOMU_UI_GUIDE.md` 단일 참조)
+## 🎨 1. OOMU UI/UX 핵심 설계 원칙 (`docs/OOMU_DESIGN_SYSTEM.md` 단일 참조)
 
 1. **단일 디자인 수치 참조**:
-   - 배경·카드 표면·보더·텍스트 위계·포인트 색상 및 타이포그래피·간격·최소 터치 영역 수치는 모두 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)의 `[1. 컬러 시스템]`, `[2. 타이포그래피 위계]`, `[3. 레이아웃 & 컴포넌트 규칙]`을 참조합니다.
+   - 배경·카드 표면·보더·텍스트 위계·포인트 색상 및 타이포그래피·간격·최소 터치 영역 수치는 모두 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)의 `[1. 컬러 시스템]`, `[2. 타이포그래피 위계]`, `[3. 레이아웃 & 컴포넌트 규칙]`을 참조합니다.
    - 구형 분홍 배경(`#FAF6F7`), 주황 강조(`#FF6B4A`, `#FFF4EB`), 원색 배지 남발은 **사용 금지 예시**입니다.
 2. **콘텐츠 중심 배치 & 자연스러운 줄바꿈**:
    - 주소·시간·소개 등 주요 정보는 가독성을 위해 자연스럽게 줄바꿈을 허용하며, 획일적인 1줄 자름이나 비대칭 카드 짤림을 배제합니다.
    - Flutter `TextStyle`에 존재하지 않는 `WordBreak.keepAll` 적용 지시는 사용하지 않습니다.
 3. **금액 표기 원칙**:
-   - 실제 확인된 비용 정보(`fee`/`cost`/`price`)가 있을 때만 표시하며, 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지로 대체하지 않습니다 (`docs/OOMU_UI_GUIDE.md` 단일 기준).
+   - 실제 확인된 비용 정보(`fee`/`cost`/`price`)가 있을 때만 표시하며, 임의의 `'무료 참여'`나 `'1/N 안심 정산'` 배지로 대체하지 않습니다 (`docs/OOMU_DESIGN_SYSTEM.md` 단일 기준).
 4. **스킬 및 로컬 모델 활용 원칙**:
    - 매 턴 다수의 지침 문서를 강제로 읽거나 로컬 프록시 모델(`http://127.0.0.1:1337/v1`, `scripts/claude_client.py`)을 무조건 호출하지 않습니다.
    - 워크스페이스 스킬 원본 경로인 `.agents/skills/`에서 **작업 성격에 맞는 관련 스킬 1개를 기본으로 선택**하며, 필요한 경우에만 추가 스킬이나 로컬 모델을 참조합니다.

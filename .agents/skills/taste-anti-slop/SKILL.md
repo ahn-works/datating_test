@@ -1,11 +1,11 @@
 ---
 name: taste-anti-slop
-description: Leon(Leonxlnx)의 Taste Skill v2 기반 브랜드 아트 디렉션 & 안티-슬롭(Anti-Slop) 스킬. 뻔한 AI 클리셰를 거부하고 docs/OOMU_UI_GUIDE.md 단일 기준의 2030 차분한 로컬 커뮤니티 감성을 유지합니다.
+description: Leon(Leonxlnx)의 Taste Skill v2 기반 브랜드 아트 디렉션 & 안티-슬롭(Anti-Slop) 스킬. 뻔한 AI 클리셰를 거부하고 docs/OOMU_DESIGN_SYSTEM.md 단일 기준의 2030 차분한 로컬 커뮤니티 감성을 유지합니다.
 ---
 
 # Taste v2 — Anti-Slop & Brand Direction Skill
 
-이 스킬은 AI가 생성한 UI에서 흔히 나타나는 **'AI Slop(기계적이고 촌스러운 통계적 평균 디자인)'**을 차단하고, [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 기준의 **'2030 로컬 커뮤니티 & 동네 소모임 감성'**을 일관되게 유지합니다.
+이 스킬은 AI가 생성한 UI에서 흔히 나타나는 **'AI Slop(기계적이고 촌스러운 통계적 평균 디자인)'**을 차단하고, [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md) 기준의 **'2030 로컬 커뮤니티 & 동네 소모임 감성'**을 일관되게 유지합니다.
 
 ---
 
@@ -28,10 +28,10 @@ description: Leon(Leonxlnx)의 Taste Skill v2 기반 브랜드 아트 디렉션 
 
 ---
 
-## 2. OOMU 브랜드 아트 디렉션 (`docs/OOMU_UI_GUIDE.md` 단일 기준)
+## 2. OOMU 브랜드 아트 디렉션 (`docs/OOMU_DESIGN_SYSTEM.md` 단일 기준)
 
 - **컬러·타이포그래피·간격 단일 기준**:
-  - 배경·카드 표면·보더·텍스트 위계·포인트 색상 및 타이포그래피·간격 수치는 본 문서에 중복 기술하지 않고 유일한 기준 문서인 **[`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**를 그대로 따릅니다.
+  - 배경·카드 표면·보더·텍스트 위계·포인트 색상 및 타이포그래피·간격 수치는 본 문서에 중복 기술하지 않고 유일한 기준 문서인 **[`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)**를 그대로 따릅니다.
 - **카피라이팅 톤앤매너**:
   - 딱딱한 행정 용어(`"모집 인원 충족"`, `"게시글 등록"`, `"데이터 없음"`) 대신 자연스러운 일상어(`"자리가 다 찼어요"`, `"모임 열기"`, `"아직 올라온 동네 이야기가 없어요"`)를 사용합니다.
 - **사진 및 썸네일**:

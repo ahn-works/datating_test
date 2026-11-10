@@ -8,9 +8,9 @@ license: MIT
 
 본 스킬은 **문토(MUNTO)** 및 글로벌 1위 이벤트 템플릿인 **EventHub**의 검증된 모임 인터페이스를 기반으로, 모임 상세 화면과 신청 절차를 모바일 최적화 규격으로 구현합니다.
 
-## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_UI_GUIDE.md`)
+## 1. 상용화 및 디자인 단일 기준 (`docs/OOMU_DESIGN_SYSTEM.md`)
 - **라이선스**: MIT License (완전한 상업적 소프트웨어 상용화 보장)
-- **단일 디자인 기준**: 모든 색상·타이포그래피·간격·터치 영역 수치는 [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md) 및 `OomuUiHelpers`를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
+- **단일 디자인 기준**: 모든 색상·타이포그래피·간격·터치 영역 수치는 [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md) 및 `OomuUiHelpers`를 따릅니다 (구형 주황 `#FF6B4A` 사용 금지).
 
 ## 2. 참여자 아바타 스택 (AvatarStack) 컴포넌트
 참가자들의 프로필 사진이 겹쳐지며 시각적으로 신뢰도와 인기를 증명하는 위젯입니다:

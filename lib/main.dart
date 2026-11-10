@@ -8,6 +8,7 @@ import 'screens/soso_car_home_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
+import 'ui/oomu_tokens.dart';
 import 'utils/oomu_ui_helpers.dart';
 
 void main() async {
@@ -49,10 +50,10 @@ class Spot10App extends StatelessWidget {
       ),
       theme: OomuUiHelpers.buildTheme(),
       builder: (context, child) => Container(
-        color: const Color(0xFFFBEFE0),
+        color: OomuTokens.surfaceMuted,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+            constraints: const BoxConstraints(maxWidth: OomuTokens.appFrameMaxWidth),
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(
                 size: Size(
@@ -64,12 +65,12 @@ class Spot10App extends StatelessWidget {
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF9F2),
+                  color: OomuTokens.background,
                   boxShadow: MediaQuery.of(context).size.width > 480
                       ? [
                           BoxShadow(
                             color:
-                                const Color(0xFF4A3014).withValues(alpha: 0.12),
+                                Colors.black.withValues(alpha: 0.12),
                             blurRadius: 32,
                             offset: const Offset(0, 10),
                           ),
@@ -87,9 +88,9 @@ class Spot10App extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              backgroundColor: Color(0xFFFFF9F2),
+              backgroundColor: OomuTokens.background,
               body: Center(
-                child: CircularProgressIndicator(color: Color(0xFFFF5C39)),
+                child: CircularProgressIndicator(color: OomuTokens.coral),
               ),
             );
           }
@@ -120,9 +121,9 @@ class _AuthGate extends StatelessWidget {
       builder: (context, profileSnapshot) {
         if (profileSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            backgroundColor: Color(0xFFF7F8FA),
+            backgroundColor: OomuTokens.background,
             body: Center(
-              child: CircularProgressIndicator(color: Color(0xFFF25767)),
+              child: CircularProgressIndicator(color: OomuTokens.coral),
             ),
           );
         }

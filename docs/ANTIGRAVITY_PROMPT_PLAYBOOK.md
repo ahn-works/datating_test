@@ -1,7 +1,7 @@
 # 🚀 OOMU (Spot10) 상황별 프롬프트 플레이북
 
 > **운용 원칙**:
-> - 모든 디자인 수치(색상·타이포그래피·간격·터치 영역)는 중복 복사하지 않고 유일한 기준 문서인 **[docs/OOMU_UI_GUIDE.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)**만 따릅니다.
+> - 모든 디자인 수치(색상·타이포그래피·간격·터치 영역)는 중복 복사하지 않고 유일한 기준 문서인 **[docs/OOMU_DESIGN_SYSTEM.md](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)**만 따릅니다.
 > - 매 턴 다수 문서 열람이나 로컬 프록시(`http://127.0.0.1:1337/v1`, `scripts/claude_client.py`) 호출을 강제하지 않으며, 워크스페이스 원본 스킬 경로(`.agents/skills/`)에서 **관련 스킬 1개를 기본으로 선택**하고 필요한 경우에만 추가 참조합니다.
 > - 슬래시(`/`) 명령어는 현재 IDE에서 실제 지원되는지 확인되지 않으면 추천하지 않습니다.
 
@@ -10,19 +10,19 @@
 ## 1. 📋 상황별 참고 프롬프트 템플릿
 
 ### 🎨 [상황 1] UI/UX 리디자인 & 레이아웃 겹침(Overflow) 0%
-- **기본 참조 가이드**: [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)
+- **기본 참조 가이드**: [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)
 - **기본 선택 스킬 (1개)**: `.agents/skills/impeccable-design-audit/SKILL.md` (또는 `.agents/skills/frontend-design/SKILL.md`)
 
 ```markdown
 [역할 및 목표]
-`docs/OOMU_UI_GUIDE.md`를 유일한 디자인 수치 기준으로 삼아 대상 화면의 시각적 위계와 레이아웃 안정성을 개선해줘.
+`docs/OOMU_DESIGN_SYSTEM.md`를 유일한 디자인 수치 기준으로 삼아 대상 화면의 시각적 위계와 레이아웃 안정성을 개선해줘.
 
 [대상 파일 경로]
 - 예: `lib/screens/soso_car_home_screen.dart`, `lib/screens/soso_car_detail_screen.dart`
 
 [핵심 체크리스트]
 1. 컬러·타이포그래피·간격 단일 기준:
-   - 모든 색상·폰트 크기·여백·보더·터치 타깃 수치는 `docs/OOMU_UI_GUIDE.md`를 참조할 것.
+   - 모든 색상·폰트 크기·여백·보더·터치 타깃 수치는 `docs/OOMU_DESIGN_SYSTEM.md`를 참조할 것.
    - 구형 분홍 배경(`#FAF6F7`), 주황 강조(`#FF6B4A`, `#FFF4EB`, `#E85D04`)는 사용 금지 예시이므로 적용하지 말 것.
    - 비용 정보는 실제 데이터가 있을 때만 표시하고 임의의 `'1/N 안심 정산'` 배지를 강제하지 말 것.
 2. UX 겹침(Overlap) 및 텍스트 깨짐(Overflow) 차단:
@@ -33,7 +33,7 @@
 ---
 
 ### ✍️ [상황 2] B2B 제휴(아지트) & 2030 소셜 UX Writing
-- **기본 참조 가이드**: [`docs/OOMU_UI_GUIDE.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_UI_GUIDE.md)
+- **기본 참조 가이드**: [`docs/OOMU_DESIGN_SYSTEM.md`](file:///c:/Users/DT4/Downloads/oomu_app/docs/OOMU_DESIGN_SYSTEM.md)
 - **기본 선택 스킬 (1개)**: `.agents/skills/taste-anti-slop/SKILL.md`
 
 ```markdown

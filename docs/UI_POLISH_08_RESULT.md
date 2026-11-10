@@ -43,7 +43,7 @@
   - [`.agents/skills/karrot-hyperlocal-feed/SKILL.md`](file:///c:/Users/DT4/Downloads/oomu_app/.agents/skills/karrot-hyperlocal-feed/SKILL.md)
   - [`.antigravity/rules/ui_ux_design_rules.md`](file:///c:/Users/DT4/Downloads/oomu_app/.antigravity/rules/ui_ux_design_rules.md)
 - **내용**:
-  - 브랜드 강조색 `#F25767` 및 중립 배경 `#FAF6F7` 단일화(옛 주황 `#FF5E36`/`#FF6B4A` 폐기).
+  - 브랜드 강조색 `#F25767` 및 중립 배경 `#FAF6F7` 단일화(**폐기됨 — 현재 기준은 `#F7F8FA`, docs/OOMU_DESIGN_SYSTEM.md**)(옛 주황 `#FF5E36`/`#FF6B4A` 폐기).
   - Flutter에 존재하지 않는 `wordBreak: WordBreak.keepAll` 및 서로게이트 페어를 깨뜨리는 `split('').join('\u2060')` 금지 명시.
   - 사용자 요청으로 제거된 `'1/N 안심 정산'` 배지 및 커뮤니티 상세 `'모임 개설'` 배너 재도입 금지 명시.
 
