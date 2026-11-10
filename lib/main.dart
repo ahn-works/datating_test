@@ -9,6 +9,7 @@ import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
 import 'ui/oomu_tokens.dart';
+import 'ui/oomu_component_gallery.dart';
 import 'utils/oomu_ui_helpers.dart';
 
 void main() async {
@@ -83,24 +84,31 @@ class Spot10App extends StatelessWidget {
           ),
         ),
       ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              backgroundColor: OomuTokens.background,
-              body: Center(
-                child: CircularProgressIndicator(color: OomuTokens.coral),
-              ),
-            );
+      home: Builder(
+        builder: (context) {
+          if (Uri.base.queryParameters['gallery'] == 'true') {
+            return const OomuComponentGallery();
           }
-          if (snapshot.hasData && snapshot.data != null) {
-            final user = snapshot.data!;
-            globalData.switchUser(user.uid);
-            return _AuthGate(user: user);
-          }
-          globalData.switchUser('guest');
-          return const LoginScreen();
+          return StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  backgroundColor: OomuTokens.background,
+                  body: Center(
+                    child: CircularProgressIndicator(color: OomuTokens.coral),
+                  ),
+                );
+              }
+              if (snapshot.hasData && snapshot.data != null) {
+                final user = snapshot.data!;
+                globalData.switchUser(user.uid);
+                return _AuthGate(user: user);
+              }
+              globalData.switchUser('guest');
+              return const LoginScreen();
+            },
+          );
         },
       ),
     );
