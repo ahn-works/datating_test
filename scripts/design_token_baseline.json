@@ -1,11 +1,11 @@
 {
   "total": {
-    "color_kinds": 233,
-    "color_count": 1076,
-    "font_kinds": 30,
-    "font_count": 1063,
-    "radius_kinds": 27,
-    "radius_count": 662
+    "color_kinds": 109,
+    "color_count": 566,
+    "font_kinds": 21,
+    "font_count": 511,
+    "radius_kinds": 14,
+    "radius_count": 293
   },
   "files": {
     "lib/screens/auth_pass_screen.dart": {
@@ -16,29 +16,45 @@
       "radius_kinds": 1,
       "radius_count": 2
     },
+    "lib/screens/chat/chat_modals.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/chat/chat_system_cards.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
     "lib/screens/chat_screen.dart": {
-      "color_kinds": 14,
-      "color_count": 15,
-      "font_kinds": 10,
-      "font_count": 15,
-      "radius_kinds": 5,
-      "radius_count": 8
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/community_post_create_screen.dart": {
-      "color_kinds": 7,
-      "color_count": 11,
-      "font_kinds": 9,
-      "font_count": 13,
-      "radius_kinds": 3,
-      "radius_count": 6
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/community_post_detail_screen.dart": {
-      "color_kinds": 6,
-      "color_count": 7,
-      "font_kinds": 9,
-      "font_count": 20,
-      "radius_kinds": 6,
-      "radius_count": 7
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/driver_profile_modal.dart": {
       "color_kinds": 7,
@@ -81,12 +97,12 @@
       "radius_count": 6
     },
     "lib/screens/explore_map_screen.dart": {
-      "color_kinds": 19,
-      "color_count": 52,
-      "font_kinds": 13,
-      "font_count": 28,
-      "radius_kinds": 11,
-      "radius_count": 26
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/filter_screen.dart": {
       "color_kinds": 4,
@@ -103,6 +119,54 @@
       "font_count": 3,
       "radius_kinds": 1,
       "radius_count": 2
+    },
+    "lib/screens/home/home_category_tabs.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/home/home_community_section.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/home/home_discovery_section.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/home/home_header.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/home/home_lightning_section.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/home/home_meetup_section.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/home_screen.dart": {
       "color_kinds": 10,
@@ -129,12 +193,12 @@
       "radius_count": 7
     },
     "lib/screens/login_screen.dart": {
-      "color_kinds": 44,
-      "color_count": 61,
-      "font_kinds": 20,
-      "font_count": 55,
-      "radius_kinds": 13,
-      "radius_count": 45
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/middle_spot_map_screen.dart": {
       "color_kinds": 12,
@@ -145,12 +209,12 @@
       "radius_count": 6
     },
     "lib/screens/my_page_screen.dart": {
-      "color_kinds": 29,
-      "color_count": 74,
-      "font_kinds": 13,
-      "font_count": 77,
-      "radius_kinds": 11,
-      "radius_count": 51
+      "color_kinds": 13,
+      "color_count": 35,
+      "font_kinds": 7,
+      "font_count": 41,
+      "radius_kinds": 8,
+      "radius_count": 30
     },
     "lib/screens/my_page_sub_screens.dart": {
       "color_kinds": 14,
@@ -179,10 +243,10 @@
     "lib/screens/notification_screen.dart": {
       "color_kinds": 0,
       "color_count": 0,
-      "font_kinds": 2,
-      "font_count": 3,
-      "radius_kinds": 1,
-      "radius_count": 1
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/onboarding_screen.dart": {
       "color_kinds": 0,
@@ -265,20 +329,20 @@
       "radius_count": 2
     },
     "lib/screens/profile_edit_screen.dart": {
-      "color_kinds": 10,
-      "color_count": 26,
-      "font_kinds": 7,
-      "font_count": 16,
-      "radius_kinds": 6,
-      "radius_count": 13
+      "color_kinds": 5,
+      "color_count": 14,
+      "font_kinds": 5,
+      "font_count": 7,
+      "radius_kinds": 4,
+      "radius_count": 7
     },
     "lib/screens/profile_setup_screen.dart": {
-      "color_kinds": 19,
-      "color_count": 25,
-      "font_kinds": 13,
-      "font_count": 37,
-      "radius_kinds": 8,
-      "radius_count": 23
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/qr_checkin_screen.dart": {
       "color_kinds": 1,
@@ -313,44 +377,44 @@
       "radius_count": 1
     },
     "lib/screens/settings_screen.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/soso_car_chat_screen.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/soso_car_detail_screen.dart": {
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
+    },
+    "lib/screens/soso_car_home_screen.dart": {
       "color_kinds": 11,
       "color_count": 14,
       "font_kinds": 9,
-      "font_count": 19,
-      "radius_kinds": 10,
-      "radius_count": 16
-    },
-    "lib/screens/soso_car_chat_screen.dart": {
-      "color_kinds": 65,
-      "color_count": 132,
-      "font_kinds": 13,
-      "font_count": 128,
-      "radius_kinds": 14,
-      "radius_count": 88
-    },
-    "lib/screens/soso_car_detail_screen.dart": {
-      "color_kinds": 18,
-      "color_count": 26,
-      "font_kinds": 14,
-      "font_count": 42,
-      "radius_kinds": 13,
-      "radius_count": 26
-    },
-    "lib/screens/soso_car_home_screen.dart": {
-      "color_kinds": 34,
-      "color_count": 101,
-      "font_kinds": 19,
-      "font_count": 105,
-      "radius_kinds": 18,
-      "radius_count": 66
+      "font_count": 20,
+      "radius_kinds": 7,
+      "radius_count": 11
     },
     "lib/screens/soso_car_host_screen.dart": {
-      "color_kinds": 18,
-      "color_count": 24,
-      "font_kinds": 11,
-      "font_count": 42,
-      "radius_kinds": 9,
-      "radius_count": 26
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/soso_car_host_step2_screen.dart": {
       "color_kinds": 9,
@@ -425,12 +489,12 @@
       "radius_count": 6
     },
     "lib/screens/user_profile_screen.dart": {
-      "color_kinds": 3,
-      "color_count": 5,
-      "font_kinds": 8,
-      "font_count": 20,
-      "radius_kinds": 7,
-      "radius_count": 15
+      "color_kinds": 0,
+      "color_count": 0,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/wallet_history_screen.dart": {
       "color_kinds": 2,
