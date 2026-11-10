@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -61,19 +62,39 @@ class KakaoPlace {
 
 /// 카카오맵 & 카카오 로컬 REST API 통합 서비스 (Single Source of Truth)
 class KakaoMapService {
-  /// 카카오 공식 REST API 키 (일일 300,000회 무료 호출)
-  static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
+  /// 카카오 REST API 키 (Firestore config/api_keys 런타임 로드)
+  static String _restApiKey = '';
 
-  /// 카카오 공식 JavaScript 키 (웹/인앱 지도 렌더링용)
-  static const String kakaoJsApiKey = '277e860aee05a0dd1504f70ce7ac8e74';
+  /// 카카오 JavaScript 키 (웹/인앱 지도 렌더링용)
+  static String _jsApiKey = '';
 
-  /// 카카오 공식 어드민 키
-  static const String kakaoAdminKey = '831cb7442067257f17f9a5111a281ce5';
+  static String get kakaoRestApiKey => _restApiKey;
+  static String get kakaoJsApiKey => _jsApiKey;
 
-  static Map<String, String> get _authHeaders => {
-    'Authorization': 'KakaoAK $kakaoRestApiKey',
-    'User-Agent': 'OOMUSpotApp/1.0 (Android; iOS; Web)',
-  };
+  /// Firestore 'config/api_keys' 문서에서 카카오 키 런타임 안전 조회
+  static Future<void> ensureKeysLoaded() async {
+    if (_restApiKey.isNotEmpty) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('config')
+          .doc('api_keys')
+          .get()
+          .timeout(const Duration(seconds: 3));
+      if (doc.exists && doc.data() != null) {
+        final d = doc.data()!;
+        _restApiKey = (d['kakaoRestApiKey'] ?? '').toString().trim();
+        _jsApiKey = (d['kakaoJsApiKey'] ?? '').toString().trim();
+      }
+    } catch (_) {}
+  }
+
+  static Future<Map<String, String>> _getAuthHeaders() async {
+    await ensureKeysLoaded();
+    return {
+      if (_restApiKey.isNotEmpty) 'Authorization': 'KakaoAK $_restApiKey',
+      'User-Agent': 'OOMUSpotApp/1.0 (Android; iOS; Web)',
+    };
+  }
 
   static Future<List<KakaoPlace>> _fetchKeyword(
     String q, {
@@ -94,7 +115,8 @@ class KakaoMapService {
         }
       }
 
-      final res = await http.get(Uri.parse(url), headers: _authHeaders).timeout(const Duration(seconds: 4));
+      final headers = await _getAuthHeaders();
+      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
@@ -195,7 +217,8 @@ class KakaoMapService {
 
     try {
       final url = 'https://dapi.kakao.com/v2/local/search/address.json?query=${Uri.encodeComponent(clean)}&size=$size';
-      final res = await http.get(Uri.parse(url), headers: _authHeaders).timeout(const Duration(seconds: 4));
+      final headers = await _getAuthHeaders();
+      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
@@ -230,7 +253,8 @@ class KakaoMapService {
   static Future<String?> coordToRegionName(double lat, double lng) async {
     try {
       final url = 'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=$lng&y=$lat';
-      final res = await http.get(Uri.parse(url), headers: _authHeaders).timeout(const Duration(milliseconds: 2500));
+      final headers = await _getAuthHeaders();
+      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(milliseconds: 2500));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
@@ -271,7 +295,8 @@ class KakaoMapService {
   static Future<String?> coordToRoadAddress(double lat, double lng) async {
     try {
       final url = 'https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$lng&y=$lat';
-      final res = await http.get(Uri.parse(url), headers: _authHeaders).timeout(const Duration(milliseconds: 2500));
+      final headers = await _getAuthHeaders();
+      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(milliseconds: 2500));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];

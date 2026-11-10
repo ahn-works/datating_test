@@ -61,3 +61,8 @@ scratch/
 
 
 docs/OOMU_UX_UI_AUDIT_INSTRUCTIONS.md
+
+.gemini/
+.env*
+scripts/scan_tracked_pii.py
+scripts/security_audit_*.py

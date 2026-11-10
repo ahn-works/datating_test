@@ -24,8 +24,10 @@ jobs:
       - name: Enable Web Platform
         run: flutter create . --platforms web
       - name: Inject Kakao Map and Daum Postcode JS
+        env:
+          KAKAO_KEY: ${{ secrets.KAKAO_JS_API_KEY }}
         run: |
-          sed -i 's|</head>|<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=277e860aee05a0dd1504f70ce7ac8e74\&autoload=false"></script><script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script></head>|' web/index.html
+          sed -i "s|</head>|<script type=\"text/javascript\" src=\"https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}\&autoload=false\"></script><script src=\"https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js\"></script></head>|" web/index.html
       - name: Build Web
         id: build
         run: |

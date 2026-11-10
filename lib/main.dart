@@ -239,7 +239,7 @@ class _AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (user.email == 'ansimhyang60@naver.com' || authService.isAdmin) {
+    if (authService.isAdmin) {
       return const OOMUHomeScreen();
     }
     return FutureBuilder<bool>(

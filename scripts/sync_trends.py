@@ -28,7 +28,7 @@ if hasattr(sys.stdout, "reconfigure"):
         pass
 
 FIRESTORE_PROJECT = "test-b54fc"
-FIRESTORE_WEB_KEY = "AIzaSyDWOPC60MA39jq2HAVg6UpKnLB5DalDu7U"
+FIRESTORE_WEB_KEY = os.environ.get("FIRESTORE_WEB_KEY", "")
 BASE_FIRESTORE_URL = f"https://firestore.googleapis.com/v1/projects/{FIRESTORE_PROJECT}/databases/(default)/documents"
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"

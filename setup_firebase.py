@@ -23,7 +23,7 @@ if 'firebase_core.dart' not in main_dart:
   try {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
-        apiKey: "AIzaSyDWOPC60MA39jq2HAVg6UpKnLB5DalDu7U",
+        apiKey: "FIREBASE_WEB_API_KEY_PLACEHOLDER",
         authDomain: "test-b54fc.firebaseapp.com",
         projectId: "test-b54fc",
         storageBucket: "test-b54fc.firebasestorage.app",

@@ -5,8 +5,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>카카오 지도</title>
-  <script type="text/javascript"
-    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=277e860aee05a0dd1504f70ce7ac8e74"></script>
+  <script type="text/javascript">
+    (function () {
+      const p = new URLSearchParams(window.location.search);
+      const k = p.get('appkey') || '';
+      if (k) {
+        document.write('<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + encodeURIComponent(k) + '"><\/script>');
+      }
+    })();
+  </script>
   <style>
     * {
       box-sizing: border-box;
@@ -198,6 +205,12 @@
     }
 
     const container = document.getElementById('map');
+    if (typeof kakao === 'undefined' || !kakao.maps) {
+      if (container) {
+        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8E8E93;font-size:14px;background:#FAFAFA;">지도 서비스 준비 중입니다</div>';
+      }
+      return;
+    }
     const options = {
       center: new kakao.maps.LatLng(lat, lng),
       level: isNaN(levelParam) ? 3 : Math.min(Math.max(levelParam, 1), 9)

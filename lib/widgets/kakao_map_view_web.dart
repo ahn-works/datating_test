@@ -7,6 +7,7 @@ import 'dart:html' as html;
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
+import '../services/kakao_map_service.dart';
 
 Widget buildKakaoMapWidget({
   required double lat,
@@ -126,11 +127,15 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         ? '&selectedId=${Uri.encodeComponent(widget.selectedMarkerId!)}'
         : '';
 
+    final appKeyQuery = KakaoMapService.kakaoJsApiKey.isNotEmpty
+        ? '&appkey=${Uri.encodeComponent(KakaoMapService.kakaoJsApiKey)}'
+        : '';
+
     try {
       ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
         final iframe = html.IFrameElement()
           ..src =
-              'kakao_map.html?lat=${widget.lat}&lng=${widget.lng}&level=${widget.zoomLevel}&name=${Uri.encodeComponent(widget.locationName)}${widget.hideActions ? '&hideActions=true' : ''}$selectedQuery$markersQuery'
+              'kakao_map.html?lat=${widget.lat}&lng=${widget.lng}&level=${widget.zoomLevel}&name=${Uri.encodeComponent(widget.locationName)}${widget.hideActions ? '&hideActions=true' : ''}$appKeyQuery$selectedQuery$markersQuery'
           ..style.border = 'none'
           ..style.width = '100%'
           ..style.height = '100%'

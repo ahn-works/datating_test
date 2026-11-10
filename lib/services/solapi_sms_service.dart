@@ -37,7 +37,7 @@ class SolapiSmsService {
 
   String _apiKey = '';
   String _apiSecret = '';
-  String _senderNumber = '01059321032';
+  String _senderNumber = '';
   bool _isInitialized = false;
 
   // 인메모리 빠른 인증 세션 캐시 (cleanPhone -> {code, expiresAt})
@@ -101,9 +101,9 @@ class SolapiSmsService {
     }
 
     final ready = await initialize();
-    if (!ready || _apiKey.isEmpty || _apiSecret.isEmpty) {
+    if (!ready || _apiKey.isEmpty || _apiSecret.isEmpty || _senderNumber.isEmpty) {
       return SolapiSendResult.error(
-          'SMS 발송 설정(Solapi 키)을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          'SMS 발송 설정(Solapi 키 및 발신번호)을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
 
     // 6자리 난수 인증번호 생성

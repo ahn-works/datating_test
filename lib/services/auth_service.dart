@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/global_data.dart';
 import 'solapi_sms_service.dart';
+import 'kakao_map_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -46,8 +47,26 @@ class AuthService {
   // Web Phone Auth용 세션 결과 저장
   ConfirmationResult? _webConfirmationResult;
 
-  // 대표님께서 발급해주신 공식 카카오 앱 키 (우무 OOMU)
-  static const String kakaoRestApiKey = '3f91399ac9b6731d96f6d4b9ac13c502';
+  // 카카오 앱 키 (Firestore config/api_keys 또는 KakaoMapService 연동)
+  String _kakaoRestApiKey = '';
+  String get kakaoRestApiKey =>
+      _kakaoRestApiKey.isNotEmpty ? _kakaoRestApiKey : KakaoMapService.kakaoRestApiKey;
+
+  /// Firestore 'config/api_keys' 문서에서 카카오 키 런타임 조회
+  Future<void> loadKakaoConfig() async {
+    try {
+      final doc = await _firestore.collection('config').doc('api_keys').get();
+      if (doc.exists && doc.data() != null) {
+        final key = (doc.data()!['kakaoRestApiKey'] ?? '').toString().trim();
+        if (key.isNotEmpty) {
+          _kakaoRestApiKey = key;
+        }
+      }
+    } catch (e) {
+      debugPrint('[AuthService] Kakao config load error: $e');
+    }
+  }
+
   String get kakaoRedirectUri {
     if (kIsWeb) {
       final base = Uri.base;
@@ -84,12 +103,14 @@ class AuthService {
 
   bool get isAuthenticated => _auth.currentUser != null;
 
-  /// 카카오 개발자 센터 공식 API 키 및 설정 정보 Firestore(config/kakao_auth)에 안전 백업
+  /// 카카오 개발자 센터 설정 정보 Firestore(config/kakao_auth)에 안전 동기화
   Future<void> syncKakaoConfigToFirestore() async {
     try {
+      await loadKakaoConfig();
+      final currentKey = kakaoRestApiKey;
       await _firestore.collection('config').doc('kakao_auth').set({
         'appName': '우무(OOMU)',
-        'kakaoRestApiKey': kakaoRestApiKey,
+        if (currentKey.isNotEmpty) 'kakaoRestApiKey': currentKey,
         'kakaoRedirectUri': kakaoRedirectUri,
         'kakaoOAuthUrl': kakaoOAuthUrl,
         'provider': 'kakao',
@@ -103,12 +124,13 @@ class AuthService {
   }
 
   bool get isAdmin =>
-      _auth.currentUser?.email == 'ansimhyang60@naver.com' ||
+      _auth.currentUser?.email?.startsWith('admin@') == true ||
+      _auth.currentUser?.email?.endsWith('@oomu.app') == true ||
       globalData.activeUserId == 'udr2AlH3YIX7LEnyHdWGGFcOu2g1';
 
   // 1. 관리자 1초 빠른 로그인
   Future<UserCredential> signInAsAdmin() async {
-    return await signInWithEmail('ansimhyang60@naver.com', 'test_simhyang99');
+    return await signInWithEmail('admin@oomu.app', 'test_admin_oomu99');
   }
 
   // 2. 이메일/비밀번호 로그인
@@ -252,6 +274,9 @@ class AuthService {
 
   // 5-2. 공식 카카오 OAuth 리다이렉트 인가 코드(Code) 처리
   Future<UserCredential> handleKakaoOAuthCode(String code) async {
+    if (kakaoRestApiKey.isEmpty) {
+      await loadKakaoConfig();
+    }
     // 1. 카카오 토큰 발급 요청
     final tokenResponse = await http.post(
       Uri.parse('https://kauth.kakao.com/oauth/token'),
@@ -733,7 +758,7 @@ class AuthService {
   }) async {
     final uid = user.uid;
     final email = user.email ?? '';
-    final bool isAdminEmail = email == 'ansimhyang60@naver.com';
+    final bool isAdminEmail = email.startsWith('admin@') || email.endsWith('@oomu.app');
 
     // 비동기 요청 시작 전 switchUser를 통해 이전 사용자 상태를 초기화하고 세션 세대를 기록
     globalData.switchUser(uid, triggerFirestoreSync: false);

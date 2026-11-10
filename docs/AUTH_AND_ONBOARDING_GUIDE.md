@@ -9,9 +9,9 @@
 | 항목 | 설정값 및 상세 내용 |
 | :--- | :--- |
 | **애플리케이션 이름** | **우무 (OOMU)** |
-| **REST API 키** | `3f91399ac9b6731d96f6d4b9ac13c502` |
+| **REST API 키** | `[Firestore config/api_keys 에 보관]` |
 | **Redirect URI** | `https://ahn-works.github.io/datating_test/` |
-| **인가 코드 요청 URL** | `https://kauth.kakao.com/oauth/authorize?client_id=3f91399ac9b6731d96f6d4b9ac13c502&redirect_uri=https://ahn-works.github.io/datating_test/&response_type=code` |
+| **인가 코드 요청 URL** | `https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&redirect_uri=https://ahn-works.github.io/datating_test/&response_type=code` |
 | **토큰 발급 엔드포인트** | `POST https://kauth.kakao.com/oauth/token` |
 | **사용자 정보 조회** | `GET https://kapi.kakao.com/v2/user/me` |
 
