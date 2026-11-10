@@ -39,14 +39,12 @@ void main() {
       expect(presignedUrl.contains('oomu-spot/covers/weekend_wine.jpg'), isTrue);
     });
 
-    test('4. 필수 보안 규칙 파일 존재 여부 검증', () {
-      final ruleFile = File('.antigravity/rules/security_distribution_rules.md');
-      final guideFile = File('docs/SECURITY_AGENT_GUIDE.md');
-      final instructionsFile = File('AI_INSTRUCTIONS.md');
+    test('4. 필수 보안 및 전체 지침서 존재 여부 검증 (SECURITY.md, AGENTS.md)', () {
+      final securityFile = File('SECURITY.md');
+      final agentsFile = File('AGENTS.md');
 
-      expect(ruleFile.existsSync(), isTrue, reason: '보안 규칙 파일(.antigravity/rules/security_distribution_rules.md)이 반드시 존재해야 합니다.');
-      expect(guideFile.existsSync(), isTrue, reason: '보안 가이드 문서(docs/SECURITY_AGENT_GUIDE.md)가 반드시 존재해야 합니다.');
-      expect(instructionsFile.existsSync(), isTrue, reason: 'AI 지침서(AI_INSTRUCTIONS.md)가 반드시 존재해야 합니다.');
+      expect(securityFile.existsSync(), isTrue, reason: '단일 보안 지침서(SECURITY.md)가 반드시 존재해야 합니다.');
+      expect(agentsFile.existsSync(), isTrue, reason: '단일 전체 지침서(AGENTS.md)가 반드시 존재해야 합니다.');
     });
   });
 }

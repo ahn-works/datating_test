@@ -72,12 +72,11 @@ if ($strayImages) {
     Write-Host "[PASS] No unauthorized images in lib/ (Cloudflare R2 compliant)." -ForegroundColor Green
 }
 
-# 6. 필수 보안 규칙 파일 존재 여부 검사
-Write-Host "`n[6/6] Checking required security rule and guide files..." -ForegroundColor Yellow
+# 6. 필수 단일 지침서 존재 여부 검사 (SECURITY.md, AGENTS.md)
+Write-Host "`n[6/6] Checking required security & master guideline files..." -ForegroundColor Yellow
 $requiredFiles = @(
-    ".antigravity/rules/security_distribution_rules.md",
-    "docs/SECURITY_AGENT_GUIDE.md",
-    "AI_INSTRUCTIONS.md"
+    "SECURITY.md",
+    "AGENTS.md"
 )
 
 foreach ($file in $requiredFiles) {

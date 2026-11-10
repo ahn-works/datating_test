@@ -21,12 +21,6 @@
 
 ---
 
-## 🛠️ 주요 문서
-- [AI 지침서 (AI_INSTRUCTIONS.md)](AI_INSTRUCTIONS.md)
-- [보안 및 3계층 분배 규칙 (.antigravity/rules/security_distribution_rules.md)](.antigravity/rules/security_distribution_rules.md)
-- [보안 에이전트 가이드 (docs/SECURITY_AGENT_GUIDE.md)](docs/SECURITY_AGENT_GUIDE.md)
-- [OOMU 마스터 명세서 (docs/OOMU_MASTER_SPEC.md)](docs/OOMU_MASTER_SPEC.md)
-- [Cloudflare R2 연동 가이드 (docs/CLOUDFLARE_R2_SETUP.md)](docs/CLOUDFLARE_R2_SETUP.md)
-- [개발 로드맵 (TODO.md)](TODO.md)
-- [안드로이드 플레이스토어 출시 마스터 로드맵 (docs/OOMU_MASTER_LAUNCH_ROADMAP.md)](docs/OOMU_MASTER_LAUNCH_ROADMAP.md)
-- [36대 통합 마스터 기능 인벤토리 (docs/OOMU_TOTAL_SOURCE_INTEGRATION_MASTER.md)](docs/OOMU_TOTAL_SOURCE_INTEGRATION_MASTER.md)
+## 🛠️ 프로젝트 단일 지침서 (SSOT)
+- **[OOMU 단일 전체 지침서 (AGENTS.md)](AGENTS.md)**: 전체 설계, 아키텍처, 60-30-10 디자인 시스템, 세션 정합성
+- **[OOMU 단일 보안 지침서 (SECURITY.md)](SECURITY.md)**: 0-Secret & 0-PII 보안 원칙, 외부 API 키 관리, 자동 사전 검증 표준
