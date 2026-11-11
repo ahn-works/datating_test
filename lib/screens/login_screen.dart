@@ -975,213 +975,243 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   // ==========================================
-  // 2. 인트로 온보딩 화면 (Screen 2: 상단 3단 프로그레스 바 + 실제 모임 애니메이션 3슬라이드)
+  // 2. 인트로 온보딩 화면 (방향 1: screens_a.jsx 1:1 따뜻한 미니멀 소셜 표준)
   // ==========================================
   Widget _buildOnboardingScreen() {
     return Container(
       color: OomuTokens.background,
-      padding: const EdgeInsets.fromLTRB(22, 10, 22, 16),
-      child: Column(
-        children: [
-          // 상단 바: 로고(38x38) + 3단 진행 바(.ob-progress) + 건너뛰기 필 버튼
-          Row(
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const OomuLogoMark(size: 38),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Row(
-                  children: List.generate(3, (i) {
-                    final isOn = i <= _currentSlide;
-                    return Expanded(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 280),
-                        margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: isOn ? colorPrimary : OomuTokens.border,
-                          borderRadius: BorderRadius.circular(OomuTokens.r4),
-                        ),
-                      ),
-                    );
-                  }),
+              const SizedBox(height: 16),
+              // 로고
+              const Row(
+                children: [
+                  OomuLogoMark(size: 32),
+                  SizedBox(width: 8),
+                  Text(
+                    'OOMU',
+                    style: TextStyle(
+                      fontFamily: OomuTokens.fontFamily,
+                      fontSize: OomuTokens.fs20,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                      color: OomuTokens.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // 큰 타이틀: 우리 동네에서 취향 맞는 이웃 만나기
+              const Text(
+                '우리 동네에서\n취향 맞는 이웃 만나기',
+                style: TextStyle(
+                  fontFamily: OomuTokens.fontFamily,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  height: 1.34,
+                  letterSpacing: -0.5,
+                  color: OomuTokens.textPrimary,
                 ),
               ),
-              const SizedBox(width: 14),
-              InkWell(
-                onTap: () => _goToStage(2),
-                borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                    border: Border.all(color: OomuTokens.border),
+              const SizedBox(height: 10),
+              // 본문
+              const Text(
+                '빵집 오픈런부터 퇴근 후 러닝까지,\n가볍게 모이고 편하게 헤어져요.',
+                style: TextStyle(
+                  fontFamily: OomuTokens.fontFamily,
+                  fontSize: OomuTokens.fs15,
+                  height: 1.5,
+                  color: OomuTokens.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 3장 사진 콜라주 (방향 1 screens_a.jsx 레이아웃)
+              Expanded(
+                child: Row(
+                  children: [
+                    // 좌측 메인 사진
+                    Expanded(
+                      flex: 5,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(OomuTokens.r16),
+                        child: Image.asset(
+                          'assets/images/cover_cafe.jpg',
+                          fit: BoxFit.cover,
+                          height: double.infinity,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // 우측 2장 스택
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(OomuTokens.r16),
+                              child: Image.asset(
+                                'assets/images/cover_salt_bread.jpg',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(OomuTokens.r16),
+                              child: Image.asset(
+                                'assets/images/cover_running.jpg',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 로그인 & 둘러보기 액션 버튼들
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 카카오로 시작하기
+                  BouncyTap(
+                    onTap: _handleKakaoLogin,
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: OomuTokens.kakaoYellow,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomPaint(
+                            size: const Size(18, 18),
+                            painter: _KakaoSymbolPainter(),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            '카카오로 시작하기',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs15,
+                              fontWeight: FontWeight.w700,
+                              color: OomuTokens.kakaoText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: const Text(
-                    '건너뛰기',
+                  const SizedBox(height: 8),
+
+                  // Google로 시작하기
+                  BouncyTap(
+                    onTap: _handleGoogleLogin,
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.lineStrong),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomPaint(
+                            size: const Size(18, 18),
+                            painter: _GoogleLogoPainter(),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Google로 시작하기',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs15,
+                              fontWeight: FontWeight.w600,
+                              color: OomuTokens.googleText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+
+                  // 둘러보기 (게스트 즉시 탐색) & 이메일 로그인
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: _handleGuestLogin,
+                          style: TextButton.styleFrom(
+                            foregroundColor: OomuTokens.textBody,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                          child: const Text(
+                            '둘러보기 (게스트)',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 14,
+                        color: OomuTokens.border,
+                      ),
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => _goToStage(2),
+                          style: TextButton.styleFrom(
+                            foregroundColor: OomuTokens.textSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                          child: const Text(
+                            '이메일 로그인',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              // 약관 안내 문구
+              const Padding(
+                padding: EdgeInsets.only(top: 2, bottom: 8),
+                child: Center(
+                  child: Text(
+                    '시작하면 이용약관 및 개인정보 처리방침에 동의하게 됩니다.',
                     style: TextStyle(
-                      fontSize: OomuTokens.fs12,
-                      fontWeight: FontWeight.w600,
-                      color: colorTextMuted,
+                      fontSize: OomuTokens.fs11,
+                      color: OomuTokens.textTertiary,
                     ),
                   ),
                 ),
               ),
             ],
           ),
-
-          // 3개 슬라이드 PageView (실제 동네모임 / 공연·전시·핫플 / 실시간 채팅)
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (idx) => setState(() => _currentSlide = idx),
-              children: [
-                // 슬라이드 1: 현재 동네에서 뜨는 모임 & 러닝 크루
-                _buildSlideItem(
-                  eyebrow: '01 · 동네 모임',
-                  illustration: const OomuSlide1Map(width: 320, height: 300),
-                  titlePrefix: '우리 동네에서 ',
-                  highlight: '지금 뜨는 모임',
-                  titleSuffix: '',
-                  description:
-                      '주말 아침 한강 러닝 크루부터 오늘 번개까지\n가까운 이웃과 편하게 만나는 실제 모임 피드예요',
-                ),
-                // 슬라이드 2: 공연·전시와 동네 핫플 발견
-                _buildSlideItem(
-                  eyebrow: '02 · 공연 · 전시 · 핫플',
-                  illustration:
-                      const OomuSlide2Friends(width: 320, height: 300),
-                  titlePrefix: '',
-                  highlight: '공연·전시',
-                  titleSuffix: '와 동네 핫플 발견',
-                  description:
-                      '콘서트·뮤지컬·전시 동행부터 SNS 베이커리 탐방까지\n가볼 만한 동네 모임을 한눈에 둘러봐요',
-                ),
-                // 슬라이드 3: 실시간 모임 채팅 & 연결
-                _buildSlideItem(
-                  eyebrow: '03 · 연결과 모임톡',
-                  illustration: const OomuSlide3Meetup(width: 320, height: 300),
-                  titlePrefix: '',
-                  highlight: '취향이 맞는',
-                  titleSuffix: ' 이웃과 바로 대화',
-                  description:
-                      '모임 일정 배너 확인부터 실시간 그룹 채팅까지\n참여 즉시 자연스럽게 대화를 시작할 수 있어요',
-                ),
-              ],
-            ),
-          ),
-
-          // 하단 다음 / 시작하기 CTA 버튼
-          BouncyTap(
-            onTap: () {
-              if (_currentSlide < 2) {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 340),
-                  curve: Curves.easeOutCubic,
-                );
-              } else {
-                _goToStage(2);
-              }
-            },
-            child: Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                color: colorPrimary,
-                borderRadius: BorderRadius.circular(OomuTokens.r16),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorPrimary.withValues(alpha: 0.32),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  _currentSlide == 2 ? '시작하기' : '다음',
-                  style: const TextStyle(
-                    fontSize: OomuTokens.fs17,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildSlideItem({
-    required String eyebrow,
-    required Widget illustration,
-    required String titlePrefix,
-    required String highlight,
-    required String titleSuffix,
-    required String description,
-  }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 8),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Center(child: illustration),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5.5),
-          decoration: BoxDecoration(
-            color: colorPrimarySoft,
-            borderRadius: BorderRadius.circular(OomuTokens.rPill),
-          ),
-          child: Text(
-            eyebrow,
-            style: const TextStyle(
-              fontSize: OomuTokens.fs12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
-              color: colorPrimary,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            style: const TextStyle(
-              fontSize: OomuTokens.fs22,
-              fontWeight: FontWeight.w800,
-              color: colorText,
-              letterSpacing: -0.4,
-              height: 1.3,
-            ),
-            children: [
-              if (titlePrefix.isNotEmpty) TextSpan(text: titlePrefix),
-              TextSpan(
-                text: highlight,
-                style: const TextStyle(color: colorPrimary),
-              ),
-              if (titleSuffix.isNotEmpty) TextSpan(text: titleSuffix),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          description,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: OomuTokens.fs14,
-            color: colorTextMuted,
-            height: 1.5,
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
     );
   }
 

@@ -62,4 +62,3 @@ class OomuTag extends StatelessWidget {
     );
   }
 }
-

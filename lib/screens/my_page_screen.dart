@@ -1769,8 +1769,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
     return BottomNavigationBar(
       currentIndex: 4,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: OomuTokens.coral,
-      unselectedItemColor: OomuTokens.textSecondary,
+      selectedItemColor: OomuTokens.textPrimary,
+      unselectedItemColor: OomuTokens.textMuted,
       showUnselectedLabels: true,
       selectedLabelStyle:
           const TextStyle(fontWeight: OomuTokens.w700, fontSize: 11),
@@ -1803,9 +1803,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
           label: '커뮤니티',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.favorite_border, size: 24),
-          activeIcon: Icon(Icons.favorite, size: 24),
-          label: '소개팅',
+          icon: Icon(Icons.explore_outlined, size: 24),
+          activeIcon: Icon(Icons.explore, size: 24),
+          label: '발견',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.chat_bubble_outline, size: 23),
