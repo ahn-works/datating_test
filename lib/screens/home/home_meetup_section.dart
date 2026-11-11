@@ -47,16 +47,19 @@ class HomeMeetupSection extends StatelessWidget {
   }
 
   String _getSectionTitle() {
-    final dong = _getDongName();
     switch (selectedCategoryIndex) {
       case 1:
-        return '$dong 오늘 당일 번개';
+        return '오늘 바로 만나는 번개';
       case 2:
-        return '$dong 감성 취향 아지트';
+        return '이번 주말 취향 아지트';
       case 3:
-        return '$dong 일상 라이프 메이트';
+        return '동네 카페·디저트 투어';
+      case 4:
+        return '동네 러닝 & 피트니스';
+      case 5:
+        return '동네 맛집 & 소셜 다이닝';
       default:
-        return '$dong에서 지금 뜨는 모임';
+        return '이번 주 우리 동네 모임';
     }
   }
 
@@ -124,116 +127,25 @@ class HomeMeetupSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: OomuTokens.spacingSm),
-              // 블럭/목록 전환 토글 바 (각 버튼 48dp 이상 터치 영역)
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: OomuTokens.surfaceMuted,
-                  borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => onToggleView(false),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minWidth: 48,
-                          minHeight: 36,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: OomuTokens.spacingSm,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: !isListView
-                                ? OomuTokens.surface
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(
-                                OomuTokens.radiusCardSm - 2),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.grid_view_rounded,
-                                size: 14,
-                                color: !isListView
-                                    ? OomuTokens.textPrimary
-                                    : OomuTokens.textSecondary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '블럭',
-                                style: TextStyle(
-                                  fontSize: OomuTokens.fontXs,
-                                  fontWeight: !isListView
-                                      ? OomuTokens.weightBold
-                                      : OomuTokens.weightRegular,
-                                  color: !isListView
-                                      ? OomuTokens.textPrimary
-                                      : OomuTokens.textSecondary,
-                                  fontFamily: OomuTokens.fontFamily,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    '최신순',
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs13,
+                      color: OomuTokens.textMuted,
+                      fontFamily: OomuTokens.fontFamily,
+                      fontWeight: OomuTokens.w500,
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => onToggleView(true),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minWidth: 48,
-                          minHeight: 36,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: OomuTokens.spacingSm,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isListView
-                                ? OomuTokens.surface
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(
-                                OomuTokens.radiusCardSm - 2),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.view_agenda_outlined,
-                                size: 14,
-                                color: isListView
-                                    ? OomuTokens.textPrimary
-                                    : OomuTokens.textSecondary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '목록',
-                                style: TextStyle(
-                                  fontSize: OomuTokens.fontXs,
-                                  fontWeight: isListView
-                                      ? OomuTokens.weightBold
-                                      : OomuTokens.weightRegular,
-                                  color: isListView
-                                      ? OomuTokens.textPrimary
-                                      : OomuTokens.textSecondary,
-                                  fontFamily: OomuTokens.fontFamily,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 16,
+                    color: OomuTokens.textMuted,
+                  ),
+                ],
               ),
             ],
           ),

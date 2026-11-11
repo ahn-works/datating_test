@@ -64,7 +64,7 @@ class HomeHeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Semantics(
           button: true,
-          label: '지도 탐색',
+          label: '검색',
           child: BouncyTap(
             scaleDown: 0.92,
             onTap: () {
@@ -80,64 +80,57 @@ class HomeHeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               child: const Center(
                 child: Icon(
-                  Icons.map_outlined,
+                  Icons.search_rounded,
                   color: OomuTokens.textPrimary,
-                  size: 22,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Semantics(
-          button: true,
-          label: '알림',
-          child: BouncyTap(
-            scaleDown: 0.92,
-            onTap: () async {
-              final tab = await Navigator.push<int>(
-                context,
-                MaterialPageRoute(builder: (_) => const NotificationScreen()),
-              );
-              if (tab != null && onNotificationTabSelected != null) {
-                onNotificationTabSelected!(tab);
-              }
-            },
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minWidth: 44,
-                minHeight: OomuTokens.touchTargetMin,
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  color: OomuTokens.textPrimary,
-                  size: 23,
+                  size: 24,
                 ),
               ),
             ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right: 10),
+          padding: const EdgeInsets.only(right: 8),
           child: Semantics(
             button: true,
-            label: '필터',
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FilterScreen()),
-              ),
+            label: '알림',
+            child: BouncyTap(
+              scaleDown: 0.92,
+              onTap: () async {
+                final tab = await Navigator.push<int>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                );
+                if (tab != null && onNotificationTabSelected != null) {
+                  onNotificationTabSelected!(tab);
+                }
+              },
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
                   minWidth: 44,
                   minHeight: OomuTokens.touchTargetMin,
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.tune_rounded,
-                    color: OomuTokens.textPrimary,
-                    size: 21,
+                child: Center(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(
+                        Icons.notifications_none_rounded,
+                        color: OomuTokens.textPrimary,
+                        size: 24,
+                      ),
+                      Positioned(
+                        right: 1,
+                        top: 1,
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: OomuTokens.coral,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

@@ -27,3 +27,4 @@ with sync_playwright() as p:
         print(f"Saved: {out_path}")
     browser.close()
 print("Done!")
+

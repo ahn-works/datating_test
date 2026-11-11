@@ -15,12 +15,14 @@ class ExploreMapScreen extends StatefulWidget {
   final double? initialLat;
   final double? initialLng;
   final String? initialSpotName;
+  final bool isEmbedded;
 
   const ExploreMapScreen({
     super.key,
     this.initialLat,
     this.initialLng,
     this.initialSpotName,
+    this.isEmbedded = false,
   });
 
   @override
@@ -614,10 +616,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: textPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: !widget.isEmbedded,
+        leading: widget.isEmbedded
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back, color: textPrimary),
+                onPressed: () => Navigator.pop(context),
+              ),
         titleSpacing: 0,
         title: const Text(
           '동네 지도 탐색 (카카오맵)',

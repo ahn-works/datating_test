@@ -17,6 +17,8 @@ import 'oomu_chat_room_screen.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/oomu_discovery_lifestyle_hub.dart';
 import 'home/home_category_tabs.dart';
+import 'explore_map_screen.dart';
+import 'oomu_host_screen.dart';
 import 'home/home_community_section.dart';
 import 'home/home_discovery_section.dart';
 import 'home/home_header.dart';
@@ -607,20 +609,20 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   final List<Map<String, dynamic>> _categories = [
-    {'icon': '', 'name': '전체', 'desc': '실시간 전체 모임 & 트렌드 큐레이션'},
-    {'icon': '', 'name': '오늘 번개', 'desc': '오늘 밤·이번 주말 당장 만나는 당일 오프라인 번개'},
-    {'icon': '', 'name': '취향 아지트', 'desc': '취미, 공연, 전시, 보드게임, 독서 등 취향 기반 모임'},
-    {
-      'icon': '',
-      'name': '라이프 메이트',
-      'desc': '1인 가구, 동성 친구, 일상 액티비티 생활 밀착형 모임'
-    },
+    {'icon': '', 'name': '전체', 'desc': '실시간 전체 모임'},
+    {'icon': '', 'name': '오늘 번개', 'desc': '오늘 바로 만나는 당일 번개'},
+    {'icon': '', 'name': '이번 주말', 'desc': '주말 취향 아지트 모임'},
+    {'icon': '', 'name': '카페·디저트', 'desc': '카페, 디저트, 베이커리 모임'},
+    {'icon': '', 'name': '러닝', 'desc': '러닝, 운동, 산책 모임'},
+    {'icon': '', 'name': '맛집', 'desc': '맛집 탐방, 소셜 다이닝 모임'},
   ];
 
   static const Map<String, List<String>> _officialSubCategories = {
     '오늘 번개': ['혼술바동행', '불금코노·술', '맛집털기', '오늘번개', '심야드라이브', '야식팟'],
-    '취향 아지트': ['공연·전시', '카페·디저트', '보드게임·방탈출', '북카페·독서', 'LP청음', '원데이클래스'],
-    '라이프 메이트': ['러닝·운동', '1인가구장보기/소분', '동성캠핑', '동네산책', '헬스메이트', '반려동물산책'],
+    '이번 주말': ['공연·전시', '카페·디저트', '보드게임·방탈출', '북카페·독서', 'LP청음', '원데이클래스'],
+    '카페·디저트': ['소금빵오픈런', '베이커리투어', '디저트카페', '핸드드립', '브런치'],
+    '러닝': ['한강러닝', '트랙러닝', '야간러닝', '플로깅', '동네산책'],
+    '맛집': ['노포탐방', '와인바', '소셜다이닝', '미식회', '오마카세'],
   };
 
   // 전국 시·도 및 읍면동 핫스팟 리스트
@@ -1866,15 +1868,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: OomuTokens.background,
-      appBar: (_homeDashboardTab == 3 || _homeDashboardTab == 4)
-          ? null
-          : HomeHeaderAppBar(
+      appBar: _homeDashboardTab == 0
+          ? HomeHeaderAppBar(
               currentLocation: _currentLocation,
               onLocationTap: _showLocationPickerBottomSheet,
               onNotificationTabSelected: (tab) {
                 if (mounted) setState(() => _homeDashboardTab = tab);
               },
-            ),
+            )
+          : null,
       body: _homeDashboardTab == 0
           ? _buildMeetupDashboard()
           : (_homeDashboardTab == 1
@@ -1887,6 +1889,32 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                           onExplore: () =>
                               setState(() => _homeDashboardTab = 0))
                       : const MyPageScreen(isEmbedded: true)))),
+      floatingActionButton: _homeDashboardTab == 0
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        OOMUHostScreen(initialLocation: _currentLocation),
+                  ),
+                );
+              },
+              backgroundColor: OomuTokens.coral,
+              elevation: 3,
+              highlightElevation: 4,
+              icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+              label: const Text(
+                '모임 열기',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: OomuTokens.fontFamily,
+                ),
+              ),
+            )
+          : null,
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
@@ -2408,7 +2436,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return [
       {
         'id': 'dummy_meetup_01',
-        'title': '주말 엽떡+마라탕 조지실 분 🔥',
+        'title': '주말 엽떡+마라탕 같이 가실 분',
         'mainCategory': '일상 & 푸드',
         'category': '동네 맛집 & 소셜 다이닝',
         'location': '마포구 홍대입구역 9번 출구',
@@ -2431,7 +2459,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_02',
-        'title': '성수동 감성 에스프레소 바 & 북카페 나들이 ☕📚',
+        'title': '성수동 감성 에스프레소 바 & 북카페 나들이',
         'mainCategory': '일상 & 푸드',
         'category': '카페 & 디저트',
         'location': '성동구 성수동 카페거리',
@@ -2453,7 +2481,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_03',
-        'title': '연남동 힙한 내추럴 혼술바 동행 & 와인 팟 🍷',
+        'title': '연남동 힙한 내추럴 혼술바 동행 & 와인 팟',
         'mainCategory': '일상 & 푸드',
         'category': '동네 술 한잔',
         'location': '마포구 연남동 미로길',
@@ -2475,7 +2503,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_04',
-        'title': '불금엔 역시 코노! 스트레스 풀 고음 릴레이 🎤',
+        'title': '불금엔 역시 코노! 스트레스 풀 고음 릴레이',
         'mainCategory': '문화 & 엔터',
         'category': '음악 & 노래방',
         'location': '합정역 수코인노래방',
@@ -2495,7 +2523,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_05',
-        'title': '성수동 핫한 팝업스토어 웨이팅 동행 구해요 🛍️',
+        'title': '성수동 핫한 팝업스토어 웨이팅 동행 구해요',
         'mainCategory': '문화 & 엔터',
         'category': '전시 & 팝업스토어',
         'location': '성동구 성수 연무장길',
@@ -2516,7 +2544,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_06',
-        'title': '신촌 보드게임 카페 파티 & 전략 보드게임 모임 🎲',
+        'title': '신촌 보드게임 카페 파티 & 전략 보드게임 모임',
         'mainCategory': '게임 & 오락',
         'category': '보드게임',
         'location': '서대문구 신촌 보드게임 카페',
@@ -2536,7 +2564,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_07',
-        'title': '망원 한강공원 야경 러닝 & 플로깅 5km 🏃‍♀️',
+        'title': '망원 한강공원 야경 러닝 & 플로깅 5km',
         'mainCategory': '액티비티 & 스포츠',
         'category': '야외 액티비티',
         'location': '마포구 망원 한강공원 입구',
@@ -2558,7 +2586,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_08',
-        'title': '동네 헬스장 득근 헬스 메이트 구함 (동성/상하체 분할) 💪',
+        'title': '동네 헬스장 득근 헬스 메이트 구함 (동성/상하체 분할)',
         'mainCategory': '액티비티 & 스포츠',
         'category': '운동 메이트 (동성 추천)',
         'location': '마포구 서교동 피트니스',
@@ -2579,7 +2607,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_09',
-        'title': '지하철 타고 떠나는 감성 골목길 인생샷 출사 투어 📷',
+        'title': '지하철 타고 떠나는 감성 골목길 인생샷 출사 투어',
         'mainCategory': '여행 & 나들이',
         'category': '출사 & 사진',
         'location': '종로구 익선동 한옥마을',
@@ -2599,7 +2627,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_10',
-        'title': '나만의 시그니처 향수 만들기 원데이 공방 🎨✨',
+        'title': '나만의 시그니처 향수 만들기 원데이 공방',
         'mainCategory': '체험 & 취미',
         'category': '원데이 클래스',
         'location': '마포구 연남동 조향 아틀리에',
@@ -2619,7 +2647,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       },
       {
         'id': 'dummy_meetup_11',
-        'title': '자연스러운 동네 2:2 와인&다이닝 미팅 💖',
+        'title': '자연스러운 동네 2:2 와인&다이닝 미팅',
         'mainCategory': '일상 & 푸드',
         'category': '동네 술 한잔',
         'location': '마포구 연남동 분위기 좋은 다이닝',

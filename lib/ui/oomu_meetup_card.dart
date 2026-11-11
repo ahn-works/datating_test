@@ -199,12 +199,35 @@ class OomuMeetupCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(OomuTokens.radiusCard),
-            child: AspectRatio(
-              aspectRatio: 16 / 10,
-              child: _buildImageContent(),
-            ),
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(OomuTokens.radiusCard),
+                child: AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: _buildImageContent(),
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.favorite_border_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           if (kicker != null) ...[
             const SizedBox(height: OomuTokens.s12),

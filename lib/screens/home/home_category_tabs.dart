@@ -75,7 +75,6 @@ class HomeCategoryTabs extends StatelessWidget {
                       padding: const EdgeInsets.only(right: OomuTokens.spacingSm),
                       child: OomuChip(
                         label: '전체보기',
-                        icon: Icons.grid_view_rounded,
                         isSelected: false,
                         onTap: onShowFullCategories,
                       ),
@@ -91,7 +90,6 @@ class HomeCategoryTabs extends StatelessWidget {
                     padding: const EdgeInsets.only(right: OomuTokens.spacingSm),
                     child: OomuChip(
                       label: catName,
-                      icon: _getCategoryIcon(index),
                       isSelected: isSelected,
                       onTap: () {
                         if (index == 0) {
