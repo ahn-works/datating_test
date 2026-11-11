@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_image.dart';
 import 'oomu_avatar.dart';
 import 'oomu_tokens.dart';
 
@@ -94,18 +95,11 @@ class OomuMeetupCard extends StatelessWidget {
     if (url.isEmpty) {
       return _buildImagePlaceholder();
     }
-    final isNetwork = url.startsWith('http://') || url.startsWith('https://');
-    return isNetwork
-        ? Image.network(
-            url,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-          )
-        : Image.asset(
-            url,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-          );
+    return Image(
+      image: appImg(url, fallback: 'assets/images/cover_food.jpg'),
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+    );
   }
 
   /// "분류 · 장소" 한 줄

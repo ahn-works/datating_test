@@ -1,8 +1,8 @@
-import 'login_screen.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
+import '../utils/app_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'oomu_home_screen.dart';
@@ -15,12 +15,7 @@ import '../services/r2_storage_service.dart';
 import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
 import 'user_profile_screen.dart';
-import '../widgets/bouncy_tap.dart';
 import '../ui/oomu_tokens.dart';
-import '../ui/oomu_button.dart';
-import '../ui/oomu_tag.dart';
-import '../ui/oomu_avatar.dart';
-import '../ui/oomu_sheet.dart';
 
 class MyPageScreen extends StatefulWidget {
   final bool isEmbedded;
@@ -116,7 +111,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         } catch (_) {}
 
         if (mounted) {
-          Navigator.pop(ctx);
+          if (ctx.mounted) Navigator.pop(ctx);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(source == ImageSource.camera
@@ -343,7 +338,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 'updatedAt': FieldValue.serverTimestamp(),
                               }, SetOptions(merge: true));
                             } catch (_) {}
-                            Navigator.pop(ctx);
+                            if (ctx.mounted) Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -450,7 +445,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 'updatedAt': FieldValue.serverTimestamp(),
                               }, SetOptions(merge: true));
                             } catch (_) {}
-                            Navigator.pop(ctx);
+                            if (ctx.mounted) Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(
@@ -721,7 +716,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   ),
                   onPressed: () {
                     if (inquiryCtrl.text.trim().isNotEmpty) {
-                      Navigator.pop(ctx);
+                      if (ctx.mounted) Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content:
@@ -758,7 +753,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 fontWeight: OomuTokens.w700)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: OomuTokens.textSecondary),
+            icon: const Icon(Icons.settings_outlined,
+                color: OomuTokens.textSecondary),
             tooltip: '설정',
             onPressed: () {
               Navigator.push(context,
@@ -793,7 +789,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
               String bio = '자기소개가 아직 등록되지 않았어요.';
               String job = '';
               String mbti = '';
-              String jobAndMbti = '프로필 정보 미설정';
               List<String> hobbies = [];
               List<String> closeFriendPersonalities = [];
               List<String> values = [];
@@ -830,15 +825,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     }
                     job = data['job']?.toString().trim() ?? job;
                     mbti = data['mbti']?.toString().trim() ?? mbti;
-                    final metaParts = <String>[
-                      if (age > 0) '$age세',
-                      if (gender.isNotEmpty) gender,
-                      if (job.isNotEmpty) job,
-                      if (mbti.isNotEmpty) mbti,
-                    ];
-                    jobAndMbti = metaParts.isNotEmpty
-                        ? metaParts.join(' · ')
-                        : '프로필 정보 미설정';
                     final rawInterests =
                         _parseSafeList(data['interests'], <String>[]);
                     final rawHobbies =
@@ -969,6 +955,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           message: '내 프로필 보기',
                           child: InkWell(
                             borderRadius: BorderRadius.circular(32),
+                            onLongPress: _showAvatarPickerBottomSheet,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -999,7 +986,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               child: SizedBox(
                                 width: 64,
                                 height: 64,
-                                child: _buildAvatarImage(globalData.userAvatar.value),
+                                child: _buildAvatarImage(
+                                    globalData.userAvatar.value),
                               ),
                             ),
                           ),
@@ -1038,7 +1026,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   ),
                                   const Text('·',
                                       style: TextStyle(
-                                          color: Color(0xFF8E8E93), fontSize: 12)),
+                                          color: Color(0xFF8E8E93),
+                                          fontSize: 12)),
                                   const Icon(Icons.verified_user_rounded,
                                       color: Color(0xFF10B981), size: 13),
                                   const Text(
@@ -1066,11 +1055,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (_) => const ProfileEditScreen()),
+                                        builder: (_) =>
+                                            const ProfileEditScreen()),
                                   );
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                                  side: const BorderSide(
+                                      color: Color(0xFFE5E7EB)),
                                   backgroundColor: Colors.white,
                                   foregroundColor: const Color(0xFF111111),
                                   elevation: 0,
@@ -1110,9 +1101,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         valueListenable: globalData.temperature,
                         builder: (context, temp, _) {
                           final parsed = OomuUiHelpers.parseMannerValue(temp);
-                          final manner = activeUid.isEmpty
-                              ? parsed
-                              : (parsed ?? 39.8);
+                          final manner =
+                              activeUid.isEmpty ? parsed : (parsed ?? 39.8);
                           final hasManner = manner != null;
                           final progress = hasManner
                               ? ((manner - 30.0) / 70.0).clamp(0.0, 1.0)
@@ -1297,219 +1287,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
     );
   }
 
-  Widget _buildLifestyleRow(String label, List<String> tags) {
-    if (tags.isEmpty) return const SizedBox.shrink();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 52,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: OomuTokens.fs12,
-                fontWeight: OomuTokens.w600,
-                color: OomuTokens.textSecondary,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: tags.map((t) => OomuTag(label: t)).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showOomuPlusModal(BuildContext context) {
-    OomuSheet.show(
-      context: context,
-      builder: (ctx) => OomuSheet(
-        title: 'OOMU Plus 멤버십',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(OomuTokens.s16),
-              decoration: BoxDecoration(
-                color: OomuTokens.surfaceMuted,
-                borderRadius: BorderRadius.circular(OomuTokens.r12),
-                border: Border.all(color: OomuTokens.border),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.workspace_premium_outlined,
-                      color: OomuTokens.textPrimary, size: 28),
-                  SizedBox(width: OomuTokens.s12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'OOMU Plus',
-                        style: TextStyle(
-                          color: OomuTokens.textPrimary,
-                          fontWeight: OomuTokens.w700,
-                          fontSize: OomuTokens.fs16,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        '나만의 특별한 동네 라이프스타일',
-                        style: TextStyle(
-                          color: OomuTokens.textSecondary,
-                          fontSize: OomuTokens.fs12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: OomuTokens.s16),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.visibility_outlined,
-                  color: OomuTokens.textSecondary),
-              title: Text(
-                '시크릿 프로필 무제한 열람',
-                style: TextStyle(
-                    fontWeight: OomuTokens.w600,
-                    fontSize: OomuTokens.fs14,
-                    color: OomuTokens.textPrimary),
-              ),
-              subtitle: Text(
-                '내 프로필을 열람한 사람을 실시간 확인',
-                style: TextStyle(
-                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
-              ),
-            ),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.favorite_outline,
-                  color: OomuTokens.textSecondary),
-              title: Text(
-                '매일 슈퍼라이크 5개 증정',
-                style: TextStyle(
-                    fontWeight: OomuTokens.w600,
-                    fontSize: OomuTokens.fs14,
-                    color: OomuTokens.textPrimary),
-              ),
-              subtitle: Text(
-                '더 빠르고 확실한 호감 매칭',
-                style: TextStyle(
-                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
-              ),
-            ),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading:
-                  Icon(Icons.bolt_outlined, color: OomuTokens.textSecondary),
-              title: Text(
-                '실시간 번개 우선 노출',
-                style: TextStyle(
-                    fontWeight: OomuTokens.w600,
-                    fontSize: OomuTokens.fs14,
-                    color: OomuTokens.textPrimary),
-              ),
-              subtitle: Text(
-                '내가 주최한 번개 모임이 동네 상단에 고정',
-                style: TextStyle(
-                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
-              ),
-            ),
-            const SizedBox(height: OomuTokens.s20),
-            OomuButton(
-              label: '7일 무료 체험 시작하기',
-              onPressed: () {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('🎉 OOMU Plus 7일 무료 체험이 활성화되었습니다!')),
-                );
-              },
-            ),
-            const SizedBox(height: OomuTokens.s12),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInteractiveMenuItem({
-    required IconData icon,
-    Color? iconColor,
-    required String title,
-    String? badge,
-    required Color textPrimary,
-    required VoidCallback onTap,
-  }) {
-    final showBadge = badge != null &&
-        badge != '0' &&
-        badge != '0개' &&
-        badge != '0명' &&
-        !badge.startsWith('0');
-
-    return BouncyTap(
-      scaleDown: 0.98,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: (iconColor ?? textPrimary).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(OomuTokens.r8),
-              ),
-              child: Icon(icon, color: iconColor ?? textPrimary, size: 20),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: OomuTokens.fs14,
-                  fontWeight: OomuTokens.w600,
-                  color: OomuTokens.textPrimary,
-                  height: 1.3,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            if (showBadge)
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: OomuTokens.background,
-                  borderRadius: BorderRadius.circular(OomuTokens.r8),
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(
-                    fontSize: OomuTokens.fs12,
-                    fontWeight: OomuTokens.w600,
-                    color: OomuTokens.textSecondary,
-                  ),
-                ),
-              ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 14, color: OomuTokens.textMuted),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: 4,
@@ -1659,32 +1436,21 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   Widget _buildAvatarImage(String? url) {
-    if (url != null && url.isNotEmpty) {
-      if (url.startsWith('http')) {
-        return Image.network(
-          url,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Image.asset(
-            'assets/images/p_choyeon.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Image.asset(
-              'assets/images/초연.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
-      } else if (url.startsWith('assets/')) {
-        return Image.asset(url, fit: BoxFit.cover);
-      }
-    }
-    return Image.asset(
-      'assets/images/p_choyeon.jpg',
+    final effectiveUrl = (url != null && url.trim().isNotEmpty)
+        ? url.trim()
+        : 'assets/images/p_choyeon.jpg';
+    return Image(
+      image: appImg(effectiveUrl, fallback: 'assets/images/p_choyeon.jpg'),
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) => Image.asset(
-        'assets/images/초연.png',
+        'assets/images/p_choyeon.jpg',
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Center(
-          child: Icon(Icons.person, color: Color(0xFF8E8E93), size: 36),
+        errorBuilder: (_, __, ___) => Image.asset(
+          'assets/images/초연.png',
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Center(
+            child: Icon(Icons.person, color: Color(0xFF8E8E93), size: 36),
+          ),
         ),
       ),
     );
@@ -1711,8 +1477,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Text('아직 작성한 동네 커뮤니티 글이 없습니다.',
-                      style:
-                          TextStyle(color: Color(0xFF8E8E93), fontSize: 14)),
+                      style: TextStyle(color: Color(0xFF8E8E93), fontSize: 14)),
                 ),
               ),
             ],

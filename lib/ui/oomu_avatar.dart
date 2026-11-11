@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_image.dart';
 import 'oomu_tokens.dart';
 
 /// OOMU 원형 아바타 컴포넌트
 /// - 사진이 없거나 로드 실패 시 이니셜 원(중립 회색)으로 안전하게 대체
+/// - Cloudflare R2 스토리지(profiles/...), 네트워크(http/https), 로컬 에셋(assets/...) 완벽 자동 연동
 class OomuAvatar extends StatelessWidget {
   final String? imageUrl;
   final String? name;
@@ -64,23 +66,15 @@ class OomuAvatar extends StatelessWidget {
       return fallback;
     }
 
-    final isNetwork = url.startsWith('http://') || url.startsWith('https://');
-
     return ClipOval(
       child: SizedBox(
         width: diameter,
         height: diameter,
-        child: isNetwork
-            ? Image.network(
-                url,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => fallback,
-              )
-            : Image.asset(
-                url,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => fallback,
-              ),
+        child: Image(
+          image: appImg(url, fallback: 'assets/images/민지.png'),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => fallback,
+        ),
       ),
     );
   }
