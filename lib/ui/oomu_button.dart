@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import 'oomu_tokens.dart';
 
@@ -79,14 +79,12 @@ class OomuButton extends StatelessWidget {
         border = null;
         break;
       case OomuButtonVariant.secondary:
-        bg = OomuTokens.surface;
+        // 보조 버튼: 따뜻한 회색 면(테두리 없음)
+        bg = OomuTokens.surfaceMuted;
         fg = onPressed == null
             ? OomuTokens.textMuted
             : OomuTokens.textPrimary;
-        border = Border.all(
-          color: OomuTokens.border,
-          width: 1,
-        );
+        border = null;
         break;
       case OomuButtonVariant.text:
         bg = Colors.transparent;
@@ -116,7 +114,7 @@ class OomuButton extends StatelessWidget {
           fontFamily: OomuTokens.fontFamily,
           fontFamilyFallback: OomuTokens.fontFallback,
           fontSize: OomuTokens.fs16,
-          fontWeight: OomuTokens.w700,
+          fontWeight: OomuTokens.w600,
           color: fg,
         ),
       );

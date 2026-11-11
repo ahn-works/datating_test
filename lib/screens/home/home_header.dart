@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../ui/oomu_tokens.dart';
 import '../../widgets/bouncy_tap.dart';
@@ -28,9 +28,6 @@ class HomeHeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: OomuTokens.surface,
       elevation: 0,
       scrolledUnderElevation: 0,
-      shape: const Border(
-        bottom: BorderSide(color: OomuTokens.border, width: 1),
-      ),
       titleSpacing: OomuTokens.spacingLg,
       title: BouncyTap(
         scaleDown: 0.96,
@@ -45,7 +42,7 @@ class HomeHeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   currentLocation,
                   style: const TextStyle(
                     fontWeight: OomuTokens.weightBold,
-                    fontSize: OomuTokens.fontLg,
+                    fontSize: OomuTokens.fs20,
                     color: OomuTokens.textPrimary,
                     fontFamily: OomuTokens.fontFamily,
                     letterSpacing: -0.4,

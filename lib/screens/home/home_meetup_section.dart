@@ -101,7 +101,7 @@ class HomeMeetupSection extends StatelessWidget {
                     Text(
                       _getSectionTitle(),
                       style: const TextStyle(
-                        fontSize: OomuTokens.fontLg,
+                        fontSize: OomuTokens.fs20,
                         fontWeight: OomuTokens.weightBold,
                         color: OomuTokens.textPrimary,
                         fontFamily: OomuTokens.fontFamily,
@@ -130,7 +130,6 @@ class HomeMeetupSection extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: OomuTokens.surfaceMuted,
                   borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
-                  border: Border.all(color: OomuTokens.border),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -154,9 +153,6 @@ class HomeMeetupSection extends StatelessWidget {
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(
                                 OomuTokens.radiusCardSm - 2),
-                            border: !isListView
-                                ? Border.all(color: OomuTokens.border)
-                                : null,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -206,9 +202,6 @@ class HomeMeetupSection extends StatelessWidget {
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(
                                 OomuTokens.radiusCardSm - 2),
-                            border: isListView
-                                ? Border.all(color: OomuTokens.border)
-                                : null,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -297,6 +290,8 @@ class HomeMeetupSection extends StatelessWidget {
                       ?.toString();
                   final String? date = (data['date'] ?? data['time'])?.toString();
                   final String? location = data['location']?.toString();
+                  final String? category =
+                      (data['category'] ?? data['mainCategory'])?.toString();
                   final String? hostName = data['host']?.toString();
                   final String? hostAvatar = data['hostAvatar']?.toString();
                   final String? members = (data['members'] ?? '2/4')?.toString();
@@ -324,6 +319,7 @@ class HomeMeetupSection extends StatelessWidget {
                             imageUrl: imageUrl,
                             date: date,
                             location: location,
+                            category: category,
                             hostName: hostName,
                             hostAvatar: hostAvatar,
                             members: members,
@@ -336,6 +332,7 @@ class HomeMeetupSection extends StatelessWidget {
                             imageUrl: imageUrl,
                             date: date,
                             location: location,
+                            category: category,
                             hostName: hostName,
                             hostAvatar: hostAvatar,
                             members: members,
@@ -369,10 +366,9 @@ class HomeMeetupSection extends StatelessWidget {
                         vertical: OomuTokens.spacingSm,
                       ),
                       decoration: BoxDecoration(
-                        color: OomuTokens.surface,
+                        color: OomuTokens.surfaceMuted,
                         borderRadius:
                             BorderRadius.circular(OomuTokens.radiusCardSm),
-                        border: Border.all(color: OomuTokens.border),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -358,14 +358,13 @@ class UserProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Manner Temp (동일 사용자·동일 매너온도 기준)
+                  // Manner Temp (방향 1: 플랫 서피스)
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
-                      color: OomuTokens.surface,
+                      color: OomuTokens.surfaceMuted,
                       borderRadius: BorderRadius.circular(OomuTokens.r16),
-                      border: Border.all(color: OomuTokens.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -507,7 +506,6 @@ class UserProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: OomuTokens.surfaceMuted,
         borderRadius: BorderRadius.circular(OomuTokens.r12),
-        border: Border.all(color: OomuTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,8 +513,8 @@ class UserProfileScreen extends StatelessWidget {
           Text(question,
               style: const TextStyle(
                   fontSize: OomuTokens.fs12,
-                  fontWeight: OomuTokens.w700,
-                  color: OomuTokens.coralText)),
+                  fontWeight: OomuTokens.w600,
+                  color: OomuTokens.textSecondary)),
           const SizedBox(height: 8),
           Text(answer,
               style: const TextStyle(

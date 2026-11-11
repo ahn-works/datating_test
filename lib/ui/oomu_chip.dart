@@ -23,11 +23,12 @@ class OomuChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = isSelected ? OomuTokens.textPrimary : OomuTokens.surfaceMuted;
-    final fg = isSelected ? OomuTokens.surface : OomuTokens.textSecondary;
+    // 선택: 먹색 면 + 흰 글자 / 비선택: 흰 면 + 1px 따뜻한 회색 테두리
+    final bg = isSelected ? OomuTokens.textPrimary : OomuTokens.surface;
+    final fg = isSelected ? OomuTokens.surface : OomuTokens.textBody;
     final border = isSelected
         ? Border.all(color: OomuTokens.textPrimary, width: 1)
-        : Border.all(color: OomuTokens.border, width: 1);
+        : Border.all(color: OomuTokens.lineStrong, width: 1);
 
     return ConstrainedBox(
       constraints: const BoxConstraints(
@@ -42,7 +43,7 @@ class OomuChip extends StatelessWidget {
             borderRadius: BorderRadius.circular(OomuTokens.rPill),
             child: Container(
               height: 36,
-              padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s12),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: bg,
                 borderRadius: BorderRadius.circular(OomuTokens.rPill),
@@ -53,7 +54,7 @@ class OomuChip extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, size: 14, color: fg),
+                    Icon(icon, size: 16, color: fg),
                     const SizedBox(width: OomuTokens.s4),
                   ],
                   Flexible(
@@ -64,7 +65,7 @@ class OomuChip extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: OomuTokens.fontFamily,
                         fontFamilyFallback: OomuTokens.fontFallback,
-                        fontSize: OomuTokens.fs12,
+                        fontSize: OomuTokens.fs14,
                         fontWeight: isSelected ? OomuTokens.w700 : OomuTokens.w600,
                         color: fg,
                       ),

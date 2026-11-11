@@ -959,13 +959,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         ],
                       ),
                     ),
-                  // User Profile Card
+                  // User Profile Card (방향 1: 플랫 서피스)
                   Container(
                     padding: const EdgeInsets.all(OomuTokens.s20),
                     decoration: BoxDecoration(
                       color: OomuTokens.surface,
                       borderRadius: BorderRadius.circular(OomuTokens.r16),
-                      border: Border.all(color: OomuTokens.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1308,7 +1307,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     decoration: BoxDecoration(
                       color: OomuTokens.surface,
                       borderRadius: BorderRadius.circular(OomuTokens.r16),
-                      border: Border.all(color: OomuTokens.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

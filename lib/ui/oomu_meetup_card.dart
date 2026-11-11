@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'oomu_avatar.dart';
-import 'oomu_badge.dart';
 import 'oomu_tokens.dart';
 
 enum OomuMeetupCardVariant {
@@ -9,21 +8,22 @@ enum OomuMeetupCardVariant {
   list,
 }
 
-/// OOMU 공통 모임 카드 컴포넌트
-/// - block / list 두 가지 변형 지원하는 단일 부품
-/// - 구성: 사진(16:9, 배지 최대 2개) → 제목(16sp/w600, 최대 2줄 말줄임) → 일정·장소(14sp 보조색, 아이콘) → 호스트 아바타·닉네임·정원(예: 2/4)
-/// - 매너온도 칩 및 분위기 이미지 라벨 원천 배제
-/// - 그림자 없이 1px #EAECF0 테두리, 모서리 16dp
+/// OOMU 공통 모임 카드 컴포넌트 ("따뜻한 미니멀")
+/// - block / list 두 가지 변형을 지원하는 단일 부품
+/// - 구성: 사진(16:10) → 분류·장소(13sp 회색) → 제목(17sp/w600, 최대 2줄) → 일정·거리(13sp)
+///   → 호스트 아바타·닉네임·정원 + 우측 상태 라벨
+/// - 카드 테두리·그림자·속 박스 없음(사진과 여백만으로 한 덩어리). 코랄은 상태 라벨에만 사용
 class OomuMeetupCard extends StatelessWidget {
   final String title;
   final String? imageUrl;
   final String? date;
   final String? location;
+  final String? category; // 분류 (예: "러닝·운동")
   final String? hostName;
   final String? hostAvatar;
   final String? members; // 예: "2/4"
-  final String? statusBadge; // 좌상단 배지 (예: "오늘 번개")
-  final String? infoBadge; // 우하단 배지 (예: "도보 180m")
+  final String? statusBadge; // 우측 상태 라벨 (예: "오늘 번개")
+  final String? infoBadge; // 일정 옆 보조 정보 (예: "도보 180m")
   final VoidCallback? onTap;
   final OomuMeetupCardVariant variant;
 
@@ -33,6 +33,7 @@ class OomuMeetupCard extends StatelessWidget {
     this.imageUrl,
     this.date,
     this.location,
+    this.category,
     this.hostName,
     this.hostAvatar,
     this.members,
@@ -48,6 +49,7 @@ class OomuMeetupCard extends StatelessWidget {
     this.imageUrl,
     this.date,
     this.location,
+    this.category,
     this.hostName,
     this.hostAvatar,
     this.members,
@@ -56,6 +58,25 @@ class OomuMeetupCard extends StatelessWidget {
     this.onTap,
   }) : variant = OomuMeetupCardVariant.list;
 
+  static const TextStyle _caption = TextStyle(
+    fontFamily: OomuTokens.fontFamily,
+    fontFamilyFallback: OomuTokens.fontFallback,
+    fontSize: OomuTokens.fs13,
+    fontWeight: OomuTokens.w400,
+    color: OomuTokens.textMuted,
+    height: 1.5,
+  );
+
+  static const TextStyle _headline = TextStyle(
+    fontFamily: OomuTokens.fontFamily,
+    fontFamilyFallback: OomuTokens.fontFallback,
+    fontSize: OomuTokens.fs17,
+    fontWeight: OomuTokens.w600,
+    color: OomuTokens.textPrimary,
+    height: 1.4,
+    letterSpacing: -0.25,
+  );
+
   Widget _buildImagePlaceholder() {
     return Container(
       color: OomuTokens.surfaceMuted,
@@ -63,7 +84,7 @@ class OomuMeetupCard extends StatelessWidget {
       child: const Icon(
         Icons.image_outlined,
         size: 28,
-        color: OomuTokens.textMuted,
+        color: OomuTokens.textTertiary,
       ),
     );
   }
@@ -87,6 +108,79 @@ class OomuMeetupCard extends StatelessWidget {
           );
   }
 
+  /// "분류 · 장소" 한 줄
+  String? get _kickerText {
+    final parts = <String>[
+      if (category != null && category!.trim().isNotEmpty) category!.trim(),
+      if (location != null && location!.trim().isNotEmpty) location!.trim(),
+    ];
+    return parts.isEmpty ? null : parts.join(' · ');
+  }
+
+  /// "일정 · 거리" 한 줄
+  String? get _whenText {
+    final parts = <String>[
+      if (date != null && date!.trim().isNotEmpty) date!.trim(),
+      if (infoBadge != null && infoBadge!.trim().isNotEmpty) infoBadge!.trim(),
+    ];
+    return parts.isEmpty ? null : parts.join(' · ');
+  }
+
+  Widget _buildFooter() {
+    return Row(
+      children: [
+        OomuAvatar(imageUrl: hostAvatar, name: hostName, radius: 11),
+        const SizedBox(width: OomuTokens.s8),
+        Expanded(
+          flex: 3,
+          child: Text(
+            hostName ?? '호스트',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: OomuTokens.fontFamily,
+              fontFamilyFallback: OomuTokens.fontFallback,
+              fontSize: OomuTokens.fs13,
+              fontWeight: OomuTokens.w600,
+              color: OomuTokens.textBody,
+            ),
+          ),
+        ),
+        if (members != null) ...[
+          const SizedBox(width: OomuTokens.s8),
+          Flexible(
+            flex: 2,
+            child: Text(
+              '$members 참여',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: _caption,
+            ),
+          ),
+        ],
+        if (statusBadge != null) ...[
+          const SizedBox(width: OomuTokens.s8),
+          Flexible(
+            flex: 2,
+            child: Text(
+              statusBadge!,
+              maxLines: 1,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: OomuTokens.fontFamily,
+                fontFamilyFallback: OomuTokens.fontFallback,
+                fontSize: OomuTokens.fs13,
+                fontWeight: OomuTokens.w700,
+                color: OomuTokens.coralText,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (variant == OomuMeetupCardVariant.list) {
@@ -96,167 +190,107 @@ class OomuMeetupCard extends StatelessWidget {
   }
 
   Widget _buildBlockCard() {
-    return Material(
-      color: OomuTokens.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(OomuTokens.r16),
-        side: const BorderSide(color: OomuTokens.border, width: 1),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(OomuTokens.r16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 1. 사진 (16:9 비율, 배지 최대 2개)
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(OomuTokens.r16),
-              ),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    _buildImageContent(),
-                    if (statusBadge != null)
-                      Positioned(
-                        top: OomuTokens.s8,
-                        left: OomuTokens.s8,
-                        child: OomuBadge.dark(label: statusBadge!),
-                      ),
-                    if (infoBadge != null)
-                      Positioned(
-                        bottom: OomuTokens.s8,
-                        right: OomuTokens.s8,
-                        child: OomuBadge.dark(label: infoBadge!),
-                      ),
-                  ],
-                ),
-              ),
+    final kicker = _kickerText;
+    final when = _whenText;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(OomuTokens.radiusCard),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(OomuTokens.radiusCard),
+            child: AspectRatio(
+              aspectRatio: 16 / 10,
+              child: _buildImageContent(),
             ),
+          ),
+          if (kicker != null) ...[
+            const SizedBox(height: OomuTokens.s12),
+            Text(kicker,
+                maxLines: 1, overflow: TextOverflow.ellipsis, style: _caption),
+          ] else
+            const SizedBox(height: OomuTokens.s12),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: _headline,
+            ),
+          ),
+          if (when != null) ...[
+            const SizedBox(height: OomuTokens.s4),
+            Text(
+              when,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: _caption.copyWith(color: OomuTokens.textBody),
+            ),
+          ],
+          const SizedBox(height: OomuTokens.s12),
+          _buildFooter(),
+        ],
+      ),
+    );
+  }
 
-            // 2. 카드 본문 정보
-            Padding(
-              padding: const EdgeInsets.all(OomuTokens.cardPadding),
+  Widget _buildListCard() {
+    final kicker = _kickerText;
+    final when = _whenText;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: OomuTokens.s16),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: OomuTokens.border, width: 1),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 제목: 16dp / w600 / 최대 2줄 말줄임
+                  if (kicker != null) ...[
+                    Text(kicker,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: _caption),
+                    const SizedBox(height: 2),
+                  ],
                   Text(
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: OomuTokens.fontFamily,
-                      fontFamilyFallback: OomuTokens.fontFallback,
-                      fontSize: OomuTokens.fs16,
-                      fontWeight: OomuTokens.w600,
-                      color: OomuTokens.textPrimary,
-                      height: 1.4,
+                    style: _headline,
+                  ),
+                  if (when != null) ...[
+                    const SizedBox(height: OomuTokens.s4),
+                    Text(
+                      when,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _caption.copyWith(color: OomuTokens.textBody),
                     ),
-                  ),
-
-                  if (date != null || location != null) ...[
-                    const SizedBox(height: OomuTokens.s8),
-                    // 일정·장소: 14dp 보조색 + 아이콘
-                    if (date != null)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today_outlined,
-                            size: 14,
-                            color: OomuTokens.textSecondary,
-                          ),
-                          const SizedBox(width: OomuTokens.s4),
-                          Expanded(
-                            child: Text(
-                              date!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontFamily: OomuTokens.fontFamily,
-                                fontFamilyFallback: OomuTokens.fontFallback,
-                                fontSize: OomuTokens.fs14,
-                                fontWeight: OomuTokens.w400,
-                                color: OomuTokens.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (location != null) ...[
-                      const SizedBox(height: OomuTokens.s4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.place_outlined,
-                            size: 14,
-                            color: OomuTokens.textSecondary,
-                          ),
-                          const SizedBox(width: OomuTokens.s4),
-                          Expanded(
-                            child: Text(
-                              location!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontFamily: OomuTokens.fontFamily,
-                                fontFamilyFallback: OomuTokens.fontFallback,
-                                fontSize: OomuTokens.fs14,
-                                fontWeight: OomuTokens.w400,
-                                color: OomuTokens.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
-
                   const SizedBox(height: OomuTokens.s12),
-                  const Divider(color: OomuTokens.border, height: 1, thickness: 1),
-                  const SizedBox(height: OomuTokens.s8),
-
-                  // 호스트 아바타 · 닉네임 · 정원 (매너온도 칩 없음)
-                  Row(
-                    children: [
-                      OomuAvatar.small(
-                        imageUrl: hostAvatar,
-                        name: hostName,
-                      ),
-                      const SizedBox(width: OomuTokens.s8),
-                      Expanded(
-                        child: Text(
-                          hostName ?? '호스트',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: OomuTokens.fontFamily,
-                            fontFamilyFallback: OomuTokens.fontFallback,
-                            fontSize: OomuTokens.fs12,
-                            fontWeight: OomuTokens.w600,
-                            color: OomuTokens.textPrimary,
-                          ),
-                        ),
-                      ),
-                      if (members != null) ...[
-                        const SizedBox(width: OomuTokens.s8),
-                        Text(
-                          '$members 참여',
-                          style: const TextStyle(
-                            fontFamily: OomuTokens.fontFamily,
-                            fontFamilyFallback: OomuTokens.fontFallback,
-                            fontSize: OomuTokens.fs12,
-                            fontWeight: OomuTokens.w600,
-                            color: OomuTokens.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+                  _buildFooter(),
                 ],
+              ),
+            ),
+            const SizedBox(width: OomuTokens.s16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
+              child: SizedBox(
+                width: 88,
+                height: 88,
+                child: _buildImageContent(),
               ),
             ),
           ],
@@ -264,128 +298,4 @@ class OomuMeetupCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildListCard() {
-    return Material(
-      color: OomuTokens.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(OomuTokens.r16),
-        side: const BorderSide(color: OomuTokens.border, width: 1),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(OomuTokens.r16),
-        child: Padding(
-          padding: const EdgeInsets.all(OomuTokens.cardPadding),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 썸네일 (96x96dp)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(OomuTokens.r12),
-                child: SizedBox(
-                  width: 96,
-                  height: 96,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      _buildImageContent(),
-                      if (statusBadge != null)
-                        Positioned(
-                          top: OomuTokens.s4,
-                          left: OomuTokens.s4,
-                          child: OomuBadge.dark(label: statusBadge!),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: OomuTokens.s12),
-
-              // 정보 영역
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: OomuTokens.fontFamily,
-                        fontFamilyFallback: OomuTokens.fontFallback,
-                        fontSize: OomuTokens.fs16,
-                        fontWeight: OomuTokens.w600,
-                        color: OomuTokens.textPrimary,
-                        height: 1.35,
-                      ),
-                    ),
-                    if (date != null || location != null) ...[
-                      const SizedBox(height: OomuTokens.s4),
-                      Text(
-                        [if (date != null) date!, if (location != null) location!]
-                            .join(' · '),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontFamily: OomuTokens.fontFamily,
-                          fontFamilyFallback: OomuTokens.fontFallback,
-                          fontSize: OomuTokens.fs14,
-                          fontWeight: OomuTokens.w400,
-                          color: OomuTokens.textSecondary,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: OomuTokens.s8),
-                    Row(
-                      children: [
-                        OomuAvatar.small(
-                          imageUrl: hostAvatar,
-                          name: hostName,
-                        ),
-                        const SizedBox(width: OomuTokens.s8),
-                        Expanded(
-                          child: Text(
-                            hostName ?? '호스트',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontFamily: OomuTokens.fontFamily,
-                              fontFamilyFallback: OomuTokens.fontFallback,
-                              fontSize: OomuTokens.fs12,
-                              fontWeight: OomuTokens.w600,
-                              color: OomuTokens.textPrimary,
-                            ),
-                          ),
-                        ),
-                        if (members != null) ...[
-                          const SizedBox(width: OomuTokens.s4),
-                          Flexible(
-                            child: Text(
-                              '$members 참여',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontFamily: OomuTokens.fontFamily,
-                                fontFamilyFallback: OomuTokens.fontFallback,
-                                fontSize: OomuTokens.fs12,
-                                fontWeight: OomuTokens.w600,
-                                color: OomuTokens.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
-

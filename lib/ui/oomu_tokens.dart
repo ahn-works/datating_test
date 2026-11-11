@@ -5,30 +5,32 @@ import 'package:flutter/material.dart';
 class OomuTokens {
   OomuTokens._();
 
-  // ── 색 ──
-  static const Color background = Color(0xFFF7F8FA);
+  // ── 색: "따뜻한 미니멀" ──
+  // 흰 바탕 + 따뜻한 먹색 글자가 화면의 90%, 코랄은 CTA·선택·마감임박에만(10% 이하).
+  static const Color background = Color(0xFFFFFFFF);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceMuted = Color(0xFFF2F4F7);
-  static const Color border = Color(0xFFEAECF0);
+  static const Color surfaceMuted = Color(0xFFF6F4F1); // 칩·검색창·구역 띠
+  static const Color border = Color(0xFFEEEAE5); // 디바이더
 
-  static const Color textPrimary = Color(0xFF191F28);
-  static const Color textBody = Color(0xFF333D4B);
-  static const Color textSecondary = Color(0xFF6B7684);
-  static const Color textMuted = Color(0xFF8B95A1);
+  static const Color textPrimary = Color(0xFF1F1B18); // 제목·핵심
+  static const Color textBody = Color(0xFF57514B); // 본문
+  static const Color textSecondary = Color(0xFF6F6962); // 보조 본문
+  static const Color textMuted = Color(0xFF8C857E); // 날짜·장소 등 보조
 
   static const Color coral = Color(0xFFF25767);
   static const Color coralText = Color(0xFFD9384A);
-  static const Color error = Color(0xFFE11D48);
-  static const Color verified = Color(0xFF0D9488);
+  static const Color error = Color(0xFFD9443A);
+  static const Color verified = Color(0xFF2F8A6A);
 
   // ── 의미론적 색상 별칭 (docs/OOMU_DESIGN_SYSTEM.md) ──
   static const Color primary = coral;
-  static const Color primarySubtle = Color(0xFFFDE8EC);
-  static const Color primaryBorder = Color(0xFFFFD8A8);
-  static const Color bgCanvas = Color(0xFFF8FAFC);
-  static const Color surfaceElevated = Color(0xFFF1F5F9);
-  static const Color divider = Color(0xFFF1F5F9);
-  static const Color textTertiary = Color(0xFF94A3B8);
+  static const Color primarySubtle = Color(0xFFFDECEE);
+  static const Color primaryBorder = Color(0xFFF8C9CE);
+  static const Color bgCanvas = Color(0xFFFAF8F6);
+  static const Color surfaceElevated = Color(0xFFF6F4F1);
+  static const Color divider = Color(0xFFEEEAE5);
+  static const Color lineStrong = Color(0xFFDED8D1); // 칩·아웃라인 버튼 테두리
+  static const Color textTertiary = Color(0xFFA8A199); // 비활성·힌트
   static const Color mannerYellowBg = Color(0xFFFFFBEB);
   static const Color mannerYellowBorder = Color(0xFFFDE68A);
   static const Color mannerYellowText = Color(0xFFB45309);
@@ -71,6 +73,7 @@ class OomuTokens {
   static const double fs36 = 36;
 
   static const FontWeight w400 = FontWeight.w400;
+  static const FontWeight w500 = FontWeight.w500;
   static const FontWeight w600 = FontWeight.w600;
   static const FontWeight w700 = FontWeight.w700;
 
@@ -94,6 +97,7 @@ class OomuTokens {
 
   // ── 간격 ──
   static const double s4 = 4;
+  static const double s6 = 6;
   static const double s8 = 8;
   static const double s12 = 12;
   static const double s16 = 16;
@@ -131,9 +135,10 @@ class OomuTokens {
   static const FontWeight weightSemiBold = w600;
   static const FontWeight weightBold = w700;
 
-  static const double radiusCardSm = r12;
-  static const double radiusCard = r16;
-  static const double radiusCardLg = r24;
+  // 모서리: sm 8 / md 12 / lg 20 (따뜻한 미니멀 기본값)
+  static const double radiusCardSm = r8;
+  static const double radiusCard = r12;
+  static const double radiusCardLg = r20;
   static const double radiusPill = rPill;
 
   static const double touchTargetMin = touchTarget;

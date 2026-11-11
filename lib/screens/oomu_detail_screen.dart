@@ -517,29 +517,33 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             ),
           ),
 
-          // 2. 메인 컨텐츠 시트 (정보 순서 1:1 표준 준수)
+          // 2. 메인 컨텐츠 시트 (방향 1: 따뜻한 미니멀 소셜 표준)
           SliverToBoxAdapter(
             child: Container(
               transform: Matrix4.translationValues(0, -24, 0),
               decoration: const BoxDecoration(
                 color: OomuTokens.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, -4)),
-                ],
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s20, vertical: OomuTokens.s24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // A. 카테고리 라벨 & 뱃지
+                    // A. 키커 (카테고리 · 지역) & 뱃지
                     Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: OomuTokens.s8,
-                      runSpacing: OomuTokens.s8,
+                      runSpacing: OomuTokens.s6,
                       children: [
-                        OomuTag(
-                          label: categoryLabel,
+                        Text(
+                          '$categoryLabel${locName.isNotEmpty && locName != "장소 정보 없음" ? " · $locName" : ""}',
+                          style: const TextStyle(
+                            fontSize: OomuTokens.fs13,
+                            color: OomuTokens.textTertiary,
+                            fontWeight: OomuTokens.w500,
+                            fontFamily: OomuTokens.fontFamily,
+                          ),
                         ),
                         if (widget.meetup?['isFemaleOnly'] == true)
                           const OomuBadge.coral(
@@ -547,15 +551,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: OomuTokens.s12),
+                    const SizedBox(height: OomuTokens.s8),
 
-                    // B. 제목
+                    // B. 제목 (22sp w700 ink)
                     Text(
-                      _formatTitleKeepWords(
-                        (widget.meetup != null && widget.meetup!['title'] != null)
-                            ? widget.meetup!['title'].toString()
-                            : '주말 엽떡+마라탕 조지실 분 구해요!',
-                      ),
+                      (widget.meetup != null && widget.meetup!['title'] != null)
+                          ? widget.meetup!['title'].toString()
+                          : '주말 엽떡+마라탕 조지실 분 구해요!',
                       style: const TextStyle(
                         color: OomuTokens.textPrimary,
                         fontSize: OomuTokens.fs22,
@@ -564,77 +566,54 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         fontFamily: OomuTokens.fontFamily,
                       ),
                     ),
-                    const SizedBox(height: OomuTokens.s24),
+                    const SizedBox(height: OomuTokens.s20),
 
-                    // C. 핵심 정보 카드 (일시·장소·인원·비용 값이 있을 때만 렌더링)
-                    Container(
-                      padding: const EdgeInsets.all(OomuTokens.s16),
-                      decoration: BoxDecoration(
-                        color: OomuTokens.surface,
-                        borderRadius: BorderRadius.circular(OomuTokens.r16),
-                        border: Border.all(color: OomuTokens.border),
+                    // C. 핵심 정보 (박스 없이 클린 리스트로 렌더링)
+                    if (dateStr.isNotEmpty)
+                      OomuInfoRow(
+                        icon: Icons.calendar_today_rounded,
+                        label: '일시',
+                        value: dateStr,
                       ),
-                      child: Column(
-                        children: [
-                          if (dateStr.isNotEmpty)
-                            OomuInfoRow(
-                              icon: Icons.calendar_today_rounded,
-                              label: '일시',
-                              value: dateStr,
-                            ),
-                          if (locName.isNotEmpty && locName != '장소 정보 없음')
-                            OomuInfoRow(
-                              icon: Icons.location_on_rounded,
-                              label: '장소',
-                              value: locName,
-                            ),
-                          if (maxCapacity > 0 || memberCount > 0)
-                            OomuInfoRow(
-                              icon: Icons.group_outlined,
-                              label: '인원',
-                              value: maxCapacity > 0 ? '$memberCount / $maxCapacity명' : '$memberCount명 참여 중',
-                            ),
-                          if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
-                            OomuInfoRow(
-                              icon: Icons.payments_outlined,
-                              label: '비용',
-                              value: costLabel,
-                            ),
-                        ],
+                    if (locName.isNotEmpty && locName != '장소 정보 없음')
+                      OomuInfoRow(
+                        icon: Icons.location_on_rounded,
+                        label: '장소',
+                        value: locName,
                       ),
-                    ),
-                    const SizedBox(height: OomuTokens.s32),
+                    if (maxCapacity > 0 || memberCount > 0)
+                      OomuInfoRow(
+                        icon: Icons.group_outlined,
+                        label: '인원',
+                        value: maxCapacity > 0 ? '$memberCount / $maxCapacity명' : '$memberCount명 참여 중',
+                      ),
+                    if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
+                      OomuInfoRow(
+                        icon: Icons.payments_outlined,
+                        label: '비용',
+                        value: costLabel,
+                      ),
+                    const Divider(color: OomuTokens.border, height: 36, thickness: 1),
 
-                    // D. 호스트 카드 (박스 안 박스 없이 한 겹으로: 아바타·닉네임·인증 1개·매너온도 숫자+얇은 막대, 최대 3개 중립 칭찬 칩)
-                    const OomuSectionHeader(title: '호스트', padding: EdgeInsets.zero),
-                    const SizedBox(height: OomuTokens.s12),
+                    // D. 호스트 카드 (박스 안 박스 없이 평면 직접 배치)
                     _buildHostCard(hostManner, isHostVerified, praiseTags),
-                    const SizedBox(height: OomuTokens.s32),
+                    const Divider(color: OomuTokens.border, height: 36, thickness: 1),
 
-                    // E. 모임 소개
+                    // E. 모임 소개 (상자 테두리 없이 클린 바디 텍스트)
                     const OomuSectionHeader(title: '모임 소개', padding: EdgeInsets.zero),
                     const SizedBox(height: OomuTokens.s12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(OomuTokens.s16),
-                      decoration: BoxDecoration(
-                        color: OomuTokens.surfaceMuted,
-                        borderRadius: BorderRadius.circular(OomuTokens.r16),
-                        border: Border.all(color: OomuTokens.border),
-                      ),
-                      child: Text(
-                        (widget.meetup?['description']?.toString().trim().isNotEmpty == true)
-                            ? widget.meetup!['description'].toString()
-                            : '아직 모임 소개가 없어요. 참여 전 모임장에게 내용을 확인해 주세요.',
-                        style: const TextStyle(
-                          fontSize: OomuTokens.fs14,
-                          height: 1.6,
-                          color: OomuTokens.textPrimary,
-                          fontFamily: OomuTokens.fontFamily,
-                        ),
+                    Text(
+                      (widget.meetup?['description']?.toString().trim().isNotEmpty == true)
+                          ? widget.meetup!['description'].toString()
+                          : '아직 모임 소개가 없어요. 참여 전 모임장에게 내용을 확인해 주세요.',
+                      style: const TextStyle(
+                        fontSize: OomuTokens.fs15,
+                        height: 1.6,
+                        color: OomuTokens.textBody,
+                        fontFamily: OomuTokens.fontFamily,
                       ),
                     ),
-                    const SizedBox(height: OomuTokens.s32),
+                    const Divider(color: OomuTokens.border, height: 36, thickness: 1),
 
                     // F. 지도·길찾기 (중립 아웃라인 보조 버튼 + 중립 회색 한 줄 위치 안내)
                     OomuSectionHeader(
@@ -764,19 +743,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         ],
       ),
 
-      // 3. 하단 고정 CTA 바 (높이 52 주요 버튼 1개 + 52x52 찜 버튼)
+      // 3. 하단 고정 CTA 바 (방향 1: 플랫 서피스 + 1px 디바이더)
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s16, vertical: OomuTokens.s12),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: OomuTokens.surface,
-          border: const Border(top: BorderSide(color: OomuTokens.border, width: 1.0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 12,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          border: Border(top: BorderSide(color: OomuTokens.border, width: 1.0)),
         ),
         child: SafeArea(
           top: false,
@@ -796,9 +768,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: OomuTokens.surfaceMuted,
+                    color: OomuTokens.surface,
                     borderRadius: BorderRadius.circular(OomuTokens.r12),
-                    border: Border.all(color: OomuTokens.border),
+                    border: Border.all(color: OomuTokens.lineStrong),
                   ),
                   alignment: Alignment.center,
                   child: Icon(
@@ -824,115 +796,121 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     );
   }
 
-  // 한 겹 호스트 카드 위젯
+  // 한 겹 호스트 카드 위젯 (방향 1: 박스 테두리 없는 깔끔한 인라인 프로필)
   Widget _buildHostCard(double? hostManner, bool isHostVerified, List<String> praiseTags) {
     final hostName = (widget.meetup != null ? (widget.meetup!['host'] ?? '모임 호스트') : '모임 호스트').toString();
     final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
         ? widget.meetup!['hostAvatar'].toString()
         : 'assets/images/민지.png';
 
-    return Container(
-      padding: const EdgeInsets.all(OomuTokens.s16),
-      decoration: BoxDecoration(
-        color: OomuTokens.surface,
-        borderRadius: BorderRadius.circular(OomuTokens.r16),
-        border: Border.all(color: OomuTokens.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              OomuAvatar(
-                radius: 24,
-                imageUrl: hostAvatar,
-                name: hostName,
-              ),
-              const SizedBox(width: OomuTokens.s12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      '호스트',
-                      style: TextStyle(fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary, fontFamily: OomuTokens.fontFamily),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            hostName,
-                            style: const TextStyle(
-                              fontSize: OomuTokens.fs16,
-                              fontWeight: OomuTokens.w700,
-                              color: OomuTokens.textPrimary,
-                              fontFamily: OomuTokens.fontFamily,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (isHostVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(Icons.verified, size: 15, color: OomuTokens.verified),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: OomuTokens.s8),
-              // 매너온도 숫자 + 얇은 막대 (또는 정보 없음)
-              if (hostManner != null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${hostManner.toStringAsFixed(1)}°C',
-                      style: const TextStyle(
-                        fontSize: OomuTokens.fs14,
-                        fontWeight: OomuTokens.w700,
-                        color: OomuTokens.textPrimary,
-                        fontFamily: OomuTokens.fontFamily,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    SizedBox(
-                      width: 60,
-                      height: 4,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(OomuTokens.r8 / 4),
-                        child: LinearProgressIndicator(
-                          value: (hostManner / 100.0).clamp(0.0, 1.0),
-                          backgroundColor: OomuTokens.surfaceMuted,
-                          valueColor: const AlwaysStoppedAnimation<Color>(OomuTokens.textSecondary),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              else
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
-                  decoration: BoxDecoration(
-                    color: OomuTokens.surfaceMuted,
-                    borderRadius: BorderRadius.circular(OomuTokens.r8),
-                  ),
-                  child: const Text(
-                    '매너온도 정보 없음',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            OomuAvatar(
+              radius: 22,
+              imageUrl: hostAvatar,
+              name: hostName,
+            ),
+            const SizedBox(width: OomuTokens.s12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    '호스트',
                     style: TextStyle(
                       fontSize: OomuTokens.fs12,
-                      fontWeight: OomuTokens.w600,
                       color: OomuTokens.textSecondary,
                       fontFamily: OomuTokens.fontFamily,
                     ),
                   ),
+                  const SizedBox(height: 2),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    runSpacing: 2,
+                    children: [
+                      Text(
+                        hostName,
+                        style: const TextStyle(
+                          fontSize: OomuTokens.fs16,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary,
+                          fontFamily: OomuTokens.fontFamily,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (isHostVerified)
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.verified, size: 14, color: OomuTokens.verified),
+                            SizedBox(width: 2),
+                            Text(
+                              '본인인증',
+                              style: TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                color: OomuTokens.textSecondary,
+                                fontFamily: OomuTokens.fontFamily,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: OomuTokens.s8),
+            // 매너온도 숫자 (방향 1 표준)
+            if (hostManner != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${hostManner.toStringAsFixed(1)}°C',
+                    style: const TextStyle(
+                      fontSize: OomuTokens.fs16,
+                      fontWeight: OomuTokens.w700,
+                      color: OomuTokens.textPrimary,
+                      fontFamily: OomuTokens.fontFamily,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '매너온도',
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs11,
+                      color: OomuTokens.textTertiary,
+                      fontWeight: OomuTokens.w400,
+                      fontFamily: OomuTokens.fontFamily,
+                    ),
+                  ),
+                ],
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
+                decoration: BoxDecoration(
+                  color: OomuTokens.surfaceMuted,
+                  borderRadius: BorderRadius.circular(OomuTokens.r8),
                 ),
-            ],
-          ),
+                child: const Text(
+                  '매너온도 정보 없음',
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    fontWeight: OomuTokens.w500,
+                    color: OomuTokens.textTertiary,
+                    fontFamily: OomuTokens.fontFamily,
+                  ),
+                ),
+              ),
+          ],
+        ),
 
           if (widget.meetup != null && widget.meetup!['hostBio'] != null && widget.meetup!['hostBio'].toString().trim().isNotEmpty) ...[
             const SizedBox(height: OomuTokens.s12),
@@ -981,8 +959,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             },
           ),
         ],
-      ),
-    );
+      );
   }
 
   // 지도 섹션 위젯

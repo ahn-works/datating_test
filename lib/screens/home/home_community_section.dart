@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../ui/oomu_avatar.dart';
-import '../../ui/oomu_chip.dart';
 import '../../ui/oomu_empty_state.dart';
 import '../../ui/oomu_tag.dart';
 import '../../ui/oomu_tokens.dart';
@@ -195,9 +194,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                 vertical: 11,
               ),
               decoration: BoxDecoration(
-                color: OomuTokens.surface,
+                color: OomuTokens.surfaceMuted,
                 borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
-                border: Border.all(color: OomuTokens.border),
               ),
               child: InkWell(
                 onTap: () async {
@@ -277,31 +275,54 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
               ),
             ),
 
-            // 2. 단일 토픽 필터
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: OomuTokens.spacingLg,
-                vertical: OomuTokens.spacingXs,
-              ),
-              child: SizedBox(
-                height: 48,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _topics.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(width: OomuTokens.spacingSm),
-                  itemBuilder: (context, idx) {
-                    final topic = _topics[idx];
-                    final isSelected = _categoryFilter == topic;
-                    return Center(
-                      child: OomuChip(
-                        label: topic,
-                        isSelected: isSelected,
-                        onTap: () => setState(() => _categoryFilter = topic),
-                      ),
-                    );
-                  },
+            // 2. 밑줄 탭 (선택된 글자만 진하게 + 얇은 밑줄, 한 줄)
+            Container(
+              height: 44,
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: OomuTokens.border, width: 1),
                 ),
+              ),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: OomuTokens.spacingLg,
+                ),
+                itemCount: _topics.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 22),
+                itemBuilder: (context, idx) {
+                  final topic = _topics[idx];
+                  final isSelected = _categoryFilter == topic;
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => _categoryFilter = topic),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: isSelected
+                                ? OomuTokens.textPrimary
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        topic,
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs15,
+                          fontWeight:
+                              isSelected ? OomuTokens.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? OomuTokens.textPrimary
+                              : OomuTokens.textMuted,
+                          fontFamily: OomuTokens.fontFamily,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
 
@@ -341,6 +362,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
     );
   }
 
+  /// 커뮤니티 글 한 줄 (카드 박스 없이 1px 구분선 + 오른쪽 작은 썸네일)
   Widget _buildCommunityCard(Map<String, dynamic> post) {
     final authorName = (post['author'] ?? '동네주민').toString();
     final authorAvatar = post['authorAvatar']?.toString();
@@ -348,6 +370,20 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
     final isLiked = post['isLiked'] == true;
     final likes = (post['likes'] ?? 0) as int;
     final comments = (post['comments'] ?? 0) as int;
+    final tag = (post['tag'] ?? '').toString();
+    final title = (post['title'] ?? '').toString();
+    final image = (post['image'] ?? '').toString();
+    final meta = [post['location'], post['time']]
+        .map((e) => (e ?? '').toString().trim())
+        .where((e) => e.isNotEmpty)
+        .join(' · ');
+
+    const metaStyle = TextStyle(
+      fontSize: OomuTokens.fs13,
+      color: OomuTokens.textMuted,
+      fontFamily: OomuTokens.fontFamily,
+      height: 1.5,
+    );
 
     return BouncyTap(
       scaleDown: 0.98,
@@ -371,292 +407,256 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
         });
       },
       child: Container(
-        margin: const EdgeInsets.fromLTRB(
-          OomuTokens.spacingLg,
-          0,
-          OomuTokens.spacingLg,
-          OomuTokens.spacingMd,
+        padding: const EdgeInsets.symmetric(
+          horizontal: OomuTokens.spacingLg,
+          vertical: 18,
         ),
-        padding: const EdgeInsets.all(OomuTokens.spacingMd),
-        decoration: BoxDecoration(
-          color: OomuTokens.surface,
-          borderRadius: BorderRadius.circular(OomuTokens.radiusCard),
-          border: Border.all(color: OomuTokens.border),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: OomuTokens.border, width: 1),
+          ),
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 작성자 헤더
-            Row(
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => UserProfileScreen(
-                          userName: authorName,
-                          userAvatar: authorAvatar,
-                          userLocation: post['location']?.toString(),
-                          userManner: authorManner,
-                        ),
-                      ),
-                    );
-                  },
-                  child: OomuAvatar(
-                    imageUrl: authorAvatar,
-                    name: authorName,
-                    radius: 18,
-                  ),
-                ),
-                const SizedBox(width: OomuTokens.spacingSm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 말머리(회색 라벨 하나) + 더보기
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              authorName,
-                              style: const TextStyle(
-                                fontWeight: OomuTokens.weightSemiBold,
-                                fontSize: OomuTokens.fontSm,
-                                color: OomuTokens.textPrimary,
-                                fontFamily: OomuTokens.fontFamily,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      if (tag.isNotEmpty) OomuTag(label: '#$tag'),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          UgcActionSheets.showContentOptions(
+                            context: context,
+                            contentType: '게시글',
+                            contentId: post['id'] ??
+                                post['title'] ??
+                                'post_${post['author']}',
+                            author: authorName,
+                            onContentHidden: () => setState(() {}),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(OomuTokens.r16),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.more_horiz,
+                            size: 20,
+                            color: OomuTokens.textMuted,
                           ),
-                          if (authorManner != null) ...[
-                            const SizedBox(width: OomuTokens.spacingXs),
-                            OomuTag(
-                              label: OomuUiHelpers.formatMannerTemp(authorManner),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        [post['location'], post['time']]
-                            .map((e) => (e ?? '').toString().trim())
-                            .where((e) => e.isNotEmpty)
-                            .join(' · '),
-                        style: const TextStyle(
-                          fontSize: OomuTokens.fontXs,
-                          color: OomuTokens.textSecondary,
-                          fontFamily: OomuTokens.fontFamily,
                         ),
                       ),
                     ],
                   ),
-                ),
-                InkWell(
-                  onTap: () {
-                    UgcActionSheets.showContentOptions(
-                      context: context,
-                      contentType: '게시글',
-                      contentId: post['id'] ??
-                          post['title'] ??
-                          'post_${post['author']}',
-                      author: authorName,
-                      onContentHidden: () => setState(() {}),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(OomuTokens.r16),
-                  child: const Padding(
-                    padding: EdgeInsets.all(6),
-                    child: Icon(
-                      Icons.more_horiz,
-                      size: 20,
-                      color: OomuTokens.textMuted,
+
+                  // 제목
+                  if (title.isNotEmpty) ...[
+                    const SizedBox(height: OomuTokens.spacingXs),
+                    Text(
+                      OomuUiHelpers.formatTitle(title),
+                      style: const TextStyle(
+                        fontSize: OomuTokens.fs17,
+                        fontWeight: OomuTokens.w600,
+                        color: OomuTokens.textPrimary,
+                        fontFamily: OomuTokens.fontFamily,
+                        height: 1.4,
+                        letterSpacing: -0.25,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ],
+
+                  // 본문
+                  const SizedBox(height: OomuTokens.spacingXs),
+                  Text(
+                    post['content'] ?? '',
+                    style: const TextStyle(
+                      fontSize: OomuTokens.fs14,
+                      fontWeight: OomuTokens.weightRegular,
+                      color: OomuTokens.textBody,
+                      fontFamily: OomuTokens.fontFamily,
+                      height: 1.5,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: OomuTokens.spacingMd - 4),
+
+                  // 작성자 · 장소 · 시간 + 좋아요/댓글
+                  Row(
+                    children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => UserProfileScreen(
+                                userName: authorName,
+                                userAvatar: authorAvatar,
+                                userLocation: post['location']?.toString(),
+                                userManner: authorManner,
+                              ),
+                            ),
+                          );
+                        },
+                        child: OomuAvatar(
+                          imageUrl: authorAvatar,
+                          name: authorName,
+                          radius: 10,
+                        ),
+                      ),
+                      const SizedBox(width: OomuTokens.spacingSm),
+                      Expanded(
+                        child: Text(
+                          [
+                            authorName,
+                            if (authorManner != null)
+                              OomuUiHelpers.formatMannerTemp(authorManner),
+                            if (meta.isNotEmpty) meta,
+                          ].join(' · '),
+                          style: metaStyle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          setState(() {
+                            final myUserId = globalData.activeUserId;
+                            List<dynamic> likedUsers =
+                                List<dynamic>.from(post['likedUserIds'] ?? []);
+                            bool currentlyLiked =
+                                likedUsers.contains(myUserId) ||
+                                    likedUsers.contains('user_me_01');
+                            if (currentlyLiked) {
+                              likedUsers.remove(myUserId);
+                              likedUsers.remove('user_me_01');
+                            } else {
+                              likedUsers.add(myUserId);
+                            }
+                            post['likedUserIds'] = likedUsers;
+                            post['likes'] = likedUsers.length;
+                            post['isLiked'] = !currentlyLiked;
+
+                            final postId = post['id']?.toString();
+                            if (postId != null && postId.isNotEmpty) {
+                              try {
+                                FirebaseFirestore.instance
+                                    .collection('community_posts')
+                                    .doc(postId)
+                                    .set({
+                                  'likedUserIds': likedUsers,
+                                  'likes': likedUsers.length,
+                                  'updatedAt': FieldValue.serverTimestamp(),
+                                }, SetOptions(merge: true));
+                              } catch (_) {}
+                            }
+                          });
+                        },
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 36,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Icon(
+                                isLiked
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                size: 16,
+                                color: isLiked
+                                    ? OomuTokens.coral
+                                    : OomuTokens.textMuted,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                '$likes',
+                                style: metaStyle.copyWith(
+                                  color: isLiked
+                                      ? OomuTokens.coralText
+                                      : OomuTokens.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CommunityPostDetailScreen(post: post),
+                            ),
+                          ).then((_) {
+                            if (mounted) setState(() {});
+                          });
+                        },
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 36,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Icon(
+                                Icons.chat_bubble_outline_rounded,
+                                size: 15,
+                                color: OomuTokens.textMuted,
+                              ),
+                              const SizedBox(width: 3),
+                              Text('$comments', style: metaStyle),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
 
-            // 서브태그 뱃지
-            if (post['tag'] != null && (post['tag'] as String).isNotEmpty) ...[
-              const SizedBox(height: OomuTokens.spacingSm),
-              OomuTag(label: '#${post['tag']}'),
-            ],
-
-            // 제목
-            if (post['title'] != null &&
-                (post['title'] as String).isNotEmpty) ...[
-              const SizedBox(height: OomuTokens.spacingSm),
-              Text(
-                OomuUiHelpers.formatTitle(post['title']?.toString()),
-                style: const TextStyle(
-                  fontSize: OomuTokens.fontBase,
-                  fontWeight: OomuTokens.weightBold,
-                  color: OomuTokens.textPrimary,
-                  fontFamily: OomuTokens.fontFamily,
-                  height: 1.35,
-                  letterSpacing: -0.3,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-
-            // 본문
-            const SizedBox(height: OomuTokens.spacingSm),
-            Text(
-              post['content'] ?? '',
-              style: const TextStyle(
-                fontSize: OomuTokens.fontSm,
-                fontWeight: OomuTokens.weightRegular,
-                color: OomuTokens.textBody,
-                fontFamily: OomuTokens.fontFamily,
-                height: 1.5,
-              ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // 첨부 사진
-            if (post['image'] != null &&
-                (post['image'] as String).isNotEmpty) ...[
-              const SizedBox(height: OomuTokens.spacingSm),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 170,
-                  child: Image(
-                    image: appImg(post['image']),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: OomuTokens.surfaceMuted,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: OomuTokens.textMuted,
+            // 첨부 사진: 오른쪽 작은 썸네일
+            if (image.isNotEmpty) ...[
+              const SizedBox(width: OomuTokens.spacingMd - 2),
+              Padding(
+                padding: const EdgeInsets.only(top: OomuTokens.spacingLg + 6),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
+                  child: SizedBox(
+                    width: 76,
+                    height: 76,
+                    child: Image(
+                      image: appImg(post['image']),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: OomuTokens.surfaceMuted,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: OomuTokens.textMuted,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ],
-
-            const SizedBox(height: OomuTokens.spacingMd),
-
-            // 하단 인터랙션 (좋아요 / 댓글)
-            Row(
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    setState(() {
-                      final myUserId = globalData.activeUserId;
-                      List<dynamic> likedUsers =
-                          List<dynamic>.from(post['likedUserIds'] ?? []);
-                      bool currentlyLiked = likedUsers.contains(myUserId) ||
-                          likedUsers.contains('user_me_01');
-                      if (currentlyLiked) {
-                        likedUsers.remove(myUserId);
-                        likedUsers.remove('user_me_01');
-                      } else {
-                        likedUsers.add(myUserId);
-                      }
-                      post['likedUserIds'] = likedUsers;
-                      post['likes'] = likedUsers.length;
-                      post['isLiked'] = !currentlyLiked;
-
-                      final postId = post['id']?.toString();
-                      if (postId != null && postId.isNotEmpty) {
-                        try {
-                          FirebaseFirestore.instance
-                              .collection('community_posts')
-                              .doc(postId)
-                              .set({
-                            'likedUserIds': likedUsers,
-                            'likes': likedUsers.length,
-                            'updatedAt': FieldValue.serverTimestamp(),
-                          }, SetOptions(merge: true));
-                        } catch (_) {}
-                      }
-                    });
-                  },
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: 44,
-                      minHeight: 36,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isLiked
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          size: 18,
-                          color: isLiked
-                              ? OomuTokens.coral
-                              : OomuTokens.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$likes',
-                          style: TextStyle(
-                            fontSize: OomuTokens.fontXs,
-                            fontWeight: OomuTokens.weightSemiBold,
-                            color: isLiked
-                                ? OomuTokens.coral
-                                : OomuTokens.textSecondary,
-                            fontFamily: OomuTokens.fontFamily,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: OomuTokens.spacingLg),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CommunityPostDetailScreen(post: post),
-                      ),
-                    ).then((_) {
-                      if (mounted) setState(() {});
-                    });
-                  },
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: 44,
-                      minHeight: 36,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.chat_bubble_outline_rounded,
-                          size: 16,
-                          color: OomuTokens.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$comments',
-                          style: const TextStyle(
-                            fontSize: OomuTokens.fontXs,
-                            fontWeight: OomuTokens.weightSemiBold,
-                            color: OomuTokens.textSecondary,
-                            fontFamily: OomuTokens.fontFamily,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),

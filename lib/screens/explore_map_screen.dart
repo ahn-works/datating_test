@@ -881,13 +881,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(OomuTokens.r16),
                             border: Border.all(color: OomuTokens.border),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
                           ),
                           child: KakaoMapView(
                             lat: _currentLat,

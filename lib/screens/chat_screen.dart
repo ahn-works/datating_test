@@ -288,9 +288,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(OomuTokens.s16),
                                 decoration: BoxDecoration(
-                                  color: OomuTokens.surface,
+                                  color: OomuTokens.surfaceMuted,
                                   borderRadius: BorderRadius.circular(OomuTokens.r16),
-                                  border: Border.all(color: OomuTokens.border),
                                 ),
                                 child: Row(
                                   children: [

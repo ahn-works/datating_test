@@ -745,9 +745,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
             borderRadius: bubbleRadius,
           )
         : BoxDecoration(
-            color: OomuTokens.surface,
+            color: OomuTokens.surfaceMuted,
             borderRadius: bubbleRadius,
-            border: Border.all(color: OomuTokens.border, width: 1.0),
           );
     final textColor = isMe ? OomuTokens.surface : OomuTokens.textPrimary;
 

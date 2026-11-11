@@ -33,9 +33,8 @@ class OomuTag extends StatelessWidget {
       decoration: BoxDecoration(
         color: OomuTokens.surfaceMuted,
         borderRadius: BorderRadius.circular(
-          isPill ? OomuTokens.rPill : OomuTokens.r8,
+          isPill ? OomuTokens.rPill : OomuTokens.r6,
         ),
-        border: Border.all(color: OomuTokens.border, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

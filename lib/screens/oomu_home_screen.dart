@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/global_data.dart';
@@ -2722,7 +2722,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(color: Color(0xFFEAECF0), width: 1),
+          top: BorderSide(color: OomuTokens.border, width: 1),
         ),
       ),
       child: Theme(
@@ -2734,11 +2734,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         child: BottomNavigationBar(
           currentIndex: _homeDashboardTab.clamp(0, 4),
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: coralAccent,
-          unselectedItemColor: const Color(0xFF8B95A1),
+          selectedItemColor: OomuTokens.textPrimary,
+          unselectedItemColor: OomuTokens.textMuted,
           showUnselectedLabels: true,
           selectedLabelStyle:
-              const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+              const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
           unselectedLabelStyle:
               const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
           elevation: 0,
