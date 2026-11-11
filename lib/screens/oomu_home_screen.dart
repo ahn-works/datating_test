@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/global_data.dart';
