@@ -1,4 +1,3 @@
-import '../utils/oomu_ui_helpers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';

@@ -26,9 +26,9 @@ def run_verification():
         print("  [OK] Saved v2_01_landing.png")
 
         # Check if email login button or guest login can be used
-        # We can directly log in with test11@naver.com via the Email Auth Sheet or test account button
+        # We can directly log in with choyeon@test.oomu.app via the Email Auth Sheet or test account button
         # Let's tap '🧪 테스트 계정' if visible or '이메일로 계속하기'
-        print("2. Attempting login as test11@naver.com ...")
+        print("2. Attempting login as choyeon@test.oomu.app ...")
         test_btn = page.get_by_text("🧪 테스트 계정")
         if test_btn.is_visible():
             test_btn.click()
@@ -45,8 +45,8 @@ def run_verification():
             if email_btn.is_visible():
                 email_btn.click()
                 time.sleep(2)
-                page.locator("input[type='email']").fill("test11@naver.com")
-                page.locator("input[type='password']").fill("test11@@")
+                page.locator("input[type='email']").fill("choyeon@test.oomu.app")
+                page.locator("input[type='password']").fill("test_pass_2026!")
                 page.get_by_text("로그인하기").click()
                 time.sleep(3)
 

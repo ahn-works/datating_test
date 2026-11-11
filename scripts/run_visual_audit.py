@@ -15,7 +15,7 @@ def run():
         page.goto("http://localhost:8086", wait_until="domcontentloaded")
         time.sleep(5)
 
-        # 1. Login with 초연 (test11@naver.com)
+        # 1. Login with 초연 (choyeon@test.oomu.app)
         print("1. Opening Test Account Modal...")
         page.mouse.click(245, 32)
         time.sleep(2.5)

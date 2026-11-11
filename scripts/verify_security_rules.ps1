@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # OOMU 보안 규칙 및 3계층 분배 자동 검증 스크립트 (Windows PowerShell)
 # ==============================================================================
 
@@ -29,7 +29,9 @@ $kakaoKeyPatterns = @(
     '831cb7442067257f17f9a5111a281ce5'
 )
 foreach ($kp in $kakaoKeyPatterns) {
-    $matched = Get-ChildItem -Path @("lib", "web", "scripts") -Recurse -Include @("*.dart", "*.html", "*.py", "*.js") -File | Select-String -Pattern $kp
+    $matched = Get-ChildItem -Path @("lib", "web", "scripts") -Recurse -Include @("*.dart", "*.html", "*.py", "*.js") -File |
+        Where-Object { $_.Name -notmatch "verify_" } |
+        Select-String -Pattern $kp
     if ($matched) {
         Write-Host "[VIOLATION] Kakao Key ($kp) found hardcoded in source!" -ForegroundColor Red
         $matched | ForEach-Object { Write-Host "   $_" -ForegroundColor Red }
@@ -86,6 +88,16 @@ foreach ($file in $requiredFiles) {
         Write-Host "[MISSING] Required security file not found: $file" -ForegroundColor Red
         $hasError = $true
     }
+}
+
+# 7. 249개 전체 추적 파일 딥 시큐리티 스캐너 (Deep Zero-Secret & Zero-PII)
+Write-Host "`n[7/7] Running Deep Security Python Scanner across all repository files..." -ForegroundColor Yellow
+python scripts/verify_deep_security.py
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[VIOLATION] Deep security scan detected violations!" -ForegroundColor Red
+    $hasError = $true
+} else {
+    Write-Host "[PASS] Deep security scan passed cleanly across all tracked files." -ForegroundColor Green
 }
 
 Write-Host "`n==========================================================" -ForegroundColor Cyan

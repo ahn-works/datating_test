@@ -120,10 +120,10 @@ void main() {
       final presentedForMinji = presentChatMessage(msgFromDohyun, 'test_user_01');
       expect(presentedForMinji['isMe'], isFalse);
     });
-      test('7. test11@naver.com (우리동네_초연 29세 여 화장동) 프로필 데이터 적용 검증', () {
+      test('7. choyeon@test.oomu.app (우리동네_초연 29세 여 화장동) 프로필 데이터 적용 검증', () {
       final choyeonData = {
         'uid': 'LZs5U32GQJMkK77hkmaJupgKzwE2',
-        'email': 'test11@naver.com',
+        'email': 'choyeon@test.oomu.app',
         'nickname': '우리동네_초연',
         'name': '초연',
         'age': 29,

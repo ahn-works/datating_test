@@ -17,15 +17,15 @@ async def main():
         await page.goto("http://localhost:8086/", wait_until="domcontentloaded")
         await asyncio.sleep(5)
 
-        # Login with test11@naver.com / test11@@
-        print("Logging in with test11@naver.com...")
+        # Login with choyeon@test.oomu.app
+        print("Logging in with choyeon@test.oomu.app...")
         await page.click('text="이메일로 로그인"')
         await asyncio.sleep(1)
 
         inputs = await page.query_selector_all('input')
         if len(inputs) >= 2:
-            await inputs[0].fill("test11@naver.com")
-            await inputs[1].fill("test11@@")
+            await inputs[0].fill("choyeon@test.oomu.app")
+            await inputs[1].fill("test_pass_2026!")
             await asyncio.sleep(0.5)
 
         await page.click('button:has-text("로그인")')

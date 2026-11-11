@@ -2330,7 +2330,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ctx,
                 uid: 'LZs5U32GQJMkK77hkmaJupgKzwE2',
                 name: '우리동네_초연',
-                desc: '29세 · 여성 · 전남 여수시 화장동 (test11@naver.com)',
+                desc: '29세 · 여성 · 전남 여수시 화장동',
                 badge: '여수 로컬',
                 avatar: 'assets/images/초연.png',
               ),

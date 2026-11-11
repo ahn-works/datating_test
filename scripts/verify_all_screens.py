@@ -22,7 +22,7 @@ def run():
         print("1. Logging in as test user 초연...")
         page.mouse.click(245, 32) # '🧪 테스트 계정' button
         time.sleep(1.5)
-        page.mouse.click(195, 740) # 4th tile: 초연 (test11@naver.com)
+        page.mouse.click(195, 740) # 4th tile: 초연 (choyeon@test.oomu.app)
         time.sleep(3)
 
         # Capture Home (전체)

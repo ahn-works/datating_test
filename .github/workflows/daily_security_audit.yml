@@ -1,0 +1,41 @@
+name: OOMU Daily Zero-Secret & Zero-PII Security Audit
+
+on:
+  schedule:
+    # 매일 한국 시간 오전 9시 (UTC 00:00) 정기 자동 보안 감사
+    - cron: '0 0 * * *'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-audit:
+    name: 🛡️ Zero-Secret & Zero-PII Automated Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Deep Security & PII Leak Scanner
+        run: |
+          python scripts/verify_deep_security.py
+
+      - name: Report Security Status
+        if: success()
+        run: |
+          echo "::notice title=Security Audit Passed::OOMU repository is 100% compliant with 0-Secret & 0-PII standards."
+
+      - name: Report Security Failure
+        if: failure()
+        run: |
+          echo "::error title=Security Violation Detected::Secrets, credentials, or personal identifiable information (PII) detected in tracked files! Immediate remediation required."

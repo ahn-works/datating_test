@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import 'oomu_home_screen.dart';
-import 'oomu_host_screen.dart';
 import 'chat_screen.dart';
 import 'my_page_screen.dart';
 import 'oomu_detail_screen.dart';
