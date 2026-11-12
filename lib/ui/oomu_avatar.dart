@@ -36,12 +36,21 @@ class OomuAvatar extends StatelessWidget {
     return clean.characters.first.toUpperCase();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final diameter = radius * 2;
-    final url = imageUrl?.trim() ?? '';
+  String? _resolveFallbackAsset() {
+    final clean = (name ?? '').trim();
+    if (clean.contains('초연')) return 'assets/images/초연.png';
+    if (clean.contains('민지')) return 'assets/images/민지.png';
+    if (clean.contains('주아')) return 'assets/images/주아.png';
+    if (clean.contains('시연')) return 'assets/images/시연.png';
+    if (clean.contains('지안')) return 'assets/images/지안.png';
+    if (clean.contains('지연')) return 'assets/images/지연.png';
+    if (clean.contains('지훈')) return 'assets/images/지훈.png';
+    if (clean.contains('정재')) return 'assets/images/정재.png';
+    return null;
+  }
 
-    Widget fallback = Container(
+  Widget _buildInitialCircle(double diameter) {
+    return Container(
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
@@ -61,6 +70,27 @@ class OomuAvatar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final diameter = radius * 2;
+    final url = imageUrl?.trim() ?? '';
+    final fallbackAsset = _resolveFallbackAsset();
+
+    Widget fallback = fallbackAsset != null
+        ? ClipOval(
+            child: SizedBox(
+              width: diameter,
+              height: diameter,
+              child: Image.asset(
+                fallbackAsset,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildInitialCircle(diameter),
+              ),
+            ),
+          )
+        : _buildInitialCircle(diameter);
 
     if (url.isEmpty) {
       return fallback;
@@ -71,7 +101,7 @@ class OomuAvatar extends StatelessWidget {
         width: diameter,
         height: diameter,
         child: Image(
-          image: appImg(url, fallback: 'assets/images/민지.png'),
+          image: appImg(url, fallback: fallbackAsset ?? 'assets/images/민지.png'),
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => fallback,
         ),
