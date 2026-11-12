@@ -1,7 +1,7 @@
 # 🏛️ OOMU 단일 전체 지침서 (AGENTS.md)
 
 > **목적**: 본 문서는 OOMU 프로젝트의 **유일한 단일 전체 개발·디자인·운영 지침(SSOT)**입니다.  
-> 보안 지침은 [`SECURITY.md`](SECURITY.md) 단일 문서를 따르며, 그 외 모든 설계 및 구현 원칙은 본 문서 하나로 통합합니다.
+> 보안 지침은 [`SECURITY.md`](SECURITY.md), 품질 검수 및 QA 지침은 [`QA_AUDIT_GUIDELINES.md`](QA_AUDIT_GUIDELINES.md) 단일 문서를 따르며, 그 외 모든 설계 및 구현 원칙은 본 문서 하나로 통합합니다. (3대 단일 지침 체계)
 
 ---
 
