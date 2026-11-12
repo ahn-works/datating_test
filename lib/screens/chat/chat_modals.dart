@@ -7,6 +7,7 @@ import '../../services/kakao_map_service.dart';
 import '../../ui/oomu_button.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
+import '../../utils/global_data.dart';
 import '../../widgets/bouncy_tap.dart';
 
 class ChatModals {
@@ -603,7 +604,78 @@ class ChatModals {
   }) {
     String searchQuery = '';
     String selectedCategory = '전체';
-    List<Map<String, dynamic>> searchResults = [];
+    final String userLoc = globalData.userLocation.value.isNotEmpty
+        ? globalData.userLocation.value
+        : '전남 여수시 화장동';
+
+    final List<Map<String, dynamic>> defaultHotspots = [
+      {
+        'name': '성산공원 둘레길 & 호수산책로',
+        'category': '관광지',
+        'address': '전남 여수시 화장동 824',
+        'lat': 34.7685,
+        'lng': 127.6534,
+        'desc': '저녁 장미원 야경과 둘레길 산책이 예쁜 여수 화장동 대표 힐링 스팟',
+      },
+      {
+        'name': '선소상가 골목 & 낭만 먹자골목',
+        'category': '술집',
+        'address': '전남 여수시 시청동2길 선소상가 일대',
+        'lat': 34.7612,
+        'lng': 127.6588,
+        'desc': '동네 이웃들과 2:2 소셜 다이닝 & 캐주얼 하이볼 한잔하기 좋은 핫플',
+      },
+      {
+        'name': '무선지구 감성 베이커리 & 소금빵 카페',
+        'category': '카페',
+        'address': '전남 여수시 화장동 무선중앙로',
+        'lat': 34.7701,
+        'lng': 127.6512,
+        'desc': '매일 아침 갓 구운 천연발효 소금빵과 시그니처 크림라떼 명소',
+      },
+      {
+        'name': '웅천친수공원 해변 산책로 & 오션뷰 카페',
+        'category': '관광지',
+        'address': '전남 여수시 웅천동 1692',
+        'lat': 34.7480,
+        'lng': 127.6740,
+        'desc': '푸른 남해 바다와 인공 백사장이 펼쳐진 여수 핫플레이스',
+      },
+      {
+        'name': '학동 선소 유적지 & 밤바다 데크길',
+        'category': '관광지',
+        'address': '전남 여수시 시전동 708',
+        'lat': 34.7570,
+        'lng': 127.6620,
+        'desc': '충무공 이순신 거북선 건조지이자 조용하게 밤산책하기 좋은 사적지',
+      },
+      {
+        'name': '화장동 수제 디저트 베이킹 팩토리',
+        'category': '빵집',
+        'address': '전남 여수시 화장동 성산로 11',
+        'lat': 34.7690,
+        'lng': 127.6540,
+        'desc': '버터 풍미 가득한 휘낭시에와 에그타르트 오픈런 맛집',
+      },
+      {
+        'name': '신기동 LP 레코드바 & 와인클럽',
+        'category': '술집',
+        'address': '전남 여수시 신기남3길',
+        'lat': 34.7650,
+        'lng': 127.6650,
+        'desc': '재즈와 감성 바이닐을 들으며 가볍게 즐기는 내추럴 와인바',
+      },
+      {
+        'name': '여수 낭만포차 거리',
+        'category': '술집',
+        'address': '전남 여수시 하멜로 102',
+        'lat': 34.7390,
+        'lng': 127.7420,
+        'desc': '여수 밤바다와 돌문어삼합, 하멜등대 야경 명소',
+      },
+    ];
+
+    List<Map<String, dynamic>> searchResults = List.from(defaultHotspots);
     bool isLoading = false;
 
     showModalBottomSheet(
@@ -614,33 +686,62 @@ class ChatModals {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             Future<void> performSearch(String query) async {
-              if (query.trim().isEmpty) return;
+              final trimmed = query.trim();
               setState(() {
                 isLoading = true;
-                searchResults = [];
               });
 
               try {
+                final searchTarget = trimmed.isNotEmpty
+                    ? trimmed
+                    : '$userLoc ${selectedCategory == '전체' ? '핫플' : selectedCategory}';
                 final places =
-                    await KakaoMapService.searchKeyword(query, size: 10);
-                setState(() {
-                  searchResults = places.map((item) {
-                    return {
-                      'name': item.name,
-                      'category': item.category.isNotEmpty
-                          ? item.category
-                          : (selectedCategory == '전체'
-                              ? '모임장소'
-                              : selectedCategory),
-                      'address': item.roadAddress.isNotEmpty
-                          ? item.roadAddress
-                          : item.address,
-                      'lat': item.lat,
-                      'lng': item.lng,
-                    };
+                    await KakaoMapService.searchKeyword(searchTarget, size: 10);
+                if (places.isNotEmpty) {
+                  setState(() {
+                    searchResults = places.map((item) {
+                      return {
+                        'name': item.name,
+                        'category': item.category.isNotEmpty
+                            ? item.category
+                            : (selectedCategory == '전체'
+                                ? '모임장소'
+                                : selectedCategory),
+                        'address': item.roadAddress.isNotEmpty
+                            ? item.roadAddress
+                            : item.address,
+                        'lat': item.lat,
+                        'lng': item.lng,
+                      };
+                    }).toList();
+                  });
+                } else {
+                  final filtered = defaultHotspots.where((h) {
+                    final matchCat = selectedCategory == '전체' ||
+                        h['category'] == selectedCategory;
+                    final matchQ = trimmed.isEmpty ||
+                        h['name'].toString().contains(trimmed) ||
+                        h['address'].toString().contains(trimmed);
+                    return matchCat && matchQ;
                   }).toList();
-                });
+                  setState(() {
+                    searchResults =
+                        filtered.isNotEmpty ? filtered : defaultHotspots;
+                  });
+                }
               } catch (_) {
+                final filtered = defaultHotspots.where((h) {
+                  final matchCat = selectedCategory == '전체' ||
+                      h['category'] == selectedCategory;
+                  final matchQ = trimmed.isEmpty ||
+                      h['name'].toString().contains(trimmed) ||
+                      h['address'].toString().contains(trimmed);
+                  return matchCat && matchQ;
+                }).toList();
+                setState(() {
+                  searchResults =
+                      filtered.isNotEmpty ? filtered : defaultHotspots;
+                });
               } finally {
                 setState(() => isLoading = false);
               }
@@ -728,7 +829,21 @@ class ChatModals {
                               selected: isSelected,
                               onSelected: (selected) {
                                 if (selected) {
-                                  setState(() => selectedCategory = category);
+                                  setState(() {
+                                    selectedCategory = category;
+                                    if (category == '전체') {
+                                      searchResults =
+                                          List.from(defaultHotspots);
+                                    } else {
+                                      searchResults = defaultHotspots
+                                          .where((h) =>
+                                              h['category'] == category)
+                                          .toList();
+                                    }
+                                  });
+                                  if (searchQuery.isNotEmpty) {
+                                    performSearch(searchQuery);
+                                  }
                                 }
                               },
                               selectedColor: OomuTokens.surfaceMuted,
@@ -1089,9 +1204,16 @@ class ChatModals {
                           scaleDown: 0.92,
                           onTap: () {
                             Navigator.pop(ctx);
+                            String cleanUrl = rawUrl;
+                            if (cleanUrl.contains('&output=jpg')) {
+                              cleanUrl = cleanUrl.replaceAll(
+                                  '&output=jpg', '&output=gif&n=-1');
+                            } else if (!cleanUrl.contains('&output=gif')) {
+                              cleanUrl = '$cleanUrl&output=gif&n=-1';
+                            }
                             onCreated({
                               'type': 'sticker',
-                              'imageUrl': rawUrl,
+                              'imageUrl': cleanUrl,
                               'title': title,
                             });
                           },

@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../ui/oomu_tokens.dart';
 import '../ui/oomu_button.dart';
-import '../ui/oomu_chip.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../services/r2_storage_service.dart';
@@ -200,7 +199,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
           ),
         ),
         title: const Text(
-          '동네 이야기 쓰기',
+          '동네 커뮤니티 글쓰기',
           style: TextStyle(
             color: OomuTokens.textPrimary,
             fontSize: OomuTokens.fs16,
@@ -243,7 +242,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Category selector chips
+            // Category selector (2x2 Grid)
             const Text(
               '카테고리 선택',
               style: TextStyle(
@@ -253,20 +252,20 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
               ),
             ),
             const SizedBox(height: OomuTokens.s8),
-            Wrap(
-              spacing: OomuTokens.s8,
-              runSpacing: OomuTokens.s8,
-              children: _categories.map((cat) {
-                final isSelected = _selectedCategory == cat;
-                return OomuChip(
-                  label: cat,
-                  isSelected: isSelected,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() => _selectedCategory = cat);
-                  },
-                );
-              }).toList(),
+            Row(
+              children: [
+                Expanded(child: _buildCategoryItem(_categories[0])),
+                const SizedBox(width: OomuTokens.s8),
+                Expanded(child: _buildCategoryItem(_categories[1])),
+              ],
+            ),
+            const SizedBox(height: OomuTokens.s8),
+            Row(
+              children: [
+                Expanded(child: _buildCategoryItem(_categories[2])),
+                const SizedBox(width: OomuTokens.s8),
+                Expanded(child: _buildCategoryItem(_categories[3])),
+              ],
             ),
 
             const SizedBox(height: OomuTokens.s20),
@@ -533,6 +532,50 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(String cat) {
+    final isSelected = _selectedCategory == cat;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedCategory = cat);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(
+          horizontal: OomuTokens.s12,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? OomuTokens.coral : OomuTokens.surfaceMuted,
+          borderRadius: BorderRadius.circular(OomuTokens.r12),
+          border: Border.all(
+            color: isSelected ? OomuTokens.coral : OomuTokens.border,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: OomuTokens.coral.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Center(
+          child: Text(
+            cat,
+            style: TextStyle(
+              fontSize: OomuTokens.fs13,
+              fontWeight: isSelected ? OomuTokens.w700 : OomuTokens.w600,
+              color: isSelected ? Colors.white : OomuTokens.textPrimary,
+            ),
+          ),
         ),
       ),
     );

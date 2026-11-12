@@ -15,11 +15,15 @@ class UserProfileScreen extends StatelessWidget {
   final String? userAvatar;
   final double? userManner;
   final List<String>? userTags;
+  final List<String>? userPersonalities;
+  final List<String>? userHobbies;
   final String? userJob;
   final String? userMbti;
   final List<String>? userDrinking;
   final List<String>? userPhotos;
   final String? userGender;
+  final String? userSmoking;
+  final String? userPet;
   final bool isSelf;
 
   const UserProfileScreen({
@@ -31,11 +35,15 @@ class UserProfileScreen extends StatelessWidget {
     this.userAvatar,
     this.userManner,
     this.userTags,
+    this.userPersonalities,
+    this.userHobbies,
     this.userJob,
     this.userMbti,
     this.userDrinking,
     this.userPhotos,
     this.userGender,
+    this.userSmoking,
+    this.userPet,
     this.isSelf = false,
   });
 
@@ -223,6 +231,17 @@ class UserProfileScreen extends StatelessWidget {
         ? userMbti!
         : ((resolvedData['mbti'] as String?) ?? '');
 
+    final String fallbackPhoto = (userName.contains('초연') || isSelf)
+        ? 'assets/images/초연.png'
+        : 'assets/images/민지.png';
+
+    final effectivePersonalities = (userPersonalities != null && userPersonalities!.isNotEmpty)
+        ? userPersonalities!
+        : (userTags != null && userTags!.isNotEmpty ? userTags! : ['리액션 요정', '친화력 갑']);
+    final effectiveHobbies = (userHobbies != null && userHobbies!.isNotEmpty)
+        ? userHobbies!
+        : (displayTags.isNotEmpty ? displayTags : ['맛집탐방', '보드게임', '카페투어']);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -256,10 +275,10 @@ class UserProfileScreen extends StatelessWidget {
                   PageView(
                     children: (userPhotos != null && userPhotos!.isNotEmpty)
                         ? userPhotos!
-                            .map((p) => appNetImage(p, fit: BoxFit.cover))
+                            .map((p) => appNetImage(p, fit: BoxFit.cover, fallback: fallbackPhoto))
                             .toList()
                         : [
-                            appNetImage(displayAvatar, fit: BoxFit.cover),
+                            appNetImage(displayAvatar, fit: BoxFit.cover, fallback: fallbackPhoto),
                           ],
                   ),
                   Positioned(
@@ -411,7 +430,7 @@ class UserProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: OomuTokens.s24),
 
-                  // Basic Profile Info Tags
+                  // 1. Basic Profile Info Tags
                   const Text('기본 정보',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
@@ -432,13 +451,31 @@ class UserProfileScreen extends StatelessWidget {
                         OomuTag(label: '🎂 $displayAge세'),
                       if (userGender != null && userGender!.isNotEmpty)
                         OomuTag(label: '👤 ${userGender!}'),
-                      const OomuTag(label: '🚭 비흡연'),
-                      const OomuTag(label: '🐶 반려동물 있음'),
+                      OomuTag(label: userSmoking != null && userSmoking!.isNotEmpty ? '🚭 $userSmoking' : '🚭 비흡연'),
+                      OomuTag(label: userPet != null && userPet!.isNotEmpty ? '🐶 $userPet' : '🐶 반려동물 있음'),
                     ],
                   ),
-                  const SizedBox(height: OomuTokens.s24),
+                  const SizedBox(height: OomuTokens.s20),
 
-                  // Prompts (Self Interview)
+                  // 2. Personality & Charm Tags
+                  if (effectivePersonalities.isNotEmpty) ...[
+                    const Text('성격 및 매력 태그',
+                        style: TextStyle(
+                            fontSize: OomuTokens.fs16,
+                            fontWeight: OomuTokens.w700,
+                            color: OomuTokens.textPrimary)),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: effectivePersonalities
+                          .map((p) => OomuTag(label: '✨ $p'))
+                          .toList(),
+                    ),
+                    const SizedBox(height: OomuTokens.s20),
+                  ],
+
+                  // 3. Prompts (Self Interview)
                   const Text('나의 이야기',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
@@ -450,9 +487,9 @@ class UserProfileScreen extends StatelessWidget {
                   _buildPromptCard(
                       '내가 찾고 있는 사람은...',
                       '서로 긍정적인 에너지를 주고받을 수 있는 사람! 티키타카가 잘 맞으면 좋겠어요.'),
-                  const SizedBox(height: OomuTokens.s24),
+                  const SizedBox(height: OomuTokens.s20),
 
-                  // Interests
+                  // 4. Interests / Hobbies
                   const Text('관심사 / 취향',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
@@ -462,8 +499,8 @@ class UserProfileScreen extends StatelessWidget {
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
-                    children: displayTags
-                        .map((hobby) => OomuTag(label: hobby))
+                    children: effectiveHobbies
+                        .map((hobby) => OomuTag(label: '#$hobby'))
                         .toList(),
                   ),
                   const SizedBox(height: OomuTokens.s32),

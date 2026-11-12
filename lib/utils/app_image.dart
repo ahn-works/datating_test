@@ -60,7 +60,13 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
   }
 
   // 3. Cloudflare R2 Presigned / Public URL 자동 변환
-  final resolvedUrl = r2Storage.getPublicViewUrl(target, defaultFallback: fallback);
+  String resolvedUrl = r2Storage.getPublicViewUrl(target, defaultFallback: fallback);
+  if ((resolvedUrl.contains('.gif') ||
+          resolvedUrl.contains('stickers/') ||
+          resolvedUrl.contains('giphy.com')) &&
+      resolvedUrl.contains('&output=jpg')) {
+    resolvedUrl = resolvedUrl.replaceAll('&output=jpg', '&output=gif&n=-1');
+  }
   if (resolvedUrl.startsWith('assets/')) {
     return AssetImage(resolvedUrl);
   }
@@ -70,16 +76,25 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
 }
 
 Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, String fallback = 'assets/images/cover_food.jpg'}) {
+  final cleanFallback = (fallback.isNotEmpty) ? fallback : 'assets/images/cover_food.jpg';
+  final fallbackAsset = cleanFallback.startsWith('assets/') ? cleanFallback : 'assets/images/cover_food.jpg';
+
   return Image(
-    image: appImg(path, fallback: fallback),
+    image: appImg(path, fallback: fallbackAsset),
     fit: fit,
     width: width,
     height: height,
-    errorBuilder: (_, __, ___) => Container(
+    errorBuilder: (_, __, ___) => Image.asset(
+      fallbackAsset,
+      fit: fit,
       width: width,
       height: height,
-      color: const Color(0xFFF5F5F7),
-      child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
+      errorBuilder: (_, __, ___) => Container(
+        width: width,
+        height: height,
+        color: const Color(0xFFF5F5F7),
+        child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
+      ),
     ),
   );
 }
@@ -148,6 +163,31 @@ String? _resolveBundledProfileAsset(String rawName) {
         return _bundledProfileMap[decoded];
       }
     } catch (_) {}
+  }
+  // 추가: 초연 / test 계정 / 주요 프로필 키워드 자동 매핑 (CORS 및 로드 오류 원천 차단)
+  if (trimmed.contains('초연') || trimmed.contains('choyeon') || trimmed.startsWith('test_')) {
+    return '초연.png';
+  }
+  if (trimmed.contains('민지') || trimmed.contains('minji')) {
+    return '민지.png';
+  }
+  if (trimmed.contains('주아') || trimmed.contains('jua')) {
+    return '주아.png';
+  }
+  if (trimmed.contains('시연') || trimmed.contains('siyan')) {
+    return '시연.png';
+  }
+  if (trimmed.contains('지안') || trimmed.contains('jian')) {
+    return '지안.png';
+  }
+  if (trimmed.contains('지연') || trimmed.contains('jiyeon')) {
+    return '지연.png';
+  }
+  if (trimmed.contains('지훈') || trimmed.contains('jihun')) {
+    return '지훈.png';
+  }
+  if (trimmed.contains('정재') || trimmed.contains('jeongjae')) {
+    return '정재.png';
   }
   return null;
 }

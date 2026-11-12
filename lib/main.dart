@@ -19,6 +19,7 @@ import 'utils/global_data.dart';
 import 'ui/oomu_tokens.dart';
 import 'ui/oomu_component_gallery.dart';
 import 'utils/oomu_ui_helpers.dart';
+import 'widgets/oomu_discovery_lifestyle_hub.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -105,26 +106,61 @@ class Spot10App extends StatelessWidget {
           final isCommCreate = uri.queryParameters['comm_create'] == 'true' || uri.fragment.contains('comm_create=true');
           final isChat = uri.queryParameters['chat'] == 'true' || uri.fragment.contains('chat=true');
           final isChatRoom = uri.queryParameters['chat_room'] == 'true' || uri.fragment.contains('chat_room=true');
+          final isDiscovery = uri.queryParameters['discovery'] == 'true' || uri.fragment.contains('discovery=true');
+          final isFortune = uri.queryParameters['fortune'] == 'true' || uri.fragment.contains('fortune=true');
           final isLogin = uri.queryParameters['login'] == 'true' || uri.fragment.contains('login=true');
           final isProfileSetup = uri.queryParameters['profile_setup'] == 'true' || uri.fragment.contains('profile_setup=true');
+          final targetUser = uri.queryParameters['user'] ?? (uri.fragment.contains('user=test11') ? 'test11' : '');
 
           if (isGallery) {
             return const OomuComponentGallery();
           }
           if (isHome) {
-            globalData.switchUser('guest');
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+            } else {
+              globalData.switchUser('guest');
+            }
             return const OOMUHomeScreen();
           }
           if (isMy) {
-            globalData.switchUser('guest');
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+            } else {
+              globalData.switchUser('guest');
+            }
             return const MyPageScreen();
           }
           if (isProfile) {
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+              return const UserProfileScreen(
+                userName: '우리동네_초연',
+                userAge: '29',
+                userLocation: '전남 여수시 화장동',
+                userBio:
+                    '여수 화장동 토박이 초연입니다! 동네 산책과 감성 카페 모임 좋아해요 😊 (R2 실시간 연동 테스트 완료)',
+                userAvatar: 'profiles/초연.png',
+                userJob: '프리랜서 디자이너',
+                userMbti: 'ENFP',
+                userDrinking: ['가볍게 한잔'],
+                userPersonalities: ['리액션 요정', '친화력 갑'],
+                userHobbies: ['맛집탐방', '보드게임'],
+                userSmoking: '비흡연',
+                userPet: '반려동물 있음',
+                userGender: '여성',
+                isSelf: true,
+              );
+            }
             globalData.switchUser('guest');
             return const UserProfileScreen(userName: '김민서');
           }
           if (isEdit) {
-            globalData.switchUser('guest');
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+            } else {
+              globalData.switchUser('guest');
+            }
             return const ProfileEditScreen();
           }
           if (isLogin) {
@@ -147,6 +183,30 @@ class Spot10App extends StatelessWidget {
               title: '주말 엽떡+마라탕 팟 🔥',
               memberCount: 4,
               chatRoomId: 'sample_chat_room_01',
+            );
+          }
+          if (isDiscovery) {
+            globalData.switchUser('guest');
+            return const Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: OomuDiscoveryLifestyleHub(
+                  currentLocation: '전남 여수시 화장동',
+                  initialCategoryIndex: 0,
+                ),
+              ),
+            );
+          }
+          if (isFortune) {
+            globalData.switchUser('guest');
+            return const Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: OomuDiscoveryLifestyleHub(
+                  currentLocation: '전남 여수시 화장동',
+                  initialCategoryIndex: 5,
+                ),
+              ),
             );
           }
           if (isCommDetail) {

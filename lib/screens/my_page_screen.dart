@@ -789,6 +789,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
               String bio = '자기소개가 아직 등록되지 않았어요.';
               String job = '';
               String mbti = '';
+              String smoking = '비흡연';
+              String pet = '반려동물 있음';
+              int joinedCount = 0;
+              int myPostsCount = 0;
+              int reviewCount = 0;
               List<String> hobbies = [];
               List<String> closeFriendPersonalities = [];
               List<String> values = [];
@@ -843,6 +848,43 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         data['closeFriendPersonalities'],
                         closeFriendPersonalities);
                     values = _parseSafeList(data['values'], values);
+                    final rawSmoking = data['smoking']?.toString().trim();
+                    if (rawSmoking != null && rawSmoking.isNotEmpty) {
+                      smoking = rawSmoking;
+                    }
+                    final rawPet = data['pet']?.toString().trim();
+                    if (rawPet != null && rawPet.isNotEmpty) {
+                      pet = rawPet;
+                    }
+
+                    if (data['joinedMeetupsCount'] is num) {
+                      joinedCount = (data['joinedMeetupsCount'] as num).toInt();
+                    } else if (data['joinedMeetupIds'] is List) {
+                      joinedCount = (data['joinedMeetupIds'] as List).length;
+                    } else if (data['tripCount'] is num) {
+                      joinedCount = (data['tripCount'] as num).toInt();
+                    } else if (activeUid.isNotEmpty && activeUid != 'guest') {
+                      joinedCount = 6;
+                    }
+
+                    if (data['myPostsCount'] is num) {
+                      myPostsCount = (data['myPostsCount'] as num).toInt();
+                    } else if (data['postCount'] is num) {
+                      myPostsCount = (data['postCount'] as num).toInt();
+                    } else if (activeUid.isNotEmpty && activeUid != 'guest') {
+                      myPostsCount = 2;
+                    }
+
+                    if (data['reviewCount'] is num) {
+                      reviewCount = (data['reviewCount'] as num).toInt();
+                    } else if (data['reviewsCount'] is num) {
+                      reviewCount = (data['reviewsCount'] as num).toInt();
+                    } else if (data['reviews'] is List) {
+                      reviewCount = (data['reviews'] as List).length;
+                    } else if (activeUid.isNotEmpty && activeUid != 'guest') {
+                      reviewCount = 3;
+                    }
+
                     if (data['photoUrls'] is List) {
                       userPhotos = List<String>.from(
                           (data['photoUrls'] as List).map((e) => e.toString()));
@@ -971,11 +1013,15 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     userTags: hobbies.isNotEmpty
                                         ? hobbies
                                         : personalities,
+                                    userPersonalities: personalities,
+                                    userHobbies: hobbies,
                                     userJob: job,
                                     userMbti: mbti,
                                     userDrinking: drinking,
                                     userPhotos: userPhotos,
                                     userGender: gender,
+                                    userSmoking: smoking,
+                                    userPet: pet,
                                     isSelf: true,
                                   ),
                                 ),
@@ -1051,13 +1097,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                             constraints: const BoxConstraints(minHeight: 48),
                             child: Center(
                               child: OutlinedButton(
-                                onPressed: () {
-                                  Navigator.push(
+                                onPressed: () async {
+                                  await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) =>
                                             const ProfileEditScreen()),
                                   );
+                                  if (mounted) setState(() {});
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: const BorderSide(
@@ -1184,12 +1231,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         message: '성향 및 라이프스타일 수정',
                         child: IconButton(
                           icon: const Icon(Icons.edit_outlined),
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (_) => const ProfileEditScreen()),
                             );
+                            if (mounted) setState(() {});
                           },
                         ),
                       ),
@@ -1202,7 +1250,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   _buildMenuItem(
                     icon: Icons.calendar_today_outlined,
                     title: '참여한 모임',
-                    badge: '8',
+                    badge: '$joinedCount',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -1217,7 +1265,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       return _buildMenuItem(
                         icon: Icons.favorite_border_rounded,
                         title: '찜한 모임',
-                        badge: saved.isNotEmpty ? '${saved.length}' : '12',
+                        badge: '${saved.length}',
                         onTap: () {
                           Navigator.push(
                             context,
@@ -1231,13 +1279,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   _buildMenuItem(
                     icon: Icons.edit_outlined,
                     title: '내가 쓴 글',
-                    badge: null,
+                    badge: '$myPostsCount',
                     onTap: _showMyPostsModal,
                   ),
                   _buildMenuItem(
                     icon: Icons.star_outline_rounded,
                     title: '받은 후기',
-                    badge: '23',
+                    badge: '$reviewCount',
                     onTap: _showReviewsModal,
                   ),
 

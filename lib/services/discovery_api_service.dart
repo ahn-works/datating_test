@@ -438,8 +438,38 @@ class DiscoveryApiService {
     ),
   ];
 
-  /// 2. 트렌드 영화 (TMDB API + 실시간 화제작 큐레이션)
+  /// 2. 트렌드 영화 (Firestore 'trend_events' 실시간 연동 + TMDB + 실제 포스터 큐레이션)
   Future<List<TrendMovieItem>> fetchTrendMovies() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('trend_events')
+          .where('category', isEqualTo: '문화 & 엔터 > 영화·CGV')
+          .get();
+      if (snap.docs.isNotEmpty) {
+        final movies = snap.docs.map((d) {
+          final data = d.data();
+          final title = (data['title'] ?? '').toString();
+          final poster = (data['poster'] ?? data['originalPoster'] ?? '').toString();
+          final cleanPoster = poster.isNotEmpty
+              ? poster
+              : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg';
+          return TrendMovieItem(
+            id: d.id,
+            title: title,
+            genre: (data['genre'] ?? '실시간 박스오피스').toString(),
+            rating: ((data['rating'] as num?)?.toDouble() ?? 9.2),
+            releaseInfo: (data['date'] ?? '절찬 상영중').toString(),
+            synopsis: (data['summary'] ?? data['desc'] ?? '동네 극장 및 OTT 인기 화제작입니다.').toString(),
+            posterUrl: cleanPoster,
+            badge: (data['badge'] ?? '박스오피스 인기').toString(),
+          );
+        }).toList();
+        if (movies.isNotEmpty) return movies;
+      }
+    } catch (e) {
+      debugPrint('[DiscoveryApiService] Firestore trend_events movies fallback: $e');
+    }
+
     try {
       final keys = await _getApiKeys();
       final tmdbKey = (keys['tmdbApiKey'] ?? '').toString().trim();
@@ -463,7 +493,7 @@ class DiscoveryApiService {
                 synopsis: (m['overview'] ?? '놓치면 아쉬운 이번 주 화제작입니다.').toString(),
                 posterUrl: posterPath.isNotEmpty
                     ? 'https://image.tmdb.org/t/p/w500$posterPath'
-                    : 'assets/images/cover_wine.jpg',
+                    : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg',
                 badge: 'TMDB 인기',
               );
             }).toList();
@@ -474,50 +504,95 @@ class DiscoveryApiService {
 
     return const [
       TrendMovieItem(
-        id: 'movie_conan',
-        title: '명탐정 코난: 30호 살인 사건',
-        genre: '미스터리 · 추리 애니메이션',
-        rating: 9.1,
-        releaseInfo: '박스오피스 1위 · 절찬 상영중',
-        synopsis:
-            '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 가장 인기가 높아요.',
-        posterUrl: 'assets/images/cover_wine.jpg',
-        badge: '박스오피스 1위',
-      ),
-      TrendMovieItem(
         id: 'movie_chiikawa',
-        title: '극장판 치이카와: 인어 섬의 비밀',
+        title: '[실시간 박스오피스 1위] 극장판 치이카와: 인어 섬의 비밀',
         genre: '힐링 · 판타지 애니메이션',
         rating: 9.3,
         releaseInfo: '2030 여성 예매율 상위권',
         synopsis:
             '귀여운 치이카와와 친구들이 신비로운 섬으로 떠나며 펼쳐지는 힐링 어드벤처. 굿즈 오픈런 및 관람 모임 추천작!',
-        posterUrl: 'assets/images/cover_cafe.jpg',
-        badge: '2030 여성 인기',
+        posterUrl:
+            'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg',
+        badge: '박스오피스 1위',
       ),
       TrendMovieItem(
-        id: 'movie_interview',
-        title: '최종면접',
-        genre: '서스펜스 · 심리 드라마',
-        rating: 8.6,
-        releaseInfo: '실시간 예매 TOP 3',
-        synopsis:
-            '마지막 관문에 모인 지원자들 사이의 숨 막히는 심리전. 영화 관람 후 카페에서 결말 해석 토크하기 딱 좋은 작품이에요.',
-        posterUrl: 'assets/images/cover_food.jpg',
-        badge: '토크 모임 추천',
+        id: 'movie_fall2',
+        title: '[실시간 박스오피스 2위] 폴2: 데드포인트',
+        genre: '고소공포 서바이벌 스릴러',
+        rating: 8.8,
+        releaseInfo: '극장 절찬 상영중',
+        synopsis: '초고층 타워에서의 생존을 건 사투. 손에 땀을 쥐게 하는 압도적인 스릴과 몰입감!',
+        posterUrl:
+            'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2462%252F246220_P01_110626.jpg&w=600&q=85&output=jpg',
+        badge: '화제작',
       ),
       TrendMovieItem(
-        id: 'movie_madoka',
-        title: '극장판 마도카 마기카: 발푸르기스의 회천',
-        genre: '판타지 · 아트 애니메이션',
-        rating: 9.0,
-        releaseInfo: '마니아 화제작 상영중',
+        id: 'movie_lalaland',
+        title: '[실시간 박스오피스 3위] 라라랜드',
+        genre: '로맨스 · 뮤지컬 명작',
+        rating: 9.4,
+        releaseInfo: '재개봉 흥행 역주행',
+        synopsis: '꿈과 열정, 그리고 사랑을 노래하는 감성 명작. 재개봉 기념 관람 팟으로 인기 폭발!',
+        posterUrl:
+            'https://wsrv.nl/?url=https%3A%2F%2Fwww.kobis.or.kr%2Fcommon%2Fmast%2Fmovie%2F2016%2F11%2F2f602b9e15ad47a5ae6a877543be8ce3.jpg&w=600&q=85&output=jpg',
+        badge: '역주행 명작',
+      ),
+      TrendMovieItem(
+        id: 'movie_conan',
+        title: '[실시간 박스오피스 6위] 명탐정 코난: 30호 살인 사건',
+        genre: '미스터리 · 추리 애니메이션',
+        rating: 9.1,
+        releaseInfo: '박스오피스 상위권 · 절찬 상영중',
         synopsis:
-            '독보적인 영상미와 음악으로 호평받는 극장판 신작. 감각적인 연출과 OST를 좋아하는 이웃과 함께 감상해보세요.',
-        posterUrl: 'assets/images/cover_running_hangang.jpg',
-        badge: '영상미 호평',
+            '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 인기!',
+        posterUrl:
+            'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2417%252F241724_P01_152342.jpg&w=600&q=85&output=jpg',
+        badge: '애니 N차 인기',
       ),
     ];
+  }
+
+  /// 2-1. Firestore 'trend_events' 실시간 공연·페스티벌·스포츠·핫플 크롤링 데이터 조회
+  Future<List<Map<String, dynamic>>> fetchRealTrendEvents() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('trend_events')
+          .limit(30)
+          .get();
+      if (snap.docs.isNotEmpty) {
+        return snap.docs.map((d) {
+          final data = d.data();
+          final title = (data['title'] ?? '').toString();
+          final cat = (data['category'] ?? '트렌드').toString();
+          final poster =
+              (data['poster'] ?? data['originalPoster'] ?? '').toString();
+          final desc = (data['summary'] ?? data['desc'] ?? '').toString();
+          final badge = (data['badge'] ??
+                  (cat.contains('>') ? cat.split('>').last.trim() : cat))
+              .toString();
+          final place =
+              (data['place'] ?? data['date'] ?? '우리 동네 핫플레이스').toString();
+
+          return <String, dynamic>{
+            'id': d.id,
+            'type': 'trend',
+            'badge': badge,
+            'category': cat,
+            'title': title,
+            'subtitle': desc.isNotEmpty ? desc : '놓치면 아쉬운 이번 주 동네 화제 트렌드',
+            'benefit': place,
+            'image': poster.isNotEmpty
+                ? poster
+                : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg',
+            'tip': '동네 이웃들과 함께 가기 좋은 트렌드 핫플 & 공연',
+            'dday': data['dday'] ?? 'D-Day',
+          };
+        }).toList();
+      }
+    } catch (e) {
+      debugPrint('[DiscoveryApiService] fetchRealTrendEvents fallback: $e');
+    }
+    return const [];
   }
 
   /// 3. 2030 여성 패션 & 다이어트·웰니스 트렌드 큐레이션

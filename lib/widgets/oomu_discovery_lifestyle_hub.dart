@@ -11,10 +11,12 @@ import 'bouncy_tap.dart';
 ///   상세 레시피 조리법과 동네 근처 식당 추천(카카오맵 연동)을 제공합니다.
 class OomuDiscoveryLifestyleHub extends StatefulWidget {
   final String currentLocation;
+  final int initialCategoryIndex;
 
   const OomuDiscoveryLifestyleHub({
     super.key,
     required this.currentLocation,
+    this.initialCategoryIndex = 0,
   });
 
   @override
@@ -38,7 +40,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
   // 에이블리 스타일 상단 메인 카테고리 인덱스
   // 0: 전체추천 | 1: 날씨·맛집 | 2: 할인·이벤트 | 3: 청년지원금 | 4: 요즘트렌드 | 5: 놀거리·운세
-  int _selectedAblyCategory = 0;
+  late int _selectedAblyCategory;
   bool _isGridView = true; // true: 에이블리 2열 블럭형, false: 리스트형
 
   // API 데이터 상태
@@ -48,8 +50,15 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   List<FashionDietTrendItem> _fashionDietItems = const [];
   List<BoardGameItem> _boardGames = const [];
   List<CountrySpotItem> _countries = const [];
+  List<Map<String, dynamic>> _realTrendEvents = const [];
   QuoteAndQuest? _quoteQuest;
   int _quoteSeed = 0;
+
+  // 놀거리·운세 인터랙티브 미니게임 상태
+  final Map<int, bool> _tarotFlipped = {0: false, 1: false, 2: false};
+  int? _balanceVote;
+  int _balanceVotesA = 154;
+  int _balanceVotesB = 128;
 
   final TextEditingController _nameController =
       TextEditingController(text: 'Sophie');
@@ -68,6 +77,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   @override
   void initState() {
     super.initState();
+    _selectedAblyCategory = widget.initialCategoryIndex;
     _fashionDietItems = _service.getFashionAndDietTrends();
     _boardGames = _service.getBoardGameRecommendations();
     _loadAllDiscoveryData();
@@ -109,11 +119,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     final results = await Future.wait([
       _service.fetchTrendMovies(),
       _service.fetchTravelCountries(),
+      _service.fetchRealTrendEvents(),
     ]);
     if (mounted) {
       setState(() {
         _movies = results[0] as List<TrendMovieItem>;
         _countries = results[1] as List<CountrySpotItem>;
+        _realTrendEvents = results[2] as List<Map<String, dynamic>>;
       });
     }
   }
@@ -704,6 +716,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         .toList();
 
     final List<Map<String, dynamic>> trendCards = [
+      if (_realTrendEvents.isNotEmpty) ..._realTrendEvents,
       ..._movies.map((m) => {
             'type': 'trend',
             'badge': m.badge,
@@ -751,11 +764,12 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
       case 0: // 전체추천 (골고루 큐레이션)
       default:
         return [
+          if (_realTrendEvents.isNotEmpty) ..._realTrendEvents.take(4),
           ...foods.map((e) => {...e, 'type': 'food'}),
           ...deals.take(2).map((e) => {...e, 'type': 'deal'}),
           ...subsidies.take(2).map((e) => {...e, 'type': 'subsidy'}),
           ...recipeCards.take(2),
-          ...trendCards.take(2),
+          ...trendCards.take(4),
         ];
     }
   }
@@ -1625,17 +1639,474 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   }
 
   // =========================================================================
-  // 카테고리 5: 놀거리·운세 (보드게임 추천 + 오늘의 문장 + 영문 닉네임 무드)
+  // 카테고리 5: 놀거리·운세 (타로 뒤집기 + 밸런스 배틀 + 행운지수 + 보드게임 + 닉네임 분석)
   // =========================================================================
   Widget _buildPlayAndFortuneSection() {
     final qq = _quoteQuest;
     final res = _nameResult;
+
+    final tarotCards = [
+      {
+        'title': '인연·연애운',
+        'icon': '🔮',
+        'revealedName': '🌸 The Lovers (연인)',
+        'score': '98점 (최상)',
+        'desc': '오늘 감성 카페나 산책길에서 티키타카가 통하는 뜻밖의 설레는 인연을 만날 확률이 아주 높아요!',
+      },
+      {
+        'title': '성공·재물운',
+        'icon': '☀️',
+        'revealedName': '☀️ The Sun (태양)',
+        'score': '95점 (대길)',
+        'desc': '자신감과 활기가 넘치는 하루! 망설였던 새로운 취미 시작이나 번개 제안이 큰 호응을 얻어요.',
+      },
+      {
+        'title': '동네·소셜운',
+        'icon': '🌟',
+        'revealedName': '🌟 The Star (별)',
+        'score': '96점 (인기 폭발)',
+        'desc': '다정한 배려와 유쾌한 리액션으로 오늘 어떤 모임에 가도 가장 빛나는 인기인이 되는 날이에요.',
+      },
+    ];
+
+    final int totalBalance = _balanceVotesA + _balanceVotesB;
+    final int percentA = totalBalance > 0
+        ? ((_balanceVotesA / totalBalance) * 100).round()
+        : 50;
+    final int percentB = 100 - percentA;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 1. 오늘의 행운 지수 게이지 카드
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: surfaceWhite,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderSlate),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Text('🍀 ', style: TextStyle(fontSize: 16)),
+                        Text(
+                          '오늘의 동네 행운 지수',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: brandTint,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        '96점 · 최상 ✨',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: brandCoral,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Stack(
+                    children: [
+                      Container(height: 10, color: subtleSurface),
+                      FractionallySizedBox(
+                        widthFactor: 0.96,
+                        child: Container(
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFFFF8A94), brandCoral],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: subtleSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('🌸 행운의 컬러: 코랄 핑크',
+                          style: TextStyle(
+                              fontSize: 11.5,
+                              color: textBody,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: subtleSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('☕ 행운의 장소: 로컬 감성 카페',
+                          style: TextStyle(
+                              fontSize: 11.5,
+                              color: textBody,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: subtleSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('⏰ 행운의 시간대: 16:00 ~ 18:00',
+                          style: TextStyle(
+                              fontSize: 11.5,
+                              color: textBody,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // 2. 인터랙티브 타로 궁합 카드 뒤집기
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: surfaceWhite,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderSlate),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Text('🔮 ', style: TextStyle(fontSize: 16)),
+                    Text(
+                      '오늘의 소셜 & 인연 타로 카드',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  '카드를 탭하여 뒤집으면 오늘의 운세가 즉시 공개돼요!',
+                  style: TextStyle(fontSize: 12, color: textSecondary),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: List.generate(3, (idx) {
+                    final item = tarotCards[idx];
+                    final isFlipped = _tarotFlipped[idx] == true;
+
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            right: idx < 2 ? 8.0 : 0, left: idx > 0 ? 0 : 0),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _tarotFlipped[idx] = !isFlipped;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            height: 140,
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isFlipped ? brandTint : subtleSurface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isFlipped ? brandCoral : borderSlate,
+                                width: isFlipped ? 1.5 : 1.0,
+                              ),
+                              boxShadow: isFlipped
+                                  ? [
+                                      BoxShadow(
+                                        color: brandCoral.withValues(alpha: 0.2),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: isFlipped
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        item['revealedName']!,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w800,
+                                          color: brandCoral,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        item['score']!,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        item['desc']!,
+                                        style: const TextStyle(
+                                          fontSize: 9.5,
+                                          color: textBody,
+                                          height: 1.25,
+                                        ),
+                                        maxLines: 4,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(item['icon']!,
+                                          style: const TextStyle(fontSize: 28)),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        item['title']!,
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: textPrimary,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: surfaceWhite,
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          border:
+                                              Border.all(color: borderSlate),
+                                        ),
+                                        child: const Text(
+                                          '탭하여 확인',
+                                          style: TextStyle(
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: brandCoral,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // 3. 실시간 밸런스 토론 배틀 (동네 투표)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: surfaceWhite,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderSlate),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Text('⚖️ ', style: TextStyle(fontSize: 16)),
+                        Text(
+                          '오늘의 동네 밸런스 토론',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '총 ${totalBalance}명 참여 중',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '"금요일 저녁, 더 끌리는 나만의 힐링 시간은?"',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Option A
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_balanceVote != 0) {
+                        _balanceVote = 0;
+                        _balanceVotesA++;
+                      }
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _balanceVote == 0 ? brandTint : subtleSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _balanceVote == 0 ? brandCoral : borderSlate,
+                        width: _balanceVote == 0 ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'A. 동네 이웃들과 삼겹살에 시원한 하이볼 한잔 🍻',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: textPrimary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '$percentA% (${_balanceVotesA}표)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: _balanceVote == 0 ? brandCoral : textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Option B
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_balanceVote != 1) {
+                        _balanceVote = 1;
+                        _balanceVotesB++;
+                      }
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _balanceVote == 1 ? brandTint : subtleSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _balanceVote == 1 ? brandCoral : borderSlate,
+                        width: _balanceVote == 1 ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'B. 포근한 침대에서 넷플릭스 보며 마라탕 배달 🛋️',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: textPrimary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '$percentB% (${_balanceVotesB}표)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: _balanceVote == 1 ? brandCoral : textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // 4. 모임 추천 보드게임 카드들
           ..._boardGames.map((bg) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Container(
@@ -1684,7 +2155,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   ),
                 ),
               )),
+
           const SizedBox(height: 6),
+
+          // 5. 오늘의 감성 한 줄 & 소소한 퀘스트
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -1742,7 +2216,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               ],
             ),
           ),
+
           const SizedBox(height: 10),
+
+          // 6. 재미로 보는 영문 닉네임 글로벌 첫인상
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

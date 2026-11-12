@@ -67,6 +67,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   ];
   List<String> _selectedDrinking = [];
 
+  final List<String> _availableSmoking = [
+    '비흡연',
+    '흡연',
+    '전자담배',
+  ];
+  List<String> _selectedSmoking = ['비흡연'];
+
+  final List<String> _availablePet = [
+    '반려동물 있음',
+    '반려동물 없음',
+  ];
+  List<String> _selectedPet = ['반려동물 있음'];
+
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -118,6 +131,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _selectedPersonalities =
             _parseSafeList(data['personalities'], ['리액션 요정', '친화력 갑']);
         _selectedDrinking = _parseSafeList(data['drinking'], ['가볍게 한잔']);
+        _selectedSmoking = _parseSafeList(data['smoking'], ['비흡연']);
+        _selectedPet = _parseSafeList(data['pet'], ['반려동물 있음']);
         final loadedAvatar =
             (data['photoUrl'] ?? data['avatarUrl'])?.toString().trim();
         _avatarUrl = (loadedAvatar != null && loadedAvatar.isNotEmpty)
@@ -136,6 +151,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _selectedHobbies = ['맛집탐방', '카페투어'];
         _selectedPersonalities = ['경청하는 편', '긍정적'];
         _selectedDrinking = ['가볍게 한잔'];
+        _selectedSmoking = ['비흡연'];
+        _selectedPet = ['반려동물 있음'];
         _avatarUrl = gAvatar.isNotEmpty ? gAvatar : 'assets/images/초연.png';
       }
     } catch (e) {
@@ -192,6 +209,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'hobbies': _selectedHobbies,
         'personalities': _selectedPersonalities,
         'drinking': _selectedDrinking,
+        'smoking': _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '비흡연',
+        'pet': _selectedPet.isNotEmpty ? _selectedPet.first : '반려동물 있음',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -585,7 +604,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Widget _buildChipSection(
-      String title, List<String> available, List<String> selected) {
+      String title, List<String> available, List<String> selected,
+      {bool isSingle = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -603,10 +623,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  if (isSelected) {
-                    selected.remove(item);
-                  } else {
+                  if (isSingle) {
+                    selected.clear();
                     selected.add(item);
+                  } else {
+                    if (isSelected) {
+                      selected.remove(item);
+                    } else {
+                      selected.add(item);
+                    }
                   }
                 });
               },
@@ -777,6 +802,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       '성격 태그', _availablePersonalities, _selectedPersonalities),
                   _buildChipSection(
                       '음주 성향', _availableDrinking, _selectedDrinking),
+                  _buildChipSection(
+                      '흡연 여부', _availableSmoking, _selectedSmoking,
+                      isSingle: true),
+                  _buildChipSection('반려동물', _availablePet, _selectedPet,
+                      isSingle: true),
                   _buildChipSection(
                       '나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
                   const SizedBox(height: 30),

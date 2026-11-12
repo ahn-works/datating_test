@@ -13,6 +13,7 @@ import '../utils/oomu_ui_helpers.dart';
 import '../widgets/balanced_heading.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/ugc_action_sheets.dart';
+import 'chat/chat_modals.dart';
 import 'user_profile_screen.dart';
 
 class CommunityPostDetailScreen extends StatefulWidget {
@@ -203,6 +204,90 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('댓글이 등록되었습니다.')),
     );
+  }
+
+  Future<void> _addCommentWithSticker(Map<String, dynamic> sticker) async {
+    final stickerUrl = (sticker['imageUrl'] ?? '').toString();
+    final title = (sticker['title'] ?? '움짤').toString();
+    if (stickerUrl.isEmpty) return;
+
+    final myNick = globalData.userNickname.value.isNotEmpty
+        ? globalData.userNickname.value
+        : '우리동네_초연';
+    final myAvatar = globalData.userAvatar.value.isNotEmpty
+        ? globalData.userAvatar.value
+        : 'assets/images/초연.png';
+    final postId = _postId;
+
+    final newComm = <String, dynamic>{
+      'id': 'local_${DateTime.now().microsecondsSinceEpoch}',
+      'author': myNick,
+      'authorAvatar': myAvatar,
+      'content': '✨ $title 움짤',
+      'imageUrl': stickerUrl,
+      'time': '방금 전',
+      'likes': 0,
+      'isLiked': false,
+      'likedUserIds': <String>[],
+    };
+
+    if (!_canUseFirestore || postId == null) {
+      setState(() {
+        _comments.add(newComm);
+        widget.post['commentList'] = _comments;
+        widget.post['comments'] = _comments.length;
+      });
+      return;
+    }
+
+    try {
+      final db = FirebaseFirestore.instance;
+      final authorUid = FirebaseAuth.instance.currentUser?.uid ??
+          (globalData.activeUserId.isNotEmpty
+              ? globalData.activeUserId
+              : 'user_${DateTime.now().millisecondsSinceEpoch}');
+      final postRef = db.collection('community_posts').doc(postId);
+      final commentRef = postRef.collection('comments').doc();
+
+      await postRef.set({
+        'comments': FieldValue.increment(1),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await commentRef.set({
+        'authorId': authorUid,
+        'author': myNick,
+        'authorAvatar': myAvatar,
+        'content': '✨ $title 움짤',
+        'imageUrl': stickerUrl,
+        'time': '방금 전',
+        'likes': 0,
+        'likedUserIds': <String>[],
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+      newComm['id'] = commentRef.id;
+      setState(() {
+        _comments.add(newComm);
+        widget.post['commentList'] = _comments;
+        widget.post['comments'] = _comments.length;
+      });
+
+      Future.delayed(const Duration(milliseconds: 150), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('움짤 스티커 댓글이 등록되었습니다!')),
+      );
+    } catch (_) {}
   }
 
   void _toggleLike() {
@@ -789,6 +874,27 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                               color: OomuTokens.textPrimary,
                             ),
                           ),
+                          if ((comm['imageUrl'] ?? comm['stickerUrl']) != null &&
+                              (comm['imageUrl'] ?? comm['stickerUrl'])
+                                  .toString()
+                                  .isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r12),
+                              child: Container(
+                                color: OomuTokens.surfaceMuted,
+                                padding: const EdgeInsets.all(4),
+                                child: appNetImage(
+                                  (comm['imageUrl'] ?? comm['stickerUrl'])
+                                      .toString(),
+                                  width: 130,
+                                  height: 130,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -1107,6 +1213,36 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           onSubmitted: (_) => _addComment(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: OomuTokens.s8),
+                  Tooltip(
+                    message: '인기 움짤 스티커 첨부',
+                    child: BouncyTap(
+                      scaleDown: 0.88,
+                      onHaptic: OomuHaptics.light,
+                      onTap: () {
+                        ChatModals.showStickerPicker(context,
+                            onCreated: (sticker) {
+                          _addCommentWithSticker(sticker);
+                        });
+                      },
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: OomuTokens.surfaceMuted,
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
+                          border: Border.all(color: OomuTokens.border),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.auto_awesome_rounded,
+                            color: OomuTokens.coral,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),

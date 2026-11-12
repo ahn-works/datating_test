@@ -277,7 +277,19 @@ class R2StorageService {
       final httpsKopis = storedUrl.startsWith('http://')
           ? 'https://${storedUrl.substring('http://'.length)}'
           : storedUrl;
-      return 'https://wsrv.nl/?url=${Uri.encodeComponent(httpsKopis)}&w=600&q=85&output=jpg';
+      final isGif = httpsKopis.toLowerCase().contains('.gif');
+      return isGif
+          ? 'https://wsrv.nl/?url=${Uri.encodeComponent(httpsKopis)}&output=gif&n=-1'
+          : 'https://wsrv.nl/?url=${Uri.encodeComponent(httpsKopis)}&w=600&q=85&output=jpg';
+    }
+
+    if (storedUrl.contains('wsrv.nl')) {
+      if ((storedUrl.contains('.gif') ||
+              storedUrl.contains('stickers/') ||
+              storedUrl.contains('giphy.com')) &&
+          storedUrl.contains('&output=jpg')) {
+        return storedUrl.replaceAll('&output=jpg', '&output=gif&n=-1');
+      }
     }
 
     // 3. R2 S3 엔드포인트 URL이 저장되어 있는 경우 (이미 서명 쿼리가 있거나 만료되었을 때도 재서명)
