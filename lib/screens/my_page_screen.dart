@@ -6,7 +6,6 @@ import '../utils/app_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'oomu_home_screen.dart';
-import 'chat_screen.dart';
 import 'oomu_my_trips_screen.dart';
 import 'profile_edit_screen.dart';
 import 'saved_meetups_screen.dart';
@@ -830,16 +829,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     }
                     job = data['job']?.toString().trim() ?? job;
                     mbti = data['mbti']?.toString().trim() ?? mbti;
-                    final rawInterests =
-                        _parseSafeList(data['interests'], <String>[]);
                     final rawHobbies =
                         _parseSafeList(data['hobbies'], <String>[]);
-                    final combinedHobbies =
-                        <String>{...rawInterests, ...rawHobbies}.toList();
-                    if (combinedHobbies.isNotEmpty) {
-                      hobbies = combinedHobbies;
-                    } else {
-                      hobbies = _parseSafeList(data['hobbies'], hobbies);
+                    final rawInterests =
+                        _parseSafeList(data['interests'], <String>[]);
+                    if (rawHobbies.isNotEmpty) {
+                      hobbies = rawHobbies;
+                    } else if (rawInterests.isNotEmpty) {
+                      hobbies = rawInterests;
                     }
                     personalities =
                         _parseSafeList(data['personalities'], personalities);
@@ -863,16 +860,16 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       joinedCount = (data['joinedMeetupIds'] as List).length;
                     } else if (data['tripCount'] is num) {
                       joinedCount = (data['tripCount'] as num).toInt();
-                    } else if (activeUid.isNotEmpty && activeUid != 'guest') {
-                      joinedCount = 6;
+                    } else {
+                      joinedCount = 0;
                     }
 
                     if (data['myPostsCount'] is num) {
                       myPostsCount = (data['myPostsCount'] as num).toInt();
                     } else if (data['postCount'] is num) {
                       myPostsCount = (data['postCount'] as num).toInt();
-                    } else if (activeUid.isNotEmpty && activeUid != 'guest') {
-                      myPostsCount = 2;
+                    } else {
+                      myPostsCount = 0;
                     }
 
                     if (data['reviewCount'] is num) {
@@ -881,8 +878,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       reviewCount = (data['reviewsCount'] as num).toInt();
                     } else if (data['reviews'] is List) {
                       reviewCount = (data['reviews'] as List).length;
-                    } else if (activeUid.isNotEmpty && activeUid != 'guest') {
-                      reviewCount = 3;
+                    } else {
+                      reviewCount = 0;
                     }
 
                     if (data['photoUrls'] is List) {
@@ -1356,7 +1353,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   builder: (_) => OOMUHomeScreen(initialTab: index)));
         } else if (index == 3) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const OOMUHomeScreen(initialTab: 3)));
         } else if (index == 4) {
           // current MY tab
         }

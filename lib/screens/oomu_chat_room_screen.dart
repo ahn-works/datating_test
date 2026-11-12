@@ -102,6 +102,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   @override
   void initState() {
     super.initState();
+    ChatModals.preloadStickers();
     _repo = widget.repository ?? const FirestoreChatRepository();
     _bindRoom();
     _session = _repo.sessionChanges.listen((_) {

@@ -48,11 +48,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   bool _loadingWeather = true;
   List<TrendMovieItem> _movies = const [];
   List<FashionDietTrendItem> _fashionDietItems = const [];
-  List<BoardGameItem> _boardGames = const [];
   List<CountrySpotItem> _countries = const [];
   List<Map<String, dynamic>> _realTrendEvents = const [];
-  QuoteAndQuest? _quoteQuest;
-  int _quoteSeed = 0;
 
   // 놀거리·운세 인터랙티브 미니게임 상태
   final Map<int, bool> _tarotFlipped = {0: false, 1: false, 2: false};
@@ -60,18 +57,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   int _balanceVotesA = 154;
   int _balanceVotesB = 128;
 
-  final TextEditingController _nameController =
-      TextEditingController(text: 'Sophie');
-  NameVibeResult? _nameResult;
-  bool _analyzingName = false;
-
   static const List<Map<String, String>> _ablyCategories = [
     {'icon': '🔥', 'label': '전체추천', 'sub': '우리 동네 인기 발견'},
     {'icon': '🥓', 'label': '날씨·맛집', 'sub': '삼겹살·파전·레시피'},
     {'icon': '🏷️', 'label': '할인·이벤트', 'sub': '동네 가게 특가·혜택'},
     {'icon': '💰', 'label': '청년지원금', 'sub': '월세·교통·문화 지원'},
     {'icon': '🎬', 'label': '요즘트렌드', 'sub': '영화·패션·다이어트'},
-    {'icon': '🎲', 'label': '놀거리·운세', 'sub': '보드게임·이름테스트'},
+    {'icon': '🎲', 'label': '놀거리·운세', 'sub': '타로·밸런스 배틀'},
   ];
 
   @override
@@ -79,7 +71,6 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     super.initState();
     _selectedAblyCategory = widget.initialCategoryIndex;
     _fashionDietItems = _service.getFashionAndDietTrends();
-    _boardGames = _service.getBoardGameRecommendations();
     _loadAllDiscoveryData();
   }
 
@@ -93,15 +84,12 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     super.dispose();
   }
 
   Future<void> _loadAllDiscoveryData() async {
     _loadWeatherAndRecipes();
     _loadMoviesAndCountries();
-    _refreshQuoteAndQuest(initial: true);
-    _runNameAnalysis('Sophie');
   }
 
   Future<void> _loadWeatherAndRecipes() async {
@@ -126,25 +114,6 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         _movies = results[0] as List<TrendMovieItem>;
         _countries = results[1] as List<CountrySpotItem>;
         _realTrendEvents = results[2] as List<Map<String, dynamic>>;
-      });
-    }
-  }
-
-  Future<void> _refreshQuoteAndQuest({bool initial = false}) async {
-    if (!initial) _quoteSeed++;
-    final res = await _service.fetchQuoteAndQuest(seedIndex: _quoteSeed);
-    if (mounted) {
-      setState(() => _quoteQuest = res);
-    }
-  }
-
-  Future<void> _runNameAnalysis(String input) async {
-    if (mounted) setState(() => _analyzingName = true);
-    final res = await _service.analyzeNameVibe(input);
-    if (mounted) {
-      setState(() {
-        _nameResult = res;
-        _analyzingName = false;
       });
     }
   }
@@ -1639,12 +1608,9 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   }
 
   // =========================================================================
-  // 카테고리 5: 놀거리·운세 (타로 뒤집기 + 밸런스 배틀 + 행운지수 + 보드게임 + 닉네임 분석)
+  // 카테고리 5: 놀거리·운세 (타로 뒤집기 + 밸런스 배틀 + 행운지수)
   // =========================================================================
   Widget _buildPlayAndFortuneSection() {
-    final qq = _quoteQuest;
-    final res = _nameResult;
-
     final tarotCards = [
       {
         'title': '인연·연애운',
@@ -2103,201 +2069,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               ],
             ),
           ),
-
-          const SizedBox(height: 14),
-
-          // 4. 모임 추천 보드게임 카드들
-          ..._boardGames.map((bg) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: surfaceWhite,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: borderSlate),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '🎲 ${bg.name}',
-                              style: const TextStyle(
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.w700,
-                                color: textPrimary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '${bg.players} · ${bg.playTime}',
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
-                              color: brandCoral,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        bg.summary,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          color: textBody,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )),
-
-          const SizedBox(height: 6),
-
-          // 5. 오늘의 감성 한 줄 & 소소한 퀘스트
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: surfaceWhite,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: borderSlate),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        '오늘의 감성 한 줄 & 소소한 일 추천',
-                        style: TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => _refreshQuoteAndQuest(),
-                      child: const Text(
-                        '다른 문장 뽑기',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: brandCoral,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  qq != null
-                      ? '"${qq.quoteKo}"'
-                      : '"오늘 나를 위해 건넨 다정한 시간은 내일의 나를 더 빛나게 해줄 거예요."',
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: textPrimary,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '✨ 오늘의 소소한 추천: ${qq?.questTitle ?? '동네 독립서점에서 표지가 마음에 드는 책 1권 골라 읽기'}',
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          // 6. 재미로 보는 영문 닉네임 글로벌 첫인상
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: surfaceWhite,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: borderSlate),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '재미로 보는 영문 닉네임 글로벌 첫인상',
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w700,
-                    color: textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 44,
-                        child: TextField(
-                          controller: _nameController,
-                          onSubmitted: (v) => _runNameAnalysis(v),
-                          style: const TextStyle(
-                              fontSize: 13.5, color: textPrimary),
-                          decoration: InputDecoration(
-                            hintText: '영문 이름 입력 (예: Sophie)',
-                            filled: true,
-                            fillColor: subtleSurface,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      height: 44,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: textPrimary,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: _analyzingName
-                            ? null
-                            : () => _runNameAnalysis(_nameController.text),
-                        child: const Text(
-                          '분석',
-                          style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (res != null) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    res.vibeSummary,
-                    style: const TextStyle(
-                        fontSize: 12.5, color: textBody, height: 1.4),
-                  ),
-                ],
-              ],
-            ),
-          ),
+          const SizedBox(height: 20),
         ],
       ),
     );

@@ -49,6 +49,11 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     return const AssetImage('assets/images/cover_food.jpg');
   }
 
+  // 1-3. 만료되었거나 타 세션의 웹 Blob URL은 접근 불가하므로 안전 폴백 에셋으로 즉시 변환
+  if (target.startsWith('blob:')) {
+    return AssetImage(fallback.startsWith('assets/') ? fallback : 'assets/images/cover_food.jpg');
+  }
+
   // 2. 모바일 / 데스크톱 네이티브 로컬 파일 경로 (FileImage 지원)
   if (!kIsWeb && !target.startsWith('http://') && !target.startsWith('https://') && !target.startsWith('blob:')) {
     try {

@@ -207,6 +207,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'job': _jobController.text.trim(),
         'mbti': _mbtiController.text.trim(),
         'hobbies': _selectedHobbies,
+        'interests': _selectedHobbies,
         'personalities': _selectedPersonalities,
         'drinking': _selectedDrinking,
         'smoking': _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '비흡연',

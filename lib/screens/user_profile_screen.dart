@@ -475,18 +475,14 @@ class UserProfileScreen extends StatelessWidget {
                     const SizedBox(height: OomuTokens.s20),
                   ],
 
-                  // 3. Prompts (Self Interview)
-                  const Text('나의 이야기',
+                  // 3. Bio / Introduction
+                  const Text('한줄 소개',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
                   const SizedBox(height: 12),
-                  _buildPromptCard('쉬는 날에는 주로...', displayBio),
-                  const SizedBox(height: 12),
-                  _buildPromptCard(
-                      '내가 찾고 있는 사람은...',
-                      '서로 긍정적인 에너지를 주고받을 수 있는 사람! 티키타카가 잘 맞으면 좋겠어요.'),
+                  _buildPromptCard('나의 이야기', displayBio),
                   const SizedBox(height: OomuTokens.s20),
 
                   // 4. Interests / Hobbies

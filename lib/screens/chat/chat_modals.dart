@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/ai_service.dart';
-import '../../services/kakao_map_service.dart';
 import '../../ui/oomu_button.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
@@ -11,6 +11,39 @@ import '../../utils/global_data.dart';
 import '../../widgets/bouncy_tap.dart';
 
 class ChatModals {
+  static List<Map<String, dynamic>> _cachedStickers = [];
+
+  static void preloadStickers() {
+    try {
+      if (Firebase.apps.isEmpty) return;
+      if (_cachedStickers.isNotEmpty) return;
+      FirebaseFirestore.instance
+          .collection('config')
+          .doc('curated_stickers')
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          final data = doc.data();
+          final rawList = data?['stickers'] as List<dynamic>? ?? [];
+          if (rawList.isNotEmpty) {
+            _cachedStickers = rawList
+                .map((e) => Map<String, dynamic>.from(e as Map))
+                .toList();
+          }
+        }
+      }).catchError((_) {});
+    } catch (_) {}
+  }
+
+  static final List<Map<String, dynamic>> _fallbackStickers = [
+    {'rank': 1, 'title': '생각 중', 'url': 'https://wsrv.nl/?url=https%3A%2F%2Fmedia4.giphy.com%2Fmedia%2F3o7TKTDnUxE0g2fSE8%2Fgiphy.gif'},
+    {'rank': 2, 'title': '축하해', 'url': 'https://wsrv.nl/?url=https%3A%2F%2Fmedia1.giphy.com%2Fmedia%2Fartj92V8o75VPL7AeQ%2Fgiphy.gif'},
+    {'rank': 3, 'title': '감사해요', 'url': 'https://wsrv.nl/?url=https%3A%2F%2Fmedia3.giphy.com%2Fmedia%2FosAcIG550CLR32835E%2Fgiphy.gif'},
+    {'rank': 4, 'title': '하트 뿅뿅', 'url': 'https://wsrv.nl/?url=https%3A%2F%2Fmedia3.giphy.com%2Fmedia%2FM90mJvfWfd5mbUuULX%2Fgiphy.gif'},
+    {'rank': 5, 'title': '따뜻한 포옹', 'url': 'https://wsrv.nl/?url=https%3A%2F%2Fmedia4.giphy.com%2Fmedia%2F3M4NpbLCTxBqU%2Fgiphy.gif'},
+    {'rank': 6, 'title': '웃겨요', 'url': 'https://wsrv.nl/?url=https%3A%2F%2Fmedia2.giphy.com%2Fmedia%2F10JhviFuU2gWD6%2Fgiphy.gif'},
+  ];
+
   static void showAttachmentMenu(
     BuildContext context, {
     required VoidCallback onSticker,
@@ -285,9 +318,9 @@ class ChatModals {
     BuildContext context, {
     required Function(Map<String, dynamic> data) onCreated,
   }) {
-    DateTime? selectedDate;
-    TimeOfDay? selectedTime;
-    String location = '';
+    DateTime? selectedDate = DateTime.now().add(const Duration(days: 1));
+    TimeOfDay? selectedTime = const TimeOfDay(hour: 19, minute: 0);
+    final TextEditingController locCtrl = TextEditingController();
     int maxMembers = 4;
 
     showModalBottomSheet(
@@ -297,169 +330,376 @@ class ChatModals {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
+            final now = DateTime.now();
+            final tomorrow = now.add(const Duration(days: 1));
+            final daysUntilSat = (DateTime.saturday - now.weekday + 7) % 7;
+            final thisSat = now.add(Duration(days: daysUntilSat == 0 ? 7 : daysUntilSat));
+            final thisSun = thisSat.add(const Duration(days: 1));
+
+            final List<Map<String, dynamic>> dateChips = [
+              {'label': '오늘 (${now.month}/${now.day})', 'date': now},
+              {'label': '내일 (${tomorrow.month}/${tomorrow.day})', 'date': tomorrow},
+              {'label': '이번주 토 (${thisSat.month}/${thisSat.day})', 'date': thisSat},
+              {'label': '이번주 일 (${thisSun.month}/${thisSun.day})', 'date': thisSun},
+            ];
+
+            final List<Map<String, dynamic>> timeChips = [
+              {'label': '낮 12:00', 'time': const TimeOfDay(hour: 12, minute: 0)},
+              {'label': '오후 2:00', 'time': const TimeOfDay(hour: 14, minute: 0)},
+              {'label': '저녁 6:30', 'time': const TimeOfDay(hour: 18, minute: 30)},
+              {'label': '저녁 7:00', 'time': const TimeOfDay(hour: 19, minute: 0)},
+              {'label': '저녁 8:00', 'time': const TimeOfDay(hour: 20, minute: 0)},
+            ];
+
             return Padding(
               padding:
                   EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
               child: Container(
-                padding: const EdgeInsets.all(OomuTokens.s24),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 decoration: const BoxDecoration(
                   color: OomuTokens.surface,
                   borderRadius:
                       BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
                 ),
                 child: SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.calendar_month, color: OomuTokens.coral),
-                          SizedBox(width: OomuTokens.s8),
-                          Text(
-                            '상세 일정 제안하기',
-                            style: TextStyle(
-                              fontSize: OomuTokens.fs18,
-                              fontWeight: FontWeight.w700,
-                              color: OomuTokens.textPrimary,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Container(
+                            width: 36,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: OomuTokens.border,
+                              borderRadius: BorderRadius.circular(OomuTokens.r8),
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: OomuTokens.s20),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('날짜 선택',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: OomuTokens.textPrimary)),
-                        subtitle: Text(
-                          selectedDate != null
-                              ? '${selectedDate!.year}년 ${selectedDate!.month}월 ${selectedDate!.day}일'
-                              : '터치하여 날짜를 선택하세요',
-                          style: const TextStyle(
-                              fontSize: OomuTokens.fs12,
-                              color: OomuTokens.textSecondary),
                         ),
-                        trailing: const Icon(Icons.edit_calendar,
-                            color: OomuTokens.coral),
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: ctx,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate:
-                                DateTime.now().add(const Duration(days: 365)),
-                          );
-                          if (date != null) setState(() => selectedDate = date);
-                        },
-                      ),
-                      const Divider(color: OomuTokens.border),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('시간 선택',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: OomuTokens.textPrimary)),
-                        subtitle: Text(
-                          selectedTime != null
-                              ? selectedTime!.format(context)
-                              : '터치하여 시간을 선택하세요',
-                          style: const TextStyle(
-                              fontSize: OomuTokens.fs12,
-                              color: OomuTokens.textSecondary),
-                        ),
-                        trailing: const Icon(Icons.access_time,
-                            color: OomuTokens.coral),
-                        onTap: () async {
-                          final time = await showTimePicker(
-                            context: ctx,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          if (time != null) setState(() => selectedTime = time);
-                        },
-                      ),
-                      const Divider(color: OomuTokens.border),
-                      TextField(
-                        onChanged: (val) => location = val,
-                        style: const TextStyle(
-                            fontSize: OomuTokens.fs14,
-                            color: OomuTokens.textPrimary),
-                        decoration: InputDecoration(
-                          labelText: '모임 장소 (예: 스타벅스 여수점)',
-                          labelStyle: const TextStyle(
-                              fontSize: OomuTokens.fs14,
-                              color: OomuTokens.textSecondary),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(OomuTokens.r12),
-                              borderSide:
-                                  const BorderSide(color: OomuTokens.border)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(OomuTokens.r12),
-                              borderSide:
-                                  const BorderSide(color: OomuTokens.border)),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(OomuTokens.r12),
-                              borderSide:
-                                  const BorderSide(color: OomuTokens.coral)),
-                          filled: true,
-                          fillColor: OomuTokens.surfaceMuted,
-                        ),
-                      ),
-                      const SizedBox(height: OomuTokens.s16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('모임 인원',
+                        const SizedBox(height: 14),
+                        const Row(
+                          children: [
+                            Icon(Icons.event_available_rounded, color: OomuTokens.coral, size: 22),
+                            SizedBox(width: OomuTokens.s8),
+                            Text(
+                              '상세 일정 제안하기',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: OomuTokens.fs16,
-                                  color: OomuTokens.textPrimary)),
-                          DropdownButton<int>(
-                            value: maxMembers,
-                            underline: const SizedBox.shrink(),
-                            dropdownColor: OomuTokens.surface,
-                            items: [2, 3, 4, 5, 6, 7, 8]
-                                .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text('$e명',
-                                        style: const TextStyle(
-                                            color: OomuTokens.textPrimary))))
-                                .toList(),
-                            onChanged: (val) {
-                              if (val != null) setState(() => maxMembers = val);
-                            },
+                                fontSize: OomuTokens.fs18,
+                                fontWeight: FontWeight.w700,
+                                color: OomuTokens.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '날짜와 장소를 선택해 단톡방 이웃들에게 투표를 제안해보세요.',
+                          style: TextStyle(fontSize: 12, color: OomuTokens.textSecondary),
+                        ),
+                        const SizedBox(height: 18),
+
+                        // 1. 날짜 퀵 선택 칩
+                        const Text(
+                          '모임 날짜',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: OomuTokens.textPrimary,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: OomuTokens.s20),
-                      OomuButton(
-                        label: '일정 공유 및 투표 시작',
-                        onPressed: () {
-                          if (selectedDate == null ||
-                              selectedTime == null ||
-                              location.trim().isEmpty) {
-                            ScaffoldMessenger.of(ctx).showSnackBar(
-                                const SnackBar(
-                                    content: Text('날짜, 시간, 장소를 모두 입력해주세요.')));
-                            return;
-                          }
-                          Navigator.pop(ctx);
-                          onCreated({
-                            'type': 'schedule',
-                            'title': '새로운 일정이 제안되었습니다!',
-                            'date':
-                                '${selectedDate!.month}월 ${selectedDate!.day}일',
-                            'timeStr': selectedTime!.format(ctx),
-                            'location': location,
-                            'maxMembers': maxMembers,
-                          });
-                        },
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            ...dateChips.map((chip) {
+                              final d = chip['date'] as DateTime;
+                              final isSelected = selectedDate != null &&
+                                  selectedDate!.year == d.year &&
+                                  selectedDate!.month == d.month &&
+                                  selectedDate!.day == d.day;
+                              return ChoiceChip(
+                                label: Text(chip['label'] as String),
+                                selected: isSelected,
+                                onSelected: (sel) {
+                                  HapticFeedback.lightImpact();
+                                  if (sel) setState(() => selectedDate = d);
+                                },
+                                selectedColor: OomuTokens.coral,
+                                backgroundColor: OomuTokens.surfaceMuted,
+                                labelStyle: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                  color: isSelected ? Colors.white : OomuTokens.textPrimary,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: isSelected ? OomuTokens.coral : OomuTokens.border,
+                                  ),
+                                ),
+                              );
+                            }),
+                            ActionChip(
+                              avatar: const Icon(Icons.calendar_month_outlined, size: 14, color: OomuTokens.coral),
+                              label: const Text('달력에서 선택'),
+                              backgroundColor: OomuTokens.surfaceMuted,
+                              labelStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: OomuTokens.coral,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(color: OomuTokens.coral),
+                              ),
+                              onPressed: () async {
+                                final d = await showDatePicker(
+                                  context: ctx,
+                                  initialDate: selectedDate ?? DateTime.now(),
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: const ColorScheme.light(
+                                          primary: OomuTokens.coral,
+                                          onPrimary: Colors.white,
+                                          surface: Colors.white,
+                                          onSurface: OomuTokens.textPrimary,
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (d != null) setState(() => selectedDate = d);
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+
+                        // 2. 시간 퀵 선택 칩
+                        const Text(
+                          '모임 시간',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: OomuTokens.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            ...timeChips.map((chip) {
+                              final t = chip['time'] as TimeOfDay;
+                              final isSelected = selectedTime != null &&
+                                  selectedTime!.hour == t.hour &&
+                                  selectedTime!.minute == t.minute;
+                              return ChoiceChip(
+                                label: Text(chip['label'] as String),
+                                selected: isSelected,
+                                onSelected: (sel) {
+                                  HapticFeedback.lightImpact();
+                                  if (sel) setState(() => selectedTime = t);
+                                },
+                                selectedColor: OomuTokens.coral,
+                                backgroundColor: OomuTokens.surfaceMuted,
+                                labelStyle: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                  color: isSelected ? Colors.white : OomuTokens.textPrimary,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: isSelected ? OomuTokens.coral : OomuTokens.border,
+                                  ),
+                                ),
+                              );
+                            }),
+                            ActionChip(
+                              avatar: const Icon(Icons.schedule_rounded, size: 14, color: OomuTokens.coral),
+                              label: const Text('직접 입력'),
+                              backgroundColor: OomuTokens.surfaceMuted,
+                              labelStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: OomuTokens.coral,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(color: OomuTokens.coral),
+                              ),
+                              onPressed: () async {
+                                final t = await showTimePicker(
+                                  context: ctx,
+                                  initialTime: selectedTime ?? TimeOfDay.now(),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: const ColorScheme.light(
+                                          primary: OomuTokens.coral,
+                                          onPrimary: Colors.white,
+                                          surface: Colors.white,
+                                          onSurface: OomuTokens.textPrimary,
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (t != null) setState(() => selectedTime = t);
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+
+                        // 3. 모임 장소 (검색 버튼 연동)
+                        const Text(
+                          '모임 장소',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: OomuTokens.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: locCtrl,
+                          style: const TextStyle(
+                              fontSize: OomuTokens.fs14,
+                              color: OomuTokens.textPrimary),
+                          decoration: InputDecoration(
+                            hintText: '장소 이름 입력 또는 오른쪽 검색 버튼 탭',
+                            hintStyle: const TextStyle(fontSize: 13, color: OomuTokens.textMuted),
+                            prefixIcon: const Icon(Icons.place_rounded, color: OomuTokens.coral, size: 20),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: TextButton.icon(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: OomuTokens.coral.withValues(alpha: 0.1),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.search, size: 16, color: OomuTokens.coral),
+                                label: const Text(
+                                  '장소 검색',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.coral,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  showHotspotSearch(context, onCreated: (place) {
+                                    final pName = (place['name'] ?? place['title'] ?? '').toString();
+                                    final pAddr = (place['address'] ?? '').toString();
+                                    final combined = pAddr.isNotEmpty ? '$pName ($pAddr)' : pName;
+                                    setState(() {
+                                      locCtrl.text = combined;
+                                    });
+                                  });
+                                },
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r12),
+                                borderSide:
+                                    const BorderSide(color: OomuTokens.border)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r12),
+                                borderSide:
+                                    const BorderSide(color: OomuTokens.border)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r12),
+                                borderSide:
+                                    const BorderSide(color: OomuTokens.coral)),
+                            filled: true,
+                            fillColor: OomuTokens.surfaceMuted,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+
+                        // 4. 모임 인원 (칩 스타일)
+                        const Text(
+                          '희망 참여 인원',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: OomuTokens.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [2, 3, 4, 6, 8].map((c) {
+                            final isSelected = maxMembers == c;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text('$c명'),
+                                selected: isSelected,
+                                onSelected: (sel) {
+                                  HapticFeedback.lightImpact();
+                                  if (sel) setState(() => maxMembers = c);
+                                },
+                                selectedColor: OomuTokens.coral,
+                                backgroundColor: OomuTokens.surfaceMuted,
+                                labelStyle: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                  color: isSelected ? Colors.white : OomuTokens.textPrimary,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: isSelected ? OomuTokens.coral : OomuTokens.border,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // 5. 제출 버튼
+                        OomuButton(
+                          label: '일정 공유 및 단톡 투표 시작',
+                          onPressed: () {
+                            final loc = locCtrl.text.trim();
+                            if (selectedDate == null ||
+                                selectedTime == null ||
+                                loc.isEmpty) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('날짜, 시간, 장소를 모두 입력해주세요.')));
+                              return;
+                            }
+                            Navigator.pop(ctx);
+                            onCreated({
+                              'type': 'schedule',
+                              'title': '새로운 일정이 제안되었습니다!',
+                              'date':
+                                  '${selectedDate!.month}월 ${selectedDate!.day}일',
+                              'timeStr': selectedTime!.format(ctx),
+                              'location': loc,
+                              'maxMembers': maxMembers,
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -616,6 +856,7 @@ class ChatModals {
         'lat': 34.7685,
         'lng': 127.6534,
         'desc': '저녁 장미원 야경과 둘레길 산책이 예쁜 여수 화장동 대표 힐링 스팟',
+        'photo': 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&q=80',
       },
       {
         'name': '선소상가 골목 & 낭만 먹자골목',
@@ -624,6 +865,7 @@ class ChatModals {
         'lat': 34.7612,
         'lng': 127.6588,
         'desc': '동네 이웃들과 2:2 소셜 다이닝 & 캐주얼 하이볼 한잔하기 좋은 핫플',
+        'photo': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80',
       },
       {
         'name': '무선지구 감성 베이커리 & 소금빵 카페',
@@ -632,6 +874,7 @@ class ChatModals {
         'lat': 34.7701,
         'lng': 127.6512,
         'desc': '매일 아침 갓 구운 천연발효 소금빵과 시그니처 크림라떼 명소',
+        'photo': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
       },
       {
         'name': '웅천친수공원 해변 산책로 & 오션뷰 카페',
@@ -640,6 +883,7 @@ class ChatModals {
         'lat': 34.7480,
         'lng': 127.6740,
         'desc': '푸른 남해 바다와 인공 백사장이 펼쳐진 여수 핫플레이스',
+        'photo': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80',
       },
       {
         'name': '학동 선소 유적지 & 밤바다 데크길',
@@ -648,6 +892,7 @@ class ChatModals {
         'lat': 34.7570,
         'lng': 127.6620,
         'desc': '충무공 이순신 거북선 건조지이자 조용하게 밤산책하기 좋은 사적지',
+        'photo': 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=400&q=80',
       },
       {
         'name': '화장동 수제 디저트 베이킹 팩토리',
@@ -656,6 +901,7 @@ class ChatModals {
         'lat': 34.7690,
         'lng': 127.6540,
         'desc': '버터 풍미 가득한 휘낭시에와 에그타르트 오픈런 맛집',
+        'photo': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80',
       },
       {
         'name': '신기동 LP 레코드바 & 와인클럽',
@@ -664,6 +910,7 @@ class ChatModals {
         'lat': 34.7650,
         'lng': 127.6650,
         'desc': '재즈와 감성 바이닐을 들으며 가볍게 즐기는 내추럴 와인바',
+        'photo': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80',
       },
       {
         'name': '여수 낭만포차 거리',
@@ -672,11 +919,65 @@ class ChatModals {
         'lat': 34.7390,
         'lng': 127.7420,
         'desc': '여수 밤바다와 돌문어삼합, 하멜등대 야경 명소',
+        'photo': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80',
+      },
+      {
+        'name': '고소동 천사벽화마을 & 오션 루프탑 카페',
+        'category': '카페',
+        'address': '전남 여수시 고소동 453',
+        'lat': 34.7380,
+        'lng': 127.7380,
+        'desc': '돌산대교와 여수 앞바다가 한눈에 내려다보이는 감성 루프탑 카페',
+        'photo': 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=400&q=80',
+      },
+      {
+        'name': '오동도 동백나무 숲길 & 등대 산책',
+        'category': '관광지',
+        'address': '전남 여수시 수정동 산1-11',
+        'lat': 34.7450,
+        'lng': 127.7660,
+        'desc': '사계절 푸른 동백꽃 터널과 바다 바람을 맞으며 걷는 여수 1경',
+        'photo': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80',
+      },
+      {
+        'name': '돌산공원 & 해상 케이블카 전망대',
+        'category': '관광지',
+        'address': '전남 여수시 돌산읍 돌산로 3600-1',
+        'lat': 34.7300,
+        'lng': 127.7400,
+        'desc': '여수항과 돌산대교의 황홀한 일몰과 밤 야경을 조망할 수 있는 랜드마크',
+        'photo': 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?w=400&q=80',
+      },
+      {
+        'name': '망원 한강공원 & 망리단길 카페거리',
+        'category': '카페',
+        'address': '서울 마포구 망원동 457',
+        'lat': 37.5540,
+        'lng': 126.8980,
+        'desc': '노을 지는 한강 피크닉과 아기자기한 독립 카페들이 모여있는 핫플',
+        'photo': 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80',
+      },
+      {
+        'name': '성수 서울숲 아틀리에길 & 브런치 카페',
+        'category': '카페',
+        'address': '서울 성동구 성수동1가 685',
+        'lat': 37.5440,
+        'lng': 127.0420,
+        'desc': '숲과 트렌디한 팝업 스토어, 감성 테라스 브런치가 있는 성수동 중심',
+        'photo': 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80',
+      },
+      {
+        'name': '을지로 세운상가 & 힙지로 와인바 골목',
+        'category': '술집',
+        'address': '서울 중구 을지로3가 95',
+        'lat': 37.5660,
+        'lng': 126.9920,
+        'desc': '레트로 감성의 인쇄 골목 속 숨겨진 루프탑과 내추럴 와인바',
+        'photo': 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&q=80',
       },
     ];
 
     List<Map<String, dynamic>> searchResults = List.from(defaultHotspots);
-    bool isLoading = false;
 
     showModalBottomSheet(
       context: context,
@@ -685,75 +986,35 @@ class ChatModals {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            Future<void> performSearch(String query) async {
-              final trimmed = query.trim();
-              setState(() {
-                isLoading = true;
-              });
+            void performSearch(String query) {
+              final trimmed = query.trim().toLowerCase();
+              final filtered = defaultHotspots.where((h) {
+                final matchCat = selectedCategory == '전체' ||
+                    h['category'] == selectedCategory;
+                final name = (h['name'] ?? '').toString().toLowerCase();
+                final addr = (h['address'] ?? '').toString().toLowerCase();
+                final desc = (h['desc'] ?? '').toString().toLowerCase();
+                final cat = (h['category'] ?? '').toString().toLowerCase();
+                final matchQ = trimmed.isEmpty ||
+                    name.contains(trimmed) ||
+                    addr.contains(trimmed) ||
+                    desc.contains(trimmed) ||
+                    cat.contains(trimmed);
+                return matchCat && matchQ;
+              }).toList();
 
-              try {
-                final searchTarget = trimmed.isNotEmpty
-                    ? trimmed
-                    : '$userLoc ${selectedCategory == '전체' ? '핫플' : selectedCategory}';
-                final places =
-                    await KakaoMapService.searchKeyword(searchTarget, size: 10);
-                if (places.isNotEmpty) {
-                  setState(() {
-                    searchResults = places.map((item) {
-                      return {
-                        'name': item.name,
-                        'category': item.category.isNotEmpty
-                            ? item.category
-                            : (selectedCategory == '전체'
-                                ? '모임장소'
-                                : selectedCategory),
-                        'address': item.roadAddress.isNotEmpty
-                            ? item.roadAddress
-                            : item.address,
-                        'lat': item.lat,
-                        'lng': item.lng,
-                      };
-                    }).toList();
-                  });
-                } else {
-                  final filtered = defaultHotspots.where((h) {
-                    final matchCat = selectedCategory == '전체' ||
-                        h['category'] == selectedCategory;
-                    final matchQ = trimmed.isEmpty ||
-                        h['name'].toString().contains(trimmed) ||
-                        h['address'].toString().contains(trimmed);
-                    return matchCat && matchQ;
-                  }).toList();
-                  setState(() {
-                    searchResults =
-                        filtered.isNotEmpty ? filtered : defaultHotspots;
-                  });
-                }
-              } catch (_) {
-                final filtered = defaultHotspots.where((h) {
-                  final matchCat = selectedCategory == '전체' ||
-                      h['category'] == selectedCategory;
-                  final matchQ = trimmed.isEmpty ||
-                      h['name'].toString().contains(trimmed) ||
-                      h['address'].toString().contains(trimmed);
-                  return matchCat && matchQ;
-                }).toList();
-                setState(() {
-                  searchResults =
-                      filtered.isNotEmpty ? filtered : defaultHotspots;
-                });
-              } finally {
-                setState(() => isLoading = false);
-              }
+              setState(() {
+                searchResults = filtered;
+              });
             }
 
             return Padding(
               padding:
                   EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
               child: Container(
-                height: MediaQuery.of(ctx).size.height * 0.7,
+                height: MediaQuery.of(ctx).size.height * 0.72,
                 padding: const EdgeInsets.only(
-                    top: OomuTokens.s24,
+                    top: OomuTokens.s20,
                     left: OomuTokens.s20,
                     right: OomuTokens.s20),
                 decoration: const BoxDecoration(
@@ -764,22 +1025,54 @@ class ChatModals {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: OomuTokens.border,
+                          borderRadius: BorderRadius.circular(OomuTokens.r8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
                       children: [
-                        Icon(Icons.travel_explore, color: OomuTokens.coral),
-                        SizedBox(width: OomuTokens.s8),
-                        Text(
-                          '실시간 장소 검색 (전국)',
+                        const Icon(Icons.travel_explore_rounded, color: OomuTokens.coral, size: 22),
+                        const SizedBox(width: OomuTokens.s8),
+                        const Text(
+                          '동네 핫플 & 모임 장소 검색',
                           style: TextStyle(
                             fontSize: OomuTokens.fs18,
                             fontWeight: FontWeight.w700,
                             color: OomuTokens.textPrimary,
                           ),
                         ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: OomuTokens.surfaceMuted,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            userLoc.split(' ').take(2).join(' '),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: OomuTokens.coral,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: OomuTokens.s16),
                     TextField(
+                      autofocus: false,
+                      onChanged: (val) {
+                        searchQuery = val;
+                        performSearch(val);
+                      },
                       onSubmitted: (val) {
                         searchQuery = val;
                         performSearch(val);
@@ -788,20 +1081,24 @@ class ChatModals {
                           fontSize: OomuTokens.fs14,
                           color: OomuTokens.textPrimary),
                       decoration: InputDecoration(
-                        hintText: '장소 이름 또는 지역 검색 (예: 여수 카페)',
+                        hintText: '장소 이름, 동네, 분위기 검색 (예: 성산, 선소, 카페)',
                         hintStyle: const TextStyle(
-                            fontSize: OomuTokens.fs14,
+                            fontSize: 13,
                             color: OomuTokens.textMuted),
                         prefixIcon: const Icon(Icons.search,
-                            color: OomuTokens.textSecondary),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.send_rounded,
-                              color: OomuTokens.coral),
-                          onPressed: () => performSearch(searchQuery),
-                        ),
+                            color: OomuTokens.textSecondary, size: 20),
+                        suffixIcon: searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18, color: OomuTokens.textMuted),
+                                onPressed: () {
+                                  searchQuery = '';
+                                  performSearch('');
+                                },
+                              )
+                            : null,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: OomuTokens.s16,
-                            vertical: OomuTokens.s8),
+                            vertical: 10),
                         filled: true,
                         fillColor: OomuTokens.surfaceMuted,
                         border: OutlineInputBorder(
@@ -812,8 +1109,11 @@ class ChatModals {
                             borderRadius: BorderRadius.circular(OomuTokens.r12),
                             borderSide:
                                 const BorderSide(color: OomuTokens.border)),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(OomuTokens.r12),
+                            borderSide:
+                                const BorderSide(color: OomuTokens.coral)),
                       ),
-                      onChanged: (val) => searchQuery = val,
                     ),
                     const SizedBox(height: OomuTokens.s12),
                     SingleChildScrollView(
@@ -831,23 +1131,12 @@ class ChatModals {
                                 if (selected) {
                                   setState(() {
                                     selectedCategory = category;
-                                    if (category == '전체') {
-                                      searchResults =
-                                          List.from(defaultHotspots);
-                                    } else {
-                                      searchResults = defaultHotspots
-                                          .where((h) =>
-                                              h['category'] == category)
-                                          .toList();
-                                    }
                                   });
-                                  if (searchQuery.isNotEmpty) {
-                                    performSearch(searchQuery);
-                                  }
+                                  performSearch(searchQuery);
                                 }
                               },
-                              selectedColor: OomuTokens.surfaceMuted,
-                              backgroundColor: OomuTokens.surface,
+                              selectedColor: OomuTokens.coral,
+                              backgroundColor: OomuTokens.surfaceMuted,
                               shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.circular(OomuTokens.rPill),
@@ -859,8 +1148,8 @@ class ChatModals {
                               labelStyle: TextStyle(
                                 fontSize: OomuTokens.fs12,
                                 color: isSelected
-                                    ? OomuTokens.coral
-                                    : OomuTokens.textSecondary,
+                                    ? Colors.white
+                                    : OomuTokens.textPrimary,
                                 fontWeight: isSelected
                                     ? FontWeight.w700
                                     : FontWeight.w500,
@@ -873,55 +1162,95 @@ class ChatModals {
                     const SizedBox(height: OomuTokens.s8),
                     const Divider(color: OomuTokens.border),
                     Expanded(
-                      child: isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                  color: OomuTokens.coral))
-                          : searchResults.isEmpty
-                              ? const Center(
-                                  child: Text('장소 이름이나 지역을 검색해보세요.',
-                                      style: TextStyle(
-                                          fontSize: OomuTokens.fs14,
-                                          color: OomuTokens.textMuted)))
-                              : ListView.builder(
-                                  itemCount: searchResults.length,
-                                  itemBuilder: (context, index) {
-                                    final place = searchResults[index];
-                                    return ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(
-                                          vertical: OomuTokens.s4),
-                                      leading: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                            color: OomuTokens.surfaceMuted,
-                                            borderRadius: BorderRadius.circular(
-                                                OomuTokens.r8)),
-                                        child: const Icon(Icons.place,
-                                            color: OomuTokens.coral),
-                                      ),
-                                      title: Text(place['name'],
+                      child: searchResults.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.location_off_outlined,
+                                      size: 40, color: OomuTokens.textMuted),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '\'$searchQuery\' 관련 등록된 핫플이 없습니다.',
+                                    style: const TextStyle(
+                                        fontSize: OomuTokens.fs14,
+                                        color: OomuTokens.textSecondary),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: searchResults.length,
+                              separatorBuilder: (_, __) => const Divider(
+                                  height: 1, color: OomuTokens.border),
+                              itemBuilder: (context, index) {
+                                final place = searchResults[index];
+                                final photo = (place['photo'] ?? '').toString();
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 4),
+                                  leading: ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(OomuTokens.r8),
+                                    child: SizedBox(
+                                      width: 50,
+                                      height: 50,
+                                      child: photo.isNotEmpty
+                                          ? appNetImage(
+                                              photo,
+                                              width: 50,
+                                              height: 50,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Container(
+                                              color: OomuTokens.surfaceMuted,
+                                              child: const Icon(Icons.place,
+                                                  color: OomuTokens.coral),
+                                            ),
+                                    ),
+                                  ),
+                                      title: Text(place['name'] ?? '',
                                           style: const TextStyle(
                                               fontSize: OomuTokens.fs14,
                                               fontWeight: FontWeight.w700,
                                               color: OomuTokens.textPrimary),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis),
-                                      subtitle: Text(
-                                          '${place['category']} • ${place['address']}',
-                                          style: const TextStyle(
-                                              fontSize: OomuTokens.fs12,
-                                              color: OomuTokens.textSecondary),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis),
-                                      trailing: TextButton(
-                                        style: TextButton.styleFrom(
-                                          backgroundColor:
-                                              OomuTokens.surfaceMuted,
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '${place['category']} • ${place['address']}',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: OomuTokens.textSecondary),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis),
+                                          if (place['desc'] != null) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              place['desc']!,
+                                              style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: OomuTokens.textMuted),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis),
+                                          ],
+                                        ],
+                                      ),
+                                      trailing: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: OomuTokens.coral,
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          minimumSize: Size.zero,
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(
-                                                      OomuTokens.r8)),
+                                                  BorderRadius.circular(OomuTokens.r8)),
                                         ),
                                         onPressed: () {
                                           Navigator.pop(ctx);
@@ -931,13 +1260,14 @@ class ChatModals {
                                             'name': place['name'],
                                             'category': place['category'],
                                             'address': place['address'],
+                                            'imageUrl': place['photo'],
+                                            'photo': place['photo'],
                                             'lat': place['lat'],
                                             'lng': place['lng'],
                                           });
                                         },
                                         child: const Text('공유',
                                             style: TextStyle(
-                                                color: OomuTokens.coral,
                                                 fontWeight: FontWeight.w700,
                                                 fontSize: OomuTokens.fs12)),
                                       ),
@@ -1163,29 +1493,24 @@ class ChatModals {
                       .doc('curated_stickers')
                       .snapshots(),
                   builder: (context, snapshot) {
-                    List<Map<String, dynamic>> stickers = [];
                     if (snapshot.hasData && snapshot.data!.exists) {
                       final data =
                           snapshot.data!.data() as Map<String, dynamic>?;
                       final rawList = data?['stickers'] as List<dynamic>? ?? [];
-                      stickers = rawList
-                          .map((e) => Map<String, dynamic>.from(e as Map))
-                          .toList();
+                      if (rawList.isNotEmpty) {
+                        _cachedStickers = rawList
+                            .map((e) => Map<String, dynamic>.from(e as Map))
+                            .toList();
+                      }
                     }
-                    if (stickers.isEmpty) {
-                      return const Center(
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: OomuTokens.coral,
-                          ),
-                        ),
-                      );
-                    }
+                    final stickers = _cachedStickers.isNotEmpty
+                        ? _cachedStickers
+                        : _fallbackStickers;
+
                     return GridView.builder(
                       controller: scrollController,
+                      cacheExtent: 350,
+                      addRepaintBoundaries: true,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
@@ -1200,6 +1525,12 @@ class ChatModals {
                         final rank = s['rank'] ?? (index + 1);
                         final title = (s['title'] ?? '').toString();
 
+                        final thumbUrl = rawUrl.contains('w=')
+                            ? rawUrl
+                            : (rawUrl.contains('?')
+                                ? '$rawUrl&w=160&h=160&fit=contain'
+                                : '$rawUrl?w=160&h=160&fit=contain');
+
                         return BouncyTap(
                           scaleDown: 0.92,
                           onTap: () {
@@ -1211,6 +1542,9 @@ class ChatModals {
                             } else if (!cleanUrl.contains('&output=gif')) {
                               cleanUrl = '$cleanUrl&output=gif&n=-1';
                             }
+                            cleanUrl = cleanUrl
+                                .replaceAll('&w=160&h=160&fit=contain', '')
+                                .replaceAll('?w=160&h=160&fit=contain', '');
                             onCreated({
                               'type': 'sticker',
                               'imageUrl': cleanUrl,
@@ -1230,7 +1564,7 @@ class ChatModals {
                                 Positioned.fill(
                                   child: Padding(
                                     padding: const EdgeInsets.all(OomuTokens.s4),
-                                    child: appNetImage(rawUrl,
+                                    child: appNetImage(thumbUrl,
                                         fit: BoxFit.contain),
                                   ),
                                 ),

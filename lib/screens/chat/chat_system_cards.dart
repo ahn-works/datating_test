@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/kakao_map_service.dart';
 import '../../ui/oomu_avatar.dart';
 import '../../ui/oomu_tokens.dart';
+import '../../utils/app_image.dart';
 import '../../utils/global_data.dart';
 
 // ===========================================================================
@@ -678,6 +679,23 @@ class InteractiveHotspotCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if ((msg['imageUrl'] ?? msg['photo']) != null &&
+                    (msg['imageUrl'] ?? msg['photo']).toString().isNotEmpty) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(OomuTokens.r10),
+                    child: SizedBox(
+                      height: 110,
+                      width: double.infinity,
+                      child: appNetImage(
+                        (msg['imageUrl'] ?? msg['photo']).toString(),
+                        height: 110,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 Row(
                   children: [
                     Container(
@@ -710,7 +728,7 @@ class InteractiveHotspotCard extends StatelessWidget {
                 Text(
                   name,
                   style: const TextStyle(
-                    fontSize: OomuTokens.fs16,
+                    fontSize: OomuTokens.fs15,
                     fontWeight: OomuTokens.w700,
                     color: OomuTokens.textPrimary,
                   ),

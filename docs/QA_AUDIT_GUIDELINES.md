@@ -26,7 +26,7 @@
   - `lib/screens/user_profile_screen.dart`
 - **검수 방법**:
   1. Cloudflare R2 원격 경로(`profiles/...`) 실패 시 로컬 에셋(`assets/images/초연.png`)으로의 3단 안전 폴백 체인 검증.
-  2. `test11@naver.com` 계정 진입 시 `http://localhost:8086/?profile=true&user=test11` 경로 실측 캡처.
+  2. `choyeon@test.oomu.app` 계정 진입 시 `http://localhost:8086/?profile=true&user=test11` 경로 실측 캡처.
 - **통과 기준**: 상단 원형/히어로 이미지 영역에 에러 아이콘 없이 고화질 프로필 사진이 렌더링될 것.
 - **실측 검증 증거**: `proof_01_profile_detail.png` (PASS)
 

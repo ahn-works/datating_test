@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../ui/oomu_badge.dart';
 import '../../ui/oomu_chip.dart';
@@ -28,6 +29,7 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
   int _currentPageIndex = 0;
   bool _isExpanded = false;
   late final PageController _pageController;
+  List<Map<String, dynamic>> _firestoreTrendEvents = [];
 
   static const List<String> _trendCategories = [
     '전체',
@@ -44,6 +46,22 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    _loadFirestoreTrendEvents();
+  }
+
+  Future<void> _loadFirestoreTrendEvents() async {
+    try {
+      final snap = await FirebaseFirestore.instance.collection('trend_events').limit(50).get();
+      if (snap.docs.isNotEmpty && mounted) {
+        setState(() {
+          _firestoreTrendEvents = snap.docs.map((d) {
+            final data = Map<String, dynamic>.from(d.data());
+            data['id'] = d.id;
+            return data;
+          }).toList();
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -61,14 +79,16 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
 
     if (filter == '우리동네') {
       return item['isSuggested'] == true ||
-          loc.contains('마포') ||
-          loc.contains('망원') ||
+          item['isMyNeighborhood'] == true ||
           loc.contains('여수') ||
+          loc.contains('화장') ||
           loc.contains(widget.currentLocation.split(' ').first);
     }
-    if (filter == '콘서트') return cat.contains('공연') || tag.contains('콘서트');
-    if (filter == '뮤지컬') return cat.contains('뮤지컬') || tag.contains('뮤지컬');
-    if (filter == '페스티벌') return cat.contains('페스티벌') || tag.contains('페스티벌');
+    if (filter == '콘서트') {
+      return cat.contains('공연·콘서트') || cat.contains('콘서트') || title.contains('콘서트') || tag.contains('콘서트') || title.contains('TOUR') || title.contains('LIVE');
+    }
+    if (filter == '뮤지컬') return cat.contains('뮤지컬') || tag.contains('뮤지컬') || title.contains('뮤지컬');
+    if (filter == '페스티벌') return cat.contains('페스티벌') || tag.contains('페스티벌') || title.contains('페스티벌') || title.contains('불꽃축제');
     if (filter == '스포츠') {
       return cat.contains('스포츠') ||
           title.contains('야구') ||
@@ -91,11 +111,16 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.items.isEmpty) {
+    final allItems = [
+      ..._firestoreTrendEvents,
+      ...widget.items,
+    ];
+
+    if (allItems.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final filteredItems = widget.items
+    final filteredItems = allItems
         .where((it) => _matchesFilter(it, _selectedCategory))
         .toList();
 

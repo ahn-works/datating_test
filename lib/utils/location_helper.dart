@@ -172,4 +172,36 @@ class LocationHelper {
 
     return bestName;
   }
+
+  /// 텍스트(주소/동네명)에서 알려진 한국 행정동 기준 좌표 (lat, lng) 조회
+  static Map<String, double>? findCoordsForLocation(String locText) {
+    final clean = locText.trim().toLowerCase();
+    if (clean.isEmpty) return null;
+
+    // 1차: 정확한 동네명 매칭
+    for (final pt in _dongPoints) {
+      final name = (pt['name'] as String).toLowerCase();
+      final dongOnly = name.split(' ').last;
+      if (clean.contains(dongOnly) || clean.contains(name)) {
+        return {
+          'lat': (pt['lat'] as num).toDouble(),
+          'lng': (pt['lon'] as num).toDouble(),
+        };
+      }
+    }
+
+    // 2차: 시/구 명칭 매칭
+    for (final pt in _dongPoints) {
+      final name = (pt['name'] as String).toLowerCase();
+      final cityOnly = name.split(' ').first;
+      if (clean.contains(cityOnly)) {
+        return {
+          'lat': (pt['lat'] as num).toDouble(),
+          'lng': (pt['lon'] as num).toDouble(),
+        };
+      }
+    }
+
+    return null;
+  }
 }

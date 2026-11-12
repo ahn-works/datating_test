@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../widgets/bouncy_tap.dart';
 import '../explore_map_screen.dart';
-import '../filter_screen.dart';
 import '../notification_screen.dart';
 
 /// 홈 화면 상단 앱바 컴포넌트

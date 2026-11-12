@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/oomu_home_screen.dart';
 import 'screens/oomu_detail_screen.dart';
 import 'screens/my_page_screen.dart';
+import 'screens/oomu_my_trips_screen.dart';
 import 'screens/user_profile_screen.dart';
 import 'screens/profile_edit_screen.dart';
 import 'screens/community_post_detail_screen.dart';
@@ -110,10 +111,19 @@ class Spot10App extends StatelessWidget {
           final isFortune = uri.queryParameters['fortune'] == 'true' || uri.fragment.contains('fortune=true');
           final isLogin = uri.queryParameters['login'] == 'true' || uri.fragment.contains('login=true');
           final isProfileSetup = uri.queryParameters['profile_setup'] == 'true' || uri.fragment.contains('profile_setup=true');
+          final isMyTrips = uri.queryParameters['my_trips'] == 'true' || uri.fragment.contains('my_trips=true');
           final targetUser = uri.queryParameters['user'] ?? (uri.fragment.contains('user=test11') ? 'test11' : '');
 
           if (isGallery) {
             return const OomuComponentGallery();
+          }
+          if (isMyTrips) {
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+            } else {
+              globalData.switchUser('guest');
+            }
+            return const OOMUMyTripsScreen();
           }
           if (isHome) {
             if (targetUser == 'test11' || targetUser == 'choyeon') {
@@ -126,6 +136,8 @@ class Spot10App extends StatelessWidget {
           if (isMy) {
             if (targetUser == 'test11' || targetUser == 'choyeon') {
               globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+              globalData.userNickname.value = '우리동네_초연';
+              globalData.userLocation.value = '전남 여수시 화장동';
             } else {
               globalData.switchUser('guest');
             }
@@ -174,7 +186,13 @@ class Spot10App extends StatelessWidget {
             return const CommunityPostCreateScreen();
           }
           if (isChat) {
-            globalData.switchUser('guest');
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+              globalData.userNickname.value = '우리동네_초연';
+              globalData.userLocation.value = '전남 여수시 화장동';
+            } else {
+              globalData.switchUser('guest');
+            }
             return const ChatScreen();
           }
           if (isChatRoom) {
@@ -211,6 +229,36 @@ class Spot10App extends StatelessWidget {
           }
           if (isCommDetail) {
             globalData.switchUser('guest');
+            final isTestPost = uri.queryParameters['test_post'] == 'true' ||
+                uri.fragment.contains('test_post=true');
+            if (isTestPost) {
+              return const CommunityPostDetailScreen(post: {
+                'id': 'TsjnJcvqeluZ7JsBwBvQ',
+                'category': '동네 토크',
+                'title': '근처 맛집 추천 _테스트',
+                'content': '맛집 추천해주세요~~~~~',
+                'author': '우리동네_초연',
+                'authorAvatar': 'assets/images/초연.png',
+                'location': '전남 여수시 화장동',
+                'time': '방금 전',
+                'likes': 1,
+                'isLiked': true,
+                'comments': 1,
+                'image': 'assets/images/cover_food.jpg',
+                'tag': '동네토크',
+                'commentList': [
+                  {
+                    'id': 'c_test_01',
+                    'author': '우리동네_초연',
+                    'authorAvatar': 'assets/images/초연.png',
+                    'content': '테스트에요',
+                    'time': '방금 전',
+                    'likes': 0,
+                    'isLiked': false,
+                  }
+                ],
+              });
+            }
             return const CommunityPostDetailScreen(post: {
               'id': 'post_sample_01',
               'category': '맛집·카페',
@@ -243,6 +291,35 @@ class Spot10App extends StatelessWidget {
             });
           }
           if (isDetail) {
+            if (targetUser == 'test11' || targetUser == 'choyeon') {
+              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
+              globalData.userNickname.value = '우리동네_초연';
+              globalData.userLocation.value = '전남 여수시 화장동';
+              return const OOMUDetailScreen(meetup: {
+                'id': 'sample_yeosu_01',
+                'title': '여수 학동 선소상가 찐맛집 털기 & 2:2 캐주얼 소셜 다이닝 🥘',
+                'category': '동네 맛집 & 소셜 다이닝',
+                'location': '전남 여수시 시청동2길 선소상가 일대',
+                'lat': 34.7612,
+                'lng': 127.6588,
+                'date': '이번 주 금요일 저녁 7시',
+                'time': '저녁 7시',
+                'transport': '도보 / 대중교통 이동',
+                'fee': '각자 주문 (1/N)',
+                'cost': '각자 주문 (1/N)',
+                'members': 2,
+                'maxMembers': 4,
+                'host': '우리동네_초연',
+                'hostAvatar': 'assets/images/초연.png',
+                'hostBio': '여수 화장동 토박이 초연입니다! 동네 산책과 감성 카페 모임 좋아해요 😊',
+                'hostManner': 42.0,
+                'isVerified': true,
+                'isFemaleOnly': false,
+                'description': '선소상가에서 유명한 해산물 맛집과 삼합 예약 완료했습니다! 금요일 저녁 7시에 봬요. 매너 있는 이웃분들 환영합니다 :)',
+                'imageUrl': 'assets/images/cover_food.jpg',
+                'praiseTags': ['친절하고 배려심 넘쳐요', '시간 약속을 잘 지켜요', '분위기를 밝게 해줘요'],
+              });
+            }
             globalData.switchUser('guest');
             return const OOMUDetailScreen(meetup: {
               'id': 'sample_01',

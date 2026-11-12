@@ -15,6 +15,7 @@ import '../ui/oomu_tag.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/location_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/interactive_map_popup.dart';
@@ -126,13 +127,22 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     try {
       final verified = await KakaoMapService.resolveVerifiedPlace(loc);
       if (!mounted || reqId != _locationReqId) return;
-      if (verified != null && verified.hasValidCoords) {
+
+      Map<String, double>? fallbackCoords;
+      if (verified == null || !verified.hasValidCoords) {
+        fallbackCoords = LocationHelper.findCoordsForLocation(loc);
+      }
+
+      final finalLat = verified?.lat ?? fallbackCoords?['lat'];
+      final finalLng = verified?.lng ?? fallbackCoords?['lng'];
+
+      if (finalLat != null && finalLng != null) {
         setState(() {
-          _targetLat = verified.lat;
-          _targetLng = verified.lng;
+          _targetLat = finalLat;
+          _targetLng = finalLng;
           _isResolvingLocation = false;
         });
-        final dist = await KakaoMapService.getDistanceTextFromCurrent(verified.lat, verified.lng);
+        final dist = await KakaoMapService.getDistanceTextFromCurrent(finalLat, finalLng);
         if (!mounted || reqId != _locationReqId) return;
         setState(() {
           _distanceText = dist;
@@ -147,12 +157,28 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       }
     } catch (_) {
       if (!mounted || reqId != _locationReqId) return;
-      setState(() {
-        _targetLat = null;
-        _targetLng = null;
-        _isResolvingLocation = false;
-        _distanceText = '거리 확인 불가';
-      });
+      final fallbackCoords = LocationHelper.findCoordsForLocation(loc);
+      if (fallbackCoords != null) {
+        final fLat = fallbackCoords['lat']!;
+        final fLng = fallbackCoords['lng']!;
+        setState(() {
+          _targetLat = fLat;
+          _targetLng = fLng;
+          _isResolvingLocation = false;
+        });
+        final dist = await KakaoMapService.getDistanceTextFromCurrent(fLat, fLng);
+        if (!mounted || reqId != _locationReqId) return;
+        setState(() {
+          _distanceText = dist;
+        });
+      } else {
+        setState(() {
+          _targetLat = null;
+          _targetLng = null;
+          _isResolvingLocation = false;
+          _distanceText = '거리 확인 불가';
+        });
+      }
     }
   }
 
@@ -641,18 +667,43 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     _buildMapSection(hasResolvedCoords, locName),
                     const SizedBox(height: OomuTokens.s32),
 
-                    // G. 참여 멤버
+                    // G. 참여 멤버 (고품격 헤더 배지 + 아바타 스택 + 신뢰 인디케이터)
                     OomuSectionHeader(
                       title: '참여 멤버',
                       padding: EdgeInsets.zero,
-                      action: Text(
-                        memberCount > 0 ? '$memberCount명 참여 중' : '참여 인원 확인 필요',
-                        style: const TextStyle(
-                          fontSize: OomuTokens.fs12,
-                          color: OomuTokens.coral,
-                          fontWeight: OomuTokens.w700,
-                          fontFamily: OomuTokens.fontFamily,
-                        ),
+                      action: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          Text(
+                            memberCount > 0 ? '$memberCount명 참여 중' : '참여 인원 확인 필요',
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs13,
+                              color: OomuTokens.textPrimary,
+                              fontWeight: OomuTokens.w700,
+                              fontFamily: OomuTokens.fontFamily,
+                            ),
+                          ),
+                          if (maxCapacity > 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: OomuTokens.coral.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                                border: Border.all(color: OomuTokens.coral.withValues(alpha: 0.25)),
+                              ),
+                              child: Text(
+                                '${_calcRemainingSeats(widget.meetup?['members'])} · 정원 $maxCapacity명',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: OomuTokens.coral,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: OomuTokens.fontFamily,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: OomuTokens.s12),
@@ -667,67 +718,79 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             .map((url) => _buildMemberAvatar(url.toString(), isHost: false)),
                       ],
                     ),
-                    const SizedBox(height: OomuTokens.s12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s12, vertical: OomuTokens.s12),
-                      decoration: BoxDecoration(
-                        color: OomuTokens.surfaceMuted,
-                        borderRadius: BorderRadius.circular(OomuTokens.r12),
-                        border: Border.all(color: OomuTokens.border),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.info_outline_rounded, size: 16, color: OomuTokens.textSecondary),
-                          const SizedBox(width: OomuTokens.s8),
-                          Expanded(
-                            child: Text(
-                              maxCapacity > 0
-                                  ? '${_calcRemainingSeats(widget.meetup?['members'])} · 정원 $maxCapacity명'
-                                  : '참여 인원 정보를 확인해 주세요.',
-                              style: const TextStyle(
-                                fontSize: OomuTokens.fs12,
-                                color: OomuTokens.textSecondary,
-                                fontWeight: OomuTokens.w400,
-                                fontFamily: OomuTokens.fontFamily,
-                              ),
+                    const SizedBox(height: OomuTokens.s8),
+                    const Row(
+                      children: [
+                        Icon(Icons.check_circle_rounded, size: 14, color: OomuTokens.verified),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            '호스트 승인 후 단톡방 입장 · 매너온도 36.5°C 이상 이웃',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: OomuTokens.textSecondary,
+                              fontWeight: OomuTokens.w400,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: OomuTokens.s32),
+                    const SizedBox(height: 28),
 
-                    // H. 안전 & 신고 섹션
+                    // H. 안심 클린 모임 준수 가이드 및 신고 (1px 초미세 테두리 프리미엄 카드)
                     Container(
-                      padding: const EdgeInsets.all(OomuTokens.s12),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: OomuTokens.surfaceMuted,
-                        borderRadius: BorderRadius.circular(OomuTokens.r12),
-                        border: Border.all(color: OomuTokens.border),
+                        color: const Color(0xFFFAFBFD),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFEDEFF2)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.shield_outlined, size: 18, color: OomuTokens.textSecondary),
-                          const SizedBox(width: OomuTokens.s8),
+                          const Icon(Icons.verified_user_rounded, size: 18, color: OomuTokens.coral),
+                          const SizedBox(width: 10),
                           const Expanded(
-                            child: Text(
-                              '매너 있는 동네 모임을 함께 만들어요',
-                              style: TextStyle(
-                                fontSize: OomuTokens.fs12,
-                                color: OomuTokens.textSecondary,
-                                fontFamily: OomuTokens.fontFamily,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '2030 클린 모임 안전 수칙 준수',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '부적절한 언행이나 연락처 요구 시 즉시 제재됩니다.',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: OomuTokens.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => _showMeetupReportBottomSheet(context),
-                            child: const Text(
-                              '신고하기',
-                              style: TextStyle(
-                                fontSize: OomuTokens.fs12,
-                                color: OomuTokens.textSecondary,
-                                decoration: TextDecoration.underline,
-                                fontFamily: OomuTokens.fontFamily,
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              _showMeetupReportBottomSheet(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: OomuTokens.border),
+                              ),
+                              child: const Text(
+                                '신고·차단',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: OomuTokens.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),

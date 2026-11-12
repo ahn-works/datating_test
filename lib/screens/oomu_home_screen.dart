@@ -17,7 +17,6 @@ import 'oomu_chat_room_screen.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/oomu_discovery_lifestyle_hub.dart';
 import 'home/home_category_tabs.dart';
-import 'explore_map_screen.dart';
 import 'oomu_host_screen.dart';
 import 'home/home_community_section.dart';
 import 'home/home_discovery_section.dart';
@@ -1246,7 +1245,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         {
           'id': 'my_yeosu_07',
           'title': '여수 해양공원 낭만포차 해물삼합 & 밤바다 거리 버스킹 직관',
-          'category': '문화 & 엔터 > 페스티벌 & 공연',
+          'category': '문화 & 엔터 > 버스킹 & 낭만포차',
           'location': '전남 여수시 중앙동 해양공원',
           'tag': '🎶 여수 밤바다버스킹',
           'vibe': '놀줄아는',
@@ -1309,11 +1308,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         {
           'id': 'my_yeosu_12',
           'title': '2026 여수 밤바다 불꽃축제 & 문화의 달 페스티벌 동행 메이트',
-          'category': '문화 & 엔터 > 페스티벌 & 공연',
+          'category': '문화 & 엔터 > 페스티벌',
           'location': '전남 여수시 이순신광장·박람회장 일대',
           'tag': '🎆 여수 대표축제',
           'vibe': '놀줄아는',
-          'poster': 'assets/images/cover_wine.jpg',
+          'poster': 'assets/images/cover_running_hangang.jpg',
           'period': '여수 문화축제 시즌',
           'rank': 12,
           'isMyNeighborhood': true,

@@ -49,6 +49,17 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     }
   }
 
+  String _getPostImageFallback(String category) {
+    if (category.contains('맛집') || category.contains('카페')) {
+      return 'assets/images/cover_food.jpg';
+    } else if (category.contains('공연') || category.contains('핫플') || category.contains('전시')) {
+      return 'assets/images/cover_wine.jpg';
+    } else if (category.contains('운동') || category.contains('러닝')) {
+      return 'assets/images/cover_running.jpg';
+    }
+    return 'assets/images/cover_food.jpg';
+  }
+
   void _initPostState() {
     _isLiked = widget.post['isLiked'] == true;
     _likeCount = (widget.post['likes'] is num)
@@ -391,6 +402,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     final time = (post['time'] ?? '방금 전').toString();
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
     final tag = post['tag'];
+    final category = (post['category'] ?? '').toString();
     final title = (post['title'] ?? '').toString();
     final content = (post['content'] ?? '').toString();
     final image = post['image'];
@@ -534,18 +546,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     constraints: const BoxConstraints(maxHeight: 340),
                     child: SizedBox(
                       width: double.infinity,
-                      child: Image(
-                        image: appImg(image.toString()),
+                      child: appNetImage(
+                        image.toString(),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 160,
-                          color: OomuTokens.surfaceMuted,
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            color: OomuTokens.textMuted,
-                          ),
-                        ),
+                        fallback: _getPostImageFallback(category),
                       ),
                     ),
                   ),

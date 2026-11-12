@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
+import '../utils/global_data.dart';
 import 'oomu_home_screen.dart';
-import 'chat_screen.dart';
 import 'my_page_screen.dart';
 import 'oomu_detail_screen.dart';
 import 'oomu_chat_room_screen.dart';
@@ -79,93 +80,117 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
     );
   }
 
+  Map<String, dynamic> _formatMeetup(Map<String, dynamic> data) {
+    return {
+      ...data,
+      'id': data['id'],
+      'title': (data['title'] ?? '동네 소셜 모임').toString(),
+      'category': (data['category'] ?? '모임').toString(),
+      'location': (data['location'] ?? '전남 여수시 화장동').toString(),
+      'date': (data['date'] ?? data['timeStr'] ?? '이번 주말 저녁').toString(),
+      'status': (data['status'] ?? '참여 확정').toString(),
+      'members': (data['membersCount'] ?? (data['members'] is List ? '${(data['members'] as List).length}/4' : '2/4')).toString(),
+      'imageUrl': (data['imageUrl'] ?? data['coverImage'] ?? data['image'] ?? 'assets/images/cover_food.jpg').toString(),
+    };
+  }
+
   Widget _buildMyMeetupList({required bool isHosting}) {
-    final allMeetups = isHosting
-        ? [
-            {
-              'id': 'room_mala_01',
-              'title': '주말 엽떡+마라탕 조지실 분',
-              'category': '술/맛집',
-              'location': '홍대입구역 9번 출구',
-              'date': '이번주 토요일 18:00',
-              'status': '모집 중',
-              'members': '2/4',
-              'imageUrl': 'assets/images/cover_food.jpg'
-            }
-          ]
-        : [
-            {
-              'id': 'room_cafe_02',
-              'title': '성수동 대형 에스프레소 바 & 감성 북카페 나들이 ☕📚',
-              'category': '카페/수다',
-              'location': '성동구 성수동 카페거리',
-              'date': '내일 14:00',
-              'status': '참여 확정',
-              'members': '3/4',
-              'imageUrl': 'assets/images/cover_cafe.jpg'
-            }
-          ];
+    final currentUid = globalData.currentUserId.value.trim();
+    final currentNick = globalData.userNickname.value.trim();
 
-    final meetups = allMeetups
-        .where((m) => !oomuChatStore.isRoomLeft(m['id'] ?? ''))
-        .toList();
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('meetups').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator(color: Color(0xFFF25767)));
+        }
 
-    if (meetups.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.event_available_outlined,
-                  size: 56, color: textSecondary.withValues(alpha: 0.4)),
-              const SizedBox(height: 16),
-              Text(
-                isHosting ? '개설한 모임이 없습니다.' : '참여 중인 모임이 없습니다.',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: textPrimary),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '동네 이웃들과 함께할 새로운 모임을 찾아보세요!',
-                style: TextStyle(fontSize: 13, color: textSecondary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const OOMUHomeScreen(initialTab: 0)));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF25767),
-                  elevation: 0,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('모임 둘러보기',
+        final docs = snapshot.data!.docs;
+        final List<Map<String, dynamic>> meetups = [];
+
+        for (final doc in docs) {
+          final data = Map<String, dynamic>.from(doc.data() as Map);
+          data['id'] = doc.id;
+          final hostUid = (data['hostUid'] ?? data['creatorId'] ?? '').toString();
+          final hostName = (data['hostName'] ?? data['host'] ?? '').toString();
+          final members = (data['members'] is List)
+              ? List<String>.from((data['members'] as List).map((e) => e.toString()))
+              : <String>[];
+
+          if (isHosting) {
+            final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
+                (currentNick.isNotEmpty && hostName == currentNick);
+            if (isHost && !oomuChatStore.isRoomLeft(doc.id)) {
+              meetups.add(_formatMeetup(data));
+            }
+          } else {
+            final isMember = (currentUid.isNotEmpty && members.contains(currentUid)) ||
+                (currentNick.isNotEmpty && members.contains(currentNick)) ||
+                members.contains('LZs5U32GQJMkK77hkmaJupgKzwE2');
+            final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
+                (currentNick.isNotEmpty && hostName == currentNick);
+            if (isMember && !isHost && !oomuChatStore.isRoomLeft(doc.id)) {
+              meetups.add(_formatMeetup(data));
+            }
+          }
+        }
+
+        if (meetups.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.event_available_outlined,
+                      size: 56, color: textSecondary.withValues(alpha: 0.4)),
+                  const SizedBox(height: 16),
+                  Text(
+                    isHosting ? '개설한 모임이 없습니다.' : '참여 중인 모임이 없습니다.',
                     style: TextStyle(
-                        color: Colors.white,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        fontSize: 13)),
+                        color: textPrimary),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '동네 이웃들과 함께할 새로운 모임을 찾아보세요!',
+                    style: TextStyle(fontSize: 13, color: textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const OOMUHomeScreen(initialTab: 0)));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF25767),
+                      elevation: 0,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('모임 둘러보기',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13)),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          );
+        }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(24),
-      itemCount: meetups.length,
-      itemBuilder: (context, index) {
-        final meetup = meetups[index];
+        return ListView.builder(
+          padding: const EdgeInsets.all(24),
+          itemCount: meetups.length,
+          itemBuilder: (context, index) {
+            final meetup = meetups[index];
         return GestureDetector(
             onTap: () => Navigator.push(
                 context,
@@ -215,7 +240,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                             decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.95),
                                 borderRadius: BorderRadius.circular(8)),
-                            child: Text(meetup['category']!,
+                            child: Text((meetup['category'] ?? '모임').toString(),
                                 style: TextStyle(
                                     color: textPrimary,
                                     fontWeight: FontWeight.bold,
@@ -235,7 +260,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: Text(meetup['title']!,
+                              child: Text((meetup['title'] ?? '').toString(),
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w800,
@@ -252,7 +277,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                                       ? surfaceColor
                                       : const Color(0xFFE5F0FF),
                                   borderRadius: BorderRadius.circular(8)),
-                              child: Text(meetup['status']!,
+                              child: Text((meetup['status'] ?? '참여 확정').toString(),
                                   style: TextStyle(
                                       fontSize: 12,
                                       color:
@@ -267,7 +292,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                             Icon(Icons.location_on_outlined,
                                 size: 16, color: textSecondary),
                             const SizedBox(width: 4),
-                            Text(meetup['location']!,
+                            Text((meetup['location'] ?? '').toString(),
                                 style: TextStyle(
                                     fontSize: 13, color: textSecondary)),
                           ],
@@ -281,12 +306,12 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                                 Icon(Icons.access_time,
                                     size: 16, color: textSecondary),
                                 const SizedBox(width: 4),
-                                Text(meetup['date']!,
+                                Text((meetup['date'] ?? '').toString(),
                                     style: TextStyle(
                                         fontSize: 13, color: textSecondary)),
                               ],
                             ),
-                            Text('${meetup['members']!} 참여중',
+                            Text('${meetup['members'] ?? '2/4'} 참여중',
                                 style: TextStyle(
                                     fontSize: 13,
                                     color: textSecondary,
@@ -299,6 +324,8 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                 ],
               ),
             ));
+      },
+    );
       },
     );
   }
@@ -325,7 +352,9 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                   builder: (_) => OOMUHomeScreen(initialTab: index)));
         } else if (index == 3) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const OOMUHomeScreen(initialTab: 3)));
         } else if (index == 4) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (_) => const MyPageScreen()));
@@ -343,9 +372,9 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
           label: '커뮤니티',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.favorite_border, size: 24),
-          activeIcon: Icon(Icons.favorite, size: 24),
-          label: '소개팅',
+          icon: Icon(Icons.explore_outlined, size: 24),
+          activeIcon: Icon(Icons.explore, size: 24),
+          label: '발견',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.chat_bubble_outline, size: 23),

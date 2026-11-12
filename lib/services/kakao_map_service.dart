@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import '../utils/global_data.dart';
+import '../utils/location_helper.dart';
 
 /// 카카오맵 장소 데이터 모델
 class KakaoPlace {
@@ -339,42 +341,50 @@ class KakaoMapService {
   }
 
   /// 7. 현재 기기 위치 기준 특정 좌표까지의 실시간 거리 문자열
-  /// 위치 권한 거부/시간초과/실패 시 임의 좌표(홍대 37.5568 등)나 '도보 5분'으로 폴백하지 않고 '거리 확인 불가'를 반환합니다.
-  static Future<String> getDistanceTextFromCurrent(double targetLat, double targetLng) async {
+  /// GPS 권한이 허용되어 있으면 기기 실제 GPS 기반 거리, 브라우저/웹 권한 미허용 시 사용자 설정 동네(globalData.userLocation) 기준 거리 계산
+  static Future<String> getDistanceTextFromCurrent(double targetLat, double targetLng, {String? userLocation}) async {
     if (targetLat.isNaN || targetLng.isNaN || targetLat <= 0 || targetLng <= 0) {
       return '거리 확인 불가';
     }
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return '거리 확인 불가';
-      }
       final permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        return '거리 확인 불가';
+      if (serviceEnabled && permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
+        Position? pos;
+        try {
+          pos = await Geolocator.getLastKnownPosition();
+        } catch (_) {}
+        pos ??= await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.low,
+            timeLimit: Duration(seconds: 2),
+          ),
+        );
+
+        if (pos.latitude > 0 && pos.longitude > 0) {
+          final dist = calculateDistanceInMeters(pos.latitude, pos.longitude, targetLat, targetLng);
+          return '내 위치에서 ${formatDistance(dist)}';
+        }
       }
+    } catch (_) {}
 
-      Position? pos;
-      try {
-        pos = await Geolocator.getLastKnownPosition();
-      } catch (_) {}
-      pos ??= await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.low,
-          timeLimit: Duration(seconds: 2),
-        ),
-      );
-
-      if (pos.latitude <= 0 || pos.longitude <= 0) {
-        return '거리 확인 불가';
+    // GPS 권한 거부/웹 환경 브라우저 차단 시 사용자의 설정 동네 기반 스마트 거리 계산
+    final locStr = (userLocation != null && userLocation.trim().isNotEmpty)
+        ? userLocation.trim()
+        : globalData.userLocation.value.trim();
+    if (locStr.isNotEmpty) {
+      final coords = LocationHelper.findCoordsForLocation(locStr);
+      if (coords != null) {
+        final dist = calculateDistanceInMeters(coords['lat']!, coords['lng']!, targetLat, targetLng);
+        final dongOnly = locStr.split(' ').last;
+        if (dist < 500) {
+          return '$dongOnly 중심 (도보 5분)';
+        }
+        return '$dongOnly 기준 ${formatDistance(dist)}';
       }
-
-      final dist = calculateDistanceInMeters(pos.latitude, pos.longitude, targetLat, targetLng);
-      return '내 위치에서 ${formatDistance(dist)}';
-    } catch (_) {
-      return '거리 확인 불가';
     }
+
+    return '거리 확인 불가';
   }
 
   /// 8. 카카오맵 지도 핀 바로가기 링크 생성

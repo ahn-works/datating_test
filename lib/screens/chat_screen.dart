@@ -96,7 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 0,
         elevation: 0,
-        automaticallyImplyLeading: !widget.isEmbedded,
+        automaticallyImplyLeading: false,
         titleSpacing: OomuTokens.s20,
         title: const Text(
           '채팅',
@@ -524,6 +524,58 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+      bottomNavigationBar:
+          widget.isEmbedded ? null : _buildStandaloneBottomNav(context),
+    );
+  }
+
+  Widget _buildStandaloneBottomNav(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: 3,
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: OomuTokens.coral,
+      unselectedItemColor: OomuTokens.textMuted,
+      showUnselectedLabels: true,
+      selectedLabelStyle:
+          const TextStyle(fontWeight: OomuTokens.w700, fontSize: 11),
+      unselectedLabelStyle:
+          const TextStyle(fontWeight: OomuTokens.w400, fontSize: 11),
+      elevation: 0,
+      backgroundColor: OomuTokens.surface,
+      onTap: (index) {
+        if (index == 3) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => OOMUHomeScreen(initialTab: index)),
+        );
+      },
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined, size: 24),
+          activeIcon: Icon(Icons.home, size: 24),
+          label: '동네모임',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.group_outlined, size: 24),
+          activeIcon: Icon(Icons.group, size: 24),
+          label: '커뮤니티',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.explore_outlined, size: 24),
+          activeIcon: Icon(Icons.explore, size: 24),
+          label: '발견',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble_outline, size: 23),
+          activeIcon: Icon(Icons.chat_bubble, size: 23),
+          label: '채팅',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline, size: 24),
+          activeIcon: Icon(Icons.person, size: 24),
+          label: 'MY',
+        ),
+      ],
     );
   }
 }

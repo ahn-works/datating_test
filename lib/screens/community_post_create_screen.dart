@@ -28,15 +28,15 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
-  String _selectedCategory = '☕ 일상·수다';
+  String _selectedCategory = '일상·수다';
   String _selectedTag = '동네토크';
   String? _selectedPhoto;
 
   final List<String> _categories = [
-    '☕ 일상·수다',
-    '🎭 공연·핫플',
-    '🍰 맛집·카페',
-    '❓ 동네질문',
+    '일상·수다',
+    '공연·핫플',
+    '맛집·카페',
+    '동네질문',
   ];
 
   final List<String> _tags = [
@@ -81,16 +81,23 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         );
       } catch (e) {
         debugPrint('[R2 Storage] Community post photo upload error: $e');
-        uploadedUrl = file.path;
+        uploadedUrl = '';
+      }
+
+      final String finalPhotoUrl;
+      if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
+        finalPhotoUrl = uploadedUrl;
+      } else {
+        finalPhotoUrl = _resolveCategoryCoverPhoto();
       }
 
       if (mounted) {
         setState(() {
-          _selectedPhoto = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+          _selectedPhoto = finalPhotoUrl;
           _isUploadingPhoto = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('📸 Cloudflare R2에 사진이 안전하게 등록되었습니다!')),
+          const SnackBar(content: Text('📸 사진이 안전하게 등록되었습니다!')),
         );
       }
     } catch (e) {
@@ -101,6 +108,17 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         );
       }
     }
+  }
+
+  String _resolveCategoryCoverPhoto() {
+    if (_selectedCategory.contains('맛집') || _selectedCategory.contains('카페')) {
+      return 'assets/images/cover_food.jpg';
+    } else if (_selectedCategory.contains('공연') || _selectedCategory.contains('핫플')) {
+      return 'assets/images/cover_wine.jpg';
+    } else if (_selectedCategory.contains('운동') || _selectedCategory.contains('러닝')) {
+      return 'assets/images/cover_running.jpg';
+    }
+    return 'assets/images/cover_food.jpg';
   }
 
   @override

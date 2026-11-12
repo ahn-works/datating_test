@@ -5,6 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>카카오 지도</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="text/javascript">
     (function () {
       const p = new URLSearchParams(window.location.search);
@@ -206,6 +208,43 @@
 
     const container = document.getElementById('map');
     if (typeof kakao === 'undefined' || !kakao.maps) {
+      if (typeof L !== 'undefined' && container) {
+        try {
+          const fallbackZoom = isNaN(levelParam) ? 15 : Math.max(12, 19 - levelParam);
+          const leafletMap = L.map('map', { zoomControl: false }).setView([lat, lng], fallbackZoom);
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+          }).addTo(leafletMap);
+
+          const customIcon = L.divIcon({
+            className: 'custom-leaflet-marker',
+            html: '<div style="background:#F25767;color:#FFFFFF;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(242,87,103,0.45);border:2px solid #FFFFFF;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">📍 ' + (name || '모임 장소') + '</div>',
+            iconSize: [120, 36],
+            iconAnchor: [60, 36]
+          });
+          L.marker([lat, lng], { icon: customIcon }).addTo(leafletMap);
+
+          document.getElementById('btnZoomIn').onclick = function (e) {
+            e.stopPropagation();
+            leafletMap.zoomIn();
+          };
+          document.getElementById('btnZoomOut').onclick = function (e) {
+            e.stopPropagation();
+            leafletMap.zoomOut();
+          };
+
+          document.getElementById('btnMap').onclick = function () {
+            window.open('https://map.kakao.com/link/map/' + encodeURIComponent(name) + ',' + lat + ',' + lng, '_blank');
+          };
+          document.getElementById('btnNavi').onclick = function () {
+            window.open('https://map.kakao.com/link/to/' + encodeURIComponent(name) + ',' + lat + ',' + lng, '_blank');
+          };
+          return;
+        } catch (leafletErr) {
+          console.warn('Leaflet fallback error:', leafletErr);
+        }
+      }
       if (container) {
         container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8E8E93;font-size:14px;background:#FAFAFA;">지도 서비스 준비 중입니다</div>';
       }
