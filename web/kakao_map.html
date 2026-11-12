@@ -45,7 +45,7 @@
       top: 12px;
       right: 12px;
       z-index: 15;
-      display: flex;
+      display: none;
       flex-direction: column;
       background: rgba(255, 255, 255, 0.96);
       border-radius: 12px;
@@ -83,7 +83,7 @@
       left: 16px;
       right: 16px;
       z-index: 10;
-      display: flex;
+      display: none;
       gap: 8px;
     }
 
@@ -195,14 +195,14 @@
     let selectedId = params.get('selectedId') || '';
     const hideActions = params.get('hideActions') === 'true' || params.get('preview') === 'true';
 
-    if (hideActions) {
+    if (!hideActions) {
       const overlayBox = document.querySelector('.overlay-box');
       if (overlayBox) {
-        overlayBox.style.display = 'none';
+        overlayBox.style.display = 'flex';
       }
       const zoomBox = document.querySelector('.map-zoom-box');
       if (zoomBox) {
-        zoomBox.style.display = 'none';
+        zoomBox.style.display = 'flex';
       }
     }
 

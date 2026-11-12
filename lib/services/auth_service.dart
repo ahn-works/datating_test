@@ -123,10 +123,20 @@ class AuthService {
     }
   }
 
-  bool get isAdmin =>
-      _auth.currentUser?.email?.startsWith('admin@') == true ||
-      _auth.currentUser?.email?.endsWith('@oomu.app') == true ||
-      globalData.activeUserId == 'udr2AlH3YIX7LEnyHdWGGFcOu2g1';
+  bool get isAdmin {
+    final email = _auth.currentUser?.email?.trim().toLowerCase() ?? '';
+    if (email.isEmpty) return false;
+    // 가상 이메일(phone_xxx@oomu.app, google_xxx@oomu.app, kakao_xxx@oomu.app 등)은 일반 유저
+    if (email.startsWith('phone_') ||
+        email.startsWith('google_') ||
+        email.startsWith('kakao_') ||
+        email.startsWith('naver_')) {
+      return false;
+    }
+    return email == 'admin@oomu.app' ||
+        email.startsWith('admin@') ||
+        globalData.activeUserId == 'udr2AlH3YIX7LEnyHdWGGFcOu2g1';
+  }
 
   // 1. 관리자 1초 빠른 로그인
   Future<UserCredential> signInAsAdmin() async {
@@ -758,7 +768,13 @@ class AuthService {
   }) async {
     final uid = user.uid;
     final email = user.email ?? '';
-    final bool isAdminEmail = email.startsWith('admin@') || email.endsWith('@oomu.app');
+    final cleanEmail = email.trim().toLowerCase();
+    final bool isVirtualAuth = cleanEmail.startsWith('phone_') ||
+        cleanEmail.startsWith('google_') ||
+        cleanEmail.startsWith('kakao_') ||
+        cleanEmail.startsWith('naver_');
+    final bool isAdminEmail = !isVirtualAuth &&
+        (cleanEmail == 'admin@oomu.app' || cleanEmail.startsWith('admin@'));
 
     // 비동기 요청 시작 전 switchUser를 통해 이전 사용자 상태를 초기화하고 세션 세대를 기록
     globalData.switchUser(uid, triggerFirestoreSync: false);

@@ -144,7 +144,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           'placeName': '여수 화장동 미나리삼겹살',
           'distance': '$dong 도보 5분',
           'hours': '매일 16:00 - 23:30',
-          'image': 'assets/images/cover_food.jpg',
+          'image': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
           'menus': [
             '숙성 통삼겹살 (180g) 16,000원',
             '생미나리 추가 5,000원',
@@ -161,7 +161,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           'placeName': '여수 학동 선소 해물파전 칼국수',
           'distance': '$dong 차량 6분',
           'hours': '매일 11:30 - 22:00',
-          'image': 'assets/images/cover_wine.jpg',
+          'image': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80',
           'menus': ['철판 해물파전 18,000원', '들깨 바지락 칼국수 9,000원', '생막걸리 5,000원'],
         },
       ];
@@ -177,7 +177,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'placeName': '${widget.currentLocation} 미나리 삼겹살',
         'distance': '$dong 도보 4분',
         'hours': '매일 16:30 - 24:00',
-        'image': 'assets/images/cover_food.jpg',
+        'image': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
         'menus': ['봄동·미나리 통삼겹 17,000원', '미나리 무침 추가 5,000원', '차돌 된장찌개 7,000원'],
       },
       {
@@ -190,7 +190,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'placeName': '${widget.currentLocation} 해물파전 칼국수',
         'distance': '$dong 도보 6분',
         'hours': '매일 12:00 - 23:00',
-        'image': 'assets/images/cover_wine.jpg',
+        'image': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80',
         'menus': ['통오징어 해물파전 19,000원', '감자전 15,000원', '얼큰 해물 수제비 10,000원'],
       },
     ];
@@ -208,7 +208,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '저녁 7시~9시 30% 즉시 할인 (소진 시 마감)',
         'placeName': '${widget.currentLocation} 베이커리 카페',
         'distance': '$dong 도보 3분',
-        'image': 'assets/images/cover_salt_bread.jpg',
+        'image': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
       },
       {
         'id': 'deal_2',
@@ -219,7 +219,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '음료 1+1 쿠폰 (이번 주 일요일까지)',
         'placeName': '${widget.currentLocation} 로스터리 카페',
         'distance': '$dong 도보 5분',
-        'image': 'assets/images/cover_cafe.jpg',
+        'image': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
       },
       {
         'id': 'deal_3',
@@ -230,7 +230,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '1회 체험권 50,000원 → 22,000원',
         'placeName': '${widget.currentLocation} 필라테스',
         'distance': '$dong 도보 4분',
-        'image': 'assets/images/cover_running.jpg',
+        'image': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80',
       },
       {
         'id': 'deal_4',
@@ -241,7 +241,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '무료 입장 + 현장 3,000원 할인권 증정',
         'placeName': '${widget.currentLocation} 문화광장',
         'distance': '$dong 도보 7분',
-        'image': 'assets/images/cover_wine.jpg',
+        'image': 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&q=80',
       },
     ];
   }
@@ -258,7 +258,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '월 최대 20만 원 × 12개월 (복지로·주민센터 신청)',
         'target': '만 19세~34세 무주택 1인 가구 청년 (중위소득 60% 이하)',
         'howToApply': '복지로(bokjiro.go.kr) 온라인 신청 또는 관할 행정복지센터 방문',
-        'image': 'assets/images/cover_cafe.jpg',
+        'image': 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
       },
       {
         'id': 'sub_2',
@@ -270,7 +270,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '매월 교통비 30% 자동 환급 (일반 20%, 청년 30%)',
         'target': '만 19세~34세 전국 청년 누구나 (월 15회 이상 대중교통 이용)',
         'howToApply': 'K-패스 공식 앱 또는 카드사 홈페이지에서 카드 발급 후 회원가입',
-        'image': 'assets/images/cover_running.jpg',
+        'image': 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80',
       },
       {
         'id': 'sub_3',
@@ -281,7 +281,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '1인당 연 10만~15만 원 공연·전시 관람비 지원',
         'target': '관내 거주 청년 (인터파크·예스24 티켓 연동 즉시 사용)',
         'howToApply': '문화예술패스 누리집 및 $cityLabel 청년포털 온라인 즉시 발급',
-        'image': 'assets/images/cover_wine.jpg',
+        'image': 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=800&q=80',
       },
       {
         'id': 'sub_4',
@@ -293,7 +293,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'benefit': '자격증 응시료 최대 10만 원 · 이사비 최대 40만 원',
         'target': '$cityLabel 주민등록 거주 만 19~39세 미취업·재직 청년',
         'howToApply': '정부24 보조금24 또는 $cityLabel 시·구청 청년지원과 온라인 접수',
-        'image': 'assets/images/cover_food.jpg',
+        'image': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80',
       },
     ];
   }
@@ -703,7 +703,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
             'title': f.title,
             'subtitle': f.summary,
             'benefit': f.keywords.map((k) => '#$k').take(2).join(' '),
-            'image': 'assets/images/cover_cafe.jpg',
+            'image': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
             'tip': f.detailTip,
           }),
       ..._countries.take(2).map((c) => {
@@ -713,7 +713,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
             'title': '${c.nameKo} (${c.capital})',
             'subtitle': c.travelMood,
             'benefit': '추천시즌 ${c.bestSeason} · 통화 ${c.currency}',
-            'image': 'assets/images/cover_running.jpg',
+            'image': 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
             'tip': '항공권 특가 시즌에 맞춰 떠나기 좋은 추천 여행지',
           }),
     ];

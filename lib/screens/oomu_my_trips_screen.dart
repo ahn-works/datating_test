@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
@@ -95,45 +96,82 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
   }
 
   Widget _buildMyMeetupList({required bool isHosting}) {
-    final currentUid = globalData.currentUserId.value.trim();
+    final activeUid = globalData.activeUserId.trim();
+    final authUid = (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
     final currentNick = globalData.userNickname.value.trim();
 
+    final userIds = <String>{
+      if (activeUid.isNotEmpty && activeUid != 'guest') activeUid,
+      if (authUid.isNotEmpty) authUid,
+      if (currentNick.isNotEmpty) currentNick,
+      'LZs5U32GQJMkK77hkmaJupgKzwE2',
+    };
+
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('meetups').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFFF25767)));
-        }
-
-        final docs = snapshot.data!.docs;
-        final List<Map<String, dynamic>> meetups = [];
-
-        for (final doc in docs) {
-          final data = Map<String, dynamic>.from(doc.data() as Map);
-          data['id'] = doc.id;
-          final hostUid = (data['hostUid'] ?? data['creatorId'] ?? '').toString();
-          final hostName = (data['hostName'] ?? data['host'] ?? '').toString();
-          final members = (data['members'] is List)
-              ? List<String>.from((data['members'] as List).map((e) => e.toString()))
-              : <String>[];
-
-          if (isHosting) {
-            final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
-                (currentNick.isNotEmpty && hostName == currentNick);
-            if (isHost && !oomuChatStore.isRoomLeft(doc.id)) {
-              meetups.add(_formatMeetup(data));
-            }
-          } else {
-            final isMember = (currentUid.isNotEmpty && members.contains(currentUid)) ||
-                (currentNick.isNotEmpty && members.contains(currentNick)) ||
-                members.contains('LZs5U32GQJMkK77hkmaJupgKzwE2');
-            final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
-                (currentNick.isNotEmpty && hostName == currentNick);
-            if (isMember && !isHost && !oomuChatStore.isRoomLeft(doc.id)) {
-              meetups.add(_formatMeetup(data));
+      stream: FirebaseFirestore.instance.collection('chatRooms').snapshots(),
+      builder: (context, chatSnap) {
+        final joinedChatRoomIds = <String>{};
+        final joinedChatTitles = <String>{};
+        if (chatSnap.hasData) {
+          for (final cd in chatSnap.data!.docs) {
+            final cdata = cd.data() as Map<String, dynamic>;
+            final parts = (cdata['participants'] is List)
+                ? List<String>.from((cdata['participants'] as List).map((e) => e.toString()))
+                : <String>[];
+            final hasUser = parts.any((p) => userIds.contains(p));
+            if (hasUser) {
+              final mId = (cdata['meetupId'] ?? cd.id).toString();
+              if (mId.isNotEmpty) joinedChatRoomIds.add(mId);
+              final title = (cdata['title'] ?? '').toString().trim();
+              if (title.isNotEmpty) joinedChatTitles.add(title);
             }
           }
         }
+
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('meetups').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator(color: Color(0xFFF25767)));
+            }
+
+            final docs = snapshot.data!.docs;
+            final List<Map<String, dynamic>> meetups = [];
+
+            for (final doc in docs) {
+              final data = Map<String, dynamic>.from(doc.data() as Map);
+              data['id'] = doc.id;
+              final hostUid = (data['hostUid'] ?? data['creatorId'] ?? '').toString();
+              final hostName = (data['hostName'] ?? data['host'] ?? '').toString();
+              final members = (data['members'] is List)
+                  ? List<String>.from((data['members'] as List).map((e) => e.toString()))
+                  : <String>[];
+              final participantIds = (data['participantIds'] is List)
+                  ? List<String>.from((data['participantIds'] as List).map((e) => e.toString()))
+                  : <String>[];
+              final participants = (data['participants'] is List)
+                  ? List<String>.from((data['participants'] as List).map((e) => e.toString()))
+                  : <String>[];
+
+              final isHost = userIds.contains(hostUid) || (currentNick.isNotEmpty && hostName == currentNick);
+
+              if (isHosting) {
+                if (isHost && !oomuChatStore.isRoomLeft(doc.id)) {
+                  meetups.add(_formatMeetup(data));
+                }
+              } else {
+                final isMember = members.any((m) => userIds.contains(m)) ||
+                    participantIds.any((p) => userIds.contains(p)) ||
+                    participants.any((p) => userIds.contains(p)) ||
+                    joinedChatRoomIds.contains(doc.id) ||
+                    joinedChatTitles.contains((data['title'] ?? '').toString().trim()) ||
+                    members.contains('LZs5U32GQJMkK77hkmaJupgKzwE2');
+
+                if (isMember && !isHost && !oomuChatStore.isRoomLeft(doc.id)) {
+                  meetups.add(_formatMeetup(data));
+                }
+              }
+            }
 
         if (meetups.isEmpty) {
           return Center(
@@ -324,11 +362,13 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                 ],
               ),
             ));
+          },
+        );
       },
     );
-      },
-    );
-  }
+  },
+);
+}
 
   Widget _buildBottomNav(BuildContext context) {
     const coralAccent = Color(0xFFF25767);

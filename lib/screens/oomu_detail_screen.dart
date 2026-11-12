@@ -581,9 +581,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
                     // B. 제목 (22sp w700 ink)
                     Text(
-                      (widget.meetup != null && widget.meetup!['title'] != null)
-                          ? widget.meetup!['title'].toString()
-                          : '주말 엽떡+마라탕 조지실 분 구해요!',
+                      _formatTitleKeepWords(widget.meetup?['title']?.toString()),
                       style: const TextStyle(
                         color: OomuTokens.textPrimary,
                         fontSize: OomuTokens.fs22,
@@ -710,13 +708,43 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     Wrap(
                       spacing: OomuTokens.s8,
                       runSpacing: OomuTokens.s8,
-                      children: [
-                        if (widget.meetup?['hostAvatar']?.toString().isNotEmpty == true)
-                          _buildMemberAvatar(widget.meetup!['hostAvatar'].toString(), isHost: true),
-                        if (widget.meetup?['memberAvatars'] is List)
-                          ...(widget.meetup!['memberAvatars'] as List).take(5).where((url) => url.toString().trim().isNotEmpty)
-                            .map((url) => _buildMemberAvatar(url.toString(), isHost: false)),
-                      ],
+                      children: () {
+                        final List<Widget> avatars = [];
+                        final hostAv = (widget.meetup?['hostAvatar'] ?? 'profiles/초연.png').toString();
+                        final hostName = (widget.meetup?['host'] ?? '호스트').toString();
+                        avatars.add(_buildMemberAvatar(hostAv, isHost: true, name: hostName));
+
+                        final rawAvatars = (widget.meetup?['memberAvatars'] is List)
+                            ? (widget.meetup!['memberAvatars'] as List)
+                                .map((e) => e.toString())
+                                .where((s) => s.isNotEmpty)
+                                .toList()
+                            : <String>[];
+
+                        final defaultPool = [
+                          {'avatar': 'assets/images/민지.png', 'name': '망원치즈_민지'},
+                          {'avatar': 'assets/images/지훈.png', 'name': '연남러너_지훈'},
+                          {'avatar': 'assets/images/지연.png', 'name': '성수와인_지연'},
+                          {'avatar': 'assets/images/정재.png', 'name': '동네이웃_정재'},
+                        ];
+
+                        int needed = (memberCount > 1
+                            ? memberCount - 1
+                            : (rawAvatars.isNotEmpty ? rawAvatars.length : 2));
+                        if (needed > 5) needed = 5;
+
+                        for (int i = 0; i < needed; i++) {
+                          if (i < rawAvatars.length) {
+                            avatars.add(_buildMemberAvatar(rawAvatars[i],
+                                isHost: false, name: '참여 이웃 ${i + 1}'));
+                          } else {
+                            final fallback = defaultPool[i % defaultPool.length];
+                            avatars.add(_buildMemberAvatar(fallback['avatar']!,
+                                isHost: false, name: fallback['name']!));
+                          }
+                        }
+                        return avatars;
+                      }(),
                     ),
                     const SizedBox(height: OomuTokens.s8),
                     const Row(
@@ -1039,9 +1067,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         children: [
           if (hasResolvedCoords)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(OomuTokens.r16 - 1)),
+              borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(OomuTokens.r16 - 1)),
               child: SizedBox(
-                height: 170,
+                height: 200,
                 width: double.infinity,
                 child: Stack(
                   children: [
@@ -1050,12 +1079,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       lat: _targetLat!,
                       lng: _targetLng!,
                       locationName: locName,
-                      height: 170,
+                      height: 200,
                       hideActions: true,
                     ),
                     Positioned(
-                      right: 10,
-                      top: 10,
+                      right: 12,
+                      top: 12,
                       child: GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
@@ -1064,26 +1093,36 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             builder: (_) => InteractiveMapPopup(
                               initialCenter: LatLng(_targetLat!, _targetLng!),
                               locationName: locName,
-                              kakaoLink: KakaoMapService.getKakaoRouteUrl(locName, _targetLat!, _targetLng!),
+                              kakaoLink: KakaoMapService.getKakaoRouteUrl(
+                                  locName, _targetLat!, _targetLng!),
                             ),
                           );
                         },
                         child: Container(
-                          constraints: const BoxConstraints(minWidth: OomuTokens.touchTargetMin, minHeight: 36),
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.75),
+                            color: Colors.black.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(OomuTokens.r24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 6,
+                              )
+                            ],
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.fullscreen_rounded, size: 14, color: Colors.white),
+                              Icon(Icons.fullscreen_rounded,
+                                  size: 15, color: Colors.white),
                               SizedBox(width: 4),
                               Text(
                                 '전체화면 지도',
-                                style: TextStyle(color: Colors.white, fontSize: OomuTokens.fs12, fontWeight: OomuTokens.w700),
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -1099,7 +1138,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               padding: const EdgeInsets.all(OomuTokens.s16),
               child: Row(
                 children: [
-                  const Icon(Icons.location_searching_rounded, color: OomuTokens.textSecondary, size: 18),
+                  const Icon(Icons.location_searching_rounded,
+                      color: OomuTokens.textSecondary, size: 18),
                   const SizedBox(width: OomuTokens.s8),
                   Expanded(
                     child: Text(
@@ -1117,26 +1157,75 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.all(OomuTokens.s12),
+            padding: const EdgeInsets.all(OomuTokens.s16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  locName,
-                  style: const TextStyle(
-                    fontSize: OomuTokens.fs14,
-                    fontWeight: OomuTokens.w700,
-                    color: OomuTokens.textPrimary,
-                    fontFamily: OomuTokens.fontFamily,
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.place_outlined,
+                        size: 18, color: OomuTokens.coral),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        locName,
+                        style: const TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary,
+                          fontFamily: OomuTokens.fontFamily,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: OomuTokens.s12),
-                OomuButton(
-                  label: '지도에서 길찾기',
-                  icon: Icons.directions_outlined,
-                  variant: OomuButtonVariant.secondary,
-                  size: OomuButtonSize.medium,
-                  onPressed: () => KakaoMapService.launchDirections(locName, lat: _targetLat, lng: _targetLng),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF191F28),
+                          backgroundColor: const Color(0xFFFEE500),
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: const Icon(Icons.map_outlined, size: 16),
+                        label: const Text('카카오맵',
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold)),
+                        onPressed: () {
+                          if (_targetLat != null && _targetLng != null) {
+                            KakaoMapService.launchMap(locName,
+                                lat: _targetLat!, lng: _targetLng!);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF191F28),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: const Icon(Icons.directions_outlined, size: 16),
+                        label: const Text('카카오 길찾기',
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold)),
+                        onPressed: () => KakaoMapService.launchDirections(
+                            locName,
+                            lat: _targetLat,
+                            lng: _targetLng),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1146,27 +1235,44 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     );
   }
 
-  Widget _buildMemberAvatar(String url, {required bool isHost}) {
-    return Stack(
-      children: [
-        OomuAvatar(
-          radius: 22,
-          imageUrl: url,
-        ),
-        if (isHost)
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.all(3),
-              decoration: const BoxDecoration(
-                color: OomuTokens.textPrimary,
-                shape: BoxShape.circle,
+  Widget _buildMemberAvatar(String url, {required bool isHost, String? name}) {
+    return GestureDetector(
+      onTap: () {
+        if (name != null && name.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => UserProfileScreen(
+                userName: name,
+                userAvatar: url,
               ),
-              child: const Text('👑', style: TextStyle(fontSize: OomuTokens.fs11)),
             ),
-          )
-      ],
+          );
+        }
+      },
+      child: Stack(
+        children: [
+          OomuAvatar(
+            radius: 22,
+            imageUrl: url,
+            name: name,
+          ),
+          if (isHost)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: OomuTokens.textPrimary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Text('👑',
+                    style: TextStyle(fontSize: OomuTokens.fs11)),
+              ),
+            )
+        ],
+      ),
     );
   }
 }

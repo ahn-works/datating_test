@@ -339,21 +339,49 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     });
   }
 
+  String _formatRelativeTime(dynamic timeVal) {
+    if (timeVal == null) return '방금 전';
+    DateTime? dt;
+    if (timeVal is Timestamp) {
+      dt = timeVal.toDate();
+    } else if (timeVal is String) {
+      dt = DateTime.tryParse(timeVal);
+    } else if (timeVal is DateTime) {
+      dt = timeVal;
+    }
+    if (dt == null) return '방금 전';
+
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+
+    if (diff.isNegative) return '방금 전';
+    if (diff.inSeconds < 60) return '방금 전';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+    if (diff.inHours < 24) return '${diff.inHours}시간 전';
+    if (diff.inDays < 7) return '${diff.inDays}일 전';
+    return '${dt.month}월 ${dt.day}일';
+  }
+
   List<Map<String, dynamic>> _resolveDisplayComments(
       AsyncSnapshot<QuerySnapshot>? commentSnap) {
     if (commentSnap != null &&
         commentSnap.hasData &&
         commentSnap.data!.docs.isNotEmpty) {
+      final authUid = FirebaseAuth.instance.currentUser?.uid;
+      final activeUid = globalData.activeUserId;
+
       final docs = commentSnap.data!.docs.map((d) {
         final data =
             Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
         data['id'] = d.id;
         final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
-        final currentUid = globalData.activeUserId;
-        data['isLiked'] = likedUsers.contains(currentUid) ||
+        final bool isLiked = (authUid != null && likedUsers.contains(authUid)) ||
+            (activeUid.isNotEmpty && likedUsers.contains(activeUid)) ||
             likedUsers.contains('user_me_01');
+        data['isLiked'] = isLiked;
         data['likes'] =
             likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
+        data['time'] = _formatRelativeTime(data['createdAt']);
         return data;
       }).toList();
 
@@ -908,16 +936,21 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(OomuTokens.r12),
                         onTap: () async {
-                          final myId = FirebaseAuth.instance.currentUser?.uid ??
-                              (globalData.activeUserId.isNotEmpty
-                                  ? globalData.activeUserId
-                                  : 'user_me');
+                          final authUid = FirebaseAuth.instance.currentUser?.uid;
+                          final activeUid = globalData.activeUserId;
+                          final myId = (authUid != null && authUid.isNotEmpty)
+                              ? authUid
+                              : (activeUid.isNotEmpty ? activeUid : 'user_me');
+
                           List<dynamic> likedUsers =
                               List<dynamic>.from(comm['likedUserIds'] ?? []);
-                          bool currentlyLiked = likedUsers.contains(myId) ||
+                          bool currentlyLiked = (authUid != null && likedUsers.contains(authUid)) ||
+                              (activeUid.isNotEmpty && likedUsers.contains(activeUid)) ||
                               likedUsers.contains('user_me_01');
+
                           if (currentlyLiked) {
-                            likedUsers.remove(myId);
+                            if (authUid != null) likedUsers.remove(authUid);
+                            if (activeUid.isNotEmpty) likedUsers.remove(activeUid);
                             likedUsers.remove('user_me_01');
                           } else {
                             likedUsers.add(myId);

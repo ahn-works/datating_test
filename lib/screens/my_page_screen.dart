@@ -14,6 +14,8 @@ import '../services/r2_storage_service.dart';
 import 'settings_screen.dart';
 import 'my_page_sub_screens.dart';
 import 'user_profile_screen.dart';
+import 'community_post_detail_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../ui/oomu_tokens.dart';
 
 class MyPageScreen extends StatefulWidget {
@@ -1504,32 +1506,284 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   void _showMyPostsModal() {
+    final activeUid = globalData.activeUserId.trim();
+    final authUid = (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
+    final currentNick = globalData.userNickname.value.trim();
+
+    final userIds = <String>{
+      if (activeUid.isNotEmpty && activeUid != 'guest') activeUid,
+      if (authUid.isNotEmpty) authUid,
+    };
+    final userNicks = <String>{
+      if (currentNick.isNotEmpty) currentNick,
+      '연남러너_지훈',
+      '초연',
+    };
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('내가 쓴 글',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Text('아직 작성한 동네 커뮤니티 글이 없습니다.',
-                      style: TextStyle(color: Color(0xFF8E8E93), fontSize: 14)),
-                ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return DefaultTabController(
+            length: 2,
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.75,
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E5EA),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const TabBar(
+                    labelColor: OomuTokens.coral,
+                    unselectedLabelColor: OomuTokens.textSecondary,
+                    indicatorColor: OomuTokens.coral,
+                    indicatorWeight: 3,
+                    labelStyle: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: OomuTokens.fontFamily,
+                    ),
+                    tabs: [
+                      Tab(text: '내가 쓴 글'),
+                      Tab(text: '내가 쓴 댓글'),
+                    ],
+                  ),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('community_posts')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(color: OomuTokens.coral),
+                          );
+                        }
+                        final docs = snapshot.data?.docs ?? [];
+                        final List<Map<String, dynamic>> myPosts = [];
+                        final List<Map<String, dynamic>> myComments = [];
+
+                        for (final doc in docs) {
+                          final data = Map<String, dynamic>.from(doc.data() as Map);
+                          data['id'] = doc.id;
+                          final authorId = (data['authorId'] ?? '').toString();
+                          final author = (data['author'] ?? '').toString();
+
+                          final isMyPost = (authorId.isNotEmpty && userIds.contains(authorId)) ||
+                              (author.isNotEmpty && userNicks.contains(author));
+                          if (isMyPost) {
+                            myPosts.add(data);
+                          }
+
+                          final comments = (data['comments'] is List)
+                              ? (data['comments'] as List)
+                              : [];
+                          for (final c in comments) {
+                            if (c is Map) {
+                              final cMap = Map<String, dynamic>.from(c);
+                              final cAuthorId = (cMap['authorId'] ?? '').toString();
+                              final cAuthor = (cMap['author'] ?? '').toString();
+                              final isMyComment = (cAuthorId.isNotEmpty && userIds.contains(cAuthorId)) ||
+                                  (cAuthor.isNotEmpty && userNicks.contains(cAuthor));
+                              if (isMyComment) {
+                                myComments.add({
+                                  ...cMap,
+                                  'post': data,
+                                  'postTitle': data['title'] ?? '동네 커뮤니티 글',
+                                });
+                              }
+                            }
+                          }
+                        }
+
+                        return TabBarView(
+                          children: [
+                            // 1. 내가 쓴 글 목록
+                            myPosts.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(24),
+                                      child: Text(
+                                        '아직 작성한 동네 커뮤니티 글이 없습니다.',
+                                        style: TextStyle(
+                                            color: Color(0xFF8E8E93), fontSize: 14),
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    padding: const EdgeInsets.all(20),
+                                    itemCount: myPosts.length,
+                                    separatorBuilder: (_, __) =>
+                                        const Divider(height: 24),
+                                    itemBuilder: (context, index) {
+                                      final post = myPosts[index];
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigator.pop(ctx);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  CommunityPostDetailScreen(
+                                                      post: post),
+                                            ),
+                                          );
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 3),
+                                                  decoration: BoxDecoration(
+                                                    color: OomuTokens.surfaceMuted,
+                                                    borderRadius:
+                                                        BorderRadius.circular(6),
+                                                  ),
+                                                  child: Text(
+                                                    post['category']?.toString() ??
+                                                        '동네소식',
+                                                    style: const TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight: FontWeight.w600,
+                                                      color:
+                                                          OomuTokens.textSecondary,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const Spacer(),
+                                                Text(
+                                                  post['time']?.toString() ??
+                                                      '최근',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        OomuTokens.textSecondary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              post['title']?.toString() ?? '',
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: OomuTokens.textPrimary,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              post['content']?.toString() ?? '',
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                color: OomuTokens.textSecondary,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+
+                            // 2. 내가 쓴 댓글 목록
+                            myComments.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(24),
+                                      child: Text(
+                                        '아직 작성한 댓글이 없습니다.',
+                                        style: TextStyle(
+                                            color: Color(0xFF8E8E93), fontSize: 14),
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    padding: const EdgeInsets.all(20),
+                                    itemCount: myComments.length,
+                                    separatorBuilder: (_, __) =>
+                                        const Divider(height: 24),
+                                    itemBuilder: (context, index) {
+                                      final comment = myComments[index];
+                                      final post = comment['post'] as Map<String, dynamic>;
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigator.pop(ctx);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  CommunityPostDetailScreen(
+                                                      post: post),
+                                            ),
+                                          );
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '원글: ${comment['postTitle']}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: OomuTokens.coral,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              comment['content']?.toString() ?? '',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: OomuTokens.textPrimary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              comment['time']?.toString() ??
+                                                  '방금 전',
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: OomuTokens.textSecondary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

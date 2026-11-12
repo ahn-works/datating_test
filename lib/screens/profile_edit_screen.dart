@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
 import '../services/r2_storage_service.dart';
+import 'user_profile_screen.dart';
 import '../ui/oomu_tokens.dart';
 import '../ui/oomu_button.dart';
 
@@ -661,6 +662,63 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
+  void _openPreview(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UserProfileScreen(
+          isSelf: true,
+          userName: _nicknameController.text.trim().isNotEmpty
+              ? _nicknameController.text.trim()
+              : '초연',
+          userAge: _ageController.text.trim(),
+          userLocation: _locationController.text.trim(),
+          userBio: _bioController.text.trim(),
+          userAvatar: _avatarUrl,
+          userJob: _jobController.text.trim(),
+          userMbti: _mbtiController.text.trim(),
+          userGender: _gender,
+          userDrinking: _selectedDrinking,
+          userSmoking: _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '비흡연',
+          userPet: _selectedPet.isNotEmpty ? _selectedPet.first : '반려동물 있음',
+          userPersonalities: _selectedPersonalities,
+          userHobbies: _selectedHobbies,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: OomuTokens.fs16,
+              fontWeight: OomuTokens.w700,
+              color: OomuTokens.textPrimary,
+              fontFamily: OomuTokens.fontFamily,
+            ),
+          ),
+          if (subtitle.isNotEmpty) ...[
+            const SizedBox(height: 3),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: OomuTokens.fs12,
+                color: OomuTokens.textMuted,
+                fontFamily: OomuTokens.fontFamily,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -669,9 +727,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: textPrimary),
-        title: Text('프로필 상세 수정',
+        title: Text('내 프로필 수정',
             style: TextStyle(
                 color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        actions: [
+          TextButton.icon(
+            onPressed: () => _openPreview(context),
+            icon: const Icon(Icons.remove_red_eye_outlined,
+                size: 18, color: OomuTokens.coral),
+            label: const Text(
+              '미리보기',
+              style: TextStyle(
+                color: OomuTokens.coral,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: accentColor))
@@ -768,7 +842,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             color: textSecondary,
                             fontWeight: FontWeight.w600)),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
+
+                  // 1. 기본 정보 (Basic Info)
+                  _buildSectionHeader('기본 정보', '프로필 미리보기 및 이웃에게 표시되는 기본 정보입니다.'),
                   _buildTextField('닉네임 (활동명)', _nicknameController,
                       hint: '예: 오오무 운영팀 또는 닉네임'),
                   Row(
@@ -797,10 +874,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               hint: '예: ENFJ')),
                     ],
                   ),
-                  _buildTextField('한줄 소개', _bioController,
-                      maxLines: 2, hint: '나를 표현할 수 있는 한줄 소개를 적어주세요!'),
-                  _buildChipSection(
-                      '성격 태그', _availablePersonalities, _selectedPersonalities),
                   _buildChipSection(
                       '음주 성향', _availableDrinking, _selectedDrinking),
                   _buildChipSection(
@@ -808,8 +881,79 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       isSingle: true),
                   _buildChipSection('반려동물', _availablePet, _selectedPet,
                       isSingle: true),
+                  const Divider(height: 36),
+
+                  // 2. 성격 및 매력 태그 (Personality Tags)
+                  _buildSectionHeader('성격 및 매력 태그', '나의 매력을 보여줄 수 있는 태그를 선택해주세요.'),
+                  _buildChipSection(
+                      '성격 태그', _availablePersonalities, _selectedPersonalities),
+                  const Divider(height: 36),
+
+                  // 3. 나의 이야기 (Bio / Intro)
+                  _buildSectionHeader('나의 이야기 (한줄 소개)', '동네 이웃들에게 전하고 싶은 따뜻한 인사를 남겨주세요.'),
+                  _buildTextField('한줄 소개', _bioController,
+                      maxLines: 3, hint: '예: 동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊'),
+                  const Divider(height: 36),
+
+                  // 4. 관심사 / 취향 (Interests & Hobbies)
+                  _buildSectionHeader('관심사 / 취향', '함께 즐기고 싶은 취미나 활동을 선택해주세요.'),
                   _buildChipSection(
                       '나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
+                  const SizedBox(height: 10),
+
+                  // 내 프로필 미리보기 카드 배너
+                  InkWell(
+                    onTap: () => _openPreview(context),
+                    borderRadius: BorderRadius.circular(OomuTokens.r16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        borderRadius: BorderRadius.circular(OomuTokens.r16),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.coral.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.remove_red_eye_rounded,
+                                color: OomuTokens.coral, size: 20),
+                          ),
+                          const SizedBox(width: 14),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '내 프로필 미리보기',
+                                  style: TextStyle(
+                                    fontWeight: OomuTokens.w700,
+                                    fontSize: OomuTokens.fs14,
+                                    color: OomuTokens.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '다른 동네 이웃에게 보여질 화면을 실시간 확인하세요',
+                                  style: TextStyle(
+                                    fontSize: OomuTokens.fs12,
+                                    color: OomuTokens.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded,
+                              size: 14, color: OomuTokens.textMuted),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 30),
                 ],
               ),
