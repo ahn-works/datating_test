@@ -264,7 +264,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         uploadedUrl = file.path;
       }
 
-      final finalAvatar = uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+      final String finalAvatar;
+      if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
+        finalAvatar = uploadedUrl;
+      } else {
+        finalAvatar = R2StorageService.toDataUrl(bytes, file.name);
+      }
       setState(() {
         _avatarUrl = finalAvatar;
         _isUploadingPhoto = false;

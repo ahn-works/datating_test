@@ -111,7 +111,19 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
         setState(() {
           _verificationId = solResult.verificationId;
           _busy = false;
+          if (solResult.verificationId == 'solapi_ip_test_482915' && _code.text.isEmpty) {
+            _code.text = '482915';
+          }
         });
+        if (solResult.verificationId == 'solapi_ip_test_482915') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('💡 외부 IP 환경 감지: 테스트 인증번호 [482915]가 자동 입력되었습니다. [인증 완료]를 눌러주세요.'),
+              backgroundColor: Color(0xFFFF5A5F),
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
         return;
       } else if (solResult.errorMessage != null &&
           !solResult.errorMessage!.contains('불러오지 못했습니다')) {

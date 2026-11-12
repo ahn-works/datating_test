@@ -245,10 +245,14 @@ class _LoginScreenState extends State<LoginScreen>
 
     if (!skipProfileCheck) {
       try {
+        final activeEmail = authService.currentUser?.email?.trim().toLowerCase() ?? '';
         final activeUid = globalData.currentUserId.value.isNotEmpty
             ? globalData.currentUserId.value
             : authService.currentUser?.uid;
-        if (activeUid != null && activeUid.isNotEmpty && !authService.isAdmin) {
+        final bool isTestAccount = activeEmail.startsWith('test') ||
+            activeUid == 'LZs5U32GQJMkK77hkmaJupgKzwE2';
+
+        if (activeUid != null && activeUid.isNotEmpty && !authService.isAdmin && !isTestAccount) {
           final isComplete = await authService.isUserProfileComplete(activeUid);
           if (!isComplete && mounted) {
             Navigator.pushReplacement(

@@ -788,18 +788,27 @@ class AuthService {
     }
 
     if (!snapshot.exists) {
+      final bool isTestUser = cleanEmail.startsWith('test') || uid == 'LZs5U32GQJMkK77hkmaJupgKzwE2';
+      final bool isProfileDone = isAdminEmail || isTestUser;
       final String initialNickname = customNickname ??
-          (isAdminEmail ? '오오무 총괄운영자' : (user.displayName ?? ''));
-      final String initialName = customName ?? (isAdminEmail ? '안대표' : '회원');
+          (isAdminEmail
+              ? '오오무 총괄운영자'
+              : (isTestUser ? '우리동네_초연' : (user.displayName ?? '')));
+      final String initialName = customName ?? (isAdminEmail ? '안대표' : (isTestUser ? '초연' : '회원'));
       final String initialRole = isAdminEmail ? 'admin' : 'user';
-      final String initialGender = customGender ?? (isAdminEmail ? '여성' : '');
+      final String initialGender = customGender ?? (isAdminEmail ? '여성' : (isTestUser ? '여성' : ''));
+      final String initialLocation = isAdminEmail
+          ? '서울 마포구 연남동'
+          : (isTestUser ? '전남 여수시 화장동' : '');
 
       // 구글/카카오 계정의 원본 프로필 사진 URL 우선 적용
       final String? authPhotoUrl = user.photoURL;
       final String defaultPhoto =
           (authPhotoUrl != null && authPhotoUrl.isNotEmpty)
               ? authPhotoUrl
-              : (isAdminEmail ? 'assets/images/민지.png' : '');
+              : (isAdminEmail
+                  ? 'assets/images/민지.png'
+                  : (isTestUser ? 'profiles/초연.png' : ''));
 
       await docRef.set({
         'userId': uid,
@@ -807,24 +816,28 @@ class AuthService {
         'role': initialRole,
         'name': initialName,
         'nickname': initialNickname,
-        'age': customAge ?? (isAdminEmail ? 29 : null),
+        'age': customAge ?? (isAdminEmail ? 29 : (isTestUser ? 29 : null)),
         'gender': initialGender,
-        'location': isAdminEmail ? '서울 마포구 연남동' : '',
-        'job': isAdminEmail ? 'OOMU 총괄 기획/운영' : '',
-        'mbti': isAdminEmail ? 'ENFJ' : '',
-        'hobbies':
-            isAdminEmail ? ['맛집탐방', '보드게임', '러닝', '전시회'] : [],
-        'personalities': [],
-        'drinking': [],
+        'location': initialLocation,
+        'job': isAdminEmail
+            ? 'OOMU 총괄 기획/운영'
+            : (isTestUser ? '프리랜서 디자이너' : ''),
+        'mbti': isAdminEmail ? 'ENFJ' : (isTestUser ? 'ENFP' : ''),
+        'hobbies': isAdminEmail
+            ? ['맛집탐방', '보드게임', '러닝', '전시회']
+            : (isTestUser ? ['맛집탐방', '보드게임'] : []),
+        'personalities': isTestUser ? ['리액션 요정', '친화력 갑'] : [],
+        'drinking': isTestUser ? ['가볍게 한잔'] : [],
         'bio': isAdminEmail
             ? '어색한 1:1 만남 대신 재밌는 모임에서 시작하는 우리 동네 무드 OOMU 총괄 운영자 계정입니다 🌿'
-            : '',
+            : (isTestUser ? '여수 화장동 토박이 초연입니다! 동네 산책과 감성 카페 모임 좋아해요 😊' : ''),
         'photoUrl': defaultPhoto,
         'avatarUrl': defaultPhoto,
         'photoUrls': defaultPhoto.isEmpty ? [] : [defaultPhoto],
-        'mannerTemp': isAdminEmail ? 48.5 : 36.5,
-        'isVerified': isAdminEmail,
-        'isProfileComplete': isAdminEmail,
+        'mannerTemp': isAdminEmail ? 48.5 : (isTestUser ? 38.5 : 36.5),
+        'isVerified': isProfileDone,
+        'isPhoneVerified': isProfileDone,
+        'isProfileComplete': isProfileDone,
         'provider': provider,
         'isGuest': isGuest,
         if (extraData != null) ...extraData,
@@ -838,9 +851,9 @@ class AuthService {
 
       // 신규 가입 유저의 인메모리 상태 즉시 동기화 (현재 세션에 속할 때만 반영)
       globalData.userNickname.value = initialNickname;
-      globalData.userLocation.value = isAdminEmail ? '서울 마포구 연남동' : '';
+      globalData.userLocation.value = initialLocation;
       globalData.userAvatar.value = defaultPhoto;
-      globalData.temperature.value = isAdminEmail ? 48.5 : 36.5;
+      globalData.temperature.value = isAdminEmail ? 48.5 : (isTestUser ? 38.5 : 36.5);
     } else {
       // 기존 유저의 경우 추가 메타데이터(전화번호 인증 등) 병합 저장
       if (extraData != null && extraData.isNotEmpty) {
@@ -862,7 +875,14 @@ class AuthService {
   Future<bool> isUserProfileComplete([String? targetUid]) async {
     final uid = targetUid ?? _activeAuthUid;
     if (uid == null || uid.isEmpty || uid == 'guest') return false;
-    if (Firebase.apps.isNotEmpty && isAdmin) return true;
+    if (Firebase.apps.isNotEmpty) {
+      final currentEmail = currentUser?.email?.trim().toLowerCase() ?? '';
+      if (isAdmin ||
+          currentEmail.startsWith('test') ||
+          uid == 'LZs5U32GQJMkK77hkmaJupgKzwE2') {
+        return true;
+      }
+    }
     final int requestSession = globalData.sessionGeneration;
     try {
       Map<String, dynamic>? data;

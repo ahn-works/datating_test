@@ -222,7 +222,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         uploadedUrl = picked.path;
       }
 
-      final finalUrl = uploadedUrl.isNotEmpty ? uploadedUrl : picked.path;
+      final String finalUrl;
+      if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
+        finalUrl = uploadedUrl;
+      } else {
+        finalUrl = R2StorageService.toDataUrl(bytes, picked.name);
+      }
 
       setState(() {
         if (targetIndex < _photoUrls.length) {

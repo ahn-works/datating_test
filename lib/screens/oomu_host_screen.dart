@@ -225,8 +225,12 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 uploadedUrl = file.path;
               }
 
-              final finalCover =
-                  uploadedUrl.isNotEmpty ? uploadedUrl : file.path;
+              final String finalCover;
+              if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
+                finalCover = uploadedUrl;
+              } else {
+                finalCover = R2StorageService.toDataUrl(bytes, file.name);
+              }
               if (mounted) {
                 setState(() => _coverImageUrl = finalCover);
                 Navigator.pop(ctx);

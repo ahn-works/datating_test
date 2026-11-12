@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,17 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     }
   }
 
+  // 0. Base64 Data URL 직접 렌더링 (유저가 직접 올린 사진 100% 영구 보존)
+  if (target.startsWith('data:image')) {
+    try {
+      final commaIndex = target.indexOf(',');
+      final base64Str = commaIndex != -1 ? target.substring(commaIndex + 1) : target;
+      return MemoryImage(base64Decode(base64Str));
+    } catch (e) {
+      debugPrint('[appImg] Base64 decode error: $e');
+    }
+  }
+
   // 1. Flutter 로컬 에셋 경로
   if (target.startsWith('assets/')) {
     return AssetImage(target);
@@ -37,16 +49,22 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     }
   }
 
-  // 1-2. R2 커버 키 중 번들 에셋 매핑
+  // 1-2. R2 커버 키 중 번들 기본 에셋인 경우에만 로컬 에셋 매핑 (유저가 직접 업로드한 커스텀 사진은 R2/네트워크로 정상 연결)
   if (target.startsWith('covers/') || target.startsWith('/covers/')) {
     final cleanKey = target.startsWith('/') ? target.substring(1) : target;
     final fileName = cleanKey.substring('covers/'.length);
-    if (fileName.contains('cafe')) return const AssetImage('assets/images/cover_cafe.jpg');
-    if (fileName.contains('wine')) return const AssetImage('assets/images/cover_wine.jpg');
-    if (fileName.contains('run')) return const AssetImage('assets/images/cover_running.jpg');
-    if (fileName.contains('bread') || fileName.contains('salt')) return const AssetImage('assets/images/cover_salt_bread.jpg');
-    if (fileName.contains('hangang')) return const AssetImage('assets/images/cover_running_hangang.jpg');
-    return const AssetImage('assets/images/cover_food.jpg');
+    if (fileName == 'cover_cafe.jpg' || fileName == 'cafe.jpg') return const AssetImage('assets/images/cover_cafe.jpg');
+    if (fileName == 'cover_wine.jpg' || fileName == 'wine.jpg') return const AssetImage('assets/images/cover_wine.jpg');
+    if (fileName == 'cover_running.jpg' || fileName == 'running.jpg') return const AssetImage('assets/images/cover_running.jpg');
+    if (fileName == 'cover_salt_bread.jpg' || fileName == 'salt_bread.jpg') return const AssetImage('assets/images/cover_salt_bread.jpg');
+    if (fileName == 'cover_running_hangang.jpg' || fileName == 'running_hangang.jpg') return const AssetImage('assets/images/cover_running_hangang.jpg');
+    if (fileName == 'cover_food.jpg' || fileName == 'food.jpg') return const AssetImage('assets/images/cover_food.jpg');
+
+    // 그 외 유저가 업로드한 실제 사진(timestamp_파일명 등)은 R2 Public / Presigned URL로 정상 해소
+    final r2Url = r2Storage.getPublicViewUrl(cleanKey);
+    if (!r2Url.startsWith('assets/')) {
+      return NetworkImage(r2Url);
+    }
   }
 
   // 1-3. 만료되었거나 타 세션의 웹 Blob URL은 접근 불가하므로 안전 폴백 에셋으로 즉시 변환

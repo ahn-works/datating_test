@@ -88,7 +88,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
         finalPhotoUrl = uploadedUrl;
       } else {
-        finalPhotoUrl = _resolveCategoryCoverPhoto();
+        // R2 업로드 실패/미설정 시에도 사용자가 올린 실제 사진이 기본 프리셋 사진으로 바뀌지 않도록 Data URL로 100% 보존
+        finalPhotoUrl = R2StorageService.toDataUrl(bytes, file.name);
       }
 
       if (mounted) {
@@ -108,17 +109,6 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         );
       }
     }
-  }
-
-  String _resolveCategoryCoverPhoto() {
-    if (_selectedCategory.contains('맛집') || _selectedCategory.contains('카페')) {
-      return 'assets/images/cover_food.jpg';
-    } else if (_selectedCategory.contains('공연') || _selectedCategory.contains('핫플')) {
-      return 'assets/images/cover_wine.jpg';
-    } else if (_selectedCategory.contains('운동') || _selectedCategory.contains('러닝')) {
-      return 'assets/images/cover_running.jpg';
-    }
-    return 'assets/images/cover_food.jpg';
   }
 
   @override

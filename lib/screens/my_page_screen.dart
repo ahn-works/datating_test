@@ -97,7 +97,12 @@ class _MyPageScreenState extends State<MyPageScreen> {
           avatarUrl = file.path;
         }
 
-        final finalAvatar = avatarUrl.isNotEmpty ? avatarUrl : file.path;
+        final String finalAvatar;
+        if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('blob:')) {
+          finalAvatar = avatarUrl;
+        } else {
+          finalAvatar = R2StorageService.toDataUrl(bytes, file.name);
+        }
         globalData.updateAvatar(finalAvatar);
 
         try {

@@ -171,6 +171,14 @@ class R2StorageService {
     return mimeTypes[ext.toLowerCase()] ?? 'image/jpeg';
   }
 
+  /// 사진 바이트를 영구적이고 기기간 완벽 호환되는 Base64 Data URL로 변환
+  static String toDataUrl(Uint8List bytes, String fileName) {
+    final ext = getFileExtension(fileName);
+    final mime = getMimeType(ext);
+    final b64 = base64Encode(bytes);
+    return 'data:$mime;base64,$b64';
+  }
+
   /// S3 / R2 공개 URL 반환
   String getPublicUrl(String objectKey) {
     if (objectKey.startsWith('http://') || objectKey.startsWith('https://') || objectKey.startsWith('assets/')) {
@@ -242,6 +250,9 @@ class R2StorageService {
   String getPublicViewUrl(String storedUrl, {String? defaultFallback}) {
     if (storedUrl.isEmpty) {
       return defaultFallback ?? 'assets/images/cover_food.jpg';
+    }
+    if (storedUrl.startsWith('data:image')) {
+      return storedUrl;
     }
     if (storedUrl.startsWith('assets/') || storedUrl.startsWith('blob:')) {
       return storedUrl;
@@ -425,13 +436,15 @@ class R2StorageService {
           throw Exception('R2 Upload failed with status ${response.statusCode}');
         }
       } catch (e) {
-        debugPrint('[R2 Storage] S3 upload error: $e');
-        rethrow;
+        debugPrint('[R2 Storage] S3 upload error: $e, falling back to Data URL');
+        return toDataUrl(bytes, fileName);
       }
     }
 
-    // 4. S3 자격증명이 아직 등록되지 않은 경우: 로컬 폴백을 타도록 예외 발생
-    throw StateError('Cloudflare R2 API 자격증명이 미등록 상태입니다. 로컬 사진으로 표시합니다.');
+    // 4. S3 자격증명이 미등록 상태이거나 오프라인 환경인 경우:
+    // 유저가 첨부한 실제 사진이 기본 사진으로 바뀌지 않도록 Data URL로 안전 보존
+    debugPrint('[R2 Storage] S3 credentials not set, saving as safe permanent Data URL');
+    return toDataUrl(bytes, fileName);
   }
 
   // AWS SigV4 헬퍼 함수들
