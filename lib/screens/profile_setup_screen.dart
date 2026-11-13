@@ -457,6 +457,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         hobbies: _selectedHobbies,
         bio: _bioController.text.trim(),
         photoUrls: _photoUrls,
+        personalities: const ['리액션 요정', '친화력 갑'],
+        drinking: const ['가볍게 한잔'],
+        smoking: '비흡연',
+        pet: '반려동물 없음',
       );
 
       if (!mounted) return;

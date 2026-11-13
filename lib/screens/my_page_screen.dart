@@ -1794,57 +1794,145 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   void _showReviewsModal() {
+    final activeUid =
+        (FirebaseAuth.instance.currentUser?.uid ?? globalData.activeUserId)
+            .trim();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => SafeArea(
-        child: Padding(
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.75,
+          ),
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('받은 후기 (23개)',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('96% 만족',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: OomuTokens.coral)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                    backgroundColor: Color(0xFFF4F4F5),
-                    child: Icon(Icons.person, color: Color(0xFF8E8E93))),
-                title: Text('시간 약속을 잘 지키고 매너가 좋아요!',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                subtitle: Text('망원 한강 러닝 크루 · 2일 전',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93))),
-              ),
-              const Divider(height: 1),
-              const ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                    backgroundColor: Color(0xFFF4F4F5),
-                    child: Icon(Icons.person, color: Color(0xFF8E8E93))),
-                title: Text('처음 뵀는데 너무 편안하게 대화 이끌어주셨어요.',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                subtitle: Text('망원동 소금빵 오픈런 · 5일 전',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93))),
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: activeUid.isEmpty
+                      ? null
+                      : FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(activeUid)
+                          .collection('reviews')
+                          .snapshots(),
+                  builder: (context, snapshot) {
+                    final docs = snapshot.data?.docs ?? [];
+                    final int count = docs.length;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('받은 후기 ($count개)',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                            if (count > 0)
+                              const Text('100% 만족',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: OomuTokens.coral)),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (count == 0)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 36),
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.star_outline_rounded,
+                                      size: 48, color: Colors.grey.shade300),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    '아직 받은 후기가 없어요',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '동네 모임에 참여하고 첫 후기를 받아보세요!',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: docs.length,
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final rData = docs[index].data();
+                              final content = (rData['content'] ??
+                                      rData['text'] ??
+                                      '')
+                                  .toString();
+                              final meetupTitle = (rData['meetupTitle'] ??
+                                      rData['title'] ??
+                                      '동네 모임')
+                                  .toString();
+                              final time = (rData['time'] ?? '최근').toString();
+                              return ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: const CircleAvatar(
+                                  backgroundColor: Color(0xFFF4F4F5),
+                                  child: Icon(Icons.person,
+                                      color: Color(0xFF8E8E93)),
+                                ),
+                                title: Text(
+                                  content,
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  '$meetupTitle · $time',
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF8E8E93)),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

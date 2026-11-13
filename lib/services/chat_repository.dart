@@ -30,17 +30,22 @@ bool isLegacyChatSeed(ChatData data) {
   return signature != null && data[signature.$1] == signature.$2;
 }
 
-List<String> chatParticipantIds(ChatData? room) =>
-    (room?['participants'] is List ? room!['participants'] as List : const [])
-        .whereType<String>()
-        .where((id) => id.isNotEmpty)
-        .toSet()
-        .toList();
+List<String> chatParticipantIds(ChatData? room) {
+  final ids = (room?['participants'] is List ? room!['participants'] as List : const [])
+      .whereType<String>()
+      .where((id) => id.isNotEmpty)
+      .toSet();
+  final hostUid = room?['hostUid']?.toString();
+  if (hostUid != null && hostUid.isNotEmpty) {
+    ids.add(hostUid);
+  }
+  return ids.toList();
+}
 
 bool isChatParticipant(ChatData? room, String? uid) =>
     uid != null &&
     uid.isNotEmpty &&
-    chatParticipantIds(room).contains(uid) &&
+    (chatParticipantIds(room).contains(uid) || room?['hostUid'] == uid) &&
     !(room?['leftUserIds'] is List &&
         (room!['leftUserIds'] as List).contains(uid));
 
@@ -148,10 +153,15 @@ class FirestoreChatRepository implements ChatRepository {
         'senderId': uid,
         'timestamp': FieldValue.serverTimestamp()
       });
+      final currentParticipants = (snapshot.data()?['participants'] is List)
+          ? List<String>.from((snapshot.data()!['participants'] as List).whereType<String>())
+          : <String>[];
+      final needsParticipantSync = !currentParticipants.contains(uid);
       tx.update(ref, {
         'lastMessage':
             (message['text'] ?? message['title'] ?? '새 메시지').toString(),
         'updatedAt': FieldValue.serverTimestamp(),
+        if (needsParticipantSync) 'participants': FieldValue.arrayUnion([uid]),
       });
     });
   }

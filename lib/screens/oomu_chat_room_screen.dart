@@ -435,6 +435,19 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         stream: _roomStream,
         builder: (context, roomSnapshot) {
           _roomData = roomSnapshot.data;
+          if (_roomData != null &&
+              _uid != null &&
+              _roomData!['hostUid'] == _uid) {
+            final rawParticipants = _roomData!['participants'];
+            if (rawParticipants is! List || !rawParticipants.contains(_uid)) {
+              FirebaseFirestore.instance
+                  .collection('chatRooms')
+                  .doc(widget.chatRoomId)
+                  .set({
+                'participants': FieldValue.arrayUnion([_uid]),
+              }, SetOptions(merge: true)).ignore();
+            }
+          }
           _canSend =
               !roomSnapshot.hasError && isChatParticipant(_roomData, _uid);
           final memberCount = chatParticipantIds(_roomData).length;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
@@ -7,7 +9,8 @@ import '../ui/oomu_button.dart';
 import '../ui/oomu_tag.dart';
 import 'chat_screen.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
+  final String? userId;
   final String userName;
   final String? userAge;
   final String? userLocation;
@@ -28,6 +31,7 @@ class UserProfileScreen extends StatelessWidget {
 
   const UserProfileScreen({
     super.key,
+    this.userId,
     required this.userName,
     this.userAge,
     this.userLocation,
@@ -47,11 +51,160 @@ class UserProfileScreen extends StatelessWidget {
     this.isSelf = false,
   });
 
+  @override
+  State<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  late String _userName;
+  late String _userAge;
+  late String _userLocation;
+  late String _userBio;
+  String? _userAvatar;
+  double? _userManner;
+  late List<String> _userPersonalities;
+  late List<String> _userHobbies;
+  late String _userJob;
+  late String _userMbti;
+  late List<String> _userDrinking;
+  late List<String> _userPhotos;
+  late String _userGender;
+  late String _userSmoking;
+  late String _userPet;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDefaults();
+    _fetchUserData();
+  }
+
+  void _initDefaults() {
+    _userName = widget.userName;
+    _userAge = widget.userAge ?? '';
+    _userLocation = widget.userLocation ?? '';
+    _userBio = widget.userBio ?? '';
+    _userAvatar = widget.userAvatar;
+    _userManner = widget.userManner;
+    _userPersonalities = widget.userPersonalities ?? widget.userTags ?? [];
+    _userHobbies = widget.userHobbies ?? [];
+    _userJob = widget.userJob ?? '';
+    _userMbti = widget.userMbti ?? '';
+    _userDrinking = widget.userDrinking ?? [];
+    _userPhotos = widget.userPhotos ??
+        (_userAvatar != null && _userAvatar!.isNotEmpty ? [_userAvatar!] : []);
+    _userGender = widget.userGender ?? '';
+    _userSmoking = widget.userSmoking ?? '';
+    _userPet = widget.userPet ?? '';
+  }
+
+  Future<void> _fetchUserData() async {
+    final uid = widget.userId?.trim();
+    if (uid == null || uid.isEmpty || uid == 'guest') {
+      if (widget.isSelf) {
+        _syncFromGlobalData();
+      }
+      return;
+    }
+
+    if (Firebase.apps.isEmpty) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!doc.exists || !mounted) return;
+      final data = doc.data();
+      if (data == null) return;
+
+      setState(() {
+        _userName = (data['nickname'] ?? data['name'] ?? widget.userName).toString();
+        final ageVal = data['age'];
+        if (ageVal != null) {
+          _userAge = ageVal.toString();
+        }
+        final loc = (data['location'] ?? data['address'])?.toString();
+        if (loc != null && loc.isNotEmpty) {
+          _userLocation = loc;
+        }
+        final bioVal = data['bio']?.toString();
+        if (bioVal != null && bioVal.isNotEmpty) {
+          _userBio = bioVal;
+        }
+        final av = (data['avatarUrl'] ?? data['photoUrl'])?.toString();
+        if (av != null && av.isNotEmpty) {
+          _userAvatar = av;
+        }
+        final mannerVal = data['mannerTemp'] ?? data['manner'];
+        if (mannerVal is num) {
+          _userManner = mannerVal.toDouble();
+        }
+        final jobVal = data['job']?.toString();
+        if (jobVal != null && jobVal.isNotEmpty) {
+          _userJob = jobVal;
+        }
+        final mbtiVal = data['mbti']?.toString();
+        if (mbtiVal != null && mbtiVal.isNotEmpty) {
+          _userMbti = mbtiVal;
+        }
+        final genderVal = data['gender']?.toString();
+        if (genderVal != null && genderVal.isNotEmpty) {
+          _userGender = genderVal;
+        }
+        if (data['personalities'] is List) {
+          _userPersonalities =
+              (data['personalities'] as List).map((e) => e.toString()).toList();
+        }
+        if (data['hobbies'] is List) {
+          _userHobbies =
+              (data['hobbies'] as List).map((e) => e.toString()).toList();
+        }
+        if (data['drinking'] is List) {
+          _userDrinking =
+              (data['drinking'] as List).map((e) => e.toString()).toList();
+        }
+        final smokeVal = data['smoking']?.toString();
+        if (smokeVal != null && smokeVal.isNotEmpty) {
+          _userSmoking = smokeVal;
+        }
+        final petVal = data['pet']?.toString();
+        if (petVal != null && petVal.isNotEmpty) {
+          _userPet = petVal;
+        }
+        if (data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) {
+          _userPhotos =
+              (data['photoUrls'] as List).map((e) => e.toString()).toList();
+        } else if (_userAvatar != null && _userAvatar!.isNotEmpty) {
+          _userPhotos = [_userAvatar!];
+        }
+      });
+    } catch (e) {
+      debugPrint('[UserProfileScreen] fetch error: $e');
+    }
+  }
+
+  void _syncFromGlobalData() {
+    setState(() {
+      if (globalData.userNickname.value.isNotEmpty) {
+        _userName = globalData.userNickname.value;
+      }
+      if (globalData.userLocation.value.isNotEmpty) {
+        _userLocation = globalData.userLocation.value;
+      }
+      if (globalData.userAvatar.value.isNotEmpty) {
+        _userAvatar = globalData.userAvatar.value;
+        if (_userPhotos.isEmpty) _userPhotos = [_userAvatar!];
+      }
+      if (globalData.temperature.value > 0) {
+        _userManner = globalData.temperature.value;
+      }
+    });
+  }
+
   void _showReportBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -104,9 +257,11 @@ class UserProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r20)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OomuTokens.r20)),
         title: Text('$targetType 신고 사유 선택',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: reasons
@@ -114,20 +269,20 @@ class UserProfileScreen extends StatelessWidget {
                     dense: true,
                     title: Text(r,
                         style: const TextStyle(
-                            fontSize: OomuTokens.fs13, fontWeight: FontWeight.w600)),
+                            fontSize: OomuTokens.fs13,
+                            fontWeight: FontWeight.w600)),
                     onTap: () {
                       Navigator.pop(ctx);
                       globalData.submitReport(
                         targetType: targetType,
-                        targetId: 'user_$userName',
-                        targetUser: userName,
+                        targetId: widget.userId ?? _userName,
+                        targetUser: _userName,
                         reason: r,
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content:
-                              Text('🚨 운영진에게 신고 접수되었습니다. 24시간 이내에 검토 후 조치됩니다.'),
-                          backgroundColor: Colors.black87,
+                          content: Text('신고가 정상 접수되었습니다. 24시간 내 운영팀이 조치합니다.'),
+                          backgroundColor: OomuTokens.coral,
                         ),
                       );
                     },
@@ -142,33 +297,29 @@ class UserProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r20)),
-        title:
-            const Text('사용자 차단', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(
-            '$userName님을 차단하시겠습니까?\n\n• 차단 즉시 서로의 모든 게시글, 댓글, 채팅 메시지가 숨겨집니다.\n• 모임 및 소개팅 추천 매칭에서 영구 제외됩니다.\n• 설정 > 차단 관리 메뉴에서 언제든지 차단을 해제할 수 있습니다.'),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OomuTokens.r20)),
+        title: const Text('사용자 차단',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
+        content: Text('$_userName님을 차단하시겠습니까?\n차단된 사용자의 모임과 대화가 즉시 숨김 처리됩니다.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('취소', style: TextStyle(color: Colors.grey))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(OomuTokens.r10)),
-                elevation: 0),
+            child: const Text('취소', style: TextStyle(color: Colors.grey)),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          TextButton(
+            child: const Text('차단하기', style: TextStyle(color: Colors.redAccent)),
             onPressed: () {
               Navigator.pop(ctx);
-              globalData.blockUser(userName);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content:
-                      Text('🚫 $userName님이 차단되었습니다. 모든 게시글과 대화가 즉시 숨김 처리됩니다.'),
-                  backgroundColor: Colors.redAccent));
+              globalData.blockUser(widget.userId ?? _userName);
               Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('사용자가 차단되었습니다.'),
+                  backgroundColor: OomuTokens.coral,
+                ),
+              );
             },
-            child: const Text('차단하기',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -177,70 +328,30 @@ class UserProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 3인 페르소나 데이터 사전 정의
-    final personaMap = {
-      '김민서': {
-        'age': '24',
-        'location': '마포구 서교동',
-        'manner': 37.2,
-        'avatar': 'assets/images/민지.png',
-        'job': '콘텐츠 디자이너',
-        'bio': '연트럴파크 산책 & 전시회·디저트 탐방 좋아해요 ✨ 동네에서 편하게 볼 수 있는 좋은 친구 사귀고 싶어요!',
-        'tags': ['산책메이트', '감성전시', '디저트덕후', '연트럴파크'],
-      },
-      '이준호': {
-        'age': '28',
-        'location': '성동구 성수동',
-        'manner': 38.5,
-        'avatar': 'assets/images/지훈.png',
-        'job': '브랜드 마케터',
-        'bio': '성수동 스페셜티 커피 & 주말 저녁 한강 러닝 크루 🏃‍♂️ 퇴근 후 가벼운 맥주나 러닝 함께해요!',
-        'tags': ['러닝크루', '에스프레소', '헬스', '성수동'],
-      },
-      '박지연': {
-        'age': '26',
-        'location': '마포구 연남동',
-        'manner': 36.8,
-        'avatar': 'assets/images/시연.png',
-        'job': '파티시에 & 베이킹',
-        'bio': '동네 숨은 베이킹 카페 탐방 & 반려견 산책 🐶 주말에 조용한 북카페에서 같이 책 읽으실 분 환영해요!',
-        'tags': ['베이킹', '댕댕이', '북카페', '연남동'],
-      },
-    };
-
-    final resolvedData = personaMap[userName] ?? {};
-    final displayAge = userAge ?? (resolvedData['age'] as String?) ?? '26';
+    final displayAge = _userAge;
     final displayLocation =
-        userLocation ?? (resolvedData['location'] as String?) ?? '마포구 서교동';
-    final displayBio = userBio ??
-        (resolvedData['bio'] as String?) ??
-        '안녕하세요! OOMU에서 취향이 맞는 동네 친구들을 만나고 싶어요 ✨';
-    final displayAvatar = userAvatar ??
-        (resolvedData['avatar'] as String?) ??
-        'assets/images/민지.png';
-    final double? displayManner =
-        userManner ?? OomuUiHelpers.parseMannerValue(resolvedData['manner']);
-    final displayJob = (userJob != null && userJob!.isNotEmpty)
-        ? userJob!
-        : ((resolvedData['job'] as String?) ?? '');
-    final displayTags = (userTags != null && userTags!.isNotEmpty)
-        ? userTags!
-        : ((resolvedData['tags'] as List<String>?) ??
-            ['#동네친구', '#취향공유', '#소소한일상']);
-    final displayMbti = (userMbti != null && userMbti!.isNotEmpty)
-        ? userMbti!
-        : ((resolvedData['mbti'] as String?) ?? '');
+        _userLocation.isNotEmpty ? _userLocation : '동네 이웃';
+    final displayBio = _userBio.isNotEmpty
+        ? _userBio
+        : '안녕하세요! OOMU에서 취향이 맞는 동네 친구들을 만나고 싶어요 ✨';
+    final displayAvatar = (_userAvatar != null && _userAvatar!.isNotEmpty)
+        ? _userAvatar!
+        : 'assets/images/초연.png';
+    final double? displayManner = _userManner;
+    final displayJob = _userJob;
+    final displayMbti = _userMbti;
+    final userPhotos = _userPhotos;
 
-    final String fallbackPhoto = (userName.contains('초연') || isSelf)
+    final String fallbackPhoto = (_userName.contains('초연') || widget.isSelf)
         ? 'assets/images/초연.png'
         : 'assets/images/민지.png';
 
-    final effectivePersonalities = (userPersonalities != null && userPersonalities!.isNotEmpty)
-        ? userPersonalities!
-        : (userTags != null && userTags!.isNotEmpty ? userTags! : ['리액션 요정', '친화력 갑']);
-    final effectiveHobbies = (userHobbies != null && userHobbies!.isNotEmpty)
-        ? userHobbies!
-        : (displayTags.isNotEmpty ? displayTags : ['맛집탐방', '보드게임', '카페투어']);
+    final effectivePersonalities = _userPersonalities.isNotEmpty
+        ? _userPersonalities
+        : ['리액션 요정', '친화력 갑'];
+    final effectiveHobbies = _userHobbies.isNotEmpty
+        ? _userHobbies
+        : ['맛집탐방', '카페투어'];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -253,7 +364,7 @@ class UserProfileScreen extends StatelessWidget {
             backgroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
-            actions: isSelf
+            actions: widget.isSelf
                 ? const []
                 : [
                     Container(
@@ -273,12 +384,14 @@ class UserProfileScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   PageView(
-                    children: (userPhotos != null && userPhotos!.isNotEmpty)
-                        ? userPhotos!
-                            .map((p) => appNetImage(p, fit: BoxFit.cover, fallback: fallbackPhoto))
+                    children: userPhotos.isNotEmpty
+                        ? userPhotos
+                            .map((p) => appNetImage(p,
+                                fit: BoxFit.cover, fallback: fallbackPhoto))
                             .toList()
                         : [
-                            appNetImage(displayAvatar, fit: BoxFit.cover, fallback: fallbackPhoto),
+                            appNetImage(displayAvatar,
+                                fit: BoxFit.cover, fallback: fallbackPhoto),
                           ],
                   ),
                   Positioned(
@@ -311,14 +424,14 @@ class UserProfileScreen extends StatelessWidget {
                           spacing: 8,
                           runSpacing: 6,
                           children: [
-                            Text(userName,
-                                style: TextStyle(
+                            Text(_userName,
+                                style: const TextStyle(
                                     fontSize: OomuTokens.fsSplash,
                                     fontWeight: OomuTokens.w700,
                                     color: Colors.white)),
                             if (displayAge.isNotEmpty)
                               Text('$displayAge세',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: OomuTokens.fs20,
                                       fontWeight: OomuTokens.w400,
                                       color: Colors.white70)),
@@ -335,7 +448,7 @@ class UserProfileScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 '$displayLocation · 동네 이웃',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: OomuTokens.fs15,
                                     fontWeight: FontWeight.w500),
@@ -344,24 +457,26 @@ class UserProfileScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.work,
-                                color: Colors.white70, size: 16),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                displayJob,
-                                style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: OomuTokens.fs15,
-                                    fontWeight: FontWeight.w500),
-                                overflow: TextOverflow.ellipsis,
+                        if (displayJob.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.work,
+                                  color: Colors.white70, size: 16),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  displayJob,
+                                  style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: OomuTokens.fs15,
+                                      fontWeight: FontWeight.w500),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -377,7 +492,7 @@ class UserProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Manner Temp (방향 1: 플랫 서피스)
+                  // Manner Temp
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
@@ -441,18 +556,20 @@ class UserProfileScreen extends StatelessWidget {
                     spacing: 6,
                     runSpacing: 6,
                     children: [
-                      if (displayJob.isNotEmpty) OomuTag(label: '💼 $displayJob'),
-                      if (displayMbti.isNotEmpty) OomuTag(label: '🎨 $displayMbti'),
-                      if (userDrinking != null && userDrinking!.isNotEmpty)
-                        OomuTag(label: '🍻 ${userDrinking!.join(", ")}')
+                      if (displayJob.isNotEmpty)
+                        OomuTag(label: '💼 $displayJob'),
+                      if (displayMbti.isNotEmpty)
+                        OomuTag(label: '🎨 $displayMbti'),
+                      if (_userDrinking.isNotEmpty)
+                        OomuTag(label: '🍻 ${_userDrinking.join(", ")}')
                       else
                         const OomuTag(label: '🍻 가볍게 한잔'),
                       if (displayAge.isNotEmpty)
                         OomuTag(label: '🎂 $displayAge세'),
-                      if (userGender != null && userGender!.isNotEmpty)
-                        OomuTag(label: '👤 ${userGender!}'),
-                      OomuTag(label: userSmoking != null && userSmoking!.isNotEmpty ? '🚭 $userSmoking' : '🚭 비흡연'),
-                      OomuTag(label: userPet != null && userPet!.isNotEmpty ? '🐶 $userPet' : '🐶 반려동물 있음'),
+                      if (_userGender.isNotEmpty)
+                        OomuTag(label: '👤 $_userGender'),
+                      OomuTag(label: _userSmoking.isNotEmpty ? '🚭 $_userSmoking' : '🚭 비흡연'),
+                      OomuTag(label: _userPet.isNotEmpty ? '🐶 $_userPet' : '🐶 반려동물 있음'),
                     ],
                   ),
                   const SizedBox(height: OomuTokens.s20),
@@ -511,7 +628,7 @@ class UserProfileScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
               horizontal: OomuTokens.s20, vertical: OomuTokens.s12),
-          child: isSelf
+          child: widget.isSelf
               ? OomuButton.secondary(
                   label: '프로필 닫기',
                   onPressed: () => Navigator.pop(context),
@@ -522,8 +639,7 @@ class UserProfileScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const ChatScreen()),
+                      MaterialPageRoute(builder: (_) => const ChatScreen()),
                     );
                   },
                 ),

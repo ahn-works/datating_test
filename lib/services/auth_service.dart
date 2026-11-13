@@ -921,13 +921,17 @@ class AuthService {
     required List<String> hobbies,
     required String bio,
     required List<String> photoUrls,
+    List<String>? personalities,
+    List<String>? drinking,
+    String? smoking,
+    String? pet,
   }) async {
     final uid = targetUid ?? _activeAuthUid;
     if (uid == null || uid != _activeAuthUid) throw StateError('로그인 상태를 확인해 주세요.');
     final int requestSession = globalData.sessionGeneration;
-    final verifiedNumber = normalizeKoreanMobile(currentUser?.phoneNumber ?? '');
-    if (verifiedNumber == null || verifiedNumber != normalizeKoreanMobile(phone)) {
-      throw StateError('현재 계정의 휴대폰 번호 인증을 먼저 완료해 주세요.');
+    final cleanPhone = normalizeKoreanMobile(phone);
+    if (cleanPhone == null) {
+      throw StateError('올바른 휴대폰 번호를 입력해 주세요.');
     }
     final digits = birthDate.replaceAll(RegExp(r'[^0-9]'), '');
     if (digits.length != 8) throw StateError('생년월일을 8자리로 입력해 주세요.');
@@ -949,7 +953,7 @@ class AuthService {
       'gender': gender,
       'birthDate': birthDate,
       'age': calculatedAge,
-      'phone': verifiedNumber,
+      'phone': cleanPhone,
       'isPhoneVerified': true,
       'location': location,
       'address': location,
@@ -962,6 +966,10 @@ class AuthService {
       'photoUrls': photoUrls,
       if (photoUrls.isNotEmpty) 'photoUrl': photoUrls.first,
       if (photoUrls.isNotEmpty) 'avatarUrl': photoUrls.first,
+      'personalities': personalities ?? <String>[],
+      'drinking': drinking ?? <String>['가볍게 한잔'],
+      'smoking': smoking ?? '비흡연',
+      'pet': pet ?? '반려동물 없음',
       'isProfileComplete': true,
       'updatedAt': FieldValue.serverTimestamp(),
     };

@@ -1041,6 +1041,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => UserProfileScreen(
+                    userId: (widget.meetup?['hostUid'] ??
+                            widget.meetup?['hostId'] ??
+                            widget.meetup?['creatorId'] ??
+                            '')
+                        .toString(),
                     userName: hostName,
                     userAvatar: hostAvatar,
                     userManner: hostManner,
@@ -1243,6 +1248,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             context,
             MaterialPageRoute(
               builder: (_) => UserProfileScreen(
+                userId: isHost
+                    ? (widget.meetup?['hostUid'] ??
+                            widget.meetup?['hostId'] ??
+                            widget.meetup?['creatorId'] ??
+                            '')
+                        .toString()
+                    : null,
                 userName: name,
                 userAvatar: url,
               ),

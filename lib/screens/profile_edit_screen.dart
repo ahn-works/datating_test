@@ -80,6 +80,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     '반려동물 없음',
   ];
   List<String> _selectedPet = ['반려동물 있음'];
+  List<String> _photoUrls = [];
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -139,6 +140,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _avatarUrl = (loadedAvatar != null && loadedAvatar.isNotEmpty)
             ? loadedAvatar
             : (gAvatar.isNotEmpty ? gAvatar : 'assets/images/초연.png');
+        if (data['photoUrls'] is List) {
+          _photoUrls =
+              (data['photoUrls'] as List).map((e) => e.toString()).toList();
+        } else if (_avatarUrl.isNotEmpty) {
+          _photoUrls = [_avatarUrl];
+        }
       } else {
         _nicknameController.text = gNick.isNotEmpty ? gNick : '우리동네_초연';
         _nameController.text = '초연';
@@ -192,6 +199,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _isSaving = true;
     });
     try {
+      final updatedPhotos = List<String>.from(_photoUrls);
+      if (_avatarUrl.isNotEmpty) {
+        if (updatedPhotos.isEmpty) {
+          updatedPhotos.add(_avatarUrl);
+        } else if (!updatedPhotos.contains(_avatarUrl)) {
+          updatedPhotos[0] = _avatarUrl;
+        }
+      }
+
       await FirebaseFirestore.instance
           .collection('users')
           .doc(globalData.activeUserId)
@@ -201,6 +217,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'age': parsedAge,
         'gender': _gender,
         'role': _role,
+        'photoUrls': updatedPhotos,
         'photoUrl': _avatarUrl,
         'avatarUrl': _avatarUrl,
         'location': _locationController.text.trim(),
@@ -673,6 +690,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       MaterialPageRoute(
         builder: (_) => UserProfileScreen(
           isSelf: true,
+          userId: globalData.activeUserId,
           userName: _nicknameController.text.trim().isNotEmpty
               ? _nicknameController.text.trim()
               : '초연',
@@ -680,6 +698,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           userLocation: _locationController.text.trim(),
           userBio: _bioController.text.trim(),
           userAvatar: _avatarUrl,
+          userPhotos: _photoUrls.isNotEmpty
+              ? _photoUrls
+              : (_avatarUrl.isNotEmpty ? [_avatarUrl] : null),
+          userManner: globalData.temperature.value > 0
+              ? globalData.temperature.value
+              : 36.5,
           userJob: _jobController.text.trim(),
           userMbti: _mbtiController.text.trim(),
           userGender: _gender,

@@ -1966,7 +1966,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ),
 
-        // 3. 메인 모임 피드 (StreamBuilder / Dummy Fallback + OomuMeetupCard)
+        // 3. 메인 모임 피드 (StreamBuilder / Firestore Real meetups + OomuMeetupCard)
         SliverToBoxAdapter(
           child: _getMeetupStream() == null
               ? HomeMeetupSection(
@@ -1976,7 +1976,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   selectedVibe: _selectedVibe,
                   isListView: _isListView,
                   isLoading: false,
-                  meetups: _getSortedDummyMeetups(),
+                  meetups: const [],
                   showAllMeetups: _showAllMeetups,
                   onToggleView: (val) => setState(() => _isListView = val),
                   onToggleShowAll: () =>
@@ -2001,16 +2001,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     if (snapshot.hasError ||
                         !snapshot.hasData ||
                         snapshot.data!.docs.isEmpty) {
-                      final dummyFiltered = _getSortedDummyMeetups();
-
                       return HomeMeetupSection(
                         currentLocation: _currentLocation,
                         selectedCategoryIndex: _selectedCategoryIndex,
                         selectedSubCategory: _selectedSubCategory,
                         selectedVibe: _selectedVibe,
                         isListView: _isListView,
-                        isLoading: isLoading && dummyFiltered.isEmpty,
-                        meetups: dummyFiltered,
+                        isLoading: isLoading,
+                        meetups: const [],
                         showAllMeetups: _showAllMeetups,
                         onToggleView: (val) =>
                             setState(() => _isListView = val),
@@ -2030,34 +2028,21 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       );
                     }
 
-                    final List<Map<String, dynamic>> mergedItems = [];
-                    final Set<String> seenKeys = {};
-
+                    final List<Map<String, dynamic>> realItems = [];
                     for (final doc in snapshot.data!.docs) {
                       final data = Map<String, dynamic>.from(
                           doc.data() as Map<String, dynamic>)
                         ..['id'] = doc.id;
-                      final key =
-                          '${data['id']}_${(data['title'] ?? '').toString().trim()}';
-                      seenKeys.add(key);
-                      seenKeys.add((data['title'] ?? '').toString().trim());
-                      mergedItems.add(data);
+                      realItems.add(data);
                     }
 
-                    for (final dummy
-                        in _getDummyMeetupsForLocation(_currentLocation)) {
-                      final titleKey = (dummy['title'] ?? '').toString().trim();
-                      final idKey = '${dummy['id']}_$titleKey';
-                      if (!seenKeys.contains(idKey) &&
-                          !seenKeys.contains(titleKey)) {
-                        seenKeys.add(idKey);
-                        seenKeys.add(titleKey);
-                        mergedItems.add(Map<String, dynamic>.from(dummy));
-                      }
-                    }
-
-                    final filteredDocs = mergedItems
+                    final filteredDocs = realItems
                         .where((data) => _matchesFilters(data))
+                        .map((m) {
+                          final copy = Map<String, dynamic>.from(m);
+                          copy['distance'] ??= _meetupDistance(copy);
+                          return copy;
+                        })
                         .toList();
 
                     filteredDocs.sort((dataA, dataB) {
@@ -2068,17 +2053,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       if (scoreA != scoreB) {
                         return scoreB.compareTo(scoreA);
                       }
-                      final aTime = dataA['createdAt'];
-                      final bTime = dataB['createdAt'];
-                      if (aTime is Timestamp && bTime is Timestamp) {
-                        return bTime.compareTo(aTime);
-                      }
-                      return 0;
+                      final timeA = (dataA['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+                      final timeB = (dataB['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+                      return timeB.compareTo(timeA);
                     });
-
-                    for (final data in filteredDocs) {
-                      data['distance'] ??= _meetupDistance(data);
-                    }
 
                     return HomeMeetupSection(
                       currentLocation: _currentLocation,
@@ -2086,11 +2064,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                       selectedSubCategory: _selectedSubCategory,
                       selectedVibe: _selectedVibe,
                       isListView: _isListView,
-                      isLoading: isLoading && filteredDocs.isEmpty,
+                      isLoading: false,
                       meetups: filteredDocs,
                       showAllMeetups: _showAllMeetups,
-                      onToggleView: (val) =>
-                          setState(() => _isListView = val),
+                      onToggleView: (val) => setState(() => _isListView = val),
                       onToggleShowAll: () =>
                           setState(() => _showAllMeetups = !_showAllMeetups),
                       onMeetupTap: (meetup) {
@@ -2169,566 +2146,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       'imageUrl': image,
       'coverIsIllustrative': image == 'assets/images/cover_salt_bread.jpg',
     };
-  }
-
-  List<Map<String, dynamic>> _getSortedDummyMeetups() {
-    final list = _getDummyMeetupsForLocation(_currentLocation)
-        .where((data) => _matchesFilters(data))
-        .map((m) {
-          final copy = Map<String, dynamic>.from(m);
-          copy['distance'] ??= _meetupDistance(copy);
-          return copy;
-        })
-        .toList();
-    list.sort((a, b) {
-      final scoreA =
-          _calculateLocationRelevanceScore(a['location']?.toString() ?? '');
-      final scoreB =
-          _calculateLocationRelevanceScore(b['location']?.toString() ?? '');
-      if (scoreA != scoreB) {
-        return scoreB.compareTo(scoreA);
-      }
-      return 0;
-    });
-    return list;
-  }
-
-  List<Map<String, dynamic>> _getDummyMeetupsForLocation(String location) {
-    final clean = location.trim();
-    if (clean.contains('여수') || clean.contains('화장동')) {
-      return _getYeosuDummyMeetups();
-    }
-    return _getSeoulDummyMeetups();
-  }
-
-  List<Map<String, dynamic>> _getYeosuDummyMeetups() {
-    return [
-      {
-        'id': 'yeosu_dummy_01',
-        'title': '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
-        'mainCategory': '일상 & 푸드',
-        'category': '동네 맛집 & 소셜 다이닝',
-        'location': '전남 여수시 화장동 선소상가 카페거리',
-        'date': '이번 주 일요일 오전 11:00',
-        'imageUrl': 'assets/images/cover_cafe.jpg',
-        'isFemaleOnly': true,
-        'host': '여수빵순이',
-        'hostAvatar': 'assets/images/민지.png',
-        'manner': 42.5,
-        'members': '2/4',
-        'price': '각자 결제',
-        'transport': '화장동 선소상가 앞 집결',
-        'schedule': '1차 갓 구운 소금빵 & 드립커피 ➔ 2차 루프탑 테라스 수다',
-        'tags': ['화장동카페', '소금빵오픈런', '여수디저트', '소소하게', '동네친구', '카페·디저트'],
-        'photos': [
-          'assets/images/cover_cafe.jpg',
-          'assets/images/cover_food.jpg'
-        ],
-      },
-      {
-        'id': 'yeosu_dummy_02',
-        'title': '화장동 성산공원 호수 둘레길 저녁 5km 런닝 크루 🏃‍♀️',
-        'mainCategory': '액티비티 & 스포츠',
-        'category': '라이프 메이트',
-        'location': '전남 여수시 화장동 성산공원 수변무대',
-        'date': '오늘 저녁 7:30',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'isLightning': true,
-        'host': '성산러너_민우',
-        'hostAvatar': 'assets/images/지훈.png',
-        'manner': 45.2,
-        'members': '3/4',
-        'price': '각자 결제',
-        'transport': '성산공원 입구 집결',
-        'schedule': '스트레칭 10분 ➔ 성산공원 호수 둘레길 5km 러닝 ➔ 이온음료 쿨다운',
-        'tags': [
-          '라이프 메이트',
-          '러닝·운동',
-          '운동',
-          '성산공원',
-          '화장동러닝',
-          '오운완',
-          '둘레길산책',
-          '오늘번개'
-        ],
-        'photos': ['assets/images/cover_running.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_03',
-        'title': '불금엔 여수 화장동 무선상가 코노 & 시원한 하이볼 한잔 🎤',
-        'mainCategory': '문화 & 엔터',
-        'category': '음악 & 노래방',
-        'location': '전남 여수시 화장동 무선지구 상가',
-        'date': '오늘 저녁 8:30',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'isFemaleOnly': false,
-        'isLightning': true,
-        'host': '무선보컬킹',
-        'hostAvatar': 'assets/images/정재.png',
-        'manner': 40.8,
-        'members': '2/4',
-        'price': '각자 결제',
-        'transport': '무선 롯데마트 앞 집결',
-        'schedule': '1차 무선지구 코노 고음 배틀 ➔ 2차 캐주얼 하이볼 한잔',
-        'tags': ['불금엔 역시 코노', '음악 & 노래방', '불금코노·술', '오늘번개', '스트레스해소'],
-        'photos': ['assets/images/cover_wine.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_04',
-        'title': '여수 웅천친수공원 바다 캔맥주 소셜 피크닉 & 수다 🍺',
-        'mainCategory': '일상 & 푸드',
-        'category': '동네 술 한잔',
-        'location': '전남 여수시 웅천동 해변문화공원',
-        'date': '이번 주 토요일 오후 6:30',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'isFemaleOnly': false,
-        'host': '웅천피플_준',
-        'hostAvatar': 'assets/images/시연.png',
-        'manner': 43.0,
-        'members': '3/6',
-        'price': '각자 결제',
-        'transport': '웅천 친수공원 잔디마당',
-        'schedule': '노을 보며 돗자리 캔맥주 & 버스킹 감상 피크닉',
-        'tags': ['웅천피크닉', '바다캔맥주', '소셜다이닝', '동네친구', '혼술바동행'],
-        'photos': [
-          'assets/images/cover_wine.jpg',
-          'assets/images/cover_cafe.jpg'
-        ],
-      },
-      {
-        'id': 'yeosu_dummy_05',
-        'title': '여수 학동 선소상가 찐맛집 털기 & 2:2 캐주얼 소셜 다이닝 🥘',
-        'mainCategory': '일상 & 푸드',
-        'category': '동네 맛집 & 소셜 다이닝',
-        'location': '전남 여수시 학동 선소상가 맛집골목',
-        'date': '이번 주 금요일 저녁 7:30',
-        'imageUrl': 'assets/images/cover_food.jpg',
-        'isFemaleOnly': false,
-        'host': '선소미식가',
-        'hostAvatar': 'assets/images/지연.png',
-        'manner': 44.1,
-        'members': '2/4',
-        'price': '1/N 안심 정산',
-        'transport': '학동 선소상가 입구',
-        'schedule': '현지인 추천 남도 제철 안주 & 맛집 탐방 ➔ 분위기 좋은 2차',
-        'tags': ['선소맛집', '맛집털기', '2:2미팅', '소셜다이닝', '자만추'],
-        'photos': ['assets/images/cover_food.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_06',
-        'title': '화장동 보드게임 카페 스플렌더 & 루미큐브 두뇌 배틀 🎲',
-        'mainCategory': '게임 & 오락',
-        'category': '보드게임',
-        'location': '전남 여수시 화장동 보드게임 카페',
-        'date': '토요일 오후 3:00',
-        'imageUrl': 'assets/images/cover_cafe.jpg',
-        'isFemaleOnly': false,
-        'host': '미플장인',
-        'hostAvatar': 'assets/images/지안.png',
-        'manner': 41.5,
-        'members': '3/4',
-        'price': '무료 참여',
-        'transport': '화장동 상가거리',
-        'tags': ['보드게임·방탈출', '취향아지트', '전략보드게임', '소소하게'],
-        'photos': ['assets/images/cover_cafe.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_07',
-        'title': '여수 소호동동다리 바닷길 야경 산책 & 힐링 워킹 🌊',
-        'mainCategory': '여행 & 나들이',
-        'category': '동네산책',
-        'location': '전남 여수시 소호동 동동다리 산책로',
-        'date': '목요일 저녁 8:00',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'host': '밤바다산책',
-        'hostAvatar': 'assets/images/민지.png',
-        'manner': 43.8,
-        'members': '2/4',
-        'price': '무료 참여',
-        'transport': '소호동동다리 광장 집결',
-        'schedule': '바다 위 데크길 산책 40분 ➔ 오션뷰 카페 차 한잔',
-        'tags': ['동네산책', '라이프메이트', '소호동동다리', '야경산책', '힐링'],
-        'photos': ['assets/images/cover_running.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_08',
-        'title': '화장동 무선 롯데마트 1인 가구 대용량 식재료 장보기 & 소분 메이트 🛒',
-        'mainCategory': '라이프 메이트',
-        'category': '1인가구장보기/소분',
-        'location': '전남 여수시 화장동 무선 롯데마트 1층 입구',
-        'date': '이번 주 토요일 오후 4:00',
-        'imageUrl': 'assets/images/cover_food.jpg',
-        'isFemaleOnly': false,
-        'host': '자취9단_수아',
-        'hostAvatar': 'assets/images/시연.png',
-        'manner': 44.5,
-        'members': '2/4',
-        'price': '1/N 안심 정산',
-        'transport': '무선 롯데마트 정문 집결',
-        'schedule': '제철 과일·삼겹살·생필품 대용량 구매 ➔ 깔끔 1/N 소분 정산',
-        'tags': ['라이프 메이트', '1인가구장보기/소분', '1인 가구', '장보기', '소분', '배달비'],
-        'photos': ['assets/images/cover_food.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_09',
-        'title': '화장동 피트니스 퇴근 후 득근 헬스 & 오운완 인증 메이트 💪',
-        'mainCategory': '라이프 메이트',
-        'category': '헬스메이트',
-        'location': '전남 여수시 화장동 성산공원 앞 피트니스',
-        'date': '평일 저녁 7:30 상시',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'host': '득근러_현우',
-        'hostAvatar': 'assets/images/정재.png',
-        'manner': 43.2,
-        'members': '2/3',
-        'price': '무료 참여',
-        'transport': '화장동 성산사거리 집결',
-        'schedule': '상·하체 분할 웨이트 50분 + 유산소 20분 함께 인증',
-        'tags': ['라이프 메이트', '헬스메이트', '러닝·운동', '헬스', '운동', '메이트'],
-        'photos': ['assets/images/cover_running.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_10',
-        'title': '성산공원 잔디광장 저녁 강아지·반려동물 산책 메이트 모임 🐕',
-        'mainCategory': '라이프 메이트',
-        'category': '반려동물산책',
-        'location': '전남 여수시 화장동 성산공원 잔디광장',
-        'date': '내일 저녁 7:00',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'host': '비숑맘_하은',
-        'hostAvatar': 'assets/images/지안.png',
-        'manner': 45.0,
-        'members': '3/5',
-        'price': '무료 참여',
-        'transport': '성산공원 주차장 입구',
-        'schedule': '반려견 인사 & 호수 산책로 1바퀴 ➔ 야외 벤치 간식 타임',
-        'tags': ['라이프 메이트', '반려동물산책', '동네산책', '반려견', '댕댕이', '산책'],
-        'photos': ['assets/images/cover_running.jpg'],
-      },
-      {
-        'id': 'yeosu_dummy_11',
-        'title': '여수 돌산 오션뷰 여성전용 감성 글램핑 & 불멍 바비큐 팟 ⛺',
-        'mainCategory': '라이프 메이트',
-        'category': '동성캠핑',
-        'location': '전남 여수시 돌산읍 오션뷰 글램핑장',
-        'date': '이번 주 토요일 오후 4:00',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'isFemaleOnly': true,
-        'host': '캠핑요정_유진',
-        'hostAvatar': 'assets/images/민지.png',
-        'manner': 44.8,
-        'members': '3/4',
-        'price': '1/N 안심 정산',
-        'transport': '화장동에서 카풀 이동',
-        'schedule': '오션뷰 노을 감상 ➔ 바비큐 파티 & 모닥불 불멍 토크',
-        'tags': ['라이프 메이트', '동성캠핑', '캠핑', '글램핑', '동성', '불멍'],
-        'photos': ['assets/images/cover_wine.jpg'],
-      },
-    ];
-  }
-
-  List<Map<String, dynamic>> _getSeoulDummyMeetups() {
-    return [
-      {
-        'id': 'dummy_meetup_01',
-        'title': '주말 엽떡+마라탕 같이 가실 분',
-        'mainCategory': '일상 & 푸드',
-        'category': '동네 맛집 & 소셜 다이닝',
-        'location': '마포구 홍대입구역 9번 출구',
-        'date': '이번주 토요일 18:00',
-        'imageUrl': 'assets/images/cover_food.jpg',
-        'isFemaleOnly': true,
-        'host': '매운맛킬러',
-        'hostAvatar': 'assets/images/민지.png',
-        'manner': 41.2,
-        'members': '2/4',
-        'price': '1/N 안심 정산',
-        'transport': '각자 이동',
-        'schedule': '1차 엽떡+마라탕 먹방 ➔ 2차 인생네컷 & 보드게임 카페',
-        'tags': ['동네 핫플 메뉴 털기', '주말 마라탕&엽떡 모임', '소셜다이닝', '소소하게', '메이트'],
-        'photos': [
-          'assets/images/cover_food.jpg',
-          'assets/images/cover_food.jpg',
-          'assets/images/cover_cafe.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_02',
-        'title': '성수동 감성 에스프레소 바 & 북카페 나들이',
-        'mainCategory': '일상 & 푸드',
-        'category': '카페 & 디저트',
-        'location': '성동구 성수동 카페거리',
-        'date': '이번주 일요일 오후 2:00',
-        'imageUrl': 'assets/images/cover_cafe.jpg',
-        'isFemaleOnly': false,
-        'host': '성수동힙스터',
-        'hostAvatar': 'assets/images/시연.png',
-        'manner': 38.5,
-        'members': '2/4',
-        'price': '1/N 안심 정산',
-        'transport': '성수역 3번출구 집결',
-        'schedule': '힙한 신상 에스프레소 바 ➔ 베이커리 북카페 & 디저트 탐방',
-        'tags': ['북카페 겸 근교 드라이브', '동네 핫플 디저트 투어', '소소하게', '디저트', '주말여유'],
-        'photos': [
-          'assets/images/cover_cafe.jpg',
-          'assets/images/cover_cafe.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_03',
-        'title': '연남동 힙한 내추럴 혼술바 동행 & 와인 팟',
-        'mainCategory': '일상 & 푸드',
-        'category': '동네 술 한잔',
-        'location': '마포구 연남동 미로길',
-        'date': '금요일 저녁 7:30',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'isFemaleOnly': false,
-        'host': '와인앤모어',
-        'hostAvatar': 'assets/images/지훈.png',
-        'manner': 42.0,
-        'members': '3/4',
-        'price': '1/N 안심 정산',
-        'transport': '홍대입구역 3번출구 도보',
-        'schedule': '내추럴 와인 2병 페어링 & 소소한 금요일 밤 이야기',
-        'tags': ['힙한 혼술바 동행', '동네 수제맥주·와인 팟', '놀줄아는', '와인바', '소셜다이닝'],
-        'photos': [
-          'assets/images/cover_wine.jpg',
-          'assets/images/cover_food.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_04',
-        'title': '불금엔 역시 코노! 스트레스 풀 고음 릴레이',
-        'mainCategory': '문화 & 엔터',
-        'category': '음악 & 노래방',
-        'location': '합정역 수코인노래방',
-        'date': '오늘 저녁 8시',
-        'host': '고음불가',
-        'hostAvatar': 'assets/images/정재.png',
-        'manner': 38.5,
-        'price': '1/N 안심 정산',
-        'members': '2/4',
-        'isFemaleOnly': false,
-        'transport': '각자 이동',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'tags': ['불금엔 역시 코노', '음악 & 노래방', '놀줄아는', '스트레스해소', '코노'],
-        'photos': [
-          'assets/images/cover_wine.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_05',
-        'title': '성수동 핫한 팝업스토어 웨이팅 동행 구해요',
-        'mainCategory': '문화 & 엔터',
-        'category': '전시 & 팝업스토어',
-        'location': '성동구 성수 연무장길',
-        'date': '토요일 오전 11:30',
-        'imageUrl': 'assets/images/cover_cafe.jpg',
-        'isFemaleOnly': false,
-        'host': '팝업헌터',
-        'hostAvatar': 'assets/images/지연.png',
-        'manner': 40.2,
-        'members': '2/3',
-        'price': '무료 참여',
-        'transport': '성수역 4번출구',
-        'schedule': '팝업스토어 2곳 웨이팅 & 인생샷 교환 ➔ 카페 수다',
-        'tags': ['성수/연남 팝업스토어 웨이팅 동행', '전시 & 팝업스토어', '놀줄아는', '팝업'],
-        'photos': [
-          'assets/images/cover_cafe.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_06',
-        'title': '신촌 보드게임 카페 파티 & 전략 보드게임 모임',
-        'mainCategory': '게임 & 오락',
-        'category': '보드게임',
-        'location': '서대문구 신촌 보드게임 카페',
-        'date': '토요일 오후 3:00',
-        'host': '미플마스터',
-        'hostAvatar': 'assets/images/지훈.png',
-        'manner': 40.5,
-        'price': '1/N 안심 정산',
-        'members': '3/4',
-        'isFemaleOnly': false,
-        'transport': '신촌역 2번출구',
-        'imageUrl': 'assets/images/cover_cafe.jpg',
-        'tags': ['보드게임 카페 파티', '전략 보드게임 모임', '소소하게', '보드게임'],
-        'photos': [
-          'assets/images/cover_cafe.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_07',
-        'title': '망원 한강공원 야경 러닝 & 플로깅 5km',
-        'mainCategory': '액티비티 & 스포츠',
-        'category': '야외 액티비티',
-        'location': '마포구 망원 한강공원 입구',
-        'date': '목요일 저녁 8:00',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'host': '러닝크루장',
-        'hostAvatar': 'assets/images/지안.png',
-        'manner': 39.8,
-        'members': '4/6',
-        'price': '무료 참여',
-        'transport': '망원역 집결',
-        'schedule': '스트레칭 10분 ➔ 6분 페이스 5km 러닝 ➔ 이온음료 쿨다운',
-        'tags': ['한강 러닝 & 플로깅', '야외 액티비티', '메이트', '러닝', '운동'],
-        'photos': [
-          'assets/images/cover_running.jpg',
-          'assets/images/cover_running.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_08',
-        'title': '동네 헬스장 득근 헬스 메이트 구함 (동성/상하체 분할)',
-        'mainCategory': '액티비티 & 스포츠',
-        'category': '운동 메이트 (동성 추천)',
-        'location': '마포구 서교동 피트니스',
-        'date': '평일 저녁 7:00 매일',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'host': '헬린이탈출',
-        'hostAvatar': 'assets/images/정재.png',
-        'manner': 43.1,
-        'members': '2/2',
-        'price': '무료 참여',
-        'transport': '헬스장 정문',
-        'schedule': '웨이트 60분 + 유산소 20분 보조',
-        'tags': ['동네 헬스장 헬스 메이트', '운동 메이트', '메이트', '헬스'],
-        'photos': [
-          'assets/images/cover_running.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_09',
-        'title': '지하철 타고 떠나는 감성 골목길 인생샷 출사 투어',
-        'mainCategory': '여행 & 나들이',
-        'category': '출사 & 사진',
-        'location': '종로구 익선동 한옥마을',
-        'date': '일요일 오전 11:00',
-        'host': '셔터버기',
-        'hostAvatar': 'assets/images/지연.png',
-        'manner': 42.8,
-        'price': '1/N 안심 정산',
-        'members': '2/4',
-        'isFemaleOnly': false,
-        'transport': '종로3가역 4번출구',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'tags': ['지하철/버스 타고 떠나는 근교 출사', '동네 골목길 인생샷 투어', '소소하게', '출사'],
-        'photos': [
-          'assets/images/cover_running.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_10',
-        'title': '나만의 시그니처 향수 만들기 원데이 공방',
-        'mainCategory': '체험 & 취미',
-        'category': '원데이 클래스',
-        'location': '마포구 연남동 조향 아틀리에',
-        'date': '토요일 오후 1:00',
-        'host': '향기디자이너',
-        'hostAvatar': 'assets/images/민지.png',
-        'manner': 44.0,
-        'price': '1/N 안심 정산',
-        'members': '2/3',
-        'isFemaleOnly': true,
-        'transport': '홍대입구역 도보 8분',
-        'imageUrl': 'assets/images/cover_food.jpg',
-        'tags': ['향수/비누 만들기 공방', '원데이 클래스', '소소하게', '취미'],
-        'photos': [
-          'assets/images/cover_food.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_11',
-        'title': '자연스러운 동네 2:2 와인&다이닝 미팅',
-        'mainCategory': '일상 & 푸드',
-        'category': '동네 술 한잔',
-        'location': '마포구 연남동 분위기 좋은 다이닝',
-        'date': '이번주 토요일 저녁 7:00',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'isFemaleOnly': false,
-        'host': '연남러버',
-        'hostAvatar': 'assets/images/지훈.png',
-        'manner': 41.5,
-        'members': '3/4',
-        'price': '1/N 안심 정산',
-        'transport': '홍대입구역 3번출구',
-        'schedule': '가벼운 와인과 식사 & 편안한 동네 인연 찾기',
-        'tags': ['소개팅', '2:2', '미팅', '인연', '소셜다이닝'],
-        'photos': [
-          'assets/images/cover_wine.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_12',
-        'title': '망원시장·합정 홈플러스 1인 가구 대용량 장보기 & 소분 메이트 🛒',
-        'mainCategory': '라이프 메이트',
-        'category': '1인가구장보기/소분',
-        'location': '마포구 망원시장 정문 / 합정역 홈플러스',
-        'date': '이번 주 토요일 오후 3:00',
-        'imageUrl': 'assets/images/cover_food.jpg',
-        'isFemaleOnly': false,
-        'host': '망원자취러_소연',
-        'hostAvatar': 'assets/images/시연.png',
-        'manner': 44.3,
-        'members': '3/4',
-        'price': '1/N 안심 정산',
-        'transport': '망원역 2번 출구 집결',
-        'schedule': '제철 과일·구이용 고기·대용량 식재료 공동 구매 후 1/N 소분',
-        'tags': ['라이프 메이트', '1인가구장보기/소분', '1인 가구', '장보기', '소분', '배달비'],
-        'photos': [
-          'assets/images/cover_food.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_13',
-        'title': '연트럴파크 경의선숲길 저녁 반려동물·강아지 동네산책 모임 🐕',
-        'mainCategory': '라이프 메이트',
-        'category': '반려동물산책',
-        'location': '마포구 연남동 경의선숲길 잔디광장',
-        'date': '오늘 저녁 7:30',
-        'imageUrl': 'assets/images/cover_running.jpg',
-        'isFemaleOnly': false,
-        'host': '보리언니_민서',
-        'hostAvatar': 'assets/images/민지.png',
-        'manner': 43.9,
-        'members': '3/5',
-        'price': '무료 참여',
-        'transport': '홍대입구역 3번 출구 숲길 시작점',
-        'schedule': '경의선숲길 왕복 40분 산책 ➔ 애견 동반 테라스 카페 수다',
-        'tags': ['라이프 메이트', '반려동물산책', '동네산책', '반려견', '댕댕이', '산책'],
-        'photos': [
-          'assets/images/cover_running.jpg',
-        ],
-      },
-      {
-        'id': 'dummy_meetup_14',
-        'title': '난지한강공원 여성전용 감성 글램핑 & 노을 불멍 바비큐 팟 ⛺',
-        'mainCategory': '라이프 메이트',
-        'category': '동성캠핑',
-        'location': '마포구 상암동 난지캠핑장 바비큐존',
-        'date': '이번 주 일요일 오후 4:30',
-        'imageUrl': 'assets/images/cover_wine.jpg',
-        'isFemaleOnly': true,
-        'host': '캠핑메이트_지유',
-        'hostAvatar': 'assets/images/지연.png',
-        'manner': 44.6,
-        'members': '3/4',
-        'price': '1/N 안심 정산',
-        'transport': '마포구청역 픽업/집결',
-        'schedule': '한강 노을 감상 ➔ 그릴 바비큐 & 마시멜로 불멍 토크',
-        'tags': ['라이프 메이트', '동성캠핑', '캠핑', '글램핑', '동성', '불멍'],
-        'photos': [
-          'assets/images/cover_wine.jpg',
-        ],
-      },
-    ];
   }
 
   Stream<QuerySnapshot>? _getMeetupStream() {

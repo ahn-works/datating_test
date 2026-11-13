@@ -173,10 +173,30 @@ class HomeMeetupSection extends StatelessWidget {
             ),
             child: OomuEmptyState(
               icon: Icons.search_off_rounded,
-              title: '조건에 맞는 모임이 없어요',
-              subtitle: '필터를 재설정하거나 새로운 모임을 직접 열어보세요.',
-              buttonLabel: '필터 초기화',
-              onButtonPressed: onResetFilters,
+              title: (selectedCategoryIndex == 0 &&
+                      (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                      (selectedVibe == null || selectedVibe == '전체'))
+                  ? '아직 등록된 모임이 없어요'
+                  : '조건에 맞는 모임이 없어요',
+              subtitle: (selectedCategoryIndex == 0 &&
+                      (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                      (selectedVibe == null || selectedVibe == '전체'))
+                  ? '우리 동네 첫 번째 모임을 직접 열어보세요!'
+                  : '필터를 재설정하거나 새로운 모임을 직접 열어보세요.',
+              buttonLabel: (selectedCategoryIndex == 0 &&
+                      (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                      (selectedVibe == null || selectedVibe == '전체'))
+                  ? '모임 열기'
+                  : '필터 초기화',
+              onButtonPressed: () {
+                if (selectedCategoryIndex == 0 &&
+                    (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                    (selectedVibe == null || selectedVibe == '전체')) {
+                  Navigator.pushNamed(context, '/host');
+                } else {
+                  onResetFilters?.call();
+                }
+              },
             ),
           )
         else

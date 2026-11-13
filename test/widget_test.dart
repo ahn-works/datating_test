@@ -13,16 +13,14 @@ const _testMeetup = <String, dynamic>{
 
 void main() {
   testWidgets(
-    'OOMU 홈 화면이 Firebase 미연결 상태에서 익명 샘플 모임을 렌더링한다',
+    'OOMU 홈 화면이 Firebase 미연결 상태에서 빈 상태 뷰를 렌더링한다',
     (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(const MaterialApp(home: OOMUHomeScreen()));
         await tester.pump();
 
         expect(find.text('마포구 서교동'), findsOneWidget);
-        expect(find.textContaining('오늘 번개'), findsWidgets);
-        expect(find.text('헬린이탈출'), findsOneWidget);
-        expect(find.textContaining('모임 더보기'), findsOneWidget);
+        expect(find.textContaining('아직 등록된 모임이 없어요'), findsOneWidget);
         await tester.drag(
           find.byType(CustomScrollView),
           const Offset(0, -1200),

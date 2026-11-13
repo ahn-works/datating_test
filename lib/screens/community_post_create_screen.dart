@@ -169,6 +169,10 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     setState(() => _submitting = true);
     try {
       await ref.set(post);
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'myPostsCount': FieldValue.increment(1),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
       if (!mounted || generation != globalData.sessionGeneration) {
         return;
       }

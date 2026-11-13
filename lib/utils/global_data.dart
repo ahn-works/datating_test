@@ -143,6 +143,34 @@ class GlobalData {
         return;
       }
       applyProfileData(data);
+      final rawIds = data?['savedMeetupIds'];
+      if (rawIds is List && rawIds.isNotEmpty) {
+        final ids = rawIds
+            .map((e) => e.toString())
+            .where((e) => e.isNotEmpty)
+            .take(30)
+            .toList();
+        final List<Map<String, dynamic>> loadedMeetups = [];
+        for (final mId in ids) {
+          try {
+            final mDoc = await FirebaseFirestore.instance
+                .collection('meetups')
+                .doc(mId)
+                .get();
+            if (mDoc.exists && mDoc.data() != null) {
+              loadedMeetups.add({...mDoc.data()!, 'id': mDoc.id});
+            } else {
+              loadedMeetups.add({'id': mId, 'title': '찜한 모임'});
+            }
+          } catch (_) {
+            loadedMeetups.add({'id': mId, 'title': '찜한 모임'});
+          }
+        }
+        if (isActiveSession(requestSession, uid) &&
+            requestGeneration == _syncGeneration) {
+          savedMeetups.value = loadedMeetups;
+        }
+      }
     } catch (e) {
       debugPrint('[GlobalData] syncUserProfileFromFirestore error: $e');
     }
@@ -269,14 +297,18 @@ class GlobalData {
 
   bool isFavorite(String? id) {
     if (id == null) return false;
-    return savedMeetups.value.any((m) => m['id'] == id);
+    return savedMeetups.value
+        .any((m) => (m['id'] ?? m['title'])?.toString() == id);
   }
 
   void toggleFavorite(Map<String, dynamic> meetup) {
     final list = List<Map<String, dynamic>>.from(savedMeetups.value);
-    final id = meetup['id'] ?? meetup['title'];
-    final index = list.indexWhere((m) => (m['id'] ?? m['title']) == id);
-    if (index >= 0) {
+    final id = (meetup['id'] ?? meetup['title'])?.toString();
+    if (id == null || id.isEmpty) return;
+    final index =
+        list.indexWhere((m) => (m['id'] ?? m['title'])?.toString() == id);
+    final bool isAdding = index < 0;
+    if (!isAdding) {
       list.removeAt(index);
     } else {
       list.insert(0, Map<String, dynamic>.from(meetup));
@@ -286,6 +318,9 @@ class GlobalData {
     try {
       FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
         'savedMeetupCount': list.length,
+        'savedMeetupIds': isAdding
+            ? FieldValue.arrayUnion([id])
+            : FieldValue.arrayRemove([id]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (_) {}

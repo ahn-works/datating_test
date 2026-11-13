@@ -461,6 +461,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => UserProfileScreen(
+                            userId: (post['authorId'] ??
+                                    post['authorUid'] ??
+                                    post['userId'] ??
+                                    '')
+                                .toString(),
                             userName: author,
                             userAvatar: effectiveAuthorAvatar,
                             userLocation: location,
@@ -489,6 +494,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => UserProfileScreen(
+                                        userId: (post['authorId'] ??
+                                                post['authorUid'] ??
+                                                post['userId'] ??
+                                                '')
+                                            .toString(),
                                         userName: author,
                                         userAvatar:
                                             post['authorAvatar']?.toString(),
@@ -759,6 +769,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => UserProfileScreen(
+                              userId: (comm['authorId'] ??
+                                      comm['authorUid'] ??
+                                      comm['userId'] ??
+                                      '')
+                                  .toString(),
                               userName: commAuthor,
                               userAvatar: effectiveCommAvatar,
                             ),
@@ -785,6 +800,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => UserProfileScreen(
+                                          userId: (comm['authorId'] ??
+                                                  comm['authorUid'] ??
+                                                  comm['userId'] ??
+                                                  '')
+                                              .toString(),
                                           userName: (comm['author'] ?? '이웃')
                                               .toString(),
                                           userAvatar:
