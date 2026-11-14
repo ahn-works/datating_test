@@ -1,8 +1,8 @@
 # Spot 모임 앱 — 전국 유저 활동 권역별 모임·이벤트 & 로컬 핫플 자동 수집 현황
 
-- **최종 업데이트**: `2026-11-13 11:51:23 KST`
+- **최종 업데이트**: `2026-11-14 11:38:38 KST`
 - **커버리지 권역 수**: 16개 권역 (권역당 최소 10개 이상 로컬 핫플·트렌드 음식·지역 행사 보장)
-- **총 수집 이벤트 수**: 205건
+- **총 수집 이벤트 수**: 207건
 
 ## 서울특별시 마포구 (12건)
 - **매칭 동네 키워드**: 서교동, 연남동, 망원동, 합정동, 홍대, 연트럴파크, 망원한강공원
@@ -22,7 +22,7 @@
 | 🎪 서교동 지역축제·행사 | 홍대 앞 주차장 떠들썩하던 ‘책 축제’를 기억하며 [사람IN] | 서울특별시 서교동 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiakFVX3lxTE05NExiVEhTRF9RbUV0d1VBYUdDd3BsMS1CQnBiSzdEVlI5Ylk4d0x5bDBtSTFoTU9wY3BaR1d4a0NxZUpIZEprN0h0UlQtRXRBSHJWcE83OFdOMTdSSkN4Sm5mc1FyNl9Ecmc?oc=5) |
 | 🎨 서교동 원데이·클래스 | [홍대/공간대여]모임을 위한 홍대 독립 공간 5 | 서울특별시 서교동 | `문화 & 엔터 > 원데이 클래스` | [상세 보기](https://news.google.com/rss/articles/CBMiR0FVX3lxTFBMMlVOSUdfWkc1M2o0OFl4UUtqV3BjRVZ4SW03XzBPUVdlWWRyRjdFN0hPalhCQWdfZndrLUl3dHJEcnBwVmln?oc=5) |
 
-## 서울특별시 성동구 (13건)
+## 서울특별시 성동구 (14건)
 - **매칭 동네 키워드**: 성수동, 성수, 서울숲, 뚝섬, 왕십리
 
 | 앱 태그 | 모임·이벤트·핫플 제목 | 장소 | 카테고리 | 링크 |
@@ -39,7 +39,8 @@
 | ✨ 성수동 팝업·마켓 | 성수동 주말 플리마켓 & 로컬 팝업스토어 동행 투어 | 서울특별시 성수동 문화거리 | `문화 & 엔터 > 전시 & 팝업스토어` | [상세 보기](https://search.naver.com/search.naver?query=%EC%84%B1%EC%88%98%EB%8F%99%20%EC%A3%BC%EB%A7%90%20%ED%94%8C%EB%A6%AC%EB%A7%88%EC%BC%93%20%26%20%EB%A1%9C%EC%BB%AC%20%ED%8C%9D%EC%97%85%EC%8A%A4%ED%86%A0%EC%96%B4%20%EB%8F%99%ED%96%89%20%ED%88%AC%EC%96%B4) |
 | 🥐 성수동 핫플·맛집 | 10월 성수에서 뭐 하지?｜놓치면 아쉬운 성수 팝업 일정 총정리 | 서울특별시 성수동 | `일상 & 푸드 > 카페 & 디저트` | [상세 보기](https://news.google.com/rss/articles/CBMiVkFVX3lxTFBuVTJsamt2TDcwQ1VsY1JrVkNIN1V6NGZqTkdzQU1QMjBDQjVPcmFUOHhzYy1lV0t5SXYzeUZZYXhrRGhGeldPdkZlWUtTNWU1Qnk2MTdB?oc=5) |
 | 🥐 성수동 핫플·맛집 | "백화점이 성수동을 삼켰다"···2030 몰린 신세계 강남, '4조' 눈앞 | 서울특별시 성수동 | `일상 & 푸드 > 카페 & 디저트` | [상세 보기](https://news.google.com/rss/articles/CBMickFVX3lxTFBJR3BkbFJQek1tZS0zUUVRNF9zSkJLcHJ6MWZ1S2tKLWJGMWFNb2ZKWTRWb3FWaVRSYnllRzdTUGladWk1ZEozZkNlRTJGSlFLMFJLSnBYcWtXMjJiRUJzaVZ3YUNEOHJiR19xdDB1MGdIUQ?oc=5) |
-| 🎪 성수동 지역축제·행사 | 놀이공원이 도심으로...서울랜드, 성수동서 '고스트 페스티벌' 홍보 | 서울특별시 성수동 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMid0FVX3lxTE9hc2hPelNVVVdrTUVRSVMydUZmaGI1UUdIUmtzczktX0NWMldRRE9KSzlobmptaWNoSGRFdXZLODZIWHRRbVJIVjc1aGhUS2FYWmcwRmxSZlp3azRDU2tGN19qU3dSSEYxYnk0RU85ZlN2WjBzaEtR?oc=5) |
+| 🥐 성수동 핫플·맛집 | “7m 미키부터 제주 감귤까지”…3월 성수동 꼭 가야 할 팝업[트렌디깅] | 서울특별시 성수동 | `일상 & 푸드 > 카페 & 디저트` | [상세 보기](https://news.google.com/rss/articles/CBMidkFVX3lxTE40eHU3SWZUOWt6S0VobjBTejRZZ1gyNlJqckZCV0xqYmk4Y2xXOTJxbnJ1bDBpQ0ZUMmJHUDVoVkljQUtOb2w4ZXRCMHJVdnNpOVV4YWpFdlNwMFF4U2UxR1pZM3hvSWZ1OE5vdGw5WVNQYmhuZXfSAWZBVV95cUxPWExsWWFzbmExTDFTeVJPVzNIVnVHRmdiN2RrcjF3TG1NOFlSYUpyNVJ3dDQ0OWdoN3lXWVNRVTdRdXZid0JzMGRqeE9qUHBzRmxNWXhYd21pTTJPTkhHZF9uNzhISEE?oc=5) |
+| 🎪 성수동 지역축제·행사 | 성수동 골목이 음악 무대로… ‘더 브릿지 페스티벌 2026’ 10월 10~11일 개최 | 서울특별시 성수동 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiakFVX3lxTE1yU3BnWDJabXZFRkJZdGt3Qkl6bDM0QmhjY2NOR3I4OEREcHNFTUFsMmpvb2NDRGxjUXQzRFVSMUVydGRyZTZ4S0JCc3NETU91WC1IRlR0SVlOd1l3a3QwVF9nUUw1ZS1yLWc?oc=5) |
 
 ## 서울특별시 강남·송파·용산 (12건)
 - **매칭 동네 키워드**: 강남구, 신사동, 역삼동, 송파구, 잠실동, 잠실, 용산구, 한남동, 이태원동, 여의도동
@@ -77,7 +78,7 @@
 | 🎪 분당구 지역축제·행사 | 성남시, 19일 청소년·청년 잇는 '청청 페스티벌' | 경기도 분당구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMibkFVX3lxTE5qWmxOTVdaaHZZcjFaUmZDVjBqc2pkUUNUcTJxMDljX2RRSFU0YXdDV0t2WXdldWxPazRQZ0RMZnJtbmxxNzFZLXZrTkhMTGV3RHVGTWp4NGJ6WmhKSzR3MWFkYjFrR0tldHRGNmJ3?oc=5) |
 | 🎪 분당구 지역축제·행사 | 성남시, 18일 시청 광장서 반려동물 페스티벌 열어 | 경기도 분당구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiV0FVX3lxTFB2cnRtNlhSZmhYUGRlb2pfQUhTQVo0QjQxOVVvTExtQ3pLR2lVREFzVHhSeUo5d3o3SUd2NHFJdFliMG53c2VHQVVrR2xfLWJPWVY1NmFRYw?oc=5) |
 
-## 경기도 수원시 (11건)
+## 경기도 수원시 (12건)
 - **매칭 동네 키워드**: 영통구, 광교동, 광교, 인계동, 행궁동, 수원화성, 팔달구
 
 | 앱 태그 | 모임·이벤트·핫플 제목 | 장소 | 카테고리 | 링크 |
@@ -93,6 +94,7 @@
 | 🎲 광교동 보드게임 | 광교동 보드게임 & 공포/감성 방탈출 주말 파티원 모집 | 경기도 광교동 중심상가 | `문화 & 엔터 > 보드게임·방탈출` | [상세 보기](https://search.naver.com/search.naver?query=%EA%B4%91%EA%B5%90%EB%8F%99%20%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84%20%26%20%EA%B3%B5%ED%8F%AC/%EA%B0%90%EC%84%B1%20%EB%B0%A9%ED%83%88%EC%B6%9C%20%EC%A3%BC%EB%A7%90%20%ED%8C%8C%ED%8B%B0%EC%9B%90%20%EB%AA%A8%EC%A7%91) |
 | 🎶 영통구 버스킹·축제 | 영통구 야외 버스킹 공연 직관 & 수제맥주 피크닉 모임 | 경기도 영통구 광장 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://search.naver.com/search.naver?query=%EC%98%81%ED%86%B5%EA%B5%AC%20%EC%95%BC%EC%99%B8%20%EB%B2%84%EC%8A%A4%ED%82%B9%20%EA%B3%B5%EC%97%B0%20%EC%A7%81%EA%B4%80%20%26%20%EC%88%98%EC%A0%9C%EB%A7%A5%EC%A3%BC%20%ED%94%BC%ED%81%AC%EB%8B%89%20%EB%AA%A8%EC%9E%84) |
 | 🎪 영통구 지역축제·행사 | ‘드론’,‘음악’,‘체험’ 등 수원시 곳곳에서 이어지는 문화행사 | 경기도 영통구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMib0FVX3lxTE9aU0gzUUhuVFN6T05tX0hhNXZWT0JiQXZaMlR5bkxHVk1XM1dsWGhnYlYzZ05BVi1hZngyeTNKenJTU1JfYVlSTXF1cmx3Vk5QaFFrX2xPa1JBX2RkZnpMZmlfYjZVeGsxX2JVVlJQYw?oc=5) |
+| 🎪 영통구 지역축제·행사 | 수원 곳곳 가을축제로 물든다…10월 문화·체험행사 풍성 | 경기도 영통구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTFBWbEZUelhDSGhCcVdRN0pXR1RickJuQkU4Q3VfVGF5dk5nbE55Ym1YWEVzZmE2LUxJOU5qbGpDRnhVQllZV19YcnNMTjBMWTdrN3o5WVo0TXk?oc=5) |
 
 ## 경기도 고양시 (13건)
 - **매칭 동네 키워드**: 일산동구, 장항동, 일산, 일산호수공원, 정발산, 킨텍스
@@ -146,8 +148,8 @@
 | 🎲 연수구 보드게임 | 연수구 보드게임 & 공포/감성 방탈출 주말 파티원 모집 | 인천광역시 연수구 중심상가 | `문화 & 엔터 > 보드게임·방탈출` | [상세 보기](https://search.naver.com/search.naver?query=%EC%97%B0%EC%88%98%EA%B5%AC%20%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84%20%26%20%EA%B3%B5%ED%8F%AC/%EA%B0%90%EC%84%B1%20%EB%B0%A9%ED%83%88%EC%B6%9C%20%EC%A3%BC%EB%A7%90%20%ED%8C%8C%ED%8B%B0%EC%9B%90%20%EB%AA%A8%EC%A7%91) |
 | 🎶 인천 버스킹·축제 | 인천 야외 버스킹 공연 직관 & 수제맥주 피크닉 모임 | 인천광역시 인천 광장 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://search.naver.com/search.naver?query=%EC%9D%B8%EC%B2%9C%20%EC%95%BC%EC%99%B8%20%EB%B2%84%EC%8A%A4%ED%82%B9%20%EA%B3%B5%EC%97%B0%20%EC%A7%81%EA%B4%80%20%26%20%EC%88%98%EC%A0%9C%EB%A7%A5%EC%A3%BC%20%ED%94%BC%ED%81%AC%EB%8B%89%20%EB%AA%A8%EC%9E%84) |
 | 🎪 인천 지역축제·행사 | 보도자료 | 인천광역시 인천 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMikgFBVV95cUxQazQwWU10RnVNZERoV0NLa25vbk9JelNmYi13dmtZTHgzR2ozZnhNTGlWSnpmQ1k4c1N6a1FpaV9PRGRLUUg4S1RBLVc4ZzI4TkoydS1LS01teHFOc0tBSGtJMUtndk85cUM2ek9SeVVVbW1MQ0NBX050MUVsV3V5WUN0QzJxb3Etc1JFdG9VTlZPdw?oc=5) |
-| 🎪 인천 지역축제·행사 | 인천 공정무역 페스티벌 14일 개최…송도 센트럴파크서 시민 참여 행사 | 인천광역시 인천 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMibEFVX3lxTE1TMWNGQTM1d29hanNWTjVRMFAxMWhzZm9QZzFuZWNnc2lkdkhEN1VSel92angwcDJsbl81UnR4YTFEdVpGRGlheXo1cFI4OG02a2VGZHhHM0Izb2xlVld3QVMwdGVQQ0V5TDlqUNIBcEFVX3lxTE5KdWVlcE80U1B5bmx6Vmh5VVZlRzU2XzBsOWJaOVMxRFo5c3BnWlJWbW9pY3FfMHloSHNxMkJaeEtKLXQzSHFaWVZkVHM0eUdaSVBTOVBHMGZfSDQ0c1FzTGRlcDZESk95S01TOWx4OWQ?oc=5) |
 | 🎪 인천 지역축제·행사 | 인천공항, 세계 유일 공항 복합 문화 축제 ‘2026 인천공항 스카이 페스티벌’ 열어 | 인천광역시 인천 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiW0FVX3lxTE0wckRVUExEZldrNHRtNGFKeFlPbGxsbW9MdlZBdXI2VFNBNDhGUmV0V3NFX1FDMDZOWmNsZ19tM1dPeU83c0ozNHNVd0dVdHl5cFRiczFKdG5taDQ?oc=5) |
+| 🎪 인천 지역축제·행사 | [인천 9월 문화행사] 개항장 공연·어린이극·섬마을 축제·전시 등 20개 | 인천광역시 인천 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMicEFVX3lxTE8zUEVoS1QxQjhBRWZLY1ZpUl85Sy1pckVKVEFNbEJ1TVhDQWo2QWtaODNNRll1dUNvb1ZXZ3BBYXZUSHEzeEJjUWJjRENrVExJS3ZhS0FxRTNXOVZ0TW5ld2txdGkxcXk0enZYZEN6Mkk?oc=5) |
 
 ## 부산광역시 해운대·부산진·수영 (15건)
 - **매칭 동네 키워드**: 부산, 해운대구, 우동, 중동, 부산진구, 전포동, 서면, 수영구, 광안동, 광안리
@@ -166,8 +168,8 @@
 | ✨ 부산 팝업·마켓 | 부산 주말 플리마켓 & 로컬 팝업스토어 동행 투어 | 부산광역시 부산 문화거리 | `문화 & 엔터 > 전시 & 팝업스토어` | [상세 보기](https://search.naver.com/search.naver?query=%EB%B6%80%EC%82%B0%20%EC%A3%BC%EB%A7%90%20%ED%94%8C%EB%A6%AC%EB%A7%88%EC%BC%93%20%26%20%EB%A1%9C%EC%BB%AC%20%ED%8C%9D%EC%97%85%EC%8A%A4%ED%86%A0%EC%96%B4%20%EB%8F%99%ED%96%89%20%ED%88%AC%EC%96%B4) |
 | 🥐 부산 핫플·맛집 | 롯데百 부산본점으로 ‘빵지순례’ 가볼까 | 부산광역시 부산 | `일상 & 푸드 > 카페 & 디저트` | [상세 보기](https://news.google.com/rss/articles/CBMijgFBVV95cUxQb3FLVUVWOGY4Z1ZBRGhrckp5bFV4NWotMkZMenhCalg5dGhBYTR4YXdZNXBFenk2SlVUZmdiOVBiZ2hvQTlSVmU1VG82UlphWG9oS19heFlKZVgwX1VIZzZaM1dJa085cFdjR2NPMHU0blo0NkRWVmtsalc3cDNBeHVEb0lwZGc0Uk5rOEZB?oc=5) |
 | 🥐 부산 핫플·맛집 | 부산시 2025 시그니처스토어 선정 어디? 구운 과자맛집 해운대구 모루비, 수영구 광안리 헬멧 핫플 브런치카페, 위치, 메뉴, 후기 | 부산광역시 부산 | `일상 & 푸드 > 카페 & 디저트` | [상세 보기](https://news.google.com/rss/articles/CBMiV0FVX3lxTE56OEd5UXZCTVR2d2FCcTlvMXEyN0oxQVBRYTRTM2g4dHZGUXZIODRaX0g1eEEzVU9aLUJzYzhQdl9TbERWeW5PQXZLSGVBaGtoZTBiV3JWNA?oc=5) |
-| 🏃 부산 러닝·운동 | 달려라부산 러닝페스티벌 11월 14일 북항친수공원서 개최 | 부산광역시 부산 | `문화 & 엔터 > 러닝 & 피트니스` | [상세 보기](https://news.google.com/rss/articles/CBMiU0FVX3lxTFB1LVY2cHJkWVA0RkdfVGtlczlSbDg0TVB0Tl9KTVFENmZ4ajdZODNlanY5Tkk1c05BN1hSVFVQUEFiN05TbVFzVW9RUDZ0elEyWm9J?oc=5) |
 | 🎪 부산 지역축제·행사 | 부산 대표 축제 통합 브랜드 '2026 페스티벌 시월' 개막… 10월 한 달간 3개 테마·22개 행사 연계 | 부산광역시 부산 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMickFVX3lxTE1KNmV5akNzMS0yMXpab195ZkUwZXdod29OdlNHTHVjQXJqd3RodkVNdTk2MXgwdHZUQWRwTm9uSkxTaDg5RzZHaE9MVU01UU1wdmdXdXpabURwSTNHUGEwdFhfLU84Q2ZFOXE4aFliblBTUQ?oc=5) |
+| 🎪 부산 지역축제·행사 | 부산 차이나타운 한·중 문화 어우러진 거리 축제로 피어난다 | 부산광역시 부산 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiU0FVX3lxTE1nb3ZYNkMtMjJTY3lNemRUNnRkMHRtNW9EenFSR3U5aWRiakRHR0YxRjdEc3JoY0U4X0wwaUNSZnFSdXpXVVpSVGs0WDI0NVI3VFhZ?oc=5) |
 | 🎪 부산 지역축제·행사 | "10월, 부산에 가면" 축제가 기다린다 | 부산광역시 부산 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMia0FVX3lxTE42eVd0M0QwX0xZSk84dUZBdFdqSFBkSVpfc2tPV0pFY1d0N3B1SFFxZng3bVN1WmRuUnd2eGUxejdFalF1aVdSaUU4d00xYmNQaWZXdng2YzdYWHNrdU9EWEd1U3hRbHV0Uzlv?oc=5) |
 
 ## 대구·울산·경남 대구·울산·창원 (13건)
@@ -185,9 +187,9 @@
 | 🎨 범어동 원데이클래스 | 범어동 향수 공방 & 베이킹 주말 원데이 클래스 메이트 | 대구·울산·경남 범어동 | `문화 & 엔터 > 원데이 클래스` | [상세 보기](https://search.naver.com/search.naver?query=%EB%B2%94%EC%96%B4%EB%8F%99%20%ED%96%A5%EC%88%98%20%EA%B3%B5%EB%B0%A9%20%26%20%EB%B2%A0%EC%9D%B4%ED%82%B9%20%EC%A3%BC%EB%A7%90%20%EC%9B%90%EB%8D%B0%EC%9D%B4%20%ED%81%B4%EB%9E%98%EC%8A%A4%20%EB%A9%94%EC%9D%B4%ED%8A%B8) |
 | 🎲 수성구 보드게임 | 수성구 보드게임 & 공포/감성 방탈출 주말 파티원 모집 | 대구·울산·경남 수성구 중심상가 | `문화 & 엔터 > 보드게임·방탈출` | [상세 보기](https://search.naver.com/search.naver?query=%EC%88%98%EC%84%B1%EA%B5%AC%20%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84%20%26%20%EA%B3%B5%ED%8F%AC/%EA%B0%90%EC%84%B1%20%EB%B0%A9%ED%83%88%EC%B6%9C%20%EC%A3%BC%EB%A7%90%20%ED%8C%8C%ED%8B%B0%EC%9B%90%20%EB%AA%A8%EC%A7%91) |
 | 🎶 대구 버스킹·축제 | 대구 야외 버스킹 공연 직관 & 수제맥주 피크닉 모임 | 대구·울산·경남 대구 광장 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://search.naver.com/search.naver?query=%EB%8C%80%EA%B5%AC%20%EC%95%BC%EC%99%B8%20%EB%B2%84%EC%8A%A4%ED%82%B9%20%EA%B3%B5%EC%97%B0%20%EC%A7%81%EA%B4%80%20%26%20%EC%88%98%EC%A0%9C%EB%A7%A5%EC%A3%BC%20%ED%94%BC%ED%81%AC%EB%8B%89%20%EB%AA%A8%EC%9E%84) |
-| 🎪 대구 지역축제·행사 | 대구 대표 미술 축제 '대구아트페스티벌' 11월 11일 개막 | 대구·울산·경남 대구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiTEFVX3lxTFBlU3BIYzBzUmVaWGloS0xuX0V5ZFpFSFRYU09mbVoxblFNYlBVT1hXa1ZwWUpFaUozV2UwMVRvWFF0cUxjZ1owdTlHckw?oc=5) |
 | 🎪 대구 지역축제·행사 | 코리아 그랜드 페스티벌과 함께하는 알뜰 장보기…대구 전통시장 사은행사 개최 | 대구·울산·경남 대구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiW0FVX3lxTE50M2lKZ1YyZHFaLU1mYVF1enZvTS1kN1NMVVdIcHA1d0xJV0dGaTdGUGJJVktWU3RpOUtsWHpMT0o2eWJGaGgwbHBqV3JFLXdjUjZMeTRNR1EwbEk?oc=5) |
-| 🎪 대구 지역축제·행사 | 대구 달성군, 어르신 가을 문화축제 잇따라 개최…“청춘은 나이가 없다” | 대구·울산·경남 대구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiTEFVX3lxTE9kd1RUbGthTURtR1ZELWI1SnlLN3hfcHBieGVRelZtMDV3aXVGeERPLUJNNmxDNFg1ZEJUYTRjMC1IZkIweDZvaHAyQ0M?oc=5) |
+| 🎪 대구 지역축제·행사 | 대구교육 글로벌 축제 4주간 펼쳐진다! ‘WOW페스티벌’로 첫 문 열어 | 대구·울산·경남 대구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMibkFVX3lxTE9xZXJHVXhNdi1OXy1QRTJhU0VuZmxHdjBmSDFqSlF3M01GR29LWjJQMkpFbEk4bGdveWxDZG1DM3pIdG9GTzdpZDdUb2VtQTBUd1FrYjFmOTVEMFNycXV2YVQ2c28wMUlkX3ZXQVVR?oc=5) |
+| 🎪 대구 지역축제·행사 | 대구 떡볶이 먹으러 대만서 145명 온다…지역 먹거리 축제, 해외 관광상품으로 | 대구·울산·경남 대구 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiS0FVX3lxTE15ZEdPaXA3TmtNYWY5bU5vbThocko0eUU5TW5vcm5CcDZjR0pTZUhSVFV0M011eUFlR0NnNVJacHNMZVpjWTVUUllKSQ?oc=5) |
 
 ## 대전·세종·충청 대전·세종·천안·청주 (14건)
 - **매칭 동네 키워드**: 대전, 유성구, 봉명동, 서구, 둔산동, 세종시, 나성동, 천안시, 불당동, 청주시
@@ -243,9 +245,9 @@
 | 🎨 조례동 원데이클래스 | 조례동 향수 공방 & 베이킹 주말 원데이 클래스 메이트 | 전라남도 조례동 | `문화 & 엔터 > 원데이 클래스` | [상세 보기](https://search.naver.com/search.naver?query=%EC%A1%B0%EB%A1%80%EB%8F%99%20%ED%96%A5%EC%88%98%20%EA%B3%B5%EB%B0%A9%20%26%20%EB%B2%A0%EC%9D%B4%ED%82%B9%20%EC%A3%BC%EB%A7%90%20%EC%9B%90%EB%8D%B0%EC%9D%B4%20%ED%81%B4%EB%9E%98%EC%8A%A4%20%EB%A9%94%EC%9D%B4%ED%8A%B8) |
 | 🎲 순천 보드게임 | 순천 보드게임 & 공포/감성 방탈출 주말 파티원 모집 | 전라남도 순천 중심상가 | `문화 & 엔터 > 보드게임·방탈출` | [상세 보기](https://search.naver.com/search.naver?query=%EC%88%9C%EC%B2%9C%20%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84%20%26%20%EA%B3%B5%ED%8F%AC/%EA%B0%90%EC%84%B1%20%EB%B0%A9%ED%83%88%EC%B6%9C%20%EC%A3%BC%EB%A7%90%20%ED%8C%8C%ED%8B%B0%EC%9B%90%20%EB%AA%A8%EC%A7%91) |
 | 🎶 순천시 버스킹·축제 | 순천시 야외 버스킹 공연 직관 & 수제맥주 피크닉 모임 | 전라남도 순천시 광장 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://search.naver.com/search.naver?query=%EC%88%9C%EC%B2%9C%EC%8B%9C%20%EC%95%BC%EC%99%B8%20%EB%B2%84%EC%8A%A4%ED%82%B9%20%EA%B3%B5%EC%97%B0%20%EC%A7%81%EA%B4%80%20%26%20%EC%88%98%EC%A0%9C%EB%A7%A5%EC%A3%BC%20%ED%94%BC%ED%81%AC%EB%8B%89%20%EB%AA%A8%EC%9E%84) |
-| 🎪 순천시 지역축제·행사 | 순천 푸드앤아트페스티벌, ‘대한민국축제콘텐츠대상’ 대상 영예 | 전라남도 순천시 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiakFVX3lxTE1EdV95V3c3NkppenBHS0paQ3VBTC1wUkdKb25tbnRnaU5ET0N5dS1ZTEFfN3dRZERVaHJTcVcxUFBhRTlNMWRQRzlsbjlrRWZoMUpMckwtcmJsdDB3UGZxWGJ5T3JXOG5BNmc?oc=5) |
 | 🎪 순천시 지역축제·행사 | 제3회 대한민국 K-청소년 끼 페스티벌 축제 10월 18일 순천서 열린다 | 전라남도 순천시 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiakFVX3lxTFBEaGNhdGhZa3VoUXU3Y1daLXFwTHgwWG5ZTkVyTjA2dnhZbVNubGEzRVFaYVN3OGJtSDVVZzB4Vk5LZEEtSl9fVWExREY5eGJRa3NwYVNzRko4UzJKb2lBSzlpTVYwajllVnc?oc=5) |
 | 🎪 순천시 지역축제·행사 | 순천시, ‘글로벌 콘텐츠 페스티벌 in 순천’ 개최 | 전라남도 순천시 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMib0FVX3lxTE5Eanktcmo2MXA0TllWY0RtbEF6UTB4TmltRGZwUEprbDVIelJ1cHllejA4V2staUhvamZ4UFp5dE41emhtakV2dlduaEhnYUNvS1A5eldIZkZwVGh3YWtXS1EzdXpUSnJCcmw0QVZETQ?oc=5) |
+| 🎪 순천시 지역축제·행사 | 길 위에서 맛나는 멋, 2024 순천 푸드앤아트페스티벌 | 전라남도 순천시 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiakFVX3lxTE02NWdCV3RMM0NFcGpYa1lRMnBwbjQwc1JLemNORXphV2hfSkNOT1pjY0lVcHZfMng5bHRSbnloYmxGSWdKZDI3MW5qejkyUVp2blRQSVRaT2duWHM5VFJtQ0x6OEpVM0J1alE?oc=5) |
 
 ## 광주·전북 광주·전주·익산·군산 (12건)
 - **매칭 동네 키워드**: 광주, 상무동, 동명동, 수완동, 봉선동, 용봉동, 첨단동, 전주시, 효자동, 송천동
@@ -280,7 +282,7 @@
 | 🎨 속초시 원데이클래스 | 속초시 향수 공방 & 베이킹 주말 원데이 클래스 메이트 | 강원·제주 속초시 | `문화 & 엔터 > 원데이 클래스` | [상세 보기](https://search.naver.com/search.naver?query=%EC%86%8D%EC%B4%88%EC%8B%9C%20%ED%96%A5%EC%88%98%20%EA%B3%B5%EB%B0%A9%20%26%20%EB%B2%A0%EC%9D%B4%ED%82%B9%20%EC%A3%BC%EB%A7%90%20%EC%9B%90%EB%8D%B0%EC%9D%B4%20%ED%81%B4%EB%9E%98%EC%8A%A4%20%EB%A9%94%EC%9D%B4%ED%8A%B8) |
 | 🎲 교동 보드게임 | 교동 보드게임 & 공포/감성 방탈출 주말 파티원 모집 | 강원·제주 교동 중심상가 | `문화 & 엔터 > 보드게임·방탈출` | [상세 보기](https://search.naver.com/search.naver?query=%EA%B5%90%EB%8F%99%20%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84%20%26%20%EA%B3%B5%ED%8F%AC/%EA%B0%90%EC%84%B1%20%EB%B0%A9%ED%83%88%EC%B6%9C%20%EC%A3%BC%EB%A7%90%20%ED%8C%8C%ED%8B%B0%EC%9B%90%20%EB%AA%A8%EC%A7%91) |
 | 🎶 강릉시 버스킹·축제 | 강릉시 야외 버스킹 공연 직관 & 수제맥주 피크닉 모임 | 강원·제주 강릉시 광장 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://search.naver.com/search.naver?query=%EA%B0%95%EB%A6%89%EC%8B%9C%20%EC%95%BC%EC%99%B8%20%EB%B2%84%EC%8A%A4%ED%82%B9%20%EA%B3%B5%EC%97%B0%20%EC%A7%81%EA%B4%80%20%26%20%EC%88%98%EC%A0%9C%EB%A7%A5%EC%A3%BC%20%ED%94%BC%ED%81%AC%EB%8B%89%20%EB%AA%A8%EC%9E%84) |
-| 🎪 강릉시 지역축제·행사 | [강릉 24시] 강릉시 ‘국제안전도시로’ 유엔 주관 MCR2030 가입 | 강원·제주 강릉시 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMib0FVX3lxTFBGZThGOG05RWlVejB6SDE5dmlFdW96Q3dqX2FkbnNaNEdjeXB2NWxuMFVZNnZnaDNNV25GTmRfWWNZYnRsRmVuTGJwMVVIbFYxZTZGSW10RGRUU044MWRGajZaQUI5QTNzdmRZV0RGTdIBc0FVX3lxTE54Rno1djVndzltaDlhOEUySjZvVDNVWTBoZGluWnA0clZiVmc4T180X0NtTEh2VEtBNlAweEp3VHpydFgyd0ZpdUVuU2p5TUd3SWphU1pIRHJRZlhUTlJDUURkVkVNOVQ5S0VocThzYmNVVGc?oc=5) |
+| 🎪 강릉시 지역축제·행사 | 2026 단단단페스티벌 — 11.26~11.28 강원 강릉시 | 강원·제주 강릉시 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMid0FVX3lxTE9zOGxpU29JYm1fM0FXVWFrRzVYUkswSWdYa3hJQU1tbklCbkNSUzZjM1lORS0wX29neGlnbmREMFNsMzQzdURaalBBZ2pDNDVDTWtaclR6Vm9JUXo4MTlBQXZyRTNIMU1YUGZUcjVFN0E4ODJCVU5R?oc=5) |
 
 ## 서울 중구 (17건)
 - **매칭 동네 키워드**: 서울, 중구, 을지로3가역, 4번, 출구
@@ -298,7 +300,7 @@
 | 🎲 중구 보드게임 | 중구 보드게임 & 공포/감성 방탈출 주말 파티원 모집 | 서울 중구 중심상가 | `문화 & 엔터 > 보드게임·방탈출` | [상세 보기](https://search.naver.com/search.naver?query=%EC%A4%91%EA%B5%AC%20%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84%20%26%20%EA%B3%B5%ED%8F%AC/%EA%B0%90%EC%84%B1%20%EB%B0%A9%ED%83%88%EC%B6%9C%20%EC%A3%BC%EB%A7%90%20%ED%8C%8C%ED%8B%B0%EC%9B%90%20%EB%AA%A8%EC%A7%91) |
 | 🎶 서울 버스킹·축제 | 서울 야외 버스킹 공연 직관 & 수제맥주 피크닉 모임 | 서울 서울 광장 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://search.naver.com/search.naver?query=%EC%84%9C%EC%9A%B8%20%EC%95%BC%EC%99%B8%20%EB%B2%84%EC%8A%A4%ED%82%B9%20%EA%B3%B5%EC%97%B0%20%EC%A7%81%EA%B4%80%20%26%20%EC%88%98%EC%A0%9C%EB%A7%A5%EC%A3%BC%20%ED%94%BC%ED%81%AC%EB%8B%89%20%EB%AA%A8%EC%9E%84) |
 | 🥐 서울 핫플·맛집 | 소문 자자했던 서울라이프 팝업! 더 많은 '서울 굿즈' 사는 방법 | 서울 서울 | `일상 & 푸드 > 카페 & 디저트` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTE00WnZ0djB1eDh1b2o5c2xxdk9LY19YbnBiOFZSQmhveC1oN1o4d09KeFR5R2E0dzF6bzl2SHZBVVlLMjRCVEVUN2wySHFtYkk5ckNISFJxb2Q?oc=5) |
-| 🎪 서울 지역축제·행사 | 가을 바람 타고 밤까지 쭈욱! 9월 문화행사 한눈에 | 서울 서울 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTFB2cGh2ektpRUZUYkJQOXl4eFpRek9CSG9adnktOTRWR2N4YlgxcldnRkJlVFByRlRWcVF2VXRIS0dEMW94NzJna2pVWldQcmo4OWVoazRIM0Y?oc=5) |
+| 🎪 서울 지역축제·행사 | 서울시 민간축제 지원사업과 함께한 'K-트롯 페스티벌', 오늘은 내가 주인공! | 서울 서울 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTE9QUjFPRmN4X0dfaXNOcGdZa3dNNWlCejNyaEZnWTFDMEZUOG0zYV9wVjRsNmJjUV9sSER5Q0ozNWszVDlwaHJLeHRkT1NGRVJaUV92TldidUw?oc=5) |
 | 🎪 서울 지역축제·행사 | 서울의 축제 통합 브랜드 '펀 서울'…"글로벌 경쟁력 제고"(종합) | 서울 서울 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiW0FVX3lxTE1kai16dW1nVTY2T0M1X01DcXRHMnFhajF6X2JRWWtEaENMNnFCVk5veW1DVTdMenVFMDJtYzlqU3BVWlZKaHBjNExPVVpLTG0xVFBGekV2Vno0VjDSAWBBVV95cUxOOGh4TTgtQ3RobHAyZ0cxd1J3Q3l4ZFY4WnVWaEZxSWE3ZFhIdUlmWHpZMDNoT3RJNHBZRnoyRkROUXNBT3VRSVduaVhnbWJIeUtjRlV2UFdDLVIwcjJPZ18?oc=5) |
-| 🎪 서울 지역축제·행사 | 놀 준비됐어? 어린이날 연휴 문화행사, 이걸로 끝! | 서울 서울 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTE93cG44N1Q2Z3F3QWVXSFR0QzBMZjU0bjhzRm9yYlU2OFJXZlZnX1FwSkg1dngzSUp1M2lOeVY0bS1vXzVVMzNiRF9jdjZZV1Y1dGtaekpuQ1E?oc=5) |
+| 🎪 서울 지역축제·행사 | 가을 바람 타고 밤까지 쭈욱! 9월 문화행사 한눈에 | 서울 서울 | `문화 & 엔터 > 페스티벌 & 공연` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTFB2cGh2ektpRUZUYkJQOXl4eFpRek9CSG9adnktOTRWR2N4YlgxcldnRkJlVFByRlRWcVF2VXRIS0dEMW94NzJna2pVWldQcmo4OWVoazRIM0Y?oc=5) |
 | 🎨 서울 원데이·클래스 | 취미도 만들고 친구도 사귀고! '표현살롱' 원데이 클래스 | 서울 서울 | `문화 & 엔터 > 원데이 클래스` | [상세 보기](https://news.google.com/rss/articles/CBMiWEFVX3lxTE9jNHNaWVV0RlVvazM1SS1VTy05bVZfZHJoR3NLamZ1Q3FFSjJua3ZVN0xWcUx3R3hUelNqbTBBOVljSzk1LU93R2NQWHJjSE0xa05jQXhZWTc?oc=5) |
