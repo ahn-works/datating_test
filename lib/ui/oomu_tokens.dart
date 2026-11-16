@@ -142,5 +142,23 @@ class OomuTokens {
   static const double radiusPill = rPill;
 
   static const double touchTargetMin = touchTarget;
+
+  // ── 하단 안전 인셋 (Bottom Insets for Floating CTA / TabBar) ──
+  static const double bottomBarHeight = 64;
+  static const double bottomCtaHeight = 72;
+  static const double listBottomWithTabs = 96;
+  static const double listBottomWithCta = 104;
+}
+
+/// 공통 리스트 및 컨텐츠 하단 여백 표준 헬퍼 (플로팅 버튼·탭바 가림 방지)
+class OomuInsets {
+  OomuInsets._();
+
+  static const EdgeInsets page = EdgeInsets.all(OomuTokens.pagePadding);
+  static const EdgeInsets card = EdgeInsets.all(OomuTokens.cardPadding);
+  static const EdgeInsets listBottomWithTabs =
+      EdgeInsets.only(bottom: OomuTokens.listBottomWithTabs);
+  static const EdgeInsets listBottomWithCta =
+      EdgeInsets.only(bottom: OomuTokens.listBottomWithCta);
 }
 

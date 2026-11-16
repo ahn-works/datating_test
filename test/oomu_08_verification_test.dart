@@ -87,16 +87,21 @@ void main() {
   });
 
   group('[3] 장소·지도·거리 불일치 수정 검증', () {
-    test('KakaoMapService.resolveVerifiedPlace는 검증된 장소만 좌표를 반환하고 미확인 장소는 null을 반환한다', () async {
+    test(
+        'KakaoMapService.resolveVerifiedPlace는 검증된 장소만 좌표를 반환하고 미확인 장소는 null을 반환한다',
+        () async {
       // No initialized place-search backend: never substitute a station for a venue.
-      final seongsu = await KakaoMapService.resolveVerifiedPlace('성수역 3번 출구 레드버튼');
+      final seongsu =
+          await KakaoMapService.resolveVerifiedPlace('성수역 3번 출구 레드버튼');
       expect(seongsu, isNull);
 
-      final unknown = await KakaoMapService.resolveVerifiedPlace('알수없는비밀장소XYZ_999');
+      final unknown =
+          await KakaoMapService.resolveVerifiedPlace('알수없는비밀장소XYZ_999');
       expect(unknown, isNull);
     });
 
-    testWidgets('미확인 장소 모임 상세는 가짜 홍대 지도/도보 5분 대신 위치 미확인 안내와 거리 정보 없음을 표시한다', (tester) async {
+    testWidgets('미확인 장소 모임 상세는 가짜 홍대 지도/도보 5분 대신 위치 미확인 안내와 거리 정보 없음을 표시한다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MaterialApp(
@@ -124,16 +129,22 @@ void main() {
   });
 
   group('[4] 호스트 매너온도 단일화 검증', () {
-    test('OomuUiHelpers.parseMannerTemp는 manner/mannerTemp의 num·String·null을 일관되게 처리한다', () {
-      expect(OomuUiHelpers.parseMannerTemp({'manner': 41.2}), closeTo(41.2, 0.001));
-      expect(OomuUiHelpers.parseMannerTemp({'mannerTemp': '39.4'}), closeTo(39.4, 0.001));
+    test(
+        'OomuUiHelpers.parseMannerTemp는 manner/mannerTemp의 num·String·null을 일관되게 처리한다',
+        () {
+      expect(OomuUiHelpers.parseMannerTemp({'manner': 41.2}),
+          closeTo(41.2, 0.001));
+      expect(OomuUiHelpers.parseMannerTemp({'mannerTemp': '39.4'}),
+          closeTo(39.4, 0.001));
       expect(OomuUiHelpers.parseMannerTemp({'manner': 'invalid'}), isNull);
       expect(OomuUiHelpers.parseMannerTemp(<String, dynamic>{}), isNull);
       expect(OomuUiHelpers.formatMannerTemp(null), equals('정보 없음'));
-      expect(OomuUiHelpers.formatMannerTemp(null, shortEmpty: false), equals('매너온도 정보 없음'));
+      expect(OomuUiHelpers.formatMannerTemp(null, shortEmpty: false),
+          equals('매너온도 정보 없음'));
     });
 
-    testWidgets('상세 호스트 카드와 프로필 화면이 동일한 매너온도(41.2°C 및 정보 없음)를 표시한다', (tester) async {
+    testWidgets('상세 호스트 카드와 프로필 화면이 동일한 매너온도(41.2°C 및 정보 없음)를 표시한다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MaterialApp(
@@ -193,7 +204,8 @@ void main() {
   });
 
   group('[5] 커뮤니티 댓글 내용·개수·저장 상태 분리 검증', () {
-    testWidgets('서로 다른 게시글 A/B가 댓글을 공유하지 않고, 빈 댓글 게시글은 첫 댓글 안내만 표시한다', (tester) async {
+    testWidgets('서로 다른 게시글 A/B가 댓글을 공유하지 않고, 빈 댓글 게시글은 첫 댓글 안내만 표시한다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         final postA = <String, dynamic>{
           'id': 'post_minseo_01',
@@ -260,7 +272,9 @@ void main() {
         expect(find.text('댓글 0'), findsNWidgets(2));
         expect(postB['comments'], equals(0));
         expect(postB['commentList'], isEmpty);
-        expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '저도 토요일 러닝 참여하고 싶어요!');
+        expect(
+            tester.widget<TextField>(find.byType(TextField)).controller!.text,
+            '저도 토요일 러닝 참여하고 싶어요!');
         expect(find.text('실제 게시글에서 댓글을 작성할 수 있어요.'), findsOneWidget);
         expect(postA['comments'], equals(2));
 
@@ -281,7 +295,8 @@ void main() {
   });
 
   group('[6] MY 프로필 보기/수정 분리 및 터치 타깃 48dp 검증', () {
-    testWidgets('MY 화면의 내 프로필 보기와 프로필 수정이 각각 다른 화면으로 이동하고 터치 영역이 48dp 이상이다', (tester) async {
+    testWidgets('MY 화면의 내 프로필 보기와 프로필 수정이 각각 다른 화면으로 이동하고 터치 영역이 48dp 이상이다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MaterialApp(
@@ -297,8 +312,10 @@ void main() {
 
         expect(viewBtnFinder, findsOneWidget);
         expect(editBtnFinder, findsOneWidget);
-        expect(tester.getSize(viewBtnFinder).height, greaterThanOrEqualTo(48.0));
-        expect(tester.getSize(editBtnFinder).height, greaterThanOrEqualTo(48.0));
+        expect(
+            tester.getSize(viewBtnFinder).height, greaterThanOrEqualTo(48.0));
+        expect(
+            tester.getSize(editBtnFinder).height, greaterThanOrEqualTo(48.0));
 
         await tester.scrollUntilVisible(
           tagEditFinder,
@@ -308,7 +325,8 @@ void main() {
         await tester.pumpAndSettle();
         expect(tagEditFinder, findsOneWidget);
         expect(tester.getSize(tagEditFinder).width, greaterThanOrEqualTo(48.0));
-        expect(tester.getSize(tagEditFinder).height, greaterThanOrEqualTo(48.0));
+        expect(
+            tester.getSize(tagEditFinder).height, greaterThanOrEqualTo(48.0));
 
         await tester.scrollUntilVisible(
           viewBtnFinder,
@@ -411,7 +429,9 @@ void main() {
     ];
     const scales = <double>[1.0, 1.3, 2.0];
 
-    testWidgets('4대 핵심 화면이 360/390/430px 및 글자 크기 1.0/1.3/2.0에서 RenderFlex overflow 없이 렌더링된다', (tester) async {
+    testWidgets(
+        '4대 핵심 화면이 360/390/430px 및 글자 크기 1.0/1.3/2.0에서 RenderFlex overflow 없이 렌더링된다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         for (final size in viewports) {
           for (final scale in scales) {
@@ -449,17 +469,26 @@ void main() {
               ),
             );
             await tester.pump();
-            final err1 = tester.takeException(); if (err1 != null) fail('Detail overflow at $size scale $scale:\n${(err1 as dynamic).toStringDeep()}');
+            final err1 = tester.takeException();
+            if (err1 != null)
+              fail(
+                  'Detail overflow at $size scale $scale:\n${(err1 as dynamic).toStringDeep()}');
 
             // 2. 홈 화면
             await tester.pumpWidget(wrapWithViewport(const OOMUHomeScreen()));
             await tester.pump();
-            final err2 = tester.takeException(); if (err2 != null) fail('Home overflow at $size scale $scale:\n${(err2 as dynamic).toStringDeep()}');
+            final err2 = tester.takeException();
+            if (err2 != null)
+              fail(
+                  'Home overflow at $size scale $scale:\n${(err2 as dynamic).toStringDeep()}');
 
             // 3. MY 화면
             await tester.pumpWidget(wrapWithViewport(const MyPageScreen()));
             await tester.pump();
-            final err3 = tester.takeException(); if (err3 != null) fail('MY overflow at $size scale $scale:\n${(err3 as dynamic).toStringDeep()}');
+            final err3 = tester.takeException();
+            if (err3 != null)
+              fail(
+                  'MY overflow at $size scale $scale:\n${(err3 as dynamic).toStringDeep()}');
 
             // 4. 커뮤니티 상세
             await tester.pumpWidget(
@@ -480,7 +509,10 @@ void main() {
               ),
             );
             await tester.pump();
-            final err4 = tester.takeException(); if (err4 != null) fail('Community overflow at $size scale $scale:\n${(err4 as dynamic).toStringDeep()}');
+            final err4 = tester.takeException();
+            if (err4 != null)
+              fail(
+                  'Community overflow at $size scale $scale:\n${(err4 as dynamic).toStringDeep()}');
           }
         }
         await tester.binding.setSurfaceSize(null);
@@ -489,7 +521,8 @@ void main() {
   });
 
   group('[9] 긴 제목·이모지·글자 확대에서 원문 데이터 보존 및 실제 표시 검증', () {
-    testWidgets('긴 이모지 제목이 글자 확대(1.0/1.3/2.0) 시 원문 데이터를 변형하지 않고 표시된다', (tester) async {
+    testWidgets('긴 이모지 제목이 글자 확대(1.0/1.3/2.0) 시 원문 데이터를 변형하지 않고 표시된다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         const longEmojiTitles = <String>[
           '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
@@ -526,7 +559,8 @@ void main() {
 
             // 원문 Map 데이터와 화면 표시 문자열 모두 제어문자(\u2060, \u00A0) 삽입 없이 보존됨
             expect(mapData['title'], equals(originalTitle));
-            expect(OomuUiHelpers.formatTitle(originalTitle), equals(originalTitle));
+            expect(OomuUiHelpers.formatTitle(originalTitle),
+                equals(originalTitle));
             expect(find.text(originalTitle), findsWidgets);
             expect(find.textContaining('\uFFFD'), findsNothing);
             expect(tester.takeException(), isNull);
@@ -538,7 +572,9 @@ void main() {
   });
 
   group('[10] 계정 전환 시 사용자별 상태 초기화 및 AuthService 지연 응답 차단 검증', () {
-    test('계정 A의 찜·차단·숨김·신고·리뷰·온도·프로필 등 모든 사용자별 상태가 B 전환·게스트 전환·로그아웃 시 잔류하지 않고 미설정 상태로 초기화된다', () async {
+    test(
+        '계정 A의 찜·차단·숨김·신고·리뷰·온도·프로필 등 모든 사용자별 상태가 B 전환·게스트 전환·로그아웃 시 잔류하지 않고 미설정 상태로 초기화된다',
+        () async {
       final completerB = Completer<Map<String, dynamic>?>();
       globalData.debugProfileFetcher = (uid) {
         if (uid == 'user_B') return completerB.future;
@@ -619,7 +655,8 @@ void main() {
         expect(globalData.isFavorite('meetup_B_1'), isFalse);
 
         // 5. 게스트에서 찜 추가 후 로그아웃 시 모든 사용자별 상태가 초기화되어야 함
-        globalData.toggleFavorite({'id': 'meetup_guest_1', 'title': '게스트 찜 모임'});
+        globalData
+            .toggleFavorite({'id': 'meetup_guest_1', 'title': '게스트 찜 모임'});
         await authService.signOut();
         expect(globalData.currentUserId.value, isEmpty);
         expect(globalData.savedMeetups.value, isEmpty);
@@ -683,7 +720,8 @@ void main() {
       }
     });
 
-    test('② A 요청 대기 -> 로그아웃 -> A 응답 도착 시(UID가 null일 때) 이전 A 응답이 통과하지 못한다', () async {
+    test('② A 요청 대기 -> 로그아웃 -> A 응답 도착 시(UID가 null일 때) 이전 A 응답이 통과하지 못한다',
+        () async {
       final completerSyncA = Completer<Map<String, dynamic>?>();
       final completerCompleteCheckA = Completer<Map<String, dynamic>?>();
       String? currentAuthUid = 'user_A';
@@ -736,7 +774,9 @@ void main() {
       }
     });
 
-    test('③ A 요청 대기 -> 로그아웃 -> A 재로그인 -> 이전 A 응답 도착 시 이전 세션 응답이 새 A 세션을 덮어쓰지 못한다', () async {
+    test(
+        '③ A 요청 대기 -> 로그아웃 -> A 재로그인 -> 이전 A 응답 도착 시 이전 세션 응답이 새 A 세션을 덮어쓰지 못한다',
+        () async {
       final completerOldSessionA = Completer<Map<String, dynamic>?>();
       final completerNewSessionA = Completer<Map<String, dynamic>?>();
       String? currentAuthUid = 'user_A';
@@ -795,7 +835,9 @@ void main() {
       }
     });
 
-    testWidgets('미설정 상태에서 MY 화면이 특정 인물(매운맛킬러 등) 대신 미설정 안내(닉네임 미설정·동네 미설정·정보 없음)를 표시한다', (tester) async {
+    testWidgets(
+        '미설정 상태에서 MY 화면이 특정 인물(매운맛킬러 등) 대신 미설정 안내(닉네임 미설정·동네 미설정·정보 없음)를 표시한다',
+        (tester) async {
       await mockNetworkImagesFor(() async {
         globalData.resetSession();
         await tester.pumpWidget(

@@ -36,7 +36,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
           style: TextStyle(
             color: textPrimary,
             fontWeight: FontWeight.w800,
-            fontSize: 18,
+            fontSize: OomuTokens.fs18,
             letterSpacing: -0.4,
           ),
         ),
@@ -76,8 +76,8 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                 direction: DismissDirection.endToStart,
                 background: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE11D48),
-                    borderRadius: BorderRadius.circular(18),
+                    color: OomuTokens.coral,
+                    borderRadius: BorderRadius.circular(OomuTokens.r18),
                   ),
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
@@ -92,7 +92,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
-                          fontSize: 14,
+                          fontSize: OomuTokens.fs14,
                         ),
                       ),
                     ],
@@ -112,9 +112,9 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(OomuTokens.r18),
                     border:
-                        Border.all(color: const Color(0xFFEFF1F5), width: 1.0),
+                        Border.all(color: OomuTokens.border, width: 1.0),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -126,7 +126,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(OomuTokens.r18),
                       onTap: () {
                         HapticFeedback.lightImpact();
                         Navigator.push(
@@ -142,7 +142,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                           children: [
                             // Now in Android 88x88 정방형 이미지 (Image State & Error Fallback)
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(OomuTokens.r14),
                               child: SizedBox(
                                 width: 88,
                                 height: 88,
@@ -150,10 +150,10 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                   image: appImg(imageUrl),
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => Container(
-                                    color: const Color(0xFFF1F5F9),
+                                    color: OomuTokens.surfaceMuted,
                                     child: const Icon(
                                       Icons.image_not_supported_rounded,
-                                      color: Color(0xFF94A3B8),
+                                      color: OomuTokens.textMuted,
                                       size: 28,
                                     ),
                                   ),
@@ -173,16 +173,16 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 7, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFF1F5F9),
+                                          color: OomuTokens.surfaceMuted,
                                           borderRadius:
-                                              BorderRadius.circular(6),
+                                              BorderRadius.circular(OomuTokens.r6),
                                         ),
                                         child: Text(
                                           category,
                                           style: const TextStyle(
-                                            fontSize: 11,
+                                            fontSize: OomuTokens.fs11,
                                             fontWeight: FontWeight.w700,
-                                            color: Color(0xFF475569),
+                                            color: OomuTokens.textBody,
                                           ),
                                         ),
                                       ),
@@ -191,7 +191,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                       // 48dp 터치 타깃 찜 해제 하트 버튼
                                       IconButton(
                                         icon: const Icon(Icons.favorite_rounded,
-                                            color: Color(0xFFFF3B30), size: 22),
+                                            color: OomuTokens.coral, size: 22),
                                         constraints: const BoxConstraints(
                                             minWidth: 44, minHeight: 44),
                                         padding: EdgeInsets.zero,
@@ -211,7 +211,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 15,
+                                      fontSize: OomuTokens.fs15,
                                       height: 1.35,
                                       color: textPrimary,
                                       letterSpacing: -0.3,
@@ -223,7 +223,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                   Row(
                                     children: [
                                       const Icon(Icons.location_on_rounded,
-                                          size: 14, color: Color(0xFF94A3B8)),
+                                          size: 14, color: OomuTokens.textMuted),
                                       const SizedBox(width: 3),
                                       Expanded(
                                         child: Text(
@@ -231,7 +231,7 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: OomuTokens.fs12,
                                             fontWeight: FontWeight.w600,
                                             color: textSecondary,
                                           ),

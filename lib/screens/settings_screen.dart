@@ -627,41 +627,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: OomuTokens.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r22)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        maxChildSize: 0.9,
-        minChildSize: 0.5,
-        expand: false,
-        builder: (_, scrollController) => Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: OomuTokens.divider,
-                    borderRadius: BorderRadius.circular(OomuTokens.r2)),
+      builder: (_) => SafeArea(
+        top: false,
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          maxChildSize: 0.9,
+          minChildSize: 0.5,
+          expand: false,
+          builder: (_, scrollController) => Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: OomuTokens.divider,
+                      borderRadius: BorderRadius.circular(OomuTokens.r2)),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                children: [
-                  Icon(Icons.shield_outlined, color: OomuTokens.primary, size: 22),
-                  const SizedBox(width: 8),
-                  Text('이용약관 및 커뮤니티 정책',
-                      style: TextStyle(
-                          fontSize: OomuTokens.fs16,
-                          fontWeight: FontWeight.w800,
-                          color: OomuTokens.textPrimary)),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.shield_outlined, color: OomuTokens.primary, size: 22),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('이용약관 및 커뮤니티 정책',
+                          style: TextStyle(
+                              fontSize: OomuTokens.fs16,
+                              fontWeight: FontWeight.w800,
+                              color: OomuTokens.textPrimary)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 22),
+                      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Divider(height: 1, color: OomuTokens.border),
+              Divider(height: 1, color: OomuTokens.border),
             Expanded(
               child: ListView(
                 controller: scrollController,
@@ -702,6 +711,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
