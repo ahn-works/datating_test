@@ -32,6 +32,8 @@ jobs:
   run-oomu-automation:
     runs-on: ubuntu-latest
     name: OOMU Automated Operations Engine
+    env:
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
 
     steps:
       - name: Checkout repository

@@ -11,6 +11,7 @@ import 'login_screen.dart';
 import 'user_profile_screen.dart';
 import '../ui/oomu_tokens.dart';
 import '../ui/oomu_button.dart';
+import '../constants/profile_options.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -51,37 +52,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   ];
   List<String> _selectedHobbies = [];
 
-  final List<String> _availablePersonalities = [
-    '리액션 요정',
-    '친화력 갑',
-    '긍정적',
-    '경청하는 편',
-    '텐션 높음',
-    '차분함',
-    '유머러스함'
-  ];
+  final List<String> _availablePersonalities = ProfileOptions.personalityOptions;
   List<String> _selectedPersonalities = [];
 
-  final List<String> _availableDrinking = [
-    '알쓰',
-    '가볍게 한잔',
-    '분위기 메이커',
-    '술자리 매니아',
-    '비음주'
-  ];
+  final List<String> _availableDrinking = ProfileOptions.drinkingOptions;
   List<String> _selectedDrinking = [];
 
-  final List<String> _availableSmoking = [
-    '비흡연',
-    '흡연',
-    '전자담배',
-  ];
+  final List<String> _availableSmoking = ProfileOptions.smokingOptions;
   List<String> _selectedSmoking = [];
 
-  final List<String> _availablePet = [
-    '반려동물 있음',
-    '반려동물 없음',
-  ];
+  final List<String> _availablePet = ProfileOptions.petOptions;
   List<String> _selectedPet = [];
   List<String> _photoUrls = [];
 

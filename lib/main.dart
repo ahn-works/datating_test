@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'screens/profile_setup_screen.dart';
+import 'screens/user_profile_screen.dart';
+import 'screens/my_page_screen.dart';
 import 'services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -61,6 +63,8 @@ Widget resolveInitialRouteWidget(
       uri.queryParameters.containsKey('discovery') ||
       uri.queryParameters.containsKey('fortune') ||
       uri.queryParameters.containsKey('profile_setup') ||
+      uri.queryParameters.containsKey('setup') ||
+      uri.queryParameters.containsKey('preview') ||
       uri.queryParameters.containsKey('my_trips') ||
       uri.queryParameters.containsKey('user') ||
       uri.fragment.contains('gallery=true') ||
@@ -69,6 +73,31 @@ Widget resolveInitialRouteWidget(
 
   if (enableDevRoutes && isGallery) {
     return const OomuComponentGallery();
+  }
+
+  if (enableDevRoutes && uri.queryParameters['setup'] == 'true') {
+    return const ProfileSetupScreen();
+  }
+
+  if (enableDevRoutes && uri.queryParameters['my'] == 'true') {
+    return const MyPageScreen();
+  }
+
+  if (enableDevRoutes && uri.queryParameters['preview'] == 'true') {
+    return const UserProfileScreen(
+      userName: '우리동네_초연',
+      userAge: '29',
+      userGender: '여성',
+      userJob: 'IT 서비스 기획자',
+      userMbti: 'ENFJ',
+      userDrinking: ['가볍게 한잔'],
+      userSmoking: '비흡연',
+      userPet: '강아지 (포메라니안)',
+      userPersonalities: ['친화력 갑', '긍정 에너지', '리액션 요정'],
+      userHobbies: ['☕ 카페투어', '🏃‍♀️ 한강러닝', '🎬 영화/넷플릭스'],
+      userBio: '동네 이웃들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊',
+      isSelf: true,
+    );
   }
 
   // 릴리스에서 디버그 라우트(?gallery, ?my, user= 등) 진입 시 세션 변경 없이 정상 게스트 홈으로 이동
@@ -222,7 +251,7 @@ class _AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (authService.isAdmin) {
+    if (authService.isAdmin || globalData.skipProfileSetup) {
       return const OOMUHomeScreen();
     }
     return FutureBuilder<bool>(
@@ -236,7 +265,7 @@ class _AuthGate extends StatelessWidget {
             ),
           );
         }
-        if (profileSnapshot.data == false) {
+        if (profileSnapshot.data == false && !globalData.skipProfileSetup) {
           return const ProfileSetupScreen();
         }
         return const OOMUHomeScreen();

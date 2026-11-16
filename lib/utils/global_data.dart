@@ -18,6 +18,13 @@ class GlobalData {
   final ValueNotifier<String> currentUserId = ValueNotifier<String>('');
   String get activeUserId => currentUserId.value;
 
+  // 프로필 설정 건너뛰기 플래그 (온보딩 도중 '홈으로 이동' 선택 시 홈으로 직행)
+  final ValueNotifier<bool> isProfileSetupSkipped = ValueNotifier<bool>(false);
+  bool get skipProfileSetup => isProfileSetupSkipped.value;
+  void setSkipProfileSetup(bool skip) {
+    isProfileSetupSkipped.value = skip;
+  }
+
   // 세션 세대 카운터 (로그아웃 후 동일 계정 재로그인 시에도 이전 세션 비동기 응답을 차단)
   int _sessionGeneration = 0;
   int get sessionGeneration => _sessionGeneration;
@@ -85,6 +92,7 @@ class GlobalData {
     blockedUids.value = [];
     hiddenPostIds.value = [];
     reportHistory.value = [];
+    isProfileSetupSkipped.value = false;
   }
 
   static List<String> _parseList(dynamic v) {

@@ -284,8 +284,9 @@ service cloud.firestore {
       allow create: if isActiveMember() && isValidMeetupDoc();
       allow update: if isActiveMember() &&
                        isValidMeetupDoc() &&
-                       areImmutableFieldsUnchanged(['hostId', 'createdAt']);
-      allow delete: if isAuthenticated() && resource.data.hostId == request.auth.uid;
+                       areImmutableFieldsUnchanged(['hostId', 'createdAt']) &&
+                       (resource.data.hostId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && (resource.data.hostId == request.auth.uid || isAdmin());
 
       match /applications/{appId} {
         allow read: if isActiveMember();
@@ -303,13 +304,14 @@ service cloud.firestore {
       allow create: if isActiveMember() && isValidCommunityPostDoc();
       allow update: if isActiveMember() &&
                        isValidCommunityPostDoc() &&
-                       areImmutableFieldsUnchanged(['authorId', 'createdAt']);
-      allow delete: if isAuthenticated() && resource.data.authorId == request.auth.uid;
+                       areImmutableFieldsUnchanged(['authorId', 'createdAt']) &&
+                       (resource.data.authorId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
 
       match /comments/{commentId} {
         allow get, list: if true;
         allow create, update: if isActiveMember() && isValidCommentDoc();
-        allow delete: if isActiveMember();
+        allow delete: if isActiveMember() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
     }
 

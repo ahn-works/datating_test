@@ -9,6 +9,8 @@ import 'package:firebase_core/firebase_core.dart';
 import '../services/auth_service.dart';
 import '../services/r2_storage_service.dart';
 import '../utils/app_image.dart';
+import '../utils/global_data.dart';
+import '../constants/profile_options.dart';
 import 'oomu_home_screen.dart';
 
 /// 대기업(위피·글램·틴더·문토) 온보딩 UX/UI 규격을 적용한
@@ -62,35 +64,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     text: '',
   );
 
-  // 라이프스타일 선택 목록
-  final List<String> _personalitiesList = [
-    '리액션 요정', '친화력 갑', '열정 가득', '긍정 에너지',
-    '조용한 편', '배려심 깊은', '센스 있는', '솔직 담백',
-  ];
-  final List<String> _drinkingList = [
-    '가볍게 한잔', '술자리 좋아함', '분위기만 즐김', '비음주',
-  ];
-  final List<String> _smokingList = [
-    '비흡연', '전자담배', '흡연',
-  ];
-  final List<String> _petList = [
-    '반려동물 없음', '강아지', '고양이', '기타 반려동물',
-  ];
+  // 라이프스타일 선택 목록 (ProfileOptions SSOT)
+  final List<String> _personalitiesList = ProfileOptions.personalityOptions;
+  final List<String> _drinkingList = ProfileOptions.drinkingOptions;
+  final List<String> _smokingList = ProfileOptions.smokingOptions;
+  final List<String> _petList = ProfileOptions.petOptions;
 
   // 16가지 MBTI 목록
-  final List<String> _mbtiList = [
-    'ENFP', 'INFP', 'ENFJ', 'INFJ',
-    'ENTP', 'INTP', 'ENTJ', 'INTJ',
-    'ESFP', 'ISFP', 'ESFJ', 'ISFJ',
-    'ESTP', 'ISTP', 'ESTJ', 'ISTJ',
-  ];
+  final List<String> _mbtiList = ProfileOptions.mbtiOptions;
 
   // 추천 취미/관심사 태그
-  final List<String> _hobbiesList = [
-    '☕ 카페투어', '🍷 내추럴와인', '🏃‍♀️ 한강러닝', '🐕 반려견 산책',
-    '🎨 전시회/문화', '🍜 동네 숨은맛집', '🎬 영화/넷플릭스', '🚗 드라이브',
-    '🏕️ 주말캠핑', '🏸 배드민턴', '🧗 클라이밍', '📚 독서/스터디',
-  ];
+  final List<String> _hobbiesList = ProfileOptions.hobbiesOptions;
 
   @override
   void initState() {
@@ -497,7 +481,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+              globalData.setSkipProfileSetup(true);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const OOMUHomeScreen()),
+                (route) => false,
+              );
             },
             child: const Text('홈으로 이동', style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
           ),
@@ -1053,8 +1041,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         const SizedBox(height: 24),
 
-        // 1. 직업 / 직무
-        _buildSectionLabel('직업 / 직무'),
+        // 1. 직무/직업
+        _buildSectionLabel(ProfileOptions.jobLabel),
         _buildInputField(
           controller: _jobController,
           hintText: '예: IT 서비스 기획자, 디자이너, 프리랜서 등',

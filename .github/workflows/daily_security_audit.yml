@@ -30,6 +30,18 @@ jobs:
         run: |
           python scripts/verify_deep_security.py
 
+      - name: Verify Firestore Security Rules Integrity & Zero Wildcard Write
+        run: |
+          if [ ! -f "firestore.rules" ]; then
+            echo "::error::firestore.rules file does not exist!"
+            exit 1
+          fi
+          if grep -E "allow\s+(read,\s*write|write,\s*read)\s*:\s*if\s+true" firestore.rules; then
+            echo "::error::Insecure wildcard 'allow read, write: if true' rule found!"
+            exit 1
+          fi
+          echo "[PASS] firestore.rules exists and contains 0 wildcard allow read, write: if true rules."
+
       - name: Report Security Status
         if: success()
         run: |

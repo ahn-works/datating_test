@@ -7,6 +7,7 @@ import '../utils/oomu_ui_helpers.dart';
 import '../ui/oomu_tokens.dart';
 import '../ui/oomu_button.dart';
 import '../ui/oomu_tag.dart';
+import '../constants/profile_options.dart';
 import 'chat_screen.dart';
 import 'login_screen.dart';
 
@@ -401,13 +402,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final cleanGender = _userGender.trim();
     final cleanSmoking = _userSmoking.trim();
     final cleanPet = _userPet.trim();
-    final bool hasBasicInfo = displayJob.isNotEmpty ||
-        displayMbti.isNotEmpty ||
-        effectiveDrinking.isNotEmpty ||
-        displayAge.isNotEmpty ||
-        cleanGender.isNotEmpty ||
-        cleanSmoking.isNotEmpty ||
-        cleanPet.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -612,41 +606,31 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                   const SizedBox(height: OomuTokens.s24),
 
-                  // 1. Basic Profile Info Tags
+                  // 1. Basic Profile Info (2-Column Key-Value Rows)
                   const Text('기본 정보',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
                   const SizedBox(height: 12),
-                  if (hasBasicInfo)
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        if (displayJob.isNotEmpty)
-                          OomuTag(label: '💼 직무/직업 · $displayJob'),
-                        if (displayMbti.isNotEmpty)
-                          OomuTag(label: '🎨 MBTI · $displayMbti'),
-                        if (effectiveDrinking.isNotEmpty)
-                          OomuTag(label: '🍻 음주 성향 · ${effectiveDrinking.join(", ")}'),
-                        if (cleanSmoking.isNotEmpty)
-                          OomuTag(label: '🚭 흡연 여부 · $cleanSmoking'),
-                        if (cleanPet.isNotEmpty)
-                          OomuTag(label: '🐶 반려동물 · $cleanPet'),
-                        if (displayAge.isNotEmpty)
-                          OomuTag(label: '🎂 나이 · $displayAge세'),
-                        if (cleanGender.isNotEmpty)
-                          OomuTag(label: '👤 성별 · $cleanGender'),
-                      ],
-                    )
-                  else
-                    const Text(
-                      '등록된 기본 정보가 없어요.',
-                      style: TextStyle(
-                          fontSize: OomuTokens.fs14,
-                          color: OomuTokens.textMuted),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: OomuTokens.surfaceMuted,
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      border: Border.all(color: OomuTokens.border, width: 1),
                     ),
+                    child: Column(
+                      children: [
+                        _buildProfileKeyValueRow('💼 직무/직업', displayJob),
+                        _buildProfileKeyValueRow('🎂 나이', displayAge.isNotEmpty ? '$displayAge세' : ''),
+                        _buildProfileKeyValueRow('👤 성별', cleanGender),
+                        _buildProfileKeyValueRow('🎨 MBTI', displayMbti),
+                        _buildProfileKeyValueRow('🍻 음주 성향', effectiveDrinking.join(', ')),
+                        _buildProfileKeyValueRow('🚭 흡연 여부', cleanSmoking),
+                        _buildProfileKeyValueRow('🐶 반려동물', cleanPet, isLast: true),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: OomuTokens.s20),
 
                   // 2. Personality & Charm Tags
@@ -766,6 +750,46 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   fontWeight: OomuTokens.w400,
                   color: OomuTokens.textPrimary,
                   height: 1.5)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileKeyValueRow(String label, String value, {bool isLast = false}) {
+    final cleanValue = value.trim();
+    final isUnset = cleanValue.isEmpty || cleanValue == ProfileOptions.unsetValue;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : const Border(
+                bottom: BorderSide(color: OomuTokens.border, width: 0.5)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: OomuTokens.fs12,
+              color: OomuTokens.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              isUnset ? ProfileOptions.unsetValue : cleanValue,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontSize: OomuTokens.fs14,
+                color: isUnset ? OomuTokens.textMuted : OomuTokens.textPrimary,
+                fontWeight: isUnset ? FontWeight.normal : FontWeight.w500,
+              ),
+            ),
+          ),
         ],
       ),
     );

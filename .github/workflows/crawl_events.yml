@@ -38,6 +38,7 @@ jobs:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           APP_WEBHOOK_URL: ${{ secrets.APP_WEBHOOK_URL }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
           python scripts/crawl_local_events.py --output-dir data --max-per-query ${{ github.event.inputs.max_per_query || '3' }}
 

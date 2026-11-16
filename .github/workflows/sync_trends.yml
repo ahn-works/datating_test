@@ -30,6 +30,7 @@ jobs:
       - name: Crawl KOPIS / Sports / Movie Posters & Sync to R2 + Firestore
         env:
           INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
           python scripts/sync_trends.py
 
