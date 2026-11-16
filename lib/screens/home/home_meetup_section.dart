@@ -39,14 +39,6 @@ class HomeMeetupSection extends StatelessWidget {
     required this.onResetFilters,
   });
 
-  String _getDongName() {
-    final parts = currentLocation.trim().split(' ');
-    if (parts.length >= 2) {
-      return parts.last;
-    }
-    return parts.first;
-  }
-
   String _getSectionTitle() {
     switch (selectedCategoryIndex) {
       case 1:
@@ -195,7 +187,7 @@ class HomeMeetupSection extends StatelessWidget {
                     (selectedVibe == null || selectedVibe == '전체')) {
                   Navigator.pushNamed(context, '/host');
                 } else {
-                  onResetFilters?.call();
+                  onResetFilters();
                 }
               },
             ),

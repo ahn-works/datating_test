@@ -35,21 +35,6 @@ class HomeCategoryTabs extends StatelessWidget {
     required this.officialSubCategories,
   });
 
-  IconData _getCategoryIcon(int index) {
-    switch (index) {
-      case 0:
-        return Icons.whatshot_rounded;
-      case 1:
-        return Icons.bolt_rounded;
-      case 2:
-        return Icons.local_cafe_rounded;
-      case 3:
-        return Icons.directions_run_rounded;
-      default:
-        return Icons.category_rounded;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(

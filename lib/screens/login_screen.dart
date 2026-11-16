@@ -46,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   // 온보딩 슬라이드 제어
   final PageController _pageController = PageController();
-  int _currentSlide = 0;
 
   bool _isLoading = false;
   bool _hasProcessedOAuthCode = false;

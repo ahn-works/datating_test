@@ -128,7 +128,6 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
           return compareFirestoreTimes(a['createdAt'], b['createdAt']);
         });
 
-        final blocked = globalData.blockedUsers.value;
         final hiddenPosts = globalData.hiddenPostIds.value;
 
         final filteredPosts = allPosts.where((post) {
