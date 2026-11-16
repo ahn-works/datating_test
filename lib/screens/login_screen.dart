@@ -249,8 +249,8 @@ class _LoginScreenState extends State<LoginScreen>
         final activeUid = globalData.currentUserId.value.isNotEmpty
             ? globalData.currentUserId.value
             : authService.currentUser?.uid;
-        final bool isTestAccount = activeEmail.startsWith('test') ||
-            activeUid == 'LZs5U32GQJMkK77hkmaJupgKzwE2';
+        final bool isTestAccount = const bool.fromEnvironment('OOMU_DEV_ACCOUNTS') &&
+            activeEmail.startsWith('test');
 
         if (activeUid != null && activeUid.isNotEmpty && !authService.isAdmin && !isTestAccount) {
           final isComplete = await authService.isUserProfileComplete(activeUid);
@@ -338,16 +338,10 @@ class _LoginScreenState extends State<LoginScreen>
         _showToast('인증번호 6자리를 문자로 발송했어요');
         return;
       }
-    } catch (_) {}
-
-    setState(() {
-      _suPhoneCodeSent = true;
-      _suPhoneVerified = false;
-      if (_suPhoneCodeCtrl.text.isEmpty) {
-        _suPhoneCodeCtrl.text = '482915';
-      }
-    });
-    _showToast('인증번호가 발송되었어요 (인증번호 6자리 확인)');
+      _showToast(res.errorMessage ?? '인증번호 발송에 실패했어요. 잠시 후 다시 시도해 주세요.');
+    } catch (_) {
+      _showToast('인증번호 발송 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.');
+    }
   }
 
   Future<void> _verifySignupPhoneCode() async {
@@ -364,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen>
         inputCode: code,
       );
     } catch (_) {}
-    if (verified || code == '482915') {
+    if (verified) {
       setState(() => _suPhoneVerified = true);
       globalData.userPhone.value = cleanPhone;
       globalData.isPhoneVerified.value = true;
@@ -1513,7 +1507,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
               const SizedBox(height: OomuTokens.s12),
 
-              // 보조 진입: 일단 둘러볼래요 & 테스트 계정
+              // 보조 진입: 일단 둘러볼래요
               Row(
                 children: [
                   Expanded(
@@ -1537,34 +1531,6 @@ class _LoginScreenState extends State<LoginScreen>
                               fontSize: OomuTokens.fs12,
                               fontWeight: FontWeight.w600,
                               color: OomuTokens.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: OomuTokens.s8),
-                  Flexible(
-                    child: BouncyTap(
-                      onTap: _showTestUserModal,
-                      child: Container(
-                        height: 48,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: OomuTokens.s12, vertical: OomuTokens.s8),
-                        decoration: BoxDecoration(
-                          color: OomuTokens.surfaceMuted,
-                          borderRadius: BorderRadius.circular(OomuTokens.r12),
-                        ),
-                        child: const Center(
-                          widthFactor: 1.0,
-                          child: Text(
-                            '🧪 테스트 계정',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: OomuTokens.fs12,
-                              fontWeight: FontWeight.w700,
-                              color: OomuTokens.coral,
                             ),
                           ),
                         ),
@@ -2090,7 +2056,7 @@ class _LoginScreenState extends State<LoginScreen>
                   return;
                 }
                 if (_feCodeCtrl.text.trim().isEmpty) {
-                  _showToast('인증번호를 입력해 주세요 (데모: 482915)');
+                  _showToast('인증번호를 입력해 주세요');
                   return;
                 }
                 _feCountdownTimer?.cancel();
@@ -2247,16 +2213,26 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  void _startFindEmailTimer() {
-    if (_fePhoneCtrl.text.trim().isEmpty) {
+  Future<void> _startFindEmailTimer() async {
+    final rawPhone = _fePhoneCtrl.text.trim();
+    if (rawPhone.isEmpty) {
       _showToast('휴대폰 번호를 먼저 입력해 주세요');
       return;
     }
-    _showToast('인증번호가 발송되었어요 (데모: 482915)');
+    try {
+      final res = await solapiSmsService.sendVerificationCode(rawPhone);
+      if (!res.isSuccess) {
+        _showToast(res.errorMessage ?? '인증번호 발송에 실패했어요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+    } catch (_) {
+      _showToast('인증번호 발송 중 오류가 발생했어요.');
+      return;
+    }
+    _showToast('인증번호가 발송되었어요');
     _feCountdownTimer?.cancel();
     setState(() {
       _feSecondsRemaining = 300;
-      _feCodeCtrl.text = '482915';
     });
     _feCountdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
@@ -2320,179 +2296,6 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           if (suffix != null) suffix,
         ],
-      ),
-    );
-  }
-
-  // ==========================================
-  // 모달 시트들 (테스트 계정 / 휴대폰 SMS)
-  // ==========================================
-
-  void _showTestUserModal() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '체험용 테스트 계정 선택',
-                    style: TextStyle(
-                      fontSize: OomuTokens.fs18,
-                      fontWeight: FontWeight.w700,
-                      color: OomuTokens.textPrimary,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(Icons.close,
-                        size: 20, color: OomuTokens.textSecondary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                '원하는 프로필을 선택하면 해당 동네와 계정으로 1초 만에 전환됩니다.',
-                style: TextStyle(
-                    fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
-              ),
-              const SizedBox(height: 16),
-              _buildTestUserTile(
-                ctx,
-                uid: 'LZs5U32GQJMkK77hkmaJupgKzwE2',
-                name: '우리동네_초연',
-                desc: '29세 · 여성 · 전남 여수시 화장동',
-                badge: '여수 로컬',
-                avatar: 'assets/images/초연.png',
-              ),
-              const SizedBox(height: 8),
-              _buildTestUserTile(
-                ctx,
-                uid: 'test_user_01',
-                name: '망원치즈_민지',
-                desc: '25세 · 여성 · 서울 마포구 망원동',
-                badge: '디저트·카페',
-                avatar: 'assets/images/민지.png',
-              ),
-              const SizedBox(height: 8),
-              _buildTestUserTile(
-                ctx,
-                uid: 'test_user_02',
-                name: '연남러너_지훈',
-                desc: '28세 · 남성 · 서울 마포구 연남동',
-                badge: '한강러닝·운동',
-                avatar: 'assets/images/지훈.png',
-              ),
-              const SizedBox(height: 8),
-              _buildTestUserTile(
-                ctx,
-                uid: 'test_user_03',
-                name: '성수와인_지연',
-                desc: '31세 · 여성 · 서울 성동구 성수동',
-                badge: '와인·전시회',
-                avatar: 'assets/images/지연.png',
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTestUserTile(
-    BuildContext ctx, {
-    required String uid,
-    required String name,
-    required String desc,
-    required String badge,
-    required String avatar,
-  }) {
-    return InkWell(
-      onTap: () async {
-        Navigator.pop(ctx);
-        _showLoading('$name 계정으로 입장 중...');
-        try {
-          await authService.syncUserSessionProfile(uid);
-          if (mounted) {
-            _showToast('🎉 $name 계정으로 전환되었습니다.');
-            await _navigateHome(skipProfileCheck: true);
-          }
-        } catch (_) {
-          if (mounted) _hideLoading();
-        }
-      },
-      borderRadius: BorderRadius.circular(OomuTokens.r12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: OomuTokens.surfaceMuted,
-          borderRadius: BorderRadius.circular(OomuTokens.r12),
-          border: Border.all(color: OomuTokens.border),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundImage: AssetImage(avatar),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: OomuTokens.fs14,
-                          fontWeight: FontWeight.w700,
-                          color: OomuTokens.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: OomuTokens.coral.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(OomuTokens.r8),
-                        ),
-                        child: Text(
-                          badge,
-                          style: const TextStyle(
-                            fontSize: OomuTokens.fs11,
-                            fontWeight: FontWeight.w600,
-                            color: OomuTokens.coral,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    desc,
-                    style: const TextStyle(
-                        fontSize: OomuTokens.fs12,
-                        color: OomuTokens.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: OomuTokens.textMuted),
-          ],
-        ),
       ),
     );
   }

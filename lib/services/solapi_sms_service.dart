@@ -41,37 +41,37 @@ class SolapiSmsService {
   String _senderNumber = '';
   bool _isInitialized = false;
 
+  String _proxyUrl = const String.fromEnvironment('OOMU_SMS_PROXY_URL');
+
   // 인메모리 빠른 인증 세션 캐시 (cleanPhone -> {code, expiresAt})
   final Map<String, Map<String, dynamic>> _localSessionCache = {};
 
-  /// Firestore 'config/api_keys' 문서에서 솔라피 인증키 런타임 동적 조회
+  /// SMS 서버 프록시 엔드포인트(app_config/sms_proxy) 또는 런타임 설정 조회
   Future<bool> initialize() async {
-    if (_isInitialized && _apiKey.isNotEmpty && _apiSecret.isNotEmpty) {
+    if (_isInitialized &&
+        (_proxyUrl.isNotEmpty || (_apiKey.isNotEmpty && _apiSecret.isNotEmpty))) {
       return true;
     }
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('config')
-          .doc('api_keys')
+          .collection('app_config')
+          .doc('sms_proxy')
           .get();
 
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        _apiKey = (data['solapiApiKey'] ?? '').toString().trim();
-        _apiSecret = (data['solapiApiSecret'] ?? '').toString().trim();
-        final sender = (data['solapiSenderNumber'] ?? '').toString().trim();
-        if (sender.isNotEmpty) {
-          _senderNumber = sender;
+        final pUrl = (data['proxyUrl'] ?? '').toString().trim();
+        if (pUrl.isNotEmpty) {
+          _proxyUrl = pUrl;
         }
         _isInitialized = true;
-        debugPrint(
-            '[SolapiSmsService] Solapi credentials securely loaded from Firestore (sender: $_senderNumber)');
-        return _apiKey.isNotEmpty && _apiSecret.isNotEmpty;
+        return _proxyUrl.isNotEmpty ||
+            (_apiKey.isNotEmpty && _apiSecret.isNotEmpty);
       }
     } catch (e) {
-      debugPrint('[SolapiSmsService] Failed to load config/api_keys: $e');
+      debugPrint('[SolapiSmsService] SMS proxy config load error: $e');
     }
-    return false;
+    return _proxyUrl.isNotEmpty;
   }
 
   /// Solapi Messages v4 HMAC-SHA256 Authorization 헤더 생성
@@ -186,31 +186,8 @@ class SolapiSmsService {
           if (isIpBlocked) {
             debugPrint(
                 '[SolapiSmsService] Solapi IP whitelist restriction detected: $msg');
-            const testCode = '482915';
-            final expiresAt = DateTime.now().add(const Duration(minutes: 10));
-            _localSessionCache[phone] = {
-              'code': testCode,
-              'expiresAt': expiresAt,
-              'verified': false,
-            };
-            try {
-              await FirebaseFirestore.instance
-                  .collection('phone_verifications')
-                  .doc(phone)
-                  .set({
-                'phone': phone,
-                'code': testCode,
-                'createdAt': FieldValue.serverTimestamp(),
-                'expiresAt': Timestamp.fromDate(expiresAt),
-                'verified': false,
-                'isIpBypass': true,
-              });
-            } catch (_) {}
-            return const SolapiSendResult(
-              isSuccess: true,
-              verificationId: 'solapi_ip_test_482915',
-              errorMessage:
-                  '외부 IP(LTE/모바일) 환경 감지: 테스트 인증번호 [482915]가 자동 발급되었습니다.',
+            return SolapiSendResult.error(
+              '현재 네트워크 환경에서 SMS 발송이 제한되었습니다. 잠시 후 다시 시도해 주세요.',
             );
           }
 
@@ -234,11 +211,8 @@ class SolapiSmsService {
   }) async {
     final phone = normalizePhone(rawPhone);
     final trimmedCode = inputCode.trim();
-
-    // 0. 데모 및 외부 IP 테스트 고정 인증번호(482915) 즉시 검증 허용
-    if (trimmedCode == '482915') {
-      await _markFirestoreVerified(phone);
-      return true;
+    if (trimmedCode.length != 6) {
+      return false;
     }
 
     // 1. 인메모리 세션 우선 검증

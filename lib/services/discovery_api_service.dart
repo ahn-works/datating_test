@@ -188,16 +188,23 @@ class DiscoveryApiService {
 
   Future<Map<String, dynamic>> _getApiKeys() async {
     if (_cachedApiKeys != null) return _cachedApiKeys!;
+    final result = <String, dynamic>{
+      if (const String.fromEnvironment('OOMU_API_PROXY_URL').isNotEmpty)
+        'proxyUrl': const String.fromEnvironment('OOMU_API_PROXY_URL'),
+      if (const String.fromEnvironment('OPENWEATHER_API_KEY').isNotEmpty)
+        'openWeatherApiKey': const String.fromEnvironment('OPENWEATHER_API_KEY'),
+    };
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('config')
-          .doc('api_keys')
+          .collection('app_config')
+          .doc('public_keys')
           .get()
           .timeout(const Duration(seconds: 2));
-      _cachedApiKeys = doc.data() ?? {};
-    } catch (_) {
-      _cachedApiKeys = {};
-    }
+      if (doc.exists && doc.data() != null) {
+        result.addAll(doc.data()!);
+      }
+    } catch (_) {}
+    _cachedApiKeys = result;
     return _cachedApiKeys!;
   }
 

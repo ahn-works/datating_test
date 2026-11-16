@@ -53,12 +53,27 @@ class AuthService {
       ? _kakaoRestApiKey
       : KakaoMapService.kakaoRestApiKey;
 
-  /// Firestore 'config/api_keys' 문서에서 카카오 키 런타임 조회
+  /// 카카오 공개 클라이언트 키 런타임 조회 (dart-define -> app_config/kakao -> KakaoMapService)
   Future<void> loadKakaoConfig() async {
+    const definedKey = String.fromEnvironment('KAKAO_REST_API_KEY');
+    if (definedKey.isNotEmpty) {
+      _kakaoRestApiKey = definedKey.trim();
+      return;
+    }
     try {
-      final doc = await _firestore.collection('config').doc('api_keys').get();
+      await KakaoMapService.ensureKeysLoaded();
+      if (KakaoMapService.kakaoRestApiKey.isNotEmpty) {
+        _kakaoRestApiKey = KakaoMapService.kakaoRestApiKey;
+        return;
+      }
+      final doc =
+          await _firestore.collection('app_config').doc('kakao').get();
       if (doc.exists && doc.data() != null) {
-        final key = (doc.data()!['kakaoRestApiKey'] ?? '').toString().trim();
+        final key = (doc.data()!['kakaoRestApiKey'] ??
+                doc.data()!['restApiKey'] ??
+                '')
+            .toString()
+            .trim();
         if (key.isNotEmpty) {
           _kakaoRestApiKey = key;
         }
@@ -422,24 +437,26 @@ class AuthService {
   }
 
   Future<Map<String, String>> _getNaverCredentials() async {
+    const envClientId = String.fromEnvironment('NAVER_CLIENT_ID');
+    const envClientSecret = String.fromEnvironment('NAVER_CLIENT_SECRET');
+    if (envClientId.isNotEmpty && envClientSecret.isNotEmpty) {
+      return {'clientId': envClientId, 'clientSecret': envClientSecret};
+    }
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('config')
-          .doc('api_keys')
+          .collection('app_config')
+          .doc('naver')
           .get();
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        final cId = (data['naverClientId'] ?? '').toString().trim();
-        final cSec = (data['naverClientSecret'] ?? '').toString().trim();
-        if (cId.isNotEmpty && cSec.isNotEmpty) {
+        final cId = (data['naverClientId'] ?? data['clientId'] ?? '').toString().trim();
+        final cSec = (data['naverClientSecret'] ?? data['clientSecret'] ?? '').toString().trim();
+        if (cId.isNotEmpty) {
           return {'clientId': cId, 'clientSecret': cSec};
         }
       }
     } catch (_) {}
-    return {
-      'clientId': '8GUg95zrKv0Cw6g4aTmi',
-      'clientSecret': 'GzKOBpP14Y',
-    };
+    return {'clientId': '', 'clientSecret': ''};
   }
 
   Future<UserCredential> signInWithRealNaverAccount({
@@ -538,6 +555,13 @@ class AuthService {
   Future<void> syncUserSessionProfile(String uid) async {
     final normalized = uid.trim();
     if (normalized.isEmpty || normalized == 'guest') return;
+    if (debugUserDocFetcher == null) {
+      if (Firebase.apps.isEmpty) return;
+      final currentAuthUid = _auth.currentUser?.uid;
+      if (currentAuthUid == null || currentAuthUid != normalized) {
+        return;
+      }
+    }
     globalData.switchUser(normalized, triggerFirestoreSync: false);
     final int requestSession = globalData.sessionGeneration;
 
@@ -545,7 +569,6 @@ class AuthService {
     if (debugUserDocFetcher != null) {
       data = await debugUserDocFetcher!(normalized);
     } else {
-      if (Firebase.apps.isEmpty) return;
       final snapshot =
           await _firestore.collection('users').doc(normalized).get();
       data = snapshot.data();
@@ -681,37 +704,12 @@ class AuthService {
 
       UserCredential userCredential;
       final currentUser = _auth.currentUser;
-      final emailAccount = 'phone_$cleanPhone@oomu.app';
-      final pwAccount =
-          'oomu_phone_pw_${cleanPhone.length >= 7 ? cleanPhone.substring(cleanPhone.length - 7) : "0000000"}';
-
       if (currentUser != null && !currentUser.isAnonymous) {
-        userCredential = await currentUser
-            .linkWithCredential(
-          EmailAuthProvider.credential(
-            email: emailAccount,
-            password: pwAccount,
-          ),
-        )
-            .catchError((_) async {
-          return await _auth.signInAnonymously();
+        userCredential = await _auth.signInAnonymously().catchError((_) async {
+          throw Exception('전화 인증 세션 연동에 실패했습니다. 다시 시도해 주세요.');
         });
       } else {
-        try {
-          userCredential = await _auth.signInWithEmailAndPassword(
-            email: emailAccount,
-            password: pwAccount,
-          );
-        } catch (_) {
-          try {
-            userCredential = await _auth.createUserWithEmailAndPassword(
-              email: emailAccount,
-              password: pwAccount,
-            );
-          } catch (_) {
-            userCredential = await _auth.signInAnonymously();
-          }
-        }
+        userCredential = await _auth.signInAnonymously();
       }
 
       globalData.userPhone.value = cleanPhone;
@@ -722,10 +720,20 @@ class AuthService {
           userCredential.user!,
           provider: 'phone',
           extraData: {
-            'phone': cleanPhone,
             'isPhoneVerified': true,
           },
         );
+        try {
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('private')
+              .doc('contact')
+              .set({
+            'phone': cleanPhone,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
       }
       return userCredential;
     }
@@ -791,8 +799,8 @@ class AuthService {
     }
 
     if (!snapshot.exists) {
-      final bool isTestUser = cleanEmail.startsWith('test') ||
-          uid == 'LZs5U32GQJMkK77hkmaJupgKzwE2';
+      final bool isTestUser = const bool.fromEnvironment('OOMU_DEV_ACCOUNTS') &&
+          cleanEmail.startsWith('test');
       final bool isProfileDone = isAdminEmail || isTestUser;
       final String initialNickname = customNickname ??
           (isAdminEmail
@@ -817,7 +825,6 @@ class AuthService {
 
       await docRef.set({
         'userId': uid,
-        'email': email,
         'role': initialRole,
         'name': initialName,
         'nickname': initialNickname,
@@ -847,6 +854,15 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      if (email.isNotEmpty) {
+        try {
+          await docRef.collection('private').doc('contact').set({
+            'email': email,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
+      }
 
       if (!_isValidSessionAfterAwait(requestSession, uid)) {
         return;
@@ -882,8 +898,8 @@ class AuthService {
     if (Firebase.apps.isNotEmpty) {
       final currentEmail = currentUser?.email?.trim().toLowerCase() ?? '';
       if (isAdmin ||
-          currentEmail.startsWith('test') ||
-          uid == 'LZs5U32GQJMkK77hkmaJupgKzwE2') {
+          (const bool.fromEnvironment('OOMU_DEV_ACCOUNTS') &&
+              currentEmail.startsWith('test'))) {
         return true;
       }
     }

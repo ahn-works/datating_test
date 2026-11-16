@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spot10_app/main.dart';
+import 'package:spot10_app/screens/login_screen.dart';
 import 'package:spot10_app/screens/my_page_screen.dart';
+import 'package:spot10_app/screens/oomu_home_screen.dart';
 import 'package:spot10_app/screens/profile_edit_screen.dart';
 import 'package:spot10_app/screens/settings_screen.dart';
 import 'package:spot10_app/screens/user_profile_screen.dart';
@@ -270,6 +273,39 @@ void main() {
       } finally {
         r2Storage.publicBaseUrl = prevBase;
       }
+    });
+  });
+
+  group('5. [1단계 P0] 릴리스 분기에서 테스트 계정·디버그 라우트 비활성 검증', () {
+    testWidgets('LoginScreen(stage 2)에 테스트 계정 버튼이 없고 디버그 라우트(?gallery, ?my=true&user=test11)가 게스트 홈으로 보낸다',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(const MaterialApp(
+        home: LoginScreen(initialStage: 2),
+      ));
+      await tester.pump();
+      expect(find.textContaining('테스트 계정'), findsNothing);
+      expect(find.text('일단 둘러볼래요'), findsOneWidget);
+
+      final galleryWidget = resolveInitialRouteWidget(
+        Uri.parse('https://ahn-works.github.io/datating_test/?gallery=true'),
+        enableDevRoutes: false,
+      );
+      expect(galleryWidget, isA<OOMUHomeScreen>());
+      expect(globalData.currentUserId.value, 'guest');
+
+      final myUserTestWidget = resolveInitialRouteWidget(
+        Uri.parse(
+            'https://ahn-works.github.io/datating_test/?my=true&user=test11'),
+        enableDevRoutes: false,
+      );
+      expect(myUserTestWidget, isA<OOMUHomeScreen>());
+      expect(globalData.currentUserId.value, 'guest');
+      expect(globalData.userNickname.value, '');
+
+      globalData.resetSession();
     });
   });
 }

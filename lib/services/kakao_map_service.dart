@@ -74,19 +74,33 @@ class KakaoMapService {
   static String get kakaoRestApiKey => _restApiKey;
   static String get kakaoJsApiKey => _jsApiKey;
 
-  /// Firestore 'config/api_keys' 문서에서 카카오 키 런타임 안전 조회
+  /// 카카오 공개 클라이언트 키 안전 조회 (dart-define -> app_config/kakao)
   static Future<void> ensureKeysLoaded() async {
     if (_keysLoaded) return;
+    const defRest = String.fromEnvironment('KAKAO_REST_API_KEY');
+    const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
+    if (defRest.isNotEmpty) _restApiKey = defRest.trim();
+    if (defJs.isNotEmpty) _jsApiKey = defJs.trim();
+    if (_restApiKey.isNotEmpty && _jsApiKey.isNotEmpty) {
+      _keysLoaded = true;
+      return;
+    }
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('config')
-          .doc('api_keys')
+          .collection('app_config')
+          .doc('kakao')
           .get()
           .timeout(const Duration(seconds: 3));
       if (doc.exists && doc.data() != null) {
         final d = doc.data()!;
-        _restApiKey = (d['kakaoRestApiKey'] ?? '').toString().trim();
-        _jsApiKey = (d['kakaoJsApiKey'] ?? '').toString().trim();
+        if (_restApiKey.isEmpty) {
+          _restApiKey =
+              (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
+        }
+        if (_jsApiKey.isEmpty) {
+          _jsApiKey =
+              (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
+        }
       }
       _keysLoaded = true;
     } catch (_) {}

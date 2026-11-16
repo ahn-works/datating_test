@@ -55,25 +55,35 @@ class R2StorageService {
 
   bool _isInitialized = false;
 
-  /// Firestore에서 R2 자격 증명 안전하게 로드 (GitHub 소스코드 노출 방지)
+  /// R2 업로드 프록시 엔드포인트 (Cloudflare Worker / Cloud Functions)
+  String workerProxyUrl = const String.fromEnvironment('OOMU_R2_WORKER_URL');
+
+  /// Firestore app_config/r2_public 또는 dart-define에서 R2 공개 도메인/프록시 설정 로드
   Future<void> initFromFirestore() async {
     if (_isInitialized) return;
+    const defPublicUrl = String.fromEnvironment('R2_PUBLIC_BASE_URL');
+    if (defPublicUrl.isNotEmpty) {
+      publicBaseUrl = defPublicUrl.trim();
+    }
     try {
-      final doc = await FirebaseFirestore.instance.collection('config').doc('r2_storage').get();
+      final doc = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('r2_public')
+          .get();
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        accessKeyId = (data['accessKeyId'] ?? '').toString().trim();
-        secretAccessKey = (data['secretAccessKey'] ?? '').toString().trim();
-        publicBaseUrl = (data['publicBaseUrl'] ?? '').toString().trim();
-        debugPrint('[R2 Storage] Credentials securely loaded from Firestore (config/r2_storage)');
+        final pubUrl = (data['publicBaseUrl'] ?? '').toString().trim();
+        final proxyUrl = (data['workerProxyUrl'] ?? '').toString().trim();
+        if (pubUrl.isNotEmpty) publicBaseUrl = pubUrl;
+        if (proxyUrl.isNotEmpty) workerProxyUrl = proxyUrl;
       }
       _isInitialized = true;
     } catch (e) {
-      debugPrint('[R2 Storage] Firestore config load error (offline fallback): $e');
+      debugPrint('[R2 Storage] Public config load fallback: $e');
     }
   }
 
-  /// Firestore에 R2 자격 증명 안전하게 저장
+  /// 클라이언트에서 시크릿 키를 Firestore에 직접 저장하지 않고 인메모리/공개 도메인만 반영
   Future<void> saveToFirestore({
     required String accessKey,
     required String secretKey,
@@ -82,20 +92,6 @@ class R2StorageService {
     accessKeyId = accessKey.trim();
     secretAccessKey = secretKey.trim();
     publicBaseUrl = publicUrl.trim();
-
-    try {
-      await FirebaseFirestore.instance.collection('config').doc('r2_storage').set({
-        'bucketName': bucketName,
-        'accountId': accountId,
-        'accessKeyId': accessKeyId,
-        'secretAccessKey': secretAccessKey,
-        'publicBaseUrl': publicBaseUrl,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-      debugPrint('[R2 Storage] Config saved to Firestore.');
-    } catch (e) {
-      debugPrint('[R2 Storage] Error saving config to Firestore: $e');
-    }
   }
 
   /// 마스킹된 시크릿 키 반환 (UI 표시용)

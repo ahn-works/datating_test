@@ -18,6 +18,50 @@ FIRESTORE_WEB_KEY = os.environ.get("FIRESTORE_WEB_KEY", "")
 BASE_URL = f"https://firestore.googleapis.com/v1/projects/{FIRESTORE_PROJECT}/databases/(default)/documents"
 USER_AGENT = "OOMU-Automation-Agent/2.0 (GitHubActions; Python 3.11)"
 
+_cached_access_token = None
+
+
+def _get_admin_headers(extra_headers=None):
+    """Returns request headers including Admin SDK / Service Account OAuth2 Bearer token when configured."""
+    global _cached_access_token
+    headers = {"User-Agent": USER_AGENT}
+    if extra_headers:
+        headers.update(extra_headers)
+
+    explicit_token = os.environ.get("FIRESTORE_ACCESS_TOKEN", "").strip()
+    if explicit_token:
+        headers["Authorization"] = f"Bearer {explicit_token}"
+        return headers
+
+    if _cached_access_token:
+        headers["Authorization"] = f"Bearer {_cached_access_token}"
+        return headers
+
+    sa_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
+    sa_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
+    if sa_json or sa_path:
+        try:
+            from google.oauth2 import service_account
+            import google.auth.transport.requests
+
+            scopes = ["https://www.googleapis.com/auth/datastore"]
+            if sa_json:
+                creds = service_account.Credentials.from_service_account_info(
+                    json.loads(sa_json), scopes=scopes
+                )
+            else:
+                creds = service_account.Credentials.from_service_account_file(
+                    sa_path, scopes=scopes
+                )
+            creds.refresh(google.auth.transport.requests.Request())
+            if creds.token:
+                _cached_access_token = creds.token
+                headers["Authorization"] = f"Bearer {_cached_access_token}"
+        except Exception as e:
+            print(f"[WARN] Admin SDK credential load fallback: {e}")
+
+    return headers
+
 
 def _make_url(path, query_params=None):
     """Builds a Firestore REST API URL, cleanly attaching key and query parameters if present."""
@@ -116,7 +160,7 @@ def dict_to_document_fields(data):
 def get_document(collection_path, doc_id):
     """Retrieves a single Firestore document by collection and ID."""
     url = _make_url(f"{collection_path}/{doc_id}")
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    req = urllib.request.Request(url, headers=_get_admin_headers())
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read().decode("utf-8"))
@@ -130,7 +174,7 @@ def get_document(collection_path, doc_id):
 def list_documents(collection_path, page_size=100):
     """Lists documents in a collection."""
     url = _make_url(collection_path, {"pageSize": page_size})
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    req = urllib.request.Request(url, headers=_get_admin_headers())
     try:
         with urllib.request.urlopen(req, timeout=20) as resp:
             data = json.loads(resp.read().decode("utf-8"))
@@ -155,7 +199,7 @@ def set_document(collection_path, doc_id, data, merge=True):
     req = urllib.request.Request(
         url,
         data=post_bytes,
-        headers={"Content-Type": "application/json", "User-Agent": USER_AGENT},
+        headers=_get_admin_headers({"Content-Type": "application/json"}),
         method="PATCH",
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
@@ -173,7 +217,7 @@ def create_document(collection_path, data):
     req = urllib.request.Request(
         url,
         data=post_bytes,
-        headers={"Content-Type": "application/json", "User-Agent": USER_AGENT},
+        headers=_get_admin_headers({"Content-Type": "application/json"}),
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
@@ -184,7 +228,7 @@ def create_document(collection_path, data):
 def delete_document(collection_path, doc_id):
     """Deletes a document from Firestore."""
     url = _make_url(f"{collection_path}/{doc_id}")
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="DELETE")
+    req = urllib.request.Request(url, headers=_get_admin_headers(), method="DELETE")
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             return True

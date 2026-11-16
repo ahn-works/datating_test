@@ -6,14 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/oomu_home_screen.dart';
 import 'screens/oomu_detail_screen.dart';
-import 'screens/my_page_screen.dart';
-import 'screens/oomu_my_trips_screen.dart';
-import 'screens/user_profile_screen.dart';
-import 'screens/profile_edit_screen.dart';
 import 'screens/community_post_detail_screen.dart';
-import 'screens/community_post_create_screen.dart';
-import 'screens/chat_screen.dart';
-import 'screens/oomu_chat_room_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/r2_storage_service.dart';
 import 'utils/global_data.dart';
@@ -21,7 +14,124 @@ import 'ui/oomu_tokens.dart';
 import 'ui/oomu_component_gallery.dart';
 import 'utils/oomu_ui_helpers.dart';
 import 'services/kakao_map_service.dart';
-import 'widgets/oomu_discovery_lifestyle_hub.dart';
+
+/// 테스트용 URI 주입 훅
+Uri Function()? resolveAppUri;
+
+bool _isSampleOrBlockedId(String rawId) {
+  final id = rawId.trim();
+  if (id.isEmpty) return true;
+  const blocked = <String>{
+    'test_post',
+    'test11',
+    'choyeon',
+    'sample_01',
+    'sample_yeosu_01',
+    'post_sample_01',
+    'sample_chat_room_01',
+  };
+  return blocked.contains(id);
+}
+
+Widget resolveInitialRouteWidget(
+  Uri uri, {
+  bool enableDevRoutes = const bool.fromEnvironment('OOMU_DEV_ROUTES'),
+}) {
+  final isHome = uri.queryParameters['home'] == 'true' ||
+      uri.fragment.contains('home=true');
+  final isGallery = uri.queryParameters['gallery'] == 'true' ||
+      uri.fragment.contains('gallery=true');
+  final isDetail = uri.queryParameters['detail'] == 'true' ||
+      uri.fragment.contains('detail=true');
+  final isCommDetail = uri.queryParameters['comm_detail'] == 'true' ||
+      uri.fragment.contains('comm_detail=true');
+  final isLogin = uri.queryParameters['login'] == 'true' ||
+      uri.fragment.contains('login=true');
+  final isTestPost = uri.queryParameters['test_post'] == 'true' ||
+      uri.fragment.contains('test_post=true');
+
+  final hasDebugOnlyFlag = isGallery ||
+      isTestPost ||
+      uri.queryParameters.containsKey('my') ||
+      uri.queryParameters.containsKey('profile') ||
+      uri.queryParameters.containsKey('edit') ||
+      uri.queryParameters.containsKey('comm_create') ||
+      uri.queryParameters.containsKey('chat') ||
+      uri.queryParameters.containsKey('chat_room') ||
+      uri.queryParameters.containsKey('discovery') ||
+      uri.queryParameters.containsKey('fortune') ||
+      uri.queryParameters.containsKey('profile_setup') ||
+      uri.queryParameters.containsKey('my_trips') ||
+      uri.queryParameters.containsKey('user') ||
+      uri.fragment.contains('gallery=true') ||
+      uri.fragment.contains('my=true') ||
+      uri.fragment.contains('user=');
+
+  if (enableDevRoutes && isGallery) {
+    return const OomuComponentGallery();
+  }
+
+  // 릴리스에서 디버그 라우트(?gallery, ?my, user= 등) 진입 시 세션 변경 없이 정상 게스트 홈으로 이동
+  if (!enableDevRoutes && hasDebugOnlyFlag && !isLogin && !isDetail && !isCommDetail) {
+    globalData.switchUser('guest');
+    return const OOMUHomeScreen();
+  }
+
+  if (isHome) {
+    // user= 파라미터로 세션 신원을 바꾸지 않고 게스트로만 시작
+    globalData.switchUser('guest');
+    return const OOMUHomeScreen();
+  }
+
+  if (isLogin) {
+    globalData.switchUser('guest');
+    return const LoginScreen();
+  }
+
+  if (isDetail) {
+    globalData.switchUser('guest');
+    final docId = (uri.queryParameters['id'] ?? '').trim();
+    if (_isSampleOrBlockedId(docId)) {
+      return const OOMUHomeScreen();
+    }
+    return OOMUDetailScreen(meetup: {'id': docId});
+  }
+
+  if (isCommDetail) {
+    globalData.switchUser('guest');
+    final docId = (uri.queryParameters['id'] ?? '').trim();
+    if (isTestPost || _isSampleOrBlockedId(docId)) {
+      return const OOMUHomeScreen();
+    }
+    return CommunityPostDetailScreen(post: {'id': docId});
+  }
+
+  if (Firebase.apps.isEmpty) {
+    globalData.switchUser('guest');
+    return const LoginScreen();
+  }
+
+  return StreamBuilder<User?>(
+    stream: FirebaseAuth.instance.authStateChanges(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Scaffold(
+          backgroundColor: OomuTokens.background,
+          body: Center(
+            child: CircularProgressIndicator(color: OomuTokens.coral),
+          ),
+        );
+      }
+      if (snapshot.hasData && snapshot.data != null) {
+        final user = snapshot.data!;
+        globalData.switchUser(user.uid);
+        return _AuthGate(user: user);
+      }
+      globalData.switchUser('guest');
+      return const LoginScreen();
+    },
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,274 +208,8 @@ class Spot10App extends StatelessWidget {
       ),
       home: Builder(
         builder: (context) {
-          final uri = Uri.base;
-          final isHome = uri.queryParameters['home'] == 'true' || uri.fragment.contains('home=true');
-          final isGallery = uri.queryParameters['gallery'] == 'true' || uri.fragment.contains('gallery=true');
-          final isDetail = uri.queryParameters['detail'] == 'true' || uri.fragment.contains('detail=true');
-          final isMy = uri.queryParameters['my'] == 'true' || uri.fragment.contains('my=true');
-          final isProfile = uri.queryParameters['profile'] == 'true' || uri.fragment.contains('profile=true');
-          final isEdit = uri.queryParameters['edit'] == 'true' || uri.fragment.contains('edit=true');
-          final isCommDetail = uri.queryParameters['comm_detail'] == 'true' || uri.fragment.contains('comm_detail=true');
-          final isCommCreate = uri.queryParameters['comm_create'] == 'true' || uri.fragment.contains('comm_create=true');
-          final isChat = uri.queryParameters['chat'] == 'true' || uri.fragment.contains('chat=true');
-          final isChatRoom = uri.queryParameters['chat_room'] == 'true' || uri.fragment.contains('chat_room=true');
-          final isDiscovery = uri.queryParameters['discovery'] == 'true' || uri.fragment.contains('discovery=true');
-          final isFortune = uri.queryParameters['fortune'] == 'true' || uri.fragment.contains('fortune=true');
-          final isLogin = uri.queryParameters['login'] == 'true' || uri.fragment.contains('login=true');
-          final isProfileSetup = uri.queryParameters['profile_setup'] == 'true' || uri.fragment.contains('profile_setup=true');
-          final isMyTrips = uri.queryParameters['my_trips'] == 'true' || uri.fragment.contains('my_trips=true');
-          final targetUser = uri.queryParameters['user'] ?? (uri.fragment.contains('user=test11') ? 'test11' : '');
-
-          if (isGallery) {
-            return const OomuComponentGallery();
-          }
-          if (isMyTrips) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-            } else {
-              globalData.switchUser('guest');
-            }
-            return const OOMUMyTripsScreen();
-          }
-          if (isHome) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-            } else {
-              globalData.switchUser('guest');
-            }
-            return const OOMUHomeScreen();
-          }
-          if (isMy) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-              globalData.userNickname.value = '우리동네_초연';
-              globalData.userLocation.value = '전남 여수시 화장동';
-            } else {
-              globalData.switchUser('guest');
-            }
-            return const MyPageScreen();
-          }
-          if (isProfile) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-              return const UserProfileScreen(
-                userName: '우리동네_초연',
-                userAge: '29',
-                userLocation: '전남 여수시 화장동',
-                userBio:
-                    '여수 화장동 토박이 초연입니다! 동네 산책과 감성 카페 모임 좋아해요 😊 (R2 실시간 연동 테스트 완료)',
-                userAvatar: 'profiles/초연.png',
-                userJob: '프리랜서 디자이너',
-                userMbti: 'ENFP',
-                userDrinking: ['가볍게 한잔'],
-                userPersonalities: ['리액션 요정', '친화력 갑'],
-                userHobbies: ['맛집탐방', '보드게임'],
-                userSmoking: '비흡연',
-                userPet: '반려동물 있음',
-                userGender: '여성',
-                isSelf: true,
-              );
-            }
-            globalData.switchUser('guest');
-            return const UserProfileScreen(userName: '김민서');
-          }
-          if (isEdit) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-            } else {
-              globalData.switchUser('guest');
-            }
-            return const ProfileEditScreen();
-          }
-          if (isLogin) {
-            return const LoginScreen();
-          }
-          if (isProfileSetup) {
-            return const ProfileSetupScreen();
-          }
-          if (isCommCreate) {
-            globalData.switchUser('guest');
-            return const CommunityPostCreateScreen();
-          }
-          if (isChat) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-              globalData.userNickname.value = '우리동네_초연';
-              globalData.userLocation.value = '전남 여수시 화장동';
-            } else {
-              globalData.switchUser('guest');
-            }
-            return const ChatScreen();
-          }
-          if (isChatRoom) {
-            globalData.switchUser('guest');
-            return const OOMUChatScreen(
-              title: '주말 엽떡+마라탕 팟 🔥',
-              memberCount: 4,
-              chatRoomId: 'sample_chat_room_01',
-            );
-          }
-          if (isDiscovery) {
-            globalData.switchUser('guest');
-            return const Scaffold(
-              backgroundColor: Colors.white,
-              body: SafeArea(
-                child: OomuDiscoveryLifestyleHub(
-                  currentLocation: '전남 여수시 화장동',
-                  initialCategoryIndex: 0,
-                ),
-              ),
-            );
-          }
-          if (isFortune) {
-            globalData.switchUser('guest');
-            return const Scaffold(
-              backgroundColor: Colors.white,
-              body: SafeArea(
-                child: OomuDiscoveryLifestyleHub(
-                  currentLocation: '전남 여수시 화장동',
-                  initialCategoryIndex: 5,
-                ),
-              ),
-            );
-          }
-          if (isCommDetail) {
-            globalData.switchUser('guest');
-            final isTestPost = uri.queryParameters['test_post'] == 'true' ||
-                uri.fragment.contains('test_post=true');
-            if (isTestPost) {
-              return const CommunityPostDetailScreen(post: {
-                'id': 'TsjnJcvqeluZ7JsBwBvQ',
-                'category': '동네 토크',
-                'title': '근처 맛집 추천 _테스트',
-                'content': '맛집 추천해주세요~~~~~',
-                'author': '우리동네_초연',
-                'authorAvatar': 'assets/images/초연.png',
-                'location': '전남 여수시 화장동',
-                'time': '방금 전',
-                'likes': 1,
-                'isLiked': true,
-                'comments': 1,
-                'image': 'assets/images/cover_food.jpg',
-                'tag': '동네토크',
-                'commentList': [
-                  {
-                    'id': 'c_test_01',
-                    'author': '우리동네_초연',
-                    'authorAvatar': 'assets/images/초연.png',
-                    'content': '테스트에요',
-                    'time': '방금 전',
-                    'likes': 0,
-                    'isLiked': false,
-                  }
-                ],
-              });
-            }
-            return const CommunityPostDetailScreen(post: {
-              'id': 'post_sample_01',
-              'category': '맛집·카페',
-              'title': '망원동 조용한 작업용 북카페 추천해요 ☕',
-              'content': '망원시장 근처에 콘센트 많고 잔잔한 재즈 음악 나오는 북카페 찾았어요. 주말에도 너무 시끄럽지 않아서 독서나 가벼운 노트북 작업하기 딱 좋습니다!',
-              'author': '망원러너_민우',
-              'authorAvatar': 'assets/images/민지.png',
-              'location': '마포구 망원동',
-              'time': '15분 전',
-              'likes': 12,
-              'comments': 2,
-              'commentList': [
-                {
-                  'id': 'c_01',
-                  'author': '연남책방러',
-                  'content': '오 혹시 드립커피 맛은 어떤가요? 저도 가보고 싶네요!',
-                  'time': '10분 전',
-                  'likes': 2,
-                  'isLiked': false,
-                },
-                {
-                  'id': 'c_02',
-                  'author': '망원동주민',
-                  'content': '여기 사장님도 친절하시고 쿠키도 맛있어요 ㅎㅎ',
-                  'time': '5분 전',
-                  'likes': 1,
-                  'isLiked': false,
-                }
-              ],
-            });
-          }
-          if (isDetail) {
-            if (targetUser == 'test11' || targetUser == 'choyeon') {
-              globalData.switchUser('LZs5U32GQJMkK77hkmaJupgKzwE2');
-              globalData.userNickname.value = '우리동네_초연';
-              globalData.userLocation.value = '전남 여수시 화장동';
-              return const OOMUDetailScreen(meetup: {
-                'id': 'sample_yeosu_01',
-                'title': '여수 학동 선소상가 찐맛집 털기 & 2:2 캐주얼 소셜 다이닝 🥘',
-                'category': '동네 맛집 & 소셜 다이닝',
-                'location': '전남 여수시 시청동2길 선소상가 일대',
-                'lat': 34.7612,
-                'lng': 127.6588,
-                'date': '이번 주 금요일 저녁 7시',
-                'time': '저녁 7시',
-                'transport': '도보 / 대중교통 이동',
-                'fee': '각자 주문 (1/N)',
-                'cost': '각자 주문 (1/N)',
-                'members': 2,
-                'maxMembers': 4,
-                'host': '우리동네_초연',
-                'hostAvatar': 'assets/images/초연.png',
-                'hostBio': '여수 화장동 토박이 초연입니다! 동네 산책과 감성 카페 모임 좋아해요 😊',
-                'hostManner': 42.0,
-                'isVerified': true,
-                'isFemaleOnly': false,
-                'description': '선소상가에서 유명한 해산물 맛집과 삼합 예약 완료했습니다! 금요일 저녁 7시에 봬요. 매너 있는 이웃분들 환영합니다 :)',
-                'imageUrl': 'assets/images/cover_food.jpg',
-                'praiseTags': ['친절하고 배려심 넘쳐요', '시간 약속을 잘 지켜요', '분위기를 밝게 해줘요'],
-              });
-            }
-            globalData.switchUser('guest');
-            return const OOMUDetailScreen(meetup: {
-              'id': 'sample_01',
-              'title': '주말 엽떡+마라탕+꿔바로우 털러 가실 파티원 🔥',
-              'category': '맛집·카페',
-              'location': '마포구 서교동 홍대입구역 9번 출구',
-              'date': '이번주 토요일 저녁 6시',
-              'time': '저녁 6시',
-              'transport': '대중교통 / 각자 이동',
-              'fee': '각자 주문 (1/N)',
-              'cost': '각자 주문 (1/N)',
-              'members': 2,
-              'maxMembers': 4,
-              'host': '망원러너_민우',
-              'hostAvatar': 'assets/images/민지.png',
-              'hostBio': '맛있는 음식 먹으며 즐겁게 이야기 나누는 모임 좋아해요!',
-              'hostManner': 46.5,
-              'isVerified': true,
-              'isFemaleOnly': true,
-              'description': '홍대 근처 마라탕과 엽떡 맛집 같이 가실 분 구해요! 매운 음식 좋아하시는 분 환영합니다. 편하게 신청해 주세요 :)',
-              'imageUrl': 'assets/images/cover_food.jpg',
-              'praiseTags': ['친절하고 배려심 넘쳐요', '시간 약속을 잘 지켜요', '분위기를 밝게 해줘요'],
-            });
-          }
-          return StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  backgroundColor: OomuTokens.background,
-                  body: Center(
-                    child: CircularProgressIndicator(color: OomuTokens.coral),
-                  ),
-                );
-              }
-              if (snapshot.hasData && snapshot.data != null) {
-                final user = snapshot.data!;
-                globalData.switchUser(user.uid);
-                return _AuthGate(user: user);
-              }
-              globalData.switchUser('guest');
-              return const LoginScreen();
-            },
-          );
+          final uri = resolveAppUri?.call() ?? Uri.base;
+          return resolveInitialRouteWidget(uri);
         },
       ),
     );
