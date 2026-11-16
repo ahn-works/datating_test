@@ -8,12 +8,20 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="text/javascript">
-    (function () {
-      const p = new URLSearchParams(window.location.search);
-      const k = p.get('appkey') || '';
-      if (k) {
-        document.write('<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + encodeURIComponent(k) + '"><\/script>');
-      }
+    window.__kakaoReady = (function () {
+      var p = new URLSearchParams(window.location.search);
+      var k = p.get('appkey') || '';
+      if (!k) return Promise.resolve(false);
+      return new Promise(function (resolve) {
+        var s = document.createElement('script');
+        s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + encodeURIComponent(k) + '&autoload=false';
+        s.onload = function () {
+          try { kakao.maps.load(function () { resolve(true); }); } catch (e) { resolve(false); }
+        };
+        s.onerror = function () { resolve(false); };
+        document.head.appendChild(s);
+        setTimeout(function () { resolve(false); }, 6000);
+      });
     })();
   </script>
   <style>
@@ -30,6 +38,12 @@
       overflow: hidden;
       touch-action: none;
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, Roboto, sans-serif;
+    }
+
+    #map:empty::after {
+      content: '지도를 불러오는 중입니다';
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: #8E8E93; font-size: 14px; background: #FAFAFA;
     }
 
     #map {
@@ -180,6 +194,8 @@
   </div>
 
   <script>
+  (function () {
+  function run() {
     // Prevent browser-level pinch/ctrl+wheel zoom from scaling the entire UI
     window.addEventListener('wheel', function (e) {
       if (e.ctrlKey) {
@@ -223,7 +239,24 @@
             iconSize: [120, 36],
             iconAnchor: [60, 36]
           });
-          L.marker([lat, lng], { icon: customIcon }).addTo(leafletMap);
+          var lm = [];
+          try { var rm = params.get('markers'); if (rm) { var pl = JSON.parse(decodeURIComponent(rm)); if (Array.isArray(pl)) lm = pl; } } catch (e) {}
+          if (lm.length === 0) {
+            L.marker([lat, lng], { icon: customIcon }).addTo(leafletMap);
+          } else {
+            lm.forEach(function (m) {
+              var a = parseFloat(m.lat), b = parseFloat(m.lng);
+              if (isNaN(a) || isNaN(b)) return;
+              var t = String(m.title || m.name || '모임').replace(/[<>&]/g, '');
+              if (t.length > 11) t = t.substring(0, 10) + '..';
+              var ic = L.divIcon({ className: 'custom-leaflet-marker', html: '<div style="background:#F25767;color:#fff;padding:5px 12px;border-radius:18px;font-size:11px;font-weight:700;border:2px solid #fff;white-space:nowrap;">' + t + '</div>', iconSize: [110, 32], iconAnchor: [55, 32] });
+              var mk = L.marker([a, b], { icon: ic }).addTo(leafletMap);
+              mk.on('click', function () {
+                try { window.parent.postMessage(JSON.stringify({ type: 'oomu_marker_click', id: String(m.id || ''), title: m.title || '', lat: a, lng: b, action: 'select' }), '*'); } catch (e) {}
+              });
+            });
+          }
+          setTimeout(function () { leafletMap.invalidateSize(); }, 300);
 
           document.getElementById('btnZoomIn').onclick = function (e) {
             e.stopPropagation();
@@ -429,6 +462,9 @@
     document.getElementById('btnNavi').onclick = function () {
       window.open(`https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`, '_blank');
     };
+  }
+  Promise.resolve(window.__kakaoReady).then(run, run);
+  })();
   </script>
 </body>
 
