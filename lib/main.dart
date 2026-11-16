@@ -20,6 +20,7 @@ import 'utils/global_data.dart';
 import 'ui/oomu_tokens.dart';
 import 'ui/oomu_component_gallery.dart';
 import 'utils/oomu_ui_helpers.dart';
+import 'services/kakao_map_service.dart';
 import 'widgets/oomu_discovery_lifestyle_hub.dart';
 
 void main() async {
@@ -37,6 +38,7 @@ void main() async {
       ),
     );
     await r2Storage.initFromFirestore();
+    await KakaoMapService.ensureKeysLoaded();
   } catch (e) {
     debugPrint("Firebase/R2 init error: $e");
   }

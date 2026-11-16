@@ -69,13 +69,14 @@ class KakaoMapService {
 
   /// 카카오 JavaScript 키 (웹/인앱 지도 렌더링용)
   static String _jsApiKey = '';
+  static bool _keysLoaded = false;
 
   static String get kakaoRestApiKey => _restApiKey;
   static String get kakaoJsApiKey => _jsApiKey;
 
   /// Firestore 'config/api_keys' 문서에서 카카오 키 런타임 안전 조회
   static Future<void> ensureKeysLoaded() async {
-    if (_restApiKey.isNotEmpty) return;
+    if (_keysLoaded) return;
     try {
       final doc = await FirebaseFirestore.instance
           .collection('config')
@@ -87,6 +88,7 @@ class KakaoMapService {
         _restApiKey = (d['kakaoRestApiKey'] ?? '').toString().trim();
         _jsApiKey = (d['kakaoJsApiKey'] ?? '').toString().trim();
       }
+      _keysLoaded = true;
     } catch (_) {}
   }
 

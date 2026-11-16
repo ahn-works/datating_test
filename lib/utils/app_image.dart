@@ -1,36 +1,46 @@
-import 'dart:convert';
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/r2_storage_service.dart';
 
 /// 로컬 에셋(assets/...), 로컬 파일 경로(File), 웹 Blob, Cloudflare R2 및 네트워크 URL을 모두 완벽 지원하는 이미지 헬퍼.
-ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.jpg'}) {
-  final target = (path != null && path.trim().isNotEmpty) ? path.trim() : fallback;
-  if (target.contains('unsplash.com') || target.contains('pravatar.cc') || target.contains('picsum.photos')) {
-    if (target.contains('1511895426328') || target.contains('cafe') || target.contains('1554118811') || target.contains('1501339817309')) {
+ImageProvider appImg(String? path,
+    {String fallback = 'assets/images/cover_food.jpg'}) {
+  final target =
+      (path != null && path.trim().isNotEmpty) ? path.trim() : fallback;
+  if (target.contains('unsplash.com') ||
+      target.contains('pravatar.cc') ||
+      target.contains('picsum.photos')) {
+    if (target.contains('1511895426328') ||
+        target.contains('cafe') ||
+        target.contains('1554118811') ||
+        target.contains('1501339817309')) {
       return const AssetImage('assets/images/cover_cafe.jpg');
-    } else if (target.contains('wine') || target.contains('1510812431401') || target.contains('1516280440502')) {
+    } else if (target.contains('wine') ||
+        target.contains('1510812431401') ||
+        target.contains('1516280440502')) {
       return const AssetImage('assets/images/cover_wine.jpg');
-    } else if (target.contains('run') || target.contains('1502680390469') || target.contains('1552674605') || target.contains('1519681393784')) {
+    } else if (target.contains('run') ||
+        target.contains('1502680390469') ||
+        target.contains('1552674605') ||
+        target.contains('1519681393784')) {
       return const AssetImage('assets/images/cover_running.jpg');
-    } else if (target.contains('534528741775') || target.contains('1517841905240') || target.contains('1438761681033') || target.contains('img=33') || target.contains('img=5') || target.contains('img=47') || target.contains('img=45')) {
+    } else if (target.contains('534528741775') ||
+        target.contains('1517841905240') ||
+        target.contains('1438761681033') ||
+        target.contains('img=33') ||
+        target.contains('img=5') ||
+        target.contains('img=47') ||
+        target.contains('img=45')) {
       return const AssetImage('assets/images/민지.png');
-    } else if (target.contains('507003211169') || target.contains('1500648767791') || target.contains('1527980965255') || target.contains('img=12') || target.contains('img=36')) {
+    } else if (target.contains('507003211169') ||
+        target.contains('1500648767791') ||
+        target.contains('1527980965255') ||
+        target.contains('img=12') ||
+        target.contains('img=36')) {
       return const AssetImage('assets/images/지훈.png');
     } else {
       return const AssetImage('assets/images/cover_food.jpg');
-    }
-  }
-
-  // 0. Base64 Data URL 직접 렌더링 (유저가 직접 올린 사진 100% 영구 보존)
-  if (target.startsWith('data:image')) {
-    try {
-      final commaIndex = target.indexOf(',');
-      final base64Str = commaIndex != -1 ? target.substring(commaIndex + 1) : target;
-      return MemoryImage(base64Decode(base64Str));
-    } catch (e) {
-      debugPrint('[appImg] Base64 decode error: $e');
     }
   }
 
@@ -50,31 +60,35 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     }
   }
 
-  // 1-2. R2 커버 키 중 번들 기본 에셋인 경우에만 로컬 에셋 매핑 (유저가 직접 업로드한 커스텀 사진은 R2/네트워크로 정상 연결)
+  // 1-2. R2 커버 키 중 번들 에셋 매핑
   if (target.startsWith('covers/') || target.startsWith('/covers/')) {
     final cleanKey = target.startsWith('/') ? target.substring(1) : target;
     final fileName = cleanKey.substring('covers/'.length);
-    if (fileName == 'cover_cafe.jpg' || fileName == 'cafe.jpg') return const AssetImage('assets/images/cover_cafe.jpg');
-    if (fileName == 'cover_wine.jpg' || fileName == 'wine.jpg') return const AssetImage('assets/images/cover_wine.jpg');
-    if (fileName == 'cover_running.jpg' || fileName == 'running.jpg') return const AssetImage('assets/images/cover_running.jpg');
-    if (fileName == 'cover_salt_bread.jpg' || fileName == 'salt_bread.jpg') return const AssetImage('assets/images/cover_salt_bread.jpg');
-    if (fileName == 'cover_running_hangang.jpg' || fileName == 'running_hangang.jpg') return const AssetImage('assets/images/cover_running_hangang.jpg');
-    if (fileName == 'cover_food.jpg' || fileName == 'food.jpg') return const AssetImage('assets/images/cover_food.jpg');
-
-    // 그 외 유저가 업로드한 실제 사진(timestamp_파일명 등)은 R2 Public / Presigned URL로 정상 해소
-    final r2Url = r2Storage.getPublicViewUrl(cleanKey);
-    if (!r2Url.startsWith('assets/')) {
-      return NetworkImage(r2Url);
-    }
+    if (fileName.contains('cafe'))
+      return const AssetImage('assets/images/cover_cafe.jpg');
+    if (fileName.contains('wine'))
+      return const AssetImage('assets/images/cover_wine.jpg');
+    if (fileName.contains('run'))
+      return const AssetImage('assets/images/cover_running.jpg');
+    if (fileName.contains('bread') || fileName.contains('salt'))
+      return const AssetImage('assets/images/cover_salt_bread.jpg');
+    if (fileName.contains('hangang'))
+      return const AssetImage('assets/images/cover_running_hangang.jpg');
+    return const AssetImage('assets/images/cover_food.jpg');
   }
 
   // 1-3. 만료되었거나 타 세션의 웹 Blob URL은 접근 불가하므로 안전 폴백 에셋으로 즉시 변환
   if (target.startsWith('blob:')) {
-    return AssetImage(fallback.startsWith('assets/') ? fallback : 'assets/images/cover_food.jpg');
+    return AssetImage(fallback.startsWith('assets/')
+        ? fallback
+        : 'assets/images/cover_food.jpg');
   }
 
   // 2. 모바일 / 데스크톱 네이티브 로컬 파일 경로 (FileImage 지원)
-  if (!kIsWeb && !target.startsWith('http://') && !target.startsWith('https://') && !target.startsWith('blob:')) {
+  if (!kIsWeb &&
+      !target.startsWith('http://') &&
+      !target.startsWith('https://') &&
+      !target.startsWith('blob:')) {
     try {
       final file = io.File(target);
       if (file.existsSync()) {
@@ -84,7 +98,8 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
   }
 
   // 3. Cloudflare R2 Presigned / Public URL 자동 변환
-  String resolvedUrl = r2Storage.getPublicViewUrl(target, defaultFallback: fallback);
+  String resolvedUrl =
+      r2Storage.getPublicViewUrl(target, defaultFallback: fallback);
   if ((resolvedUrl.contains('.gif') ||
           resolvedUrl.contains('stickers/') ||
           resolvedUrl.contains('giphy.com')) &&
@@ -99,9 +114,16 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
   return NetworkImage(resolvedUrl);
 }
 
-Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, String fallback = 'assets/images/cover_food.jpg'}) {
-  final cleanFallback = (fallback.isNotEmpty) ? fallback : 'assets/images/cover_food.jpg';
-  final fallbackAsset = cleanFallback.startsWith('assets/') ? cleanFallback : 'assets/images/cover_food.jpg';
+Widget appNetImage(String? path,
+    {BoxFit? fit,
+    double? width,
+    double? height,
+    String fallback = 'assets/images/cover_food.jpg'}) {
+  final cleanFallback =
+      (fallback.isNotEmpty) ? fallback : 'assets/images/cover_food.jpg';
+  final fallbackAsset = cleanFallback.startsWith('assets/')
+      ? cleanFallback
+      : 'assets/images/cover_food.jpg';
   final safeFallback = _resolveSafeAssetPath(fallbackAsset);
 
   return Image(
@@ -124,7 +146,8 @@ Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, St
           height: height,
           color: const Color(0xFFF5F5F7),
           child: const Center(
-            child: Icon(Icons.photo_outlined, color: Color(0xFFC7C7CC), size: 28),
+            child:
+                Icon(Icons.photo_outlined, color: Color(0xFFC7C7CC), size: 28),
           ),
         ),
       ),
@@ -135,7 +158,8 @@ Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, St
 /// DiceBear 기반 2030 감성 캐릭터 아바타 PNG URL 생성 (무료, 무인증, 영구 캐시)
 /// - seed: 유저 이메일 주소 또는 닉네임 (동일한 시드 = 언제나 동일한 얼굴 보장)
 /// - style: 'lorelei' (2030 세련된 감성 일러스트 캐릭터, OOMU 1순위 추천)
-String getDiceBearAvatarUrl(String seed, {String style = 'lorelei', int size = 128}) {
+String getDiceBearAvatarUrl(String seed,
+    {String style = 'lorelei', int size = 128}) {
   final cleanSeed = Uri.encodeComponent(seed.trim().toLowerCase());
   return 'https://api.dicebear.com/9.x/$style/png?seed=$cleanSeed&size=$size';
 }
@@ -202,7 +226,15 @@ String? _resolveBundledProfileAsset(String rawName) {
   if (kIsWeb && _bundledProfileMap.containsKey(trimmed)) {
     return _bundledProfileMap[trimmed];
   }
-  if (!kIsWeb && (trimmed == '초연.png' || trimmed == '민지.png' || trimmed == '시연.png' || trimmed == '정재.png' || trimmed == '주아.png' || trimmed == '지안.png' || trimmed == '지연.png' || trimmed == '지훈.png')) {
+  if (!kIsWeb &&
+      (trimmed == '초연.png' ||
+          trimmed == '민지.png' ||
+          trimmed == '시연.png' ||
+          trimmed == '정재.png' ||
+          trimmed == '주아.png' ||
+          trimmed == '지안.png' ||
+          trimmed == '지연.png' ||
+          trimmed == '지훈.png')) {
     return trimmed;
   }
   if (trimmed.contains('%')) {
@@ -214,7 +246,9 @@ String? _resolveBundledProfileAsset(String rawName) {
     } catch (_) {}
   }
   // 추가: 초연 / test 계정 / 주요 프로필 키워드 자동 매핑 (CORS 및 로드 오류 원천 차단)
-  if (trimmed.contains('초연') || trimmed.contains('choyeon') || trimmed.startsWith('test_')) {
+  if (trimmed.contains('초연') ||
+      trimmed.contains('choyeon') ||
+      trimmed.startsWith('test_')) {
     return kIsWeb ? 'choyeon.png' : '초연.png';
   }
   if (trimmed.contains('민지') || trimmed.contains('minji')) {
@@ -223,13 +257,17 @@ String? _resolveBundledProfileAsset(String rawName) {
   if (trimmed.contains('주아') || trimmed.contains('jua')) {
     return kIsWeb ? 'jua.png' : '주아.png';
   }
-  if (trimmed.contains('시연') || trimmed.contains('siyeon') || trimmed.contains('siyan')) {
+  if (trimmed.contains('시연') ||
+      trimmed.contains('siyeon') ||
+      trimmed.contains('siyan')) {
     return kIsWeb ? 'siyeon.png' : '시연.png';
   }
   if (trimmed.contains('지안') || trimmed.contains('jian')) {
     return kIsWeb ? 'jian.png' : '지안.png';
   }
-  if (trimmed.contains('정재') || trimmed.contains('jungjae') || trimmed.contains('jeongjae')) {
+  if (trimmed.contains('정재') ||
+      trimmed.contains('jungjae') ||
+      trimmed.contains('jeongjae')) {
     return kIsWeb ? 'jungjae.png' : '정재.png';
   }
   if (trimmed.contains('지훈') || trimmed.contains('jihun')) {

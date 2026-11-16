@@ -35,6 +35,9 @@ Widget buildKakaoMapWidget({
   );
 }
 
+/// 이미 등록된 viewType 재등록(ArgumentError)을 막기 위한 등록 이력
+final Set<String> _registeredViewTypes = <String>{};
+
 class _KakaoMapWebView extends StatefulWidget {
   final double lat;
   final double lng;
@@ -131,7 +134,7 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         ? '&appkey=${Uri.encodeComponent(KakaoMapService.kakaoJsApiKey)}'
         : '';
 
-    try {
+    if (_registeredViewTypes.add(viewType)) {
       ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
         final iframe = html.IFrameElement()
           ..src =
@@ -142,7 +145,7 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
           ..style.borderRadius = '16px';
         return iframe;
       });
-    } catch (_) {}
+    }
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
