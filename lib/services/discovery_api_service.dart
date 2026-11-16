@@ -449,7 +449,8 @@ class DiscoveryApiService {
         final movies = snap.docs.map((d) {
           final data = d.data();
           final title = (data['title'] ?? '').toString();
-          final poster = (data['poster'] ?? data['originalPoster'] ?? '').toString();
+          final poster =
+              (data['poster'] ?? data['originalPoster'] ?? '').toString();
           final cleanPoster = poster.isNotEmpty
               ? poster
               : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg';
@@ -459,7 +460,9 @@ class DiscoveryApiService {
             genre: (data['genre'] ?? '실시간 박스오피스').toString(),
             rating: ((data['rating'] as num?)?.toDouble() ?? 9.2),
             releaseInfo: (data['date'] ?? '절찬 상영중').toString(),
-            synopsis: (data['summary'] ?? data['desc'] ?? '동네 극장 및 OTT 인기 화제작입니다.').toString(),
+            synopsis:
+                (data['summary'] ?? data['desc'] ?? '동네 극장 및 OTT 인기 화제작입니다.')
+                    .toString(),
             posterUrl: cleanPoster,
             badge: (data['badge'] ?? '박스오피스 인기').toString(),
           );
@@ -467,7 +470,8 @@ class DiscoveryApiService {
         if (movies.isNotEmpty) return movies;
       }
     } catch (e) {
-      debugPrint('[DiscoveryApiService] Firestore trend_events movies fallback: $e');
+      debugPrint(
+          '[DiscoveryApiService] Firestore trend_events movies fallback: $e');
     }
 
     try {
@@ -543,8 +547,7 @@ class DiscoveryApiService {
         genre: '미스터리 · 추리 애니메이션',
         rating: 9.1,
         releaseInfo: '박스오피스 상위권 · 절찬 상영중',
-        synopsis:
-            '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 인기!',
+        synopsis: '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 인기!',
         posterUrl:
             'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2417%252F241724_P01_152342.jpg&w=600&q=85&output=jpg',
         badge: '애니 N차 인기',
@@ -848,7 +851,8 @@ class DiscoveryApiService {
     } else if (originalName.isNotEmpty) {
       final romanized = _romanizeKorean(originalName);
       queryName = romanized.isNotEmpty ? romanized : 'Sophie';
-      displayName = romanized.isNotEmpty ? '$originalName ($romanized)' : originalName;
+      displayName =
+          romanized.isNotEmpty ? '$originalName ($romanized)' : originalName;
     } else {
       queryName = 'Sophie';
       displayName = 'Sophie';
@@ -924,9 +928,80 @@ class DiscoveryApiService {
   }
 
   static String _romanizeKorean(String text) {
-    const cho = ['g', 'kk', 'n', 'd', 'tt', 'r', 'm', 'b', 'pp', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'];
-    const jung = ['a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yu', 'eu', 'ui', 'i'];
-    const jong = ['', 'k', 'k', 'ks', 'n', 'nj', 'nh', 't', 'l', 'lg', 'lm', 'lb', 'ls', 'lt', 'lp', 'lh', 'm', 'p', 'ps', 's', 'ss', 'ng', 'j', 'ch', 'k', 't', 'p', 'h'];
+    const cho = [
+      'g',
+      'kk',
+      'n',
+      'd',
+      'tt',
+      'r',
+      'm',
+      'b',
+      'pp',
+      's',
+      'ss',
+      '',
+      'j',
+      'jj',
+      'ch',
+      'k',
+      't',
+      'p',
+      'h'
+    ];
+    const jung = [
+      'a',
+      'ae',
+      'ya',
+      'yae',
+      'eo',
+      'e',
+      'yeo',
+      'ye',
+      'o',
+      'wa',
+      'wae',
+      'oe',
+      'yo',
+      'u',
+      'wo',
+      'we',
+      'wi',
+      'yu',
+      'eu',
+      'ui',
+      'i'
+    ];
+    const jong = [
+      '',
+      'k',
+      'k',
+      'ks',
+      'n',
+      'nj',
+      'nh',
+      't',
+      'l',
+      'lg',
+      'lm',
+      'lb',
+      'ls',
+      'lt',
+      'lp',
+      'lh',
+      'm',
+      'p',
+      'ps',
+      's',
+      'ss',
+      'ng',
+      'j',
+      'ch',
+      'k',
+      't',
+      'p',
+      'h'
+    ];
 
     final sb = StringBuffer();
     for (int i = 0; i < text.length; i++) {

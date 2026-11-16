@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/meetup_member_helper.dart';
 import 'oomu_home_screen.dart';
 import 'my_page_screen.dart';
 import 'oomu_detail_screen.dart';
@@ -90,88 +90,66 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
       'location': (data['location'] ?? '전남 여수시 화장동').toString(),
       'date': (data['date'] ?? data['timeStr'] ?? '이번 주말 저녁').toString(),
       'status': (data['status'] ?? '참여 확정').toString(),
-      'members': (data['membersCount'] ?? (data['members'] is List ? '${(data['members'] as List).length}/4' : '2/4')).toString(),
-      'imageUrl': (data['imageUrl'] ?? data['coverImage'] ?? data['image'] ?? 'assets/images/cover_food.jpg').toString(),
+      'members': MeetupMemberHelper.formatMembersLabel(data),
+      'imageUrl': (data['imageUrl'] ??
+              data['coverImage'] ??
+              data['image'] ??
+              'assets/images/cover_food.jpg')
+          .toString(),
     };
   }
 
   Widget _buildMyMeetupList({required bool isHosting}) {
-    final activeUid = globalData.activeUserId.trim();
-    final authUid = (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
+    final currentUid = globalData.currentUserId.value.trim();
     final currentNick = globalData.userNickname.value.trim();
-
-    final userIds = <String>{
-      if (activeUid.isNotEmpty && activeUid != 'guest') activeUid,
-      if (authUid.isNotEmpty) authUid,
-      if (currentNick.isNotEmpty) currentNick,
-      'LZs5U32GQJMkK77hkmaJupgKzwE2',
-    };
+    final isGuest = currentUid.isEmpty || currentUid == 'guest';
 
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('chatRooms').snapshots(),
-      builder: (context, chatSnap) {
-        final joinedChatRoomIds = <String>{};
-        final joinedChatTitles = <String>{};
-        if (chatSnap.hasData) {
-          for (final cd in chatSnap.data!.docs) {
-            final cdata = cd.data() as Map<String, dynamic>;
-            final parts = (cdata['participants'] is List)
-                ? List<String>.from((cdata['participants'] as List).map((e) => e.toString()))
-                : <String>[];
-            final hasUser = parts.any((p) => userIds.contains(p));
-            if (hasUser) {
-              final mId = (cdata['meetupId'] ?? cd.id).toString();
-              if (mId.isNotEmpty) joinedChatRoomIds.add(mId);
-              final title = (cdata['title'] ?? '').toString().trim();
-              if (title.isNotEmpty) joinedChatTitles.add(title);
+      stream: isGuest
+          ? null
+          : FirebaseFirestore.instance.collection('meetups').snapshots(),
+      builder: (context, snapshot) {
+        if (!isGuest && snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: CircularProgressIndicator(color: Color(0xFFF25767)));
+        }
+
+        final docs = isGuest ? const <QueryDocumentSnapshot>[] : (snapshot.data?.docs ?? const <QueryDocumentSnapshot>[]);
+        final List<Map<String, dynamic>> meetups = [];
+
+        for (final doc in docs) {
+          final data = Map<String, dynamic>.from(doc.data() as Map);
+          data['id'] = doc.id;
+          final hostUid =
+              (data['hostUid'] ?? data['creatorId'] ?? '').toString();
+          final hostName = (data['hostName'] ?? data['host'] ?? '').toString();
+          final members = (data['members'] is List)
+              ? List<String>.from(
+                  (data['members'] as List).map((e) => e.toString()))
+              : <String>[];
+          final participantIds = (data['participantIds'] is List)
+              ? List<String>.from(
+                  (data['participantIds'] as List).map((e) => e.toString()))
+              : <String>[];
+
+          if (isHosting) {
+            final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
+                (currentNick.isNotEmpty && hostName == currentNick);
+            if (isHost && !oomuChatStore.isRoomLeft(doc.id)) {
+              meetups.add(_formatMeetup(data));
+            }
+          } else {
+            final isMember = (currentUid.isNotEmpty &&
+                    (members.contains(currentUid) ||
+                        participantIds.contains(currentUid))) ||
+                (currentNick.isNotEmpty && members.contains(currentNick));
+            final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
+                (currentNick.isNotEmpty && hostName == currentNick);
+            if (isMember && !isHost && !oomuChatStore.isRoomLeft(doc.id)) {
+              meetups.add(_formatMeetup(data));
             }
           }
         }
-
-        return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('meetups').snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator(color: Color(0xFFF25767)));
-            }
-
-            final docs = snapshot.data!.docs;
-            final List<Map<String, dynamic>> meetups = [];
-
-            for (final doc in docs) {
-              final data = Map<String, dynamic>.from(doc.data() as Map);
-              data['id'] = doc.id;
-              final hostUid = (data['hostUid'] ?? data['creatorId'] ?? '').toString();
-              final hostName = (data['hostName'] ?? data['host'] ?? '').toString();
-              final members = (data['members'] is List)
-                  ? List<String>.from((data['members'] as List).map((e) => e.toString()))
-                  : <String>[];
-              final participantIds = (data['participantIds'] is List)
-                  ? List<String>.from((data['participantIds'] as List).map((e) => e.toString()))
-                  : <String>[];
-              final participants = (data['participants'] is List)
-                  ? List<String>.from((data['participants'] as List).map((e) => e.toString()))
-                  : <String>[];
-
-              final isHost = userIds.contains(hostUid) || (currentNick.isNotEmpty && hostName == currentNick);
-
-              if (isHosting) {
-                if (isHost && !oomuChatStore.isRoomLeft(doc.id)) {
-                  meetups.add(_formatMeetup(data));
-                }
-              } else {
-                final isMember = members.any((m) => userIds.contains(m)) ||
-                    participantIds.any((p) => userIds.contains(p)) ||
-                    participants.any((p) => userIds.contains(p)) ||
-                    joinedChatRoomIds.contains(doc.id) ||
-                    joinedChatTitles.contains((data['title'] ?? '').toString().trim()) ||
-                    members.contains('LZs5U32GQJMkK77hkmaJupgKzwE2');
-
-                if (isMember && !isHost && !oomuChatStore.isRoomLeft(doc.id)) {
-                  meetups.add(_formatMeetup(data));
-                }
-              }
-            }
 
         if (meetups.isEmpty) {
           return Center(
@@ -202,13 +180,14 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const OOMUHomeScreen(initialTab: 0)));
+                              builder: (_) =>
+                                  const OOMUHomeScreen(initialTab: 0)));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF25767),
                       elevation: 0,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
@@ -229,146 +208,153 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
           itemCount: meetups.length,
           itemBuilder: (context, index) {
             final meetup = meetups[index];
-        return GestureDetector(
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => OOMUDetailScreen(meetup: meetup))),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFEBEBEF)),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10))
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(24)),
-                      image: DecorationImage(
-                          image: appImg(meetup['imageUrl']), fit: BoxFit.cover),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(24)),
-                        gradient: LinearGradient(colors: [
-                          Colors.black.withValues(alpha: 0.5),
-                          Colors.transparent
-                        ], begin: Alignment.topCenter, end: Alignment.center),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.95),
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Text((meetup['category'] ?? '모임').toString(),
-                                style: TextStyle(
-                                    color: textPrimary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12)),
-                          ),
-                        ],
-                      ),
-                    ),
+            return GestureDetector(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => OOMUDetailScreen(meetup: meetup))),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFEBEBEF)),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10))
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(24)),
+                          image: DecorationImage(
+                              image: appImg(meetup['imageUrl']),
+                              fit: BoxFit.cover),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(24)),
+                            gradient: LinearGradient(
+                                colors: [
+                                  Colors.black.withValues(alpha: 0.5),
+                                  Colors.transparent
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.center),
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.95),
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: Text(
+                                    (meetup['category'] ?? '모임').toString(),
+                                    style: TextStyle(
+                                        color: textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text((meetup['title'] ?? '').toString(),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                      color: textPrimary),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                      (meetup['title'] ?? '').toString(),
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w800,
+                                          color: textPrimary),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                      color: isHosting
+                                          ? surfaceColor
+                                          : const Color(0xFFE5F0FF),
+                                      borderRadius: BorderRadius.circular(8)),
+                                  child: Text(
+                                      (meetup['status'] ?? '참여 확정').toString(),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: isHosting
+                                              ? textPrimary
+                                              : accentColor,
+                                          fontWeight: FontWeight.bold)),
+                                )
+                              ],
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 12),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                  color: isHosting
-                                      ? surfaceColor
-                                      : const Color(0xFFE5F0FF),
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Text((meetup['status'] ?? '참여 확정').toString(),
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color:
-                                          isHosting ? textPrimary : accentColor,
-                                      fontWeight: FontWeight.bold)),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on_outlined,
-                                size: 16, color: textSecondary),
-                            const SizedBox(width: 4),
-                            Text((meetup['location'] ?? '').toString(),
-                                style: TextStyle(
-                                    fontSize: 13, color: textSecondary)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                            const SizedBox(height: 16),
                             Row(
                               children: [
-                                Icon(Icons.access_time,
+                                Icon(Icons.location_on_outlined,
                                     size: 16, color: textSecondary),
                                 const SizedBox(width: 4),
-                                Text((meetup['date'] ?? '').toString(),
+                                Text((meetup['location'] ?? '').toString(),
                                     style: TextStyle(
                                         fontSize: 13, color: textSecondary)),
                               ],
                             ),
-                            Text('${meetup['members'] ?? '2/4'} 참여중',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: textSecondary,
-                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.access_time,
+                                        size: 16, color: textSecondary),
+                                    const SizedBox(width: 4),
+                                    Text((meetup['date'] ?? '').toString(),
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: textSecondary)),
+                                  ],
+                                ),
+                                Text('${meetup['members'] ?? '2/4'} 참여중',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: textSecondary,
+                                        fontWeight: FontWeight.bold)),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ));
+                ));
           },
         );
       },
     );
-  },
-);
-}
+  }
 
   Widget _buildBottomNav(BuildContext context) {
     const coralAccent = Color(0xFFF25767);

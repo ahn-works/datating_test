@@ -49,8 +49,9 @@ class AuthService {
 
   // 카카오 앱 키 (Firestore config/api_keys 또는 KakaoMapService 연동)
   String _kakaoRestApiKey = '';
-  String get kakaoRestApiKey =>
-      _kakaoRestApiKey.isNotEmpty ? _kakaoRestApiKey : KakaoMapService.kakaoRestApiKey;
+  String get kakaoRestApiKey => _kakaoRestApiKey.isNotEmpty
+      ? _kakaoRestApiKey
+      : KakaoMapService.kakaoRestApiKey;
 
   /// Firestore 'config/api_keys' 문서에서 카카오 키 런타임 조회
   Future<void> loadKakaoConfig() async {
@@ -685,12 +686,14 @@ class AuthService {
           'oomu_phone_pw_${cleanPhone.length >= 7 ? cleanPhone.substring(cleanPhone.length - 7) : "0000000"}';
 
       if (currentUser != null && !currentUser.isAnonymous) {
-        userCredential = await currentUser.linkWithCredential(
+        userCredential = await currentUser
+            .linkWithCredential(
           EmailAuthProvider.credential(
             email: emailAccount,
             password: pwAccount,
           ),
-        ).catchError((_) async {
+        )
+            .catchError((_) async {
           return await _auth.signInAnonymously();
         });
       } else {
@@ -788,18 +791,20 @@ class AuthService {
     }
 
     if (!snapshot.exists) {
-      final bool isTestUser = cleanEmail.startsWith('test') || uid == 'LZs5U32GQJMkK77hkmaJupgKzwE2';
+      final bool isTestUser = cleanEmail.startsWith('test') ||
+          uid == 'LZs5U32GQJMkK77hkmaJupgKzwE2';
       final bool isProfileDone = isAdminEmail || isTestUser;
       final String initialNickname = customNickname ??
           (isAdminEmail
               ? '오오무 총괄운영자'
               : (isTestUser ? '우리동네_초연' : (user.displayName ?? '')));
-      final String initialName = customName ?? (isAdminEmail ? '안대표' : (isTestUser ? '초연' : '회원'));
+      final String initialName =
+          customName ?? (isAdminEmail ? '안대표' : (isTestUser ? '초연' : '회원'));
       final String initialRole = isAdminEmail ? 'admin' : 'user';
-      final String initialGender = customGender ?? (isAdminEmail ? '여성' : (isTestUser ? '여성' : ''));
-      final String initialLocation = isAdminEmail
-          ? '서울 마포구 연남동'
-          : (isTestUser ? '전남 여수시 화장동' : '');
+      final String initialGender =
+          customGender ?? (isAdminEmail ? '여성' : (isTestUser ? '여성' : ''));
+      final String initialLocation =
+          isAdminEmail ? '서울 마포구 연남동' : (isTestUser ? '전남 여수시 화장동' : '');
 
       // 구글/카카오 계정의 원본 프로필 사진 URL 우선 적용
       final String? authPhotoUrl = user.photoURL;
@@ -819,9 +824,7 @@ class AuthService {
         'age': customAge ?? (isAdminEmail ? 29 : (isTestUser ? 29 : null)),
         'gender': initialGender,
         'location': initialLocation,
-        'job': isAdminEmail
-            ? 'OOMU 총괄 기획/운영'
-            : (isTestUser ? '프리랜서 디자이너' : ''),
+        'job': isAdminEmail ? 'OOMU 총괄 기획/운영' : (isTestUser ? '프리랜서 디자이너' : ''),
         'mbti': isAdminEmail ? 'ENFJ' : (isTestUser ? 'ENFP' : ''),
         'hobbies': isAdminEmail
             ? ['맛집탐방', '보드게임', '러닝', '전시회']
@@ -853,7 +856,8 @@ class AuthService {
       globalData.userNickname.value = initialNickname;
       globalData.userLocation.value = initialLocation;
       globalData.userAvatar.value = defaultPhoto;
-      globalData.temperature.value = isAdminEmail ? 48.5 : (isTestUser ? 38.5 : 36.5);
+      globalData.temperature.value =
+          isAdminEmail ? 48.5 : (isTestUser ? 38.5 : 36.5);
     } else {
       // 기존 유저의 경우 추가 메타데이터(전화번호 인증 등) 병합 저장
       if (extraData != null && extraData.isNotEmpty) {
@@ -927,7 +931,8 @@ class AuthService {
     String? pet,
   }) async {
     final uid = targetUid ?? _activeAuthUid;
-    if (uid == null || uid != _activeAuthUid) throw StateError('로그인 상태를 확인해 주세요.');
+    if (uid == null || uid != _activeAuthUid)
+      throw StateError('로그인 상태를 확인해 주세요.');
     final int requestSession = globalData.sessionGeneration;
     final cleanPhone = normalizeKoreanMobile(phone);
     if (cleanPhone == null) {
@@ -939,11 +944,17 @@ class AuthService {
     final month = int.parse(digits.substring(4, 6));
     final day = int.parse(digits.substring(6, 8));
     final birth = DateTime(year, month, day);
-    if (birth.year != year || birth.month != month || birth.day != day) throw StateError('올바른 생년월일을 입력해 주세요.');
+    if (birth.year != year || birth.month != month || birth.day != day)
+      throw StateError('올바른 생년월일을 입력해 주세요.');
     final now = DateTime.now();
-    final calculatedAge = now.year - year - (now.month < month || (now.month == month && now.day < day) ? 1 : 0);
-    if (calculatedAge < 19 || calculatedAge > 99) throw StateError('만 19세 이상만 가입할 수 있어요.');
-    if (nickname.trim().isEmpty || location.trim().isEmpty || photoUrls.isEmpty) {
+    final calculatedAge = now.year -
+        year -
+        (now.month < month || (now.month == month && now.day < day) ? 1 : 0);
+    if (calculatedAge < 19 || calculatedAge > 99)
+      throw StateError('만 19세 이상만 가입할 수 있어요.');
+    if (nickname.trim().isEmpty ||
+        location.trim().isEmpty ||
+        photoUrls.isEmpty) {
       throw StateError('닉네임, 활동 동네, 대표 사진을 확인해 주세요.');
     }
 

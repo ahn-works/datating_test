@@ -444,6 +444,13 @@ class _LoginScreenState extends State<LoginScreen>
     if (_isLoading) return;
     _showLoading('카카오 로그인 페이지로 이동 중…');
     try {
+      await authService.loadKakaoConfig();
+      if (authService.kakaoRestApiKey.trim().isEmpty) {
+        if (mounted) {
+          _showToast('카카오 로그인 설정 키가 아직 등록되지 않았어요. 다른 로그인 방법을 이용해 주세요.');
+        }
+        return;
+      }
       final opened = await redirectToExternalUrl(authService.kakaoOAuthUrl);
       if (!opened && mounted) {
         _showToast('카카오 로그인 페이지를 열지 못했어요. 다시 시도해 주세요.');

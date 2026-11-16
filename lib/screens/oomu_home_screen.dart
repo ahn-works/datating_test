@@ -4,7 +4,6 @@ import '../data/oomu_categories.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/firestore_time.dart';
 import '../utils/global_data.dart';
-import '../utils/meetup_member_helper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

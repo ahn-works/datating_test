@@ -32,7 +32,8 @@ class HomeHeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
         scaleDown: 0.96,
         onTap: onLocationTap,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: OomuTokens.touchTargetMin),
+          constraints:
+              const BoxConstraints(minHeight: OomuTokens.touchTargetMin),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -108,28 +109,11 @@ class HomeHeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
                   minWidth: 44,
                   minHeight: OomuTokens.touchTargetMin,
                 ),
-                child: Center(
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      const Icon(
-                        Icons.notifications_none_rounded,
-                        color: OomuTokens.textPrimary,
-                        size: 24,
-                      ),
-                      Positioned(
-                        right: 1,
-                        top: 1,
-                        child: Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            color: OomuTokens.coral,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
+                child: const Center(
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    color: OomuTokens.textPrimary,
+                    size: 24,
                   ),
                 ),
               ),

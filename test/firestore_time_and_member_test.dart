@@ -1,8 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spot10_app/screens/my_page_screen.dart';
+import 'package:spot10_app/screens/profile_edit_screen.dart';
+import 'package:spot10_app/screens/settings_screen.dart';
+import 'package:spot10_app/screens/user_profile_screen.dart';
+import 'package:spot10_app/services/auth_service.dart';
 import 'package:spot10_app/services/meetup_application_service.dart';
 import 'package:spot10_app/utils/firestore_time.dart';
+import 'package:spot10_app/utils/global_data.dart';
 import 'package:spot10_app/utils/meetup_member_helper.dart';
+import 'package:spot10_app/utils/oomu_ui_helpers.dart';
 
 void main() {
   group('1. Firestore 시간 필드 혼용(Timestamp/DateTime/ISO String/int) 정렬 검증', () {
@@ -172,6 +180,63 @@ void main() {
         'maxMembers': 4,
       };
       expect(MeetupMemberHelper.calcRemainingSeats(fullMeetup), equals('모집 마감'));
+    });
+  });
+
+  group('3. 프로필 4화면(MY · 프로필 수정 · 미리보기 · 설정) 단일 진실 공급원(SSOT) 및 가짜 기본값 배제 검증', () {
+    testWidgets('게스트(미설정) 진입 시 4화면이 서로 다른 온도(39.8/36.5/42.0)나 가짜 후기(23개)·본인인증 완료를 표시하지 않고 일관된 미설정 상태를 보여준다', (tester) async {
+      await authService.signInAsGuest();
+
+      // 1. MY (MyPageScreen)
+      await tester.pumpWidget(MaterialApp(
+        key: const ValueKey('app_my'),
+        theme: OomuUiHelpers.buildTheme(),
+        home: const MyPageScreen(),
+      ));
+      await tester.pump();
+      expect(find.text('닉네임 미설정'), findsOneWidget);
+      expect(find.text('동네 미설정'), findsOneWidget);
+      expect(find.text('본인인증 미완료'), findsOneWidget);
+      expect(find.text('정보 없음'), findsOneWidget);
+      expect(find.text('아직 받은 후기가 없어요'), findsOneWidget);
+      expect(find.text('39.8°C'), findsNothing);
+      expect(find.text('재참여 희망 96% · 받은 후기 23개'), findsNothing);
+      expect(find.text('본인인증 완료'), findsNothing);
+
+      // 2. 프로필 수정 (ProfileEditScreen) -> 미리보기 (UserProfileScreen)
+      await tester.pumpWidget(MaterialApp(
+        key: const ValueKey('app_edit'),
+        theme: OomuUiHelpers.buildTheme(),
+        home: const ProfileEditScreen(),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('우리동네_초연'), findsNothing);
+      expect(find.text('프리랜서 디자이너'), findsNothing);
+
+      await tester.tap(find.text('미리보기'));
+      await tester.pumpAndSettle();
+      expect(find.byType(UserProfileScreen), findsOneWidget);
+      expect(find.text('닉네임 미설정'), findsOneWidget);
+      expect(find.text('매너온도 정보 없음'), findsOneWidget);
+      expect(find.text('36.5°C'), findsNothing);
+      expect(find.text('🍻 가볍게 한잔'), findsNothing);
+      expect(find.text('🐶 반려동물 있음'), findsNothing);
+      expect(find.text('✨ 리액션 요정'), findsNothing);
+
+      // 3. 설정 (SettingsScreen)
+      await tester.pumpWidget(MaterialApp(
+        key: const ValueKey('app_settings'),
+        theme: OomuUiHelpers.buildTheme(),
+        home: const SettingsScreen(),
+      ));
+      await tester.pump();
+      expect(find.text('닉네임 미설정'), findsOneWidget);
+      expect(find.text('정보 없음'), findsOneWidget);
+      expect(find.text('동네 미설정 · 본인인증 미완료'), findsOneWidget);
+      expect(find.text('42.0°C'), findsNothing);
+      expect(find.textContaining('본인인증 완료'), findsNothing);
+
+      globalData.resetSession();
     });
   });
 }

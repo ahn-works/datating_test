@@ -708,38 +708,26 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       runSpacing: OomuTokens.s8,
                       children: () {
                         final List<Widget> avatars = [];
-                        final hostAv = (widget.meetup?['hostAvatar'] ?? 'profiles/초연.png').toString();
-                        final hostName = (widget.meetup?['host'] ?? '호스트').toString();
-                        avatars.add(_buildMemberAvatar(hostAv, isHost: true, name: hostName));
+                        final hostAv =
+                            (widget.meetup?['hostAvatar'] ?? '').toString();
+                        final hostName =
+                            (widget.meetup?['host'] ?? '호스트').toString();
+                        avatars.add(_buildMemberAvatar(hostAv,
+                            isHost: true, name: hostName));
 
-                        final rawAvatars = (widget.meetup?['memberAvatars'] is List)
+                        final rawAvatars = (widget.meetup?['memberAvatars']
+                                is List)
                             ? (widget.meetup!['memberAvatars'] as List)
                                 .map((e) => e.toString())
                                 .where((s) => s.isNotEmpty)
                                 .toList()
                             : <String>[];
 
-                        final defaultPool = [
-                          {'avatar': 'assets/images/민지.png', 'name': '망원치즈_민지'},
-                          {'avatar': 'assets/images/지훈.png', 'name': '연남러너_지훈'},
-                          {'avatar': 'assets/images/지연.png', 'name': '성수와인_지연'},
-                          {'avatar': 'assets/images/정재.png', 'name': '동네이웃_정재'},
-                        ];
-
-                        int needed = (memberCount > 1
-                            ? memberCount - 1
-                            : (rawAvatars.isNotEmpty ? rawAvatars.length : 2));
-                        if (needed > 5) needed = 5;
-
-                        for (int i = 0; i < needed; i++) {
-                          if (i < rawAvatars.length) {
-                            avatars.add(_buildMemberAvatar(rawAvatars[i],
-                                isHost: false, name: '참여 이웃 ${i + 1}'));
-                          } else {
-                            final fallback = defaultPool[i % defaultPool.length];
-                            avatars.add(_buildMemberAvatar(fallback['avatar']!,
-                                isHost: false, name: fallback['name']!));
-                          }
+                        for (int i = 0;
+                            i < rawAvatars.length && i < 5;
+                            i++) {
+                          avatars.add(_buildMemberAvatar(rawAvatars[i],
+                              isHost: false, name: '참여 이웃 ${i + 1}'));
                         }
                         return avatars;
                       }(),
@@ -890,7 +878,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     final hostName = (widget.meetup != null ? (widget.meetup!['host'] ?? '모임 호스트') : '모임 호스트').toString();
     final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
         ? widget.meetup!['hostAvatar'].toString()
-        : 'assets/images/민지.png';
+        : '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

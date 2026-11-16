@@ -772,8 +772,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
       body: ValueListenableBuilder<String>(
         valueListenable: globalData.currentUserId,
         builder: (context, activeUid, _) {
-          final bool canQueryFirestore =
-              Firebase.apps.isNotEmpty && activeUid.isNotEmpty;
+          final bool canQueryFirestore = Firebase.apps.isNotEmpty &&
+              activeUid.isNotEmpty &&
+              activeUid != 'guest';
           return StreamBuilder<DocumentSnapshot>(
             stream: canQueryFirestore
                 ? FirebaseFirestore.instance
@@ -786,26 +787,29 @@ class _MyPageScreenState extends State<MyPageScreen> {
               String nickname = globalData.userNickname.value.isNotEmpty
                   ? globalData.userNickname.value
                   : '닉네임 미설정';
-              String name = '';
-              int age = 0;
-              String gender = '';
+              String name = globalData.userName.value;
+              int age = globalData.userAge.value;
+              String gender = globalData.userGender.value;
               String location = globalData.userLocation.value.isNotEmpty
                   ? globalData.userLocation.value
                   : '동네 미설정';
-              String bio = '자기소개가 아직 등록되지 않았어요.';
-              String job = '';
-              String mbti = '';
-              String smoking = '비흡연';
-              String pet = '반려동물 있음';
-              int joinedCount = 0;
-              int myPostsCount = 0;
-              int reviewCount = 0;
-              List<String> hobbies = [];
+              String bio = globalData.userBio.value;
+              String job = globalData.userJob.value;
+              String mbti = globalData.userMbti.value;
+              String smoking = globalData.userSmoking.value;
+              String pet = globalData.userPet.value;
+              int joinedCount = globalData.joinedMeetupsCount.value;
+              int myPostsCount = globalData.myPostsCount.value;
+              int reviewCount = globalData.reviewCount.value;
+              bool isVerified = globalData.isPhoneVerified.value;
+              double? loadedManner;
+              String? loadedAvatar;
+              List<String> hobbies = List<String>.from(globalData.userHobbies.value);
               List<String> closeFriendPersonalities = [];
               List<String> values = [];
-              List<String> personalities = [];
-              List<String> drinking = [];
-              List<String> userPhotos = [];
+              List<String> personalities = List<String>.from(globalData.userPersonalities.value);
+              List<String> drinking = List<String>.from(globalData.userDrinking.value);
+              List<String> userPhotos = List<String>.from(globalData.userPhotos.value);
 
               try {
                 if (snapshot.hasData &&
@@ -889,6 +893,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       reviewCount = 0;
                     }
 
+                    if (data['isPhoneVerified'] is bool) {
+                      isVerified = data['isPhoneVerified'] as bool;
+                    } else if (data['isVerified'] is bool) {
+                      isVerified = data['isVerified'] as bool;
+                    }
+
+                    loadedManner = OomuUiHelpers.parseMannerTemp(data);
+
                     if (data['photoUrls'] is List) {
                       userPhotos = List<String>.from(
                           (data['photoUrls'] as List).map((e) => e.toString()));
@@ -897,41 +909,24 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       userPhotos = [data['photoUrl'].toString()];
                     }
 
-                    final loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])
+                    loadedAvatar = (data['photoUrl'] ?? data['avatarUrl'])
                         ?.toString()
                         .trim();
-                    if (loadedAvatar != null &&
-                        loadedAvatar.isNotEmpty &&
-                        globalData.userAvatar.value != loadedAvatar) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted && globalData.activeUserId == activeUid) {
-                          globalData.userAvatar.value = loadedAvatar;
-                        }
-                      });
-                    }
-                    if (loadedNick != null &&
-                        loadedNick.isNotEmpty &&
-                        globalData.userNickname.value != loadedNick) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted && globalData.activeUserId == activeUid) {
-                          globalData.userNickname.value = loadedNick;
-                        }
-                      });
-                    }
-                    if (loadedLoc != null &&
-                        loadedLoc.isNotEmpty &&
-                        globalData.userLocation.value != loadedLoc) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted && globalData.activeUserId == activeUid) {
-                          globalData.userLocation.value = loadedLoc;
-                        }
-                      });
-                    }
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted && globalData.activeUserId == activeUid) {
+                        globalData.applyProfileData(data);
+                      }
+                    });
                   }
                 }
               } catch (e) {
                 debugPrint('MyPage data parse error: $e');
               }
+
+              final effectiveAvatar =
+                  (loadedAvatar != null && loadedAvatar.isNotEmpty)
+                      ? loadedAvatar
+                      : globalData.userAvatar.value;
 
               return ListView(
                 padding: const EdgeInsets.all(24),
@@ -1011,9 +1006,10 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     userAge: age > 0 ? '$age' : '',
                                     userLocation: location,
                                     userBio: bio,
-                                    userAvatar: globalData.userAvatar.value,
-                                    userManner: OomuUiHelpers.parseMannerValue(
-                                        globalData.temperature.value),
+                                    userAvatar: effectiveAvatar,
+                                    userManner: loadedManner ??
+                                        OomuUiHelpers.parseMannerValue(
+                                            globalData.temperature.value),
                                     userTags: hobbies.isNotEmpty
                                         ? hobbies
                                         : personalities,
@@ -1036,8 +1032,16 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               child: SizedBox(
                                 width: 64,
                                 height: 64,
-                                child: _buildAvatarImage(
-                                    globalData.userAvatar.value),
+                                child: ValueListenableBuilder<String>(
+                                  valueListenable: globalData.userAvatar,
+                                  builder: (context, avatarVal, _) {
+                                    final currentAvatar = (loadedAvatar != null &&
+                                            loadedAvatar.isNotEmpty)
+                                        ? loadedAvatar
+                                        : avatarVal;
+                                    return _buildAvatarImage(currentAvatar);
+                                  },
+                                ),
                               ),
                             ),
                           ),
@@ -1078,11 +1082,18 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                       style: TextStyle(
                                           color: Color(0xFF8E8E93),
                                           fontSize: 12)),
-                                  const Icon(Icons.verified_user_rounded,
-                                      color: Color(0xFF10B981), size: 13),
-                                  const Text(
-                                    '본인인증 완료',
-                                    style: TextStyle(
+                                  Icon(
+                                    isVerified
+                                        ? Icons.verified_user_rounded
+                                        : Icons.info_outline_rounded,
+                                    color: isVerified
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFF8E8E93),
+                                    size: 13,
+                                  ),
+                                  Text(
+                                    isVerified ? '본인인증 완료' : '본인인증 미완료',
+                                    style: const TextStyle(
                                       color: Color(0xFF8E8E93),
                                       fontSize: 12,
                                     ),
@@ -1152,12 +1163,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         valueListenable: globalData.temperature,
                         builder: (context, temp, _) {
                           final parsed = OomuUiHelpers.parseMannerValue(temp);
-                          final manner =
-                              activeUid.isEmpty ? parsed : (parsed ?? 39.8);
+                          final manner = loadedManner ?? parsed;
                           final hasManner = manner != null;
                           final progress = hasManner
                               ? ((manner - 30.0) / 70.0).clamp(0.0, 1.0)
-                              : 0.62;
+                              : 0.0;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1211,9 +1221,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              const Text(
-                                '재참여 희망 96% · 받은 후기 23개',
-                                style: TextStyle(
+                              Text(
+                                reviewCount > 0
+                                    ? '받은 후기 $reviewCount개'
+                                    : '아직 받은 후기가 없어요',
+                                style: const TextStyle(
                                   color: Color(0xFF8E8E93),
                                   fontSize: 12,
                                 ),
@@ -1490,22 +1502,23 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   Widget _buildAvatarImage(String? url) {
-    final effectiveUrl = (url != null && url.trim().isNotEmpty)
-        ? url.trim()
-        : 'assets/images/p_choyeon.jpg';
+    final effectiveUrl = (url ?? '').trim();
+    if (effectiveUrl.isEmpty) {
+      return Container(
+        color: const Color(0xFFF3F4F6),
+        alignment: Alignment.center,
+        child: const Icon(Icons.person_outline_rounded,
+            color: Color(0xFF9CA3AF), size: 32),
+      );
+    }
     return Image(
-      image: appImg(effectiveUrl, fallback: 'assets/images/p_choyeon.jpg'),
+      image: appImg(effectiveUrl),
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => Image.asset(
-        'assets/images/p_choyeon.jpg',
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Image.asset(
-          'assets/images/초연.png',
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Center(
-            child: Icon(Icons.person, color: Color(0xFF8E8E93), size: 36),
-          ),
-        ),
+      errorBuilder: (_, __, ___) => Container(
+        color: const Color(0xFFF3F4F6),
+        alignment: Alignment.center,
+        child: const Icon(Icons.person_outline_rounded,
+            color: Color(0xFF9CA3AF), size: 32),
       ),
     );
   }
@@ -1520,9 +1533,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
       if (authUid.isNotEmpty) authUid,
     };
     final userNicks = <String>{
-      if (currentNick.isNotEmpty) currentNick,
-      '연남러너_지훈',
-      '초연',
+      if (currentNick.isNotEmpty && activeUid != 'guest') currentNick,
     };
 
     showModalBottomSheet(
@@ -1827,7 +1838,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 ),
                 const SizedBox(height: 16),
                 StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                  stream: activeUid.isEmpty
+                  stream: (activeUid.isEmpty ||
+                          activeUid == 'guest' ||
+                          Firebase.apps.isEmpty)
                       ? null
                       : FirebaseFirestore.instance
                           .collection('users')

@@ -60,11 +60,25 @@ class GlobalData {
     userAvatar.value = '';
     userLocation.value = '';
     userNickname.value = '';
+    userName.value = '';
+    userAge.value = 0;
+    userGender.value = '';
+    userBio.value = '';
+    userJob.value = '';
+    userMbti.value = '';
+    userSmoking.value = '';
+    userPet.value = '';
+    userHobbies.value = [];
+    userPersonalities.value = [];
+    userDrinking.value = [];
+    userPhotos.value = [];
     userPhone.value = '';
     isPhoneVerified.value = false;
     temperature.value = 0.0;
     rating.value = 0.0;
     reviewCount.value = 0;
+    joinedMeetupsCount.value = 0;
+    myPostsCount.value = 0;
     recentReviews.value = [];
     savedMeetups.value = [];
     blockedUsers.value = [];
@@ -72,15 +86,77 @@ class GlobalData {
     reportHistory.value = [];
   }
 
+  static List<String> _parseList(dynamic v) {
+    if (v is List) {
+      return v
+          .map((e) => e?.toString().trim() ?? '')
+          .where((s) => s.isNotEmpty)
+          .toList();
+    }
+    if (v is String && v.trim().isNotEmpty) {
+      return [v.trim()];
+    }
+    return <String>[];
+  }
+
   void applyProfileData(Map<String, dynamic>? data) {
     if (data == null) return;
-    final loc = (data['location'] as String?)?.trim();
+    final loc = (data['location'] ?? data['address'])?.toString().trim();
     if (loc != null && loc.isNotEmpty) {
       userLocation.value = loc;
     }
     final nick = (data['nickname'] as String?)?.trim();
     if (nick != null && nick.isNotEmpty) {
       userNickname.value = nick;
+    }
+    final nm = (data['name'] as String?)?.trim();
+    if (nm != null && nm.isNotEmpty) {
+      userName.value = nm;
+    }
+    final rawAge = data['age'];
+    if (rawAge is int && rawAge > 0) {
+      userAge.value = rawAge;
+    } else if (rawAge != null) {
+      final parsedAge = int.tryParse(rawAge.toString().trim());
+      if (parsedAge != null && parsedAge > 0) {
+        userAge.value = parsedAge;
+      }
+    }
+    final g = data['gender']?.toString().trim();
+    if (g != null && g.isNotEmpty) {
+      userGender.value = g;
+    }
+    final b = data['bio']?.toString().trim();
+    if (b != null && b.isNotEmpty) {
+      userBio.value = b;
+    }
+    final j = data['job']?.toString().trim();
+    if (j != null && j.isNotEmpty) {
+      userJob.value = j;
+    }
+    final m = data['mbti']?.toString().trim();
+    if (m != null && m.isNotEmpty) {
+      userMbti.value = m;
+    }
+    final sm = data['smoking']?.toString().trim();
+    if (sm != null && sm.isNotEmpty) {
+      userSmoking.value = sm;
+    }
+    final pt = data['pet']?.toString().trim();
+    if (pt != null && pt.isNotEmpty) {
+      userPet.value = pt;
+    }
+    final hobbies = _parseList(data['hobbies'] ?? data['interests']);
+    if (hobbies.isNotEmpty) {
+      userHobbies.value = hobbies;
+    }
+    final personalities = _parseList(data['personalities']);
+    if (personalities.isNotEmpty) {
+      userPersonalities.value = personalities;
+    }
+    final drinking = _parseList(data['drinking']);
+    if (drinking.isNotEmpty) {
+      userDrinking.value = drinking;
     }
     final avatar = (data['photoUrl'] ??
             data['profileImage'] ??
@@ -91,6 +167,12 @@ class GlobalData {
     if (avatar != null && avatar.isNotEmpty) {
       userAvatar.value = avatar;
     }
+    final photos = _parseList(data['photoUrls']);
+    if (photos.isNotEmpty) {
+      userPhotos.value = photos;
+    } else if (avatar != null && avatar.isNotEmpty) {
+      userPhotos.value = [avatar];
+    }
     final rawTemp = data['mannerTemp'] ?? data['manner'] ?? data['temperature'];
     if (rawTemp is num && rawTemp.toDouble() > 0) {
       temperature.value = rawTemp.toDouble();
@@ -99,6 +181,25 @@ class GlobalData {
       if (parsed != null && parsed > 0) {
         temperature.value = parsed;
       }
+    }
+    if (data['reviewCount'] is num) {
+      reviewCount.value = (data['reviewCount'] as num).toInt();
+    } else if (data['reviewsCount'] is num) {
+      reviewCount.value = (data['reviewsCount'] as num).toInt();
+    } else if (data['reviews'] is List) {
+      reviewCount.value = (data['reviews'] as List).length;
+    }
+    if (data['joinedMeetupsCount'] is num) {
+      joinedMeetupsCount.value = (data['joinedMeetupsCount'] as num).toInt();
+    } else if (data['joinedMeetupIds'] is List) {
+      joinedMeetupsCount.value = (data['joinedMeetupIds'] as List).length;
+    } else if (data['tripCount'] is num) {
+      joinedMeetupsCount.value = (data['tripCount'] as num).toInt();
+    }
+    if (data['myPostsCount'] is num) {
+      myPostsCount.value = (data['myPostsCount'] as num).toInt();
+    } else if (data['postCount'] is num) {
+      myPostsCount.value = (data['postCount'] as num).toInt();
     }
     if (data['savedMeetups'] is List && (data['savedMeetups'] as List).isNotEmpty) {
       savedMeetups.value = (data['savedMeetups'] as List)
@@ -124,6 +225,8 @@ class GlobalData {
     }
     if (data['isPhoneVerified'] is bool) {
       isPhoneVerified.value = data['isPhoneVerified'] as bool;
+    } else if (data['isVerified'] is bool) {
+      isPhoneVerified.value = data['isVerified'] as bool;
     }
   }
 
@@ -180,12 +283,26 @@ class GlobalData {
     }
   }
 
-  // 사용자 프로필 및 위치 (미설정 상태: 빈 문자열)
+  // 사용자 프로필 및 위치 (미설정 상태: 빈 문자열 / 0 / 빈 리스트)
   final ValueNotifier<String> userAvatar = ValueNotifier<String>('');
   final ValueNotifier<String> userLocation = ValueNotifier<String>('');
   final ValueNotifier<String> userNickname = ValueNotifier<String>('');
+  final ValueNotifier<String> userName = ValueNotifier<String>('');
+  final ValueNotifier<int> userAge = ValueNotifier<int>(0);
+  final ValueNotifier<String> userGender = ValueNotifier<String>('');
+  final ValueNotifier<String> userBio = ValueNotifier<String>('');
+  final ValueNotifier<String> userJob = ValueNotifier<String>('');
+  final ValueNotifier<String> userMbti = ValueNotifier<String>('');
+  final ValueNotifier<String> userSmoking = ValueNotifier<String>('');
+  final ValueNotifier<String> userPet = ValueNotifier<String>('');
+  final ValueNotifier<List<String>> userHobbies = ValueNotifier<List<String>>([]);
+  final ValueNotifier<List<String>> userPersonalities = ValueNotifier<List<String>>([]);
+  final ValueNotifier<List<String>> userDrinking = ValueNotifier<List<String>>([]);
+  final ValueNotifier<List<String>> userPhotos = ValueNotifier<List<String>>([]);
   final ValueNotifier<String> userPhone = ValueNotifier<String>('');
   final ValueNotifier<bool> isPhoneVerified = ValueNotifier<bool>(false);
+  final ValueNotifier<int> joinedMeetupsCount = ValueNotifier<int>(0);
+  final ValueNotifier<int> myPostsCount = ValueNotifier<int>(0);
 
   // 내가 찜한 모임 (사용자별 상태)
   final ValueNotifier<List<Map<String, dynamic>>> savedMeetups =

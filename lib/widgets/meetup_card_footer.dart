@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
+import '../utils/meetup_member_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
 
 /// A consistent baseline for identity and attendance, with a stacked alternative
@@ -31,15 +32,12 @@ class MeetupCardFooter extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: OomuUiHelpers.textPrimary))),
         ]);
-        String? membersStr;
-        if (meetup['members'] is List) {
-          membersStr = '${(meetup['members'] as List).length}';
-        } else if (meetup['members'] != null &&
-            meetup['members'].toString().trim().isNotEmpty) {
-          membersStr = meetup['members'].toString().trim();
-        } else if (meetup['currentMembers'] != null) {
-          membersStr = meetup['currentMembers'].toString();
-        }
+        final bool hasMemberData = meetup['members'] != null ||
+            meetup['participantIds'] != null ||
+            meetup['currentMembers'] != null;
+        final String? membersStr = hasMemberData
+            ? MeetupMemberHelper.formatMembersLabel(meetup)
+            : null;
         final attendance = Text(
             membersStr == null ? '참여 인원 확인 필요' : '$membersStr명 참여',
             style: const TextStyle(

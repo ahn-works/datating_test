@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -72,6 +71,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   late String _userGender;
   late String _userSmoking;
   late String _userPet;
+  bool _isVerified = false;
 
   @override
   void initState() {
@@ -97,6 +97,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     _userGender = widget.userGender ?? '';
     _userSmoking = widget.userSmoking ?? '';
     _userPet = widget.userPet ?? '';
+    if (widget.isSelf) {
+      _isVerified = globalData.isPhoneVerified.value;
+    }
   }
 
   Future<void> _fetchUserData() async {
@@ -134,9 +137,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         if (av != null && av.isNotEmpty) {
           _userAvatar = av;
         }
-        final mannerVal = data['mannerTemp'] ?? data['manner'];
-        if (mannerVal is num) {
-          _userManner = mannerVal.toDouble();
+        final mannerVal = OomuUiHelpers.parseMannerTemp(data);
+        if (mannerVal != null) {
+          _userManner = mannerVal;
+        }
+        if (data['isPhoneVerified'] is bool) {
+          _isVerified = data['isPhoneVerified'] as bool;
+        } else if (data['isVerified'] is bool) {
+          _isVerified = data['isVerified'] as bool;
         }
         final jobVal = data['job']?.toString();
         if (jobVal != null && jobVal.isNotEmpty) {
@@ -184,19 +192,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   void _syncFromGlobalData() {
     setState(() {
-      if (globalData.userNickname.value.isNotEmpty) {
+      if ((_userName.isEmpty || _userName == '닉네임 미설정') &&
+          globalData.userNickname.value.isNotEmpty) {
         _userName = globalData.userNickname.value;
       }
-      if (globalData.userLocation.value.isNotEmpty) {
+      if ((_userLocation.isEmpty || _userLocation == '동네 미설정') &&
+          globalData.userLocation.value.isNotEmpty) {
         _userLocation = globalData.userLocation.value;
       }
-      if (globalData.userAvatar.value.isNotEmpty) {
+      if ((_userAvatar == null || _userAvatar!.isEmpty) &&
+          globalData.userAvatar.value.isNotEmpty) {
         _userAvatar = globalData.userAvatar.value;
         if (_userPhotos.isEmpty) _userPhotos = [_userAvatar!];
       }
-      if (globalData.temperature.value > 0) {
-        _userManner = globalData.temperature.value;
+      if (_userManner == null && globalData.temperature.value > 0) {
+        _userManner =
+            OomuUiHelpers.parseMannerValue(globalData.temperature.value);
       }
+      _isVerified = globalData.isPhoneVerified.value;
     });
   }
 
@@ -329,31 +342,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final displayAge = _userAge;
+    final displayAge = _userAge.trim();
     final displayLocation =
-        _userLocation.isNotEmpty ? _userLocation : '동네 이웃';
-    final displayBio = _userBio.isNotEmpty
-        ? _userBio
-        : '안녕하세요! OOMU에서 취향이 맞는 동네 친구들을 만나고 싶어요 ✨';
-    final String defaultAvatar = kIsWeb ? 'assets/images/choyeon.png' : 'assets/images/초연.png';
-    final displayAvatar = (_userAvatar != null && _userAvatar!.isNotEmpty)
-        ? _userAvatar!
-        : defaultAvatar;
+        _userLocation.trim().isNotEmpty ? _userLocation.trim() : '동네 미설정';
+    final displayBio = _userBio.trim().isNotEmpty
+        ? _userBio.trim()
+        : '아직 등록된 한줄 소개가 없어요.';
+    final cleanAvatar = (_userAvatar ?? '').trim();
     final double? displayManner = _userManner;
-    final displayJob = _userJob;
-    final displayMbti = _userMbti;
-    final userPhotos = _userPhotos;
+    final displayJob = _userJob.trim();
+    final displayMbti = _userMbti.trim();
+    final userPhotos =
+        _userPhotos.map((e) => e.trim()).where((s) => s.isNotEmpty).toList();
 
-    final String fallbackPhoto = (_userName.contains('초연') || widget.isSelf)
-        ? defaultAvatar
-        : (kIsWeb ? 'assets/images/minji.png' : 'assets/images/민지.png');
-
-    final effectivePersonalities = _userPersonalities.isNotEmpty
-        ? _userPersonalities
-        : ['리액션 요정', '친화력 갑'];
-    final effectiveHobbies = _userHobbies.isNotEmpty
-        ? _userHobbies
-        : ['맛집탐방', '카페투어'];
+    final effectivePersonalities = _userPersonalities
+        .map((e) => e.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final effectiveHobbies = _userHobbies
+        .map((e) => e.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final effectiveDrinking = _userDrinking
+        .map((e) => e.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final cleanGender = _userGender.trim();
+    final cleanSmoking = _userSmoking.trim();
+    final cleanPet = _userPet.trim();
+    final bool hasBasicInfo = displayJob.isNotEmpty ||
+        displayMbti.isNotEmpty ||
+        effectiveDrinking.isNotEmpty ||
+        displayAge.isNotEmpty ||
+        cleanGender.isNotEmpty ||
+        cleanSmoking.isNotEmpty ||
+        cleanPet.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -385,17 +408,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  PageView(
-                    children: userPhotos.isNotEmpty
-                        ? userPhotos
-                            .map((p) => appNetImage(p,
-                                fit: BoxFit.cover, fallback: fallbackPhoto))
-                            .toList()
-                        : [
-                            appNetImage(displayAvatar,
-                                fit: BoxFit.cover, fallback: fallbackPhoto),
-                          ],
-                  ),
+                  if (userPhotos.isNotEmpty)
+                    PageView(
+                      children: userPhotos
+                          .map((p) => appNetImage(p, fit: BoxFit.cover))
+                          .toList(),
+                    )
+                  else if (cleanAvatar.isNotEmpty)
+                    appNetImage(cleanAvatar, fit: BoxFit.cover)
+                  else
+                    Container(
+                      color: const Color(0xFF3F3F46),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: Colors.white54,
+                        size: 96,
+                      ),
+                    ),
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -426,7 +456,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           spacing: 8,
                           runSpacing: 6,
                           children: [
-                            Text(_userName,
+                            Text(
+                                _userName.trim().isNotEmpty
+                                    ? _userName.trim()
+                                    : '닉네임 미설정',
                                 style: const TextStyle(
                                     fontSize: OomuTokens.fsSplash,
                                     fontWeight: OomuTokens.w700,
@@ -437,8 +470,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       fontSize: OomuTokens.fs20,
                                       fontWeight: OomuTokens.w400,
                                       color: Colors.white70)),
-                            const Icon(Icons.verified,
-                                color: OomuTokens.coral, size: 20),
+                            if (_isVerified)
+                              const Icon(Icons.verified,
+                                  color: OomuTokens.coral, size: 20),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -449,7 +483,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                '$displayLocation · 동네 이웃',
+                                displayLocation,
                                 style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: OomuTokens.fs15,
@@ -554,45 +588,59 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      if (displayJob.isNotEmpty)
-                        OomuTag(label: '💼 $displayJob'),
-                      if (displayMbti.isNotEmpty)
-                        OomuTag(label: '🎨 $displayMbti'),
-                      if (_userDrinking.isNotEmpty)
-                        OomuTag(label: '🍻 ${_userDrinking.join(", ")}')
-                      else
-                        const OomuTag(label: '🍻 가볍게 한잔'),
-                      if (displayAge.isNotEmpty)
-                        OomuTag(label: '🎂 $displayAge세'),
-                      if (_userGender.isNotEmpty)
-                        OomuTag(label: '👤 $_userGender'),
-                      OomuTag(label: _userSmoking.isNotEmpty ? '🚭 $_userSmoking' : '🚭 비흡연'),
-                      OomuTag(label: _userPet.isNotEmpty ? '🐶 $_userPet' : '🐶 반려동물 있음'),
-                    ],
-                  ),
+                  if (hasBasicInfo)
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        if (displayJob.isNotEmpty)
+                          OomuTag(label: '💼 $displayJob'),
+                        if (displayMbti.isNotEmpty)
+                          OomuTag(label: '🎨 $displayMbti'),
+                        if (effectiveDrinking.isNotEmpty)
+                          OomuTag(label: '🍻 ${effectiveDrinking.join(", ")}'),
+                        if (displayAge.isNotEmpty)
+                          OomuTag(label: '🎂 $displayAge세'),
+                        if (cleanGender.isNotEmpty)
+                          OomuTag(label: '👤 $cleanGender'),
+                        if (cleanSmoking.isNotEmpty)
+                          OomuTag(label: '🚭 $cleanSmoking'),
+                        if (cleanPet.isNotEmpty)
+                          OomuTag(label: '🐶 $cleanPet'),
+                      ],
+                    )
+                  else
+                    const Text(
+                      '등록된 기본 정보가 없어요.',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textMuted),
+                    ),
                   const SizedBox(height: OomuTokens.s20),
 
                   // 2. Personality & Charm Tags
-                  if (effectivePersonalities.isNotEmpty) ...[
-                    const Text('성격 및 매력 태그',
-                        style: TextStyle(
-                            fontSize: OomuTokens.fs16,
-                            fontWeight: OomuTokens.w700,
-                            color: OomuTokens.textPrimary)),
-                    const SizedBox(height: 12),
+                  const Text('성격 및 매력 태그',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs16,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary)),
+                  const SizedBox(height: 12),
+                  if (effectivePersonalities.isNotEmpty)
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: effectivePersonalities
                           .map((p) => OomuTag(label: '✨ $p'))
                           .toList(),
+                    )
+                  else
+                    const Text(
+                      '등록된 성격 태그가 없어요.',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textMuted),
                     ),
-                    const SizedBox(height: OomuTokens.s20),
-                  ],
+                  const SizedBox(height: OomuTokens.s20),
 
                   // 3. Bio / Introduction
                   const Text('한줄 소개',
@@ -611,13 +659,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: effectiveHobbies
-                        .map((hobby) => OomuTag(label: '#$hobby'))
-                        .toList(),
-                  ),
+                  if (effectiveHobbies.isNotEmpty)
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: effectiveHobbies
+                          .map((hobby) => OomuTag(label: '#$hobby'))
+                          .toList(),
+                    )
+                  else
+                    const Text(
+                      '등록된 관심사가 없어요.',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textMuted),
+                    ),
                   const SizedBox(height: OomuTokens.s32),
                 ],
               ),

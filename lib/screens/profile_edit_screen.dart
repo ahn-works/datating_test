@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
+import '../utils/oomu_ui_helpers.dart';
 import '../utils/app_image.dart';
 import '../services/r2_storage_service.dart';
 import 'user_profile_screen.dart';
@@ -30,9 +32,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _jobController = TextEditingController();
   final TextEditingController _mbtiController = TextEditingController();
 
-  String _gender = '여성';
+  String _gender = '';
   String _role = 'user';
-  String _avatarUrl = 'assets/images/초연.png';
+  String _avatarUrl = '';
 
   final List<String> _availableHobbies = [
     '맛집탐방',
@@ -73,13 +75,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     '흡연',
     '전자담배',
   ];
-  List<String> _selectedSmoking = ['비흡연'];
+  List<String> _selectedSmoking = [];
 
   final List<String> _availablePet = [
     '반려동물 있음',
     '반려동물 없음',
   ];
-  List<String> _selectedPet = ['반려동물 있음'];
+  List<String> _selectedPet = [];
   List<String> _photoUrls = [];
 
   bool _isLoading = true;
@@ -107,61 +109,75 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _loadProfile() async {
     try {
-      final gAvatar = globalData.userAvatar.value;
-      final gNick = globalData.userNickname.value;
-      final gLoc = globalData.userLocation.value;
+      _nicknameController.text = globalData.userNickname.value;
+      _nameController.text = globalData.userName.value;
+      _ageController.text =
+          globalData.userAge.value > 0 ? '${globalData.userAge.value}' : '';
+      _gender = globalData.userGender.value;
+      _locationController.text = globalData.userLocation.value;
+      _bioController.text = globalData.userBio.value;
+      _jobController.text = globalData.userJob.value;
+      _mbtiController.text = globalData.userMbti.value;
+      _selectedHobbies = List<String>.from(globalData.userHobbies.value);
+      _selectedPersonalities =
+          List<String>.from(globalData.userPersonalities.value);
+      _selectedDrinking = List<String>.from(globalData.userDrinking.value);
+      _selectedSmoking = globalData.userSmoking.value.isNotEmpty
+          ? [globalData.userSmoking.value]
+          : <String>[];
+      _selectedPet = globalData.userPet.value.isNotEmpty
+          ? [globalData.userPet.value]
+          : <String>[];
+      _avatarUrl = globalData.userAvatar.value;
+      _photoUrls = List<String>.from(globalData.userPhotos.value);
 
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(globalData.activeUserId)
-          .get();
-      if (doc.exists) {
-        final data = doc.data()!;
-        _nicknameController.text =
-            data['nickname'] ?? (gNick.isNotEmpty ? gNick : '우리동네_초연');
-        _nameController.text = data['name'] ?? '초연';
-        _ageController.text = (data['age'] ?? 28).toString();
-        _gender = data['gender'] ?? '여성';
-        _role = data['role'] ?? 'user';
-        _locationController.text =
-            data['location'] ?? (gLoc.isNotEmpty ? gLoc : '전남 여수시 화장동');
-        _bioController.text =
-            data['bio'] ?? '동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊';
-        _jobController.text = data['job'] ?? '프리랜서 디자이너';
-        _mbtiController.text = data['mbti'] ?? 'ENFP';
-        _selectedHobbies = _parseSafeList(data['hobbies'], ['맛집탐방', '카페투어']);
-        _selectedPersonalities =
-            _parseSafeList(data['personalities'], ['리액션 요정', '친화력 갑']);
-        _selectedDrinking = _parseSafeList(data['drinking'], ['가볍게 한잔']);
-        _selectedSmoking = _parseSafeList(data['smoking'], ['비흡연']);
-        _selectedPet = _parseSafeList(data['pet'], ['반려동물 있음']);
-        final loadedAvatar =
-            (data['photoUrl'] ?? data['avatarUrl'])?.toString().trim();
-        _avatarUrl = (loadedAvatar != null && loadedAvatar.isNotEmpty)
-            ? loadedAvatar
-            : (gAvatar.isNotEmpty ? gAvatar : 'assets/images/초연.png');
-        if (data['photoUrls'] is List) {
-          _photoUrls =
-              (data['photoUrls'] as List).map((e) => e.toString()).toList();
-        } else if (_avatarUrl.isNotEmpty) {
-          _photoUrls = [_avatarUrl];
+      final uid = globalData.activeUserId.trim();
+      if (Firebase.apps.isNotEmpty && uid.isNotEmpty && uid != 'guest') {
+        final doc =
+            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+          globalData.applyProfileData(data);
+          _nicknameController.text =
+              (data['nickname'] ?? _nicknameController.text).toString().trim();
+          _nameController.text =
+              (data['name'] ?? _nameController.text).toString().trim();
+          final rawAge = data['age'];
+          if (rawAge != null && rawAge.toString().trim().isNotEmpty) {
+            _ageController.text = rawAge.toString().trim();
+          }
+          _gender = (data['gender'] ?? _gender).toString().trim();
+          _role = (data['role'] ?? _role).toString().trim();
+          _locationController.text =
+              (data['location'] ?? _locationController.text).toString().trim();
+          _bioController.text =
+              (data['bio'] ?? _bioController.text).toString().trim();
+          _jobController.text =
+              (data['job'] ?? _jobController.text).toString().trim();
+          _mbtiController.text =
+              (data['mbti'] ?? _mbtiController.text).toString().trim();
+          _selectedHobbies = _parseSafeList(
+              data['hobbies'] ?? data['interests'], _selectedHobbies);
+          _selectedPersonalities =
+              _parseSafeList(data['personalities'], _selectedPersonalities);
+          _selectedDrinking =
+              _parseSafeList(data['drinking'], _selectedDrinking);
+          _selectedSmoking = _parseSafeList(data['smoking'], _selectedSmoking);
+          _selectedPet = _parseSafeList(data['pet'], _selectedPet);
+          final loadedAvatar =
+              (data['photoUrl'] ?? data['avatarUrl'])?.toString().trim();
+          if (loadedAvatar != null && loadedAvatar.isNotEmpty) {
+            _avatarUrl = loadedAvatar;
+          }
+          if (data['photoUrls'] is List) {
+            _photoUrls = (data['photoUrls'] as List)
+                .map((e) => e.toString().trim())
+                .where((s) => s.isNotEmpty)
+                .toList();
+          } else if (_avatarUrl.isNotEmpty && _photoUrls.isEmpty) {
+            _photoUrls = [_avatarUrl];
+          }
         }
-      } else {
-        _nicknameController.text = gNick.isNotEmpty ? gNick : '우리동네_초연';
-        _nameController.text = '초연';
-        _ageController.text = '28';
-        _gender = '여성';
-        _role = 'user';
-        _locationController.text = gLoc.isNotEmpty ? gLoc : '전남 여수시 화장동';
-        _bioController.text = '동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 🌿';
-        _jobController.text = '디자인/기획';
-        _mbtiController.text = 'ENFP';
-        _selectedHobbies = ['맛집탐방', '카페투어'];
-        _selectedPersonalities = ['경청하는 편', '긍정적'];
-        _selectedDrinking = ['가볍게 한잔'];
-        _selectedSmoking = ['비흡연'];
-        _selectedPet = ['반려동물 있음'];
-        _avatarUrl = gAvatar.isNotEmpty ? gAvatar : 'assets/images/초연.png';
       }
     } catch (e) {
       debugPrint("Error loading profile: $e");
@@ -208,34 +224,49 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         }
       }
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(globalData.activeUserId)
-          .set({
-        'nickname': nick,
-        'name': _nameController.text.trim(),
-        'age': parsedAge,
-        'gender': _gender,
-        'role': _role,
-        'photoUrls': updatedPhotos,
-        'photoUrl': _avatarUrl,
-        'avatarUrl': _avatarUrl,
-        'location': _locationController.text.trim(),
-        'bio': _bioController.text.trim(),
-        'job': _jobController.text.trim(),
-        'mbti': _mbtiController.text.trim(),
-        'hobbies': _selectedHobbies,
-        'interests': _selectedHobbies,
-        'personalities': _selectedPersonalities,
-        'drinking': _selectedDrinking,
-        'smoking': _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '비흡연',
-        'pet': _selectedPet.isNotEmpty ? _selectedPet.first : '반려동물 있음',
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      final uid = globalData.activeUserId.trim();
+      if (Firebase.apps.isNotEmpty && uid.isNotEmpty && uid != 'guest') {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'nickname': nick,
+          'name': _nameController.text.trim(),
+          'age': parsedAge,
+          'gender': _gender,
+          'role': _role,
+          'photoUrls': updatedPhotos,
+          'photoUrl': _avatarUrl,
+          'avatarUrl': _avatarUrl,
+          'location': _locationController.text.trim(),
+          'bio': _bioController.text.trim(),
+          'job': _jobController.text.trim(),
+          'mbti': _mbtiController.text.trim(),
+          'hobbies': _selectedHobbies,
+          'interests': _selectedHobbies,
+          'personalities': _selectedPersonalities,
+          'drinking': _selectedDrinking,
+          'smoking': _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '',
+          'pet': _selectedPet.isNotEmpty ? _selectedPet.first : '',
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
 
-      globalData.userNickname.value = _nicknameController.text.trim();
+      globalData.userNickname.value = nick;
+      globalData.userName.value = _nameController.text.trim();
+      globalData.userAge.value = parsedAge;
+      globalData.userGender.value = _gender;
       globalData.userLocation.value = _locationController.text.trim();
+      globalData.userBio.value = _bioController.text.trim();
+      globalData.userJob.value = _jobController.text.trim();
+      globalData.userMbti.value = _mbtiController.text.trim();
+      globalData.userHobbies.value = List<String>.from(_selectedHobbies);
+      globalData.userPersonalities.value =
+          List<String>.from(_selectedPersonalities);
+      globalData.userDrinking.value = List<String>.from(_selectedDrinking);
+      globalData.userSmoking.value =
+          _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '';
+      globalData.userPet.value =
+          _selectedPet.isNotEmpty ? _selectedPet.first : '';
       globalData.userAvatar.value = _avatarUrl;
+      globalData.userPhotos.value = updatedPhotos;
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -293,15 +324,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       });
       globalData.updateAvatar(finalAvatar);
 
-      // Immediately sync to active user doc
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(globalData.activeUserId)
-          .set({
-        'photoUrl': finalAvatar,
-        'avatarUrl': finalAvatar,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      // Immediately sync to active user doc (exclude guest)
+      final uid = globalData.activeUserId.trim();
+      if (Firebase.apps.isNotEmpty && uid.isNotEmpty && uid != 'guest') {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'photoUrl': finalAvatar,
+          'avatarUrl': finalAvatar,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -487,11 +518,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         );
       },
     );
-  }
-
-  ImageProvider _getAvatarProvider(String url) {
-    if (url.trim().isEmpty) return const AssetImage('assets/images/초연.png');
-    return appImg(url);
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
@@ -693,7 +719,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           userId: globalData.activeUserId,
           userName: _nicknameController.text.trim().isNotEmpty
               ? _nicknameController.text.trim()
-              : '초연',
+              : '닉네임 미설정',
           userAge: _ageController.text.trim(),
           userLocation: _locationController.text.trim(),
           userBio: _bioController.text.trim(),
@@ -701,15 +727,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           userPhotos: _photoUrls.isNotEmpty
               ? _photoUrls
               : (_avatarUrl.isNotEmpty ? [_avatarUrl] : null),
-          userManner: globalData.temperature.value > 0
-              ? globalData.temperature.value
-              : 36.5,
+          userManner: OomuUiHelpers.parseMannerValue(
+              globalData.temperature.value),
           userJob: _jobController.text.trim(),
           userMbti: _mbtiController.text.trim(),
           userGender: _gender,
           userDrinking: _selectedDrinking,
-          userSmoking: _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '비흡연',
-          userPet: _selectedPet.isNotEmpty ? _selectedPet.first : '반려동물 있음',
+          userSmoking:
+              _selectedSmoking.isNotEmpty ? _selectedSmoking.first : '',
+          userPet: _selectedPet.isNotEmpty ? _selectedPet.first : '',
           userPersonalities: _selectedPersonalities,
           userHobbies: _selectedHobbies,
         ),
@@ -796,13 +822,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             width: 104,
                             height: 104,
                             decoration: BoxDecoration(
-                              color: surfaceColor,
+                              color: const Color(0xFFF3F4F6),
                               shape: BoxShape.circle,
                               border: Border.all(
                                   color: const Color(0xFFE5E5EA), width: 2),
-                              image: DecorationImage(
-                                  image: _getAvatarProvider(_avatarUrl),
-                                  fit: BoxFit.cover),
+                              image: _avatarUrl.trim().isNotEmpty
+                                  ? DecorationImage(
+                                      image: appImg(_avatarUrl),
+                                      fit: BoxFit.cover)
+                                  : null,
                               boxShadow: [
                                 BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.08),
@@ -821,7 +849,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                             color: Colors.white,
                                             strokeWidth: 2)),
                                   )
-                                : null,
+                                : (_avatarUrl.trim().isEmpty
+                                    ? const Center(
+                                        child: Icon(
+                                            Icons.person_outline_rounded,
+                                            color: Color(0xFF9CA3AF),
+                                            size: 46),
+                                      )
+                                    : null),
                           ),
                           Positioned(
                             bottom: 0,

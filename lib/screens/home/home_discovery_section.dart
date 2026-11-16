@@ -51,7 +51,10 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
 
   Future<void> _loadFirestoreTrendEvents() async {
     try {
-      final snap = await FirebaseFirestore.instance.collection('trend_events').limit(50).get();
+      final snap = await FirebaseFirestore.instance
+          .collection('trend_events')
+          .limit(50)
+          .get();
       if (snap.docs.isNotEmpty && mounted) {
         setState(() {
           _firestoreTrendEvents = snap.docs.map((d) {
@@ -85,10 +88,22 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
           loc.contains(widget.currentLocation.split(' ').first);
     }
     if (filter == '콘서트') {
-      return cat.contains('공연·콘서트') || cat.contains('콘서트') || title.contains('콘서트') || tag.contains('콘서트') || title.contains('TOUR') || title.contains('LIVE');
+      return cat.contains('공연·콘서트') ||
+          cat.contains('콘서트') ||
+          title.contains('콘서트') ||
+          tag.contains('콘서트') ||
+          title.contains('TOUR') ||
+          title.contains('LIVE');
     }
-    if (filter == '뮤지컬') return cat.contains('뮤지컬') || tag.contains('뮤지컬') || title.contains('뮤지컬');
-    if (filter == '페스티벌') return cat.contains('페스티벌') || tag.contains('페스티벌') || title.contains('페스티벌') || title.contains('불꽃축제');
+    if (filter == '뮤지컬')
+      return cat.contains('뮤지컬') ||
+          tag.contains('뮤지컬') ||
+          title.contains('뮤지컬');
+    if (filter == '페스티벌')
+      return cat.contains('페스티벌') ||
+          tag.contains('페스티벌') ||
+          title.contains('페스티벌') ||
+          title.contains('불꽃축제');
     if (filter == '스포츠') {
       return cat.contains('스포츠') ||
           title.contains('야구') ||
@@ -96,9 +111,7 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
           title.contains('KBO');
     }
     if (filter == '영화') {
-      return cat.contains('영화') ||
-          cat.contains('CGV') ||
-          title.contains('영화');
+      return cat.contains('영화') || cat.contains('CGV') || title.contains('영화');
     }
     if (filter == '핫플·팝업') {
       return cat.contains('팝업') ||
@@ -120,9 +133,8 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
       return const SizedBox.shrink();
     }
 
-    final filteredItems = allItems
-        .where((it) => _matchesFilter(it, _selectedCategory))
-        .toList();
+    final filteredItems =
+        allItems.where((it) => _matchesFilter(it, _selectedCategory)).toList();
 
     final int totalPages = (filteredItems.length / 2).ceil().clamp(1, 99);
     final int safePage = _currentPageIndex.clamp(0, totalPages - 1);
@@ -211,7 +223,8 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
             height: 48,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
               itemCount: _trendCategories.length,
               separatorBuilder: (_, __) =>
                   const SizedBox(width: OomuTokens.spacingSm),
@@ -476,4 +489,3 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
     );
   }
 }
-

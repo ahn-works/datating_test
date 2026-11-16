@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../services/auth_service.dart';
 import '../utils/global_data.dart';
+import '../utils/oomu_ui_helpers.dart';
 import '../utils/app_image.dart';
 import '../ui/oomu_tokens.dart';
 import 'login_screen.dart';
@@ -57,10 +59,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       return ValueListenableBuilder<String>(
                         valueListenable: globalData.userAvatar,
                         builder: (context, avatar, _) {
-                          final displayName = nickname.isNotEmpty ? nickname : '우리동네_초연';
-                          final displayTemp = temp > 0 ? temp.toStringAsFixed(1) : '42.0';
-                          final displayLoc = location.isNotEmpty ? location : '전남 여수시 화장동';
-                          final displayAvatar = avatar.isNotEmpty ? avatar : 'assets/images/초연.png';
+                          final displayName =
+                              nickname.isNotEmpty ? nickname : '닉네임 미설정';
+                          final parsedTemp =
+                              OomuUiHelpers.parseMannerValue(temp);
+                          final displayTemp = parsedTemp != null
+                              ? '${parsedTemp.toStringAsFixed(1)}°C'
+                              : '정보 없음';
+                          final displayLoc =
+                              location.isNotEmpty ? location : '동네 미설정';
+                          final displayAvatar = avatar.trim();
+                          final verifyLabel = globalData.isPhoneVerified.value
+                              ? '본인인증 완료'
+                              : '본인인증 미완료';
 
                           return GestureDetector(
                             onTap: () {
@@ -90,14 +101,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     width: 52,
                                     height: 52,
                                     decoration: BoxDecoration(
+                                      color: const Color(0xFFF3F4F6),
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                           color: OomuTokens.primary.withValues(alpha: 0.3), width: 2),
-                                      image: DecorationImage(
-                                        image: appImg(displayAvatar),
-                                        fit: BoxFit.cover,
-                                      ),
+                                      image: displayAvatar.isNotEmpty
+                                          ? DecorationImage(
+                                              image: appImg(displayAvatar),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null,
                                     ),
+                                    child: displayAvatar.isEmpty
+                                        ? const Icon(
+                                            Icons.person_outline_rounded,
+                                            color: Color(0xFF9CA3AF),
+                                            size: 26,
+                                          )
+                                        : null,
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -106,12 +127,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       children: [
                                         Row(
                                           children: [
-                                            Text(
-                                              displayName,
-                                              style: TextStyle(
-                                                fontSize: OomuTokens.fs16,
-                                                fontWeight: FontWeight.w800,
-                                                color: OomuTokens.textPrimary,
+                                            Flexible(
+                                              child: Text(
+                                                displayName,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: OomuTokens.fs16,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: OomuTokens.textPrimary,
+                                                ),
                                               ),
                                             ),
                                             const SizedBox(width: 6),
@@ -119,15 +144,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               padding: const EdgeInsets.symmetric(
                                                   horizontal: 6, vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: OomuTokens.primarySubtle,
+                                                color: parsedTemp != null
+                                                    ? OomuTokens.primarySubtle
+                                                    : OomuTokens.surfaceMuted,
                                                 borderRadius: BorderRadius.circular(OomuTokens.r6),
                                               ),
                                               child: Text(
-                                                '$displayTemp°C',
+                                                displayTemp,
                                                 style: TextStyle(
                                                   fontSize: OomuTokens.fs11,
                                                   fontWeight: FontWeight.w800,
-                                                  color: OomuTokens.primary,
+                                                  color: parsedTemp != null
+                                                      ? OomuTokens.primary
+                                                      : OomuTokens.textSecondary,
                                                 ),
                                               ),
                                             ),
@@ -135,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ),
                                         const SizedBox(height: 3),
                                         Text(
-                                          '$displayLoc · 본인인증 완료',
+                                          '$displayLoc · $verifyLabel',
                                           style: TextStyle(fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary),
                                         ),
                                       ],
@@ -511,11 +540,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: OomuTokens.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(dialogContext);
+              await authService.signOut();
+              if (!context.mounted) return;
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(
+                    builder: (_) => const LoginScreen(initialStage: 2)),
                 (_) => false,
               );
             },
