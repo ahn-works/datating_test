@@ -9,6 +9,7 @@ import 'package:spot10_app/screens/profile_edit_screen.dart';
 import 'package:spot10_app/screens/settings_screen.dart';
 import 'package:spot10_app/screens/user_profile_screen.dart';
 import 'package:spot10_app/services/auth_service.dart';
+import 'package:spot10_app/services/kakao_map_service.dart';
 import 'package:spot10_app/services/meetup_application_service.dart';
 import 'package:spot10_app/services/r2_storage_service.dart';
 import 'package:spot10_app/utils/app_image.dart';
@@ -304,6 +305,67 @@ void main() {
       expect(myUserTestWidget, isA<OOMUHomeScreen>());
       expect(globalData.currentUserId.value, 'guest');
       expect(globalData.userNickname.value, '');
+
+      globalData.resetSession();
+    });
+  });
+
+  group('6. [2단계 P1] 거리 상한(25km), 마감 상태 라벨, UID 기반 차단 필터 검증', () {
+    test('거리 계산 및 포맷팅(formatDistance)이 25km 초과 시 "거리 정보 없음"을 반환하고 25km 이내는 km/m로 포맷된다', () {
+      // 500m
+      expect(KakaoMapService.formatDistance(500), '500m');
+      // 1.5km
+      expect(KakaoMapService.formatDistance(1500), '1.5km');
+      // 25km 이하 경계 (24.9km)
+      expect(KakaoMapService.formatDistance(24900), '24.9km');
+      // 25km 초과 (25.1km, 43.8km, 서울->여수 등)
+      expect(KakaoMapService.formatDistance(25001), '거리 정보 없음');
+      expect(KakaoMapService.formatDistance(43800), '거리 정보 없음');
+      // 음수 또는 NaN
+      expect(KakaoMapService.formatDistance(-10), '거리 정보 없음');
+      expect(KakaoMapService.formatDistance(double.nan), '거리 정보 없음');
+
+      // 실측 좌표 계산: 서울역 -> 강남역 약 8.5km (25km 이내)
+      final mClose = KakaoMapService.calculateDistanceInMeters(37.556, 126.972, 37.498, 127.028);
+      expect(mClose < 25000, isTrue);
+      expect(KakaoMapService.formatDistance(mClose).contains('km'), isTrue);
+
+      // 서울역 -> 여수 약 310km (25km 초과)
+      final mFar = KakaoMapService.calculateDistanceInMeters(37.556, 126.972, 34.760, 127.662);
+      expect(mFar > 25000, isTrue);
+      expect(KakaoMapService.formatDistance(mFar), '거리 정보 없음');
+    });
+
+    test('MeetupMemberHelper.isClosed 및 formatStatusLabel이 정원 초과 또는 isClosed 문서에서 마감을 올바르게 판정한다', () {
+      final openMeetup = {'members': ['u1', 'u2'], 'maxMembers': 4};
+      expect(MeetupMemberHelper.isClosed(openMeetup), isFalse);
+      expect(MeetupMemberHelper.formatStatusLabel(openMeetup), '모집 중');
+
+      final fullMeetup = {'members': ['u1', 'u2', 'u3', 'u4'], 'maxMembers': 4};
+      expect(MeetupMemberHelper.isClosed(fullMeetup), isTrue);
+      expect(MeetupMemberHelper.formatStatusLabel(fullMeetup), '마감');
+
+      final explicitClosed = {'members': ['u1'], 'maxMembers': 4, 'isClosed': true};
+      expect(MeetupMemberHelper.isClosed(explicitClosed), isTrue);
+      expect(MeetupMemberHelper.formatStatusLabel(explicitClosed), '마감');
+    });
+
+    test('globalData.blockedUids와 isTargetBlocked가 UID 및 닉네임 차단을 일관되게 감지한다', () {
+      globalData.resetSession();
+      expect(globalData.isTargetBlocked(uid: 'bad_uid_99', nickname: '악성유저'), isFalse);
+
+      globalData.blockUid('bad_uid_99');
+      expect(globalData.isUidBlocked('bad_uid_99'), isTrue);
+      expect(globalData.isTargetBlocked(uid: 'bad_uid_99', nickname: '다른닉네임'), isTrue);
+
+      globalData.unblockUid('bad_uid_99');
+      expect(globalData.isUidBlocked('bad_uid_99'), isFalse);
+      expect(globalData.isTargetBlocked(uid: 'bad_uid_99', nickname: '다른닉네임'), isFalse);
+
+      globalData.blockUser('악성닉네임');
+      expect(globalData.isTargetBlocked(uid: 'good_uid_01', nickname: '악성닉네임'), isTrue);
+      globalData.unblockUser('악성닉네임');
+      expect(globalData.isTargetBlocked(uid: 'good_uid_01', nickname: '악성닉네임'), isFalse);
 
       globalData.resetSession();
     });

@@ -140,7 +140,7 @@ void main() {
         )));
         await tester.pump();
         expect(find.text('여수빵순이'), findsOneWidget);
-        expect(find.text('3/4명 참여'), findsOneWidget);
+        expect(find.text('3/4명'), findsOneWidget);
         expect(tester.takeException(), isNull);
         final hostText = tester.renderObject<RenderBox>(find.text('여수빵순이'));
         expect(hostText.size.width, greaterThan(0));

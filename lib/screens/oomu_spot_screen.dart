@@ -2,7 +2,9 @@ import '../services/kakao_map_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
+import '../utils/global_data.dart';
 import 'chat_screen.dart';
+import 'login_screen.dart';
 import 'oomu_chat_room_screen.dart';
 
 class SoSoSpotScreen extends StatefulWidget {
@@ -877,6 +879,21 @@ class _SoSoSpotDetailScreenState extends State<SoSoSpotDetailScreen> {
   }
 
   void _joinSpot() {
+    final activeUid = globalData.currentUserId.value.trim();
+    if (activeUid.isEmpty || activeUid == 'guest') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('로그인 후 번개 스팟에 합류할 수 있어요.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen(initialStage: 2)),
+      );
+      return;
+    }
+
     setState(() {
       _isJoined = true;
       widget.spot['isJoined'] = true;

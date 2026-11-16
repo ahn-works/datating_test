@@ -236,6 +236,8 @@ class DiscoveryApiService {
     String condition = '선선함';
     int pm10 = 68; // 기본값: 미세먼지 다소 높음 시나리오도 자연스럽게 대응
 
+    bool weatherFetchSuccess = false;
+
     try {
       final keys = await _getApiKeys();
       final owmKey = (keys['openWeatherApiKey'] ?? '').toString().trim();
@@ -256,6 +258,7 @@ class DiscoveryApiService {
           } else {
             condition = '맑음';
           }
+          weatherFetchSuccess = true;
         }
       } else {
         // 무인증 실시간 Open-Meteo 기상 + 대기질(PM10) API 호출
@@ -282,6 +285,7 @@ class DiscoveryApiService {
           } else {
             condition = '맑음';
           }
+          weatherFetchSuccess = true;
         }
         if (results[1].statusCode == 200) {
           final aJson = jsonDecode(results[1].body);
@@ -292,13 +296,15 @@ class DiscoveryApiService {
       debugPrint('[DiscoveryApiService] Weather fallback used: $e');
     }
 
-    final String airLabel =
-        pm10 >= 80 ? '나쁨' : (pm10 >= 45 ? '보통(미세먼지 주의)' : '좋음');
+    final String airLabel = pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : '좋음');
 
     // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합
     String headline;
     String subcopy;
-    if (pm10 >= 45) {
+    if (!weatherFetchSuccess) {
+      headline = '${coords.shortName} 동네 이웃과 나누는 오늘의 추천 레시피';
+      subcopy = '날씨 정보를 불러올 수 없지만, 정갈한 식탁과 감성 레시피를 전해드려요.';
+    } else if (pm10 > 80) {
       headline = '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?';
       subcopy =
           '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 미세먼지($pm10㎍/㎥) 달래줄 감성 식탁과 가벼운 다이어트 레시피를 모았어요.';
@@ -580,8 +586,13 @@ class DiscoveryApiService {
           final badge = (data['badge'] ??
                   (cat.contains('>') ? cat.split('>').last.trim() : cat))
               .toString();
-          final place =
-              (data['place'] ?? data['date'] ?? '우리 동네 핫플레이스').toString();
+          final rawPlace =
+              (data['location'] ?? data['place'] ?? '').toString().trim();
+          final rawPeriod =
+              (data['period'] ?? data['date'] ?? '').toString().trim();
+          final place = rawPlace.isNotEmpty
+              ? rawPlace
+              : (rawPeriod.isNotEmpty ? rawPeriod : '');
 
           return <String, dynamic>{
             'id': d.id,
@@ -589,13 +600,17 @@ class DiscoveryApiService {
             'badge': badge,
             'category': cat,
             'title': title,
-            'subtitle': desc.isNotEmpty ? desc : '놓치면 아쉬운 이번 주 동네 화제 트렌드',
-            'benefit': place,
-            'image': poster.isNotEmpty
-                ? poster
-                : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg',
+            'subtitle': desc.isNotEmpty
+                ? desc
+                : (rawPeriod.isNotEmpty ? rawPeriod : '동네 화제 트렌드'),
+            'benefit': place.isNotEmpty
+                ? place
+                : (rawPeriod.isNotEmpty ? rawPeriod : ''),
+            'image': poster,
             'tip': '동네 이웃들과 함께 가기 좋은 트렌드 핫플 & 공연',
-            'dday': data['dday'] ?? 'D-Day',
+            'dday': (data['dday'] ?? '').toString().isNotEmpty
+                ? data['dday']
+                : (rawPeriod.isNotEmpty ? rawPeriod : '진행중'),
           };
         }).toList();
       }

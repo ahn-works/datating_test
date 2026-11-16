@@ -82,6 +82,7 @@ class GlobalData {
     recentReviews.value = [];
     savedMeetups.value = [];
     blockedUsers.value = [];
+    blockedUids.value = [];
     hiddenPostIds.value = [];
     reportHistory.value = [];
   }
@@ -217,6 +218,12 @@ class GlobalData {
           .where((e) => e.isNotEmpty)
           .toList();
     }
+    if (data['blockedUids'] is List) {
+      blockedUids.value = (data['blockedUids'] as List)
+          .map((e) => e.toString())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
     final phone = (data['phone'] ?? data['phoneNumber'] ?? data['contactPhone'])
         ?.toString()
         .trim();
@@ -318,8 +325,12 @@ class GlobalData {
     'marketing': false,
   });
 
-  // UGC 차단 사용자 목록 (사용자별 상태)
+  // UGC 차단 사용자 목록 (사용자별 상태 - 닉네임 기반)
   final ValueNotifier<List<String>> blockedUsers =
+      ValueNotifier<List<String>>([]);
+
+  // UGC 차단 사용자 목록 (사용자별 상태 - UID 기반 SSOT)
+  final ValueNotifier<List<String>> blockedUids =
       ValueNotifier<List<String>>([]);
 
   // 신고 및 숨김 처리된 콘텐츠 ID 목록 (사용자별 상태)
@@ -330,9 +341,62 @@ class GlobalData {
   final ValueNotifier<List<Map<String, dynamic>>> reportHistory =
       ValueNotifier<List<Map<String, dynamic>>>([]);
 
-  bool isUserBlocked(String? nickname) {
+  bool isUserBlocked(String? nickname, {String? uid}) {
+    if (uid != null && uid.isNotEmpty && blockedUids.value.contains(uid)) {
+      return true;
+    }
     if (nickname == null || nickname.isEmpty) return false;
     return blockedUsers.value.contains(nickname);
+  }
+
+  bool isUidBlocked(String? uid) {
+    if (uid == null || uid.isEmpty) return false;
+    return blockedUids.value.contains(uid);
+  }
+
+  bool isTargetBlocked({String? uid, String? nickname}) {
+    if (uid != null && uid.isNotEmpty && blockedUids.value.contains(uid)) {
+      return true;
+    }
+    if (nickname != null && nickname.isNotEmpty && blockedUsers.value.contains(nickname)) {
+      return true;
+    }
+    return false;
+  }
+
+  void blockUid(String uid, {String? reason}) {
+    if (uid.isEmpty) return;
+    final current = List<String>.from(blockedUids.value);
+    if (!current.contains(uid)) {
+      current.add(uid);
+      blockedUids.value = current;
+
+      try {
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          'blockedUids': FieldValue.arrayUnion([uid]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('[GlobalData] Firestore blockUid sync error: $e');
+      }
+    }
+  }
+
+  void unblockUid(String uid) {
+    final current = List<String>.from(blockedUids.value);
+    if (current.contains(uid)) {
+      current.remove(uid);
+      blockedUids.value = current;
+
+      try {
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          'blockedUids': FieldValue.arrayRemove([uid]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('[GlobalData] Firestore unblockUid sync error: $e');
+      }
+    }
   }
 
   void blockUser(String nickname, {String? reason}) {

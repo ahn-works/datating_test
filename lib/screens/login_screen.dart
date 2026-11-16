@@ -303,6 +303,157 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  static const String _termsOfServiceText =
+      '제1조 (목적)\n본 약관은 OOMU 서비스(동네 모임, 핫스팟, 문화예술 소모임, 소개팅 매칭)를 이용함에 있어 이용자와 당사 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.\n\n'
+      '제2조 (UGC 및 불건전 콘텐츠 무관용 원칙)\nOOMU는 건전한 커뮤니티 문화를 지향합니다. 비방, 혐오 발언, 성희롱, 무단 광고성 게시물은 무관용 원칙으로 즉시 삭제되며 가해자는 영구 차단 조치됩니다.\n\n'
+      '제3조 (서비스의 제공 및 변경)\n회사는 연중무휴, 1일 24시간 안정적인 서비스를 제공하기 위해 노력합니다.\n\n'
+      '제4조 (회원의 의무)\n회원은 타인의 정보를 도용하거나 허위 사실을 게시하여서는 안 됩니다.';
+
+  static const String _privacyPolicyText =
+      '1. 수집하는 개인정보 항목\n- 필수항목: 휴대전화 번호, 이메일, 닉네임, 성별, 나이, 동네(시·군·구·동)\n- 선택항목: 프로필 사진, 자기소개, 관심사 태그\n\n'
+      '2. 개인정보의 수집 및 이용 목적\n- 회원 식별, 동네 기반 모임 및 커뮤니티 서비스 제공, 안전한 거래 및 신고 관리\n\n'
+      '3. 개인정보의 보유 및 이용 기간\n- 회원 탈퇴 시까지 보유하며, 법령에 따른 보존 의무가 있는 경우 해당 기간 동안 보관합니다.\n\n'
+      '4. 위치정보의 이용\n- 이용자의 현재 위치는 동네 인증 및 모임 거리 표시에만 실시간 활용되며 서버에 영구 좌표로 보관되지 않습니다.';
+
+  void _showPasswordResetDialog() {
+    final emailCtrl = TextEditingController(text: _loginEmailCtrl.text.trim());
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OomuTokens.r16)),
+        title: const Text('비밀번호 재설정',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '가입하신 이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드립니다.',
+              style: TextStyle(
+                  fontSize: 13.5, color: OomuTokens.textSecondary, height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: 'example@email.com',
+                prefixIcon: const Icon(Icons.mail_outline_rounded, size: 20),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소',
+                style: TextStyle(color: OomuTokens.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: OomuTokens.coral,
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () async {
+              final email = emailCtrl.text.trim();
+              if (email.isEmpty || !email.contains('@')) {
+                _showToast('올바른 이메일 주소를 입력해 주세요');
+                return;
+              }
+              Navigator.pop(ctx);
+              try {
+                await FirebaseAuth.instance
+                    .sendPasswordResetEmail(email: email);
+                _showToast('비밀번호 재설정 이메일을 발송했어요');
+              } catch (e) {
+                _showToast('이메일 발송에 실패했습니다: $e');
+              }
+            },
+            child: const Text('이메일 발송',
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPolicyModal(String title, String content) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.4,
+        expand: false,
+        builder: (_, scrollController) => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDDDDDD),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF222222),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Text(
+                    content,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      height: 1.6,
+                      color: Color(0xFF444444),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // 회원가입 휴대폰 번호 인증 발송 (1인 1계정 중복가입 사전 체크 + Solapi SMS 발송)
   Future<void> _sendSignupPhoneCode() async {
     final rawPhone = _suPhoneCtrl.text.trim();
@@ -1200,16 +1351,60 @@ class _LoginScreenState extends State<LoginScreen>
                 ],
               ),
 
-              // 약관 안내 문구
-              const Padding(
-                padding: EdgeInsets.only(top: 2, bottom: 8),
+              // 약관 안내 문구 (클릭 시 전문 모달)
+              Padding(
+                padding: const EdgeInsets.only(top: 2, bottom: 8),
                 child: Center(
-                  child: Text(
-                    '시작하면 이용약관 및 개인정보 처리방침에 동의하게 됩니다.',
-                    style: TextStyle(
-                      fontSize: OomuTokens.fs11,
-                      color: OomuTokens.textTertiary,
-                    ),
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const Text(
+                        '시작하면 ',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs11,
+                          color: OomuTokens.textTertiary,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            _showPolicyModal('이용약관', _termsOfServiceText),
+                        child: const Text(
+                          '이용약관',
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            color: OomuTokens.textSecondary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        ' 및 ',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs11,
+                          color: OomuTokens.textTertiary,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            _showPolicyModal('개인정보 처리방침', _privacyPolicyText),
+                        child: const Text(
+                          '개인정보 처리방침',
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            color: OomuTokens.textSecondary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        '에 동의하게 됩니다.',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs11,
+                          color: OomuTokens.textTertiary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -1323,7 +1518,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
               const SizedBox(height: OomuTokens.s16),
 
-              // 회원가입 · 이메일 찾기 링크 (로그인 화면의 어색한 '휴대폰 인증' 링크 제거)
+              // 회원가입 · 이메일 찾기 · 비밀번호 재설정 링크
               Wrap(
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
@@ -1355,6 +1550,25 @@ class _LoginScreenState extends State<LoginScreen>
                           horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
                       child: Text(
                         '이메일 찾기',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          fontWeight: FontWeight.w600,
+                          color: OomuTokens.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Text('·',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs14, color: OomuTokens.border)),
+                  InkWell(
+                    onTap: _showPasswordResetDialog,
+                    borderRadius: BorderRadius.circular(OomuTokens.r8),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
+                      child: Text(
+                        '비밀번호 재설정',
                         style: TextStyle(
                           fontSize: OomuTokens.fs14,
                           fontWeight: FontWeight.w600,
@@ -1810,12 +2024,16 @@ class _LoginScreenState extends State<LoginScreen>
                     tag: '(필수)',
                     value: _agreeTerms,
                     onChanged: (v) => setState(() => _agreeTerms = v),
+                    onDetail: () =>
+                        _showPolicyModal('이용약관', _termsOfServiceText),
                   ),
                   _buildAgreeRow(
                     title: '개인정보 수집·이용',
                     tag: '(필수)',
                     value: _agreePrivacy,
                     onChanged: (v) => setState(() => _agreePrivacy = v),
+                    onDetail: () =>
+                        _showPolicyModal('개인정보 처리방침', _privacyPolicyText),
                   ),
                   _buildAgreeRow(
                     title: '마케팅 정보 수신',
@@ -1892,6 +2110,7 @@ class _LoginScreenState extends State<LoginScreen>
     bool isBold = false,
     required bool value,
     required ValueChanged<bool> onChanged,
+    VoidCallback? onDetail,
   }) {
     return InkWell(
       onTap: () => onChanged(!value),
@@ -1937,8 +2156,28 @@ class _LoginScreenState extends State<LoginScreen>
             ],
             const Spacer(),
             if (!isBold)
-              const Icon(Icons.chevron_right_rounded,
-                  size: 18, color: OomuTokens.textMuted),
+              GestureDetector(
+                onTap: onDetail ?? () => onChanged(!value),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '보기',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          color: OomuTokens.textMuted,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(Icons.chevron_right_rounded,
+                          size: 16, color: OomuTokens.textMuted),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),

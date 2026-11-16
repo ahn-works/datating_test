@@ -117,7 +117,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         _targetLat = null;
         _targetLng = null;
         _isResolvingLocation = false;
-        _distanceText = '거리 확인 불가';
+        _distanceText = '거리 정보 없음';
       });
       return;
     }
@@ -150,7 +150,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           _targetLat = null;
           _targetLng = null;
           _isResolvingLocation = false;
-          _distanceText = '거리 확인 불가';
+          _distanceText = '거리 정보 없음';
         });
       }
     } catch (_) {
@@ -174,7 +174,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           _targetLat = null;
           _targetLng = null;
           _isResolvingLocation = false;
-          _distanceText = '거리 확인 불가';
+          _distanceText = '거리 정보 없음';
         });
       }
     }
@@ -182,6 +182,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   // 참여 신청 바텀시트 (OomuSheet 표준 컴포넌트 적용)
   void _showApplicationBottomSheet(BuildContext context) {
+    if (MeetupMemberHelper.isClosed(widget.meetup)) {
+      return;
+    }
     HapticFeedback.lightImpact();
     bool withFriend = false;
     OomuSheet.show(
@@ -416,7 +419,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     final bool isHostVerified = widget.meetup?['isVerified'] == true || widget.meetup?['hostVerified'] == true;
     final List<String> praiseTags = _extractHostPraiseTags(widget.meetup);
     final bool hasResolvedCoords = _targetLat != null && _targetLng != null;
-    final bool isDistanceUnknown = _distanceText == '거리 확인 불가' || _distanceText == '거리 계산 중...';
+    final bool isDistanceUnknown = _distanceText == '거리 정보 없음' ||
+        _distanceText == '거리 확인 불가' ||
+        _distanceText == '거리 계산 중...';
     final costLabel = OomuUiHelpers.formatMeetupCost(
       widget.meetup?['fee'] ?? widget.meetup?['cost'] ?? widget.meetup?['price'],
     );
@@ -424,6 +429,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     final dateStr = (widget.meetup?['date'] ?? widget.meetup?['schedule'] ?? '').toString().trim();
     final memberCount = _getMemberCount(widget.meetup?['members']);
     final maxCapacity = MeetupMemberHelper.parseCapacity(widget.meetup);
+    final statusLabel = MeetupMemberHelper.formatStatusLabel(widget.meetup);
 
     return Scaffold(
       backgroundColor: OomuTokens.background,
@@ -573,6 +579,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           const OomuBadge.coral(
                             label: '여성 전용',
                           ),
+                        OomuBadge.neutral(
+                          label: statusLabel,
+                        ),
                       ],
                     ),
                     const SizedBox(height: OomuTokens.s8),
@@ -607,7 +616,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       OomuInfoRow(
                         icon: Icons.group_outlined,
                         label: '인원',
-                        value: maxCapacity > 0 ? '$memberCount / $maxCapacity명' : '$memberCount명 참여 중',
+                        value: '${MeetupMemberHelper.formatMembersLabel(widget.meetup)}명',
                       ),
                     if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
                       OomuInfoRow(

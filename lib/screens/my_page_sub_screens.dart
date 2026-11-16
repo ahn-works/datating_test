@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/global_data.dart';
 
 class SimpleListScreen extends StatelessWidget {
@@ -302,13 +303,134 @@ class ReportHistoryScreen extends StatelessWidget {
 
 class NoticeScreen extends StatelessWidget {
   const NoticeScreen({super.key});
+
   @override
-  Widget build(BuildContext context) =>
-      const SimpleListScreen(title: '공지사항', items: const [
-        '[안내] 가을 맞이 동네 커플 매칭 이벤트',
-        '[업데이트] 여행 모임 기능 개편 안내 v2.0',
-        '[필독] 안전한 만남을 위한 커뮤니티 가이드'
-      ]);
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          '공지사항',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('notices')
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            );
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+          if (docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.campaign_outlined,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    '등록된 공지사항이 없어요',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    '새로운 소식이 생기면 여기에 바로 알려드릴게요.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF999999),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            itemCount: docs.length,
+            separatorBuilder: (_, __) =>
+                const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            itemBuilder: (context, i) {
+              final data = docs[i].data() as Map<String, dynamic>? ?? {};
+              final title = (data['title'] ?? '').toString();
+              final body = (data['content'] ?? data['body'] ?? '').toString();
+              final date = (data['date'] ?? '').toString();
+
+              return Theme(
+                data:
+                    Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  title: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF222222),
+                    ),
+                  ),
+                  subtitle: date.isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            date,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF8E8E93),
+                            ),
+                          ),
+                        )
+                      : null,
+                  children: [
+                    if (body.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F9FA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          body,
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            height: 1.5,
+                            color: Color(0xFF444444),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 class CustomerCenterScreen extends StatelessWidget {

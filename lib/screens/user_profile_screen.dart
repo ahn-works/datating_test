@@ -8,6 +8,7 @@ import '../ui/oomu_tokens.dart';
 import '../ui/oomu_button.dart';
 import '../ui/oomu_tag.dart';
 import 'chat_screen.dart';
+import 'login_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String? userId;
@@ -107,6 +108,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (uid == null || uid.isEmpty || uid == 'guest') {
       if (widget.isSelf) {
         _syncFromGlobalData();
+        return;
+      }
+      if (Firebase.apps.isEmpty) return;
+      final nick = widget.userName.trim();
+      if (nick.isEmpty || nick == '닉네임 미설정') return;
+      try {
+        final q = await FirebaseFirestore.instance
+            .collection('users')
+            .where('nickname', isEqualTo: nick)
+            .limit(1)
+            .get();
+        if (q.docs.isEmpty || !mounted) return;
+        _applyUserDoc(q.docs.first.data());
+      } catch (e) {
+        debugPrint('[UserProfileScreen] nickname fallback error: $e');
       }
       return;
     }
@@ -115,79 +131,94 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     try {
       final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (!doc.exists || !mounted) return;
-      final data = doc.data();
-      if (data == null) return;
-
-      setState(() {
-        _userName = (data['nickname'] ?? data['name'] ?? widget.userName).toString();
-        final ageVal = data['age'];
-        if (ageVal != null) {
-          _userAge = ageVal.toString();
+      if (doc.exists && doc.data() != null) {
+        if (!mounted) return;
+        _applyUserDoc(doc.data()!);
+        return;
+      }
+      final nick = widget.userName.trim();
+      if (nick.isNotEmpty && nick != '닉네임 미설정') {
+        final q = await FirebaseFirestore.instance
+            .collection('users')
+            .where('nickname', isEqualTo: nick)
+            .limit(1)
+            .get();
+        if (q.docs.isNotEmpty && mounted) {
+          _applyUserDoc(q.docs.first.data());
         }
-        final loc = (data['location'] ?? data['address'])?.toString();
-        if (loc != null && loc.isNotEmpty) {
-          _userLocation = loc;
-        }
-        final bioVal = data['bio']?.toString();
-        if (bioVal != null && bioVal.isNotEmpty) {
-          _userBio = bioVal;
-        }
-        final av = (data['avatarUrl'] ?? data['photoUrl'])?.toString();
-        if (av != null && av.isNotEmpty) {
-          _userAvatar = av;
-        }
-        final mannerVal = OomuUiHelpers.parseMannerTemp(data);
-        if (mannerVal != null) {
-          _userManner = mannerVal;
-        }
-        if (data['isPhoneVerified'] is bool) {
-          _isVerified = data['isPhoneVerified'] as bool;
-        } else if (data['isVerified'] is bool) {
-          _isVerified = data['isVerified'] as bool;
-        }
-        final jobVal = data['job']?.toString();
-        if (jobVal != null && jobVal.isNotEmpty) {
-          _userJob = jobVal;
-        }
-        final mbtiVal = data['mbti']?.toString();
-        if (mbtiVal != null && mbtiVal.isNotEmpty) {
-          _userMbti = mbtiVal;
-        }
-        final genderVal = data['gender']?.toString();
-        if (genderVal != null && genderVal.isNotEmpty) {
-          _userGender = genderVal;
-        }
-        if (data['personalities'] is List) {
-          _userPersonalities =
-              (data['personalities'] as List).map((e) => e.toString()).toList();
-        }
-        if (data['hobbies'] is List) {
-          _userHobbies =
-              (data['hobbies'] as List).map((e) => e.toString()).toList();
-        }
-        if (data['drinking'] is List) {
-          _userDrinking =
-              (data['drinking'] as List).map((e) => e.toString()).toList();
-        }
-        final smokeVal = data['smoking']?.toString();
-        if (smokeVal != null && smokeVal.isNotEmpty) {
-          _userSmoking = smokeVal;
-        }
-        final petVal = data['pet']?.toString();
-        if (petVal != null && petVal.isNotEmpty) {
-          _userPet = petVal;
-        }
-        if (data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) {
-          _userPhotos =
-              (data['photoUrls'] as List).map((e) => e.toString()).toList();
-        } else if (_userAvatar != null && _userAvatar!.isNotEmpty) {
-          _userPhotos = [_userAvatar!];
-        }
-      });
+      }
     } catch (e) {
       debugPrint('[UserProfileScreen] fetch error: $e');
     }
+  }
+
+  void _applyUserDoc(Map<String, dynamic> data) {
+    setState(() {
+      _userName = (data['nickname'] ?? data['name'] ?? widget.userName).toString();
+      final ageVal = data['age'];
+      if (ageVal != null) {
+        _userAge = ageVal.toString();
+      }
+      final loc = (data['location'] ?? data['address'])?.toString();
+      if (loc != null && loc.isNotEmpty) {
+        _userLocation = loc;
+      }
+      final bioVal = data['bio']?.toString();
+      if (bioVal != null && bioVal.isNotEmpty) {
+        _userBio = bioVal;
+      }
+      final av = (data['avatarUrl'] ?? data['photoUrl'])?.toString();
+      if (av != null && av.isNotEmpty) {
+        _userAvatar = av;
+      }
+      final mannerVal = OomuUiHelpers.parseMannerTemp(data);
+      if (mannerVal != null) {
+        _userManner = mannerVal;
+      }
+      if (data['isPhoneVerified'] is bool) {
+        _isVerified = data['isPhoneVerified'] as bool;
+      } else if (data['isVerified'] is bool) {
+        _isVerified = data['isVerified'] as bool;
+      }
+      final jobVal = data['job']?.toString();
+      if (jobVal != null && jobVal.isNotEmpty) {
+        _userJob = jobVal;
+      }
+      final mbtiVal = data['mbti']?.toString();
+      if (mbtiVal != null && mbtiVal.isNotEmpty) {
+        _userMbti = mbtiVal;
+      }
+      final genderVal = data['gender']?.toString();
+      if (genderVal != null && genderVal.isNotEmpty) {
+        _userGender = genderVal;
+      }
+      if (data['personalities'] is List) {
+        _userPersonalities =
+            (data['personalities'] as List).map((e) => e.toString()).toList();
+      }
+      if (data['hobbies'] is List) {
+        _userHobbies =
+            (data['hobbies'] as List).map((e) => e.toString()).toList();
+      }
+      if (data['drinking'] is List) {
+        _userDrinking =
+            (data['drinking'] as List).map((e) => e.toString()).toList();
+      }
+      final smokeVal = data['smoking']?.toString();
+      if (smokeVal != null && smokeVal.isNotEmpty) {
+        _userSmoking = smokeVal;
+      }
+      final petVal = data['pet']?.toString();
+      if (petVal != null && petVal.isNotEmpty) {
+        _userPet = petVal;
+      }
+      if (data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) {
+        _userPhotos =
+            (data['photoUrls'] as List).map((e) => e.toString()).toList();
+      } else if (_userAvatar != null && _userAvatar!.isNotEmpty) {
+        _userPhotos = [_userAvatar!];
+      }
+    });
   }
 
   void _syncFromGlobalData() {
@@ -695,9 +726,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   label: '대화 시작하기',
                   icon: Icons.chat_bubble_outline,
                   onPressed: () {
+                    final activeUid = globalData.currentUserId.value.trim();
+                    final isGuest = activeUid.isEmpty || activeUid == 'guest';
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ChatScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => isGuest
+                            ? const LoginScreen(initialStage: 2)
+                            : const ChatScreen(),
+                      ),
                     );
                   },
                 ),

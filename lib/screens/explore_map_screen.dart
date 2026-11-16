@@ -7,6 +7,7 @@ import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/meetup_member_helper.dart';
 import 'oomu_detail_screen.dart';
 import 'oomu_host_screen.dart';
 
@@ -464,22 +465,6 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         math.cos(lat1 * p) * math.cos(lat2 * p) *
         (1 - math.cos((lon2 - lon1) * p)) / 2;
     return 12742 * math.asin(math.sqrt(a)); // 2 * R, R = 6371 km
-  }
-
-  // 참여 인원 문자열 포맷팅 (UID 배열 노출 방지)
-  String _formatMemberCount(dynamic members, [dynamic maxMembers]) {
-    final max = maxMembers ?? 4;
-    if (members is List) {
-      return '${members.length}/$max명 참여';
-    } else if (members is int) {
-      return '$members/$max명 참여';
-    } else if (members is String) {
-      if (members.contains('/')) return '$members명 참여';
-      final parsed = int.tryParse(members);
-      if (parsed != null) return '$parsed/$max명 참여';
-      return '$members명 참여';
-    }
-    return '2/$max명 참여';
   }
 
   // 현재 필터 및 반경에 따른 모임 목록 필터링
@@ -1396,7 +1381,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               ],
                             ),
                             Text(
-                              _formatMemberCount(m['members'], m['maxMembers']),
+                              '${MeetupMemberHelper.formatMembersLabel(m)}명',
                               style: TextStyle(
                                   fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w700,

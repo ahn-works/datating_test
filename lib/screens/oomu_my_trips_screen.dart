@@ -89,8 +89,8 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
       'category': (data['category'] ?? '모임').toString(),
       'location': (data['location'] ?? '전남 여수시 화장동').toString(),
       'date': (data['date'] ?? data['timeStr'] ?? '이번 주말 저녁').toString(),
-      'status': (data['status'] ?? '참여 확정').toString(),
-      'members': MeetupMemberHelper.formatMembersLabel(data),
+      'status': MeetupMemberHelper.formatStatusLabel(data),
+      'members': '${MeetupMemberHelper.formatMembersLabel(data)}명',
       'imageUrl': (data['imageUrl'] ??
               data['coverImage'] ??
               data['image'] ??

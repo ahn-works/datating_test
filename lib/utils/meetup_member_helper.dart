@@ -139,11 +139,36 @@ class MeetupMemberHelper {
   static String calcRemainingSeats(Map<String, dynamic>? data,
       {String fallback = '잔여석 있음'}) {
     if (data == null) return fallback;
+    if (isClosed(data)) return '모집 마감';
     final cap = parseCapacity(data);
     final att = parseAttendance(data);
     final diff = cap - att;
     if (diff <= 0) return '모집 마감';
     return '$diff자리 남음';
+  }
+
+  /// 모임 마감 여부 판별 (isClosed flag, status가 'closed'/'마감'/'모집마감'/'종료'이거나 정원 충족 시 true)
+  static bool isClosed(Map<String, dynamic>? data) {
+    if (data == null) return false;
+    if (data['isClosed'] == true || data['closed'] == true) {
+      return true;
+    }
+    final rawStatus = (data['status'] ?? '').toString().trim().toLowerCase();
+    if (rawStatus == 'closed' ||
+        rawStatus == '마감' ||
+        rawStatus == '모집마감' ||
+        rawStatus == '모집 마감' ||
+        rawStatus == '종료') {
+      return true;
+    }
+    final cap = parseCapacity(data);
+    final att = parseAttendance(data);
+    return cap > 0 && att >= cap;
+  }
+
+  /// 모임 상태 한글 라벨 ('모집 중' 또는 '마감')
+  static String formatStatusLabel(Map<String, dynamic>? data) {
+    return isClosed(data) ? '마감' : '모집 중';
   }
 }
 

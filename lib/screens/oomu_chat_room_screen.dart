@@ -666,9 +666,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     final msgId = (data['id'] ?? '').toString();
     final isMe = data['isMe'] == true;
     final sender = (data['sender'] ?? '상대방').toString();
+    final senderUid = (data['senderUid'] ?? data['userId'] ?? '').toString();
 
     // 차단된 사용자의 메시지는 보호 뷰(차단 안내 바)로 대체 표시
-    if (!isMe && globalData.isUserBlocked(sender)) {
+    if (!isMe && globalData.isUserBlocked(sender, uid: senderUid)) {
       return _buildBlockedMessagePlaceholder(sender);
     }
 

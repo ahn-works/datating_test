@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../services/meetup_application_service.dart';
+import '../utils/meetup_member_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
 
 class MeetupParticipationAction extends StatelessWidget {
@@ -28,6 +29,9 @@ class MeetupParticipationAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (MeetupMemberHelper.isClosed(meetup)) {
+      return _button('마감된 모임', null);
+    }
     final id = meetup?['id']?.toString() ?? '';
     if (Firebase.apps.isEmpty || id.isEmpty) return _button('참여 신청하기', onApply);
     if (!MeetupApplicationService.enabled) {

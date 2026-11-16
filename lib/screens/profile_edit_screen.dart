@@ -7,6 +7,7 @@ import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../utils/app_image.dart';
 import '../services/r2_storage_service.dart';
+import 'login_screen.dart';
 import 'user_profile_screen.dart';
 import '../ui/oomu_tokens.dart';
 import '../ui/oomu_button.dart';
@@ -191,6 +192,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> _saveProfile() async {
+    final uid = globalData.activeUserId.trim();
+    if (uid.isEmpty || uid == 'guest') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('로그인하면 프로필을 저장할 수 있어요'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen(initialStage: 2)),
+      );
+      return;
+    }
+
     final nick = _nicknameController.text.trim();
     if (nick.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

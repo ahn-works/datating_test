@@ -19,8 +19,14 @@ import 'user_profile_screen.dart';
 
 class CommunityPostDetailScreen extends StatefulWidget {
   final Map<String, dynamic> post;
+  final Future<void> Function(
+      bool nextLiked, int nextCount, List<String> nextIds)? debugLikeWriter;
 
-  const CommunityPostDetailScreen({super.key, required this.post});
+  const CommunityPostDetailScreen({
+    super.key,
+    required this.post,
+    this.debugLikeWriter,
+  });
 
   @override
   State<CommunityPostDetailScreen> createState() =>
@@ -50,19 +56,6 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     }
   }
 
-  String _getPostImageFallback(String category) {
-    if (category.contains('맛집') || category.contains('카페')) {
-      return 'assets/images/cover_food.jpg';
-    } else if (category.contains('공연') ||
-        category.contains('핫플') ||
-        category.contains('전시')) {
-      return 'assets/images/cover_wine.jpg';
-    } else if (category.contains('운동') || category.contains('러닝')) {
-      return 'assets/images/cover_running.jpg';
-    }
-    return 'assets/images/cover_food.jpg';
-  }
-
   void _initPostState() {
     _isLiked = widget.post['isLiked'] == true;
     _likeCount = (widget.post['likes'] is num)
@@ -77,9 +70,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     } else {
       _comments = <Map<String, dynamic>>[];
     }
+    _syncPostComments();
+  }
+
+  void _syncPostComments([int? count]) {
     try {
       widget.post['commentList'] = _comments;
-      widget.post['comments'] = _comments.length;
+      widget.post['comments'] = count ?? _comments.length;
     } catch (_) {}
   }
 
@@ -110,7 +107,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   Future<void> _addComment() async {
     if (_isSubmittingComment) return;
     final text = _commentController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('댓글 내용을 입력해 주세요.')),
+      );
+      return;
+    }
 
     setState(() {
       _isSubmittingComment = true;
@@ -119,9 +121,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     final myNick = globalData.userNickname.value.isNotEmpty
         ? globalData.userNickname.value
         : '이웃';
-    final myAvatar = globalData.userAvatar.value.isNotEmpty
-        ? globalData.userAvatar.value
-        : 'assets/images/지훈.png';
+    final myAvatar = globalData.userAvatar.value;
     final postId = _postId;
 
     final newComm = <String, dynamic>{
@@ -150,6 +150,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
               : 'user_${DateTime.now().millisecondsSinceEpoch}');
       final postRef = db.collection('community_posts').doc(postId);
       final commentRef = postRef.collection('comments').doc();
+      final existingTime = (widget.post['time'] ?? '').toString().trim();
 
       await postRef.set({
         'id': postId,
@@ -160,7 +161,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         'location': widget.post['location'] ?? '',
         'category': widget.post['category'] ?? '',
         'tag': widget.post['tag'] ?? '',
-        'time': widget.post['time'] ?? '방금 전',
+        if (existingTime.isNotEmpty) 'time': existingTime,
         'comments': FieldValue.increment(1),
         'likes': widget.post['likes'] ?? 0,
         'likedUserIds': widget.post['likedUserIds'] ?? <String>[],
@@ -186,10 +187,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         if (!_comments.any((comment) => comment['id'] == commentRef.id)) {
           _comments.add(newComm);
         }
-        widget.post['commentList'] = _comments;
-        widget.post['comments'] = _comments.length;
+        _syncPostComments();
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[CommunityPostDetailScreen] comment save error: $e');
       if (!mounted) return;
       setState(() => _isSubmittingComment = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -227,10 +228,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
     final myNick = globalData.userNickname.value.isNotEmpty
         ? globalData.userNickname.value
-        : '우리동네_초연';
-    final myAvatar = globalData.userAvatar.value.isNotEmpty
-        ? globalData.userAvatar.value
-        : 'assets/images/초연.png';
+        : '이웃';
+    final myAvatar = globalData.userAvatar.value;
     final postId = _postId;
 
     final newComm = <String, dynamic>{
@@ -248,8 +247,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     if (!_canUseFirestore || postId == null) {
       setState(() {
         _comments.add(newComm);
-        widget.post['commentList'] = _comments;
-        widget.post['comments'] = _comments.length;
+        _syncPostComments();
       });
       return;
     }
@@ -284,8 +282,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       newComm['id'] = commentRef.id;
       setState(() {
         _comments.add(newComm);
-        widget.post['commentList'] = _comments;
-        widget.post['comments'] = _comments.length;
+        _syncPostComments();
       });
 
       Future.delayed(const Duration(milliseconds: 150), () {
@@ -301,58 +298,116 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('움짤 스티커 댓글이 등록되었습니다!')),
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CommunityPostDetailScreen] sticker comment error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('스티커 댓글을 저장하지 못했어요.')),
+        );
+      }
+    }
   }
 
-  void _toggleLike() {
-    setState(() {
-      final myUserId = FirebaseAuth.instance.currentUser?.uid ??
-          (globalData.activeUserId.isNotEmpty
-              ? globalData.activeUserId
-              : 'user_me');
-      List<dynamic> likedUsers =
-          List<dynamic>.from(widget.post['likedUserIds'] ?? []);
-      if (_isLiked) {
-        likedUsers.remove(myUserId);
-        likedUsers.remove('user_me_01');
-      } else {
-        if (!likedUsers.contains(myUserId)) {
-          likedUsers.add(myUserId);
-        }
-      }
-      _isLiked = !_isLiked;
-      _likeCount = likedUsers.length;
-      widget.post['likedUserIds'] = likedUsers;
-      widget.post['likes'] = _likeCount;
-      widget.post['isLiked'] = _isLiked;
+  Future<void> _toggleLike() async {
+    final prevLiked = _isLiked;
+    final prevCount = _likeCount;
+    final prevLikedUsers = (widget.post['likedUserIds'] is List)
+        ? (widget.post['likedUserIds'] as List)
+            .map((e) => e.toString())
+            .toList()
+        : <String>[];
 
+    final myUserId = (Firebase.apps.isNotEmpty
+            ? FirebaseAuth.instance.currentUser?.uid
+            : null) ??
+        (globalData.activeUserId.isNotEmpty
+            ? globalData.activeUserId
+            : 'user_me');
+
+    final nextLiked = !prevLiked;
+    final nextCount =
+        nextLiked ? (prevCount + 1) : (prevCount > 0 ? prevCount - 1 : 0);
+    final nextLikedUsers = List<String>.from(prevLikedUsers);
+    if (nextLiked) {
+      if (!nextLikedUsers.contains(myUserId)) {
+        nextLikedUsers.add(myUserId);
+      }
+    } else {
+      nextLikedUsers.remove(myUserId);
+      nextLikedUsers.remove('user_me_01');
+    }
+
+    setState(() {
+      _isLiked = nextLiked;
+      _likeCount = nextCount;
+      widget.post['likedUserIds'] = nextLikedUsers;
+      widget.post['likes'] = nextCount;
+      widget.post['isLiked'] = nextLiked;
+    });
+
+    try {
+      if (widget.debugLikeWriter != null) {
+        await widget.debugLikeWriter!(nextLiked, nextCount, nextLikedUsers);
+        return;
+      }
       final postId = _postId;
       if (_canUseFirestore && postId != null) {
-        try {
-          FirebaseFirestore.instance
-              .collection('community_posts')
-              .doc(postId)
-              .set({
-            'likedUserIds': likedUsers,
-            'likes': _likeCount,
-            'updatedAt': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
-        } catch (_) {}
+        final docRef = FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(postId);
+        await FirebaseFirestore.instance.runTransaction((tx) async {
+          final snap = await tx.get(docRef);
+          final data = snap.data() ?? <String, dynamic>{};
+          final currentLikes = (data['likes'] is num)
+              ? (data['likes'] as num).toInt()
+              : prevCount;
+          final currentIds = (data['likedUserIds'] is List)
+              ? (data['likedUserIds'] as List)
+                  .map((e) => e.toString())
+                  .toList()
+              : <String>[];
+          final updatedIds = List<String>.from(currentIds);
+          int updatedLikes = currentLikes;
+          if (nextLiked) {
+            if (!updatedIds.contains(myUserId)) {
+              updatedIds.add(myUserId);
+            }
+            updatedLikes = currentLikes + 1;
+          } else {
+            updatedIds.remove(myUserId);
+            updatedIds.remove('user_me_01');
+            updatedLikes = currentLikes > 0 ? currentLikes - 1 : 0;
+          }
+          tx.set(
+            docRef,
+            {
+              'likedUserIds': updatedIds,
+              'likes': updatedLikes,
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true),
+          );
+        });
       }
-    });
+    } catch (e) {
+      debugPrint('[CommunityPostDetailScreen] toggleLike error: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLiked = prevLiked;
+        _likeCount = prevCount;
+        widget.post['likedUserIds'] = prevLikedUsers;
+        widget.post['likes'] = prevCount;
+        widget.post['isLiked'] = prevLiked;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('좋아요를 저장하지 못했어요')),
+      );
+    }
   }
 
   String _formatRelativeTime(dynamic timeVal) {
-    if (timeVal == null) return '방금 전';
-    DateTime? dt;
-    if (timeVal is Timestamp) {
-      dt = timeVal.toDate();
-    } else if (timeVal is String) {
-      dt = DateTime.tryParse(timeVal);
-    } else if (timeVal is DateTime) {
-      dt = timeVal;
-    }
-    if (dt == null) return '방금 전';
+    final dt = parseFirestoreDateTime(timeVal);
+    if (dt == null) return '';
 
     final now = DateTime.now();
     final diff = now.difference(dt);
@@ -392,15 +447,28 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       docs.sort((a, b) => compareFirestoreTimes(a['createdAt'], b['createdAt'],
           descending: false));
 
-      try {
-        widget.post['comments'] = docs.length;
-      } catch (_) {}
-      return docs;
+      final filteredDocs = docs.where((comment) {
+        final author = (comment['author'] ?? '').toString();
+        final authorUid = (comment['authorUid'] ??
+                comment['userId'] ??
+                comment['uid'] ??
+                '')
+            .toString();
+        return !globalData.isTargetBlocked(uid: authorUid, nickname: author);
+      }).toList();
+
+      _syncPostComments(filteredDocs.length);
+      return filteredDocs;
     }
-    try {
-      widget.post['comments'] = _comments.length;
-    } catch (_) {}
-    return List<Map<String, dynamic>>.from(_comments);
+    final filteredLocal = _comments.where((comment) {
+      final author = (comment['author'] ?? '').toString();
+      final authorUid =
+          (comment['authorUid'] ?? comment['userId'] ?? comment['uid'] ?? '')
+              .toString();
+      return !globalData.isTargetBlocked(uid: authorUid, nickname: author);
+    }).toList();
+    _syncPostComments(filteredLocal.length);
+    return filteredLocal;
   }
 
   Widget _buildBodyContent(List<Map<String, dynamic>> displayComments) {
@@ -416,11 +484,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     post['authorAvatar'].toString().isNotEmpty)
                 ? post['authorAvatar'].toString()
                 : '');
-    final location = (post['location'] ?? '마포구 서교동').toString();
-    final time = (post['time'] ?? '방금 전').toString();
+    final location = (post['location'] ?? '').toString().trim();
+    final rawTime = (post['time'] ?? '').toString().trim();
+    final time = rawTime.isNotEmpty
+        ? rawTime
+        : _formatRelativeTime(post['createdAt']);
+    final metaLine =
+        [location, time].where((v) => v.trim().isNotEmpty).join(' · ');
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
     final tag = post['tag'];
-    final category = (post['category'] ?? '').toString();
     final title = (post['title'] ?? '').toString();
     final content = (post['content'] ?? '').toString();
     final image = post['image'];
@@ -519,18 +591,20 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             ],
                           ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '$location · $time',
-                          style: const TextStyle(
-                            fontSize: OomuTokens.fs12,
-                            color: OomuTokens.textSecondary,
+                        if (metaLine.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            metaLine,
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              color: OomuTokens.textSecondary,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
-                  if (tag != null)
+                  if (tag != null && tag.toString().trim().isNotEmpty)
                     OomuTag(
                       label: '#$tag',
                     ),
@@ -567,7 +641,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
               ),
 
               // Attached Photo
-              if (image != null && image.toString().isNotEmpty) ...[
+              if (image != null && image.toString().trim().isNotEmpty) ...[
                 const SizedBox(height: OomuTokens.s16),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(OomuTokens.r16),
@@ -576,9 +650,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     child: SizedBox(
                       width: double.infinity,
                       child: appNetImage(
-                        image.toString(),
+                        image.toString().trim(),
                         fit: BoxFit.cover,
-                        fallback: _getPostImageFallback(category),
+                        fallback: '',
                       ),
                     ),
                   ),
@@ -881,14 +955,20 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                               .update({
                                             'comments': FieldValue.increment(-1)
                                           });
-                                        } catch (_) {}
+                                        } catch (e) {
+                                          debugPrint('[CommunityPostDetailScreen] comment delete error: $e');
+                                          messenger.showSnackBar(
+                                            const SnackBar(
+                                              content: Text('댓글을 삭제하지 못했어요.'),
+                                            ),
+                                          );
+                                          return;
+                                        }
                                       }
                                       setState(() {
                                         _comments.removeWhere(
                                             (item) => item['id'] == cId);
-                                        widget.post['commentList'] = _comments;
-                                        widget.post['comments'] =
-                                            _comments.length;
+                                        _syncPostComments();
                                       });
                                       messenger.showSnackBar(
                                         const SnackBar(
@@ -993,7 +1073,16 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                 'likedUserIds': likedUsers,
                                 'likes': likedUsers.length,
                               }, SetOptions(merge: true));
-                            } catch (_) {}
+                            } catch (e) {
+                              debugPrint('[CommunityPostDetailScreen] comment like error: $e');
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('댓글 좋아요를 저장하지 못했어요'),
+                                  ),
+                                );
+                              }
+                            }
                           }
                         },
                         child: ConstrainedBox(
@@ -1177,7 +1266,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                         .collection('community_posts')
                                         .doc(postId)
                                         .delete();
-                                  } catch (_) {}
+                                  } catch (e) {
+                                    debugPrint('[CommunityPostDetailScreen] post delete error: $e');
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                        content: Text('게시글을 삭제하지 못했어요.'),
+                                      ),
+                                    );
+                                    return;
+                                  }
                                 }
                                 navigator.pop({'deleted': true, 'id': postId});
                                 messenger.showSnackBar(
@@ -1304,32 +1401,39 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: OomuTokens.s8),
-                  Tooltip(
-                    message: '댓글 전송',
-                    child: BouncyTap(
-                      scaleDown: 0.88,
-                      onHaptic: OomuHaptics.medium,
-                      onTap: _isSubmittingComment ? null : _addComment,
-                      child: SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: _isSubmittingComment
-                                ? OomuTokens.coral.withValues(alpha: 0.6)
-                                : OomuTokens.coral,
-                            borderRadius: BorderRadius.circular(OomuTokens.r12),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.send_rounded,
-                              color: OomuTokens.surface,
-                              size: 19,
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _commentController,
+                    builder: (context, val, _) {
+                      final hasText = val.text.trim().isNotEmpty;
+                      return Tooltip(
+                        message: '댓글 전송',
+                        child: BouncyTap(
+                          scaleDown: 0.88,
+                          onHaptic: OomuHaptics.medium,
+                          onTap: _isSubmittingComment ? null : _addComment,
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: hasText
+                                    ? OomuTokens.coral
+                                    : OomuTokens.coral.withValues(alpha: 0.4),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r12),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.send_rounded,
+                                  color: OomuTokens.surface,
+                                  size: 19,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),

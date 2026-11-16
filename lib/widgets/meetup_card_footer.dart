@@ -39,7 +39,7 @@ class MeetupCardFooter extends StatelessWidget {
             ? MeetupMemberHelper.formatMembersLabel(meetup)
             : null;
         final attendance = Text(
-            membersStr == null ? '참여 인원 확인 필요' : '$membersStr명 참여',
+            membersStr == null ? '참여 인원 확인 필요' : '$membersStr명',
             style: const TextStyle(
                 fontSize: 13, color: OomuUiHelpers.textSecondary));
         final temperature = Container(

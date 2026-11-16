@@ -49,12 +49,13 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     '마라탕릴레이',
   ];
 
-  final List<String> _presetPhotos = [
-    'assets/images/cover_cafe.jpg',
-    'assets/images/cover_food.jpg',
-    'assets/images/cover_wine.jpg',
-    'assets/images/cover_running.jpg',
-  ];
+  String get _effectiveLocation {
+    final loc = globalData.userLocation.value.trim();
+    if (loc.isNotEmpty) return loc;
+    final wLoc = widget.currentLocation.trim();
+    if (wLoc.isNotEmpty) return wLoc;
+    return '우리 동네';
+  }
 
   bool _submitting = false;
   bool _isUploadingPhoto = false;
@@ -157,7 +158,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
           ? '이웃'
           : globalData.userNickname.value,
       'authorAvatar': globalData.userAvatar.value,
-      'location': widget.currentLocation,
+      'location': _effectiveLocation,
       if (globalData.temperature.value > 0)
         'manner': globalData.temperature.value,
       'likes': 0,
@@ -366,7 +367,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
               ),
               decoration: InputDecoration(
                 hintText:
-                    '${widget.currentLocation} 이웃들과 나누고 싶은 공연 후기, 맛집 추천, 동네 질문 등을 자유롭게 적어보세요 :)',
+                    '$_effectiveLocation 이웃들과 나누고 싶은 공연 후기, 맛집 추천, 동네 질문 등을 자유롭게 적어보세요 :)',
                 hintStyle: const TextStyle(
                   color: OomuTokens.textMuted,
                   fontSize: OomuTokens.fs14,
@@ -450,7 +451,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                         color: OomuTokens.surface,
                         borderRadius: BorderRadius.circular(OomuTokens.r12),
                         border: Border.all(
-                          color: _selectedPhoto != null && !_presetPhotos.contains(_selectedPhoto)
+                          color: _selectedPhoto != null
                               ? OomuTokens.coral
                               : OomuTokens.border,
                         ),
@@ -466,76 +467,107 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                                 ),
                               ),
                             )
-                          : (_selectedPhoto != null && !_presetPhotos.contains(_selectedPhoto))
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(OomuTokens.r12 - 1),
-                                  child: Image(
-                                    image: appImg(_selectedPhoto),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_photo_alternate_outlined,
-                                      size: 22,
-                                      color: OomuTokens.coral,
-                                    ),
-                                    SizedBox(height: 2),
-                                    Text(
-                                      '내 사진',
-                                      style: TextStyle(
-                                        fontSize: OomuTokens.fs11,
-                                        fontWeight: OomuTokens.w700,
-                                        color: OomuTokens.coral,
-                                      ),
-                                    ),
-                                  ],
+                          : const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.photo_library_outlined,
+                                  size: 22,
+                                  color: OomuTokens.coral,
                                 ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '갤러리',
+                                  style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    fontWeight: OomuTokens.w700,
+                                    color: OomuTokens.coral,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
-                  ..._presetPhotos.map((photoPath) {
-                    final isSel = _selectedPhoto == photoPath;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedPhoto = photoPath),
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        margin: const EdgeInsets.only(right: OomuTokens.s8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(OomuTokens.r12),
-                          border: Border.all(
-                            color: isSel ? OomuTokens.coral : Colors.transparent,
-                            width: 2,
+                  // 카메라 촬영 타일
+                  GestureDetector(
+                    onTap: _isUploadingPhoto
+                        ? null
+                        : () => _pickAndUploadPhoto(ImageSource.camera),
+                    child: Container(
+                      width: 68,
+                      height: 68,
+                      margin: const EdgeInsets.only(right: OomuTokens.s8),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.camera_alt_outlined,
+                            size: 22,
+                            color: OomuTokens.textSecondary,
                           ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(OomuTokens.r12 - 2),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image(
-                                image: appImg(photoPath),
-                                fit: BoxFit.cover,
-                              ),
-                              if (isSel)
-                                Container(
-                                  color: OomuTokens.coral.withValues(alpha: 0.3),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.check_circle,
-                                      color: OomuTokens.surface,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                            ],
+                          SizedBox(height: 2),
+                          Text(
+                            '카메라',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs11,
+                              fontWeight: OomuTokens.w700,
+                              color: OomuTokens.textSecondary,
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 업로드된 실사진 미리보기 타일
+                  if (_selectedPhoto != null && _selectedPhoto!.isNotEmpty)
+                    Container(
+                      width: 68,
+                      height: 68,
+                      margin: const EdgeInsets.only(right: OomuTokens.s8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(
+                          color: OomuTokens.coral,
+                          width: 2,
                         ),
                       ),
-                    );
-                  }),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(OomuTokens.r12 - 2),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image(
+                              image: appImg(_selectedPhoto!),
+                              fit: BoxFit.cover,
+                            ),
+                            Positioned(
+                              top: 2,
+                              right: 2,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _selectedPhoto = null),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

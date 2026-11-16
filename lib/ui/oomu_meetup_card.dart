@@ -145,7 +145,7 @@ class OomuMeetupCard extends StatelessWidget {
           Flexible(
             flex: 2,
             child: Text(
-              '$members 참여',
+              members!.endsWith('명') ? members! : '${members!}명',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: _caption,

@@ -574,7 +574,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       borderRadius: BorderRadius.circular(7),
                     ),
                     child: Text(
-                      '블럭',
+                      '블록',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight:
@@ -718,29 +718,52 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           }),
     ];
 
+    List<Map<String, dynamic>> rawItems;
     switch (_selectedAblyCategory) {
       case 1: // 날씨·맛집
-        return [
+        rawItems = [
           ...foods.map((e) => {...e, 'type': 'food'}),
           ...recipeCards,
         ];
+        break;
       case 2: // 할인·이벤트
-        return deals.map((e) => {...e, 'type': 'deal'}).toList();
+        rawItems = deals.map((e) => {...e, 'type': 'deal'}).toList();
+        break;
       case 3: // 청년지원금
-        return subsidies.map((e) => {...e, 'type': 'subsidy'}).toList();
+        rawItems = subsidies.map((e) => {...e, 'type': 'subsidy'}).toList();
+        break;
       case 4: // 요즘트렌드
-        return trendCards;
+        rawItems = trendCards;
+        break;
       case 0: // 전체추천 (골고루 큐레이션)
       default:
-        return [
+        // _realTrendEvents가 trendCards의 앞부분에도 포함되어 있으므로
+        // 전체추천에서는 중복 삽입을 피하고 큐레이션합니다.
+        final remainingTrends = trendCards
+            .where((t) => !_realTrendEvents
+                .any((r) => r['id'] != null && r['id'] == t['id']))
+            .toList();
+        rawItems = [
           if (_realTrendEvents.isNotEmpty) ..._realTrendEvents.take(4),
           ...foods.map((e) => {...e, 'type': 'food'}),
           ...deals.take(2).map((e) => {...e, 'type': 'deal'}),
           ...subsidies.take(2).map((e) => {...e, 'type': 'subsidy'}),
           ...recipeCards.take(2),
-          ...trendCards.take(4),
+          ...remainingTrends.take(4),
         ];
+        break;
     }
+
+    // 카드 고유 id 또는 title 기준 중복 렌더링 방지
+    final seen = <String>{};
+    final List<Map<String, dynamic>> deduplicated = [];
+    for (final item in rawItems) {
+      final key = (item['id'] ?? item['title'] ?? '').toString();
+      if (key.isNotEmpty && seen.contains(key)) continue;
+      if (key.isNotEmpty) seen.add(key);
+      deduplicated.add(item);
+    }
+    return deduplicated;
   }
 
   void _handleItemTap(Map<String, dynamic> item) {

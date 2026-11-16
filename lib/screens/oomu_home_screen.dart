@@ -1878,6 +1878,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   bool _matchesFilters(Map<String, dynamic> item) {
+    final host = (item['host'] ?? '').toString();
+    final hostUid =
+        (item['hostUid'] ?? item['userId'] ?? item['creatorId'] ?? '')
+            .toString();
+    if (globalData.isTargetBlocked(uid: hostUid, nickname: host)) {
+      return false;
+    }
+
     // 1. Category Filter (대분류 & 서브태그)
     if (_selectedCategoryIndex > 0) {
       final selectedCat = _categories[_selectedCategoryIndex]['name'] as String;

@@ -349,7 +349,9 @@ class KakaoMapService {
 
   /// 6. 사용자 친화적 거리 포맷팅 (예: '150m', '1.4km')
   static String formatDistance(double meters) {
-    if (meters < 0 || meters.isNaN || meters.isInfinite) return '거리 확인 불가';
+    if (meters < 0 || meters.isNaN || meters.isInfinite || meters > 25000) {
+      return '거리 정보 없음';
+    }
     if (meters < 1000) {
       return '${meters.round()}m';
     }
@@ -360,7 +362,7 @@ class KakaoMapService {
   /// GPS 권한이 허용되어 있으면 기기 실제 GPS 기반 거리, 브라우저/웹 권한 미허용 시 사용자 설정 동네(globalData.userLocation) 기준 거리 계산
   static Future<String> getDistanceTextFromCurrent(double targetLat, double targetLng, {String? userLocation}) async {
     if (targetLat.isNaN || targetLng.isNaN || targetLat <= 0 || targetLng <= 0) {
-      return '거리 확인 불가';
+      return '거리 정보 없음';
     }
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -379,7 +381,9 @@ class KakaoMapService {
 
         if (pos.latitude > 0 && pos.longitude > 0) {
           final dist = calculateDistanceInMeters(pos.latitude, pos.longitude, targetLat, targetLng);
-          return '내 위치에서 ${formatDistance(dist)}';
+          if (dist <= 25000) {
+            return '내 위치에서 ${formatDistance(dist)}';
+          }
         }
       }
     } catch (_) {}
@@ -388,10 +392,13 @@ class KakaoMapService {
     final locStr = (userLocation != null && userLocation.trim().isNotEmpty)
         ? userLocation.trim()
         : globalData.userLocation.value.trim();
-    if (locStr.isNotEmpty) {
+    if (locStr.isNotEmpty && locStr != '동네 미설정') {
       final coords = LocationHelper.findCoordsForLocation(locStr);
       if (coords != null) {
         final dist = calculateDistanceInMeters(coords['lat']!, coords['lng']!, targetLat, targetLng);
+        if (dist > 25000) {
+          return '거리 정보 없음';
+        }
         final dongOnly = locStr.split(' ').last;
         if (dist < 500) {
           return '$dongOnly 중심 (도보 5분)';
@@ -400,7 +407,7 @@ class KakaoMapService {
       }
     }
 
-    return '거리 확인 불가';
+    return '거리 정보 없음';
   }
 
   /// 8. 카카오맵 지도 핀 바로가기 링크 생성

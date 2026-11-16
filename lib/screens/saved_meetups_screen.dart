@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
+import '../ui/oomu_tokens.dart';
 import 'oomu_detail_screen.dart';
 import 'empty_state_screen.dart';
 
@@ -13,10 +14,10 @@ class SavedMeetupsScreen extends StatefulWidget {
 }
 
 class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
-  final Color textPrimary = const Color(0xFF0F172A);
-  final Color textSecondary = const Color(0xFF64748B);
-  final Color surfaceColor = const Color(0xFFFAF6F7);
-  final Color accentColor = const Color(0xFFFF6B4A);
+  Color get textPrimary => OomuTokens.textPrimary;
+  Color get textSecondary => OomuTokens.textSecondary;
+  Color get surfaceColor => OomuTokens.background;
+  Color get accentColor => OomuTokens.coral;
 
   @override
   Widget build(BuildContext context) {
@@ -182,24 +183,6 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             color: Color(0xFF475569),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFF4EB),
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: const Text(
-                                          '1/N 안심 정산',
-                                          style: TextStyle(
-                                            color: Color(0xFFFF6B4A),
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 11,
                                           ),
                                         ),
                                       ),

@@ -5,6 +5,7 @@ import '../services/chat_repository.dart';
 import '../ui/oomu_avatar.dart';
 import '../ui/oomu_empty_state.dart';
 import '../ui/oomu_tokens.dart';
+import 'login_screen.dart';
 import 'oomu_chat_room_screen.dart';
 import 'oomu_home_screen.dart';
 
@@ -32,14 +33,6 @@ class _ChatScreenState extends State<ChatScreen> {
   int _generation = 0;
   String _search = '';
   bool _searching = false;
-
-  static const List<String> _fallbackAvatars = [
-    'assets/images/초연.png',
-    'assets/images/지안.png',
-    'assets/images/시연.png',
-    'assets/images/민지.png',
-    'assets/images/정재.png',
-  ];
 
   @override
   void initState() {
@@ -74,18 +67,51 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _notice(String title, String body, {bool retry = false}) => Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(OomuTokens.s20),
-          child: OomuEmptyState(
-            icon: Icons.chat_bubble_outline_rounded,
-            title: title,
-            subtitle: body,
-            buttonLabel: retry ? '다시 불러오기' : '동네 모임 둘러보기',
-            onButtonPressed: retry ? () => setState(_bind) : _explore,
-          ),
+  void _goToLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen(initialStage: 2)),
+    );
+  }
+
+  Widget _notice(String title, String body, {bool retry = false}) {
+    final isGuest = _uid == null || _uid == 'guest';
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(OomuTokens.s20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OomuEmptyState(
+              icon: Icons.chat_bubble_outline_rounded,
+              title: title,
+              subtitle: body,
+              buttonLabel: retry
+                  ? '다시 불러오기'
+                  : (isGuest ? '로그인하고 대화하기' : '동네 모임 둘러보기'),
+              onButtonPressed: retry
+                  ? () => setState(_bind)
+                  : (isGuest ? _goToLogin : _explore),
+            ),
+            if (!retry && isGuest) ...[
+              const SizedBox(height: OomuTokens.s8),
+              TextButton(
+                onPressed: _explore,
+                child: const Text(
+                  '동네 모임 둘러보기',
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs14,
+                    fontWeight: OomuTokens.w600,
+                    color: OomuTokens.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
-      );
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -374,11 +400,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 (room['lastMessage'] ?? '').toString();
                             final memberCount =
                                 chatParticipantIds(room).length;
-                            final avatarPath = (room['avatarUrl'] ??
-                                    room['coverImage'] ??
-                                    _fallbackAvatars[
-                                        index % _fallbackAvatars.length])
-                                .toString();
+                            final avatarPath =
+                                (room['avatarUrl'] ?? room['coverImage'] ?? '')
+                                    .toString();
                             final timeText =
                                 (room['lastTime'] ?? '방금').toString();
                             final unreadCount =

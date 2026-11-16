@@ -96,7 +96,7 @@ void main() {
       expect(unknown, isNull);
     });
 
-    testWidgets('미확인 장소 모임 상세는 가짜 홍대 지도/도보 5분 대신 위치 미확인 안내와 거리 확인 불가를 표시한다', (tester) async {
+    testWidgets('미확인 장소 모임 상세는 가짜 홍대 지도/도보 5분 대신 위치 미확인 안내와 거리 정보 없음을 표시한다', (tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MaterialApp(
@@ -116,7 +116,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 200));
 
         expect(find.text('정확한 위치를 확인할 수 없어요'), findsOneWidget);
-        expect(find.textContaining('거리 확인 불가'), findsOneWidget);
+        expect(find.textContaining('거리 정보 없음'), findsOneWidget);
         expect(find.textContaining('내 위치에서 도보 5분'), findsNothing);
         expect(tester.takeException(), isNull);
       });

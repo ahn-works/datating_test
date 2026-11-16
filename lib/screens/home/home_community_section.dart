@@ -132,9 +132,14 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
         final hiddenPosts = globalData.hiddenPostIds.value;
 
         final filteredPosts = allPosts.where((post) {
-          final author = post['author'] ?? '';
-          final postId = post['id'] ?? post['title'] ?? '';
-          if (blocked.contains(author)) return false;
+          final author = (post['author'] ?? '').toString();
+          final authorUid =
+              (post['authorUid'] ?? post['userId'] ?? post['uid'] ?? '')
+                  .toString();
+          final postId = (post['id'] ?? post['title'] ?? '').toString();
+          if (globalData.isTargetBlocked(uid: authorUid, nickname: author)) {
+            return false;
+          }
           if (hiddenPosts.contains(postId)) return false;
 
           if (_categoryFilter != '전체') {
