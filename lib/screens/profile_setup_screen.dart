@@ -54,9 +54,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController _jobController = TextEditingController();
   String _selectedMbti = '';
   final List<String> _selectedHobbies = [];
+  final List<String> _selectedPersonalities = [];
+  final List<String> _selectedDrinking = [];
+  String _selectedSmoking = '';
+  String _selectedPet = '';
   final TextEditingController _bioController = TextEditingController(
     text: '',
   );
+
+  // 라이프스타일 선택 목록
+  final List<String> _personalitiesList = [
+    '리액션 요정', '친화력 갑', '열정 가득', '긍정 에너지',
+    '조용한 편', '배려심 깊은', '센스 있는', '솔직 담백',
+  ];
+  final List<String> _drinkingList = [
+    '가볍게 한잔', '술자리 좋아함', '분위기만 즐김', '비음주',
+  ];
+  final List<String> _smokingList = [
+    '비흡연', '전자담배', '흡연',
+  ];
+  final List<String> _petList = [
+    '반려동물 없음', '강아지', '고양이', '기타 반려동물',
+  ];
 
   // 16가지 MBTI 목록
   final List<String> _mbtiList = [
@@ -128,6 +147,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         }
         if (data['bio'] != null) {
           _bioController.text = data['bio'];
+        }
+        if (data['personalities'] is List) {
+          _selectedPersonalities.clear();
+          for (var p in data['personalities']) {
+            _selectedPersonalities.add(p.toString());
+          }
+        }
+        if (data['drinking'] is List) {
+          _selectedDrinking.clear();
+          for (var d in data['drinking']) {
+            _selectedDrinking.add(d.toString());
+          }
+        }
+        if (data['smoking'] != null && data['smoking'].toString().isNotEmpty) {
+          _selectedSmoking = data['smoking'].toString();
+        }
+        if (data['pet'] != null && data['pet'].toString().isNotEmpty) {
+          _selectedPet = data['pet'].toString();
         }
         if (data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) {
           _photoUrls.clear();
@@ -436,8 +473,37 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     } else {
       if (widget.isEditing || Navigator.canPop(context)) {
         Navigator.pop(context);
+      } else {
+        _showExitConfirmation();
       }
     }
+  }
+
+  void _showExitConfirmation() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r16)),
+        title: const Text('프로필 등록을 건너뛰시겠어요?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
+        content: const Text(
+          '프로필을 나중에 등록해도 동네 모임과 피드를 둘러보실 수 있습니다.\n언제든 마이페이지에서 프로필을 완성하실 수 있어요.',
+          style: TextStyle(fontSize: OomuTokens.fs14, color: textBody, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('계속 작성하기', style: TextStyle(color: textCaption)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            },
+            child: const Text('홈으로 이동', style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   // --- 최종 제출 (Firestore 저장 및 동기화) ---
@@ -457,10 +523,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         hobbies: _selectedHobbies,
         bio: _bioController.text.trim(),
         photoUrls: _photoUrls,
-        personalities: const ['리액션 요정', '친화력 갑'],
-        drinking: const ['가볍게 한잔'],
-        smoking: '비흡연',
-        pet: '반려동물 없음',
+        personalities: _selectedPersonalities,
+        drinking: _selectedDrinking,
+        smoking: _selectedSmoking,
+        pet: _selectedPet,
       );
 
       if (!mounted) return;
@@ -545,7 +611,29 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   color: textCaption,
                 ),
               ),
-              const SizedBox(width: 40), // 좌우 대칭 여백
+              if (!widget.isEditing)
+                TextButton(
+                  onPressed: _showExitConfirmation,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    '나중에 하기',
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs13,
+                      fontWeight: FontWeight.w600,
+                      color: textCaption,
+                    ),
+                  ),
+                )
+              else
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  color: textTitle,
+                  onPressed: () => Navigator.pop(context),
+                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -1068,6 +1156,142 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(OomuTokens.r14), borderSide: const BorderSide(color: primaryColor, width: 1.5)),
             contentPadding: const EdgeInsets.all(16),
           ),
+        ),
+        const SizedBox(height: 22),
+
+        // 5. 음주 성향
+        _buildSectionLabel('음주 성향'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _drinkingList.map((drink) {
+            final isSel = _selectedDrinking.contains(drink);
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSel) {
+                    _selectedDrinking.remove(drink);
+                  } else {
+                    _selectedDrinking.add(drink);
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isSel ? primaryLight : surfaceSub,
+                  borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                ),
+                child: Text(
+                  drink,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs13,
+                    fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
+                    color: isSel ? primaryColor : textBody,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 22),
+
+        // 6. 흡연 여부
+        _buildSectionLabel('흡연 여부'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _smokingList.map((smoke) {
+            final isSel = _selectedSmoking == smoke;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedSmoking = isSel ? '' : smoke),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isSel ? primaryLight : surfaceSub,
+                  borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                ),
+                child: Text(
+                  smoke,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs13,
+                    fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
+                    color: isSel ? primaryColor : textBody,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 22),
+
+        // 7. 반려동물
+        _buildSectionLabel('반려동물'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _petList.map((pet) {
+            final isSel = _selectedPet == pet;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedPet = isSel ? '' : pet),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isSel ? primaryLight : surfaceSub,
+                  borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                ),
+                child: Text(
+                  pet,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs13,
+                    fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
+                    color: isSel ? primaryColor : textBody,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 22),
+
+        // 8. 성격 및 매력 태그
+        _buildSectionLabel('성격 및 매력 태그'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _personalitiesList.map((p) {
+            final isSel = _selectedPersonalities.contains(p);
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSel) {
+                    _selectedPersonalities.remove(p);
+                  } else {
+                    _selectedPersonalities.add(p);
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isSel ? primaryLight : surfaceSub,
+                  borderRadius: BorderRadius.circular(OomuTokens.rPill),
+                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                ),
+                child: Text(
+                  p,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs13,
+                    fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
+                    color: isSel ? primaryColor : textBody,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );

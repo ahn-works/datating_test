@@ -994,9 +994,9 @@ class AuthService {
       if (photoUrls.isNotEmpty) 'photoUrl': photoUrls.first,
       if (photoUrls.isNotEmpty) 'avatarUrl': photoUrls.first,
       'personalities': personalities ?? <String>[],
-      'drinking': drinking ?? <String>['가볍게 한잔'],
-      'smoking': smoking ?? '비흡연',
-      'pet': pet ?? '반려동물 없음',
+      'drinking': drinking ?? <String>[],
+      'smoking': smoking ?? '',
+      'pet': pet ?? '',
       'isProfileComplete': true,
       'updatedAt': FieldValue.serverTimestamp(),
     };

@@ -625,19 +625,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       runSpacing: 6,
                       children: [
                         if (displayJob.isNotEmpty)
-                          OomuTag(label: '💼 $displayJob'),
+                          OomuTag(label: '💼 직무/직업 · $displayJob'),
                         if (displayMbti.isNotEmpty)
-                          OomuTag(label: '🎨 $displayMbti'),
+                          OomuTag(label: '🎨 MBTI · $displayMbti'),
                         if (effectiveDrinking.isNotEmpty)
-                          OomuTag(label: '🍻 ${effectiveDrinking.join(", ")}'),
-                        if (displayAge.isNotEmpty)
-                          OomuTag(label: '🎂 $displayAge세'),
-                        if (cleanGender.isNotEmpty)
-                          OomuTag(label: '👤 $cleanGender'),
+                          OomuTag(label: '🍻 음주 성향 · ${effectiveDrinking.join(", ")}'),
                         if (cleanSmoking.isNotEmpty)
-                          OomuTag(label: '🚭 $cleanSmoking'),
+                          OomuTag(label: '🚭 흡연 여부 · $cleanSmoking'),
                         if (cleanPet.isNotEmpty)
-                          OomuTag(label: '🐶 $cleanPet'),
+                          OomuTag(label: '🐶 반려동물 · $cleanPet'),
+                        if (displayAge.isNotEmpty)
+                          OomuTag(label: '🎂 나이 · $displayAge세'),
+                        if (cleanGender.isNotEmpty)
+                          OomuTag(label: '👤 성별 · $cleanGender'),
                       ],
                     )
                   else
