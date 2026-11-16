@@ -7,6 +7,8 @@ import 'package:spot10_app/screens/settings_screen.dart';
 import 'package:spot10_app/screens/user_profile_screen.dart';
 import 'package:spot10_app/services/auth_service.dart';
 import 'package:spot10_app/services/meetup_application_service.dart';
+import 'package:spot10_app/services/r2_storage_service.dart';
+import 'package:spot10_app/utils/app_image.dart';
 import 'package:spot10_app/utils/firestore_time.dart';
 import 'package:spot10_app/utils/global_data.dart';
 import 'package:spot10_app/utils/meetup_member_helper.dart';
@@ -237,6 +239,37 @@ void main() {
       expect(find.textContaining('본인인증 완료'), findsNothing);
 
       globalData.resetSession();
+    });
+  });
+
+  group('4. [0단계] app_image.dart Base64 및 R2 covers/<ts>_파일명 실사진 해소 검증', () {
+    test('data:image Base64 Data URL이 NetworkImage가 아닌 MemoryImage로 디코딩된다', () {
+      const tinyPngBase64 =
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+      final provider = appImg(tinyPngBase64);
+      expect(provider, isA<MemoryImage>());
+    });
+
+    test('covers/<ts>_파일명(run 포함 포함)이 스톡 에셋으로 치환되지 않고 R2 NetworkImage로 해소된다', () {
+      final prevBase = r2Storage.publicBaseUrl;
+      r2Storage.publicBaseUrl = 'https://cdn.oomu.app';
+      try {
+        final userCover = appImg('covers/1794800000_my_run_club.jpg');
+        expect(userCover, isA<NetworkImage>());
+        expect(
+          (userCover as NetworkImage).url,
+          'https://cdn.oomu.app/covers/1794800000_my_run_club.jpg',
+        );
+
+        final bundledCover = appImg('covers/cover_cafe.jpg');
+        expect(bundledCover, isA<AssetImage>());
+        expect(
+          (bundledCover as AssetImage).assetName,
+          'assets/images/cover_cafe.jpg',
+        );
+      } finally {
+        r2Storage.publicBaseUrl = prevBase;
+      }
     });
   });
 }

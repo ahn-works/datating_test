@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,19 @@ ImageProvider appImg(String? path,
     {String fallback = 'assets/images/cover_food.jpg'}) {
   final target =
       (path != null && path.trim().isNotEmpty) ? path.trim() : fallback;
+
+  // 0. Base64 Data URL 직접 렌더링 (유저가 직접 올린 사진 100% 영구 보존)
+  if (target.startsWith('data:image')) {
+    try {
+      final commaIndex = target.indexOf(',');
+      final base64Str =
+          commaIndex != -1 ? target.substring(commaIndex + 1) : target;
+      return MemoryImage(base64Decode(base64Str));
+    } catch (e) {
+      debugPrint('[appImg] Base64 decode error: $e');
+    }
+  }
+
   if (target.contains('unsplash.com') ||
       target.contains('pravatar.cc') ||
       target.contains('picsum.photos')) {
@@ -64,17 +78,31 @@ ImageProvider appImg(String? path,
   if (target.startsWith('covers/') || target.startsWith('/covers/')) {
     final cleanKey = target.startsWith('/') ? target.substring(1) : target;
     final fileName = cleanKey.substring('covers/'.length);
-    if (fileName.contains('cafe'))
+    // 번들 기본 커버는 '정확 일치'로만 매핑한다(contains 금지: 사용자 파일명에 run/cafe가 들어가면 스톡으로 바뀐다)
+    if (fileName == 'cover_cafe.jpg' || fileName == 'cafe.jpg') {
       return const AssetImage('assets/images/cover_cafe.jpg');
-    if (fileName.contains('wine'))
+    }
+    if (fileName == 'cover_wine.jpg' || fileName == 'wine.jpg') {
       return const AssetImage('assets/images/cover_wine.jpg');
-    if (fileName.contains('run'))
+    }
+    if (fileName == 'cover_running.jpg' || fileName == 'running.jpg') {
       return const AssetImage('assets/images/cover_running.jpg');
-    if (fileName.contains('bread') || fileName.contains('salt'))
+    }
+    if (fileName == 'cover_salt_bread.jpg' || fileName == 'salt_bread.jpg') {
       return const AssetImage('assets/images/cover_salt_bread.jpg');
-    if (fileName.contains('hangang'))
+    }
+    if (fileName == 'cover_running_hangang.jpg' ||
+        fileName == 'running_hangang.jpg') {
       return const AssetImage('assets/images/cover_running_hangang.jpg');
-    return const AssetImage('assets/images/cover_food.jpg');
+    }
+    if (fileName == 'cover_food.jpg' || fileName == 'food.jpg') {
+      return const AssetImage('assets/images/cover_food.jpg');
+    }
+    // 그 외 유저 업로드 사진(timestamp_파일명)은 R2 Public/Presigned URL로 해소
+    final r2Url = r2Storage.getPublicViewUrl(cleanKey);
+    if (!r2Url.startsWith('assets/')) {
+      return NetworkImage(r2Url);
+    }
   }
 
   // 1-3. 만료되었거나 타 세션의 웹 Blob URL은 접근 불가하므로 안전 폴백 에셋으로 즉시 변환
@@ -119,6 +147,10 @@ Widget appNetImage(String? path,
     double? width,
     double? height,
     String fallback = 'assets/images/cover_food.jpg'}) {
+  final hasPath = path != null && path.trim().isNotEmpty;
+  if (!hasPath && fallback.trim().isEmpty) {
+    return const SizedBox.shrink();
+  }
   final cleanFallback =
       (fallback.isNotEmpty) ? fallback : 'assets/images/cover_food.jpg';
   final fallbackAsset = cleanFallback.startsWith('assets/')
@@ -131,25 +163,27 @@ Widget appNetImage(String? path,
     fit: fit,
     width: width,
     height: height,
-    errorBuilder: (_, __, ___) => Image.asset(
-      safeFallback,
-      fit: fit,
+    errorBuilder: (_, __, ___) => Container(
       width: width,
       height: height,
-      errorBuilder: (_, __, ___) => Image.asset(
-        'assets/images/cover_food.jpg',
-        fit: fit,
-        width: width,
-        height: height,
-        errorBuilder: (_, __, ___) => Container(
-          width: width,
-          height: height,
-          color: const Color(0xFFF5F5F7),
-          child: const Center(
-            child:
-                Icon(Icons.photo_outlined, color: Color(0xFFC7C7CC), size: 28),
+      color: const Color(0xFFF5F5F7),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(8),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.photo_outlined, color: Color(0xFFC7C7CC), size: 24),
+          SizedBox(height: 4),
+          Text(
+            '이미지를 불러오지 못했어요',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xFF8E8E93),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
+        ],
       ),
     ),
   );
