@@ -8,6 +8,7 @@ import '../ui/oomu_empty_state.dart';
 import '../ui/oomu_tag.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
+import '../utils/firestore_time.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/balanced_heading.dart';
@@ -52,7 +53,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   String _getPostImageFallback(String category) {
     if (category.contains('맛집') || category.contains('카페')) {
       return 'assets/images/cover_food.jpg';
-    } else if (category.contains('공연') || category.contains('핫플') || category.contains('전시')) {
+    } else if (category.contains('공연') ||
+        category.contains('핫플') ||
+        category.contains('전시')) {
       return 'assets/images/cover_wine.jpg';
     } else if (category.contains('운동') || category.contains('러닝')) {
       return 'assets/images/cover_running.jpg';
@@ -375,9 +378,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             Map<String, dynamic>.from(d.data() as Map<String, dynamic>);
         data['id'] = d.id;
         final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
-        final bool isLiked = (authUid != null && likedUsers.contains(authUid)) ||
-            (activeUid.isNotEmpty && likedUsers.contains(activeUid)) ||
-            likedUsers.contains('user_me_01');
+        final bool isLiked =
+            (authUid != null && likedUsers.contains(authUid)) ||
+                (activeUid.isNotEmpty && likedUsers.contains(activeUid)) ||
+                likedUsers.contains('user_me_01');
         data['isLiked'] = isLiked;
         data['likes'] =
             likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
@@ -385,25 +389,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         return data;
       }).toList();
 
-      docs.sort((a, b) {
-        final aTime = a['createdAt'];
-        final bTime = b['createdAt'];
-        DateTime? dtA, dtB;
-        if (aTime is Timestamp) {
-          dtA = aTime.toDate();
-        } else if (aTime is String) {
-          dtA = DateTime.tryParse(aTime);
-        }
-        if (bTime is Timestamp) {
-          dtB = bTime.toDate();
-        } else if (bTime is String) {
-          dtB = DateTime.tryParse(bTime);
-        }
-        if (dtA != null && dtB != null) {
-          return dtA.compareTo(dtB);
-        }
-        return 0;
-      });
+      docs.sort((a, b) => compareFirestoreTimes(a['createdAt'], b['createdAt'],
+          descending: false));
 
       try {
         widget.post['comments'] = docs.length;
@@ -420,12 +407,15 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     final post = widget.post;
     final author = (post['author'] ?? '동네주민').toString();
     final isAuthorMe = author == globalData.userNickname.value ||
-        (post['authorId'] != null && post['authorId'] == globalData.activeUserId);
-    final effectiveAuthorAvatar = (isAuthorMe && globalData.userAvatar.value.isNotEmpty)
-        ? globalData.userAvatar.value
-        : ((post['authorAvatar'] != null && post['authorAvatar'].toString().isNotEmpty)
-            ? post['authorAvatar'].toString()
-            : '');
+        (post['authorId'] != null &&
+            post['authorId'] == globalData.activeUserId);
+    final effectiveAuthorAvatar =
+        (isAuthorMe && globalData.userAvatar.value.isNotEmpty)
+            ? globalData.userAvatar.value
+            : ((post['authorAvatar'] != null &&
+                    post['authorAvatar'].toString().isNotEmpty)
+                ? post['authorAvatar'].toString()
+                : '');
     final location = (post['location'] ?? '마포구 서교동').toString();
     final time = (post['time'] ?? '방금 전').toString();
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
@@ -523,7 +513,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             if (authorManner != null) ...[
                               const SizedBox(width: OomuTokens.s8),
                               OomuTag(
-                                label: OomuUiHelpers.formatMannerTemp(authorManner),
+                                label: OomuUiHelpers.formatMannerTemp(
+                                    authorManner),
                               ),
                             ],
                           ],
@@ -746,13 +737,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
               final isCommMe = commAuthor == globalData.userNickname.value ||
                   (comm['authorId'] != null &&
                       comm['authorId'] == globalData.activeUserId);
-              final effectiveCommAvatar = (isCommMe &&
-                      globalData.userAvatar.value.isNotEmpty)
-                  ? globalData.userAvatar.value
-                  : ((comm['authorAvatar'] != null &&
-                          comm['authorAvatar'].toString().isNotEmpty)
-                      ? comm['authorAvatar'].toString()
-                      : '');
+              final effectiveCommAvatar =
+                  (isCommMe && globalData.userAvatar.value.isNotEmpty)
+                      ? globalData.userAvatar.value
+                      : ((comm['authorAvatar'] != null &&
+                              comm['authorAvatar'].toString().isNotEmpty)
+                          ? comm['authorAvatar'].toString()
+                          : '');
 
               return Container(
                 color: OomuTokens.surface,
@@ -838,17 +829,19 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                       globalData.activeUserId.isNotEmpty) ||
                                   (comm['author']?.toString() ==
                                           globalData.userNickname.value &&
-                                      globalData.userNickname.value.isNotEmpty)) ...[
+                                      globalData
+                                          .userNickname.value.isNotEmpty)) ...[
                                 const Spacer(),
                                 GestureDetector(
                                   onTap: () async {
-                                    final messenger = ScaffoldMessenger.of(context);
+                                    final messenger =
+                                        ScaffoldMessenger.of(context);
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (dCtx) => AlertDialog(
                                         title: const Text('댓글을 삭제할까요?'),
-                                        content: const Text(
-                                            '삭제된 댓글은 복구할 수 없습니다.'),
+                                        content:
+                                            const Text('삭제된 댓글은 복구할 수 없습니다.'),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
@@ -886,8 +879,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                               .collection('community_posts')
                                               .doc(postId)
                                               .update({
-                                            'comments':
-                                                FieldValue.increment(-1)
+                                            'comments': FieldValue.increment(-1)
                                           });
                                         } catch (_) {}
                                       }
@@ -906,7 +898,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                     }
                                   },
                                   child: const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 4),
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 4),
                                     child: Icon(
                                       Icons.close,
                                       size: 14,
@@ -926,7 +919,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                               color: OomuTokens.textPrimary,
                             ),
                           ),
-                          if ((comm['imageUrl'] ?? comm['stickerUrl']) != null &&
+                          if ((comm['imageUrl'] ?? comm['stickerUrl']) !=
+                                  null &&
                               (comm['imageUrl'] ?? comm['stickerUrl'])
                                   .toString()
                                   .isNotEmpty) ...[
@@ -956,7 +950,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(OomuTokens.r12),
                         onTap: () async {
-                          final authUid = FirebaseAuth.instance.currentUser?.uid;
+                          final authUid =
+                              FirebaseAuth.instance.currentUser?.uid;
                           final activeUid = globalData.activeUserId;
                           final myId = (authUid != null && authUid.isNotEmpty)
                               ? authUid
@@ -964,13 +959,16 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
                           List<dynamic> likedUsers =
                               List<dynamic>.from(comm['likedUserIds'] ?? []);
-                          bool currentlyLiked = (authUid != null && likedUsers.contains(authUid)) ||
-                              (activeUid.isNotEmpty && likedUsers.contains(activeUid)) ||
+                          bool currentlyLiked = (authUid != null &&
+                                  likedUsers.contains(authUid)) ||
+                              (activeUid.isNotEmpty &&
+                                  likedUsers.contains(activeUid)) ||
                               likedUsers.contains('user_me_01');
 
                           if (currentlyLiked) {
                             if (authUid != null) likedUsers.remove(authUid);
-                            if (activeUid.isNotEmpty) likedUsers.remove(activeUid);
+                            if (activeUid.isNotEmpty)
+                              likedUsers.remove(activeUid);
                             likedUsers.remove('user_me_01');
                           } else {
                             likedUsers.add(myId);
@@ -1110,7 +1108,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                             height: 4,
                             decoration: BoxDecoration(
                               color: OomuTokens.border,
-                              borderRadius: BorderRadius.circular(OomuTokens.r8),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r8),
                             ),
                           ),
                           const SizedBox(height: OomuTokens.s16),
@@ -1149,8 +1148,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                 context: context,
                                 builder: (dCtx) => AlertDialog(
                                   title: const Text('게시글을 삭제할까요?'),
-                                  content: const Text(
-                                      '삭제된 게시글은 다시 복구할 수 없습니다.'),
+                                  content:
+                                      const Text('삭제된 게시글은 다시 복구할 수 없습니다.'),
                                   actions: [
                                     TextButton(
                                       onPressed: () =>

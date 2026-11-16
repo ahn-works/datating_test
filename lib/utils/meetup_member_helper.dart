@@ -1,0 +1,149 @@
+/// 모임 정원(capacity) 및 참여 인원(attendance), 카드 표시용 members 문자열을
+/// 안전하고 일관되게 정규화하는 헬퍼 클래스입니다.
+/// 실DB에서 members가 List<UID> 또는 '2/4' String, 또는 누락된 경우를 완벽히 포괄합니다.
+class MeetupMemberHelper {
+  /// 모임의 최대 정원을 반환합니다.
+  /// 우선순위: maxMembers -> capacity -> maxParticipants -> members('X/Y')의 Y -> memberCount 숫자 -> 기본값 4
+  static int parseCapacity(Map<String, dynamic>? data) {
+    if (data == null) return 4;
+
+    // 1. maxMembers
+    final maxMembers = data['maxMembers'];
+    if (maxMembers is num && maxMembers > 0) return maxMembers.toInt();
+    if (maxMembers is String) {
+      final parsed = int.tryParse(maxMembers.replaceAll(RegExp(r'[^0-9]'), ''));
+      if (parsed != null && parsed > 0) return parsed;
+    }
+
+    // 2. capacity
+    final cap = data['capacity'];
+    if (cap is num && cap > 0) return cap.toInt();
+    if (cap is String) {
+      final parsed = int.tryParse(cap.replaceAll(RegExp(r'[^0-9]'), ''));
+      if (parsed != null && parsed > 0) return parsed;
+    }
+
+    // 3. maxParticipants
+    final maxPart = data['maxParticipants'];
+    if (maxPart is num && maxPart > 0) return maxPart.toInt();
+    if (maxPart is String) {
+      final parsed = int.tryParse(maxPart.replaceAll(RegExp(r'[^0-9]'), ''));
+      if (parsed != null && parsed > 0) return parsed;
+    }
+
+    // 4. members 문자열 'X/Y'에서 Y 추출
+    final rawMembers = data['members'];
+    if (rawMembers is String && rawMembers.contains('/')) {
+      final parts = rawMembers.split('/');
+      if (parts.length >= 2) {
+        final parsed =
+            int.tryParse(parts.last.replaceAll(RegExp(r'[^0-9]'), ''));
+        if (parsed != null && parsed > 0) return parsed;
+      }
+    }
+
+    // 5. memberCount ('4명', '정원 4명' 등)
+    final memberCount = data['memberCount'];
+    if (memberCount is num && memberCount > 0) return memberCount.toInt();
+    if (memberCount is String) {
+      final match = RegExp(r'(\d+)')
+          .allMatches(memberCount)
+          .map((m) => m.group(1))
+          .lastOrNull;
+      if (match != null) {
+        final parsed = int.tryParse(match);
+        if (parsed != null && parsed > 0) return parsed;
+      }
+    }
+
+    return 4;
+  }
+
+  /// 모임의 현재 참여 인원수를 반환합니다.
+  /// 우선순위: participantIds.length -> members가 List면 length -> members가 'X/Y'면 X -> members가 숫자면 숫자 -> 기본값 1
+  static int parseAttendance(Map<String, dynamic>? data) {
+    if (data == null) return 1;
+
+    // 1. participantIds 배열
+    final partIds = data['participantIds'];
+    if (partIds is List && partIds.isNotEmpty) {
+      return partIds.length;
+    }
+
+    // 2. members 필드
+    final rawMembers = data['members'];
+    if (rawMembers is List) {
+      return rawMembers.length;
+    }
+    if (rawMembers is num && rawMembers > 0) {
+      return rawMembers.toInt();
+    }
+    if (rawMembers is String) {
+      final str = rawMembers.trim();
+      if (str.contains('/')) {
+        final parts = str.split('/');
+        final parsed =
+            int.tryParse(parts.first.replaceAll(RegExp(r'[^0-9]'), ''));
+        if (parsed != null && parsed >= 0) return parsed;
+      } else {
+        final parsed = int.tryParse(str.replaceAll(RegExp(r'[^0-9]'), ''));
+        if (parsed != null && parsed >= 0) return parsed;
+      }
+    }
+
+    // 3. currentMembers
+    final current = data['currentMembers'];
+    if (current is num && current >= 0) return current.toInt();
+
+    return 1;
+  }
+
+  /// 모임 카드 및 상세 화면에 표시할 '참여인원/정원' (예: '2/4') 문자열을 반환합니다.
+  /// - members가 List면 '${list.length}/${정원}'
+  /// - members가 'X/Y' 형태의 String이면 그대로 반환
+  /// - 누락되거나 기타 형식이면 '${attendance}/${capacity}'로 포맷팅
+  static String formatMembersLabel(Map<String, dynamic>? data,
+      {String fallback = '2/4'}) {
+    if (data == null) return fallback;
+    final rawMembers = data['members'];
+    final cap = parseCapacity(data);
+
+    if (rawMembers is List) {
+      final count = rawMembers.length;
+      return '$count/$cap';
+    }
+
+    if (rawMembers is String) {
+      final str = rawMembers.trim();
+      if (str.contains('/')) {
+        return str;
+      }
+      if (str.isNotEmpty && !str.startsWith('[')) {
+        final numOnly = int.tryParse(str.replaceAll(RegExp(r'[^0-9]'), ''));
+        if (numOnly != null) {
+          return '$numOnly/$cap';
+        }
+        return str;
+      }
+    }
+
+    if (rawMembers is num) {
+      return '${rawMembers.toInt()}/$cap';
+    }
+
+    final att = parseAttendance(data);
+    return '$att/$cap';
+  }
+
+  /// 잔여석 계산 문자열 반환 (예: '2자리 남음', '모집 마감')
+  static String calcRemainingSeats(Map<String, dynamic>? data,
+      {String fallback = '잔여석 있음'}) {
+    if (data == null) return fallback;
+    final cap = parseCapacity(data);
+    final att = parseAttendance(data);
+    final diff = cap - att;
+    if (diff <= 0) return '모집 마감';
+    return '$diff자리 남음';
+  }
+}
+

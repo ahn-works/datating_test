@@ -835,10 +835,24 @@ class DiscoveryApiService {
     return base;
   }
 
-  /// 7. Agify + Genderize + Nationalize.io 실시간 3종 API 결합 (영문 이름/닉네임 글로벌 무드 테스트)
+  /// 7. Agify + Genderize + Nationalize.io 실시간 3종 API 결합 (영문/한글 이름 닉네임 글로벌 무드 테스트)
   Future<NameVibeResult> analyzeNameVibe(String rawInput) async {
-    final clean = rawInput.trim().replaceAll(RegExp(r'[^a-zA-Z]'), '');
-    final queryName = clean.isEmpty ? 'Sophie' : clean;
+    final originalName = rawInput.trim();
+    final cleanEn = originalName.replaceAll(RegExp(r'[^a-zA-Z]'), '');
+    final String queryName;
+    final String displayName;
+
+    if (cleanEn.isNotEmpty) {
+      queryName = cleanEn;
+      displayName = cleanEn;
+    } else if (originalName.isNotEmpty) {
+      final romanized = _romanizeKorean(originalName);
+      queryName = romanized.isNotEmpty ? romanized : 'Sophie';
+      displayName = romanized.isNotEmpty ? '$originalName ($romanized)' : originalName;
+    } else {
+      queryName = 'Sophie';
+      displayName = 'Sophie';
+    }
 
     int age = 27;
     String genderLabel = '부드럽고 세련된 중성·여성 무드';
@@ -897,16 +911,41 @@ class DiscoveryApiService {
     }
 
     final summary =
-        '\'$queryName\' 닉네임은 글로벌 데이터 기준 약 $age세 전후의 트렌디한 감성을 지니고 있으며, ${countries.join(' · ')}에서 특히 친근하게 사랑받는 이름이에요.';
+        '\'$displayName\' 닉네임은 글로벌 데이터 기준 약 $age세 전후의 트렌디한 감성을 지니고 있으며, ${countries.join(' · ')}에서 특히 친근하게 사랑받는 이름이에요.';
 
     return NameVibeResult(
-      name: queryName,
+      name: displayName,
       estimatedAge: age,
       genderLabel: genderLabel,
       genderProbabilityPercent: genderProb,
       topCountries: countries,
       vibeSummary: summary,
     );
+  }
+
+  static String _romanizeKorean(String text) {
+    const cho = ['g', 'kk', 'n', 'd', 'tt', 'r', 'm', 'b', 'pp', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'];
+    const jung = ['a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yu', 'eu', 'ui', 'i'];
+    const jong = ['', 'k', 'k', 'ks', 'n', 'nj', 'nh', 't', 'l', 'lg', 'lm', 'lb', 'ls', 'lt', 'lp', 'lh', 'm', 'p', 'ps', 's', 'ss', 'ng', 'j', 'ch', 'k', 't', 'p', 'h'];
+
+    final sb = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      final code = text.codeUnitAt(i);
+      if (code >= 0xAC00 && code <= 0xD7A3) {
+        final sylIndex = code - 0xAC00;
+        final choIdx = sylIndex ~/ (21 * 28);
+        final jungIdx = (sylIndex % (21 * 28)) ~/ 28;
+        final jongIdx = sylIndex % 28;
+        sb.write(cho[choIdx]);
+        sb.write(jung[jungIdx]);
+        sb.write(jong[jongIdx]);
+      } else if (RegExp(r'[a-zA-Z0-9]').hasMatch(text[i])) {
+        sb.write(text[i]);
+      }
+    }
+    final raw = sb.toString();
+    if (raw.isEmpty) return '';
+    return raw[0].toUpperCase() + raw.substring(1).toLowerCase();
   }
 
   String _mapCountryCodeToKo(String code) {

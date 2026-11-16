@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../ui/oomu_tokens.dart';
+import '../utils/firestore_time.dart';
 import '../utils/global_data.dart';
+import '../utils/meetup_member_helper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -592,7 +595,10 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   String? _selectedVibe;
   int _selectedCategoryIndex = 0;
   String _selectedSubCategory = '전체';
-  Stream<QuerySnapshot>? _meetupStream;
+  StreamSubscription<QuerySnapshot>? _meetupSubscription;
+  List<Map<String, dynamic>> _loadedMeetups = [];
+  bool _isMeetupsLoading = true;
+  Object? _meetupsError;
   bool _showAllMeetups = false;
   Position? _devicePosition;
   bool _isListView = false;
@@ -1027,6 +1033,79 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     _loadDevicePosition();
     globalData.userLocation.addListener(_onGlobalLocationChanged);
     globalData.currentUserId.addListener(_onActiveUserChanged);
+    _subscribeMeetups();
+  }
+
+  @override
+  void dispose() {
+    _meetupSubscription?.cancel();
+    globalData.userLocation.removeListener(_onGlobalLocationChanged);
+    globalData.currentUserId.removeListener(_onActiveUserChanged);
+    super.dispose();
+  }
+
+  void _subscribeMeetups() {
+    _meetupSubscription?.cancel();
+    if (Firebase.apps.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isMeetupsLoading = false;
+          _loadedMeetups = [];
+          _meetupsError = null;
+        });
+      } else {
+        _isMeetupsLoading = false;
+        _loadedMeetups = [];
+        _meetupsError = null;
+      }
+      return;
+    }
+    if (mounted) {
+      setState(() {
+        _isMeetupsLoading = _loadedMeetups.isEmpty;
+        _meetupsError = null;
+      });
+    }
+    try {
+      _meetupSubscription = FirebaseFirestore.instance
+          .collection('meetups')
+          .orderBy('createdAt', descending: true)
+          .limit(20)
+          .snapshots()
+          .listen(
+        (snapshot) {
+          if (!mounted) return;
+          final List<Map<String, dynamic>> items = [];
+          for (final doc in snapshot.docs) {
+            final data = Map<String, dynamic>.from(doc.data())
+              ..['id'] = doc.id;
+            items.add(data);
+          }
+          setState(() {
+            _loadedMeetups = items;
+            _isMeetupsLoading = false;
+            _meetupsError = null;
+          });
+        },
+        onError: (err) {
+          if (!mounted) return;
+          setState(() {
+            _isMeetupsLoading = false;
+            _meetupsError = err;
+          });
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isMeetupsLoading = false;
+          _meetupsError = e;
+        });
+      } else {
+        _isMeetupsLoading = false;
+        _meetupsError = e;
+      }
+    }
   }
 
   Future<void> _seedDatabase() async {}
@@ -1966,124 +2045,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             ),
           ),
 
-        // 3. 메인 모임 피드 (StreamBuilder / Firestore Real meetups + OomuMeetupCard)
+        // 3. 메인 모임 피드 (Firestore Real meetups + OomuMeetupCard)
         SliverToBoxAdapter(
-          child: _getMeetupStream() == null
-              ? HomeMeetupSection(
-                  currentLocation: _currentLocation,
-                  selectedCategoryIndex: _selectedCategoryIndex,
-                  selectedSubCategory: _selectedSubCategory,
-                  selectedVibe: _selectedVibe,
-                  isListView: _isListView,
-                  isLoading: false,
-                  meetups: const [],
-                  showAllMeetups: _showAllMeetups,
-                  onToggleView: (val) => setState(() => _isListView = val),
-                  onToggleShowAll: () =>
-                      setState(() => _showAllMeetups = !_showAllMeetups),
-                  onMeetupTap: (meetup) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OOMUDetailScreen(
-                          meetup: _meetupForDetail(meetup),
-                        ),
-                      ),
-                    );
-                  },
-                  onResetFilters: _resetAllMeetupFilters,
-                )
-              : StreamBuilder<QuerySnapshot>(
-                  stream: _getMeetupStream(),
-                  builder: (context, snapshot) {
-                    final isLoading =
-                        snapshot.connectionState == ConnectionState.waiting;
-                    if (snapshot.hasError ||
-                        !snapshot.hasData ||
-                        snapshot.data!.docs.isEmpty) {
-                      return HomeMeetupSection(
-                        currentLocation: _currentLocation,
-                        selectedCategoryIndex: _selectedCategoryIndex,
-                        selectedSubCategory: _selectedSubCategory,
-                        selectedVibe: _selectedVibe,
-                        isListView: _isListView,
-                        isLoading: isLoading,
-                        meetups: const [],
-                        showAllMeetups: _showAllMeetups,
-                        onToggleView: (val) =>
-                            setState(() => _isListView = val),
-                        onToggleShowAll: () =>
-                            setState(() => _showAllMeetups = !_showAllMeetups),
-                        onMeetupTap: (meetup) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OOMUDetailScreen(
-                                meetup: _meetupForDetail(meetup),
-                              ),
-                            ),
-                          );
-                        },
-                        onResetFilters: _resetAllMeetupFilters,
-                      );
-                    }
-
-                    final List<Map<String, dynamic>> realItems = [];
-                    for (final doc in snapshot.data!.docs) {
-                      final data = Map<String, dynamic>.from(
-                          doc.data() as Map<String, dynamic>)
-                        ..['id'] = doc.id;
-                      realItems.add(data);
-                    }
-
-                    final filteredDocs = realItems
-                        .where((data) => _matchesFilters(data))
-                        .map((m) {
-                          final copy = Map<String, dynamic>.from(m);
-                          copy['distance'] ??= _meetupDistance(copy);
-                          return copy;
-                        })
-                        .toList();
-
-                    filteredDocs.sort((dataA, dataB) {
-                      final scoreA = _calculateLocationRelevanceScore(
-                          dataA['location']?.toString() ?? '');
-                      final scoreB = _calculateLocationRelevanceScore(
-                          dataB['location']?.toString() ?? '');
-                      if (scoreA != scoreB) {
-                        return scoreB.compareTo(scoreA);
-                      }
-                      final timeA = (dataA['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
-                      final timeB = (dataB['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
-                      return timeB.compareTo(timeA);
-                    });
-
-                    return HomeMeetupSection(
-                      currentLocation: _currentLocation,
-                      selectedCategoryIndex: _selectedCategoryIndex,
-                      selectedSubCategory: _selectedSubCategory,
-                      selectedVibe: _selectedVibe,
-                      isListView: _isListView,
-                      isLoading: false,
-                      meetups: filteredDocs,
-                      showAllMeetups: _showAllMeetups,
-                      onToggleView: (val) => setState(() => _isListView = val),
-                      onToggleShowAll: () =>
-                          setState(() => _showAllMeetups = !_showAllMeetups),
-                      onMeetupTap: (meetup) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => OOMUDetailScreen(
-                              meetup: _meetupForDetail(meetup),
-                            ),
-                          ),
-                        );
-                      },
-                      onResetFilters: _resetAllMeetupFilters,
-                    );
-                  },
-                ),
+          child: _buildMeetupSectionContent(),
         ),
 
         // 4. 동네 문화 행사·핫플 큐레이션 (전체 또는 취향 아지트 탭)
@@ -2148,17 +2112,100 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     };
   }
 
-  Stream<QuerySnapshot>? _getMeetupStream() {
-    try {
-      if (Firebase.apps.isEmpty) return null;
-      return _meetupStream ??= FirebaseFirestore.instance
-          .collection('meetups')
-          .orderBy('createdAt', descending: true)
-          .limit(20)
-          .snapshots();
-    } catch (e) {
-      return null;
+  Widget _buildMeetupSectionContent() {
+    if (_meetupsError != null && _loadedMeetups.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.refresh_rounded,
+                  size: 40, color: OomuTokens.textSecondary),
+              const SizedBox(height: 12),
+              const Text(
+                '모임 목록을 불러오지 못했어요.',
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: _subscribeMeetups,
+                child: const Text('다시 시도하기',
+                    style: TextStyle(
+                        color: OomuTokens.coral,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        ),
+      );
     }
+
+    if (_isMeetupsLoading && _loadedMeetups.isEmpty) {
+      return HomeMeetupSection(
+        currentLocation: _currentLocation,
+        selectedCategoryIndex: _selectedCategoryIndex,
+        selectedSubCategory: _selectedSubCategory,
+        selectedVibe: _selectedVibe,
+        isListView: _isListView,
+        isLoading: true,
+        meetups: const [],
+        showAllMeetups: _showAllMeetups,
+        onToggleView: (val) => setState(() => _isListView = val),
+        onToggleShowAll: () =>
+            setState(() => _showAllMeetups = !_showAllMeetups),
+        onMeetupTap: (meetup) {},
+        onResetFilters: _resetAllMeetupFilters,
+      );
+    }
+
+    final filteredDocs = _loadedMeetups
+        .where((data) => _matchesFilters(data))
+        .map((m) {
+          final copy = Map<String, dynamic>.from(m);
+          copy['distance'] ??= _meetupDistance(copy);
+          return copy;
+        })
+        .toList();
+
+    filteredDocs.sort((dataA, dataB) {
+      final scoreA = _calculateLocationRelevanceScore(
+          dataA['location']?.toString() ?? '');
+      final scoreB = _calculateLocationRelevanceScore(
+          dataB['location']?.toString() ?? '');
+      if (scoreA != scoreB) {
+        return scoreB.compareTo(scoreA);
+      }
+      return compareFirestoreTimes(dataA['createdAt'], dataB['createdAt']);
+    });
+
+    return HomeMeetupSection(
+      currentLocation: _currentLocation,
+      selectedCategoryIndex: _selectedCategoryIndex,
+      selectedSubCategory: _selectedSubCategory,
+      selectedVibe: _selectedVibe,
+      isListView: _isListView,
+      isLoading: false,
+      meetups: filteredDocs,
+      showAllMeetups: _showAllMeetups,
+      onToggleView: (val) => setState(() => _isListView = val),
+      onToggleShowAll: () =>
+          setState(() => _showAllMeetups = !_showAllMeetups),
+      onMeetupTap: (meetup) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OOMUDetailScreen(
+              meetup: _meetupForDetail(meetup),
+            ),
+          ),
+        );
+      },
+      onResetFilters: _resetAllMeetupFilters,
+    );
   }
 
   Widget _buildBottomNav(BuildContext context) {

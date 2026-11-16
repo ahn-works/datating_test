@@ -7,6 +7,7 @@ import '../../ui/oomu_empty_state.dart';
 import '../../ui/oomu_tag.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
+import '../../utils/firestore_time.dart';
 import '../../utils/global_data.dart';
 import '../../utils/oomu_ui_helpers.dart';
 import '../../widgets/bouncy_tap.dart';
@@ -124,12 +125,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
           if (scoreA != scoreB) {
             return scoreB.compareTo(scoreA);
           }
-          final aTime = a['createdAt'];
-          final bTime = b['createdAt'];
-          if (aTime is Timestamp && bTime is Timestamp) {
-            return bTime.compareTo(aTime);
-          }
-          return 0;
+          return compareFirestoreTimes(a['createdAt'], b['createdAt']);
         });
 
         final blocked = globalData.blockedUsers.value;

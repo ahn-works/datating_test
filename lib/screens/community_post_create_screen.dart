@@ -254,7 +254,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Category selector (2x2 Grid)
+            // Category selector (한 줄 수평 4분할 레이아웃 - 아이콘/이모지 배제, 전문성 있는 웜 미니멀 칩)
             const Text(
               '카테고리 선택',
               style: TextStyle(
@@ -267,15 +267,11 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
             Row(
               children: [
                 Expanded(child: _buildCategoryItem(_categories[0])),
-                const SizedBox(width: OomuTokens.s8),
+                const SizedBox(width: 6),
                 Expanded(child: _buildCategoryItem(_categories[1])),
-              ],
-            ),
-            const SizedBox(height: OomuTokens.s8),
-            Row(
-              children: [
+                const SizedBox(width: 6),
                 Expanded(child: _buildCategoryItem(_categories[2])),
-                const SizedBox(width: OomuTokens.s8),
+                const SizedBox(width: 6),
                 Expanded(child: _buildCategoryItem(_categories[3])),
               ],
             ),
@@ -559,7 +555,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(
-          horizontal: OomuTokens.s12,
+          horizontal: 4,
           vertical: 10,
         ),
         decoration: BoxDecoration(
@@ -573,7 +569,7 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
               ? [
                   BoxShadow(
                     color: OomuTokens.coral.withValues(alpha: 0.25),
-                    blurRadius: 8,
+                    blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ]
@@ -582,10 +578,13 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
         child: Center(
           child: Text(
             cat,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: OomuTokens.fs13,
+              fontSize: 12.5,
               fontWeight: isSelected ? OomuTokens.w700 : OomuTokens.w600,
               color: isSelected ? Colors.white : OomuTokens.textPrimary,
+              letterSpacing: -0.3,
             ),
           ),
         ),

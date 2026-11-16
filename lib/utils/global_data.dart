@@ -100,10 +100,14 @@ class GlobalData {
         temperature.value = parsed;
       }
     }
-    if (data['savedMeetups'] is List) {
+    if (data['savedMeetups'] is List && (data['savedMeetups'] as List).isNotEmpty) {
       savedMeetups.value = (data['savedMeetups'] as List)
           .whereType<Map>()
           .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } else if (data['savedMeetupIds'] is List && (data['savedMeetupIds'] as List).isNotEmpty) {
+      savedMeetups.value = (data['savedMeetupIds'] as List)
+          .map((id) => <String, dynamic>{'id': id.toString(), 'title': '찜한 모임'})
           .toList();
     }
     if (data['blockedUsers'] is List) {
@@ -274,7 +278,7 @@ class GlobalData {
       'detail': detail ?? '',
       'status': '접수됨 (24시간 내 검토)',
       'date': '방금 전',
-      'createdAt': DateTime.now().toIso8601String(),
+      'createdAt': Timestamp.now(),
     };
     history.insert(0, reportEntry);
     reportHistory.value = history;

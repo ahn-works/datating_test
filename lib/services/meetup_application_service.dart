@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/meetup_member_helper.dart';
 
 /// Persisted requests only. Permission denial is surfaced; there is no simulated
 /// approval or local-success fallback. Server rules must enforce the same roles.
@@ -7,19 +8,11 @@ class MeetupApplicationService {
   // Enable only after deployed Firestore rules and real request/approval tests
   // have been verified. Local UI work must not expose an unverified write path.
   static const enabled = bool.fromEnvironment('OOMU_ENABLE_APPLICATIONS', defaultValue: true);
-  static int capacity(Map<String, dynamic> data) {
-    final explicit = data['maxMembers'];
-    if (explicit is num) return explicit.toInt();
-    final members = (data['members'] ?? '').toString().split('/');
-    return int.tryParse(members.length == 2 ? members.last : '') ?? 0;
-  }
+  static int capacity(Map<String, dynamic> data) =>
+      MeetupMemberHelper.parseCapacity(data);
 
-  static int attendance(Map<String, dynamic> data) {
-    final parts = (data['members'] ?? '').toString().split('/');
-    return int.tryParse(parts.first) ??
-        (data['participantIds'] as List?)?.length ??
-        0;
-  }
+  static int attendance(Map<String, dynamic> data) =>
+      MeetupMemberHelper.parseAttendance(data);
 
   static String hostUid(Map<String, dynamic> data) =>
       (data['hostUid'] ?? data['hostId'] ?? '').toString();
@@ -85,10 +78,16 @@ class MeetupApplicationService {
         if (capacity(data) <= 0 || next > capacity(data)) {
           throw StateError('모임 정원을 초과해 승인할 수 없어요.');
         }
-        tx.update(meetup, {
+        final rawMembers = data['members'];
+        final updates = <String, dynamic>{
           'participantIds': FieldValue.arrayUnion([applicantUid]),
-          'members': '$next/${capacity(data)}'
-        });
+        };
+        if (rawMembers is List) {
+          updates['members'] = FieldValue.arrayUnion([applicantUid]);
+        } else {
+          updates['members'] = '$next/${capacity(data)}';
+        }
+        tx.update(meetup, updates);
         tx.set(db.collection('chatRooms').doc(meetupId), {
           'id': meetupId,
           'meetupId': meetupId,

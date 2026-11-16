@@ -34,9 +34,10 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
     }
   }
 
-  // 1. Flutter 로컬 에셋 경로
+  // 1. Flutter 로컬 에셋 경로 (한글 파일명은 Web/GitHub Pages 인코딩 오류 방지 위해 안전한 영문 에셋으로 자동 매핑)
   if (target.startsWith('assets/')) {
-    return AssetImage(target);
+    final safePath = _resolveSafeAssetPath(target);
+    return AssetImage(safePath);
   }
 
   // 1-1. R2 프로필 키 중 번들 에셋에 존재하는 실제 사진 즉시 로컬 에셋 매핑 (CORS 및 렌더링 지연 원천 차단)
@@ -101,22 +102,31 @@ ImageProvider appImg(String? path, {String fallback = 'assets/images/cover_food.
 Widget appNetImage(String? path, {BoxFit? fit, double? width, double? height, String fallback = 'assets/images/cover_food.jpg'}) {
   final cleanFallback = (fallback.isNotEmpty) ? fallback : 'assets/images/cover_food.jpg';
   final fallbackAsset = cleanFallback.startsWith('assets/') ? cleanFallback : 'assets/images/cover_food.jpg';
+  final safeFallback = _resolveSafeAssetPath(fallbackAsset);
 
   return Image(
-    image: appImg(path, fallback: fallbackAsset),
+    image: appImg(path, fallback: safeFallback),
     fit: fit,
     width: width,
     height: height,
     errorBuilder: (_, __, ___) => Image.asset(
-      fallbackAsset,
+      safeFallback,
       fit: fit,
       width: width,
       height: height,
-      errorBuilder: (_, __, ___) => Container(
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/cover_food.jpg',
+        fit: fit,
         width: width,
         height: height,
-        color: const Color(0xFFF5F5F7),
-        child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
+        errorBuilder: (_, __, ___) => Container(
+          width: width,
+          height: height,
+          color: const Color(0xFFF5F5F7),
+          child: const Center(
+            child: Icon(Icons.photo_outlined, color: Color(0xFFC7C7CC), size: 28),
+          ),
+        ),
       ),
     ),
   );
@@ -131,86 +141,102 @@ String getDiceBearAvatarUrl(String seed, {String style = 'lorelei', int size = 1
 }
 
 const Map<String, String> _bundledProfileMap = {
-  '민지.png': '민지.png',
-  '민지2.png': '민지.png',
-  '시연.png': '시연.png',
-  '정재.png': '정재.png',
-  '정재2.png': '정재.png',
-  '주아.png': '주아.png',
-  '지안.png': '지안.png',
-  '지안2.png': '지안.png',
-  '지연.png': '지연.png',
-  '지연2.png': '지연.png',
-  '지연3.png': '지연.png',
-  '지훈.png': '지훈.png',
-  '지훈2.png': '지훈.png',
-  '지훈3.png': '지훈.png',
-  '초연.png': '초연.png',
-  'minji.png': '민지.png',
-  'minji2.png': '민지.png',
-  'siyan.png': '시연.png',
-  'jeongjae.png': '정재.png',
-  'jeongjae2.png': '정재.png',
-  'jua.png': '주아.png',
-  'jian.png': '지안.png',
-  'jian2.png': '지안.png',
-  'jiyeon.png': '지연.png',
-  'jiyeon2.png': '지연.png',
-  'jiyeon3.png': '지연.png',
-  'jihun.png': '지훈.png',
-  'jihun2.png': '지훈.png',
-  'jihun3.png': '지훈.png',
-  'choyeon.png': '초연.png',
-  'test_user_01.jpg': '민지.png',
-  'test_user_02.jpg': '지훈.png',
-  'test_user_03.jpg': '지연.png',
-  'user_yeosu_neighbor.jpg': '초연.png',
-  'bot_mangwon_runner.jpg': '지안.png',
-  'bot_seongsu_wine.jpg': '정재.png',
-  'bot_yeosu_food.jpg': '정재.png',
-  'bot_yeosu_karaoke.jpg': '시연.png',
-  'bot_yeosu_ungcheon.jpg': '지안.png',
-  'bot_yeosu_running.jpg': '지훈.png',
-  'bot_yeosu_bakery.jpg': '주아.png',
+  '민지.png': 'minji.png',
+  '민지2.png': 'minji.png',
+  '시연.png': 'siyeon.png',
+  '정재.png': 'jungjae.png',
+  '정재2.png': 'jungjae.png',
+  '주아.png': 'jua.png',
+  '지안.png': 'jian.png',
+  '지안2.png': 'jian.png',
+  '지연.png': 'jiyeon.png',
+  '지연2.png': 'jiyeon.png',
+  '지연3.png': 'jiyeon.png',
+  '지훈.png': 'jihun.png',
+  '지훈2.png': 'jihun.png',
+  '지훈3.png': 'jihun.png',
+  '초연.png': 'choyeon.png',
+  'minji.png': 'minji.png',
+  'minji2.png': 'minji.png',
+  'siyan.png': 'siyeon.png',
+  'siyeon.png': 'siyeon.png',
+  'jeongjae.png': 'jungjae.png',
+  'jungjae.png': 'jungjae.png',
+  'jua.png': 'jua.png',
+  'jian.png': 'jian.png',
+  'jian2.png': 'jian.png',
+  'jiyeon.png': 'jiyeon.png',
+  'jiyeon2.png': 'jiyeon.png',
+  'jiyeon3.png': 'jiyeon.png',
+  'jihun.png': 'jihun.png',
+  'jihun2.png': 'jihun.png',
+  'jihun3.png': 'jihun.png',
+  'choyeon.png': 'choyeon.png',
+  'p_choyeon.jpg': 'p_choyeon.jpg',
+  'test_user_01.jpg': 'minji.png',
+  'test_user_02.jpg': 'jihun.png',
+  'test_user_03.jpg': 'jiyeon.png',
+  'user_yeosu_neighbor.jpg': 'choyeon.png',
+  'bot_mangwon_runner.jpg': 'jian.png',
+  'bot_seongsu_wine.jpg': 'jungjae.png',
+  'bot_yeosu_food.jpg': 'jungjae.png',
+  'bot_yeosu_karaoke.jpg': 'siyeon.png',
+  'bot_yeosu_ungcheon.jpg': 'jian.png',
+  'bot_yeosu_running.jpg': 'jihun.png',
+  'bot_yeosu_bakery.jpg': 'jua.png',
 };
+
+/// 한글 파일명 에셋을 웹/서버 안전한 ASCII 에셋 경로로 매핑 (Web 환경에서 URL 인코딩 불일치 방지)
+String _resolveSafeAssetPath(String path) {
+  if (!kIsWeb) return path;
+  if (!path.startsWith('assets/images/')) return path;
+  final fn = path.substring('assets/images/'.length);
+  if (_bundledProfileMap.containsKey(fn)) {
+    return 'assets/images/${_bundledProfileMap[fn]}';
+  }
+  return path;
+}
 
 String? _resolveBundledProfileAsset(String rawName) {
   final trimmed = rawName.trim();
-  if (_bundledProfileMap.containsKey(trimmed)) {
+  if (kIsWeb && _bundledProfileMap.containsKey(trimmed)) {
     return _bundledProfileMap[trimmed];
+  }
+  if (!kIsWeb && (trimmed == '초연.png' || trimmed == '민지.png' || trimmed == '시연.png' || trimmed == '정재.png' || trimmed == '주아.png' || trimmed == '지안.png' || trimmed == '지연.png' || trimmed == '지훈.png')) {
+    return trimmed;
   }
   if (trimmed.contains('%')) {
     try {
       final decoded = Uri.decodeComponent(trimmed).trim();
       if (_bundledProfileMap.containsKey(decoded)) {
-        return _bundledProfileMap[decoded];
+        return kIsWeb ? _bundledProfileMap[decoded] : decoded;
       }
     } catch (_) {}
   }
   // 추가: 초연 / test 계정 / 주요 프로필 키워드 자동 매핑 (CORS 및 로드 오류 원천 차단)
   if (trimmed.contains('초연') || trimmed.contains('choyeon') || trimmed.startsWith('test_')) {
-    return '초연.png';
+    return kIsWeb ? 'choyeon.png' : '초연.png';
   }
   if (trimmed.contains('민지') || trimmed.contains('minji')) {
-    return '민지.png';
+    return kIsWeb ? 'minji.png' : '민지.png';
   }
   if (trimmed.contains('주아') || trimmed.contains('jua')) {
-    return '주아.png';
+    return kIsWeb ? 'jua.png' : '주아.png';
   }
-  if (trimmed.contains('시연') || trimmed.contains('siyan')) {
-    return '시연.png';
+  if (trimmed.contains('시연') || trimmed.contains('siyeon') || trimmed.contains('siyan')) {
+    return kIsWeb ? 'siyeon.png' : '시연.png';
   }
   if (trimmed.contains('지안') || trimmed.contains('jian')) {
-    return '지안.png';
+    return kIsWeb ? 'jian.png' : '지안.png';
   }
-  if (trimmed.contains('지연') || trimmed.contains('jiyeon')) {
-    return '지연.png';
+  if (trimmed.contains('정재') || trimmed.contains('jungjae') || trimmed.contains('jeongjae')) {
+    return kIsWeb ? 'jungjae.png' : '정재.png';
   }
   if (trimmed.contains('지훈') || trimmed.contains('jihun')) {
-    return '지훈.png';
+    return kIsWeb ? 'jihun.png' : '지훈.png';
   }
-  if (trimmed.contains('정재') || trimmed.contains('jeongjae')) {
-    return '정재.png';
+  if (trimmed.contains('지연') || trimmed.contains('jiyeon')) {
+    return kIsWeb ? 'jiyeon.png' : '지연.png';
   }
   return null;
 }

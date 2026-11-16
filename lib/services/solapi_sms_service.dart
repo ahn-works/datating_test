@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/firestore_time.dart';
 
 class SolapiSendResult {
   final bool isSuccess;
@@ -101,7 +102,10 @@ class SolapiSmsService {
     }
 
     final ready = await initialize();
-    if (!ready || _apiKey.isEmpty || _apiSecret.isEmpty || _senderNumber.isEmpty) {
+    if (!ready ||
+        _apiKey.isEmpty ||
+        _apiSecret.isEmpty ||
+        _senderNumber.isEmpty) {
       return SolapiSendResult.error(
           'SMS 발송 설정(Solapi 키 및 발신번호)을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
@@ -171,7 +175,8 @@ class SolapiSmsService {
       } else {
         try {
           final Map<String, dynamic> errData = jsonDecode(response.body);
-          final msg = (errData['errorMessage'] ?? errData['message'] ?? '').toString();
+          final msg =
+              (errData['errorMessage'] ?? errData['message'] ?? '').toString();
 
           // Solapi 콘솔 IP 화이트리스트 제한 감지 (모바일 LTE/5G 등 외부 IP 호출 시 Solapi 거부)
           final bool isIpBlocked = msg.contains('허용되지 않은 IP') ||
@@ -179,7 +184,8 @@ class SolapiSmsService {
               (response.statusCode == 400 && msg.contains('IP'));
 
           if (isIpBlocked) {
-            debugPrint('[SolapiSmsService] Solapi IP whitelist restriction detected: $msg');
+            debugPrint(
+                '[SolapiSmsService] Solapi IP whitelist restriction detected: $msg');
             const testCode = '482915';
             final expiresAt = DateTime.now().add(const Duration(minutes: 10));
             _localSessionCache[phone] = {
@@ -203,11 +209,13 @@ class SolapiSmsService {
             return const SolapiSendResult(
               isSuccess: true,
               verificationId: 'solapi_ip_test_482915',
-              errorMessage: '외부 IP(LTE/모바일) 환경 감지: 테스트 인증번호 [482915]가 자동 발급되었습니다.',
+              errorMessage:
+                  '외부 IP(LTE/모바일) 환경 감지: 테스트 인증번호 [482915]가 자동 발급되었습니다.',
             );
           }
 
-          return SolapiSendResult.error('SMS 발송 오류 (${response.statusCode}): $msg');
+          return SolapiSendResult.error(
+              'SMS 발송 오류 (${response.statusCode}): $msg');
         } catch (_) {
           return SolapiSendResult.error(
               'SMS 발송 서버 오류가 발생했습니다. (${response.statusCode})');
@@ -256,9 +264,9 @@ class SolapiSmsService {
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         final String savedCode = (data['code'] ?? '').toString().trim();
-        final Timestamp? expiresTs = data['expiresAt'] as Timestamp?;
+        final DateTime? expiresAt = parseFirestoreDateTime(data['expiresAt']);
         final isExpired =
-            expiresTs != null && expiresTs.toDate().isBefore(DateTime.now());
+            expiresAt != null && expiresAt.isBefore(DateTime.now());
 
         if (!isExpired && savedCode == trimmedCode) {
           await _markFirestoreVerified(phone);
@@ -284,4 +292,3 @@ class SolapiSmsService {
 }
 
 final solapiSmsService = SolapiSmsService();
-

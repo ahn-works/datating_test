@@ -4,6 +4,7 @@ import '../../ui/oomu_empty_state.dart';
 import '../../ui/oomu_meetup_card.dart';
 import '../../ui/oomu_skeleton.dart';
 import '../../ui/oomu_tokens.dart';
+import '../../utils/meetup_member_helper.dart';
 
 /// 홈 화면 메인 모임 피드 섹션 컴포넌트
 class HomeMeetupSection extends StatelessWidget {
@@ -226,7 +227,8 @@ class HomeMeetupSection extends StatelessWidget {
                       (data['category'] ?? data['mainCategory'])?.toString();
                   final String? hostName = data['host']?.toString();
                   final String? hostAvatar = data['hostAvatar']?.toString();
-                  final String? members = (data['members'] ?? '2/4')?.toString();
+                  final String members =
+                      MeetupMemberHelper.formatMembersLabel(data);
 
                   String? statusBadge;
                   if (data['isFemaleOnly'] == true) {

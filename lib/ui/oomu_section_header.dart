@@ -25,8 +25,9 @@ class OomuSectionHeader extends StatelessWidget {
       padding: padding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
+          Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -60,7 +61,9 @@ class OomuSectionHeader extends StatelessWidget {
           ),
           if (action != null) ...[
             const SizedBox(width: OomuTokens.s8),
-            action!,
+            Flexible(
+              child: action!,
+            ),
           ],
         ],
       ),

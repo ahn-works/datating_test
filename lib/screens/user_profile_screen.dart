@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -334,17 +335,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final displayBio = _userBio.isNotEmpty
         ? _userBio
         : '안녕하세요! OOMU에서 취향이 맞는 동네 친구들을 만나고 싶어요 ✨';
+    final String defaultAvatar = kIsWeb ? 'assets/images/choyeon.png' : 'assets/images/초연.png';
     final displayAvatar = (_userAvatar != null && _userAvatar!.isNotEmpty)
         ? _userAvatar!
-        : 'assets/images/초연.png';
+        : defaultAvatar;
     final double? displayManner = _userManner;
     final displayJob = _userJob;
     final displayMbti = _userMbti;
     final userPhotos = _userPhotos;
 
     final String fallbackPhoto = (_userName.contains('초연') || widget.isSelf)
-        ? 'assets/images/초연.png'
-        : 'assets/images/민지.png';
+        ? defaultAvatar
+        : (kIsWeb ? 'assets/images/minji.png' : 'assets/images/민지.png');
 
     final effectivePersonalities = _userPersonalities.isNotEmpty
         ? _userPersonalities

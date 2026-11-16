@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../services/kakao_map_service.dart';
 import '../services/meetup_application_service.dart';
+import '../utils/meetup_member_helper.dart';
 import '../ui/oomu_avatar.dart';
 import '../ui/oomu_badge.dart';
 import '../ui/oomu_button.dart';
@@ -50,14 +51,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   }
 
   String _calcRemainingSeats(dynamic memberRaw) {
-    return OomuUiHelpers.calcRemainingSeats(memberRaw);
+    return MeetupMemberHelper.calcRemainingSeats(widget.meetup);
   }
 
   int _getMemberCount(dynamic raw) {
-    if (raw is List) return raw.length;
-    if (raw is num) return raw.toInt();
-    if (raw is String) return int.tryParse(raw) ?? (raw.isNotEmpty ? 1 : 0);
-    return 0;
+    return MeetupMemberHelper.parseAttendance(widget.meetup);
   }
 
   @override
@@ -425,7 +423,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     final categoryLabel = (widget.meetup != null ? (widget.meetup!['category'] ?? widget.meetup!['mainCategory'] ?? '일상 & 푸드') : '동네 맛집 & 소셜 다이닝').toString();
     final dateStr = (widget.meetup?['date'] ?? widget.meetup?['schedule'] ?? '').toString().trim();
     final memberCount = _getMemberCount(widget.meetup?['members']);
-    final maxCapacity = MeetupApplicationService.capacity(widget.meetup ?? {});
+    final maxCapacity = MeetupMemberHelper.parseCapacity(widget.meetup);
 
     return Scaffold(
       backgroundColor: OomuTokens.background,
