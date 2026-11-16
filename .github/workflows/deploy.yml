@@ -21,6 +21,8 @@ jobs:
           channel: 'stable'
       - name: Install dependencies
         run: flutter pub get
+      - name: Run unit & widget tests
+        run: flutter test
       - name: Enable Web Platform
         run: flutter create . --platforms web
       - name: Inject Kakao Map and Daum Postcode JS
