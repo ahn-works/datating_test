@@ -564,8 +564,16 @@ class _LoginScreenState extends State<LoginScreen>
           await FirebaseFirestore.instance
               .collection('users')
               .doc(cred.user!.uid)
+              .collection('private')
+              .doc('contact')
               .set({
             'phone': cleanPhone,
+            'phoneNumber': cleanPhone,
+          }, SetOptions(merge: true));
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(cred.user!.uid)
+              .set({
             'isPhoneVerified': true,
           }, SetOptions(merge: true));
         } catch (_) {}
@@ -648,6 +656,47 @@ class _LoginScreenState extends State<LoginScreen>
       _navigateHome(skipProfileCheck: true);
     } catch (_) {
       _navigateHome(skipProfileCheck: true);
+    }
+  }
+
+  // 7. 테스트 / 체험 계정 1초 빠른 로그인
+  Future<void> _handleTestUserLogin(Map<String, dynamic> testUser) async {
+    final uid = testUser['uid'] as String;
+    final nickname = (testUser['nickname'] as String? ?? '테스트회원').split('(').first.trim();
+    _showLoading('$nickname 계정으로 접속 중...');
+
+    try {
+      globalData.switchUser(uid, triggerFirestoreSync: false);
+
+      if (Firebase.apps.isNotEmpty) {
+        try {
+          final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+          if (doc.exists && doc.data() != null) {
+            final data = Map<String, dynamic>.from(doc.data()!);
+            data['isProfileComplete'] = true;
+            globalData.applyProfileData(data);
+          } else {
+            globalData.applyProfileData(testUser);
+          }
+        } catch (_) {
+          globalData.applyProfileData(testUser);
+        }
+      } else {
+        globalData.applyProfileData(testUser);
+      }
+
+      globalData.isPhoneVerified.value = true;
+      if (testUser['location'] != null) {
+        globalData.userLocation.value = testUser['location'].toString();
+      }
+      globalData.setSkipProfileSetup(true);
+
+      _hideLoading();
+      _showToast('🎉 $nickname 계정으로 접속했습니다!');
+      _navigateHome(skipProfileCheck: true);
+    } catch (e) {
+      _hideLoading();
+      _showToast('로그인 실패: $e');
     }
   }
 
@@ -1347,6 +1396,7 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ],
                   ),
+                  _buildQuickTestAccountsSection(),
                 ],
               ),
 
@@ -1752,7 +1802,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ],
               ),
-
+              _buildQuickTestAccountsSection(),
               const SizedBox(height: OomuTokens.s20),
               const Text(
                 '가입하면 OOMU 이용약관과 개인정보 처리방침에 동의하게 됩니다',
@@ -1766,6 +1816,151 @@ class _LoginScreenState extends State<LoginScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildQuickTestAccountsSection() {
+    final testAccounts = [
+      {
+        'uid': 'udr2AlH3YIX7LEnyHdWGGFcOu2g1',
+        'badge': '👑 대표',
+        'nickname': '안대표 (운영자)',
+        'location': '서울 마포구 연남동',
+        'role': 'admin',
+      },
+      {
+        'uid': 'LZs5U32GQJMkK77hkmaJupgKzwE2',
+        'badge': '🌸 화장동',
+        'nickname': '초연 (29세 여)',
+        'location': '전남 여수시 화장동',
+        'role': 'user',
+      },
+      {
+        'uid': 'test_user_01',
+        'badge': '🧀 망원',
+        'nickname': '민지 (25세 여)',
+        'location': '서울 마포구 망원동',
+        'role': 'user',
+      },
+      {
+        'uid': 'test_user_02',
+        'badge': '🏃 연남',
+        'nickname': '지훈 (28세 남)',
+        'location': '서울 마포구 연남동',
+        'role': 'user',
+      },
+      {
+        'uid': 'test_user_03',
+        'badge': '🍷 성수',
+        'nickname': '지연 (31세 여)',
+        'location': '서울 성동구 성수동',
+        'role': 'user',
+      },
+      {
+        'uid': 'H3dGoPFR02XLmnbLovo9oAhkGd93',
+        'badge': '📱 본인',
+        'nickname': '010회원 (화장동)',
+        'location': '전남 여수시 화장동',
+        'role': 'user',
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 12, bottom: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: OomuTokens.surfaceMuted,
+        borderRadius: BorderRadius.circular(OomuTokens.r12),
+        border: Border.all(color: OomuTokens.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flash_on, size: 15, color: OomuTokens.coral),
+              const SizedBox(width: 4),
+              const Expanded(
+                child: Text(
+                  '체험 바로가기 (원클릭 입장)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    fontWeight: FontWeight.w700,
+                    color: OomuTokens.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: OomuTokens.primarySubtle,
+                  borderRadius: BorderRadius.circular(OomuTokens.r6),
+                ),
+                child: const Text(
+                  '비번 불필요',
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.coral,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: testAccounts.map((acc) {
+              return InkWell(
+                onTap: () => _handleTestUserLogin(acc),
+                borderRadius: BorderRadius.circular(OomuTokens.r8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(OomuTokens.r8),
+                    border: Border.all(color: OomuTokens.border),
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 240),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          acc['badge'] as String,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            acc['nickname'] as String,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: OomuTokens.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

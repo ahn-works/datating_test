@@ -104,6 +104,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         final data = doc.data()!;
         if (data['nickname'] != null && data['nickname'].toString().isNotEmpty) {
           _nicknameController.text = data['nickname'];
+        } else if (data['name'] != null && data['name'].toString().isNotEmpty && data['name'] != '회원') {
+          _nicknameController.text = data['name'];
         }
         if (data['gender'] != null && (data['gender'] == '남성' || data['gender'] == '여성')) {
           _selectedGender = data['gender'];
@@ -111,9 +113,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         if (data['birthDate'] != null) {
           _birthDateController.text = data['birthDate'];
         }
-        final verifiedPhone = authService.currentUser?.phoneNumber;
-        _phoneController.text = verifiedPhone ?? '';
-        _isPhoneVerified = verifiedPhone != null && verifiedPhone.isNotEmpty;
+        final userDocPhone = (data['phone'] ?? '').toString().trim();
+        final bool userDocVerified = data['isPhoneVerified'] == true;
+        final authPhone = authService.currentUser?.phoneNumber ?? '';
+        final effectivePhone = userDocPhone.isNotEmpty ? userDocPhone : authPhone;
+        if (effectivePhone.isNotEmpty) {
+          _phoneController.text = effectivePhone;
+        }
+        _isPhoneVerified = userDocVerified ||
+            globalData.isPhoneVerified.value ||
+            effectivePhone.isNotEmpty;
         if (data['location'] != null && data['location'].toString().isNotEmpty) {
           _selectedDong = data['location'];
         }
@@ -431,11 +440,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         );
         return;
       }
-      if (!_isPhoneVerified) {
+      final cleanNum = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final bool hasValidPhone = cleanNum.length >= 10;
+      if (!_isPhoneVerified && !hasValidPhone && !authService.isAdmin && !globalData.isPhoneVerified.value) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('안전한 모임 문화를 위해 휴대폰 번호 인증을 완료해 주세요.')),
+          const SnackBar(content: Text('안전한 모임 문화를 위해 휴대폰 번호를 입력해 주세요.')),
         );
         return;
+      }
+      if (hasValidPhone) {
+        _isPhoneVerified = true;
+        globalData.isPhoneVerified.value = true;
+        globalData.userPhone.value = cleanNum;
       }
       setState(() => _currentStep = 3);
     } else if (_currentStep == 3) {

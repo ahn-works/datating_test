@@ -225,17 +225,18 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
               return;
             }
             await FirebaseFirestore.instance
-                .collection('user_profiles')
+                .collection('users')
                 .doc(user.uid)
+                .collection('private')
+                .doc('contact')
                 .set({
               'phone': cleanPhone,
-              'isPhoneVerified': true,
+              'phoneNumber': cleanPhone,
             }, SetOptions(merge: true));
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(user.uid)
                 .set({
-              'phone': cleanPhone,
               'isPhoneVerified': true,
             }, SetOptions(merge: true));
           } catch (_) {}
