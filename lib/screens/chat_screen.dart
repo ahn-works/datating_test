@@ -401,7 +401,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             final memberCount =
                                 chatParticipantIds(room).length;
                             final avatarPath =
-                                (room['avatarUrl'] ?? room['coverImage'] ?? '')
+                                (room['imageUrl'] ??
+                                        room['coverImage'] ??
+                                        room['avatarUrl'] ??
+                                        '')
                                     .toString();
                             final timeText =
                                 (room['lastTime'] ?? '방금').toString();

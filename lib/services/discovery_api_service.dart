@@ -194,7 +194,8 @@ class DiscoveryApiService {
       if (const String.fromEnvironment('OOMU_API_PROXY_URL').isNotEmpty)
         'proxyUrl': const String.fromEnvironment('OOMU_API_PROXY_URL'),
       if (const String.fromEnvironment('OPENWEATHER_API_KEY').isNotEmpty)
-        'openWeatherApiKey': const String.fromEnvironment('OPENWEATHER_API_KEY'),
+        'openWeatherApiKey':
+            const String.fromEnvironment('OPENWEATHER_API_KEY'),
     };
     try {
       final doc = await FirebaseFirestore.instance
@@ -267,11 +268,11 @@ class DiscoveryApiService {
         final meteoFuture = http
             .get(Uri.parse(
                 'https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&timezone=Asia%2FSeoul'))
-            .timeout(const Duration(seconds: 3));
+            .timeout(const Duration(seconds: 7));
         final airFuture = http
             .get(Uri.parse(
                 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${coords.lat}&longitude=${coords.lon}&current=pm10'))
-            .timeout(const Duration(seconds: 3));
+            .timeout(const Duration(seconds: 7));
 
         final results = await Future.wait([meteoFuture, airFuture]);
         if (results[0].statusCode == 200) {
@@ -298,7 +299,8 @@ class DiscoveryApiService {
       debugPrint('[DiscoveryApiService] Weather fallback used: $e');
     }
 
-    final String airLabel = pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : (pm10 > 0 ? '좋음' : '확인불가'));
+    final String airLabel =
+        pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : (pm10 > 0 ? '좋음' : '확인불가'));
 
     // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합
     String headline;

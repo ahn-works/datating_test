@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'screens/profile_setup_screen.dart';
 import 'screens/user_profile_screen.dart';
@@ -104,7 +105,7 @@ Widget resolveInitialRouteWidget(
 
   if (isLogin) {
     globalData.switchUser('guest');
-    return const LoginScreen();
+    return const LoginScreen(initialStage: 2);
   }
 
   if (isDetail) {
@@ -166,11 +167,22 @@ void main() async {
         measurementId: "G-341F6S06TG",
       ),
     );
-    await r2Storage.initFromFirestore();
-    await KakaoMapService.ensureKeysLoaded();
   } catch (e) {
-    debugPrint("Firebase/R2 init error: $e");
+    debugPrint("Firebase init error: $e");
   }
+
+  // 비동기 서비스 초기화는 앱 렌더링을 블로킹하지 않도록 3초 타임아웃과 함께 백그라운드로 처리
+  unawaited(Future.wait([
+    r2Storage
+        .initFromFirestore()
+        .timeout(const Duration(seconds: 3), onTimeout: () {}),
+    KakaoMapService.ensureKeysLoaded()
+        .timeout(const Duration(seconds: 3), onTimeout: () {}),
+  ]).catchError((e) {
+    debugPrint("Background services init error: $e");
+    return <void>[];
+  }));
+
   runApp(const Spot10App());
 }
 

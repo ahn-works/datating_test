@@ -36,6 +36,8 @@ class OomuChip extends StatelessWidget {
         minHeight: OomuTokens.touchTarget,
       ),
       child: Center(
+        widthFactor: 1.0,
+        heightFactor: 1.0,
         child: Material(
           color: Colors.transparent,
           child: InkWell(

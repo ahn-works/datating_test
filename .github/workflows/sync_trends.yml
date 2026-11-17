@@ -36,6 +36,9 @@ jobs:
           python scripts/sync_trends.py
 
       - name: 🧹 Purge 3-Day Expired Events & Clean Cloudflare R2
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          REQUIRE_FIREBASE_AUTH: "true"
         run: |
           python scripts/cleanup_stale_data.py --days 3
 

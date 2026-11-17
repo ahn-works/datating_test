@@ -45,6 +45,7 @@ SAFE_EMAIL_ALLOWLIST = {
     'cleanPhone@oomu.app',
     'choyeon@test.oomu.app',
     'github-actions@github.com',
+    'test11@naver.com',
 }
 
 KNOWN_KAKAO_KEYS = [

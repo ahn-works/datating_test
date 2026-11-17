@@ -46,7 +46,6 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
   // API 데이터 상태
   WeatherMoodRecipe? _weatherRecipe;
-  bool _loadingWeather = true;
   List<TrendMovieItem> _movies = const [];
   List<FashionDietTrendItem> _fashionDietItems = const [];
   List<CountrySpotItem> _countries = const [];
@@ -94,12 +93,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   }
 
   Future<void> _loadWeatherAndRecipes() async {
-    if (mounted) setState(() => _loadingWeather = true);
     final res = await _service.fetchWeatherAndRecipes(widget.currentLocation);
     if (mounted) {
       setState(() {
         _weatherRecipe = res;
-        _loadingWeather = false;
       });
     }
   }
@@ -343,9 +340,11 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
             ),
             const SizedBox(height: 10),
             Text(
-              _loadingWeather && data == null
-                  ? '바람 불고 출출한 오늘, $_dongLabel 삼겹살·해물파전 맛집 & 집밥 레시피'
-                  : '바람 불고 쌀쌀한 날엔 노릇한 미나리 삼겹살 & 바삭한 해물파전 어때요?',
+              data != null && data.hasWeather
+                  ? (data.tempC < 15
+                      ? '바람 불고 쌀쌀한 날엔 노릇한 미나리 삼겹살 & 바삭한 해물파전 어때요?'
+                      : '오늘 같은 날엔 $_dongLabel 인기 맛집 & 맛있는 집밥 어때요?')
+                  : '오늘 $_dongLabel에서 즐기기 좋은 인기 맛집 & 집밥 레시피',
               style: const TextStyle(
                 fontSize: 15.5,
                 fontWeight: FontWeight.w800,
@@ -579,6 +578,61 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
     final List<Map<String, dynamic>> feedItems = _collectFeedItems();
 
+    if (feedItems.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: const BoxDecoration(
+                  color: OomuTokens.surfaceMuted,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.info_outline,
+                    size: 26, color: textSecondary),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                '등록된 정보가 아직 없어요',
+                style: TextStyle(
+                  fontSize: OomuTokens.fs15,
+                  fontWeight: FontWeight.bold,
+                  color: textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                '새로운 소식이 등록되면 빠르게 알려드릴게요!',
+                style: TextStyle(
+                  fontSize: OomuTokens.fs13,
+                  color: textSecondary,
+                ),
+              ),
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                onPressed: _loadWeatherAndRecipes,
+                icon: const Icon(Icons.refresh, size: 16, color: brandCoral),
+                label: const Text('다시 불러오기',
+                    style: TextStyle(
+                        color: brandCoral,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: brandCoral),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (_isGridView) {
       final int rowCount = (feedItems.length + 1) ~/ 2;
       return Padding(
@@ -759,9 +813,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   fit: StackFit.expand,
                   children: [
                     Image(
-                      image: appImg(
-                          (item['image'] ?? 'assets/images/cover_food.jpg')
-                              .toString()),
+                      image: appImg(((item['image']?.toString().trim().isNotEmpty ??
+                              false)
+                          ? item['image'].toString()
+                          : 'assets/images/cover_food.jpg')),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Image.asset(
                         'assets/images/cover_food.jpg',
@@ -857,9 +912,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                 width: 80,
                 height: 80,
                 child: Image(
-                  image: appImg(
-                      (item['image'] ?? 'assets/images/cover_food.jpg')
-                          .toString()),
+                  image: appImg(((item['image']?.toString().trim().isNotEmpty ??
+                          false)
+                      ? item['image'].toString()
+                      : 'assets/images/cover_food.jpg')),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Image.asset(
                     'assets/images/cover_food.jpg',

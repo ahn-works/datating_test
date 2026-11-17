@@ -361,12 +361,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 const Text('차단하기', style: TextStyle(color: Colors.redAccent)),
             onPressed: () {
               Navigator.pop(ctx);
-              if (widget.userId != null && widget.userId!.isNotEmpty) {
-                globalData.blockUid(widget.userId!);
-              }
-              if (_userName.isNotEmpty) {
-                globalData.blockUser(_userName);
-              }
+              globalData.blockUser(widget.userId ?? _userName);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -625,13 +620,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildProfileKeyValueRow('💼 ${ProfileOptions.jobLabel}', displayJob),
-                        _buildProfileKeyValueRow('🎂 ${ProfileOptions.ageLabel}', displayAge.isNotEmpty ? '$displayAge세' : ''),
-                        _buildProfileKeyValueRow('👤 ${ProfileOptions.genderLabel}', cleanGender),
-                        _buildProfileKeyValueRow('🎨 ${ProfileOptions.mbtiLabel}', displayMbti),
-                        _buildProfileKeyValueRow('🍻 ${ProfileOptions.drinkingLabel}', effectiveDrinking.join(', ')),
-                        _buildProfileKeyValueRow('🚭 ${ProfileOptions.smokingLabel}', cleanSmoking),
-                        _buildProfileKeyValueRow('🐶 ${ProfileOptions.petLabel}', cleanPet, isLast: true),
+                        _buildProfileKeyValueRow(
+                            '💼 ${ProfileOptions.jobLabel}', displayJob),
+                        _buildProfileKeyValueRow(
+                            '🎂 ${ProfileOptions.ageLabel}',
+                            displayAge.isNotEmpty ? '$displayAge세' : ''),
+                        _buildProfileKeyValueRow(
+                            '👤 ${ProfileOptions.genderLabel}', cleanGender),
+                        _buildProfileKeyValueRow(
+                            '🎨 ${ProfileOptions.mbtiLabel}', displayMbti),
+                        _buildProfileKeyValueRow(
+                            '🍻 ${ProfileOptions.drinkingLabel}',
+                            effectiveDrinking.join(', ')),
+                        _buildProfileKeyValueRow(
+                            '🚭 ${ProfileOptions.smokingLabel}', cleanSmoking),
+                        _buildProfileKeyValueRow(
+                            '🐶 ${ProfileOptions.petLabel}', cleanPet,
+                            isLast: true),
                       ],
                     ),
                   ),

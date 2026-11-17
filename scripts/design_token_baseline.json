@@ -1,11 +1,11 @@
 {
   "total": {
-    "color_kinds": 113,
-    "color_count": 480,
-    "font_kinds": 20,
-    "font_count": 430,
+    "color_kinds": 101,
+    "color_count": 421,
+    "font_kinds": 19,
+    "font_count": 416,
     "radius_kinds": 15,
-    "radius_count": 228
+    "radius_count": 218
   },
   "files": {
     "lib/screens/chat/chat_modals.dart": {
@@ -43,8 +43,8 @@
     "lib/screens/community_post_detail_screen.dart": {
       "color_kinds": 0,
       "color_count": 0,
-      "font_kinds": 0,
-      "font_count": 0,
+      "font_kinds": 2,
+      "font_count": 7,
       "radius_kinds": 0,
       "radius_count": 0
     },
@@ -153,20 +153,20 @@
       "radius_count": 4
     },
     "lib/screens/my_page_screen.dart": {
-      "color_kinds": 21,
-      "color_count": 53,
+      "color_kinds": 5,
+      "color_count": 12,
       "font_kinds": 9,
-      "font_count": 56,
-      "radius_kinds": 11,
-      "radius_count": 28
+      "font_count": 46,
+      "radius_kinds": 10,
+      "radius_count": 24
     },
     "lib/screens/my_page_sub_screens.dart": {
-      "color_kinds": 21,
-      "color_count": 23,
-      "font_kinds": 8,
-      "font_count": 18,
-      "radius_kinds": 4,
-      "radius_count": 5
+      "color_kinds": 6,
+      "color_count": 6,
+      "font_kinds": 0,
+      "font_count": 0,
+      "radius_kinds": 0,
+      "radius_count": 0
     },
     "lib/screens/natural_meeting_detail_screens.dart": {
       "color_kinds": 4,
@@ -203,18 +203,18 @@
     "lib/screens/oomu_detail_screen.dart": {
       "color_kinds": 4,
       "color_count": 5,
-      "font_kinds": 4,
-      "font_count": 8,
+      "font_kinds": 6,
+      "font_count": 15,
       "radius_kinds": 3,
       "radius_count": 4
     },
     "lib/screens/oomu_home_screen.dart": {
-      "color_kinds": 10,
-      "color_count": 12,
+      "color_kinds": 9,
+      "color_count": 11,
       "font_kinds": 9,
       "font_count": 22,
       "radius_kinds": 7,
-      "radius_count": 11
+      "radius_count": 10
     },
     "lib/screens/oomu_host_screen.dart": {
       "color_kinds": 0,

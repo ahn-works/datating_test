@@ -50,7 +50,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   // Step 3: 활동 동네 설정 (다음 주소 API)
   String _selectedAddress = '';
   String _selectedDong = '';
-  final TextEditingController _detailAddressController = TextEditingController();
+  final TextEditingController _detailAddressController =
+      TextEditingController();
 
   // Step 4: 취향, 직업, MBTI, 한줄 소개
   final TextEditingController _jobController = TextEditingController();
@@ -98,16 +99,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final uid = authService.currentUser?.uid;
     if (uid == null) return;
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (!mounted || authService.currentUser?.uid != uid) return;
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        if (data['nickname'] != null && data['nickname'].toString().isNotEmpty) {
+        if (data['nickname'] != null &&
+            data['nickname'].toString().isNotEmpty) {
           _nicknameController.text = data['nickname'];
-        } else if (data['name'] != null && data['name'].toString().isNotEmpty && data['name'] != '회원') {
+        } else if (data['name'] != null &&
+            data['name'].toString().isNotEmpty &&
+            data['name'] != '회원') {
           _nicknameController.text = data['name'];
         }
-        if (data['gender'] != null && (data['gender'] == '남성' || data['gender'] == '여성')) {
+        if (data['gender'] != null &&
+            (data['gender'] == '남성' || data['gender'] == '여성')) {
           _selectedGender = data['gender'];
         }
         if (data['birthDate'] != null) {
@@ -116,14 +122,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         final userDocPhone = (data['phone'] ?? '').toString().trim();
         final bool userDocVerified = data['isPhoneVerified'] == true;
         final authPhone = authService.currentUser?.phoneNumber ?? '';
-        final effectivePhone = userDocPhone.isNotEmpty ? userDocPhone : authPhone;
+        final effectivePhone =
+            userDocPhone.isNotEmpty ? userDocPhone : authPhone;
         if (effectivePhone.isNotEmpty) {
           _phoneController.text = effectivePhone;
         }
         _isPhoneVerified = userDocVerified ||
-            globalData.isPhoneVerified.value ||
-            effectivePhone.isNotEmpty;
-        if (data['location'] != null && data['location'].toString().isNotEmpty) {
+            globalData.isPhoneVerified.value;
+        if (data['location'] != null &&
+            data['location'].toString().isNotEmpty) {
           _selectedDong = data['location'];
         }
         if (data['address'] != null && data['address'].toString().isNotEmpty) {
@@ -159,14 +166,45 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         if (data['pet'] != null && data['pet'].toString().isNotEmpty) {
           _selectedPet = data['pet'].toString();
         }
-        if (data['photoUrls'] is List && (data['photoUrls'] as List).isNotEmpty) {
+        if (data['photoUrls'] is List &&
+            (data['photoUrls'] as List).isNotEmpty) {
           _photoUrls.clear();
           for (var p in data['photoUrls']) {
             _photoUrls.add(p.toString());
           }
-        } else if (data['photoUrl'] != null && data['photoUrl'].toString().isNotEmpty) {
+        } else if (data['photoUrl'] != null &&
+            data['photoUrl'].toString().isNotEmpty) {
           _photoUrls.add(data['photoUrl'].toString());
         }
+
+        // private/contact 서브컬렉션에서 PII(전화번호, 주소 등) 프리필 복구
+        try {
+          final contactDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .collection('private')
+              .doc('contact')
+              .get();
+          if (contactDoc.exists && contactDoc.data() != null) {
+            final cData = contactDoc.data()!;
+            if (_birthDateController.text.isEmpty && cData['birthDate'] != null) {
+              _birthDateController.text = cData['birthDate'].toString();
+            }
+            final cPhone =
+                (cData['phone'] ?? cData['phoneNumber'] ?? '').toString().trim();
+            if (_phoneController.text.isEmpty && cPhone.isNotEmpty) {
+              _phoneController.text = cPhone;
+            }
+            if (_selectedAddress.isEmpty && cData['address'] != null) {
+              _selectedAddress = cData['address'].toString();
+            }
+            if (_detailAddressController.text.isEmpty &&
+                cData['detailAddress'] != null) {
+              _detailAddressController.text = cData['detailAddress'].toString();
+            }
+          }
+        } catch (_) {}
+
         setState(() {});
       }
     } catch (e) {
@@ -179,28 +217,43 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: borderLight, borderRadius: BorderRadius.circular(OomuTokens.r2))),
+              Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: borderLight,
+                      borderRadius: BorderRadius.circular(OomuTokens.r2))),
               const SizedBox(height: 16),
               Text(
-                targetIndex == 0 ? '⭐ 대표 정면 사진 등록' : '${targetIndex + 1}번째 사진 등록',
-                style: const TextStyle(fontSize: OomuTokens.fs17, fontWeight: FontWeight.bold, color: textTitle),
+                targetIndex == 0
+                    ? '⭐ 대표 정면 사진 등록'
+                    : '${targetIndex + 1}번째 사진 등록',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs17,
+                    fontWeight: FontWeight.bold,
+                    color: textTitle),
               ),
               const SizedBox(height: 16),
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(color: primaryLight, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                      color: primaryLight, shape: BoxShape.circle),
                   child: const Icon(Icons.photo_library, color: primaryColor),
                 ),
-                title: const Text('앨범(갤러리)에서 사진 선택', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('자연스러운 일상이나 선명한 정면 사진', style: TextStyle(fontSize: OomuTokens.fs12)),
+                title: const Text('앨범(갤러리)에서 사진 선택',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('자연스러운 일상이나 선명한 정면 사진',
+                    style: TextStyle(fontSize: OomuTokens.fs12)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _executeImagePick(ImageSource.gallery, targetIndex);
@@ -209,10 +262,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: surfaceSub, shape: BoxShape.circle),
+                  decoration:
+                      BoxDecoration(color: surfaceSub, shape: BoxShape.circle),
                   child: Icon(Icons.camera_alt, color: textTitle),
                 ),
-                title: const Text('카메라로 바로 촬영', style: TextStyle(fontWeight: FontWeight.bold)),
+                title: const Text('카메라로 바로 촬영',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _executeImagePick(ImageSource.camera, targetIndex);
@@ -271,7 +326,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(targetIndex == 0 ? '⭐ 대표 사진이 성공적으로 등록되었습니다!' : '${targetIndex + 1}번째 사진이 등록되었습니다!'),
+            content: Text(targetIndex == 0
+                ? '⭐ 대표 사진이 성공적으로 등록되었습니다!'
+                : '${targetIndex + 1}번째 사진이 등록되었습니다!'),
             backgroundColor: primaryColor,
             duration: const Duration(seconds: 2),
           ),
@@ -280,7 +337,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     } catch (e) {
       setState(() => _isUploadingPhoto = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('사진 선택 오류: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('사진 선택 오류: $e')));
       }
     }
   }
@@ -338,23 +396,40 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
-              left: 20, right: 20, top: 16,
+              left: 20,
+              right: 20,
+              top: 16,
               bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: borderLight, borderRadius: BorderRadius.circular(OomuTokens.r2)))),
+                Center(
+                    child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                            color: borderLight,
+                            borderRadius:
+                                BorderRadius.circular(OomuTokens.r2)))),
                 const SizedBox(height: 16),
-                const Text('활동 동네 선택 (다음 지도 연동)', style: TextStyle(fontSize: OomuTokens.fs18, fontWeight: FontWeight.w800, color: textTitle)),
+                const Text('활동 동네 선택 (다음 지도 연동)',
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs18,
+                        fontWeight: FontWeight.w800,
+                        color: textTitle)),
                 const SizedBox(height: 8),
-                const Text('자주 모이거나 활동하는 동네를 선택해 주세요', style: TextStyle(fontSize: OomuTokens.fs13, color: textCaption)),
+                const Text('자주 모이거나 활동하는 동네를 선택해 주세요',
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs13, color: textCaption)),
                 const SizedBox(height: 16),
                 TextField(
                   controller: searchCtrl,
@@ -363,8 +438,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     prefixIcon: const Icon(Icons.search),
                     filled: true,
                     fillColor: surfaceSub,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(OomuTokens.r14), borderSide: BorderSide.none),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(OomuTokens.r14),
+                        borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                   onSubmitted: (val) {
                     if (val.trim().isNotEmpty) {
@@ -377,7 +455,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                const Text('인기 활동 동네 바로 선택', style: TextStyle(fontSize: OomuTokens.fs13, fontWeight: FontWeight.bold, color: textTitle)),
+                const Text('인기 활동 동네 바로 선택',
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs13,
+                        fontWeight: FontWeight.bold,
+                        color: textTitle)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -393,17 +475,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         Navigator.pop(ctx);
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 9),
                         decoration: BoxDecoration(
                           color: isSel ? primaryLight : surfaceSub,
                           borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                          border: Border.all(color: isSel ? primaryColor : Colors.transparent),
+                          border: Border.all(
+                              color: isSel ? primaryColor : Colors.transparent),
                         ),
                         child: Text(
                           dong,
                           style: TextStyle(
                             fontSize: OomuTokens.fs13,
-                            fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
+                            fontWeight:
+                                isSel ? FontWeight.bold : FontWeight.w600,
                             color: isSel ? primaryColor : textBody,
                           ),
                         ),
@@ -441,16 +526,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         return;
       }
       final cleanNum = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      final bool hasValidPhone = cleanNum.length >= 10;
-      if (!_isPhoneVerified && !hasValidPhone && !authService.isAdmin && !globalData.isPhoneVerified.value) {
+      final bool isAlreadyVerified = _isPhoneVerified ||
+          globalData.isPhoneVerified.value ||
+          authService.isAdmin;
+      if (!isAlreadyVerified) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('안전한 모임 문화를 위해 휴대폰 번호를 입력해 주세요.')),
+          const SnackBar(content: Text('안전한 모임 문화를 위해 휴대폰 번호 인증을 완료해 주세요.')),
         );
         return;
       }
-      if (hasValidPhone) {
-        _isPhoneVerified = true;
-        globalData.isPhoneVerified.value = true;
+      if (cleanNum.isNotEmpty) {
         globalData.userPhone.value = cleanNum;
       }
       setState(() => _currentStep = 3);
@@ -483,11 +568,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r16)),
-        title: const Text('프로필 등록을 건너뛰시겠어요?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OomuTokens.r16)),
+        title: const Text('프로필 등록을 건너뛰시겠어요?',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
         content: const Text(
           '프로필을 나중에 등록해도 동네 모임과 피드를 둘러보실 수 있습니다.\n언제든 마이페이지에서 프로필을 완성하실 수 있어요.',
-          style: TextStyle(fontSize: OomuTokens.fs14, color: textBody, height: 1.4),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14, color: textBody, height: 1.4),
         ),
         actions: [
           TextButton(
@@ -503,7 +592,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 (route) => false,
               );
             },
-            child: const Text('홈으로 이동', style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
+            child: const Text('홈으로 이동',
+                style: TextStyle(
+                    color: primaryColor, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -559,7 +650,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('저장 실패: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('저장 실패: $e')));
       }
     }
   }
@@ -577,7 +669,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             // 2. 스크롤 가능한 본문 영역 (단계별 컨텐츠)
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 child: _buildCurrentStepView(),
               ),
             ),
@@ -619,7 +712,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 TextButton(
                   onPressed: _showExitConfirmation,
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -684,12 +778,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       children: [
         const Text(
           '프로필 사진을 등록해 주세요',
-          style: TextStyle(fontSize: OomuTokens.fs22, fontWeight: FontWeight.w800, color: textTitle, height: 1.35, letterSpacing: -0.4),
+          style: TextStyle(
+              fontSize: OomuTokens.fs22,
+              fontWeight: FontWeight.w800,
+              color: textTitle,
+              height: 1.35,
+              letterSpacing: -0.4),
         ),
         const SizedBox(height: 8),
         const Text(
           '얼굴이 잘 나온 정면 사진을 포함해 3~4장을 등록해 주세요',
-          style: TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.w500, color: textCaption, height: 1.5, letterSpacing: -0.3),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14,
+              fontWeight: FontWeight.w500,
+              color: textCaption,
+              height: 1.5,
+              letterSpacing: -0.3),
         ),
         const SizedBox(height: 24),
 
@@ -734,7 +838,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             const Expanded(
               child: Text(
                 '이목구비가 뚜렷하지 않거나 타인의 사진은 승인이 반려될 수 있어요.',
-                style: TextStyle(fontSize: OomuTokens.fs12, color: textCaption, height: 1.4),
+                style: TextStyle(
+                    fontSize: OomuTokens.fs12, color: textCaption, height: 1.4),
               ),
             ),
           ],
@@ -746,9 +851,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor)),
+                SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: primaryColor)),
                 SizedBox(width: 8),
-                Text('사진을 Cloudflare R2 스토리지에 업로드 중...', style: TextStyle(fontSize: OomuTokens.fs12, color: primaryColor, fontWeight: FontWeight.bold)),
+                Text('사진을 Cloudflare R2 스토리지에 업로드 중...',
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs12,
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -765,7 +878,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       onTap: () => _pickAndUploadPhoto(index),
       child: Container(
         decoration: BoxDecoration(
-          color: hasPhoto ? Colors.black87 : (isMain ? OomuTokens.surface : surfaceSub),
+          color: hasPhoto
+              ? Colors.black87
+              : (isMain ? OomuTokens.surface : surfaceSub),
           borderRadius: BorderRadius.circular(OomuTokens.r16),
           border: Border.all(
             color: hasPhoto ? Colors.transparent : OomuTokens.border,
@@ -789,13 +904,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     Container(
                       width: 64,
                       height: 64,
-                      decoration: const BoxDecoration(color: OomuTokens.surfaceMuted, shape: BoxShape.circle),
-                      child: const Icon(Icons.person, size: 36, color: OomuTokens.textMuted),
+                      decoration: const BoxDecoration(
+                          color: OomuTokens.surfaceMuted,
+                          shape: BoxShape.circle),
+                      child: const Icon(Icons.person,
+                          size: 36, color: OomuTokens.textMuted),
                     ),
                     const SizedBox(height: 12),
-                    const Text('정면 얼굴 사진 추가', style: TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.bold, color: textTitle)),
+                    const Text('정면 얼굴 사진 추가',
+                        style: TextStyle(
+                            fontSize: OomuTokens.fs14,
+                            fontWeight: FontWeight.bold,
+                            color: textTitle)),
                     const SizedBox(height: 4),
-                    const Text('이목구비가 뚜렷한 정면 권장', style: TextStyle(fontSize: OomuTokens.fs11, color: textCaption)),
+                    const Text('이목구비가 뚜렷한 정면 권장',
+                        style: TextStyle(
+                            fontSize: OomuTokens.fs11, color: textCaption)),
                   ],
                 )
               else
@@ -805,11 +929,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     Container(
                       width: 26,
                       height: 26,
-                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                      child: const Icon(Icons.add, size: 18, color: OomuTokens.textMuted),
+                      decoration: const BoxDecoration(
+                          color: Colors.white, shape: BoxShape.circle),
+                      child: const Icon(Icons.add,
+                          size: 18, color: OomuTokens.textMuted),
                     ),
                     const SizedBox(height: 4),
-                    const Text('추가', style: TextStyle(fontSize: OomuTokens.fs11, fontWeight: FontWeight.w600, color: textCaption)),
+                    const Text('추가',
+                        style: TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            fontWeight: FontWeight.w600,
+                            color: textCaption)),
                   ],
                 ),
 
@@ -819,13 +949,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 top: 10,
                 left: 10,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: hasPhoto ? primaryColor : textTitle,
                     borderRadius: BorderRadius.circular(OomuTokens.r6),
-                    boxShadow: hasPhoto ? [BoxShadow(color: primaryColor.withValues(alpha: 0.4), blurRadius: 6)] : null,
+                    boxShadow: hasPhoto
+                        ? [
+                            BoxShadow(
+                                color: primaryColor.withValues(alpha: 0.4),
+                                blurRadius: 6)
+                          ]
+                        : null,
                   ),
-                  child: const Text('⭐ 대표 사진', style: TextStyle(color: Colors.white, fontSize: OomuTokens.fs11, fontWeight: FontWeight.w800)),
+                  child: const Text('⭐ 대표 사진',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: OomuTokens.fs11,
+                          fontWeight: FontWeight.w800)),
                 ),
               ),
 
@@ -838,8 +979,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   onTap: () => _removePhoto(index),
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                    child: const Icon(Icons.close, size: 14, color: Colors.white),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54, shape: BoxShape.circle),
+                    child:
+                        const Icon(Icons.close, size: 14, color: Colors.white),
                   ),
                 ),
               ),
@@ -856,18 +999,29 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       children: [
         const Text(
           '기본 정보를 입력해 주세요',
-          style: TextStyle(fontSize: OomuTokens.fs22, fontWeight: FontWeight.w800, color: textTitle, height: 1.35, letterSpacing: -0.4),
+          style: TextStyle(
+              fontSize: OomuTokens.fs22,
+              fontWeight: FontWeight.w800,
+              color: textTitle,
+              height: 1.35,
+              letterSpacing: -0.4),
         ),
         const SizedBox(height: 8),
         const Text(
           '안전한 동네 커뮤니티를 위해 1인 1계정 휴대폰 본인확인이 필요합니다 (중복 가입 방지)',
-          style: TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.w500, color: textCaption, height: 1.5, letterSpacing: -0.3),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14,
+              fontWeight: FontWeight.w500,
+              color: textCaption,
+              height: 1.5,
+              letterSpacing: -0.3),
         ),
         const SizedBox(height: 24),
 
         // 1. 활동 닉네임 + 중복확인
         _buildSectionLabel('활동 닉네임'),
-        _buildInputField(controller: _nicknameController, hintText: '모임에서 사용할 닉네임'),
+        _buildInputField(
+            controller: _nicknameController, hintText: '모임에서 사용할 닉네임'),
         const SizedBox(height: 22),
 
         // 2. 성별 선택
@@ -904,7 +1058,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         _buildSectionLabel('휴대폰 번호 인증 (1인 1계정 중복 방지)'),
         PhoneVerificationField(
           controller: _phoneController,
-          onVerified: (value) { if (mounted) setState(() => _isPhoneVerified = value); },
+          onVerified: (value) {
+            if (mounted) setState(() => _isPhoneVerified = value);
+          },
         ),
       ],
     );
@@ -917,12 +1073,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       children: [
         const Text(
           '활동 동네를 설정해 주세요',
-          style: TextStyle(fontSize: OomuTokens.fs22, fontWeight: FontWeight.w800, color: textTitle, height: 1.35, letterSpacing: -0.4),
+          style: TextStyle(
+              fontSize: OomuTokens.fs22,
+              fontWeight: FontWeight.w800,
+              color: textTitle,
+              height: 1.35,
+              letterSpacing: -0.4),
         ),
         const SizedBox(height: 8),
         const Text(
           '내 주변 동네 모임과 친구를 추천해 드려요',
-          style: TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.w500, color: textCaption, height: 1.5, letterSpacing: -0.3),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14,
+              fontWeight: FontWeight.w500,
+              color: textCaption,
+              height: 1.5,
+              letterSpacing: -0.3),
         ),
         const SizedBox(height: 24),
 
@@ -940,8 +1106,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   borderRadius: BorderRadius.circular(OomuTokens.r14),
                 ),
                 child: Text(
-                  _selectedAddress.isNotEmpty ? _selectedAddress : '주소 검색을 눌러주세요',
-                  style: const TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.w600, color: textTitle),
+                  _selectedAddress.isNotEmpty
+                      ? _selectedAddress
+                      : '주소 검색을 눌러주세요',
+                  style: const TextStyle(
+                      fontSize: OomuTokens.fs14,
+                      fontWeight: FontWeight.w600,
+                      color: textTitle),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -953,11 +1124,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(OomuTokens.r14)),
                   elevation: 0,
                 ),
                 onPressed: _openDaumAddressSearch,
-                child: const Text('주소 검색', style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs14)),
+                child: const Text('주소 검색',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: OomuTokens.fs14)),
               ),
             ),
           ],
@@ -981,15 +1156,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   color: primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(OomuTokens.r12),
                 ),
-                child: const Icon(Icons.location_on, color: primaryColor, size: 20),
+                child: const Icon(Icons.location_on,
+                    color: primaryColor, size: 20),
               ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_selectedDong, style: const TextStyle(fontSize: OomuTokens.fs15, fontWeight: FontWeight.w800, color: textTitle)),
+                  Text(_selectedDong,
+                      style: const TextStyle(
+                          fontSize: OomuTokens.fs15,
+                          fontWeight: FontWeight.w800,
+                          color: textTitle)),
                   const SizedBox(height: 2),
-                  const Text('내 위치 기반 동네 인증 완료', style: TextStyle(fontSize: OomuTokens.fs12, color: textCaption)),
+                  const Text('내 위치 기반 동네 인증 완료',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs12, color: textCaption)),
                 ],
               ),
             ],
@@ -1004,8 +1186,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             _buildSectionLabel('상세 주소 (동, 호수)'),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: OomuTokens.surfaceMuted, borderRadius: BorderRadius.circular(OomuTokens.r4)),
-              child: const Text('선택 사항', style: TextStyle(fontSize: OomuTokens.fs11, fontWeight: FontWeight.w600, color: textCaption)),
+              decoration: BoxDecoration(
+                  color: OomuTokens.surfaceMuted,
+                  borderRadius: BorderRadius.circular(OomuTokens.r4)),
+              child: const Text('선택 사항',
+                  style: TextStyle(
+                      fontSize: OomuTokens.fs11,
+                      fontWeight: FontWeight.w600,
+                      color: textCaption)),
             ),
           ],
         ),
@@ -1031,7 +1219,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               Expanded(
                 child: Text(
                   '동·호수 등 상세 주소는 엄격하게 암호화 보관되며 타 회원에게 절대 공개되지 않아요. 이웃들에게는 "$_selectedDong" 단위까지만 안전하게 표시됩니다.',
-                  style: const TextStyle(fontSize: OomuTokens.fs12, color: textBody, height: 1.5),
+                  style: const TextStyle(
+                      fontSize: OomuTokens.fs12, color: textBody, height: 1.5),
                 ),
               ),
             ],
@@ -1048,12 +1237,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       children: [
         const Text(
           '취향과 관심사를 선택해 주세요',
-          style: TextStyle(fontSize: OomuTokens.fs22, fontWeight: FontWeight.w800, color: textTitle, height: 1.35, letterSpacing: -0.4),
+          style: TextStyle(
+              fontSize: OomuTokens.fs22,
+              fontWeight: FontWeight.w800,
+              color: textTitle,
+              height: 1.35,
+              letterSpacing: -0.4),
         ),
         const SizedBox(height: 8),
         const Text(
           '비슷한 취향을 가진 동네 친구와 대화할 수 있어요',
-          style: TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.w500, color: textCaption, height: 1.5, letterSpacing: -0.3),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14,
+              fontWeight: FontWeight.w500,
+              color: textCaption,
+              height: 1.5,
+              letterSpacing: -0.3),
         ),
         const SizedBox(height: 24),
 
@@ -1075,11 +1274,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             return GestureDetector(
               onTap: () => setState(() => _selectedMbti = mbti),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
                   color: isSel ? primaryLight : surfaceSub,
                   borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                  border: Border.all(
+                      color: isSel ? primaryColor : Colors.transparent,
+                      width: 1.5),
                 ),
                 child: Text(
                   mbti,
@@ -1100,7 +1302,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildSectionLabel(ProfileOptions.hobbiesLabel),
-            Text('최대 5개 선택 (${_selectedHobbies.length}/5)', style: const TextStyle(fontSize: OomuTokens.fs12, fontWeight: FontWeight.bold, color: primaryColor)),
+            Text('최대 5개 선택 (${_selectedHobbies.length}/5)',
+                style: const TextStyle(
+                    fontSize: OomuTokens.fs12,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor)),
           ],
         ),
         Wrap(
@@ -1118,18 +1324,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       _selectedHobbies.add(hobby);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('취미는 최대 5개까지만 선택할 수 있어요.')),
+                        const SnackBar(
+                            content: Text('취미는 최대 5개까지만 선택할 수 있어요.')),
                       );
                     }
                   }
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
                   color: isSel ? primaryLight : surfaceSub,
                   borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                  border: Border.all(
+                      color: isSel ? primaryColor : Colors.transparent,
+                      width: 1.5),
                 ),
                 child: Text(
                   hobby,
@@ -1150,14 +1360,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         TextField(
           controller: _bioController,
           maxLines: 3,
-          style: const TextStyle(fontSize: OomuTokens.fs14, color: textTitle, height: 1.5),
+          style: const TextStyle(
+              fontSize: OomuTokens.fs14, color: textTitle, height: 1.5),
           decoration: InputDecoration(
             hintText: '어떤 동네 친구를 만나고 싶으신가요? 편하게 적어주세요 😊',
-            hintStyle: const TextStyle(color: textCaption, fontSize: OomuTokens.fs14),
+            hintStyle:
+                const TextStyle(color: textCaption, fontSize: OomuTokens.fs14),
             filled: true,
             fillColor: surfaceSub,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(OomuTokens.r14), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(OomuTokens.r14), borderSide: const BorderSide(color: primaryColor, width: 1.5)),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(OomuTokens.r14),
+                borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(OomuTokens.r14),
+                borderSide: const BorderSide(color: primaryColor, width: 1.5)),
             contentPadding: const EdgeInsets.all(16),
           ),
         ),
@@ -1181,11 +1397,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
                   color: isSel ? primaryLight : surfaceSub,
                   borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                  border: Border.all(
+                      color: isSel ? primaryColor : Colors.transparent,
+                      width: 1.5),
                 ),
                 child: Text(
                   drink,
@@ -1209,13 +1428,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           children: _smokingList.map((smoke) {
             final isSel = _selectedSmoking == smoke;
             return GestureDetector(
-              onTap: () => setState(() => _selectedSmoking = isSel ? '' : smoke),
+              onTap: () =>
+                  setState(() => _selectedSmoking = isSel ? '' : smoke),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
                   color: isSel ? primaryLight : surfaceSub,
                   borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                  border: Border.all(
+                      color: isSel ? primaryColor : Colors.transparent,
+                      width: 1.5),
                 ),
                 child: Text(
                   smoke,
@@ -1241,11 +1464,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             return GestureDetector(
               onTap: () => setState(() => _selectedPet = isSel ? '' : pet),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
                   color: isSel ? primaryLight : surfaceSub,
                   borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                  border: Border.all(
+                      color: isSel ? primaryColor : Colors.transparent,
+                      width: 1.5),
                 ),
                 child: Text(
                   pet,
@@ -1279,11 +1505,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
                   color: isSel ? primaryLight : surfaceSub,
                   borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                  border: Border.all(color: isSel ? primaryColor : Colors.transparent, width: 1.5),
+                  border: Border.all(
+                      color: isSel ? primaryColor : Colors.transparent,
+                      width: 1.5),
                 ),
                 child: Text(
                   p,
@@ -1317,16 +1546,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r16)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(OomuTokens.r16)),
           ),
           onPressed: _isLoading ? null : _onNextStep,
           child: _isLoading
-              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2.5))
               : Text(
                   _currentStep == 4
                       ? (widget.isEditing ? '수정 완료 ✨' : 'OOMU 시작하기 ✨')
                       : '다음으로',
-                  style: const TextStyle(fontSize: OomuTokens.fs16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: OomuTokens.fs16, fontWeight: FontWeight.bold),
                 ),
         ),
       ),
@@ -1339,7 +1574,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(fontSize: OomuTokens.fs14, fontWeight: FontWeight.w700, color: textTitle),
+        style: const TextStyle(
+            fontSize: OomuTokens.fs14,
+            fontWeight: FontWeight.w700,
+            color: textTitle),
       ),
     );
   }
@@ -1350,15 +1588,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: OomuTokens.fs15, fontWeight: FontWeight.w600, color: textTitle),
+      style: const TextStyle(
+          fontSize: OomuTokens.fs15,
+          fontWeight: FontWeight.w600,
+          color: textTitle),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: textCaption, fontWeight: FontWeight.normal, fontSize: OomuTokens.fs14),
+        hintStyle: const TextStyle(
+            color: textCaption,
+            fontWeight: FontWeight.normal,
+            fontSize: OomuTokens.fs14),
         filled: true,
         fillColor: surfaceSub,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(OomuTokens.r14), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(OomuTokens.r14), borderSide: const BorderSide(color: primaryColor, width: 1.5)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(OomuTokens.r14),
+            borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(OomuTokens.r14),
+            borderSide: const BorderSide(color: primaryColor, width: 1.5)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }

@@ -22,42 +22,6 @@ ImageProvider appImg(String? path,
     }
   }
 
-  if (target.contains('unsplash.com') ||
-      target.contains('pravatar.cc') ||
-      target.contains('picsum.photos')) {
-    if (target.contains('1511895426328') ||
-        target.contains('cafe') ||
-        target.contains('1554118811') ||
-        target.contains('1501339817309')) {
-      return const AssetImage('assets/images/cover_cafe.jpg');
-    } else if (target.contains('wine') ||
-        target.contains('1510812431401') ||
-        target.contains('1516280440502')) {
-      return const AssetImage('assets/images/cover_wine.jpg');
-    } else if (target.contains('run') ||
-        target.contains('1502680390469') ||
-        target.contains('1552674605') ||
-        target.contains('1519681393784')) {
-      return const AssetImage('assets/images/cover_running.jpg');
-    } else if (target.contains('534528741775') ||
-        target.contains('1517841905240') ||
-        target.contains('1438761681033') ||
-        target.contains('img=33') ||
-        target.contains('img=5') ||
-        target.contains('img=47') ||
-        target.contains('img=45')) {
-      return const AssetImage('assets/images/민지.png');
-    } else if (target.contains('507003211169') ||
-        target.contains('1500648767791') ||
-        target.contains('1527980965255') ||
-        target.contains('img=12') ||
-        target.contains('img=36')) {
-      return const AssetImage('assets/images/지훈.png');
-    } else {
-      return const AssetImage('assets/images/cover_food.jpg');
-    }
-  }
-
   // 1. Flutter 로컬 에셋 경로 (한글 파일명은 Web/GitHub Pages 인코딩 오류 방지 위해 안전한 영문 에셋으로 자동 매핑)
   if (target.startsWith('assets/')) {
     final safePath = _resolveSafeAssetPath(target);

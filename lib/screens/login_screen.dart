@@ -244,14 +244,19 @@ class _LoginScreenState extends State<LoginScreen>
 
     if (!skipProfileCheck) {
       try {
-        final activeEmail = authService.currentUser?.email?.trim().toLowerCase() ?? '';
+        final activeEmail =
+            authService.currentUser?.email?.trim().toLowerCase() ?? '';
         final activeUid = globalData.currentUserId.value.isNotEmpty
             ? globalData.currentUserId.value
             : authService.currentUser?.uid;
-        final bool isTestAccount = const bool.fromEnvironment('OOMU_DEV_ACCOUNTS') &&
-            activeEmail.startsWith('test');
+        final bool isTestAccount =
+            const bool.fromEnvironment('OOMU_DEV_ACCOUNTS') &&
+                activeEmail.startsWith('test');
 
-        if (activeUid != null && activeUid.isNotEmpty && !authService.isAdmin && !isTestAccount) {
+        if (activeUid != null &&
+            activeUid.isNotEmpty &&
+            !authService.isAdmin &&
+            !isTestAccount) {
           final isComplete = await authService.isUserProfileComplete(activeUid);
           if (!isComplete && mounted) {
             Navigator.pushReplacement(
@@ -357,8 +362,8 @@ class _LoginScreenState extends State<LoginScreen>
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: OomuTokens.coral,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () async {
               final email = emailCtrl.text.trim();
@@ -376,8 +381,8 @@ class _LoginScreenState extends State<LoginScreen>
               }
             },
             child: const Text('이메일 발송',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -605,7 +610,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
       final opened = await redirectToExternalUrl(authService.kakaoOAuthUrl);
       if (!opened && mounted) {
-        _showToast('카카오 로그인 페이지를 열지 못했어요. 다시 시도해 주세요.');
+        _showToast('카카오 로그인 페이지를 열지 못했어요. 팝업 차단이 설정되어 있는지 확인해 주세요.');
       }
     } catch (e) {
       if (mounted) _showToast('카카오 연결 실패: $e');
@@ -656,47 +661,6 @@ class _LoginScreenState extends State<LoginScreen>
       _navigateHome(skipProfileCheck: true);
     } catch (_) {
       _navigateHome(skipProfileCheck: true);
-    }
-  }
-
-  // 7. 테스트 / 체험 계정 1초 빠른 로그인
-  Future<void> _handleTestUserLogin(Map<String, dynamic> testUser) async {
-    final uid = testUser['uid'] as String;
-    final nickname = (testUser['nickname'] as String? ?? '테스트회원').split('(').first.trim();
-    _showLoading('$nickname 계정으로 접속 중...');
-
-    try {
-      globalData.switchUser(uid, triggerFirestoreSync: false);
-
-      if (Firebase.apps.isNotEmpty) {
-        try {
-          final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-          if (doc.exists && doc.data() != null) {
-            final data = Map<String, dynamic>.from(doc.data()!);
-            data['isProfileComplete'] = true;
-            globalData.applyProfileData(data);
-          } else {
-            globalData.applyProfileData(testUser);
-          }
-        } catch (_) {
-          globalData.applyProfileData(testUser);
-        }
-      } else {
-        globalData.applyProfileData(testUser);
-      }
-
-      globalData.isPhoneVerified.value = true;
-      if (testUser['location'] != null) {
-        globalData.userLocation.value = testUser['location'].toString();
-      }
-      globalData.setSkipProfileSetup(true);
-
-      _hideLoading();
-      _showToast('🎉 $nickname 계정으로 접속했습니다!');
-      _navigateHome(skipProfileCheck: true);
-    } catch (e) {
-      _hideLoading();
-      _showToast('로그인 실패: $e');
     }
   }
 
@@ -789,8 +753,8 @@ class _LoginScreenState extends State<LoginScreen>
               const SizedBox(height: 4),
               const Text(
                 '스플래시 · 인트로 · 로그인 · 회원가입 · 동네모임 · 채팅 화면 디자인',
-                style: TextStyle(
-                    fontSize: OomuTokens.fs14, color: colorTextMuted),
+                style:
+                    TextStyle(fontSize: OomuTokens.fs14, color: colorTextMuted),
               ),
               const SizedBox(height: 24),
 
@@ -892,7 +856,8 @@ class _LoginScreenState extends State<LoginScreen>
                               color: isSplash
                                   ? colorAppBg.withValues(alpha: 0.45)
                                   : colorText.withValues(alpha: 0.28),
-                              borderRadius: BorderRadius.circular(OomuTokens.r3),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r3),
                             ),
                           ),
                         ),
@@ -933,12 +898,12 @@ class _LoginScreenState extends State<LoginScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? colorText : OomuTokens.surface.withValues(alpha: 0.7),
+          color: isSelected
+              ? colorText
+              : OomuTokens.surface.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(OomuTokens.rPill),
           border: Border.all(
-            color: isSelected
-                ? colorText
-                : OomuTokens.border,
+            color: isSelected ? colorText : OomuTokens.border,
           ),
         ),
         child: Text(
@@ -1149,8 +1114,10 @@ class _LoginScreenState extends State<LoginScreen>
                                 width: 64,
                                 height: 3,
                                 decoration: BoxDecoration(
-                                  color: OomuTokens.surface.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(OomuTokens.r4),
+                                  color: OomuTokens.surface
+                                      .withValues(alpha: 0.15),
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r4),
                                 ),
                                 alignment: Alignment.centerLeft,
                                 child: FractionallySizedBox(
@@ -1158,7 +1125,8 @@ class _LoginScreenState extends State<LoginScreen>
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: OomuTokens.coral,
-                                      borderRadius: BorderRadius.circular(OomuTokens.r4),
+                                      borderRadius:
+                                          BorderRadius.circular(OomuTokens.r4),
                                     ),
                                   ),
                                 ),
@@ -1258,7 +1226,8 @@ class _LoginScreenState extends State<LoginScreen>
                         children: [
                           Expanded(
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(OomuTokens.r16),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r16),
                               child: Image.asset(
                                 'assets/images/cover_salt_bread.jpg',
                                 fit: BoxFit.cover,
@@ -1269,7 +1238,8 @@ class _LoginScreenState extends State<LoginScreen>
                           const SizedBox(height: 8),
                           Expanded(
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(OomuTokens.r16),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r16),
                               child: Image.asset(
                                 'assets/images/cover_running.jpg',
                                 fit: BoxFit.cover,
@@ -1396,7 +1366,6 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ],
                   ),
-                  _buildQuickTestAccountsSection(),
                 ],
               ),
 
@@ -1490,8 +1459,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   children: [
                     TextSpan(
-                        text: 'OO',
-                        style: TextStyle(color: OomuTokens.coral)),
+                        text: 'OO', style: TextStyle(color: OomuTokens.coral)),
                     TextSpan(
                         text: 'MU',
                         style: TextStyle(color: OomuTokens.textPrimary)),
@@ -1802,7 +1770,6 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ],
               ),
-              _buildQuickTestAccountsSection(),
               const SizedBox(height: OomuTokens.s20),
               const Text(
                 '가입하면 OOMU 이용약관과 개인정보 처리방침에 동의하게 됩니다',
@@ -1816,151 +1783,6 @@ class _LoginScreenState extends State<LoginScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildQuickTestAccountsSection() {
-    final testAccounts = [
-      {
-        'uid': 'udr2AlH3YIX7LEnyHdWGGFcOu2g1',
-        'badge': '👑 대표',
-        'nickname': '안대표 (운영자)',
-        'location': '서울 마포구 연남동',
-        'role': 'admin',
-      },
-      {
-        'uid': 'LZs5U32GQJMkK77hkmaJupgKzwE2',
-        'badge': '🌸 화장동',
-        'nickname': '초연 (29세 여)',
-        'location': '전남 여수시 화장동',
-        'role': 'user',
-      },
-      {
-        'uid': 'test_user_01',
-        'badge': '🧀 망원',
-        'nickname': '민지 (25세 여)',
-        'location': '서울 마포구 망원동',
-        'role': 'user',
-      },
-      {
-        'uid': 'test_user_02',
-        'badge': '🏃 연남',
-        'nickname': '지훈 (28세 남)',
-        'location': '서울 마포구 연남동',
-        'role': 'user',
-      },
-      {
-        'uid': 'test_user_03',
-        'badge': '🍷 성수',
-        'nickname': '지연 (31세 여)',
-        'location': '서울 성동구 성수동',
-        'role': 'user',
-      },
-      {
-        'uid': 'H3dGoPFR02XLmnbLovo9oAhkGd93',
-        'badge': '📱 본인',
-        'nickname': '010회원 (화장동)',
-        'location': '전남 여수시 화장동',
-        'role': 'user',
-      },
-    ];
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 12, bottom: 4),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: OomuTokens.surfaceMuted,
-        borderRadius: BorderRadius.circular(OomuTokens.r12),
-        border: Border.all(color: OomuTokens.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.flash_on, size: 15, color: OomuTokens.coral),
-              const SizedBox(width: 4),
-              const Expanded(
-                child: Text(
-                  '체험 바로가기 (원클릭 입장)',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: OomuTokens.fs12,
-                    fontWeight: FontWeight.w700,
-                    color: OomuTokens.textPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: OomuTokens.primarySubtle,
-                  borderRadius: BorderRadius.circular(OomuTokens.r6),
-                ),
-                child: const Text(
-                  '비번 불필요',
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: OomuTokens.coral,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: testAccounts.map((acc) {
-              return InkWell(
-                onTap: () => _handleTestUserLogin(acc),
-                borderRadius: BorderRadius.circular(OomuTokens.r8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(OomuTokens.r8),
-                    border: Border.all(color: OomuTokens.border),
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 240),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          acc['badge'] as String,
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Flexible(
-                          child: Text(
-                            acc['nickname'] as String,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
-                              color: OomuTokens.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
       ),
     );
   }
@@ -2064,7 +1886,8 @@ class _LoginScreenState extends State<LoginScreen>
               padding: EdgeInsets.only(left: 4, top: 5, bottom: 8),
               child: Text(
                 '영문, 숫자를 조합해 8자 이상으로 입력해 주세요',
-                style: TextStyle(fontSize: OomuTokens.fs12, color: colorTextFaint),
+                style:
+                    TextStyle(fontSize: OomuTokens.fs12, color: colorTextFaint),
               ),
             ),
 
@@ -2277,7 +2100,8 @@ class _LoginScreenState extends State<LoginScreen>
                 onTap: () => _goToStage(2),
                 child: RichText(
                   text: const TextSpan(
-                    style: TextStyle(fontSize: OomuTokens.fs14, color: colorTextMuted),
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs14, color: colorTextMuted),
                     children: [
                       TextSpan(text: '이미 계정이 있나요? '),
                       TextSpan(
@@ -2530,7 +2354,8 @@ class _LoginScreenState extends State<LoginScreen>
                 onTap: () => _goToStage(3),
                 child: RichText(
                   text: const TextSpan(
-                    style: TextStyle(fontSize: OomuTokens.fs14, color: colorTextMuted),
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs14, color: colorTextMuted),
                     children: [
                       TextSpan(text: '아직 계정이 없나요? '),
                       TextSpan(
@@ -2575,7 +2400,8 @@ class _LoginScreenState extends State<LoginScreen>
                   const SizedBox(height: 6),
                   const Text(
                     '고객님의 OOMU 계정 이메일이에요',
-                    style: TextStyle(fontSize: OomuTokens.fs14, color: colorTextMuted),
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs14, color: colorTextMuted),
                   ),
                   const SizedBox(height: 22),
                   Container(
@@ -2584,8 +2410,7 @@ class _LoginScreenState extends State<LoginScreen>
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(OomuTokens.r14),
-                      border: Border.all(
-                          color: OomuTokens.border, width: 1),
+                      border: Border.all(color: OomuTokens.border, width: 1),
                     ),
                     child: Center(
                       child: Text(

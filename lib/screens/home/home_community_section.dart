@@ -14,6 +14,7 @@ import '../../widgets/bouncy_tap.dart';
 import '../../widgets/ugc_action_sheets.dart';
 import '../community_post_create_screen.dart';
 import '../community_post_detail_screen.dart';
+import '../login_screen.dart';
 import '../user_profile_screen.dart';
 
 /// 홈 화면 커뮤니티 대시보드 (탭 1) 섹션 컴포넌트
@@ -199,6 +200,54 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
               ),
               child: InkWell(
                 onTap: () async {
+                  if (globalData.activeUserId == 'guest') {
+                    showDialog(
+                      context: context,
+                      builder: (dCtx) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(OomuTokens.r16)),
+                        title: const Text('로그인이 필요한 서비스입니다',
+                            style: TextStyle(
+                                fontSize: OomuTokens.fs16,
+                                fontWeight: FontWeight.bold)),
+                        content: const Text(
+                          '동네 이웃들과 자유롭게 이야기를 나누고 글을 작성하려면 먼저 로그인해 주세요.',
+                          style: TextStyle(fontSize: OomuTokens.fs13),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dCtx),
+                            child: const Text('둘러보기',
+                                style: TextStyle(
+                                    color: OomuTokens.textSecondary)),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: OomuTokens.coral,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r8)),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(dCtx);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const LoginScreen()),
+                              );
+                            },
+                            child: const Text('로그인하기',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
+
                   final newPost = await Navigator.push<Map<String, dynamic>>(
                     context,
                     MaterialPageRoute(

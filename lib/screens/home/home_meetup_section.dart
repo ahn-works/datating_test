@@ -340,9 +340,6 @@ class HomeMeetupSection extends StatelessWidget {
                 ),
             ],
           ),
-        const Padding(
-          padding: OomuInsets.listBottomWithCta,
-        ),
       ],
     );
   }

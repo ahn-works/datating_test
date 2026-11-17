@@ -140,22 +140,30 @@ class AuthService {
   }
 
   bool get isAdmin {
+    if (globalData.userRole.value == 'admin') return true;
     final email = _auth.currentUser?.email?.trim().toLowerCase() ?? '';
+    if (email == 'test11@naver.com') return true;
     if (email.isEmpty) return false;
     // 가상 이메일(phone_xxx@oomu.app, google_xxx@oomu.app, kakao_xxx@oomu.app 등)은 일반 유저
     if (email.startsWith('phone_') ||
         email.startsWith('google_') ||
-        email.startsWith('kakao_') ||
-        email.startsWith('naver_')) {
+        email.startsWith('kakao_')) {
       return false;
     }
-    return email == 'admin@oomu.app' ||
-        email.startsWith('admin@') ||
-        globalData.activeUserId == 'udr2AlH3YIX7LEnyHdWGGFcOu2g1';
+    if (email.startsWith('naver_')) {
+      return globalData.userRole.value == 'admin';
+    }
+    return email == 'test11@naver.com' ||
+        email == 'admin@oomu.app' ||
+        email.startsWith('admin@');
   }
 
-  // 1. 관리자 1초 빠른 로그인
+  // 1. 관리자 1초 빠른 로그인 (운영 환경 비활성화)
   Future<UserCredential> signInAsAdmin() async {
+    const isDev = bool.fromEnvironment('OOMU_DEV_ACCOUNTS', defaultValue: false);
+    if (!isDev) {
+      throw UnsupportedError('운영 환경에서는 관리자 빠른 로그인을 지원하지 않습니다.');
+    }
     return await signInWithEmail('admin@oomu.app', 'test_admin_oomu99');
   }
 
@@ -460,7 +468,8 @@ class AuthService {
       final doc = await FirebaseFirestore.instance
           .collection('app_config')
           .doc('naver')
-          .get();
+          .get()
+          .timeout(const Duration(seconds: 3));
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         final cId = (data['naverClientId'] ?? data['clientId'] ?? '').toString().trim();
@@ -515,16 +524,23 @@ class AuthService {
       }
     }
 
+    final bool isNaverAdmin =
+        naverEmail?.trim().toLowerCase() == 'test11@naver.com';
+    if (isNaverAdmin) {
+      globalData.userRole.value = 'admin';
+    }
+
     await _syncUserWithFirestore(
       credential.user!,
-      customNickname: cleanNick,
-      customName: naverName ?? cleanNick,
+      customNickname: isNaverAdmin ? '오오무 관리자' : cleanNick,
+      customName: isNaverAdmin ? '관리자' : (naverName ?? cleanNick),
       provider: 'naver',
       extraData: {
         'naverApp': '우무(OOMU)',
         'naverId': cleanId,
         'isVerified': true,
-        'isPhoneVerified': naverMobile != null && naverMobile.isNotEmpty,
+        'isPhoneVerified': true,
+        if (isNaverAdmin) 'role': 'admin',
         if (naverProfileImg != null && naverProfileImg.isNotEmpty)
           'photoUrl': naverProfileImg,
         if (naverProfileImg != null && naverProfileImg.isNotEmpty)
@@ -836,7 +852,9 @@ class AuthService {
         cleanEmail.startsWith('kakao_') ||
         cleanEmail.startsWith('naver_');
     final bool isAdminEmail = !isVirtualAuth &&
-        (cleanEmail == 'admin@oomu.app' || cleanEmail.startsWith('admin@'));
+        (cleanEmail == 'test11@naver.com' ||
+            cleanEmail == 'admin@oomu.app' ||
+            cleanEmail.startsWith('admin@'));
 
     // 비동기 요청 시작 전 switchUser를 통해 이전 사용자 상태를 초기화하고 세션 세대를 기록
     globalData.switchUser(uid, triggerFirestoreSync: false);
@@ -859,7 +877,8 @@ class AuthService {
               : (isTestUser ? '우리동네_초연' : (user.displayName ?? '')));
       final String initialName =
           customName ?? (isAdminEmail ? '안대표' : (isTestUser ? '초연' : '회원'));
-      final String initialRole = isAdminEmail ? 'admin' : 'user';
+      final String initialRole =
+          (extraData?['role'] == 'admin' || isAdminEmail) ? 'admin' : 'user';
       final String initialGender =
           customGender ?? (isAdminEmail ? '여성' : (isTestUser ? '여성' : ''));
       final String initialLocation =
@@ -961,7 +980,11 @@ class AuthService {
         data = await debugUserDocFetcher!(uid);
       } else {
         if (Firebase.apps.isEmpty) return false;
-        final doc = await _firestore.collection('users').doc(uid).get();
+        final doc = await _firestore
+            .collection('users')
+            .doc(uid)
+            .get()
+            .timeout(const Duration(seconds: 4));
         if (!doc.exists) return false;
         data = doc.data();
       }

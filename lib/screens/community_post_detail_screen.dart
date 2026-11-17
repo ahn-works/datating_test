@@ -509,7 +509,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
       final filteredDocs = docs.where((comment) {
         final author = (comment['author'] ?? '').toString();
-        final authorUid = (comment['authorUid'] ??
+        final authorUid = (comment['authorId'] ??
+                comment['authorUid'] ??
                 comment['userId'] ??
                 comment['uid'] ??
                 '')
@@ -522,9 +523,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     }
     final filteredLocal = _comments.where((comment) {
       final author = (comment['author'] ?? '').toString();
-      final authorUid =
-          (comment['authorUid'] ?? comment['userId'] ?? comment['uid'] ?? '')
-              .toString();
+      final authorUid = (comment['authorId'] ??
+              comment['authorUid'] ??
+              comment['userId'] ??
+              comment['uid'] ??
+              '')
+          .toString();
       return !globalData.isTargetBlocked(uid: authorUid, nickname: author);
     }).toList();
     _syncPostComments(filteredLocal.length);

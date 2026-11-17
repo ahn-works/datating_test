@@ -67,6 +67,7 @@ class GlobalData {
     userAvatar.value = '';
     userLocation.value = '';
     userNickname.value = '';
+    userRole.value = 'user';
     userName.value = '';
     userAge.value = 0;
     userGender.value = '';
@@ -117,6 +118,10 @@ class GlobalData {
     final nick = (data['nickname'] as String?)?.trim();
     if (nick != null && nick.isNotEmpty) {
       userNickname.value = nick;
+    }
+    final r = data['role']?.toString().trim();
+    if (r != null && r.isNotEmpty) {
+      userRole.value = r;
     }
     final nm = (data['name'] as String?)?.trim();
     if (nm != null && nm.isNotEmpty) {
@@ -302,6 +307,7 @@ class GlobalData {
   final ValueNotifier<String> userAvatar = ValueNotifier<String>('');
   final ValueNotifier<String> userLocation = ValueNotifier<String>('');
   final ValueNotifier<String> userNickname = ValueNotifier<String>('');
+  final ValueNotifier<String> userRole = ValueNotifier<String>('user');
   final ValueNotifier<String> userName = ValueNotifier<String>('');
   final ValueNotifier<int> userAge = ValueNotifier<int>(0);
   final ValueNotifier<String> userGender = ValueNotifier<String>('');

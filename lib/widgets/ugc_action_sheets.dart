@@ -9,6 +9,7 @@ class UgcActionSheets {
     required String contentType, // 예: '게시글', '메시지', '댓글'
     required String contentId,
     required String author,
+    String? authorId,
     VoidCallback? onContentHidden,
   }) {
     showModalBottomSheet(
@@ -93,6 +94,7 @@ class UgcActionSheets {
                   showBlockConfirmDialog(
                     context: context,
                     userName: author,
+                    userId: authorId,
                     onUserBlocked: onContentHidden,
                   );
                 },
@@ -108,6 +110,7 @@ class UgcActionSheets {
   static void showUserOptions({
     required BuildContext context,
     required String userName,
+    String? userId,
     VoidCallback? onUserBlocked,
   }) {
     showModalBottomSheet(
@@ -191,6 +194,7 @@ class UgcActionSheets {
                   showBlockConfirmDialog(
                     context: context,
                     userName: userName,
+                    userId: userId,
                     onUserBlocked: onUserBlocked,
                   );
                 },

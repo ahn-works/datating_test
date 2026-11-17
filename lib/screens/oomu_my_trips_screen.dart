@@ -115,7 +115,9 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
               child: CircularProgressIndicator(color: Color(0xFFF25767)));
         }
 
-        final docs = isGuest ? const <QueryDocumentSnapshot>[] : (snapshot.data?.docs ?? const <QueryDocumentSnapshot>[]);
+        final docs = isGuest
+            ? const <QueryDocumentSnapshot>[]
+            : (snapshot.data?.docs ?? const <QueryDocumentSnapshot>[]);
         final List<Map<String, dynamic>> meetups = [];
 
         for (final doc in docs) {
@@ -209,7 +211,8 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, OomuTokens.listBottomWithTabs),
+          padding: const EdgeInsets.fromLTRB(
+              24, 24, 24, OomuTokens.listBottomWithTabs),
           itemCount: meetups.length,
           itemBuilder: (context, index) {
             final meetup = meetups[index];

@@ -163,7 +163,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       width: 44,
                       height: 4,
                       decoration: BoxDecoration(
-                          color: const Color(0xFFE5E5EA),
+                          color: OomuTokens.border,
                           borderRadius: BorderRadius.circular(2)),
                     ),
                   ),
@@ -210,7 +210,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 18, horizontal: 12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF0F2),
+                              color: OomuTokens.primarySubtle,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                   color: coralAccent.withValues(alpha: 0.35)),
@@ -232,7 +232,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     style: TextStyle(
                                         fontWeight: FontWeight.w800,
                                         fontSize: 15,
-                                        color: Color(0xFF111111))),
+                                        color: OomuTokens.textPrimary)),
                                 const SizedBox(height: 4),
                                 Text('카메라로 바로 촬영',
                                     style: TextStyle(
@@ -277,7 +277,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     style: TextStyle(
                                         fontWeight: FontWeight.w800,
                                         fontSize: 15,
-                                        color: Color(0xFF111111))),
+                                        color: OomuTokens.textPrimary)),
                                 const SizedBox(height: 4),
                                 Text('갤러리/앨범 선택',
                                     style: TextStyle(
@@ -419,7 +419,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           decoration: InputDecoration(
                             hintText: 'https://pub-xxxx.r2.dev/photo.jpg',
                             hintStyle: const TextStyle(
-                                color: Color(0xFFC7C7CC), fontSize: 13),
+                                color: OomuTokens.border, fontSize: 13),
                             filled: true,
                             fillColor: surfaceColor,
                             contentPadding: const EdgeInsets.symmetric(
@@ -499,7 +499,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         width: 44,
                         height: 4,
                         decoration: BoxDecoration(
-                            color: const Color(0xFFE5E5EA),
+                            color: OomuTokens.border,
                             borderRadius: BorderRadius.circular(2)),
                       ),
                     ),
@@ -604,143 +604,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
             onChanged: (_) => onToggle(),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showCustomerCenterModal() {
-    final inquiryCtrl = TextEditingController();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 20,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 44,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: const Color(0xFFE5E5EA),
-                      borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Icon(Icons.support_agent, color: coralAccent, size: 26),
-                  const SizedBox(width: 8),
-                  Text('고객 센터 & FAQ',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: textPrimary)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ExpansionTile(
-                title: const Text('Q. 모임 참여는 어떻게 승인되나요?',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text('방장이 프로필과 매너 온도를 확인 후 승인하면 채팅방에 자동으로 초대됩니다.',
-                        style: TextStyle(fontSize: 13, color: textSecondary)),
-                  ),
-                ],
-              ),
-              ExpansionTile(
-                title: const Text('Q. 찜한 모임은 어디서 확인하나요?',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text('마이페이지 > [내가 찜한 모임] 메뉴에서 언제든 확인 및 참여하실 수 있습니다.',
-                        style: TextStyle(fontSize: 13, color: textSecondary)),
-                  ),
-                ],
-              ),
-              ExpansionTile(
-                title: const Text('Q. 비매너 사용자를 신고하고 싶어요.',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text('채팅방 우측 상단 더보기 > [신고하기]를 누르면 운영팀에 실시간 접수됩니다.',
-                        style: TextStyle(fontSize: 13, color: textSecondary)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text('1:1 문의 남기기',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: textPrimary)),
-              const SizedBox(height: 8),
-              TextField(
-                controller: inquiryCtrl,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: '문의 내용을 작성해 주시면 24시간 이내에 답변드립니다.',
-                  hintStyle:
-                      const TextStyle(color: Color(0xFFC7C7CC), fontSize: 13),
-                  filled: true,
-                  fillColor: surfaceColor,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: coralAccent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                  ),
-                  onPressed: () {
-                    if (inquiryCtrl.text.trim().isNotEmpty) {
-                      if (ctx.mounted) Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text('📨 문의가 정상적으로 접수되었습니다. 빠르게 확인하겠습니다!')),
-                      );
-                    }
-                  },
-                  child: const Text('문의 접수하기',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15)),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -932,23 +795,25 @@ class _MyPageScreenState extends State<MyPageScreen> {
               return ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  // 계정 전환 바 (총괄 관리자 및 관리자 권한만 표시)
-                  if ((Firebase.apps.isNotEmpty && authService.isAdmin) ||
-                      role == 'admin' ||
-                      activeUid == 'admin_user')
+                  // 계정 전환 바 (개발/테스트 플래그 명시 시에만 표시)
+                  if (const bool.fromEnvironment('OOMU_DEV_ACCOUNTS',
+                          defaultValue: false) &&
+                      ((Firebase.apps.isNotEmpty && authService.isAdmin) ||
+                          role == 'admin' ||
+                          activeUid == 'admin_user'))
                     Container(
                       margin: const EdgeInsets.only(bottom: 20),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF7F7FA),
+                        color: OomuTokens.surfaceMuted,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE5E5EA)),
+                        border: Border.all(color: OomuTokens.border),
                       ),
                       child: Row(
                         children: [
                           const Icon(Icons.switch_account_outlined,
-                              size: 20, color: Color(0xFF8E8E93)),
+                              size: 20, color: OomuTokens.textSecondary),
                           const SizedBox(width: 8),
                           Text('계정 모드: ',
                               style: TextStyle(
@@ -1058,7 +923,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 style: const TextStyle(
                                   fontSize: 19,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF111111),
+                                  color: OomuTokens.textPrimary,
                                   letterSpacing: -0.3,
                                 ),
                                 maxLines: 1,
@@ -1073,7 +938,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   Text(
                                     location,
                                     style: const TextStyle(
-                                      color: Color(0xFF8E8E93),
+                                      color: OomuTokens.textSecondary,
                                       fontSize: 13,
                                     ),
                                     maxLines: 1,
@@ -1081,7 +946,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   ),
                                   const Text('·',
                                       style: TextStyle(
-                                          color: Color(0xFF8E8E93),
+                                          color: OomuTokens.textSecondary,
                                           fontSize: 12)),
                                   Icon(
                                     isVerified
@@ -1089,13 +954,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                         : Icons.info_outline_rounded,
                                     color: isVerified
                                         ? const Color(0xFF10B981)
-                                        : const Color(0xFF8E8E93),
+                                        : OomuTokens.textSecondary,
                                     size: 13,
                                   ),
                                   Text(
                                     isVerified ? '본인인증 완료' : '본인인증 미완료',
                                     style: const TextStyle(
-                                      color: Color(0xFF8E8E93),
+                                      color: OomuTokens.textSecondary,
                                       fontSize: 12,
                                     ),
                                     maxLines: 1,
@@ -1124,9 +989,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: const BorderSide(
-                                      color: Color(0xFFE5E7EB)),
+                                      color: OomuTokens.border),
                                   backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF111111),
+                                  foregroundColor: OomuTokens.textPrimary,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -1139,7 +1004,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF262626),
+                                    color: OomuTokens.textPrimary,
                                   ),
                                 ),
                               ),
@@ -1157,7 +1022,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9F9FA),
+                        color: OomuTokens.surfaceMuted,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: ValueListenableBuilder<double>(
@@ -1180,7 +1045,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     child: Text(
                                       '매너온도',
                                       style: TextStyle(
-                                        color: Color(0xFF71717A),
+                                        color: OomuTokens.textSecondary,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -1197,7 +1062,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                         fontWeight: FontWeight.w700,
                                         color: hasManner
                                             ? const Color(0xFFC2410C)
-                                            : const Color(0xFF8E8E93),
+                                            : OomuTokens.textSecondary,
                                         letterSpacing: -0.3,
                                       ),
                                       textAlign: TextAlign.end,
@@ -1211,7 +1076,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 borderRadius: BorderRadius.circular(3),
                                 child: Container(
                                   height: 6,
-                                  color: const Color(0xFFE5E7EB),
+                                  color: OomuTokens.border,
                                   alignment: Alignment.centerLeft,
                                   child: FractionallySizedBox(
                                     widthFactor: progress,
@@ -1227,7 +1092,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     ? '받은 후기 $reviewCount개'
                                     : '아직 받은 후기가 없어요',
                                 style: const TextStyle(
-                                  color: Color(0xFF8E8E93),
+                                  color: OomuTokens.textSecondary,
                                   fontSize: 12,
                                 ),
                               ),
@@ -1369,7 +1234,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   // 4. 간격 밴드 (Gap Band)
                   Container(
                     height: 8,
-                    color: const Color(0xFFF7F8FA),
+                    color: OomuTokens.surfaceMuted,
                     margin: const EdgeInsets.symmetric(vertical: 6),
                   ),
 
@@ -1387,7 +1252,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   _buildMenuItem(
                     icon: Icons.help_outline_rounded,
                     title: '고객센터',
-                    onTap: _showCustomerCenterModal,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const CustomerCenterScreen()),
+                    ),
                   ),
                   _buildMenuItem(
                     icon: Icons.settings_outlined,
@@ -1401,7 +1270,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 96),
                 ],
               );
             },
@@ -1483,7 +1352,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           SnackBar(
             content: Text('🔄 [$label] 계정으로 전환되었습니다.'),
             duration: const Duration(seconds: 1),
-            backgroundColor: isSelected ? coralAccent : const Color(0xFF111111),
+            backgroundColor: isSelected ? coralAccent : OomuTokens.textPrimary,
           ),
         );
       },
@@ -1507,7 +1376,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF333333),
+            color: isSelected ? Colors.white : OomuTokens.textBody,
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
@@ -1529,7 +1398,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           children: [
-            Icon(icon, size: 21, color: const Color(0xFF4B5563)),
+            Icon(icon, size: 21, color: OomuTokens.textBody),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
@@ -1537,7 +1406,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF111111),
+                  color: OomuTokens.textPrimary,
                 ),
               ),
             ),
@@ -1546,7 +1415,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 badge,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF8E8E93),
+                  color: OomuTokens.textSecondary,
                 ),
               ),
               const SizedBox(width: 6),
@@ -1554,7 +1423,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
             const Icon(
               Icons.chevron_right_rounded,
               size: 18,
-              color: Color(0xFFC7C7CC),
+              color: OomuTokens.border,
             ),
           ],
         ),
@@ -1566,20 +1435,20 @@ class _MyPageScreenState extends State<MyPageScreen> {
     final effectiveUrl = (url ?? '').trim();
     if (effectiveUrl.isEmpty) {
       return Container(
-        color: const Color(0xFFF3F4F6),
+        color: OomuTokens.surfaceMuted,
         alignment: Alignment.center,
         child: const Icon(Icons.person_outline_rounded,
-            color: Color(0xFF9CA3AF), size: 32),
+            color: OomuTokens.textMuted, size: 32),
       );
     }
     return Image(
       image: appImg(effectiveUrl),
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) => Container(
-        color: const Color(0xFFF3F4F6),
+        color: OomuTokens.surfaceMuted,
         alignment: Alignment.center,
         child: const Icon(Icons.person_outline_rounded,
-            color: Color(0xFF9CA3AF), size: 32),
+            color: OomuTokens.textMuted, size: 32),
       ),
     );
   }
@@ -1617,7 +1486,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E5EA),
+                      color: OomuTokens.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1695,7 +1564,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                       child: Text(
                                         '아직 작성한 동네 커뮤니티 글이 없습니다.',
                                         style: TextStyle(
-                                            color: Color(0xFF8E8E93), fontSize: 14),
+                                            color: OomuTokens.textSecondary, fontSize: 14),
                                       ),
                                     ),
                                   )
@@ -1790,7 +1659,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                       child: Text(
                                         '아직 작성한 댓글이 없습니다.',
                                         style: TextStyle(
-                                            color: Color(0xFF8E8E93), fontSize: 14),
+                                            color: OomuTokens.textSecondary, fontSize: 14),
                                       ),
                                     ),
                                   )
@@ -1982,9 +1851,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               return ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: const CircleAvatar(
-                                  backgroundColor: Color(0xFFF4F4F5),
+                                  backgroundColor: OomuTokens.surfaceMuted,
                                   child: Icon(Icons.person,
-                                      color: Color(0xFF8E8E93)),
+                                      color: OomuTokens.textSecondary),
                                 ),
                                 title: Text(
                                   content,
@@ -1996,7 +1865,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   '$meetupTitle · $time',
                                   style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFF8E8E93)),
+                                      color: OomuTokens.textSecondary),
                                 ),
                               );
                             },

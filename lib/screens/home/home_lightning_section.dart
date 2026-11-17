@@ -250,7 +250,7 @@ class HomeLightningSection extends StatelessWidget {
                                               OomuTokens.radiusPill),
                                         ),
                                         child: Text(
-                                          '${MeetupMemberHelper.formatMembersLabel(spot)}명 참여',
+                                          '${MeetupMemberHelper.formatMembersLabel(spot)}명',
                                           style: TextStyle(
                                             fontSize: OomuTokens.fs11,
                                             fontWeight:

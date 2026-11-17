@@ -4,6 +4,7 @@ import '../data/oomu_categories.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/firestore_time.dart';
 import '../utils/global_data.dart';
+import '../utils/app_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -1555,13 +1556,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     ];
   }
 
-  void _showAllTrendsBottomSheet(BuildContext context, List<Map<String, dynamic>> items) {
+  void _showAllTrendsBottomSheet(
+      BuildContext context, List<Map<String, dynamic>> items) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: OomuTokens.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
       ),
       builder: (ctx) => SafeArea(
         child: SizedBox(
@@ -1573,18 +1576,147 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAECF0),
+                  color: OomuTokens.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '🔥 우리 동네 인기 트렌드 전체',
+                      style: TextStyle(
+                        fontSize: OomuTokens.fs18,
+                        fontWeight: FontWeight.bold,
+                        color: OomuTokens.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close,
+                          color: OomuTokens.textSecondary),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: OomuTokens.border),
               Expanded(
-                child: ListView.builder(
+                child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: items.length,
-                  itemBuilder: (ctx, i) => ListTile(
-                    title: Text(items[i]['title']?.toString() ?? ''),
-                    subtitle: Text(items[i]['location']?.toString() ?? ''),
-                  ),
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (ctx, i) {
+                    final item = items[i];
+                    final title = (item['title'] ?? '').toString();
+                    final location = (item['location'] ?? '').toString();
+                    final category =
+                        (item['category'] ?? item['tag'] ?? '').toString();
+                    final period = (item['period'] ?? '').toString();
+                    final poster =
+                        (item['poster'] ?? 'assets/images/cover_food.jpg')
+                            .toString();
+
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(OomuTokens.r8),
+                            child: SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: Image(
+                                image: appImg(poster),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  'assets/images/cover_food.jpg',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (category.isNotEmpty) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: OomuTokens.primarySubtle,
+                                      borderRadius:
+                                          BorderRadius.circular(OomuTokens.r4),
+                                    ),
+                                    child: Text(
+                                      category,
+                                      style: const TextStyle(
+                                        fontSize: OomuTokens.fs11,
+                                        fontWeight: FontWeight.bold,
+                                        color: OomuTokens.coral,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ],
+                                Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: OomuTokens.fs15,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    if (location.isNotEmpty) ...[
+                                      const Icon(Icons.place_outlined,
+                                          size: 13,
+                                          color: OomuTokens.textSecondary),
+                                      const SizedBox(width: 2),
+                                      Flexible(
+                                        child: Text(
+                                          location,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: OomuTokens.fs12,
+                                            color: OomuTokens.textSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    if (period.isNotEmpty) ...[
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        period,
+                                        style: const TextStyle(
+                                          fontSize: OomuTokens.fs11,
+                                          color: OomuTokens.textMuted,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -1893,11 +2025,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       // [오늘 번개 기준]: 오늘 일정 (당일 만남, 오늘 날짜 기준 번개에 도래하는 것)
       if (selectedCat == '오늘 번개') {
         final dateStr = (item['date'] ?? '').toString();
+        final now = DateTime.now();
+        final todayStr1 =
+            '${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
+        final todayStr2 =
+            '${(now.year % 100).toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
         final bool isTodayDate = dateStr.contains('오늘') ||
             dateStr.contains('당일') ||
             dateStr.contains('즉시') ||
-            dateStr.contains('26.10.20') ||
-            dateStr.contains('2026.10.20') ||
+            dateStr.contains(todayStr1) ||
+            dateStr.contains(todayStr2) ||
             item['isLightning'] == true;
         final bool hasLightningKeyword = (item['category'] ?? '')
                 .toString()

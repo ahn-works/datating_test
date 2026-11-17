@@ -75,9 +75,14 @@ class SolapiSmsService {
 
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        final k = (data['solapiApiKey'] ?? data['apiKey'] ?? '').toString().trim();
-        final s = (data['solapiApiSecret'] ?? data['apiSecret'] ?? '').toString().trim();
-        final num = (data['solapiSenderNumber'] ?? data['senderNumber'] ?? '').toString().trim();
+        final k =
+            (data['solapiApiKey'] ?? data['apiKey'] ?? '').toString().trim();
+        final s = (data['solapiApiSecret'] ?? data['apiSecret'] ?? '')
+            .toString()
+            .trim();
+        final num = (data['solapiSenderNumber'] ?? data['senderNumber'] ?? '')
+            .toString()
+            .trim();
         if (k.isNotEmpty && s.isNotEmpty) {
           _apiKey = k;
           _apiSecret = s;
@@ -114,7 +119,9 @@ class SolapiSmsService {
       debugPrint('[SolapiSmsService] config/api_keys fallback notice: $e');
     }
 
-    return _apiKey.isNotEmpty && _apiSecret.isNotEmpty && _senderNumber.isNotEmpty;
+    return _apiKey.isNotEmpty &&
+        _apiSecret.isNotEmpty &&
+        _senderNumber.isNotEmpty;
   }
 
   /// Solapi Messages v4 HMAC-SHA256 Authorization 헤더 생성
@@ -258,12 +265,12 @@ class SolapiSmsService {
       return false;
     }
 
-    // 1. 인메모리 세션 우선 검증 (테스트 코드 123456 허용)
+    // 1. 인메모리 세션 우선 검증
     final local = _localSessionCache[phone];
     if (local != null) {
       final DateTime expiresAt = local['expiresAt'];
       if (DateTime.now().isBefore(expiresAt)) {
-        if (local['code'] == trimmedCode || trimmedCode == '123456') {
+        if (local['code'] == trimmedCode) {
           local['verified'] = true;
           globalData.isPhoneVerified.value = true;
           globalData.userPhone.value = phone;
@@ -271,11 +278,6 @@ class SolapiSmsService {
           return true;
         }
       }
-    } else if (trimmedCode == '123456') {
-      globalData.isPhoneVerified.value = true;
-      globalData.userPhone.value = phone;
-      _markFirestoreVerified(phone);
-      return true;
     }
 
     // 2. Firestore 'phone_verifications/{phone}' 검증

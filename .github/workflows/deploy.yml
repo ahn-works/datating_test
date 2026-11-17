@@ -25,6 +25,8 @@ jobs:
         run: flutter analyze --no-fatal-infos
       - name: Run unit & widget tests
         run: flutter test
+      - name: Run Design Token Check
+        run: python3 scripts/check_design_tokens.py --compare
       - name: Enable Web Platform
         run: flutter create . --platforms web
       - name: Inject Kakao Map and Daum Postcode JS
@@ -34,8 +36,11 @@ jobs:
           sed -i "s|</head>|<script type=\"text/javascript\" src=\"https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}\&autoload=false\"></script><script src=\"https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js\"></script></head>|" web/index.html
       - name: Build Web
         id: build
+        env:
+          KAKAO_KEY: ${{ secrets.KAKAO_JS_API_KEY }}
+          NAVER_MAP_ID: ${{ secrets.NAVER_MAP_CLIENT_ID }}
         run: |
-          flutter build web --base-href /datating_test/ > build_log.txt 2>&1 || echo "BUILD_FAILED=true" >> $GITHUB_ENV
+          flutter build web --base-href /datating_test/ --dart-define=KAKAO_JS_API_KEY=${KAKAO_KEY} --dart-define=NAVER_MAP_CLIENT_ID=${NAVER_MAP_ID} > build_log.txt 2>&1 || echo "BUILD_FAILED=true" >> $GITHUB_ENV
       - name: Print build errors as annotations
         if: env.BUILD_FAILED == 'true'
         run: |
