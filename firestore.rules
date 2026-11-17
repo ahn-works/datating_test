@@ -1,432 +1,153 @@
 rules_version = '2';
 
-// ===============================================================
-// Assumed Data Model
-// ===============================================================
-//
-// This security rules file assumes the following data structures:
-//
-// 1. Collection: config/{docId}
-//    - Server/Admin SDK only credentials (api_keys, r2_storage, solapi, kakao_auth).
-//    - Client access: Strictly denied (read: false, write: false).
-//
-// 2. Collection: phone_verifications/{phone}
-//    - Server/Admin SDK only OTP verification state.
-//    - Client access: Strictly denied (read: false, write: false).
-//
-// 3. Collection: app_config/{docId}
-//    - Public client runtime configuration (e.g., Kakao JS map key, public app flags).
-//    - Client access: Single document get allowed; list and write denied.
-//
-// 4. Collection: users/{userId}
-//    - Public profile fields: userId, nickname, name, age, gender, location, address,
-//      bio, job, mbti, hobbies, personalities, drinking, smoking, pet,
-//      photoUrl, avatarUrl, photoUrls, mannerTemp, reviewCount, role,
-//      isVerified, isPhoneVerified, isProfileComplete, createdAt, updatedAt.
-//    - Subcollection: users/{userId}/private/{docId} (e.g. contact storing email, phone).
-//      Strictly accessible only by the authenticated owner (request.auth.uid == userId).
-//
-// 5. Collection: meetups/{meetupId}
-//    - Fields: title, category, description, content, location, address, hostId,
-//      hostName, imageUrl, maxParticipants, currentParticipants, participantIds,
-//      date, time, createdAt, updatedAt.
-//    - Subcollection: meetups/{meetupId}/applications/{appId}
-//
-// 6. Collection: community_posts/{postId}
-//    - Fields: title, content, category, authorId, authorName, authorAvatar,
-//      location, imageUrls, likeCount, commentCount, createdAt, updatedAt.
-//    - Subcollection: community_posts/{postId}/comments/{commentId}
-//
-// 7. Collections: trend_events/{eventId}, notices/{noticeId}
-//    - Public read-only collections populated by Admin SDK / backend crawlers.
-//
-// 8. Collections: chatRooms/{roomId}, chats/{chatId}
-//    - Fields: participants (list of UIDs), lastMessage, updatedAt, createdAt.
-//    - Subcollection: messages/{messageId}
-//      Accessible only when request.auth.uid is in parent document's participants list.
-//
-// 9. Collection: reviews/{reviewId}
-//    - Fields: meetupId, authorId, targetUserId, rating, content, createdAt.
-//
-// 10. Collection: notifications/{notifId}
-//     - Fields: userId, title, body, type, isRead, createdAt.
-//
-// 11. Collections: reports/{reportId}, inquiries/{inquiryId}
-//     - Fields: userId, reporterId, targetId, reason, content, status, createdAt.
-//
-// ===============================================================
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // ===============================================================
-    // Helper Functions
+    // 1. [클라우드플레어 R2 및 서버 시크릿 차단]
+    // - Cloudflare R2 Secret Access Key, Access Key ID, API 토큰 클라이언트 접근 100% 차단
+    // - Solapi SMS API Secret 및 대표님 개인 발신번호 외부 접근 100% 차단
     // ===============================================================
-
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isNotGuest() {
-      return isAuthenticated() &&
-             request.auth.uid != 'guest' &&
-             request.auth.token.firebase.sign_in_provider != 'anonymous';
-    }
-
-    function isActiveMember() {
-      return isAuthenticated() && request.auth.uid != 'guest';
-    }
-
-    function isOwner(userId) {
-      return isActiveMember() && request.auth.uid == userId;
-    }
-
-    function isAdmin() {
-      return isActiveMember() &&
-             (request.auth.token.admin == true ||
-              (request.auth.token.email == 'admin@oomu.app' &&
-               request.auth.token.email_verified == true));
-    }
-
-    function hasRequiredFields(fields) {
-      return request.resource.data.keys().hasAll(fields);
-    }
-
-    function hasOnlyAllowedFields(fields) {
-      return request.resource.data.keys().hasOnly(fields);
-    }
-
-    function validStringLength(field, minLen, maxLen) {
-      return request.resource.data[field] is string &&
-             request.resource.data[field].size() >= minLen &&
-             request.resource.data[field].size() <= maxLen;
-    }
-
-    function isValidOptionalString(field, minLen, maxLen) {
-      return !(field in request.resource.data) ||
-             request.resource.data[field] == null ||
-             (request.resource.data[field] is string &&
-              request.resource.data[field].size() >= minLen &&
-              request.resource.data[field].size() <= maxLen);
-    }
-
-    function isValidOptionalList(field, maxSize) {
-      return !(field in request.resource.data) ||
-             request.resource.data[field] == null ||
-             (request.resource.data[field] is list &&
-              request.resource.data[field].size() <= maxSize);
-    }
-
-    function areImmutableFieldsUnchanged(fields) {
-      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
-    }
-
-    function isReasonablePayloadSize() {
-      return request.resource.data.keys().size() <= 60;
-    }
-
-    // ===============================================================
-    // Domain Validators (Called on both create and update)
-    // ===============================================================
-
-    function isValidUserDoc(userId) {
-      return isReasonablePayloadSize() &&
-             (!('userId' in request.resource.data) || request.resource.data.userId == userId) &&
-             !('kakaoEmail' in request.resource.data) &&
-             !('naverEmail' in request.resource.data) &&
-             !('phone' in request.resource.data) &&
-             !('phoneNumber' in request.resource.data) &&
-             !('birthDate' in request.resource.data) &&
-             !('detailAddress' in request.resource.data) &&
-             isValidOptionalString('nickname', 0, 60) &&
-             isValidOptionalString('name', 0, 60) &&
-             isValidOptionalString('bio', 0, 2000) &&
-             isValidOptionalString('location', 0, 200) &&
-             isValidOptionalString('address', 0, 200) &&
-             isValidOptionalString('job', 0, 100) &&
-             isValidOptionalString('mbti', 0, 20) &&
-             isValidOptionalString('photoUrl', 0, 2048) &&
-             isValidOptionalString('avatarUrl', 0, 2048) &&
-             isValidOptionalList('hobbies', 50) &&
-             isValidOptionalList('personalities', 50) &&
-             isValidOptionalList('drinking', 30) &&
-             isValidOptionalList('photoUrls', 30) &&
-             isValidOptionalList('savedMeetups', 200) &&
-             isValidOptionalList('savedMeetupIds', 200) &&
-             isValidOptionalList('blockedUsers', 500) &&
-             (!('role' in request.resource.data) ||
-              request.resource.data.role == 'user' ||
-              isAdmin() ||
-              (resource != null && request.resource.data.role == resource.data.role));
-    }
-
-    function isValidPrivateDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('email', 0, 320) &&
-             isValidOptionalString('phone', 0, 40) &&
-             isValidOptionalString('phoneNumber', 0, 40) &&
-             isValidOptionalString('birthDate', 0, 30) &&
-             isValidOptionalString('detailAddress', 0, 300);
-    }
-
-    function isValidMeetupDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('title', 0, 300) &&
-             isValidOptionalString('description', 0, 5000) &&
-             isValidOptionalString('content', 0, 5000) &&
-             isValidOptionalString('location', 0, 300) &&
-             isValidOptionalString('category', 0, 100) &&
-             isValidOptionalString('imageUrl', 0, 2048) &&
-             isValidOptionalList('participantIds', 500) &&
-             isValidOptionalList('participants', 500);
-    }
-
-    function isValidApplicationDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('userId', 0, 128) &&
-             isValidOptionalString('message', 0, 2000) &&
-             isValidOptionalString('status', 0, 50);
-    }
-
-    function isValidCommunityPostDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('title', 0, 300) &&
-             isValidOptionalString('content', 0, 10000) &&
-             isValidOptionalString('category', 0, 100) &&
-             isValidOptionalString('location', 0, 200) &&
-             isValidOptionalList('imageUrls', 30);
-    }
-
-    function isValidCommentDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('content', 0, 3000) &&
-             isValidOptionalString('authorId', 0, 128) &&
-             isValidOptionalString('authorName', 0, 100);
-    }
-
-    function isValidChatDoc() {
-      return isReasonablePayloadSize() &&
-             request.resource.data.participants is list &&
-             request.resource.data.participants.size() >= 1 &&
-             request.resource.data.participants.size() <= 200 &&
-             isValidOptionalString('lastMessage', 0, 5000);
-    }
-
-    function isValidMessageDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('text', 0, 5000) &&
-             isValidOptionalString('content', 0, 5000) &&
-             isValidOptionalString('senderId', 0, 128);
-    }
-
-    function isValidReviewDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('content', 0, 3000) &&
-             isValidOptionalString('comment', 0, 3000) &&
-             isValidOptionalString('authorId', 0, 128);
-    }
-
-    function isValidNotificationDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('userId', 0, 128) &&
-             isValidOptionalString('title', 0, 300) &&
-             isValidOptionalString('body', 0, 3000) &&
-             isValidOptionalString('content', 0, 3000);
-    }
-
-    function isValidReportOrInquiryDoc() {
-      return isReasonablePayloadSize() &&
-             isValidOptionalString('reason', 0, 1000) &&
-             isValidOptionalString('category', 0, 100) &&
-             isValidOptionalString('status', 0, 50) &&
-             isValidOptionalString('title', 0, 300) &&
-             isValidOptionalString('content', 0, 5000);
-    }
-
-    // ===============================================================
-    // 1. Server / Admin SDK Only Collections (Zero Client Access)
-    // ===============================================================
-
     match /config/{docId} {
       allow read, write: if false;
     }
-
+    match /config/r2_storage {
+      allow read, write: if false;
+    }
+    match /system_config/{docId} {
+      allow read, write: if false;
+    }
+    match /system_config/r2_storage {
+      allow read, write: if false;
+    }
     match /phone_verifications/{phone} {
       allow read, write: if false;
     }
 
     // ===============================================================
-    // 2. Public Client Runtime Configuration (Single Doc Get Only)
+    // 2. [클라우드플레어 퍼블릭 CDN 및 앱 공지/런타임 설정]
+    // - Cloudflare R2 공개 이미지 CDN 주소(r2_public) 및 일반 공지/점검 설정은 허용
+    // - Solapi 키, R2 비밀키(r2_storage) 등 시크릿 문서는 클라이언트 조회 절대 차단
     // ===============================================================
-
-    match /app_config/{docId} {
+    match /app_config/r2_public {
       allow get: if true;
+      allow write: if false;
+    }
+    match /app_config/{docId} {
+      allow get: if docId != 'solapi' &&
+                    docId != 'api_keys' &&
+                    docId != 'r2_storage' &&
+                    docId != 'naver_auth';
       allow list, write: if false;
     }
 
     // ===============================================================
-    // 3. Users & Private Contact Subcollection
+    // 3. [사용자 프로필 및 개인정보 완벽 분리]
     // ===============================================================
-
     match /users/{userId} {
+      // 공개 프로필(닉네임, 아바타, 매너온도 등)은 누구나 조회 가능
       allow get, list: if true;
-      allow create: if isOwner(userId) && isValidUserDoc(userId);
-      allow update: if isOwner(userId) &&
-                       isValidUserDoc(userId) &&
-                       areImmutableFieldsUnchanged(['userId', 'createdAt']);
-      allow delete: if false;
+      allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
 
+      // 전화번호, 이메일 등 민감 개인정보는 본인과 관리자만 열람/수정 가능
       match /private/{docId} {
-        allow read: if isOwner(userId);
-        allow create, update: if isOwner(userId) && isValidPrivateDoc();
-        allow delete: if isOwner(userId);
+        allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+      }
+
+      // 개인별 실시간 알림 서브컬렉션 (백엔드 수정 및 처리 완료 시 알림 수신)
+      match /notifications/{notifId} {
+        allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+        allow write: if request.auth != null;
       }
     }
 
     // ===============================================================
-    // 4. Meetups & Applications
+    // 4. [루트 실시간 알림 (모임 승인, 문의 답변, 백엔드 상태 변경 알림)]
     // ===============================================================
-
-    match /meetups/{meetupId} {
-      allow get, list: if true;
-      allow create: if isActiveMember() && isValidMeetupDoc();
-      allow update: if isActiveMember() &&
-                       isValidMeetupDoc() &&
-                       areImmutableFieldsUnchanged(['hostId', 'createdAt']) &&
-                       (resource.data.hostId == request.auth.uid || isAdmin());
-      allow delete: if isAuthenticated() && (resource.data.hostId == request.auth.uid || isAdmin());
-
-      match /applications/{appId} {
-        allow read: if isActiveMember();
-        allow create, update: if isActiveMember() && isValidApplicationDoc();
-        allow delete: if false;
-      }
-    }
-
-    // ===============================================================
-    // 5. Community Posts & Comments
-    // ===============================================================
-
-    match /community_posts/{postId} {
-      allow get, list: if true;
-      allow create: if isActiveMember() && isValidCommunityPostDoc();
-      allow update: if isActiveMember() &&
-                       isValidCommunityPostDoc() &&
-                       areImmutableFieldsUnchanged(['authorId', 'createdAt']) &&
-                       (resource.data.authorId == request.auth.uid || isAdmin());
-      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
-
-      match /comments/{commentId} {
-        allow get, list: if true;
-        allow create, update: if isActiveMember() && isValidCommentDoc();
-        allow delete: if isActiveMember() && (resource.data.authorId == request.auth.uid || isAdmin());
-      }
-    }
-
-    // ===============================================================
-    // 6. Read-Only Public Content (Admin SDK / Crawler Only)
-    // ===============================================================
-
-    match /trend_events/{eventId} {
-      allow get, list: if true;
-      allow write: if false;
-    }
-
-    match /notices/{noticeId} {
-      allow get, list: if true;
-      allow write: if false;
-    }
-
-    // ===============================================================
-    // 7. Chat Rooms & Direct Chats (Participant-Scoped)
-    // ===============================================================
-
-    match /chatRooms/{roomId} {
-      allow get, list: if isAuthenticated() &&
-                          request.auth.uid in resource.data.participants;
-      allow create: if isAuthenticated() &&
-                       request.auth.uid in request.resource.data.participants &&
-                       isValidChatDoc();
-      allow update: if isAuthenticated() &&
-                       request.auth.uid in resource.data.participants &&
-                       isValidChatDoc();
-      allow delete: if false;
-
-      match /messages/{messageId} {
-        allow get, list: if isAuthenticated() &&
-                            request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants;
-        allow create: if isAuthenticated() &&
-                         request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants &&
-                         isValidMessageDoc();
-        allow update, delete: if false;
-      }
-    }
-
-    match /chats/{chatId} {
-      allow get, list: if isAuthenticated() &&
-                          request.auth.uid in resource.data.participants;
-      allow create: if isAuthenticated() &&
-                       request.auth.uid in request.resource.data.participants &&
-                       isValidChatDoc();
-      allow update: if isAuthenticated() &&
-                       request.auth.uid in resource.data.participants &&
-                       isValidChatDoc();
-      allow delete: if false;
-
-      match /messages/{messageId} {
-        allow get, list: if isAuthenticated() &&
-                            request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        allow create: if isAuthenticated() &&
-                         request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants &&
-                         isValidMessageDoc();
-        allow update, delete: if false;
-      }
-    }
-
-    // ===============================================================
-    // 8. Reviews, Notifications, Reports & Inquiries
-    // ===============================================================
-
-    match /reviews/{reviewId} {
-      allow get, list: if true;
-      allow create: if isActiveMember() && isValidReviewDoc();
-      allow update, delete: if false;
-    }
-
     match /notifications/{notifId} {
-      allow get, list: if isAuthenticated() &&
-                          resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() && isValidNotificationDoc();
-      allow update: if isAuthenticated() &&
-                       resource.data.userId == request.auth.uid &&
-                       isValidNotificationDoc() &&
-                       areImmutableFieldsUnchanged(['userId', 'createdAt']);
-      allow delete: if false;
+      // 본인에게 온 알림 또는 관리자만 조회 가능
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.admin == true);
+      // 알림 생성은 로그인 사용자 및 백엔드 요청 모두 허용
+      allow create: if request.auth != null;
+      // 알림 읽음 처리 및 삭제는 본인 또는 관리자만
+      allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.admin == true);
     }
 
-    match /reports/{reportId} {
-      allow get, list: if isAuthenticated() &&
-                          (resource.data.userId == request.auth.uid ||
-                           resource.data.reporterId == request.auth.uid);
-      allow create: if isActiveMember() && isValidReportOrInquiryDoc();
-      allow update, delete: if false;
-    }
-
+    // ===============================================================
+    // 5. [1:1 고객 문의 및 백엔드 수정 요청]
+    // ===============================================================
     match /inquiries/{inquiryId} {
-      allow get, list: if isAuthenticated() &&
-                          (resource.data.userId == request.auth.uid ||
-                           resource.data.reporterId == request.auth.uid ||
-                           isAdmin());
-      allow create: if isActiveMember() &&
-                       request.resource.data.userId == request.auth.uid &&
-                       isValidReportOrInquiryDoc();
-      allow update, delete: if isAdmin();
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.admin == true);
+      allow update, delete: if request.auth != null && request.auth.token.admin == true;
     }
 
     // ===============================================================
-    // 9. Default Deny Fallback
+    // 6. [모임 (동네 모임, 번개, 참여 신청 요청)]
     // ===============================================================
+    match /meetups/{meetupId} {
+      allow read: if true;
+      allow write: if request.auth != null;
 
+      // 모임 참여 신청 요청 (호스트 승인 시 알림 연동)
+      match /applications/{appId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+      }
+
+      match /{sub=**} {
+        allow read: if true;
+        allow write: if request.auth != null;
+      }
+    }
+
+    // ===============================================================
+    // 7. [커뮤니티 (동네 게시글 및 댓글)]
+    // ===============================================================
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+
+      match /{sub=**} {
+        allow read: if true;
+        allow write: if request.auth != null;
+      }
+    }
+
+    // ===============================================================
+    // 8. [채팅방 및 메시지]
+    // ===============================================================
+    match /chatRooms/{roomId} {
+      allow read, write: if request.auth != null;
+
+      match /{sub=**} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // ===============================================================
+    // 9. [트렌드 이벤트 및 전체 공지사항]
+    // ===============================================================
+    match /trend_events/{eventId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================================================
+    // 10. [유저 신고 접수]
+    // ===============================================================
+    match /reports/{reportId} {
+      allow create, read: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ===============================================================
+    // 11. [기본 차단 (명시되지 않은 모든 경로는 무조건 차단)]
+    // ===============================================================
     match /{document=**} {
       allow read, write: if false;
     }

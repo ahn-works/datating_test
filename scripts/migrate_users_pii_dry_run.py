@@ -107,13 +107,30 @@ def scan_and_migrate(execute=False):
     if execute:
         print("\n[!] WARNING: Executing migration to users/{uid}/private/contact...")
         success_count = 0
+        import urllib.request
         for item in migration_plan:
             uid = item["uid"]
             target_data = dict(item["raw_data"])
             ok = firestore_helper.set_document(f"users/{uid}/private", "contact", target_data, merge=True)
             if ok:
                 success_count += 1
-                print(f"  [SUCCESS] Migrated PII for UID: {uid}")
+                print(f"  [SUCCESS] Migrated PII to private/contact for UID: {uid}")
+                # Remove PII fields from root document
+                for pii_field in item["pii_keys"]:
+                    try:
+                        url = firestore_helper._make_url(f"users/{uid}", query_params=[("updateMask.fieldPaths", pii_field)])
+                        body = {"fields": {}}
+                        req = urllib.request.Request(
+                            url,
+                            data=json.dumps(body).encode("utf-8"),
+                            headers=firestore_helper._get_admin_headers({"Content-Type": "application/json"}),
+                            method="PATCH"
+                        )
+                        with urllib.request.urlopen(req, timeout=15) as resp:
+                            pass
+                        print(f"  [CLEAN] Removed root {pii_field} from users/{uid}")
+                    except Exception as e:
+                        print(f"  [WARN] Failed to delete root {pii_field} from users/{uid}: {e}")
             else:
                 print(f"  [FAIL] Failed to migrate UID: {uid}")
         print(f"[RESULT] Completed live migration: {success_count}/{len(migration_plan)} updated.")

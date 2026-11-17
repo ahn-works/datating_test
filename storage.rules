@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// OOMU 앱은 모든 프로필·커버·모임 사진을 Cloudflare R2를 통해 직접 처리합니다.
+// 따라서 Firebase Cloud Storage는 외부 무인증 읽기/쓰기를 차단하여 비용과 보안을 보호합니다.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

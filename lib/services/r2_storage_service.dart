@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/server_config.dart';
 
 enum R2UploadCategory {
   profile,
@@ -28,13 +30,10 @@ class R2FileSizeExceededException implements Exception {
       'Cloudflare 무료 요금제 용량 관리를 위해 ${(maxBytes / (1024 * 1024)).toStringAsFixed(0)}MB 이하의 사진만 업로드 가능합니다.';
 }
 
-/// Cloudflare R2 고성능 사진 스토리지 서비스
+/// Cloudflare R2 고성능 사진 스토리지 서비스 (서버 Presigned URL 격리 준수)
 /// - Bucket: oomu-spot
-/// - Account ID: 81ffd88f0a14642f94a0c4206e160925
-/// - S3 API Endpoint: https://81ffd88f0a14642f94a0c4206e160925.r2.cloudflarestorage.com/oomu-spot
-/// 
-/// [보안 수칙]
-/// - 개인정보 및 S3 Secret Access Key는 GitHub에 커밋하지 않고, Firestore('config/r2_storage')에 안전하게 보관합니다.
+/// - S3 Secret Access Key는 브라우저나 앱에 절대 저장하지 않습니다.
+/// - 인증된 사용자만 서버 프록시(/api/r2/sign-upload)를 통해 단기 만료(5분) Presigned PUT URL을 발급받아 업로드합니다.
 class R2StorageService {
   static final R2StorageService _instance = R2StorageService._internal();
   factory R2StorageService() => _instance;
@@ -46,52 +45,33 @@ class R2StorageService {
   static const String s3Endpoint = 'https://$s3Host/$bucketName';
 
   /// R2 버킷 퍼블릭 접속 도메인 (R2.dev 서브도메인 또는 사용자 커스텀 도메인)
-  /// 예: https://pub-xxxx.r2.dev 또는 https://media.oomu.app
-  String publicBaseUrl = '';
+  String publicBaseUrl = ServerConfig.r2PublicBaseUrl;
 
-  /// Cloudflare R2 S3 API 자격 증명 (Firestore에서 안전하게 로드됨)
+  /// 레거시 및 유닛 테스트 호환용 필드 (기본 빈 값 유지)
   String accessKeyId = '';
   String secretAccessKey = '';
 
   bool _isInitialized = false;
 
-  /// R2 업로드 프록시 엔드포인트 (Cloudflare Worker / Cloud Functions)
-  String workerProxyUrl = const String.fromEnvironment('OOMU_R2_WORKER_URL');
-
-  /// Firestore app_config/r2_public 또는 dart-define에서 R2 공개 도메인/프록시 설정 로드
+  /// Firestore app_config/r2_public 또는 dart-define에서 R2 공개 도메인 설정 로드
   Future<void> initFromFirestore() async {
     if (_isInitialized) return;
-    const defPublicUrl = String.fromEnvironment('R2_PUBLIC_BASE_URL');
-    if (defPublicUrl.isNotEmpty) {
-      publicBaseUrl = defPublicUrl.trim();
-    }
+    publicBaseUrl = ServerConfig.r2PublicBaseUrl;
     try {
       final doc = await FirebaseFirestore.instance
           .collection('app_config')
           .doc('r2_public')
-          .get();
+          .get()
+          .timeout(const Duration(seconds: 3));
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         final pubUrl = (data['publicBaseUrl'] ?? '').toString().trim();
-        final proxyUrl = (data['workerProxyUrl'] ?? '').toString().trim();
         if (pubUrl.isNotEmpty) publicBaseUrl = pubUrl;
-        if (proxyUrl.isNotEmpty) workerProxyUrl = proxyUrl;
       }
-      _isInitialized = true;
     } catch (e) {
       debugPrint('[R2 Storage] Public config load fallback: $e');
     }
-  }
-
-  /// 클라이언트에서 시크릿 키를 Firestore에 직접 저장하지 않고 인메모리/공개 도메인만 반영
-  Future<void> saveToFirestore({
-    required String accessKey,
-    required String secretKey,
-    required String publicUrl,
-  }) async {
-    accessKeyId = accessKey.trim();
-    secretAccessKey = secretKey.trim();
-    publicBaseUrl = publicUrl.trim();
+    _isInitialized = true;
   }
 
   /// 마스킹된 시크릿 키 반환 (UI 표시용)
@@ -137,7 +117,7 @@ class R2StorageService {
     final ext = clean.substring(dotIndex + 1);
     if (!allowedExtensions.contains(ext)) return false;
 
-    // 매직 바이트 검증 (옵션)
+    // 매직 바이트 검증
     if (bytes != null && bytes.length >= 4) {
       // JPEG: FF D8 FF
       if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) return true;
@@ -177,7 +157,9 @@ class R2StorageService {
 
   /// S3 / R2 공개 URL 반환
   String getPublicUrl(String objectKey) {
-    if (objectKey.startsWith('http://') || objectKey.startsWith('https://') || objectKey.startsWith('assets/')) {
+    if (objectKey.startsWith('http://') ||
+        objectKey.startsWith('https://') ||
+        objectKey.startsWith('assets/')) {
       return objectKey;
     }
 
@@ -187,11 +169,10 @@ class R2StorageService {
       return '$base$key';
     }
 
-    // 기본 S3 엔드포인트 URL
     return '$s3Endpoint/$objectKey';
   }
 
-  /// AWS SigV4 서명된 임시 GET Presigned URL 생성 (퍼블릭 도메인이 없을 때도 7일간 열람 가능)
+  /// AWS SigV4 서명된 임시 GET Presigned URL 생성 (단위 테스트 및 열람 호환용)
   String generatePresignedGetUrl(String objectKey, {int expiresInSeconds = 604800}) {
     if (accessKeyId.isEmpty || secretAccessKey.isEmpty) {
       return getPublicUrl(objectKey);
@@ -271,7 +252,7 @@ class R2StorageService {
       if (accessKeyId.isNotEmpty && secretAccessKey.isNotEmpty) {
         return generatePresignedGetUrl(cleanKey);
       }
-      // 자격증명 미등록 시 카테고리별 안전 폴백
+      // 자격증명 및 공개 URL이 모두 없을 때의 안전 폴백
       if (cleanKey.startsWith('profiles/')) return 'assets/images/민지.png';
       if (cleanKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
       if (cleanKey.contains('wine') || cleanKey.startsWith('posters/')) return 'assets/images/cover_wine.jpg';
@@ -299,7 +280,7 @@ class R2StorageService {
       }
     }
 
-    // 3. R2 S3 엔드포인트 URL이 저장되어 있는 경우 (이미 서명 쿼리가 있거나 만료되었을 때도 재서명)
+    // 3. R2 S3 엔드포인트 URL이 저장되어 있는 경우
     if (storedUrl.contains(s3Host)) {
       final uri = Uri.tryParse(storedUrl);
       if (uri != null) {
@@ -314,7 +295,6 @@ class R2StorageService {
           if (accessKeyId.isNotEmpty && secretAccessKey.isNotEmpty) {
             return generatePresignedGetUrl(objectKey);
           }
-          // 자격증명 미등록 시 안전 폴백
           if (objectKey.startsWith('profiles/')) return 'assets/images/민지.png';
           if (objectKey.contains('cafe')) return 'assets/images/cover_cafe.jpg';
           if (objectKey.contains('wine') || objectKey.startsWith('posters/')) return 'assets/images/cover_wine.jpg';
@@ -327,32 +307,28 @@ class R2StorageService {
     return storedUrl;
   }
 
-  /// S3 API 직접 업로드 (AWS Signature V4 서명)
+  /// 서버 Presigned PUT URL을 통한 고보안 R2 업로드
   Future<String> uploadImageBytes({
     required Uint8List bytes,
     required String fileName,
     required R2UploadCategory category,
   }) async {
-    // 1. 사진 파일 검증 (jpg, png, webp 등만 허용)
+    // 1. 사진 파일 확장자 및 매직 바이트 검증
     if (!isImageFile(fileName, bytes)) {
       throw R2InvalidFileTypeException('사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.');
     }
 
-    // 2. 파일 용량 제한 (Cloudflare 무료 요금제 10GB 한도 보호를 위해 5MB 초과 시 차단)
-    const int maxUploadBytes = 5 * 1024 * 1024; // 5MB
+    // 2. 파일 용량 제한 (5MB)
+    const int maxUploadBytes = 5 * 1024 * 1024;
     if (bytes.length > maxUploadBytes) {
       throw R2FileSizeExceededException(bytes.length, maxUploadBytes);
     }
 
-    // 초기화 보장
-    if (!_isInitialized) {
-      await initFromFirestore();
-    }
+    await initFromFirestore();
 
     final ext = getFileExtension(fileName);
     final contentType = getMimeType(ext);
 
-    // 2. 카테고리별 폴더 분류
     final String folder;
     switch (category) {
       case R2UploadCategory.profile:
@@ -366,80 +342,64 @@ class R2StorageService {
         break;
     }
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final sanitizedFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
-    final objectKey = '$folder/${timestamp}_$sanitizedFileName';
+    // 3. 서버 프록시(/api/r2/sign-upload)를 통한 Presigned Upload URL 발급
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final idToken = await user.getIdToken();
+        if (idToken != null && idToken.isNotEmpty) {
+          final proxyBase = ServerConfig.serverProxyUrl;
+          final signUri = Uri.parse('$proxyBase/api/r2/sign-upload');
 
-    debugPrint('[R2 Storage] Uploading to bucket: $bucketName / key: $objectKey (${bytes.length} bytes)');
+          final signResponse = await http
+              .post(
+                signUri,
+                headers: {
+                  'Authorization': 'Bearer $idToken',
+                  'Content-Type': 'application/json',
+                },
+                body: jsonEncode({
+                  'fileName': fileName,
+                  'category': folder,
+                  'mimeType': contentType,
+                  'contentLength': bytes.length,
+                }),
+              )
+              .timeout(const Duration(seconds: 10));
 
-    // 3. S3 API 토큰(AccessKey/SecretKey)이 설정되어 있는 경우 실제 S3 서명 PUT 전송
-    if (accessKeyId.isNotEmpty && secretAccessKey.isNotEmpty) {
-      try {
-        final now = DateTime.now().toUtc();
-        final dateStamp = _formatDate(now);
-        final amzDate = _formatDateTime(now);
+          if (signResponse.statusCode == 200) {
+            final signData = jsonDecode(signResponse.body) as Map<String, dynamic>;
+            final uploadUrl = signData['uploadUrl']?.toString();
+            final publicUrl = signData['publicUrl']?.toString();
 
-        final canonicalUri = '/$bucketName/$objectKey';
-        final payloadHash = sha256.convert(bytes).toString();
+            if (uploadUrl != null && uploadUrl.isNotEmpty) {
+              // 4. Presigned S3 PUT URL로 직접 업로드 (인증 헤더 없이 S3 시그니처 쿼리로 인가)
+              final putResponse = await http.put(
+                Uri.parse(uploadUrl),
+                headers: {
+                  'Content-Type': contentType,
+                },
+                body: bytes,
+              ).timeout(const Duration(seconds: 30));
 
-        final canonicalHeaders = 'host:$s3Host\n'
-            'x-amz-content-sha256:$payloadHash\n'
-            'x-amz-date:$amzDate\n';
-        const signedHeaders = 'host;x-amz-content-sha256;x-amz-date';
-
-        final canonicalRequest = 'PUT\n'
-            '$canonicalUri\n'
-            '\n'
-            '$canonicalHeaders\n'
-            '$signedHeaders\n'
-            '$payloadHash';
-
-        const algorithm = 'AWS4-HMAC-SHA256';
-        final credentialScope = '$dateStamp/auto/s3/aws4_request';
-        final stringToSign = '$algorithm\n'
-            '$amzDate\n'
-            '$credentialScope\n'
-            '${sha256.convert(utf8.encode(canonicalRequest))}';
-
-        final signingKey = _getSignatureKey(secretAccessKey, dateStamp, 'auto', 's3');
-        final signature = Hmac(sha256, signingKey).convert(utf8.encode(stringToSign)).toString();
-
-        final authHeader = '$algorithm Credential=$accessKeyId/$credentialScope, '
-            'SignedHeaders=$signedHeaders, Signature=$signature';
-
-        final requestUri = Uri.parse('$s3Endpoint/$objectKey');
-        final response = await http.put(
-          requestUri,
-          headers: {
-            'Host': s3Host,
-            'x-amz-date': amzDate,
-            'x-amz-content-sha256': payloadHash,
-            'Authorization': authHeader,
-            'Content-Type': contentType,
-          },
-          body: bytes,
-        );
-
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          debugPrint('[R2 Storage] Upload SUCCESS! Status: ${response.statusCode}');
-          if (publicBaseUrl.isNotEmpty) {
-            return getPublicUrl(objectKey);
+              if (putResponse.statusCode >= 200 && putResponse.statusCode < 300) {
+                debugPrint('[R2 Storage] Upload SUCCESS via Presigned URL: $publicUrl');
+                return publicUrl ?? getPublicUrl(signData['key'] ?? '');
+              } else {
+                debugPrint('[R2 Storage] Presigned PUT failed with status: ${putResponse.statusCode}');
+              }
+            }
           } else {
-            return generatePresignedGetUrl(objectKey);
+            debugPrint('[R2 Storage] Sign URL failed: ${signResponse.statusCode} - ${signResponse.body}');
           }
-        } else {
-          debugPrint('[R2 Storage] Upload returned status ${response.statusCode}: ${response.body}');
-          throw Exception('R2 Upload failed with status ${response.statusCode}');
         }
-      } catch (e) {
-        debugPrint('[R2 Storage] S3 upload error: $e, falling back to Data URL');
-        return toDataUrl(bytes, fileName);
       }
+    } catch (e) {
+      debugPrint('[R2 Storage] Server presign upload notice: $e');
     }
 
-    // 4. S3 자격증명이 미등록 상태이거나 오프라인 환경인 경우:
-    // 유저가 첨부한 실제 사진이 기본 사진으로 바뀌지 않도록 Data URL로 안전 보존
-    debugPrint('[R2 Storage] S3 credentials not set, saving as safe permanent Data URL');
+    // 5. 오프라인/게스트/서버 점검 시 사진 유실 방지를 위한 영구 Data URL 안전 폴백
+    debugPrint('[R2 Storage] Presigned upload unavailable, preserving as permanent Data URL');
     return toDataUrl(bytes, fileName);
   }
 
