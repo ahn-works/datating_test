@@ -299,6 +299,7 @@ class UgcActionSheets {
   static void showBlockConfirmDialog({
     required BuildContext context,
     required String userName,
+    String? userId,
     VoidCallback? onUserBlocked,
   }) {
     showDialog(
@@ -335,7 +336,12 @@ class UgcActionSheets {
             ),
             onPressed: () {
               Navigator.pop(ctx);
-              globalData.blockUser(userName);
+              if (userId != null && userId.isNotEmpty) {
+                globalData.blockUid(userId);
+              }
+              if (userName.isNotEmpty) {
+                globalData.blockUser(userName);
+              }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content:

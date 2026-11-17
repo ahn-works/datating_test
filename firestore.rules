@@ -132,6 +132,12 @@ service cloud.firestore {
     function isValidUserDoc(userId) {
       return isReasonablePayloadSize() &&
              (!('userId' in request.resource.data) || request.resource.data.userId == userId) &&
+             !('kakaoEmail' in request.resource.data) &&
+             !('naverEmail' in request.resource.data) &&
+             !('phone' in request.resource.data) &&
+             !('phoneNumber' in request.resource.data) &&
+             !('birthDate' in request.resource.data) &&
+             !('detailAddress' in request.resource.data) &&
              isValidOptionalString('nickname', 0, 60) &&
              isValidOptionalString('name', 0, 60) &&
              isValidOptionalString('bio', 0, 2000) &&

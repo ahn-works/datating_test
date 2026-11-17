@@ -855,7 +855,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 22),
 
         // 2. 성별 선택
-        _buildSectionLabel('성별'),
+        _buildSectionLabel(ProfileOptions.genderLabel),
         Row(
           children: [
             Expanded(
@@ -1050,7 +1050,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 22),
 
         // 2. MBTI 성격 유형
-        _buildSectionLabel('MBTI 성격 유형'),
+        _buildSectionLabel(ProfileOptions.mbtiLabel),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -1083,7 +1083,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildSectionLabel('나의 취미 & 관심사'),
+            _buildSectionLabel(ProfileOptions.hobbiesLabel),
             Text('최대 5개 선택 (${_selectedHobbies.length}/5)', style: const TextStyle(fontSize: OomuTokens.fs12, fontWeight: FontWeight.bold, color: primaryColor)),
           ],
         ),
@@ -1148,7 +1148,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 22),
 
         // 5. 음주 성향
-        _buildSectionLabel('음주 성향'),
+        _buildSectionLabel(ProfileOptions.drinkingLabel),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -1186,7 +1186,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 22),
 
         // 6. 흡연 여부
-        _buildSectionLabel('흡연 여부'),
+        _buildSectionLabel(ProfileOptions.smokingLabel),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -1216,7 +1216,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 22),
 
         // 7. 반려동물
-        _buildSectionLabel('반려동물'),
+        _buildSectionLabel(ProfileOptions.petLabel),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -1246,7 +1246,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 22),
 
         // 8. 성격 및 매력 태그
-        _buildSectionLabel('성격 및 매력 태그'),
+        _buildSectionLabel(ProfileOptions.personalityLabel),
         Wrap(
           spacing: 8,
           runSpacing: 8,

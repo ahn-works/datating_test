@@ -39,26 +39,35 @@ def _get_admin_headers(extra_headers=None):
 
     sa_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
     sa_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
-    if sa_json or sa_path:
-        try:
-            from google.oauth2 import service_account
-            import google.auth.transport.requests
+    require_auth = os.environ.get("REQUIRE_FIREBASE_AUTH", "").lower() in ("1", "true", "yes")
 
-            scopes = ["https://www.googleapis.com/auth/datastore"]
-            if sa_json:
-                creds = service_account.Credentials.from_service_account_info(
-                    json.loads(sa_json), scopes=scopes
-                )
-            else:
-                creds = service_account.Credentials.from_service_account_file(
-                    sa_path, scopes=scopes
-                )
-            creds.refresh(google.auth.transport.requests.Request())
-            if creds.token:
-                _cached_access_token = creds.token
-                headers["Authorization"] = f"Bearer {_cached_access_token}"
-        except Exception as e:
-            print(f"[WARN] Admin SDK credential load fallback: {e}")
+    if not sa_json and not sa_path:
+        if require_auth:
+            print("[ERROR] FIREBASE_SERVICE_ACCOUNT_JSON is required but missing or empty! Exiting with code 1.")
+            sys.exit(1)
+        return headers
+
+    try:
+        from google.oauth2 import service_account
+        import google.auth.transport.requests
+
+        scopes = ["https://www.googleapis.com/auth/datastore"]
+        if sa_json:
+            creds = service_account.Credentials.from_service_account_info(
+                json.loads(sa_json), scopes=scopes
+            )
+        else:
+            creds = service_account.Credentials.from_service_account_file(
+                sa_path, scopes=scopes
+            )
+        creds.refresh(google.auth.transport.requests.Request())
+        if creds.token:
+            _cached_access_token = creds.token
+            headers["Authorization"] = f"Bearer {_cached_access_token}"
+    except Exception as e:
+        print(f"[ERROR] Admin SDK credential loading failed: {e}")
+        if require_auth:
+            sys.exit(1)
 
     return headers
 

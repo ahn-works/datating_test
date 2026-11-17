@@ -926,25 +926,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Row(
                     children: [
                       Expanded(
-                          child: _buildTextField('직무/직업', _jobController,
+                          child: _buildTextField(ProfileOptions.jobLabel, _jobController,
                               hint: '예: IT/개발')),
                       const SizedBox(width: 16),
                       Expanded(
-                          child: _buildTextField('MBTI', _mbtiController,
+                          child: _buildTextField(ProfileOptions.mbtiLabel, _mbtiController,
                               hint: '예: ENFJ')),
                     ],
                   ),
                   _buildChipSection(
-                      '음주 성향', _availableDrinking, _selectedDrinking),
+                      ProfileOptions.drinkingLabel, _availableDrinking, _selectedDrinking),
                   _buildChipSection(
-                      '흡연 여부', _availableSmoking, _selectedSmoking,
+                      ProfileOptions.smokingLabel, _availableSmoking, _selectedSmoking,
                       isSingle: true),
-                  _buildChipSection('반려동물', _availablePet, _selectedPet,
+                  _buildChipSection(ProfileOptions.petLabel, _availablePet, _selectedPet,
                       isSingle: true),
                   const Divider(height: 36),
 
                   // 2. 성격 및 매력 태그 (Personality Tags)
-                  _buildSectionHeader('성격 및 매력 태그', '나의 매력을 보여줄 수 있는 태그를 선택해주세요.'),
+                  _buildSectionHeader(ProfileOptions.personalityLabel, '나의 매력을 보여줄 수 있는 태그를 선택해주세요.'),
                   _buildChipSection(
                       '성격 태그', _availablePersonalities, _selectedPersonalities),
                   const Divider(height: 36),
@@ -956,7 +956,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   const Divider(height: 36),
 
                   // 4. 관심사 / 취향 (Interests & Hobbies)
-                  _buildSectionHeader('관심사 / 취향', '함께 즐기고 싶은 취미나 활동을 선택해주세요.'),
+                  _buildSectionHeader(ProfileOptions.hobbiesLabel, '함께 즐기고 싶은 취미나 활동을 선택해주세요.'),
                   _buildChipSection(
                       '나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
                   const SizedBox(height: 10),

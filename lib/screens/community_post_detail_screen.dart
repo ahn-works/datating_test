@@ -41,9 +41,14 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   late int _likeCount;
   late List<Map<String, dynamic>> _comments;
   bool _isSubmittingComment = false;
+  Map<String, dynamic>? _fetchedPost;
+  bool _isLoadingDoc = false;
+  bool _isNotFound = false;
+
+  Map<String, dynamic> get _effectivePost => _fetchedPost ?? widget.post;
 
   String? get _postId {
-    final raw = widget.post['id']?.toString().trim();
+    final raw = _effectivePost['id']?.toString().trim();
     if (raw == null || raw.isEmpty) return null;
     return raw;
   }
@@ -57,11 +62,12 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   }
 
   void _initPostState() {
-    _isLiked = widget.post['isLiked'] == true;
-    _likeCount = (widget.post['likes'] is num)
-        ? (widget.post['likes'] as num).toInt()
+    final p = _effectivePost;
+    _isLiked = p['isLiked'] == true;
+    _likeCount = (p['likes'] is num)
+        ? (p['likes'] as num).toInt()
         : 0;
-    final rawList = widget.post['commentList'];
+    final rawList = p['commentList'];
     if (rawList is List) {
       _comments = rawList
           .whereType<Map>()
@@ -75,15 +81,59 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   void _syncPostComments([int? count]) {
     try {
-      widget.post['commentList'] = _comments;
-      widget.post['comments'] = count ?? _comments.length;
+      _effectivePost['commentList'] = _comments;
+      _effectivePost['comments'] = count ?? _comments.length;
     } catch (_) {}
   }
 
   @override
   void initState() {
     super.initState();
-    _initPostState();
+    final p = widget.post;
+    final pid = p['id']?.toString().trim() ?? p['docId']?.toString().trim();
+    final bool hasContent = p['title'] != null || p['content'] != null;
+
+    if (!hasContent && pid != null && pid.isNotEmpty) {
+      _fetchPost(pid);
+    } else {
+      _initPostState();
+    }
+  }
+
+  Future<void> _fetchPost(String docId) async {
+    setState(() {
+      _isLoadingDoc = true;
+      _isNotFound = false;
+    });
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        final doc = await FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(docId)
+            .get();
+        if (doc.exists && doc.data() != null) {
+          final data = Map<String, dynamic>.from(doc.data()!);
+          data['id'] = doc.id;
+          if (mounted) {
+            setState(() {
+              _fetchedPost = data;
+              _isLoadingDoc = false;
+              _isNotFound = false;
+            });
+            _initPostState();
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[CommunityPostDetailScreen] fetch error: $e');
+    }
+    if (mounted) {
+      setState(() {
+        _isLoadingDoc = false;
+        _isNotFound = true;
+      });
+    }
   }
 
   @override
@@ -93,7 +143,17 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         oldWidget.post['id'] != widget.post['id']) {
       _isSubmittingComment = false;
       _commentController.clear();
-      _initPostState();
+      final p = widget.post;
+      final pid = p['id']?.toString().trim() ?? p['docId']?.toString().trim();
+      final bool hasContent = p['title'] != null || p['content'] != null;
+      if (!hasContent && pid != null && pid.isNotEmpty) {
+        _fetchPost(pid);
+      } else {
+        _fetchedPost = null;
+        _isLoadingDoc = false;
+        _isNotFound = false;
+        _initPostState();
+      }
     }
   }
 
@@ -150,21 +210,21 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
               : 'user_${DateTime.now().millisecondsSinceEpoch}');
       final postRef = db.collection('community_posts').doc(postId);
       final commentRef = postRef.collection('comments').doc();
-      final existingTime = (widget.post['time'] ?? '').toString().trim();
+      final existingTime = (_effectivePost['time'] ?? '').toString().trim();
 
       await postRef.set({
         'id': postId,
-        'title': widget.post['title'] ?? '',
-        'content': widget.post['content'] ?? '',
-        'author': widget.post['author'] ?? '',
-        'authorAvatar': widget.post['authorAvatar'] ?? '',
-        'location': widget.post['location'] ?? '',
-        'category': widget.post['category'] ?? '',
-        'tag': widget.post['tag'] ?? '',
+        'title': _effectivePost['title'] ?? '',
+        'content': _effectivePost['content'] ?? '',
+        'author': _effectivePost['author'] ?? '',
+        'authorAvatar': _effectivePost['authorAvatar'] ?? '',
+        'location': _effectivePost['location'] ?? '',
+        'category': _effectivePost['category'] ?? '',
+        'tag': _effectivePost['tag'] ?? '',
         if (existingTime.isNotEmpty) 'time': existingTime,
         'comments': FieldValue.increment(1),
-        'likes': widget.post['likes'] ?? 0,
-        'likedUserIds': widget.post['likedUserIds'] ?? <String>[],
+        'likes': _effectivePost['likes'] ?? 0,
+        'likedUserIds': _effectivePost['likedUserIds'] ?? <String>[],
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -311,8 +371,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   Future<void> _toggleLike() async {
     final prevLiked = _isLiked;
     final prevCount = _likeCount;
-    final prevLikedUsers = (widget.post['likedUserIds'] is List)
-        ? (widget.post['likedUserIds'] as List)
+    final prevLikedUsers = (_effectivePost['likedUserIds'] is List)
+        ? (_effectivePost['likedUserIds'] as List)
             .map((e) => e.toString())
             .toList()
         : <String>[];
@@ -340,9 +400,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     setState(() {
       _isLiked = nextLiked;
       _likeCount = nextCount;
-      widget.post['likedUserIds'] = nextLikedUsers;
-      widget.post['likes'] = nextCount;
-      widget.post['isLiked'] = nextLiked;
+      _effectivePost['likedUserIds'] = nextLikedUsers;
+      _effectivePost['likes'] = nextCount;
+      _effectivePost['isLiked'] = nextLiked;
     });
 
     try {
@@ -395,9 +455,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       setState(() {
         _isLiked = prevLiked;
         _likeCount = prevCount;
-        widget.post['likedUserIds'] = prevLikedUsers;
-        widget.post['likes'] = prevCount;
-        widget.post['isLiked'] = prevLiked;
+        _effectivePost['likedUserIds'] = prevLikedUsers;
+        _effectivePost['likes'] = prevCount;
+        _effectivePost['isLiked'] = prevLiked;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('좋아요를 저장하지 못했어요')),
@@ -472,7 +532,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   }
 
   Widget _buildBodyContent(List<Map<String, dynamic>> displayComments) {
-    final post = widget.post;
+    final post = _effectivePost;
     final author = (post['author'] ?? '동네주민').toString();
     final isAuthorMe = author == globalData.userNickname.value ||
         (post['authorId'] != null &&
@@ -1129,8 +1189,125 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final post = widget.post;
+    if (_isLoadingDoc) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            tooltip: '뒤로가기',
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: OomuTokens.textPrimary, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('동네 이야기',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: OomuTokens.coral),
+        ),
+      );
+    }
+
+    if (_isNotFound) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            tooltip: '뒤로가기',
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: OomuTokens.textPrimary, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('동네 이야기',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.article_outlined,
+                  size: 64,
+                  color: OomuTokens.textSecondary.withValues(alpha: 0.5)),
+              const SizedBox(height: 16),
+              const Text(
+                '게시글을 찾을 수 없어요',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '삭제되었거나 존재하지 않는 게시글입니다.',
+                style: TextStyle(fontSize: 14, color: OomuTokens.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final post = _effectivePost;
     final author = (post['author'] ?? '동네주민').toString();
+    final authorUid = (post['authorId'] ??
+            post['authorUid'] ??
+            post['userId'] ??
+            post['uid'] ??
+            '')
+        .toString();
+    if (globalData.isTargetBlocked(uid: authorUid, nickname: author)) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            tooltip: '뒤로가기',
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: OomuTokens.textPrimary, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('동네 이야기',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.block_rounded,
+                  size: 64, color: Colors.redAccent.withValues(alpha: 0.7)),
+              const SizedBox(height: 16),
+              const Text(
+                '차단된 사용자의 게시글입니다.',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '차단 관리 메뉴에서 언제든지 차단을 해제할 수 있습니다.',
+                style: TextStyle(fontSize: 14, color: OomuTokens.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final category = (post['category'] ?? '동네 토크').toString();
     final title = (post['title'] ?? '').toString();
     final postId = _postId;

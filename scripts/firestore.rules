@@ -132,6 +132,12 @@ service cloud.firestore {
     function isValidUserDoc(userId) {
       return isReasonablePayloadSize() &&
              (!('userId' in request.resource.data) || request.resource.data.userId == userId) &&
+             !('kakaoEmail' in request.resource.data) &&
+             !('naverEmail' in request.resource.data) &&
+             !('phone' in request.resource.data) &&
+             !('phoneNumber' in request.resource.data) &&
+             !('birthDate' in request.resource.data) &&
+             !('detailAddress' in request.resource.data) &&
              isValidOptionalString('nickname', 0, 60) &&
              isValidOptionalString('name', 0, 60) &&
              isValidOptionalString('bio', 0, 2000) &&
@@ -284,8 +290,9 @@ service cloud.firestore {
       allow create: if isActiveMember() && isValidMeetupDoc();
       allow update: if isActiveMember() &&
                        isValidMeetupDoc() &&
-                       areImmutableFieldsUnchanged(['hostId', 'createdAt']);
-      allow delete: if isAuthenticated() && resource.data.hostId == request.auth.uid;
+                       areImmutableFieldsUnchanged(['hostId', 'createdAt']) &&
+                       (resource.data.hostId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && (resource.data.hostId == request.auth.uid || isAdmin());
 
       match /applications/{appId} {
         allow read: if isActiveMember();
@@ -303,13 +310,14 @@ service cloud.firestore {
       allow create: if isActiveMember() && isValidCommunityPostDoc();
       allow update: if isActiveMember() &&
                        isValidCommunityPostDoc() &&
-                       areImmutableFieldsUnchanged(['authorId', 'createdAt']);
-      allow delete: if isAuthenticated() && resource.data.authorId == request.auth.uid;
+                       areImmutableFieldsUnchanged(['authorId', 'createdAt']) &&
+                       (resource.data.authorId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
 
       match /comments/{commentId} {
         allow get, list: if true;
         allow create, update: if isActiveMember() && isValidCommentDoc();
-        allow delete: if isActiveMember();
+        allow delete: if isActiveMember() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
     }
 

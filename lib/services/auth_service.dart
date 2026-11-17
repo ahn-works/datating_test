@@ -286,7 +286,6 @@ class AuthService {
       extraData: {
         'kakaoApp': '우무(OOMU)',
         'kakaoId': cleanId,
-        'kakaoEmail': kakaoEmail ?? '',
         'isVerified': true, // 카카오 본인 확인 완료
         'isPhoneVerified': true,
         if (kakaoProfileImg != null && kakaoProfileImg.isNotEmpty)
@@ -295,6 +294,21 @@ class AuthService {
           'avatarUrl': kakaoProfileImg,
       },
     );
+
+    if (kakaoEmail != null && kakaoEmail.isNotEmpty && Firebase.apps.isNotEmpty) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(credential.user!.uid)
+            .collection('private')
+            .doc('contact')
+            .set({
+          'kakaoEmail': kakaoEmail,
+          'email': kakaoEmail,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
     return credential;
   }
 
@@ -509,17 +523,34 @@ class AuthService {
       extraData: {
         'naverApp': '우무(OOMU)',
         'naverId': cleanId,
-        'naverEmail': naverEmail ?? '',
         'isVerified': true,
         'isPhoneVerified': naverMobile != null && naverMobile.isNotEmpty,
-        if (naverMobile != null && naverMobile.isNotEmpty)
-          'phoneNumber': naverMobile,
         if (naverProfileImg != null && naverProfileImg.isNotEmpty)
           'photoUrl': naverProfileImg,
         if (naverProfileImg != null && naverProfileImg.isNotEmpty)
           'avatarUrl': naverProfileImg,
       },
     );
+
+    if (Firebase.apps.isNotEmpty &&
+        ((naverEmail != null && naverEmail.isNotEmpty) ||
+            (naverMobile != null && naverMobile.isNotEmpty))) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(credential.user!.uid)
+            .collection('private')
+            .doc('contact')
+            .set({
+          if (naverEmail != null && naverEmail.isNotEmpty)
+            'naverEmail': naverEmail,
+          if (naverEmail != null && naverEmail.isNotEmpty) 'email': naverEmail,
+          if (naverMobile != null && naverMobile.isNotEmpty)
+            'phone': naverMobile,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
     return credential;
   }
 
@@ -652,10 +683,20 @@ class AuthService {
                   userCred.user!,
                   provider: 'phone',
                   extraData: {
-                    'phone': clean,
                     'isPhoneVerified': true,
                   },
                 );
+                try {
+                  await _firestore
+                      .collection('users')
+                      .doc(userCred.user!.uid)
+                      .collection('private')
+                      .doc('contact')
+                      .set({
+                    'phone': clean,
+                    'updatedAt': FieldValue.serverTimestamp(),
+                  }, SetOptions(merge: true));
+                } catch (_) {}
                 if (onAutoVerified != null) {
                   onAutoVerified();
                 }
@@ -758,10 +799,20 @@ class AuthService {
         userCredential.user!,
         provider: 'phone',
         extraData: {
-          'phone': cleanPhone,
           'isPhoneVerified': true,
         },
       );
+      try {
+        await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .collection('private')
+            .doc('contact')
+            .set({
+          'phone': cleanPhone,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
     }
     return userCredential;
   }
@@ -978,14 +1029,9 @@ class AuthService {
       'nickname': nickname,
       'name': nickname,
       'gender': gender,
-      'birthDate': birthDate,
       'age': calculatedAge,
-      'phone': cleanPhone,
       'isPhoneVerified': true,
       'location': location,
-      'address': location,
-      if (detailAddress != null && detailAddress.isNotEmpty)
-        'detailAddress': detailAddress,
       'job': job,
       'mbti': mbti,
       'hobbies': hobbies,
@@ -1006,6 +1052,24 @@ class AuthService {
           .collection('users')
           .doc(uid)
           .set(updateData, SetOptions(merge: true));
+
+      // 민감한 개인정보(휴대전화번호, 생년월일, 상세주소)는 본인/관리자만 읽고 쓸 수 있는 private/contact 문서에 격리 저장
+      try {
+        await _firestore
+            .collection('users')
+            .doc(uid)
+            .collection('private')
+            .doc('contact')
+            .set({
+          'phone': cleanPhone,
+          'birthDate': birthDate,
+          if (detailAddress != null && detailAddress.isNotEmpty)
+            'detailAddress': detailAddress,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('[AuthService] Private contact write error: $e');
+      }
     }
 
     if (!_isValidSessionAfterAwait(requestSession, uid)) {

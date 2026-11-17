@@ -14,6 +14,7 @@ class WeatherMoodRecipe {
   final String moodHeadline; // 예: "오늘 미세먼지 심한데 노릇한 미나리 삼겹살 어때요?"
   final String moodSubcopy;
   final List<RecipeItem> recommendedRecipes;
+  final bool hasWeather;
 
   const WeatherMoodRecipe({
     required this.locationName,
@@ -24,6 +25,7 @@ class WeatherMoodRecipe {
     required this.moodHeadline,
     required this.moodSubcopy,
     required this.recommendedRecipes,
+    this.hasWeather = true,
   });
 }
 
@@ -232,9 +234,9 @@ class DiscoveryApiService {
   /// 1. OpenWeatherMap / Open-Meteo 실시간 날씨·미세먼지 + Edamam 감성/다이어트 레시피 결합
   Future<WeatherMoodRecipe> fetchWeatherAndRecipes(String userLocation) async {
     final coords = _resolveCoords(userLocation);
-    double tempC = 17.5;
-    String condition = '선선함';
-    int pm10 = 68; // 기본값: 미세먼지 다소 높음 시나리오도 자연스럽게 대응
+    double tempC = 0.0;
+    String condition = '알수없음';
+    int pm10 = 0;
 
     bool weatherFetchSuccess = false;
 
@@ -296,14 +298,14 @@ class DiscoveryApiService {
       debugPrint('[DiscoveryApiService] Weather fallback used: $e');
     }
 
-    final String airLabel = pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : '좋음');
+    final String airLabel = pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : (pm10 > 0 ? '좋음' : '확인불가'));
 
     // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합
     String headline;
     String subcopy;
     if (!weatherFetchSuccess) {
-      headline = '${coords.shortName} 동네 이웃과 나누는 오늘의 추천 레시피';
-      subcopy = '날씨 정보를 불러올 수 없지만, 정갈한 식탁과 감성 레시피를 전해드려요.';
+      headline = '날씨 정보를 불러올 수 없어요';
+      subcopy = '네트워크 연결 상태를 확인해 주세요.';
     } else if (pm10 > 80) {
       headline = '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?';
       subcopy =
@@ -331,6 +333,7 @@ class DiscoveryApiService {
       moodHeadline: headline,
       moodSubcopy: subcopy,
       recommendedRecipes: _curatedRecipes,
+      hasWeather: weatherFetchSuccess,
     );
   }
 
@@ -519,53 +522,7 @@ class DiscoveryApiService {
       }
     } catch (_) {}
 
-    return const [
-      TrendMovieItem(
-        id: 'movie_chiikawa',
-        title: '[실시간 박스오피스 1위] 극장판 치이카와: 인어 섬의 비밀',
-        genre: '힐링 · 판타지 애니메이션',
-        rating: 9.3,
-        releaseInfo: '2030 여성 예매율 상위권',
-        synopsis:
-            '귀여운 치이카와와 친구들이 신비로운 섬으로 떠나며 펼쳐지는 힐링 어드벤처. 굿즈 오픈런 및 관람 모임 추천작!',
-        posterUrl:
-            'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg',
-        badge: '박스오피스 1위',
-      ),
-      TrendMovieItem(
-        id: 'movie_fall2',
-        title: '[실시간 박스오피스 2위] 폴2: 데드포인트',
-        genre: '고소공포 서바이벌 스릴러',
-        rating: 8.8,
-        releaseInfo: '극장 절찬 상영중',
-        synopsis: '초고층 타워에서의 생존을 건 사투. 손에 땀을 쥐게 하는 압도적인 스릴과 몰입감!',
-        posterUrl:
-            'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2462%252F246220_P01_110626.jpg&w=600&q=85&output=jpg',
-        badge: '화제작',
-      ),
-      TrendMovieItem(
-        id: 'movie_lalaland',
-        title: '[실시간 박스오피스 3위] 라라랜드',
-        genre: '로맨스 · 뮤지컬 명작',
-        rating: 9.4,
-        releaseInfo: '재개봉 흥행 역주행',
-        synopsis: '꿈과 열정, 그리고 사랑을 노래하는 감성 명작. 재개봉 기념 관람 팟으로 인기 폭발!',
-        posterUrl:
-            'https://wsrv.nl/?url=https%3A%2F%2Fwww.kobis.or.kr%2Fcommon%2Fmast%2Fmovie%2F2016%2F11%2F2f602b9e15ad47a5ae6a877543be8ce3.jpg&w=600&q=85&output=jpg',
-        badge: '역주행 명작',
-      ),
-      TrendMovieItem(
-        id: 'movie_conan',
-        title: '[실시간 박스오피스 6위] 명탐정 코난: 30호 살인 사건',
-        genre: '미스터리 · 추리 애니메이션',
-        rating: 9.1,
-        releaseInfo: '박스오피스 상위권 · 절찬 상영중',
-        synopsis: '밀실 추리와 반전이 돋보이는 극장판 시리즈 최신 화제작. 동네 추리/애니 덕후들과 N차 관람 팟으로 인기!',
-        posterUrl:
-            'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2417%252F241724_P01_152342.jpg&w=600&q=85&output=jpg',
-        badge: '애니 N차 인기',
-      ),
-    ];
+    return const <TrendMovieItem>[];
   }
 
   /// 2-1. Firestore 'trend_events' 실시간 공연·페스티벌·스포츠·핫플 크롤링 데이터 조회

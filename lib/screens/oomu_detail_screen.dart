@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,6 +39,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   final TextEditingController _applyMsgController = TextEditingController();
 
   bool _isFavorite = false;
+  Map<String, dynamic>? _fetchedMeetup;
+  bool _isLoadingDoc = false;
+  bool _isNotFound = false;
+
+  Map<String, dynamic>? get _effectiveMeetup => _fetchedMeetup ?? widget.meetup;
 
   // 카카오 지도 연동 좌표 및 실시간 거리
   double? _targetLat;
@@ -51,26 +57,93 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   }
 
   String _calcRemainingSeats(dynamic memberRaw) {
-    return MeetupMemberHelper.calcRemainingSeats(widget.meetup);
+    return MeetupMemberHelper.calcRemainingSeats(_effectiveMeetup);
   }
 
   int _getMemberCount(dynamic raw) {
-    return MeetupMemberHelper.parseAttendance(widget.meetup);
+    return MeetupMemberHelper.parseAttendance(_effectiveMeetup);
   }
 
   @override
   void initState() {
     super.initState();
-    _isFavorite = globalData.isFavorite(widget.meetup?['id'] ?? widget.meetup?['title']);
-    _initLocationState();
+    final m = widget.meetup;
+    final docId = m?['id']?.toString() ?? m?['docId']?.toString();
+    final bool hasContent = m != null &&
+        (m['title'] != null || m['content'] != null || m['description'] != null);
+
+    if (m == null) {
+      _isNotFound = true;
+    } else if (!hasContent && docId != null && docId.isNotEmpty) {
+      _fetchMeetup(docId);
+    } else {
+      _isFavorite =
+          globalData.isFavorite(m['id'] ?? m['title']);
+      _initLocationState();
+    }
+  }
+
+  Future<void> _fetchMeetup(String docId) async {
+    setState(() {
+      _isLoadingDoc = true;
+      _isNotFound = false;
+    });
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        final doc = await FirebaseFirestore.instance
+            .collection('meetups')
+            .doc(docId)
+            .get();
+        if (doc.exists && doc.data() != null) {
+          final data = Map<String, dynamic>.from(doc.data()!);
+          data['id'] = doc.id;
+          if (mounted) {
+            setState(() {
+              _fetchedMeetup = data;
+              _isLoadingDoc = false;
+              _isNotFound = false;
+              _isFavorite =
+                  globalData.isFavorite(data['id'] ?? data['title']);
+            });
+            _initLocationState();
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[OOMUDetailScreen] fetch error: $e');
+    }
+    if (mounted) {
+      setState(() {
+        _isLoadingDoc = false;
+        _isNotFound = true;
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant OOMUDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.meetup != widget.meetup) {
-      _isFavorite = globalData.isFavorite(widget.meetup?['id'] ?? widget.meetup?['title']);
-      _initLocationState();
+      final m = widget.meetup;
+      final docId = m?['id']?.toString() ?? m?['docId']?.toString();
+      final bool hasContent = m != null &&
+          (m['title'] != null || m['content'] != null || m['description'] != null);
+      if (m == null) {
+        setState(() {
+          _isNotFound = true;
+          _fetchedMeetup = null;
+        });
+      } else if (!hasContent && docId != null && docId.isNotEmpty) {
+        _fetchMeetup(docId);
+      } else {
+        _fetchedMeetup = null;
+        _isLoadingDoc = false;
+        _isNotFound = false;
+        _isFavorite =
+            globalData.isFavorite(m['id'] ?? m['title']);
+        _initLocationState();
+      }
     }
   }
 
@@ -82,7 +155,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   Future<void> _initLocationState() async {
     final int reqId = ++_locationReqId;
-    final saved = OomuUiHelpers.extractValidCoords(widget.meetup);
+    final saved = OomuUiHelpers.extractValidCoords(_effectiveMeetup);
 
     if (saved != null) {
       if (mounted) {
@@ -110,7 +183,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       });
     }
 
-    final loc = (widget.meetup?['location'] ?? '').toString().trim();
+    final loc = (_effectiveMeetup?['location'] ?? '').toString().trim();
     if (loc.isEmpty) {
       if (!mounted || reqId != _locationReqId) return;
       setState(() {
@@ -182,7 +255,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   // 참여 신청 바텀시트 (OomuSheet 표준 컴포넌트 적용)
   void _showApplicationBottomSheet(BuildContext context) {
-    if (MeetupMemberHelper.isClosed(widget.meetup)) {
+    if (MeetupMemberHelper.isClosed(_effectiveMeetup)) {
       return;
     }
     HapticFeedback.lightImpact();
@@ -297,7 +370,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       variant: OomuButtonVariant.primary,
                       isLoading: _isApplying,
                       onPressed: () async {
-                        final id = widget.meetup?['id']?.toString();
+                        final id = _effectiveMeetup?['id']?.toString();
                         if (id == null || id.isEmpty || Firebase.apps.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('실제 모임 정보를 확인한 뒤 신청할 수 있어요.')),
@@ -414,22 +487,135 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locName = (widget.meetup?['location'] ?? '장소 정보 없음').toString();
-    final double? hostManner = OomuUiHelpers.parseMannerTemp(widget.meetup);
-    final bool isHostVerified = widget.meetup?['isVerified'] == true || widget.meetup?['hostVerified'] == true;
-    final List<String> praiseTags = _extractHostPraiseTags(widget.meetup);
+    if (_isLoadingDoc) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: OomuTokens.textPrimary),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('모임 상세',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: OomuTokens.coral),
+        ),
+      );
+    }
+
+    if (_isNotFound || _effectiveMeetup == null) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: OomuTokens.textPrimary),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('모임 상세',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.search_off_rounded,
+                  size: 64,
+                  color: OomuTokens.textSecondary.withValues(alpha: 0.5)),
+              const SizedBox(height: 16),
+              const Text(
+                '모임을 찾을 수 없어요',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '삭제되었거나 존재하지 않는 모임입니다.',
+                style: TextStyle(fontSize: 14, color: OomuTokens.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final meetup = _effectiveMeetup!;
+    final hostUid = (meetup['hostId'] ??
+            meetup['hostUid'] ??
+            meetup['creatorId'] ??
+            meetup['userId'] ??
+            '')
+        .toString();
+    final hostName = (meetup['host'] ?? meetup['hostName'] ?? '').toString();
+    if (globalData.isTargetBlocked(uid: hostUid, nickname: hostName)) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: OomuTokens.textPrimary),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('모임 상세',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.block_rounded,
+                  size: 64, color: Colors.redAccent.withValues(alpha: 0.7)),
+              const SizedBox(height: 16),
+              const Text(
+                '차단한 사용자의 모임입니다.',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '차단 관리 메뉴에서 언제든지 차단을 해제할 수 있습니다.',
+                style: TextStyle(fontSize: 14, color: OomuTokens.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final locName = (meetup['location'] ?? '장소 정보 없음').toString();
+    final double? hostManner = OomuUiHelpers.parseMannerTemp(meetup);
+    final bool isHostVerified = meetup['isVerified'] == true || meetup['hostVerified'] == true;
+    final List<String> praiseTags = _extractHostPraiseTags(meetup);
     final bool hasResolvedCoords = _targetLat != null && _targetLng != null;
     final bool isDistanceUnknown = _distanceText == '거리 정보 없음' ||
         _distanceText == '거리 확인 불가' ||
         _distanceText == '거리 계산 중...';
     final costLabel = OomuUiHelpers.formatMeetupCost(
-      widget.meetup?['fee'] ?? widget.meetup?['cost'] ?? widget.meetup?['price'],
+      meetup['fee'] ?? meetup['cost'] ?? meetup['price'],
     );
-    final categoryLabel = (widget.meetup != null ? (widget.meetup!['category'] ?? widget.meetup!['mainCategory'] ?? '일상 & 푸드') : '동네 맛집 & 소셜 다이닝').toString();
-    final dateStr = (widget.meetup?['date'] ?? widget.meetup?['schedule'] ?? '').toString().trim();
-    final memberCount = _getMemberCount(widget.meetup?['members']);
-    final maxCapacity = MeetupMemberHelper.parseCapacity(widget.meetup);
-    final statusLabel = MeetupMemberHelper.formatStatusLabel(widget.meetup);
+    final categoryLabel = (meetup['category'] ?? meetup['mainCategory'] ?? '일상 & 푸드').toString();
+    final dateStr = (meetup['date'] ?? meetup['schedule'] ?? '').toString().trim();
+    final memberCount = _getMemberCount(meetup['members']);
+    final maxCapacity = MeetupMemberHelper.parseCapacity(meetup);
+    final statusLabel = MeetupMemberHelper.formatStatusLabel(meetup);
 
     return Scaffold(
       backgroundColor: OomuTokens.background,
@@ -468,8 +654,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   onHaptic: OomuHaptics.light,
                   onTap: () {
                     setState(() => _isFavorite = !_isFavorite);
-                    if (widget.meetup != null) {
-                      globalData.toggleFavorite(widget.meetup!);
+                    if (_effectiveMeetup != null) {
+                      globalData.toggleFavorite(_effectiveMeetup!);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(_isFavorite ? '❤️ 찜한 모임에 추가되었습니다' : '찜한 모임에서 제거되었습니다'),
@@ -524,8 +710,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 fit: StackFit.expand,
                 children: [
                   appNetImage(
-                    (widget.meetup != null && widget.meetup!['imageUrl'] != null)
-                        ? widget.meetup!['imageUrl']
+                    (_effectiveMeetup != null && _effectiveMeetup!['imageUrl'] != null)
+                        ? _effectiveMeetup!['imageUrl']
                         : 'assets/images/cover_food.jpg',
                     fit: BoxFit.cover,
                   ),
@@ -575,7 +761,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             fontFamily: OomuTokens.fontFamily,
                           ),
                         ),
-                        if (widget.meetup?['isFemaleOnly'] == true)
+                        if (_effectiveMeetup?['isFemaleOnly'] == true)
                           const OomuBadge.coral(
                             label: '여성 전용',
                           ),
@@ -588,7 +774,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
                     // B. 제목 (22sp w700 ink)
                     Text(
-                      _formatTitleKeepWords(widget.meetup?['title']?.toString()),
+                      _formatTitleKeepWords(_effectiveMeetup?['title']?.toString()),
                       style: const TextStyle(
                         color: OomuTokens.textPrimary,
                         fontSize: OomuTokens.fs22,
@@ -616,7 +802,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       OomuInfoRow(
                         icon: Icons.group_outlined,
                         label: '인원',
-                        value: '${MeetupMemberHelper.formatMembersLabel(widget.meetup)}명',
+                        value: '${MeetupMemberHelper.formatMembersLabel(_effectiveMeetup)}명',
                       ),
                     if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
                       OomuInfoRow(
@@ -634,8 +820,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     const OomuSectionHeader(title: '모임 소개', padding: EdgeInsets.zero),
                     const SizedBox(height: OomuTokens.s12),
                     Text(
-                      (widget.meetup?['description']?.toString().trim().isNotEmpty == true)
-                          ? widget.meetup!['description'].toString()
+                      (_effectiveMeetup?['description']?.toString().trim().isNotEmpty == true)
+                          ? _effectiveMeetup!['description'].toString()
                           : '아직 모임 소개가 없어요. 참여 전 모임장에게 내용을 확인해 주세요.',
                       style: const TextStyle(
                         fontSize: OomuTokens.fs15,
@@ -699,7 +885,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                 border: Border.all(color: OomuTokens.coral.withValues(alpha: 0.25)),
                               ),
                               child: Text(
-                                '${_calcRemainingSeats(widget.meetup?['members'])} · 정원 $maxCapacity명',
+                                '${_calcRemainingSeats(_effectiveMeetup?['members'])} · 정원 $maxCapacity명',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: OomuTokens.coral,
@@ -718,15 +904,15 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       children: () {
                         final List<Widget> avatars = [];
                         final hostAv =
-                            (widget.meetup?['hostAvatar'] ?? '').toString();
+                            (_effectiveMeetup?['hostAvatar'] ?? '').toString();
                         final hostName =
-                            (widget.meetup?['host'] ?? '호스트').toString();
+                            (_effectiveMeetup?['host'] ?? '호스트').toString();
                         avatars.add(_buildMemberAvatar(hostAv,
                             isHost: true, name: hostName));
 
-                        final rawAvatars = (widget.meetup?['memberAvatars']
+                        final rawAvatars = (_effectiveMeetup?['memberAvatars']
                                 is List)
-                            ? (widget.meetup!['memberAvatars'] as List)
+                            ? (_effectiveMeetup!['memberAvatars'] as List)
                                 .map((e) => e.toString())
                                 .where((s) => s.isNotEmpty)
                                 .toList()
@@ -846,8 +1032,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 onHaptic: OomuHaptics.light,
                 onTap: () {
                   setState(() => _isFavorite = !_isFavorite);
-                  if (widget.meetup != null) {
-                    globalData.toggleFavorite(widget.meetup!);
+                  if (_effectiveMeetup != null) {
+                    globalData.toggleFavorite(_effectiveMeetup!);
                   }
                 },
                 child: Container(
@@ -871,7 +1057,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               // 52dp 신청 액션 버튼 (정원 마감, 신청 완료, 호스트 상태 대응)
               Expanded(
                 child: MeetupParticipationAction(
-                  meetup: widget.meetup,
+                  meetup: _effectiveMeetup,
                   onApply: _isApplying ? null : () => _showApplicationBottomSheet(context),
                 ),
               ),
@@ -884,9 +1070,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   // 한 겹 호스트 카드 위젯 (방향 1: 박스 테두리 없는 깔끔한 인라인 프로필)
   Widget _buildHostCard(double? hostManner, bool isHostVerified, List<String> praiseTags) {
-    final hostName = (widget.meetup != null ? (widget.meetup!['host'] ?? '모임 호스트') : '모임 호스트').toString();
-    final hostAvatar = (widget.meetup != null && widget.meetup!['hostAvatar'] != null)
-        ? widget.meetup!['hostAvatar'].toString()
+    final hostName = (_effectiveMeetup != null ? (_effectiveMeetup!['host'] ?? '모임 호스트') : '모임 호스트').toString();
+    final hostAvatar = (_effectiveMeetup != null && _effectiveMeetup!['hostAvatar'] != null)
+        ? _effectiveMeetup!['hostAvatar'].toString()
         : '';
 
     return Column(
@@ -998,10 +1184,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           ],
         ),
 
-          if (widget.meetup != null && widget.meetup!['hostBio'] != null && widget.meetup!['hostBio'].toString().trim().isNotEmpty) ...[
+          if (_effectiveMeetup != null && _effectiveMeetup!['hostBio'] != null && _effectiveMeetup!['hostBio'].toString().trim().isNotEmpty) ...[
             const SizedBox(height: OomuTokens.s12),
             Text(
-              widget.meetup!['hostBio'].toString().trim(),
+              _effectiveMeetup!['hostBio'].toString().trim(),
               style: const TextStyle(
                 fontSize: OomuTokens.fs14,
                 height: 1.5,
@@ -1036,9 +1222,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => UserProfileScreen(
-                    userId: (widget.meetup?['hostUid'] ??
-                            widget.meetup?['hostId'] ??
-                            widget.meetup?['creatorId'] ??
+                    userId: (_effectiveMeetup?['hostUid'] ??
+                            _effectiveMeetup?['hostId'] ??
+                            _effectiveMeetup?['creatorId'] ??
                             '')
                         .toString(),
                     userName: hostName,
@@ -1244,9 +1430,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             MaterialPageRoute(
               builder: (_) => UserProfileScreen(
                 userId: isHost
-                    ? (widget.meetup?['hostUid'] ??
-                            widget.meetup?['hostId'] ??
-                            widget.meetup?['creatorId'] ??
+                    ? (_effectiveMeetup?['hostUid'] ??
+                            _effectiveMeetup?['hostId'] ??
+                            _effectiveMeetup?['creatorId'] ??
                             '')
                         .toString()
                     : null,

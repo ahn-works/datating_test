@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/meetup_member_helper.dart';
@@ -132,6 +133,10 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                   (data['participantIds'] as List).map((e) => e.toString()))
               : <String>[];
 
+          if (globalData.isTargetBlocked(uid: hostUid, nickname: hostName)) {
+            continue;
+          }
+
           if (isHosting) {
             final isHost = (currentUid.isNotEmpty && hostUid == currentUid) ||
                 (currentNick.isNotEmpty && hostName == currentNick);
@@ -204,7 +209,7 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, OomuTokens.listBottomWithTabs),
           itemCount: meetups.length,
           itemBuilder: (context, index) {
             final meetup = meetups[index];

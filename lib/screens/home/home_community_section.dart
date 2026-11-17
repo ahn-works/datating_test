@@ -356,6 +356,9 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
               )
             else
               ...filteredPosts.map((post) => _buildCommunityCard(post)),
+            const Padding(
+              padding: OomuInsets.listBottomWithTabs,
+            ),
           ],
         );
       },

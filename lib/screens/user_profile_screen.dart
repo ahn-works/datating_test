@@ -131,7 +131,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (Firebase.apps.isEmpty) return;
 
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (doc.exists && doc.data() != null) {
         if (!mounted) return;
         _applyUserDoc(doc.data()!);
@@ -155,7 +156,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   void _applyUserDoc(Map<String, dynamic> data) {
     setState(() {
-      _userName = (data['nickname'] ?? data['name'] ?? widget.userName).toString();
+      _userName =
+          (data['nickname'] ?? data['name'] ?? widget.userName).toString();
       final ageVal = data['age'];
       if (ageVal != null) {
         _userAge = ageVal.toString();
@@ -346,7 +348,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(OomuTokens.r20)),
         title: const Text('사용자 차단',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: OomuTokens.fs16)),
         content: Text('$_userName님을 차단하시겠습니까?\n차단된 사용자의 모임과 대화가 즉시 숨김 처리됩니다.'),
         actions: [
           TextButton(
@@ -354,10 +357,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onPressed: () => Navigator.pop(ctx),
           ),
           TextButton(
-            child: const Text('차단하기', style: TextStyle(color: Colors.redAccent)),
+            child:
+                const Text('차단하기', style: TextStyle(color: Colors.redAccent)),
             onPressed: () {
               Navigator.pop(ctx);
-              globalData.blockUser(widget.userId ?? _userName);
+              if (widget.userId != null && widget.userId!.isNotEmpty) {
+                globalData.blockUid(widget.userId!);
+              }
+              if (_userName.isNotEmpty) {
+                globalData.blockUser(_userName);
+              }
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -377,9 +386,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final displayAge = _userAge.trim();
     final displayLocation =
         _userLocation.trim().isNotEmpty ? _userLocation.trim() : '동네 미설정';
-    final displayBio = _userBio.trim().isNotEmpty
-        ? _userBio.trim()
-        : '아직 등록된 한줄 소개가 없어요.';
+    final displayBio =
+        _userBio.trim().isNotEmpty ? _userBio.trim() : '아직 등록된 한줄 소개가 없어요.';
     final cleanAvatar = (_userAvatar ?? '').trim();
     final double? displayManner = _userManner;
     final displayJob = _userJob.trim();
@@ -391,14 +399,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         .map((e) => e.trim())
         .where((s) => s.isNotEmpty)
         .toList();
-    final effectiveHobbies = _userHobbies
-        .map((e) => e.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-    final effectiveDrinking = _userDrinking
-        .map((e) => e.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final effectiveHobbies =
+        _userHobbies.map((e) => e.trim()).where((s) => s.isNotEmpty).toList();
+    final effectiveDrinking =
+        _userDrinking.map((e) => e.trim()).where((s) => s.isNotEmpty).toList();
     final cleanGender = _userGender.trim();
     final cleanSmoking = _userSmoking.trim();
     final cleanPet = _userPet.trim();
@@ -621,20 +625,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildProfileKeyValueRow('💼 직무/직업', displayJob),
-                        _buildProfileKeyValueRow('🎂 나이', displayAge.isNotEmpty ? '$displayAge세' : ''),
-                        _buildProfileKeyValueRow('👤 성별', cleanGender),
-                        _buildProfileKeyValueRow('🎨 MBTI', displayMbti),
-                        _buildProfileKeyValueRow('🍻 음주 성향', effectiveDrinking.join(', ')),
-                        _buildProfileKeyValueRow('🚭 흡연 여부', cleanSmoking),
-                        _buildProfileKeyValueRow('🐶 반려동물', cleanPet, isLast: true),
+                        _buildProfileKeyValueRow('💼 ${ProfileOptions.jobLabel}', displayJob),
+                        _buildProfileKeyValueRow('🎂 ${ProfileOptions.ageLabel}', displayAge.isNotEmpty ? '$displayAge세' : ''),
+                        _buildProfileKeyValueRow('👤 ${ProfileOptions.genderLabel}', cleanGender),
+                        _buildProfileKeyValueRow('🎨 ${ProfileOptions.mbtiLabel}', displayMbti),
+                        _buildProfileKeyValueRow('🍻 ${ProfileOptions.drinkingLabel}', effectiveDrinking.join(', ')),
+                        _buildProfileKeyValueRow('🚭 ${ProfileOptions.smokingLabel}', cleanSmoking),
+                        _buildProfileKeyValueRow('🐶 ${ProfileOptions.petLabel}', cleanPet, isLast: true),
                       ],
                     ),
                   ),
                   const SizedBox(height: OomuTokens.s20),
 
                   // 2. Personality & Charm Tags
-                  const Text('성격 및 매력 태그',
+                  const Text(ProfileOptions.personalityLabel,
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
@@ -668,7 +672,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   const SizedBox(height: OomuTokens.s20),
 
                   // 4. Interests / Hobbies
-                  const Text('관심사 / 취향',
+                  const Text(ProfileOptions.hobbiesLabel,
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
@@ -755,9 +759,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildProfileKeyValueRow(String label, String value, {bool isLast = false}) {
+  Widget _buildProfileKeyValueRow(String label, String value,
+      {bool isLast = false}) {
     final cleanValue = value.trim();
-    final isUnset = cleanValue.isEmpty || cleanValue == ProfileOptions.unsetValue;
+    final isUnset =
+        cleanValue.isEmpty || cleanValue == ProfileOptions.unsetValue;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(

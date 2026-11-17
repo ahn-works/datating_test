@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/discovery_api_service.dart';
 import '../services/kakao_map_service.dart';
+import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import 'bouncy_tap.dart';
 
@@ -247,55 +248,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   }
 
   List<Map<String, dynamic>> _getYouthSubsidies() {
-    final cityLabel = _isYeosu ? '여수시·전남' : '서울·마포구';
-    return [
-      {
-        'id': 'sub_1',
-        'badge': '월 최대 20만 원',
-        'category': '청년지원금',
-        'title': '2026 청년월세 한시 특별지원 (최대 240만 원 현금 지원)',
-        'subtitle': '부모님과 별도 거주하는 만 19~34세 무주택 청년에게 월 최대 20만 원씩 12개월간 임차료 지원',
-        'benefit': '월 최대 20만 원 × 12개월 (복지로·주민센터 신청)',
-        'target': '만 19세~34세 무주택 1인 가구 청년 (중위소득 60% 이하)',
-        'howToApply': '복지로(bokjiro.go.kr) 온라인 신청 또는 관할 행정복지센터 방문',
-        'image': 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
-      },
-      {
-        'id': 'sub_2',
-        'badge': '대중교통 30% 환급',
-        'category': '청년지원금',
-        'title': 'K-패스 (구 알뜰교통카드) 청년 대중교통비 매월 30% 환급',
-        'subtitle':
-            '월 15회 이상 지하철·버스·광역버스 이용 시 청년(만 19~34세) 사용 금액의 30%를 다음 달 계좌로 환급',
-        'benefit': '매월 교통비 30% 자동 환급 (일반 20%, 청년 30%)',
-        'target': '만 19세~34세 전국 청년 누구나 (월 15회 이상 대중교통 이용)',
-        'howToApply': 'K-패스 공식 앱 또는 카드사 홈페이지에서 카드 발급 후 회원가입',
-        'image': 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80',
-      },
-      {
-        'id': 'sub_3',
-        'badge': '연 최대 15만 원',
-        'category': '청년지원금',
-        'title': '청년 문화예술패스 & $cityLabel 청년 문화생활 바우처',
-        'subtitle': '뮤지컬·콘서트·연극·전시회 티켓 예매 시 즉시 사용할 수 있는 문화예술 지원금 포인트',
-        'benefit': '1인당 연 10만~15만 원 공연·전시 관람비 지원',
-        'target': '관내 거주 청년 (인터파크·예스24 티켓 연동 즉시 사용)',
-        'howToApply': '문화예술패스 누리집 및 $cityLabel 청년포털 온라인 즉시 발급',
-        'image': 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=800&q=80',
-      },
-      {
-        'id': 'sub_4',
-        'badge': '$cityLabel 청년혜택',
-        'category': '청년지원금',
-        'title': '$cityLabel 청년 자격증 응시료 & 이사비·중개보수 지원금',
-        'subtitle':
-            '어학(토익·오픽)·국가기술자격증 응시료 실비 지원 및 1인 가구 청년 전월세 이사비용 최대 40만 원 지원',
-        'benefit': '자격증 응시료 최대 10만 원 · 이사비 최대 40만 원',
-        'target': '$cityLabel 주민등록 거주 만 19~39세 미취업·재직 청년',
-        'howToApply': '정부24 보조금24 또는 $cityLabel 시·구청 청년지원과 온라인 접수',
-        'image': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80',
-      },
-    ];
+    return const [];
   }
 
   @override
@@ -323,6 +276,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
         // 4. 선택된 카테고리별 정돈된 추천 콘텐츠 피드
         _buildSelectedCategoryContent(),
+
+        const Padding(
+          padding: OomuInsets.listBottomWithTabs,
+        ),
       ],
     );
   }
@@ -359,9 +316,9 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      data != null
+                      data != null && data.hasWeather
                           ? '🌬️ ${data.locationName} ${data.tempC.toStringAsFixed(1)}°C · 미세먼지 ${data.airQualityLabel}'
-                          : '🌬️ $_dongLabel 실시간 날씨 맞춤 추천',
+                          : '🌬️ $_dongLabel 날씨 정보를 불러올 수 없어요',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

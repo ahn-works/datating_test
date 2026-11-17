@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../ui/oomu_tokens.dart';
 import '../utils/global_data.dart';
 
 class SimpleListScreen extends StatelessWidget {
   final String title;
   final List<String> items;
-  const SimpleListScreen({super.key, required this.title, required this.items});
+  final List<VoidCallback>? onTaps;
+  const SimpleListScreen({
+    super.key,
+    required this.title,
+    required this.items,
+    this.onTaps,
+  });
   @override
   Widget build(BuildContext context) => Scaffold(
       backgroundColor: Colors.white,
@@ -22,7 +29,8 @@ class SimpleListScreen extends StatelessWidget {
           separatorBuilder: (_, __) => const Divider(),
           itemBuilder: (_, i) => ListTile(
               title: Text(items[i]),
-              trailing: const Icon(Icons.chevron_right, color: Colors.grey))));
+              trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+              onTap: onTaps != null && i < onTaps!.length ? onTaps![i] : null)));
 }
 
 class BlockManageScreen extends StatelessWidget {
@@ -410,7 +418,7 @@ class NoticeScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8F9FA),
+                          color: OomuTokens.surfaceMuted,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -418,7 +426,7 @@ class NoticeScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 13.5,
                             height: 1.5,
-                            color: Color(0xFF444444),
+                            color: OomuTokens.textBody,
                           ),
                         ),
                       ),
@@ -435,8 +443,314 @@ class NoticeScreen extends StatelessWidget {
 
 class CustomerCenterScreen extends StatelessWidget {
   const CustomerCenterScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => const SimpleListScreen(
+  Widget build(BuildContext context) {
+    return SimpleListScreen(
       title: '고객센터',
-      items: const ['자주 묻는 질문 (FAQ)', '1:1 문의하기', '이용 약관', '개인정보 처리방침']);
+      items: const [
+        '자주 묻는 질문 (FAQ)',
+        '1:1 문의하기',
+        '이용 약관',
+        '개인정보 처리방침',
+      ],
+      onTaps: [
+        () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FaqDetailScreen()),
+            ),
+        () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InquiryDetailScreen()),
+            ),
+        () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TermsDetailScreen()),
+            ),
+        () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const PrivacyPolicyDetailScreen()),
+            ),
+      ],
+    );
+  }
+}
+
+class FaqDetailScreen extends StatelessWidget {
+  const FaqDetailScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final faqs = [
+      {
+        'q': '모임 참여는 어떻게 하나요?',
+        'a': '원하는 모임 상세 화면에서 [신청하기] 버튼을 누른 뒤, 호스트에게 간단한 신청 메시지를 전달해 보세요. 호스트가 승인하면 모임 대화방에 자동 초대됩니다.'
+      },
+      {
+        'q': '매너온도는 어떻게 올라가나요?',
+        'a': '모임 참여 완료 후 상호 매너 평가와 칭찬 배지, 커뮤니티의 따뜻한 소통 활동에 따라 매너온도가 단계별로 상승합니다.'
+      },
+      {
+        'q': '비매너 사용자를 차단하거나 신고하고 싶어요.',
+        'a': '상대방 프로필 화면의 우상단 더보기(⋮) 또는 채팅방 메뉴에서 [차단하기] 또는 [신고하기]를 누르면 즉시 모든 게시글, 댓글, 채팅이 숨김 처리되며 운영팀 검토 후 제재됩니다.'
+      },
+      {
+        'q': '프로필 정보를 수정하고 싶어요.',
+        'a': '마이페이지 상단의 [프로필 수정] 버튼을 통해 닉네임, 직무, MBTI, 라이프스타일(음주, 흡연, 반려동물) 및 대표 사진을 언제든지 변경할 수 있습니다.'
+      },
+    ];
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('자주 묻는 질문 (FAQ)',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: faqs.length,
+        separatorBuilder: (_, __) => const Divider(),
+        itemBuilder: (context, i) {
+          final item = faqs[i];
+          return ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+            title: Text(item['q']!,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 15)),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Text(item['a']!,
+                    style: const TextStyle(
+                        fontSize: 14, color: Color(0xFF555555), height: 1.5)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class InquiryDetailScreen extends StatefulWidget {
+  const InquiryDetailScreen({super.key});
+
+  @override
+  State<InquiryDetailScreen> createState() => _InquiryDetailScreenState();
+}
+
+class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
+  final TextEditingController _msgController = TextEditingController();
+  String _selectedCategory = '서비스 이용';
+  bool _isSubmitted = false;
+
+  @override
+  void dispose() {
+    _msgController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('1:1 문의하기',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: OomuTokens.surfaceMuted,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: OomuTokens.border),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('📞 고객지원 안내',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  SizedBox(height: 6),
+                  Text('• 운영시간: 평일 10:00 ~ 18:00 (주말 및 공휴일 휴무)',
+                      style: TextStyle(fontSize: 13, color: OomuTokens.textSecondary)),
+                  Text('• 문의 이메일: support@oomu.app',
+                      style: TextStyle(fontSize: 13, color: OomuTokens.textSecondary)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text('문의 유형',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _selectedCategory,
+              decoration: InputDecoration(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              items: ['서비스 이용', '계정 및 인증', '신고 및 제재', '기타 건의']
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) setState(() => _selectedCategory = val);
+              },
+            ),
+            const SizedBox(height: 20),
+            const Text('문의 내용',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _msgController,
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: '궁금한 점이나 건의사항을 자세히 적어주시면 신속하게 답변해 드립니다.',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: OomuTokens.coral,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                ),
+                onPressed: _isSubmitted
+                    ? null
+                    : () {
+                        if (_msgController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('문의 내용을 입력해 주세요.')),
+                          );
+                          return;
+                        }
+                        setState(() => _isSubmitted = true);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                '문의가 접수되었습니다. 검토 후 신속히 답변드리겠습니다.'),
+                            backgroundColor: Color(0xFFF25767),
+                          ),
+                        );
+                        Navigator.pop(context);
+                      },
+                child: const Text('문의 접수하기',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TermsDetailScreen extends StatelessWidget {
+  const TermsDetailScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('이용 약관',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: const SingleChildScrollView(
+        padding: EdgeInsets.all(20),
+        child: Text(
+          '제1조 (목적)\n'
+          '본 약관은 OOMU(이하 "회사")가 제공하는 동네 기반 취향 모임 및 소셜 네트워킹 서비스(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.\n\n'
+          '제2조 (회원가입 및 자격)\n'
+          '1. 만 19세 이상의 성인만 서비스에 가입할 수 있습니다.\n'
+          '2. 타인의 정보를 도용하거나 허위 사실을 기재하여 가입한 경우 서비스 이용이 제한되거나 계정이 영구 삭제될 수 있습니다.\n\n'
+          '제3조 (서비스 이용 및 회원 의무)\n'
+          '1. 회원은 상호 존중과 신뢰를 바탕으로 건전한 커뮤니티 문화를 조성하여야 합니다.\n'
+          '2. 음란물 배포, 사기, 욕설, 타인 비방, 무단 광고 등 불법 행위는 엄격히 금지됩니다.\n\n'
+          '제4조 (계약 해지 및 이용 제한)\n'
+          '회원이 본 약관의 의무를 위반하거나 운영 정책에 반하는 행위를 한 경우, 회사는 경고, 일시 정지, 영구 제재 등의 조치를 취할 수 있습니다.',
+          style: TextStyle(fontSize: 14, height: 1.7, color: Color(0xFF333333)),
+        ),
+      ),
+    );
+  }
+}
+
+class PrivacyPolicyDetailScreen extends StatelessWidget {
+  const PrivacyPolicyDetailScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('개인정보 처리방침',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: const SingleChildScrollView(
+        padding: EdgeInsets.all(20),
+        child: Text(
+          'OOMU(이하 "회사")는 정보통신망 이용촉진 및 정보보호 등에 관한 법률 및 개인정보 보호법에 따라 정보주체의 개인정보를 보호하고 관련 고충을 신속하게 처리하기 위하여 다음과 같이 개인정보 처리방침을 수립·공개합니다.\n\n'
+          '1. 개인정보의 수집 항목 및 방법\n'
+          '• 필수항목: 닉네임, 성별, 나이, 활동 동네, 프로필 사진, 직무, MBTI\n'
+          '• 인증항목: 휴대전화번호 (문자 본인확인 시에만 수집하며 별도 안전 분리 보관)\n'
+          '• 서비스 이용과정에서 생성되는 정보: 기기 식별값, 서비스 이용 기록, 접속 로그\n\n'
+          '2. 개인정보의 수집 및 이용 목적\n'
+          '• 회원 식별 및 본인 확인, 부정 이용 방지\n'
+          '• 동네 기반 맞춤 모임 추천 및 참가자 간 소셜 매칭\n'
+          '• 고객 불만 접수 및 분쟁 처리, 공지사항 전달\n\n'
+          '3. 개인정보의 제3자 제공\n'
+          '회사는 원칙적으로 이용자의 개인정보를 외부에 제공하지 않습니다. 단, 다음의 경우는 예외로 합니다:\n'
+          '• 이용자가 사전에 동의한 경우\n'
+          '• 법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우\n'
+          '• 모임 참여 시 모임 진행을 위해 필요한 최소한의 프로필 정보(닉네임, 매너온도 등)가 참가자에게 노출됩니다.\n\n'
+          '4. 개인정보 처리의 위탁\n'
+          '회사는 원활한 서비스 제공을 위해 다음과 같이 개인정보 처리 업무를 외부 전문기관에 위탁하고 있습니다:\n'
+          '• Cloudflare Inc. (R2 Storage): 프로필 및 콘텐츠 미디어 파일의 안전한 저장 및 CDN 전송\n'
+          '• Google LLC (Firebase / Firestore): 데이터베이스 호스팅 및 인증 인프라 운영\n'
+          '• (주)누리고 (Solapi SMS): 본인확인 SMS 인증번호 및 알림 발송 대행\n\n'
+          '5. 개인정보의 보유 및 파기\n'
+          '회사는 원칙적으로 개인정보 수집 및 이용 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 단, 전자상거래 등에서의 소비자보호에 관한 법률 등 관계 법령의 규정에 따라 보존할 필요가 있는 경우 법정 기간 동안 안전하게 분리 보관합니다.\n\n'
+          '6. 정보주체와 법정대리인의 권리·의무 및 행사방법\n'
+          '이용자는 언제든지 등록되어 있는 자신의 개인정보를 조회하거나 수정할 수 있으며, 회원 탈퇴를 통해 개인정보의 수집 및 이용에 대한 동의를 철회할 수 있습니다.\n\n'
+          '7. 개인정보 보호책임자 및 고충처리 문의처\n'
+          '회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다:\n'
+          '• 개인정보 보호책임자: OOMU 개인정보보호팀\n'
+          '• 담당 부서: 서비스 운영팀\n'
+          '• 문의 이메일: support@oomu.app\n'
+          '• 문의 창구: 앱 내 고객센터 1:1 문의',
+          style: TextStyle(fontSize: 14, height: 1.7, color: Color(0xFF333333)),
+        ),
+      ),
+    );
+  }
 }

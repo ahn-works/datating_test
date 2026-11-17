@@ -32,6 +32,10 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: |
+          pip install google-auth requests boto3
+
       - name: Run Nationwide & Active-User Region Event Crawler
         env:
           TARGET_CITIES: ${{ github.event.inputs.target_cities || '' }}
@@ -39,6 +43,7 @@ jobs:
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           APP_WEBHOOK_URL: ${{ secrets.APP_WEBHOOK_URL }}
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          REQUIRE_FIREBASE_AUTH: "true"
         run: |
           python scripts/crawl_local_events.py --output-dir data --max-per-query ${{ github.event.inputs.max_per_query || '3' }}
 

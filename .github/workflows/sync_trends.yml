@@ -25,12 +25,13 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install boto3 beautifulsoup4
+          pip install boto3 beautifulsoup4 google-auth requests
 
       - name: Crawl KOPIS / Sports / Movie Posters & Sync to R2 + Firestore
         env:
           INPUT_KEYWORDS: ${{ github.event.inputs.keywords }}
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          REQUIRE_FIREBASE_AUTH: "true"
         run: |
           python scripts/sync_trends.py
 

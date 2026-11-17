@@ -4,6 +4,7 @@ import '../../ui/oomu_empty_state.dart';
 import '../../ui/oomu_meetup_card.dart';
 import '../../ui/oomu_skeleton.dart';
 import '../../ui/oomu_tokens.dart';
+import '../../utils/global_data.dart';
 import '../../utils/meetup_member_helper.dart';
 
 /// 홈 화면 메인 모임 피드 섹션 컴포넌트
@@ -75,6 +76,13 @@ class HomeMeetupSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final visibleMeetups = meetups.where((m) {
+      final hostUid =
+          (m['hostId'] ?? m['hostUid'] ?? m['userId'] ?? '').toString();
+      final hostName = (m['host'] ?? m['hostName'] ?? '').toString();
+      return !globalData.isTargetBlocked(uid: hostUid, nickname: hostName);
+    }).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -158,7 +166,7 @@ class HomeMeetupSection extends StatelessWidget {
               ),
             ),
           )
-        else if (meetups.isEmpty)
+        else if (visibleMeetups.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: OomuTokens.spacingLg,
@@ -200,10 +208,10 @@ class HomeMeetupSection extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: showAllMeetups
-                    ? meetups.length
-                    : meetups.length.clamp(0, initialCount),
+                    ? visibleMeetups.length
+                    : visibleMeetups.length.clamp(0, initialCount),
                 itemBuilder: (context, index) {
-                  final data = meetups[index];
+                  final data = visibleMeetups[index];
                   final isBlock = !isListView && index == 0;
 
                   final String title = (data['title'] ?? '').toString();
@@ -223,7 +231,10 @@ class HomeMeetupSection extends StatelessWidget {
                       MeetupMemberHelper.formatMembersLabel(data);
 
                   String? statusBadge;
-                  if (data['isFemaleOnly'] == true) {
+                  final statusLabel = MeetupMemberHelper.formatStatusLabel(data);
+                  if (statusLabel == '마감') {
+                    statusBadge = '모집 마감';
+                  } else if (data['isFemaleOnly'] == true) {
                     statusBadge = '여성 전용';
                   } else if (data['isLightning'] == true ||
                       (data['tags'] is List &&
@@ -303,7 +314,7 @@ class HomeMeetupSection extends StatelessWidget {
                             child: Text(
                               showAllMeetups
                                   ? '모임 목록 접기'
-                                  : '동네 모임 더보기 (+${meetups.length - initialCount}개)',
+                                  : '동네 모임 더보기 (+${visibleMeetups.length - initialCount}개)',
                               style: const TextStyle(
                                 fontSize: OomuTokens.fontSm,
                                 fontWeight: OomuTokens.weightBold,
@@ -329,6 +340,9 @@ class HomeMeetupSection extends StatelessWidget {
                 ),
             ],
           ),
+        const Padding(
+          padding: OomuInsets.listBottomWithCta,
+        ),
       ],
     );
   }

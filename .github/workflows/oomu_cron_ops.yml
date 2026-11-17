@@ -34,6 +34,7 @@ jobs:
     name: OOMU Automated Operations Engine
     env:
       FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+      REQUIRE_FIREBASE_AUTH: "true"
 
     steps:
       - name: Checkout repository
@@ -46,7 +47,7 @@ jobs:
 
       - name: Install Operations Dependencies
         run: |
-          pip install boto3 requests
+          pip install boto3 requests google-auth
 
       # 1. 아침 작업 (08:30 KST) 또는 수동 전체/밸런스게임
       - name: 🗳️ Post Daily Romance Balance Game

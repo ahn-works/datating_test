@@ -85,17 +85,7 @@ Widget resolveInitialRouteWidget(
 
   if (enableDevRoutes && uri.queryParameters['preview'] == 'true') {
     return const UserProfileScreen(
-      userName: '우리동네_초연',
-      userAge: '29',
-      userGender: '여성',
-      userJob: 'IT 서비스 기획자',
-      userMbti: 'ENFJ',
-      userDrinking: ['가볍게 한잔'],
-      userSmoking: '비흡연',
-      userPet: '강아지 (포메라니안)',
-      userPersonalities: ['친화력 갑', '긍정 에너지', '리액션 요정'],
-      userHobbies: ['☕ 카페투어', '🏃‍♀️ 한강러닝', '🎬 영화/넷플릭스'],
-      userBio: '동네 이웃들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊',
+      userName: '',
       isSelf: true,
     );
   }

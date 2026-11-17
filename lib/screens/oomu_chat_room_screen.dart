@@ -354,6 +354,11 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     final isMe = msg['isMe'] == true;
     final msgId = (msg['id'] ?? '').toString();
     final sender = (msg['sender'] ?? '상대방').toString();
+    final senderUid = (msg['senderId'] ??
+            msg['userId'] ??
+            msg['uid'] ??
+            msg['authorId'])
+        ?.toString();
 
     ChatModals.showMessageActionSheet(
       context,
@@ -376,7 +381,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         );
       },
       onBlock: () {
-        globalData.blockUser(sender);
+        if (senderUid != null && senderUid.isNotEmpty) {
+          globalData.blockUid(senderUid);
+        }
+        if (sender.isNotEmpty) {
+          globalData.blockUser(sender);
+        }
         setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$sender님을 차단했습니다.')),

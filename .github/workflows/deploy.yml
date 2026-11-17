@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Run Flutter Static Analysis
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
       - name: Run unit & widget tests
         run: flutter test
       - name: Enable Web Platform

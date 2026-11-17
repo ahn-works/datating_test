@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../ui/oomu_badge.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
+import '../../utils/global_data.dart';
+import '../../utils/meetup_member_helper.dart';
 import '../../utils/oomu_ui_helpers.dart';
 import '../oomu_spot_screen.dart';
 
@@ -19,7 +21,14 @@ class HomeLightningSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (spots.isEmpty) {
+    final visibleSpots = spots.where((s) {
+      final hostUid =
+          (s['hostId'] ?? s['hostUid'] ?? s['userId'] ?? '').toString();
+      final hostName = (s['host'] ?? s['hostName'] ?? '').toString();
+      return !globalData.isTargetBlocked(uid: hostUid, nickname: hostName);
+    }).toList();
+
+    if (visibleSpots.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -123,11 +132,11 @@ class HomeLightningSection extends StatelessWidget {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
                 scrollDirection: Axis.horizontal,
-                itemCount: spots.length,
+                itemCount: visibleSpots.length,
                 separatorBuilder: (_, __) =>
                     const SizedBox(width: OomuTokens.spacingSm),
                 itemBuilder: (context, index) {
-                  final spot = spots[index];
+                  final spot = visibleSpots[index];
                   final timeLeft = (spot['timeLeft'] ?? '오늘 번개').toString();
                   final distance = (spot['distance'] ?? '동네 모임').toString();
 
@@ -241,7 +250,7 @@ class HomeLightningSection extends StatelessWidget {
                                               OomuTokens.radiusPill),
                                         ),
                                         child: Text(
-                                          '${spot['members'] ?? '2/4'} 참여',
+                                          '${MeetupMemberHelper.formatMembersLabel(spot)}명 참여',
                                           style: TextStyle(
                                             fontSize: OomuTokens.fs11,
                                             fontWeight:
