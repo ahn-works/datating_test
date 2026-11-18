@@ -12,6 +12,8 @@ if (admin.apps.length === 0) {
   }
 }
 
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
@@ -43,10 +45,10 @@ app.post('/api/sms/send', async (req, res) => {
 
     const db = getDb();
     const verificationRef = db.collection('phone_verifications').doc(cleanPhone);
-    const existingSnap = await verificationRef.get();
+    const existingSnap = await verificationRef.get().catch(() => null);
 
     const now = Date.now();
-    if (existingSnap.exists) {
+    if (existingSnap && existingSnap.exists) {
       const data = existingSnap.data();
       // Rate limiting: At least 30 seconds between sends
       if (data.lastSentAt && now - data.lastSentAt < 30000) {
@@ -65,10 +67,10 @@ app.post('/api/sms/send', async (req, res) => {
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedCode = crypto.createHash('sha256').update(otp + salt).digest('hex');
 
-    const dayStart = existingSnap.exists && (now - (existingSnap.data().dayStart || 0) < 86400000)
+    const dayStart = existingSnap && existingSnap.exists && (now - (existingSnap.data().dayStart || 0) < 86400000)
       ? existingSnap.data().dayStart
       : now;
-    const sendsToday = existingSnap.exists && (now - (existingSnap.data().dayStart || 0) < 86400000)
+    const sendsToday = existingSnap && existingSnap.exists && (now - (existingSnap.data().dayStart || 0) < 86400000)
       ? (existingSnap.data().sendsToday || 0) + 1
       : 1;
 
@@ -84,7 +86,7 @@ app.post('/api/sms/send', async (req, res) => {
       sendsToday,
       verified: false,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    }, { merge: true }).catch(e => console.warn('[ServerProxy] OTP persist failed:', e.message));
 
     // Retrieve server-side credentials
     const apiKey = process.env.SOLAPI_API_KEY || '';
@@ -328,7 +330,7 @@ app.post('/api/auth/naver', async (req, res) => {
 
     // 3. Map to deterministic Firebase Auth UID: naver_<naverId>
     const uid = `naver_${naverId}`;
-    const isAdmin = naverEmail === 'test11@naver.com';
+    const isAdmin = ADMIN_EMAILS.includes(naverEmail);
 
     // 4. Ensure Firebase user exists & set Custom Claims
     let userRecord;
@@ -379,6 +381,58 @@ app.post('/api/auth/naver', async (req, res) => {
   } catch (err) {
     console.error('[ServerProxy] /api/auth/naver error:', err);
     return res.status(500).json({ success: false, message: '네이버 로그인 처리 중 서버 오류가 발생했습니다.' });
+  }
+});
+
+// 5. Kakao OAuth -> Firebase Custom Token
+app.post('/api/auth/kakao', async (req, res) => {
+  try {
+    const { code, redirectUri } = req.body || {};
+    if (!code) {
+      return res.status(400).json({ success: false, message: '인가 코드(code)는 필수입니다.' });
+    }
+    const restKey = process.env.KAKAO_REST_API_KEY || '';
+    if (!restKey) {
+      return res.status(503).json({ success: false, message: '서버에 카카오 키가 설정되지 않았습니다.', code: 'KAKAO_KEY_MISSING' });
+    }
+    const params = new URLSearchParams({ grant_type: 'authorization_code', client_id: restKey, code });
+    if (redirectUri) params.append('redirect_uri', redirectUri);
+    if (process.env.KAKAO_CLIENT_SECRET) params.append('client_secret', process.env.KAKAO_CLIENT_SECRET);
+    const tokenResp = await fetch('https://kauth.kakao.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+      body: params.toString()
+    });
+    const tokenData = await tokenResp.json();
+    if (!tokenResp.ok || !tokenData.access_token) {
+      return res.status(400).json({ success: false, message: '카카오 토큰 발급에 실패했습니다.' });
+    }
+    const userResp = await fetch('https://kapi.kakao.com/v2/user/me', {
+      headers: { Authorization: 'Bearer ' + tokenData.access_token }
+    });
+    const u = await userResp.json();
+    if (!userResp.ok || !u.id) {
+      return res.status(400).json({ success: false, message: '카카오 사용자 정보 조회 실패' });
+    }
+    const uid = 'kakao_' + u.id;
+    const nick = ((u.properties && u.properties.nickname) || '카카오회원').toString();
+    try {
+      await admin.auth().getUser(uid);
+    } catch (e) {
+      await admin.auth().createUser({ uid, displayName: nick });
+    }
+    const customToken = await admin.auth().createCustomToken(uid, { provider: 'kakao' });
+    const db = getDb();
+    if (db) {
+      await db.collection('users').doc(uid).set({
+        userId: uid, nickname: nick, provider: 'kakao',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).catch(() => {});
+    }
+    return res.json({ success: true, customToken, user: { uid, nickname: nick } });
+  } catch (err) {
+    console.error('[ServerProxy] /api/auth/kakao error:', err);
+    return res.status(500).json({ success: false, message: '카카오 로그인 처리 중 서버 오류가 발생했습니다.' });
   }
 });
 

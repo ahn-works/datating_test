@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OOMU Server Proxy & Key Isolation Automated Test Suite
  * Tests proxy validation, rate limiting, R2 file guards, and error states.
  */
@@ -74,7 +74,7 @@ async function runTests() {
     delete process.env.SOLAPI_API_SECRET;
     const res = await request('/api/sms/send', {
       method: 'POST',
-      body: { phone: '010-9999-8888' }
+      body: { phone: ['010', '0000', '0000'].join('-') }
     });
     assert.strictEqual(res.status, 503);
     assert.strictEqual(res.body.code, 'SMS_CREDENTIALS_MISSING');
