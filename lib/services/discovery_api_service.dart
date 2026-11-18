@@ -233,22 +233,26 @@ class DiscoveryApiService {
   }
 
   /// 1. OpenWeatherMap / Open-Meteo 실시간 날씨·미세먼지 + Edamam 감성/다이어트 레시피 결합
-  Future<WeatherMoodRecipe> fetchWeatherAndRecipes(String userLocation) async {
+  Future<WeatherMoodRecipe> fetchWeatherAndRecipes(String userLocation,
+      {http.Client? client}) async {
+    final httpClient = client ?? http.Client();
     final coords = _resolveCoords(userLocation);
     double tempC = 0.0;
     String condition = '알수없음';
     int pm10 = 0;
 
-    bool weatherFetchSuccess = false;
+    bool hasTemp = false;
+    bool hasAir = false;
 
     try {
-      final keys = await _getApiKeys();
+      final keys = client != null ? <String, dynamic>{} : await _getApiKeys();
       final owmKey = (keys['openWeatherApiKey'] ?? '').toString().trim();
 
       if (owmKey.isNotEmpty) {
         final wUri = Uri.parse(
             'https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&units=metric&lang=kr&appid=$owmKey');
-        final wResp = await http.get(wUri).timeout(const Duration(seconds: 3));
+        final wResp =
+            await httpClient.get(wUri).timeout(const Duration(seconds: 3));
         if (wResp.statusCode == 200) {
           final wJson = jsonDecode(wResp.body);
           tempC = (wJson['main']?['temp'] as num?)?.toDouble() ?? tempC;
@@ -261,53 +265,81 @@ class DiscoveryApiService {
           } else {
             condition = '맑음';
           }
-          weatherFetchSuccess = true;
+          hasTemp = true;
         }
       } else {
-        // 무인증 실시간 Open-Meteo 기상 + 대기질(PM10) API 호출
-        final meteoFuture = http
+        // 무인증 실시간 Open-Meteo 기상 + 대기질(PM10) 병렬 호출 (개별 실패 격리)
+        final meteoFuture = httpClient
             .get(Uri.parse(
                 'https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&timezone=Asia%2FSeoul'))
-            .timeout(const Duration(seconds: 7));
-        final airFuture = http
+            .timeout(const Duration(seconds: 7))
+            .then<http.Response?>((r) => r)
+            .catchError((_) => null);
+        final airFuture = httpClient
             .get(Uri.parse(
                 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${coords.lat}&longitude=${coords.lon}&current=pm10'))
-            .timeout(const Duration(seconds: 7));
+            .timeout(const Duration(seconds: 7))
+            .then<http.Response?>((r) => r)
+            .catchError((_) => null);
 
         final results = await Future.wait([meteoFuture, airFuture]);
-        if (results[0].statusCode == 200) {
-          final mJson = jsonDecode(results[0].body);
-          tempC = (mJson['current']?['temperature_2m'] as num?)?.toDouble() ??
-              tempC;
-          final wCode =
-              (mJson['current']?['weather_code'] as num?)?.toInt() ?? 0;
-          if (wCode >= 51 && wCode <= 67 || wCode >= 80 && wCode <= 82) {
-            condition = '비';
-          } else if (wCode >= 1 && wCode <= 3 || wCode == 45 || wCode == 48) {
-            condition = '구름조금';
-          } else {
-            condition = '맑음';
-          }
-          weatherFetchSuccess = true;
+        final meteoResp = results[0];
+        final airResp = results[1];
+
+        if (meteoResp != null && meteoResp.statusCode == 200) {
+          try {
+            final mJson = jsonDecode(meteoResp.body);
+            final rawTemp = mJson['current']?['temperature_2m'] as num?;
+            if (rawTemp != null) {
+              tempC = rawTemp.toDouble();
+              hasTemp = true;
+            }
+            final wCode =
+                (mJson['current']?['weather_code'] as num?)?.toInt() ?? 0;
+            if (wCode >= 51 && wCode <= 67 || wCode >= 80 && wCode <= 82) {
+              condition = '비';
+            } else if (wCode >= 1 && wCode <= 3 || wCode == 45 || wCode == 48) {
+              condition = '구름조금';
+            } else {
+              condition = '맑음';
+            }
+          } catch (_) {}
         }
-        if (results[1].statusCode == 200) {
-          final aJson = jsonDecode(results[1].body);
-          pm10 = (aJson['current']?['pm10'] as num?)?.round() ?? pm10;
+        if (airResp != null && airResp.statusCode == 200) {
+          try {
+            final aJson = jsonDecode(airResp.body);
+            final rawPm10 = aJson['current']?['pm10'] as num?;
+            if (rawPm10 != null) {
+              pm10 = rawPm10.round();
+              hasAir = true;
+            }
+          } catch (_) {}
         }
       }
     } catch (e) {
       debugPrint('[DiscoveryApiService] Weather fallback used: $e');
+    } finally {
+      if (client == null) {
+        httpClient.close();
+      }
     }
 
+    final bool weatherFetchSuccess = hasTemp || hasAir;
     final String airLabel =
         pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : (pm10 > 0 ? '좋음' : '확인불가'));
 
-    // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합
+    // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합 (부분 성공 대응)
     String headline;
     String subcopy;
     if (!weatherFetchSuccess) {
       headline = '날씨 정보를 불러올 수 없어요';
       subcopy = '네트워크 연결 상태를 확인해 주세요.';
+    } else if (!hasTemp && hasAir) {
+      headline = pm10 > 80
+          ? '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?'
+          : '동네 대기질($airLabel) 확인 완료 · 오늘 저녁 따뜻한 미식 메뉴 어때요?';
+      subcopy =
+          '${coords.shortName} 미세먼지($pm10㎍/㎥, $airLabel) · 기온 정보는 일시적으로 확인할 수 없지만 추천 식단은 바로 볼 수 있어요.';
     } else if (pm10 > 80) {
       headline = '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?';
       subcopy =
@@ -546,12 +578,12 @@ class DiscoveryApiService {
                   (cat.contains('>') ? cat.split('>').last.trim() : cat))
               .toString();
           final rawPlace =
-              (data['location'] ?? data['place'] ?? '').toString().trim();
+              (data['location'] ?? data['place'] ?? data['region'] ?? '')
+                  .toString()
+                  .trim();
           final rawPeriod =
               (data['period'] ?? data['date'] ?? '').toString().trim();
-          final place = rawPlace.isNotEmpty
-              ? rawPlace
-              : (rawPeriod.isNotEmpty ? rawPeriod : '');
+          final place = rawPlace.isNotEmpty ? rawPlace : '지역 미확인';
 
           return <String, dynamic>{
             'id': d.id,
@@ -559,12 +591,11 @@ class DiscoveryApiService {
             'badge': badge,
             'category': cat,
             'title': title,
+            'location': place,
             'subtitle': desc.isNotEmpty
                 ? desc
                 : (rawPeriod.isNotEmpty ? rawPeriod : '동네 화제 트렌드'),
-            'benefit': place.isNotEmpty
-                ? place
-                : (rawPeriod.isNotEmpty ? rawPeriod : ''),
+            'benefit': place,
             'image': poster,
             'tip': '동네 이웃들과 함께 가기 좋은 트렌드 핫플 & 공연',
             'dday': (data['dday'] ?? '').toString().isNotEmpty

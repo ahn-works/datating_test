@@ -345,7 +345,7 @@ app.post('/api/auth/naver', async (req, res) => {
       });
     }
 
-    // Assign admin: true custom claim if test11@naver.com
+    // Assign admin: true custom claim if included in ADMIN_EMAILS
     await admin.auth().setCustomUserClaims(uid, {
       admin: isAdmin,
       provider: 'naver'

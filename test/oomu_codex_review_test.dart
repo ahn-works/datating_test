@@ -1,12 +1,24 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:spot10_app/utils/profile_policy.dart';
 import 'package:spot10_app/utils/oomu_ui_helpers.dart';
+import 'package:spot10_app/utils/global_data.dart';
 import 'package:spot10_app/services/meetup_application_service.dart';
+import 'package:spot10_app/services/discovery_api_service.dart';
+import 'package:spot10_app/services/chat_repository.dart';
 import 'package:spot10_app/widgets/meetup_card_footer.dart';
+import 'package:spot10_app/widgets/oomu_discovery_lifestyle_hub.dart';
 import 'package:spot10_app/screens/event_detail_screen.dart';
 import 'package:spot10_app/screens/oomu_detail_screen.dart';
+import 'package:spot10_app/screens/user_profile_screen.dart';
+import 'package:spot10_app/screens/community_post_detail_screen.dart';
+import 'package:spot10_app/screens/home/home_meetup_section.dart';
+import 'package:spot10_app/screens/chat/chat_system_cards.dart';
 import 'package:spot10_app/screens/login_screen.dart';
 import 'package:spot10_app/widgets/balanced_heading.dart';
 import 'package:flutter/rendering.dart';
@@ -196,5 +208,279 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.binding.setSurfaceSize(null);
     });
+  });
+
+  testWidgets(
+      'Stage 3 (5): UID block in UserProfileScreen propagates across profile, post, and meetup even if nickname changes',
+      (tester) async {
+    globalData.resetSession();
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UserProfileScreen(
+                        userId: 'uid_target_b',
+                        userName: '이전닉네임B',
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('프로필 열기'),
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.tap(find.text('프로필 열기'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('이 사용자 차단 및 매칭 제외'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('차단하기'));
+      await tester.pumpAndSettle();
+
+      expect(globalData.blockedUids.value, contains('uid_target_b'));
+      expect(globalData.blockedUsers.value, contains('이전닉네임B'));
+
+      // Even if user B changes nickname to '바뀐닉네임B', UID block catches profile, post, and meetup
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: const UserProfileScreen(
+          userId: 'uid_target_b',
+          userName: '바뀐닉네임B',
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('차단된 사용자의 프로필입니다.'), findsOneWidget);
+
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: const CommunityPostDetailScreen(post: {
+          'id': 'post_b_1',
+          'authorId': 'uid_target_b',
+          'author': '바뀐닉네임B',
+          'title': '차단된 글 제목',
+          'content': '차단된 글 본문',
+        }),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('차단된 사용자의 게시글입니다.'), findsOneWidget);
+
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: const OOMUDetailScreen(meetup: {
+          'id': 'meetup_b_1',
+          'hostUid': 'uid_target_b',
+          'host': '바뀐닉네임B',
+          'title': '차단된 모임 제목',
+          'members': '1/4',
+        }),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('차단한 사용자의 모임입니다.'), findsOneWidget);
+    });
+  });
+
+  test(
+      'Stage 3 (6): Discovery weather parallel fetch tolerates partial failure without dropping available data',
+      () async {
+    // 1) Meteo succeeds, Air quality fails (500)
+    final partialMeteoClient = MockClient((req) async {
+      if (req.url.host.contains('air-quality-api')) {
+        return http.Response('Server Error', 500);
+      }
+      return http.Response(
+        jsonEncode({
+          'current': {'temperature_2m': 19.4, 'weather_code': 0}
+        }),
+        200,
+      );
+    });
+    final res1 = await DiscoveryApiService.instance.fetchWeatherAndRecipes(
+      '전남 여수시 화장동',
+      client: partialMeteoClient,
+    );
+    expect(res1.hasWeather, isTrue);
+    expect(res1.tempC, 19.4);
+    expect(res1.weatherCondition, '맑음');
+    expect(res1.airQualityLabel, '확인불가');
+
+    // 2) Meteo fails (exception), Air quality succeeds
+    final partialAirClient = MockClient((req) async {
+      if (!req.url.host.contains('air-quality-api')) {
+        throw Exception('Timeout');
+      }
+      return http.Response(
+        jsonEncode({
+          'current': {'pm10': 92}
+        }),
+        200,
+      );
+    });
+    final res2 = await DiscoveryApiService.instance.fetchWeatherAndRecipes(
+      '전남 여수시 화장동',
+      client: partialAirClient,
+    );
+    expect(res2.hasWeather, isTrue);
+    expect(res2.pm10, 92);
+    expect(res2.airQualityLabel, '나쁨');
+
+    // 3) Both fail
+    final failClient = MockClient((_) async => http.Response('Error', 503));
+    final res3 = await DiscoveryApiService.instance.fetchWeatherAndRecipes(
+      '전남 여수시 화장동',
+      client: failClient,
+    );
+    expect(res3.hasWeather, isFalse);
+    expect(res3.moodHeadline, '날씨 정보를 불러올 수 없어요');
+  });
+
+  testWidgets(
+      'Stage 3 (7): Home region filter strictly excludes other regions and fake discounts show empty state',
+      (tester) async {
+    expect(
+        OomuUiHelpers.matchesRegionFilter('전남 여수시 화장동', '전남 여수시 학동'), isTrue);
+    expect(
+        OomuUiHelpers.matchesRegionFilter('전남 여수시 화장동', '서울 마포구 서교동'), isFalse);
+    expect(
+        OomuUiHelpers.matchesRegionFilter('서울 마포구 서교동', '전남 여수시 화장동'), isFalse);
+
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: HomeMeetupSection(
+              currentLocation: '전남 여수시 화장동',
+              selectedCategoryIndex: 0,
+              selectedSubCategory: '전체',
+              isListView: true,
+              isLoading: false,
+              showAllMeetups: true,
+              meetups: const [
+                {
+                  'id': 'yeosu_1',
+                  'title': '여수 화장동 소금빵 모임',
+                  'location': '전남 여수시 화장동',
+                  'host': '여수호스트',
+                  'members': '2/4',
+                },
+                {
+                  'id': 'seoul_1',
+                  'title': '서울 홍대 방탈출 모임',
+                  'location': '서울 마포구 서교동',
+                  'host': '서울호스트',
+                  'members': '2/4',
+                },
+              ],
+              onToggleView: (_) {},
+              onToggleShowAll: () {},
+              onMeetupTap: (_) {},
+              onResetFilters: () {},
+            ),
+          ),
+        ),
+      ));
+      await tester.pump();
+      expect(find.text('여수 화장동 소금빵 모임'), findsOneWidget);
+      expect(find.text('서울 홍대 방탈출 모임'), findsNothing);
+
+      // Discount tab (category 2) shows empty state when no real discounts exist
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: const Scaffold(
+          body: SingleChildScrollView(
+            child: OomuDiscoveryLifestyleHub(
+              currentLocation: '전남 여수시 화장동',
+              initialCategoryIndex: 2,
+            ),
+          ),
+        ),
+      ));
+      await tester.pump();
+      expect(find.text('등록된 정보가 아직 없어요'), findsOneWidget);
+      expect(find.textContaining('타임세일'), findsNothing);
+    });
+  });
+
+  testWidgets(
+      'Stage 3 (3) & Stage 4 CI: Non-participant seed messages are hidden, SafeReturnCard uses actual sender, and design token check fails on violation',
+      (tester) async {
+    expect(
+      isLegacyChatSeed(
+        {
+          'id': 'msg_txt_01',
+          'text': '안녕하세요! 다들 마라탕 좋아하시죠?',
+          'senderId': 'non_participant_seed',
+        },
+        participantIds: {'uid_host', 'uid_member'},
+      ),
+      isTrue,
+    );
+    expect(
+      isLegacyChatSeed(
+        {
+          'id': 'real_msg_1',
+          'text': '반갑습니다!',
+          'senderId': 'uid_member',
+        },
+        participantIds: {'uid_host', 'uid_member'},
+      ),
+      isFalse,
+    );
+
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(MaterialApp(
+        theme: OomuUiHelpers.buildTheme(),
+        home: const Scaffold(
+          body: InteractiveSafeReturnCard(
+            msg: {
+              'sender': '성산러너_지훈',
+              'title': '안심 귀가 완료',
+              'desc': '무사히 도착했습니다!',
+            },
+            isMe: false,
+            chatRoomId: 'room_1',
+          ),
+        ),
+      ));
+      await tester.pump();
+      expect(find.text('안심 귀가 완료'), findsOneWidget);
+      expect(find.text('민지'), findsNothing);
+    });
+
+    // Verify check_design_tokens.py --compare exits non-zero when baseline is exceeded
+    final tmpDir = Directory.systemTemp.createTempSync('token_test_');
+    final strictBaseline = File('${tmpDir.path}/strict_baseline.json');
+    strictBaseline.writeAsStringSync(jsonEncode({
+      'total': {
+        'color_kinds': 0,
+        'color_count': 0,
+        'font_kinds': 0,
+        'font_count': 0,
+        'radius_kinds': 0,
+        'radius_count': 0,
+      }
+    }));
+    final proc = Process.runSync(
+      'python',
+      [
+        'scripts/check_design_tokens.py',
+        '--compare',
+        '--baseline',
+        strictBaseline.path,
+      ],
+    );
+    tmpDir.deleteSync(recursive: true);
+    expect(proc.exitCode, isNonZero);
   });
 }

@@ -646,8 +646,10 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       );
 
   Widget _buildMessageList(List<Map<String, dynamic>> source) {
+    final participantSet =
+        _roomData != null ? chatParticipantIds(_roomData).toSet() : null;
     final list = source
-        .where((m) => !isLegacyChatSeed(m))
+        .where((m) => !isLegacyChatSeed(m, participantIds: participantSet))
         .map((m) => presentChatMessage(m, _uid))
         .toList();
     if (list.isEmpty) {

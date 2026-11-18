@@ -29,6 +29,7 @@ class UserProfileScreen extends StatefulWidget {
   final String? userGender;
   final String? userSmoking;
   final String? userPet;
+  final bool? userVerified;
   final bool isSelf;
 
   const UserProfileScreen({
@@ -50,6 +51,7 @@ class UserProfileScreen extends StatefulWidget {
     this.userGender,
     this.userSmoking,
     this.userPet,
+    this.userVerified,
     this.isSelf = false,
   });
 
@@ -58,6 +60,7 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
+  String? _resolvedUid;
   late String _userName;
   late String _userAge;
   late String _userLocation;
@@ -83,6 +86,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   void _initDefaults() {
+    final initUid = widget.userId?.trim() ?? '';
+    _resolvedUid = (initUid.isNotEmpty && initUid != 'guest') ? initUid : null;
     _userName = widget.userName;
     _userAge = widget.userAge ?? '';
     _userLocation = widget.userLocation ?? '';
@@ -101,6 +106,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     _userPet = widget.userPet ?? '';
     if (widget.isSelf) {
       _isVerified = globalData.isPhoneVerified.value;
+    } else if (widget.userVerified != null) {
+      _isVerified = widget.userVerified!;
     }
   }
 
@@ -121,6 +128,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             .limit(1)
             .get();
         if (q.docs.isEmpty || !mounted) return;
+        _resolvedUid ??= q.docs.first.id;
         _applyUserDoc(q.docs.first.data());
       } catch (e) {
         debugPrint('[UserProfileScreen] nickname fallback error: $e');
@@ -135,6 +143,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (doc.exists && doc.data() != null) {
         if (!mounted) return;
+        _resolvedUid = doc.id;
         _applyUserDoc(doc.data()!);
         return;
       }
@@ -146,6 +155,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             .limit(1)
             .get();
         if (q.docs.isNotEmpty && mounted) {
+          _resolvedUid ??= q.docs.first.id;
           _applyUserDoc(q.docs.first.data());
         }
       }
@@ -295,12 +305,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   void _showReportReasonDialog(BuildContext context, String targetType) {
     final reasons = [
-      '🔞 음란물 / 선정적인 콘텐츠',
-      '🤬 욕설 / 혐오 / 비방 발언',
-      '📢 스팸 및 불법 광고',
-      '💸 사기 / 금전 요구 / 계정 사칭',
-      '⚠️ 만남 노쇼 / 비매너 행위',
-      '📝 기타 부적절한 사유'
+      '음란물 / 선정적인 콘텐츠',
+      '욕설 / 혐오 / 비방 발언',
+      '스팸 및 불법 광고',
+      '사기 / 금전 요구 / 계정 사칭',
+      '만남 노쇼 / 비매너 행위',
+      '기타 부적절한 사유'
     ];
     showDialog(
       context: context,
@@ -323,7 +333,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       Navigator.pop(ctx);
                       globalData.submitReport(
                         targetType: targetType,
-                        targetId: widget.userId ?? _userName,
+                        targetId: _resolvedUid ?? widget.userId ?? _userName,
                         targetUser: _userName,
                         reason: r,
                       );
@@ -361,7 +371,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 const Text('차단하기', style: TextStyle(color: Colors.redAccent)),
             onPressed: () {
               Navigator.pop(ctx);
-              globalData.blockUser(widget.userId ?? _userName);
+              final targetUid = (_resolvedUid ?? widget.userId ?? '').trim();
+              if (targetUid.isNotEmpty && targetUid != 'guest') {
+                globalData.blockUid(targetUid);
+              }
+              if (_userName.trim().isNotEmpty) {
+                globalData.blockUser(_userName.trim());
+              }
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -378,6 +394,51 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final targetUid = (_resolvedUid ?? widget.userId ?? '').trim();
+    if (!widget.isSelf &&
+        globalData.isTargetBlocked(uid: targetUid, nickname: _userName)) {
+      return Scaffold(
+        backgroundColor: OomuTokens.background,
+        appBar: AppBar(
+          backgroundColor: OomuTokens.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: OomuTokens.textPrimary, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('프로필',
+              style: TextStyle(
+                  color: OomuTokens.textPrimary,
+                  fontSize: OomuTokens.fs16,
+                  fontWeight: FontWeight.bold)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.block_rounded,
+                  size: 64, color: Colors.redAccent.withValues(alpha: 0.7)),
+              const SizedBox(height: OomuTokens.s16),
+              const Text(
+                '차단된 사용자의 프로필입니다.',
+                style: TextStyle(
+                    fontSize: OomuTokens.fs16,
+                    fontWeight: FontWeight.bold,
+                    color: OomuTokens.textPrimary),
+              ),
+              const SizedBox(height: OomuTokens.s8),
+              const Text(
+                '차단 관리 메뉴에서 언제든지 차단을 해제할 수 있습니다.',
+                style: TextStyle(
+                    fontSize: OomuTokens.fs14, color: OomuTokens.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final displayAge = _userAge.trim();
     final displayLocation =
         _userLocation.trim().isNotEmpty ? _userLocation.trim() : '동네 미설정';
@@ -621,21 +682,33 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: Column(
                       children: [
                         _buildProfileKeyValueRow(
-                            '💼 ${ProfileOptions.jobLabel}', displayJob),
+                            Icons.work_outline_rounded,
+                            ProfileOptions.jobLabel,
+                            displayJob),
                         _buildProfileKeyValueRow(
-                            '🎂 ${ProfileOptions.ageLabel}',
+                            Icons.cake_outlined,
+                            ProfileOptions.ageLabel,
                             displayAge.isNotEmpty ? '$displayAge세' : ''),
                         _buildProfileKeyValueRow(
-                            '👤 ${ProfileOptions.genderLabel}', cleanGender),
+                            Icons.person_outline_rounded,
+                            ProfileOptions.genderLabel,
+                            cleanGender),
                         _buildProfileKeyValueRow(
-                            '🎨 ${ProfileOptions.mbtiLabel}', displayMbti),
+                            Icons.psychology_outlined,
+                            ProfileOptions.mbtiLabel,
+                            displayMbti),
                         _buildProfileKeyValueRow(
-                            '🍻 ${ProfileOptions.drinkingLabel}',
+                            Icons.local_bar_outlined,
+                            ProfileOptions.drinkingLabel,
                             effectiveDrinking.join(', ')),
                         _buildProfileKeyValueRow(
-                            '🚭 ${ProfileOptions.smokingLabel}', cleanSmoking),
+                            Icons.smoke_free_outlined,
+                            ProfileOptions.smokingLabel,
+                            cleanSmoking),
                         _buildProfileKeyValueRow(
-                            '🐶 ${ProfileOptions.petLabel}', cleanPet,
+                            Icons.pets_outlined,
+                            ProfileOptions.petLabel,
+                            cleanPet,
                             isLast: true),
                       ],
                     ),
@@ -654,7 +727,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       spacing: 6,
                       runSpacing: 6,
                       children: effectivePersonalities
-                          .map((p) => OomuTag(label: '✨ $p'))
+                          .map((p) => OomuTag(label: p))
                           .toList(),
                     )
                   else
@@ -764,13 +837,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildProfileKeyValueRow(String label, String value,
+  Widget _buildProfileKeyValueRow(IconData icon, String label, String value,
       {bool isLast = false}) {
     final cleanValue = value.trim();
     final isUnset =
         cleanValue.isEmpty || cleanValue == ProfileOptions.unsetValue;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+          vertical: OomuTokens.s12, horizontal: OomuTokens.s16),
       decoration: BoxDecoration(
         border: isLast
             ? null
@@ -781,15 +855,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: OomuTokens.fs12,
-              color: OomuTokens.textMuted,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: OomuTokens.textSecondary),
+              const SizedBox(width: OomuTokens.s8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: OomuTokens.fs13,
+                  color: OomuTokens.textSecondary,
+                  fontWeight: OomuTokens.w500,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: OomuTokens.s16),
           Expanded(
             child: Text(
               isUnset ? ProfileOptions.unsetValue : cleanValue,
@@ -797,7 +878,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               style: TextStyle(
                 fontSize: OomuTokens.fs14,
                 color: isUnset ? OomuTokens.textMuted : OomuTokens.textPrimary,
-                fontWeight: isUnset ? FontWeight.normal : FontWeight.w500,
+                fontWeight: isUnset ? FontWeight.normal : OomuTokens.w600,
               ),
             ),
           ),

@@ -140,6 +140,107 @@ class OomuUiHelpers {
     return (lat: lat, lng: lng);
   }
 
-  /// 11. OOMU 공통 ThemeData (정의는 lib/ui/oomu_theme.dart 단일 원천)
+  /// 11. 동네/지역 일치 점수 및 타 지역 제외 판정 (SSOT)
+  /// - 3: 같은 동/읍/면/가 일치
+  /// - 2: 같은 시/구 또는 동일 생활권 클러스터 일치
+  /// - 1: 토큰 부분 일치
+  /// - 0: 다른 지역 (제외 대상)
+  static int calculateLocationRelevanceScore(
+      String currentLocation, String itemLocation) {
+    final current = currentLocation.trim();
+    final item = itemLocation.trim();
+    if (current.isEmpty || item.isEmpty) return 0;
+
+    final parts = current
+        .replaceAll('(', ' ')
+        .replaceAll(')', ' ')
+        .split(RegExp(r'\s+'))
+        .where((s) => s.isNotEmpty)
+        .toList();
+
+    // 1. Exact dong/eup/myeon/ga match -> Score 3
+    for (final p in parts.reversed) {
+      if (p.endsWith('동') ||
+          p.endsWith('읍') ||
+          p.endsWith('면') ||
+          p.endsWith('가')) {
+        final stem = p.length > 2 ? p.substring(0, p.length - 1) : p;
+        if (item.contains(p) || (stem.length >= 2 && item.contains(stem))) {
+          return 3;
+        }
+      }
+    }
+
+    // 2. City / District / Cluster match -> Score 2
+    const yeosuCluster = [
+      '여수',
+      '화장',
+      '학동',
+      '웅천',
+      '여서',
+      '선소',
+      '무선',
+      '성산',
+      '해양공원',
+      '신기동'
+    ];
+    const mapoCluster = [
+      '마포',
+      '서교',
+      '연남',
+      '망원',
+      '합정',
+      '상수',
+      '홍대'
+    ];
+
+    final bool currentIsYeosu = yeosuCluster.any((k) => current.contains(k));
+    final bool itemIsYeosu = yeosuCluster.any((k) => item.contains(k));
+    if (currentIsYeosu) {
+      return itemIsYeosu ? 2 : 0;
+    }
+    if (itemIsYeosu && !currentIsYeosu) {
+      return 0;
+    }
+
+    final bool currentIsMapo = mapoCluster.any((k) => current.contains(k));
+    final bool itemIsMapo = mapoCluster.any((k) => item.contains(k));
+    if (currentIsMapo && itemIsMapo) {
+      return 2;
+    }
+
+    for (final p in parts) {
+      final clean = p
+          .replaceAll('전남', '')
+          .replaceAll('전라남도', '')
+          .replaceAll('서울특별시', '')
+          .replaceAll('서울시', '')
+          .replaceAll('서울', '')
+          .replaceAll('시', '')
+          .replaceAll('구', '')
+          .replaceAll('군', '')
+          .trim();
+      if (item.contains(p) || (clean.length >= 2 && item.contains(clean))) {
+        return 2;
+      }
+    }
+
+    for (final p in parts) {
+      if (p.length >= 2 && item.contains(p)) {
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  /// 현재 설정 지역과 아이템 지역이 같은 지역권인지 판정 (지역 미기재 문서는 유지, 타 지역은 제외)
+  static bool matchesRegionFilter(String currentLocation, String itemLocation) {
+    final current = currentLocation.trim();
+    final item = itemLocation.trim();
+    if (current.isEmpty || item.isEmpty) return true;
+    return calculateLocationRelevanceScore(current, item) > 0;
+  }
+
+  /// 12. OOMU 공통 ThemeData (정의는 lib/ui/oomu_theme.dart 단일 원천)
   static ThemeData buildTheme() => buildOomuTheme();
 }

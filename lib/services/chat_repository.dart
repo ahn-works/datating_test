@@ -7,8 +7,12 @@ typedef ChatData = Map<String, dynamic>;
 
 // Only the exact records written by the old automatic demo seeder are hidden.
 // Real messages (including matching text from an identified sender) are retained.
-bool isLegacyChatSeed(ChatData data) {
-  if ((data['senderId'] ?? '').toString().isNotEmpty) return false;
+bool isLegacyChatSeed(ChatData data, {Set<String>? participantIds}) {
+  if (data['isSeed'] == true) return true;
+  final senderId =
+      (data['senderId'] ?? data['senderUid'] ?? data['userId'] ?? '')
+          .toString()
+          .trim();
   const fields = <String, (String, String)>{
     'msg_txt_01': ('text', '안녕하세요! 다들 마라탕 좋아하시죠?'),
     'msg_txt_02': ('text', '완전완전 좋아합니다ㅎㅎ 잘 부탁드려요!'),
@@ -21,13 +25,28 @@ bool isLegacyChatSeed(ChatData data) {
     'msg_profile_01': ('title', '🤝 명함/프로필 교환 요청'),
     'msg_secret_01': ('title', '💖 시크릿 애프터 1:1 호감 매칭'),
   };
-  final id = data['id'];
+  final id = (data['id'] ?? '').toString();
   if (id == 'msg_sys_01') {
     return data['type'] == 'system' &&
         (data['text'] ?? '').toString().endsWith(' 모임 대화방이 개설되었습니다. 🎉');
   }
   final signature = fields[id];
-  return signature != null && data[signature.$1] == signature.$2;
+  if (signature != null && data[signature.$1] == signature.$2) {
+    if (senderId.isEmpty) return true;
+    if (participantIds != null &&
+        participantIds.isNotEmpty &&
+        !participantIds.contains(senderId)) {
+      return true;
+    }
+  }
+  if (participantIds != null &&
+      participantIds.isNotEmpty &&
+      data['type'] != 'system' &&
+      senderId.isNotEmpty &&
+      !participantIds.contains(senderId)) {
+    return true;
+  }
+  return false;
 }
 
 List<String> chatParticipantIds(ChatData? room) {

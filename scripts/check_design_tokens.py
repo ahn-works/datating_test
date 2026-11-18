@@ -71,9 +71,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--save", action="store_true")
     ap.add_argument("--compare", action="store_true")
+    ap.add_argument("--baseline")
     ap.add_argument("--file")
     a = ap.parse_args()
 
+    baseline_path = pathlib.Path(a.baseline) if a.baseline else BASELINE
     data = collect()
     tot = totals(data)
 
@@ -94,13 +96,20 @@ def main():
 
     slim = {k: {kk: vv for kk, vv in v.items() if kk != "_lines"} for k, v in data.items()}
     if a.save:
-        BASELINE.write_text(json.dumps({"total": tot, "files": slim}, ensure_ascii=False, indent=2), encoding="utf-8")
-        print("기준선 저장:", BASELINE.relative_to(ROOT))
-    if a.compare and BASELINE.exists():
-        base = json.loads(BASELINE.read_text(encoding="utf-8"))["total"]
+        baseline_path.write_text(json.dumps({"total": tot, "files": slim}, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("기준선 저장:", baseline_path)
+    if a.compare and baseline_path.exists():
+        base = json.loads(baseline_path.read_text(encoding="utf-8"))["total"]
         print("\n기준선 대비:")
+        exceeded = []
         for k in tot:
-            print(f"  {k}: {base[k]} -> {tot[k]} ({tot[k]-base[k]:+d})")
+            diff = tot[k] - base[k]
+            print(f"  {k}: {base[k]} -> {tot[k]} ({diff:+d})")
+            if diff > 0:
+                exceeded.append(f"{k} (+{diff})")
+        if exceeded:
+            print(f"\n[FAIL] 디자인 토큰 기준선 초과: {', '.join(exceeded)}")
+            sys.exit(1)
 
 
 if __name__ == "__main__":

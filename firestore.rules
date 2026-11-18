@@ -45,9 +45,14 @@ service cloud.firestore {
     // 3. [사용자 프로필 및 개인정보 완벽 분리]
     // ===============================================================
     match /users/{userId} {
-      // 공개 프로필(닉네임, 아바타, 매너온도 등)은 누구나 조회 가능
-      allow get, list: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+      // 공개 프로필(닉네임, 아바타, 매너온도 등)은 조회 가능 (단, guest 오염 문서 제외)
+      allow get, list: if userId != 'guest';
+      allow create, update: if userId != 'guest'
+        && request.auth != null
+        && (request.auth.uid == userId || request.auth.token.admin == true)
+        && !('phone' in request.resource.data)
+        && !('phoneNumber' in request.resource.data);
+      allow delete: if request.auth != null && request.auth.token.admin == true;
 
       // 전화번호, 이메일 등 민감 개인정보는 본인과 관리자만 열람/수정 가능
       match /private/{docId} {

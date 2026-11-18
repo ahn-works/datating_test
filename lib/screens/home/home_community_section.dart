@@ -52,12 +52,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
   }
 
   int _calculateLocationRelevance(String loc) {
-    if (loc.isEmpty) return 0;
-    final dong = widget.currentLocation.split(' ').last;
-    if (loc.contains(dong)) return 3;
-    final gu = widget.currentLocation.split(' ').first;
-    if (loc.contains(gu)) return 2;
-    return 1;
+    return OomuUiHelpers.calculateLocationRelevanceScore(
+        widget.currentLocation, loc);
   }
 
   @override
@@ -133,14 +129,22 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
 
         final filteredPosts = allPosts.where((post) {
           final author = (post['author'] ?? '').toString();
-          final authorUid =
-              (post['authorUid'] ?? post['userId'] ?? post['uid'] ?? '')
-                  .toString();
+          final authorUid = (post['authorId'] ??
+                  post['authorUid'] ??
+                  post['userId'] ??
+                  post['uid'] ??
+                  '')
+              .toString();
           final postId = (post['id'] ?? post['title'] ?? '').toString();
           if (globalData.isTargetBlocked(uid: authorUid, nickname: author)) {
             return false;
           }
           if (hiddenPosts.contains(postId)) return false;
+          final postLoc = (post['location'] ?? '').toString();
+          if (!OomuUiHelpers.matchesRegionFilter(
+              widget.currentLocation, postLoc)) {
+            return false;
+          }
 
           if (_categoryFilter != '전체') {
             final cat = post['category']?.toString() ?? '';
@@ -482,6 +486,13 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                       const Spacer(),
                       InkWell(
                         onTap: () {
+                          final postAuthorUid = (post['authorId'] ??
+                                  post['authorUid'] ??
+                                  post['userId'] ??
+                                  post['uid'] ??
+                                  '')
+                              .toString()
+                              .trim();
                           UgcActionSheets.showContentOptions(
                             context: context,
                             contentType: '게시글',
@@ -489,6 +500,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                 post['title'] ??
                                 'post_${post['author']}',
                             author: authorName,
+                            authorId:
+                                postAuthorUid.isNotEmpty ? postAuthorUid : null,
                             onContentHidden: () => setState(() {}),
                           );
                         },

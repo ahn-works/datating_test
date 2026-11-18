@@ -1477,6 +1477,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                   contentType: '게시글',
                   contentId: (post['id'] ?? title).toString(),
                   author: author,
+                  authorId: authorUid.isNotEmpty ? authorUid : null,
                   onContentHidden: () => Navigator.pop(context),
                 );
               }

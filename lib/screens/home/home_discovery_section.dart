@@ -78,14 +78,17 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
     final cat = (item['category'] ?? '').toString();
     final tag = (item['tag'] ?? '').toString();
     final title = (item['title'] ?? '').toString();
-    final loc = (item['location'] ?? '').toString();
+    final loc =
+        (item['location'] ?? item['place'] ?? item['region'] ?? '').toString().trim();
 
     if (filter == '우리동네') {
+      if (loc.isEmpty || loc == '지역 미확인') return false;
+      final firstToken = widget.currentLocation.trim().split(' ').first;
       return item['isSuggested'] == true ||
           item['isMyNeighborhood'] == true ||
           loc.contains('여수') ||
           loc.contains('화장') ||
-          loc.contains(widget.currentLocation.split(' ').first);
+          (firstToken.isNotEmpty && loc.contains(firstToken));
     }
     if (filter == '콘서트') {
       return cat.contains('공연·콘서트') ||
@@ -390,7 +393,9 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
   Widget _buildCard(BuildContext context, Map<String, dynamic> item) {
     final title = (item['title'] ?? '').toString();
     final poster = (item['poster'] ?? '').toString();
-    final location = (item['location'] ?? '').toString();
+    final rawLoc =
+        (item['location'] ?? item['place'] ?? item['region'] ?? '').toString().trim();
+    final location = rawLoc.isNotEmpty ? rawLoc : '지역 미확인';
     final period = (item['period'] ?? '').toString();
 
     return GestureDetector(
@@ -446,17 +451,20 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: OomuTokens.fontSm,
-                      fontWeight: OomuTokens.weightBold,
-                      color: OomuTokens.textPrimary,
-                      fontFamily: OomuTokens.fontFamily,
-                      height: 1.25,
+                  SizedBox(
+                    height: 36,
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: OomuTokens.fontSm,
+                        fontWeight: OomuTokens.weightBold,
+                        color: OomuTokens.textPrimary,
+                        fontFamily: OomuTokens.fontFamily,
+                        height: 1.25,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: OomuTokens.spacingXs),
                   Text(

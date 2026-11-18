@@ -57,13 +57,37 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   int _balanceVotesA = 154;
   int _balanceVotesB = 128;
 
-  static const List<Map<String, String>> _ablyCategories = [
-    {'icon': '🔥', 'label': '전체추천', 'sub': '우리 동네 인기 발견'},
-    {'icon': '🥓', 'label': '날씨·맛집', 'sub': '삼겹살·파전·레시피'},
-    {'icon': '🏷️', 'label': '할인·이벤트', 'sub': '동네 가게 특가·혜택'},
-    {'icon': '💰', 'label': '청년지원금', 'sub': '월세·교통·문화 지원'},
-    {'icon': '🎬', 'label': '요즘트렌드', 'sub': '영화·패션·다이어트'},
-    {'icon': '🎲', 'label': '놀거리·운세', 'sub': '타로·밸런스 배틀'},
+  static const List<Map<String, dynamic>> _ablyCategories = [
+    {
+      'iconData': Icons.auto_awesome_outlined,
+      'label': '전체추천',
+      'sub': '우리 동네 인기 발견'
+    },
+    {
+      'iconData': Icons.restaurant_outlined,
+      'label': '날씨·맛집',
+      'sub': '삼겹살·파전·레시피'
+    },
+    {
+      'iconData': Icons.local_offer_outlined,
+      'label': '할인·이벤트',
+      'sub': '동네 가게 특가·혜택'
+    },
+    {
+      'iconData': Icons.account_balance_wallet_outlined,
+      'label': '청년지원금',
+      'sub': '월세·교통·문화 지원'
+    },
+    {
+      'iconData': Icons.movie_outlined,
+      'label': '요즘트렌드',
+      'sub': '영화·패션·다이어트'
+    },
+    {
+      'iconData': Icons.casino_outlined,
+      'label': '놀거리·운세',
+      'sub': '타로·밸런스 배틀'
+    },
   ];
 
   @override
@@ -103,9 +127,15 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
   Future<void> _loadMoviesAndCountries() async {
     final results = await Future.wait([
-      _service.fetchTrendMovies(),
-      _service.fetchTravelCountries(),
-      _service.fetchRealTrendEvents(),
+      _service
+          .fetchTrendMovies()
+          .catchError((_) => const <TrendMovieItem>[]),
+      _service
+          .fetchTravelCountries()
+          .catchError((_) => const <CountrySpotItem>[]),
+      _service
+          .fetchRealTrendEvents()
+          .catchError((_) => const <Map<String, dynamic>>[]),
     ]);
     if (mounted) {
       setState(() {
@@ -195,53 +225,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   }
 
   List<Map<String, dynamic>> _getLocalDiscountEvents() {
-    final dong = _dongLabel;
-    return [
-      {
-        'id': 'deal_1',
-        'badge': '오늘 마감할인 30%',
-        'category': '할인·이벤트',
-        'title': '$dong 수제 소금빵·휘낭시에 베이커리 마감 타임세일',
-        'subtitle': '당일 구운 유기농 밀가루 소금빵과 바스크 치즈케이크 저녁 7시 이후 전 품목 30% 할인',
-        'benefit': '저녁 7시~9시 30% 즉시 할인 (소진 시 마감)',
-        'placeName': '${widget.currentLocation} 베이커리 카페',
-        'distance': '$dong 도보 3분',
-        'image': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
-      },
-      {
-        'id': 'deal_2',
-        'badge': '동네 오픈 이벤트',
-        'category': '할인·이벤트',
-        'title': '$dong 신상 로스터리 카페 아메리카노·라떼 1+1 주간',
-        'subtitle': '동네 주민 인증 시 스페셜티 원두 커피 1잔 가격에 2잔 제공 & 디저트 10% 할인',
-        'benefit': '음료 1+1 쿠폰 (이번 주 일요일까지)',
-        'placeName': '${widget.currentLocation} 로스터리 카페',
-        'distance': '$dong 도보 5분',
-        'image': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
-      },
-      {
-        'id': 'deal_3',
-        'badge': '주민 전용 50% 특가',
-        'category': '할인·이벤트',
-        'title': '$dong 1:1 기구 필라테스 & 체형교정 원데이 체험 특가',
-        'subtitle': '퇴근 후 거북목·라운드숄더 교정을 위한 50분 프라이빗 레슨 동네 주민 반값 이벤트',
-        'benefit': '1회 체험권 50,000원 → 22,000원',
-        'placeName': '${widget.currentLocation} 필라테스',
-        'distance': '$dong 도보 4분',
-        'image': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80',
-      },
-      {
-        'id': 'deal_4',
-        'badge': '동네 플리마켓·팝업',
-        'category': '할인·이벤트',
-        'title': '$dong 주말 핸드메이드 소품·향수·빈티지 플리마켓',
-        'subtitle': '동네 공방 작가 18팀이 참여하는 주말 마켓! 방문객 전원 시향 스틱 & 엽서 증정',
-        'benefit': '무료 입장 + 현장 3,000원 할인권 증정',
-        'placeName': '${widget.currentLocation} 문화광장',
-        'distance': '$dong 도보 7분',
-        'image': 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&q=80',
-      },
-    ];
+    // 가짜 할인 4건을 운영 데이터처럼 표시하지 않고 실제 등록된 할인 이벤트만 반환
+    return _realTrendEvents
+        .where((e) => (e['category'] ?? '').toString().contains('할인'))
+        .toList();
   }
 
   List<Map<String, dynamic>> _getYouthSubsidies() {
@@ -452,14 +439,15 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       ),
                     ),
                     alignment: Alignment.center,
-                    child: Text(
-                      item['icon']!,
-                      style: const TextStyle(fontSize: 20),
+                    child: Icon(
+                      item['iconData'] as IconData,
+                      size: 20,
+                      color: isSelected ? Colors.white : textPrimary,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    item['label']!,
+                    item['label'] as String,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -492,7 +480,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${currentCat['icon']} $_dongLabel ${currentCat['label']}',
+                  '$_dongLabel ${currentCat['label']}',
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -501,7 +489,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  currentCat['sub']!,
+                  currentCat['sub'] as String,
                   style: const TextStyle(
                     fontSize: 12.5,
                     color: textSecondary,
@@ -861,15 +849,18 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Text(
-                    (item['title'] ?? '').toString(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: textPrimary,
-                      height: 1.32,
+                  SizedBox(
+                    height: 36,
+                    child: Text(
+                      (item['title'] ?? '').toString(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary,
+                        height: 1.32,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),

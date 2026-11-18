@@ -217,7 +217,20 @@ void main() {
     await mockNetworkImagesFor(() async {
       await tester.binding.setSurfaceSize(const Size(390, 844));
       await tester.pumpWidget(MaterialApp(
-          theme: OomuUiHelpers.buildTheme(), home: const OOMUHomeScreen()));
+          theme: OomuUiHelpers.buildTheme(),
+          home: const OOMUHomeScreen(
+            initialCommunityPosts: [
+              {
+                'id': 'post_minseo_01',
+                'category': '동네 토크',
+                'tag': '산책메이트',
+                'title': '오늘 저녁 연트럴파크 강아지 산책 같이 하실 분 계신가요?',
+                'content': '산책하실 이웃분 환영합니다.',
+                'author': '김민서',
+                'location': '마포구 서교동',
+              }
+            ],
+          )));
       await tester.pumpAndSettle();
       await tester.tap(find.text('커뮤니티').last);
       await tester.pumpAndSettle();

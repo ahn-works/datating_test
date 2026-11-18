@@ -34,10 +34,13 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
   Widget build(BuildContext context) {
     final currentNick = globalData.userNickname.value.isNotEmpty
         ? globalData.userNickname.value
-        : '우리동네민우';
+        : '참여자';
+    final senderName = (widget.msg['sender'] ?? '참여자').toString();
+    final senderAvatar =
+        (widget.msg['avatar'] ?? widget.msg['senderAvatar'] ?? '').toString();
     final int maxMembers = widget.msg['maxMembers'] ?? 4;
     final List<String> attendees = List<String>.from(
-        widget.msg['attendees'] ?? [widget.msg['sender'] ?? '우리동네민우']);
+        widget.msg['attendees'] ?? [senderName]);
     final bool isAttending = attendees.contains(currentNick);
     final int attendCount = attendees.length;
     final bool isFull = attendCount >= maxMembers && !isAttending;
@@ -50,9 +53,9 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const OomuAvatar(
-              imageUrl: 'assets/images/민지.png',
-              name: '민지',
+            OomuAvatar(
+              imageUrl: senderAvatar,
+              name: senderName,
               radius: 16,
             ),
           if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
@@ -148,11 +151,14 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                               color: OomuTokens.textPrimary,
                             ),
                           ),
-                          Text(
-                            widget.msg['date'] ?? '-',
-                            style: const TextStyle(
-                              fontSize: OomuTokens.fs12,
-                              color: OomuTokens.textBody,
+                          Expanded(
+                            child: Text(
+                              widget.msg['date'] ?? '-',
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                color: OomuTokens.textBody,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -174,11 +180,14 @@ class _InteractiveScheduleCardState extends State<InteractiveScheduleCard> {
                               color: OomuTokens.textPrimary,
                             ),
                           ),
-                          Text(
-                            widget.msg['timeStr'] ?? widget.msg['time'] ?? '-',
-                            style: const TextStyle(
-                              fontSize: OomuTokens.fs12,
-                              color: OomuTokens.textBody,
+                          Expanded(
+                            child: Text(
+                              widget.msg['timeStr'] ?? widget.msg['time'] ?? '-',
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                color: OomuTokens.textBody,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -385,7 +394,10 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
   Widget build(BuildContext context) {
     final currentNick = globalData.userNickname.value.isNotEmpty
         ? globalData.userNickname.value
-        : '우리동네민우';
+        : '참여자';
+    final senderName = (widget.msg['sender'] ?? '참여자').toString();
+    final senderAvatar =
+        (widget.msg['avatar'] ?? widget.msg['senderAvatar'] ?? '').toString();
     final voters = widget.msg['voters'] != null
         ? Map<String, dynamic>.from(widget.msg['voters'])
         : <String, dynamic>{};
@@ -403,9 +415,9 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const OomuAvatar(
-              imageUrl: 'assets/images/민지.png',
-              name: '민지',
+            OomuAvatar(
+              imageUrl: senderAvatar,
+              name: senderName,
               radius: 16,
             ),
           if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
@@ -645,6 +657,10 @@ class InteractiveHotspotCard extends StatelessWidget {
         ? KakaoMapService.getKakaoMapPinUrl(name, lat, lng)
         : KakaoMapService.getKakaoSearchUrl('$name $address');
 
+    final senderName = (msg['sender'] ?? '참여자').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+
     return Padding(
       padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
@@ -653,9 +669,9 @@ class InteractiveHotspotCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe)
-            const OomuAvatar(
-              imageUrl: 'assets/images/민지.png',
-              name: '민지',
+            OomuAvatar(
+              imageUrl: senderAvatar,
+              name: senderName,
               radius: 16,
             ),
           if (!isMe) const SizedBox(width: OomuTokens.s8),
@@ -822,6 +838,10 @@ class InteractiveReviewCard extends StatelessWidget {
     final int rating = msg['rating'] ?? 5;
     final String text = msg['text'] ?? '';
 
+    final senderName = (msg['sender'] ?? '참여자').toString();
+    final senderAvatar =
+        (msg['avatar'] ?? msg['senderAvatar'] ?? '').toString();
+
     return Padding(
       padding: const EdgeInsets.only(bottom: OomuTokens.s16),
       child: Row(
@@ -830,9 +850,9 @@ class InteractiveReviewCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe)
-            const OomuAvatar(
-              imageUrl: 'assets/images/민지.png',
-              name: '민지',
+            OomuAvatar(
+              imageUrl: senderAvatar,
+              name: senderName,
               radius: 16,
             ),
           if (!isMe) const SizedBox(width: OomuTokens.s8),
@@ -950,7 +970,10 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
   Widget build(BuildContext context) {
     final currentNick = globalData.userNickname.value.isNotEmpty
         ? globalData.userNickname.value
-        : '우리동네민우';
+        : '참여자';
+    final senderName = (widget.msg['sender'] ?? '참여자').toString();
+    final senderAvatar =
+        (widget.msg['avatar'] ?? widget.msg['senderAvatar'] ?? '').toString();
     final List<String> cheers = List<String>.from(widget.msg['cheers'] ?? []);
     final bool isLiked = cheers.contains(currentNick);
     final int likes = cheers.length;
@@ -963,9 +986,9 @@ class _InteractiveSafeReturnCardState extends State<InteractiveSafeReturnCard> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const OomuAvatar(
-              imageUrl: 'assets/images/민지.png',
-              name: '민지',
+            OomuAvatar(
+              imageUrl: senderAvatar,
+              name: senderName,
               radius: 16,
             ),
           if (!widget.isMe) const SizedBox(width: OomuTokens.s8),
@@ -1119,9 +1142,9 @@ class _InteractiveProfileExchangeCardState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const OomuAvatar(
-                imageUrl: 'assets/images/민지.png',
-                name: '민지',
+              OomuAvatar(
+                imageUrl: (widget.msg['avatar'] ?? widget.msg['senderAvatar'] ?? '').toString(),
+                name: nickname,
                 radius: 36,
               ),
               const SizedBox(height: OomuTokens.s12),
@@ -1228,9 +1251,9 @@ class _InteractiveProfileExchangeCardState
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!widget.isMe)
-            const OomuAvatar(
-              imageUrl: 'assets/images/민지.png',
-              name: '민지',
+            OomuAvatar(
+              imageUrl: (widget.msg['avatar'] ?? widget.msg['senderAvatar'] ?? '').toString(),
+              name: (widget.msg['sender'] ?? '참여자').toString(),
               radius: 16,
             ),
           if (!widget.isMe) const SizedBox(width: OomuTokens.s8),

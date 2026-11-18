@@ -17,7 +17,6 @@ import 'user_profile_screen.dart';
 import 'community_post_detail_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../ui/oomu_tokens.dart';
-import '../constants/profile_options.dart';
 
 class MyPageScreen extends StatefulWidget {
   final bool isEmbedded;
@@ -888,6 +887,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     userGender: gender,
                                     userSmoking: smoking,
                                     userPet: pet,
+                                    userVerified: isVerified,
                                     isSelf: true,
                                   ),
                                 ),
@@ -1103,85 +1103,84 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     ),
                   ),
 
-                  // 2-1. 내 기본 정보 & 라이프스타일 카드 (직무/직업, MBTI, 음주, 흡연, 반려동물)
+                  // 2-1. 성향 및 라이프스타일 요약 바 (중복 5행 테이블 제거 및 단일 동선 정리)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.fromLTRB(
+                        OomuTokens.s20, OomuTokens.s12, OomuTokens.s20, OomuTokens.s4),
                     child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: OomuTokens.s16, vertical: OomuTokens.s8),
                       decoration: BoxDecoration(
                         color: OomuTokens.surface,
                         borderRadius: BorderRadius.circular(OomuTokens.r16),
                         border: Border.all(color: OomuTokens.border),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                            child: Row(
+                          const Icon(Icons.tune_rounded,
+                              size: 18, color: OomuTokens.textSecondary),
+                          const SizedBox(width: OomuTokens.s12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Expanded(
-                                  child: Text(
-                                    '기본 정보 & 라이프스타일',
-                                    style: TextStyle(
-                                      fontSize: OomuTokens.fs14,
-                                      fontWeight: FontWeight.bold,
-                                      color: OomuTokens.textPrimary,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
+                                const Text(
+                                  '성향 및 라이프스타일',
+                                  style: TextStyle(
+                                    fontSize: OomuTokens.fs14,
+                                    fontWeight: OomuTokens.w600,
+                                    color: OomuTokens.textPrimary,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                InkWell(
-                                  onTap: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => const ProfileEditScreen()),
-                                    );
-                                    if (mounted) setState(() {});
-                                  },
-                                  child: const Text(
-                                    '수정',
-                                    style: TextStyle(
-                                      fontSize: OomuTokens.fs12,
-                                      color: OomuTokens.coral,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  [
+                                    if (job.isNotEmpty) job,
+                                    if (mbti.isNotEmpty) mbti,
+                                    if (drinking.isNotEmpty) drinking.first,
+                                    if (smoking.isNotEmpty) smoking,
+                                    if (pet.isNotEmpty) pet,
+                                  ].isNotEmpty
+                                      ? [
+                                          if (job.isNotEmpty) job,
+                                          if (mbti.isNotEmpty) mbti,
+                                          if (drinking.isNotEmpty)
+                                            drinking.first,
+                                          if (smoking.isNotEmpty) smoking,
+                                          if (pet.isNotEmpty) pet,
+                                        ].join(' · ')
+                                      : '직무·MBTI·라이프스타일을 설정해보세요',
+                                  style: const TextStyle(
+                                    fontSize: OomuTokens.fs12,
+                                    color: OomuTokens.textSecondary,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
                           ),
-                          const Divider(height: 1, color: OomuTokens.border),
-                          _buildMyPageProfileRow('💼 ${ProfileOptions.jobLabel}', job.isNotEmpty ? job : ProfileOptions.unsetValue),
-                          _buildMyPageProfileRow('🎨 ${ProfileOptions.mbtiLabel}', mbti.isNotEmpty ? mbti : ProfileOptions.unsetValue),
-                          _buildMyPageProfileRow('🍻 ${ProfileOptions.drinkingLabel}', drinking.isNotEmpty ? drinking.join(', ') : ProfileOptions.unsetValue),
-                          _buildMyPageProfileRow('🚭 ${ProfileOptions.smokingLabel}', smoking.isNotEmpty ? smoking : ProfileOptions.unsetValue),
-                          _buildMyPageProfileRow('🐶 ${ProfileOptions.petLabel}', pet.isNotEmpty ? pet : ProfileOptions.unsetValue, isLast: true),
+                          SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: Tooltip(
+                              message: '성향 및 라이프스타일 수정',
+                              child: IconButton(
+                                icon: const Icon(Icons.chevron_right_rounded,
+                                    color: OomuTokens.textSecondary),
+                                onPressed: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const ProfileEditScreen()),
+                                  );
+                                  if (mounted) setState(() {});
+                                },
+                              ),
+                            ),
+                          ),
                         ],
-                      ),
-                    ),
-                  ),
-
-                  // 테스트 및 접근성 기준 충족을 위한 시맨틱 앵커
-                  Opacity(
-                    opacity: 0.0,
-                    child: SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Tooltip(
-                        message: '성향 및 라이프스타일 수정',
-                        child: IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const ProfileEditScreen()),
-                            );
-                            if (mounted) setState(() {});
-                          },
-                        ),
                       ),
                     ),
                   ),
@@ -1878,47 +1877,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildMyPageProfileRow(String label, String value, {bool isLast = false}) {
-    final cleanValue = value.trim();
-    final isUnset = cleanValue.isEmpty || cleanValue == ProfileOptions.unsetValue;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      decoration: BoxDecoration(
-        border: isLast
-            ? null
-            : const Border(
-                bottom: BorderSide(color: OomuTokens.border, width: 0.5)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: OomuTokens.fs12,
-              color: OomuTokens.textMuted,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              isUnset ? ProfileOptions.unsetValue : cleanValue,
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              style: TextStyle(
-                fontSize: OomuTokens.fs13,
-                color: isUnset ? OomuTokens.textMuted : OomuTokens.textPrimary,
-                fontWeight: isUnset ? FontWeight.normal : FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

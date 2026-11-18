@@ -51,6 +51,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   bool _isResolvingLocation = true;
   String _distanceText = '거리 계산 중...';
   int _locationReqId = 0;
+  Map<String, dynamic>? _hostUserDoc;
+  String? _resolvedHostUid;
 
   String _formatTitleKeepWords(String? title) {
     return OomuUiHelpers.formatTitle(title, fallback: '취향 모임');
@@ -81,6 +83,45 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     } else {
       _isFavorite = globalData.isFavorite(m['id'] ?? m['title']);
       _initLocationState();
+      _fetchHostUserDoc();
+    }
+  }
+
+  Future<void> _fetchHostUserDoc() async {
+    final m = _effectiveMeetup;
+    if (m == null || Firebase.apps.isEmpty) return;
+    final rawUid =
+        (m['hostUid'] ?? m['hostId'] ?? m['creatorId'] ?? '').toString().trim();
+    final rawName = (m['host'] ?? m['hostName'] ?? '').toString().trim();
+    try {
+      if (rawUid.isNotEmpty && rawUid != 'guest') {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(rawUid)
+            .get();
+        if (doc.exists && doc.data() != null && mounted) {
+          setState(() {
+            _hostUserDoc = doc.data();
+            _resolvedHostUid = doc.id;
+          });
+          return;
+        }
+      }
+      if (rawName.isNotEmpty && rawName != '모임 호스트') {
+        final q = await FirebaseFirestore.instance
+            .collection('users')
+            .where('nickname', isEqualTo: rawName)
+            .limit(1)
+            .get();
+        if (q.docs.isNotEmpty && mounted) {
+          setState(() {
+            _hostUserDoc = q.docs.first.data();
+            _resolvedHostUid = q.docs.first.id;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('[OOMUDetailScreen] host user doc fetch error: $e');
     }
   }
 
@@ -106,6 +147,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               _isFavorite = globalData.isFavorite(data['id'] ?? data['title']);
             });
             _initLocationState();
+            _fetchHostUserDoc();
             return;
           }
         }
@@ -140,10 +182,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         _fetchMeetup(docId);
       } else {
         _fetchedMeetup = null;
+        _hostUserDoc = null;
+        _resolvedHostUid = null;
         _isLoadingDoc = false;
         _isNotFound = false;
         _isFavorite = globalData.isFavorite(m['id'] ?? m['title']);
         _initLocationState();
+        _fetchHostUserDoc();
       }
     }
   }
@@ -657,9 +702,27 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     }
 
     final locName = (meetup['location'] ?? '장소 정보 없음').toString();
-    final double? hostManner = OomuUiHelpers.parseMannerTemp(meetup);
-    final bool isHostVerified =
-        meetup['isVerified'] == true || meetup['hostVerified'] == true;
+    final bool isSelfHost = hostUid.isNotEmpty &&
+        hostUid != 'guest' &&
+        hostUid == globalData.activeUserId;
+    final double? hostManner = isSelfHost
+        ? (OomuUiHelpers.parseMannerValue(globalData.temperature.value) ??
+            (_hostUserDoc != null
+                ? OomuUiHelpers.parseMannerTemp(_hostUserDoc!)
+                : null) ??
+            OomuUiHelpers.parseMannerTemp(meetup))
+        : (_hostUserDoc != null
+            ? (OomuUiHelpers.parseMannerTemp(_hostUserDoc!) ??
+                OomuUiHelpers.parseMannerTemp(meetup))
+            : OomuUiHelpers.parseMannerTemp(meetup));
+    final bool isHostVerified = isSelfHost
+        ? globalData.isPhoneVerified.value
+        : (_hostUserDoc != null
+            ? ((_hostUserDoc!['isPhoneVerified'] is bool)
+                ? (_hostUserDoc!['isPhoneVerified'] as bool)
+                : (_hostUserDoc!['isVerified'] == true))
+            : (meetup['isVerified'] == true ||
+                meetup['hostVerified'] == true));
     final List<String> praiseTags = _extractHostPraiseTags(meetup);
     final bool hasResolvedCoords = _targetLat != null && _targetLng != null;
     final bool isDistanceUnknown = _distanceText == '거리 정보 없음' ||
@@ -1190,14 +1253,51 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   // 한 겹 호스트 카드 위젯 (방향 1: 박스 테두리 없는 깔끔한 인라인 프로필)
   Widget _buildHostCard(
       double? hostManner, bool isHostVerified, List<String> praiseTags) {
-    final hostName = (_effectiveMeetup != null
-            ? (_effectiveMeetup!['host'] ?? '모임 호스트')
-            : '모임 호스트')
-        .toString();
-    final hostAvatar =
-        (_effectiveMeetup != null && _effectiveMeetup!['hostAvatar'] != null)
-            ? _effectiveMeetup!['hostAvatar'].toString()
-            : '';
+    final rawHostUid = (_resolvedHostUid ??
+            _effectiveMeetup?['hostUid'] ??
+            _effectiveMeetup?['hostId'] ??
+            _effectiveMeetup?['creatorId'] ??
+            '')
+        .toString()
+        .trim();
+    final bool isSelfHost = rawHostUid.isNotEmpty &&
+        rawHostUid != 'guest' &&
+        rawHostUid == globalData.activeUserId;
+
+    final String hostName = (isSelfHost &&
+            globalData.userNickname.value.trim().isNotEmpty)
+        ? globalData.userNickname.value.trim()
+        : ((_hostUserDoc != null &&
+                (_hostUserDoc!['nickname'] ?? _hostUserDoc!['name'])
+                        ?.toString()
+                        .trim()
+                        .isNotEmpty ==
+                    true)
+            ? (_hostUserDoc!['nickname'] ?? _hostUserDoc!['name'])
+                .toString()
+                .trim()
+            : (_effectiveMeetup != null
+                    ? (_effectiveMeetup!['host'] ??
+                        _effectiveMeetup!['hostName'] ??
+                        '모임 호스트')
+                    : '모임 호스트')
+                .toString());
+    final String hostAvatar = (isSelfHost &&
+            globalData.userAvatar.value.trim().isNotEmpty)
+        ? globalData.userAvatar.value.trim()
+        : ((_hostUserDoc != null &&
+                (_hostUserDoc!['avatarUrl'] ?? _hostUserDoc!['photoUrl'])
+                        ?.toString()
+                        .trim()
+                        .isNotEmpty ==
+                    true)
+            ? (_hostUserDoc!['avatarUrl'] ?? _hostUserDoc!['photoUrl'])
+                .toString()
+                .trim()
+            : ((_effectiveMeetup != null &&
+                    _effectiveMeetup!['hostAvatar'] != null)
+                ? _effectiveMeetup!['hostAvatar'].toString()
+                : ''));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1350,14 +1450,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               context,
               MaterialPageRoute(
                 builder: (_) => UserProfileScreen(
-                  userId: (_effectiveMeetup?['hostUid'] ??
-                          _effectiveMeetup?['hostId'] ??
-                          _effectiveMeetup?['creatorId'] ??
-                          '')
-                      .toString(),
+                  userId: rawHostUid,
                   userName: hostName,
                   userAvatar: hostAvatar,
                   userManner: hostManner,
+                  userVerified: isHostVerified,
+                  isSelf: isSelfHost,
                 ),
               ),
             );

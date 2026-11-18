@@ -79,14 +79,17 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verify question labels in left column
-      expect(find.text('💼 직무/직업'), findsOneWidget);
-      expect(find.text('🎂 나이'), findsOneWidget);
-      expect(find.text('👤 성별'), findsOneWidget);
-      expect(find.text('🎨 MBTI'), findsOneWidget);
-      expect(find.text('🍻 음주 성향'), findsOneWidget);
-      expect(find.text('🚭 흡연 여부'), findsOneWidget);
-      expect(find.text('🐶 반려동물'), findsOneWidget);
+      // Verify question labels and unified icons in left column
+      expect(find.text(ProfileOptions.jobLabel), findsOneWidget);
+      expect(find.text(ProfileOptions.ageLabel), findsOneWidget);
+      expect(find.text(ProfileOptions.genderLabel), findsOneWidget);
+      expect(find.text(ProfileOptions.mbtiLabel), findsOneWidget);
+      expect(find.text(ProfileOptions.drinkingLabel), findsOneWidget);
+      expect(find.text(ProfileOptions.smokingLabel), findsOneWidget);
+      expect(find.text(ProfileOptions.petLabel), findsOneWidget);
+      expect(find.byIcon(Icons.work_outline_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.cake_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.psychology_outlined), findsOneWidget);
 
       // Verify answer values in right column
       expect(find.text('플루터 개발자'), findsNWidgets(2)); // Hero header + key-value row

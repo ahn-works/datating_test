@@ -140,41 +140,36 @@ class AuthService {
     }
   }
 
-  bool get isAdmin {
-    if (globalData.userRole.value == 'admin') return true;
-    final email = _auth.currentUser?.email?.trim().toLowerCase() ?? '';
-    if (email == 'test11@naver.com') return true;
-    if (email.isEmpty) return false;
-    // 가상 이메일(phone_xxx@oomu.app, google_xxx@oomu.app, kakao_xxx@oomu.app 등)은 일반 유저
-    if (email.startsWith('phone_') ||
-        email.startsWith('google_') ||
-        email.startsWith('kakao_')) {
-      return false;
+  bool _hasVerifiedAdminClaim = false;
+
+  /// 관리자 여부 판정 (검증된 ID 토큰 Custom Claim 'admin: true' 기반)
+  bool get isAdmin => _hasVerifiedAdminClaim;
+
+  /// 테스트/서버 Custom Token 검증 결과로 관리자 클레임 상태 설정
+  void setVerifiedAdminClaim(bool value) {
+    _hasVerifiedAdminClaim = value;
+    if (value) {
+      globalData.userRole.value = 'admin';
     }
-    if (email.startsWith('naver_')) {
-      return globalData.userRole.value == 'admin';
-    }
-    return email == 'admin@oomu.app' || email.startsWith('admin@');
   }
 
   /// ID 토큰 Custom Claims ('admin: true') 실시간 검증 및 동기화
   Future<bool> verifyAdminClaim() async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return false;
+      if (user == null) {
+        _hasVerifiedAdminClaim = false;
+        return false;
+      }
       final tokenResult = await user.getIdTokenResult(true);
       final hasClaim = tokenResult.claims?['admin'] == true;
+      _hasVerifiedAdminClaim = hasClaim;
       if (hasClaim) {
         globalData.userRole.value = 'admin';
         return true;
       }
-      final email = user.email?.trim().toLowerCase() ?? '';
-      if (email == 'test11@naver.com') {
-        globalData.userRole.value = 'admin';
-        return true;
-      }
     } catch (_) {}
-    return isAdmin;
+    return _hasVerifiedAdminClaim;
   }
 
   // 1. 관리자 1초 빠른 로그인 (운영 환경 비활성화)
@@ -463,9 +458,7 @@ class AuthService {
         final bool isAdminAccount = resData['isAdmin'] == true;
 
         final credential = await _auth.signInWithCustomToken(customToken);
-        if (isAdminAccount) {
-          globalData.userRole.value = 'admin';
-        }
+        setVerifiedAdminClaim(isAdminAccount);
         await _syncUserWithFirestore(credential.user!);
         return credential;
       } else if (response.statusCode == 503) {
@@ -501,10 +494,12 @@ class AuthService {
   // 7. 로그아웃
   Future<void> signOut() async {
     // 로그아웃 시작 즉시 세션을 무효화하여 진행 중인 이전 비동기 응답이 통과하지 못하도록 차단
+    _hasVerifiedAdminClaim = false;
     globalData.resetSession();
     if (Firebase.apps.isNotEmpty) {
       await _auth.signOut();
     }
+    _hasVerifiedAdminClaim = false;
     globalData.resetSession();
   }
 
@@ -757,14 +752,7 @@ class AuthService {
     final uid = user.uid;
     final email = user.email ?? '';
     final cleanEmail = email.trim().toLowerCase();
-    final bool isVirtualAuth = cleanEmail.startsWith('phone_') ||
-        cleanEmail.startsWith('google_') ||
-        cleanEmail.startsWith('kakao_') ||
-        cleanEmail.startsWith('naver_');
-    final bool isAdminEmail = !isVirtualAuth &&
-        (cleanEmail == 'test11@naver.com' ||
-            cleanEmail == 'admin@oomu.app' ||
-            cleanEmail.startsWith('admin@'));
+    final bool isAdminEmail = _hasVerifiedAdminClaim;
 
     // 비동기 요청 시작 전 switchUser를 통해 이전 사용자 상태를 초기화하고 세션 세대를 기록
     globalData.switchUser(uid, triggerFirestoreSync: false);

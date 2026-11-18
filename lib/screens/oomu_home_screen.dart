@@ -12,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../services/kakao_map_service.dart';
 import 'chat_screen.dart';
+import 'event_detail_screen.dart';
 import 'my_page_screen.dart';
 import 'oomu_detail_screen.dart';
 import 'oomu_spot_screen.dart';
@@ -29,7 +30,8 @@ import 'home/home_meetup_section.dart';
 
 class OOMUHomeScreen extends StatefulWidget {
   final int initialTab;
-  const OOMUHomeScreen({super.key, this.initialTab = 0});
+  final List<Map<String, dynamic>>? initialCommunityPosts;
+  const OOMUHomeScreen({super.key, this.initialTab = 0, this.initialCommunityPosts});
 
   @override
   State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
@@ -45,204 +47,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   final Color trustColor = OomuTokens.verified;
 
   late int _homeDashboardTab; // 0: 모임, 1: 커뮤니티, 2: 소개팅, 3: 채팅, 4: MY
-
-  final List<Map<String, dynamic>> _communityPosts = [
-    {
-      'id': 'post_minseo_01',
-      'category': '동네 토크',
-      'tag': '산책메이트',
-      'title': '🐕 오늘 저녁 연트럴파크 강아지 산책 같이 하실 분 계신가요?',
-      'content':
-          '날씨가 너무 선선하고 좋아서 저녁 7시쯤 비숑 데리고 산책 나가려구요! 댕댕이 없으셔도 가볍게 산책하고 대화 나누실 이웃분 환영합니다 ✨',
-      'author': '김민서',
-      'authorAvatar': 'assets/images/민지.png',
-      'location': '마포구 서교동',
-      'time': '10분 전',
-      'manner': 37.2,
-      'likedUserIds': ['user_demo_1', 'user_demo_2'],
-      'likes': 2,
-      'isLiked': false,
-      'comments': 2,
-      'commentList': <Map<String, dynamic>>[
-        {
-          'id': 'comm_minseo_1',
-          'author': '연남산책러',
-          'authorAvatar': 'assets/images/시연.png',
-          'content': '저도 강아지 산책 나가려던 참인데 연트럴파크 잔디광장 쪽에서 뵈어요!',
-          'time': '5분 전',
-          'likes': 1,
-          'isLiked': false,
-          'likedUserIds': <String>['user_demo_2'],
-        },
-        {
-          'id': 'comm_minseo_2',
-          'author': '동네이웃준호',
-          'authorAvatar': 'assets/images/지훈.png',
-          'content': '날씨가 딱 산책하기 좋네요 ㅎㅎ 즐거운 산책 되세요!',
-          'time': '2분 전',
-          'likes': 0,
-          'isLiked': false,
-          'likedUserIds': <String>[],
-        },
-      ],
-      'image': 'assets/images/cover_running.jpg',
-      'relatedMeetup': {
-        'title': '연트럴파크 저녁 산책 같이 하실 분!',
-        'location': '마포구 연트럴파크 잔디광장',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'poster': 'assets/images/cover_running.jpg',
-      }
-    },
-    {
-      'id': 'post_junho_02',
-      'category': '맛집/카페',
-      'tag': '성수에스프레소',
-      'title': '☕ 성수동 새로 오픈한 에스프레소 바 다녀왔는데 인생 커피 찾았습니다',
-      'content':
-          '성수역 뒤쪽 골목에 새로 생긴 곳인데 스트라파짜토랑 크림 에스프레소 진짜 미쳤네요... 이번 주말에 커피 좋아하시는 분들과 같이 가서 메뉴 도장깨기 하고 싶어요!',
-      'author': '이준호',
-      'authorAvatar': 'assets/images/지훈.png',
-      'location': '성동구 성수동',
-      'time': '25분 전',
-      'manner': 38.5,
-      'likedUserIds': ['user_demo_1'],
-      'likes': 1,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image': 'assets/images/cover_cafe.jpg',
-      'relatedMeetup': {
-        'title': '성수동 에스프레소 바 투어 같이 가실 분!',
-        'location': '성동구 성수동 카페거리',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'poster': 'assets/images/cover_cafe.jpg',
-      }
-    },
-    {
-      'id': 'post_jiyeon_03',
-      'category': '맛집/카페',
-      'tag': '연남베이킹',
-      'title': '🥐 연남동 골목에 조용하고 소금빵 맛있는 북카페 찾았어요',
-      'content':
-          '겉바속촉 쌀 소금빵 나오자마자 먹었는데 진짜 최고예요ㅠㅠ 자리도 넓고 채광 좋아서 주말 오후에 책 읽거나 노트북 작업하기 딱입니다. 동네 분들 같이 가요!',
-      'author': '박지연',
-      'authorAvatar': 'assets/images/시연.png',
-      'location': '마포구 연남동',
-      'time': '40분 전',
-      'manner': 36.8,
-      'likedUserIds': ['user_demo_2', 'user_demo_3'],
-      'likes': 2,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image': 'assets/images/cover_food.jpg',
-      'relatedMeetup': {
-        'title': '연남동 소금빵 & 북카페 나들이 같이 가실 분!',
-        'location': '마포구 연남동 미로길',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'poster': 'assets/images/cover_food.jpg',
-      }
-    },
-    {
-      'id': 'post_01',
-      'category': '공연/전시',
-      'tag': '스위니토드',
-      'title': '🎭 이번 주 스위니토드 샤롯데/디큐브 1차 예매 다녀왔습니다! 꿀자리 추천',
-      'content':
-          '이번 시즌 스위니토드 캐스팅 역대급이네요... 1층 B구역 8열 시야 정말 완벽합니다. 혹시 다음 주 주말 회차 가시는 분 계시면 공연 전후로 커피나 한잔하며 극 얘기 나눠요!',
-      'author': '뮤지컬덕후',
-      'authorAvatar': 'assets/images/민지.png',
-      'location': '구로구 신도림동',
-      'time': '12분 전',
-      'manner': 42.5,
-      'likedUserIds': ['user_demo_1', 'user_demo_2', 'user_demo_3'],
-      'likes': 28,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image':
-          'http://www.kopis.or.kr/upload/pfmPoster/PF_PF303043_261012_171201.gif',
-      'relatedMeetup': {
-        'title': '스위니토드 같이 보실 분!',
-        'location': '디큐브 링크아트센터',
-        'category': '문화 & 엔터 > 페스티벌 & 공연',
-        'poster':
-            'http://www.kopis.or.kr/upload/pfmPoster/PF_PF303043_261012_171201.gif',
-      }
-    },
-    {
-      'id': 'post_02',
-      'category': '맛집/카페',
-      'tag': '두바이쫀득쿠키',
-      'title': '🍰 연남동 두바이 쫀득 쿠키(두쫀쿠) 실시간 웨이팅 상황 & 솔직 후기',
-      'content':
-          '오늘 1시 오픈런 뛰어서 드디어 두쫀쿠 겟했습니다... 카다이프 바삭함이 미쳤네요ㅠㅠ 1인당 2개 한정이라 주말에 같이 가서 메뉴 여러 개 털어볼 메이트 구합니다!',
-      'author': '달콤빵순이',
-      'authorAvatar': 'assets/images/시연.png',
-      'location': '마포구 연남동',
-      'time': '35분 전',
-      'manner': 43.1,
-      'likes': 42,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image': 'assets/images/cover_cafe.jpg',
-      'relatedMeetup': {
-        'title': '두바이 쫀득 쿠키(두쫀쿠) 카페 탐방 같이 가실 분!',
-        'location': '서울 마포구 연남동',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'poster': 'assets/images/cover_cafe.jpg',
-      }
-    },
-    {
-      'id': 'post_03',
-      'category': '공연/전시',
-      'tag': 'TXT월드투어',
-      'title': '⚡ KSPO DOME 투모로우바이투게더 콘서트 티켓팅 성공하신 분 동행 구해요!',
-      'content':
-          '체조경기장 막콘 좌석 잡았습니다! 콘서트 당일 올림픽공원에서 응원봉 배터리도 나누고 콘서트 끝나고 뒷풀이 감자탕/치맥 하실 분들 계실까요?',
-      'author': 'KPOP투게더',
-      'authorAvatar': 'assets/images/정재.png',
-      'location': '송파구 방이동',
-      'time': '1시간 전',
-      'manner': 41.2,
-      'likes': 51,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image': 'assets/images/cover_wine.jpg',
-      'relatedMeetup': {
-        'title': 'TOMORROW X TOGETHER WORLD TOUR 콘서트 동행 같이 가실 분!',
-        'location': '올림픽공원 KSPO DOME',
-        'category': '문화 & 엔터 > 페스티벌 & 공연',
-        'poster': 'assets/images/cover_wine.jpg',
-      }
-    },
-    {
-      'id': 'post_04',
-      'category': '동네 토크',
-      'tag': '을지로혼술바',
-      'title': '🍷 을지로 골목길 조용하게 책 읽거나 와인 마시기 좋은 바 있나요?',
-      'content':
-          '퇴근하고 시끄러운 술집 말고 잔잔하게 재즈 흘러나오는 바 찾고 있어요. 동네 주민분들만 아는 아지트 살짝 공유해주실 천사분 계실까요?',
-      'author': '심야산책러',
-      'authorAvatar': 'assets/images/지훈.png',
-      'location': '중구 을지로동',
-      'time': '2시간 전',
-      'manner': 40.8,
-      'likes': 19,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image': 'assets/images/cover_food.jpg',
-      'relatedMeetup': {
-        'title': '을지로 감성 와인바 모임 같이 가실 분!',
-        'location': '서울 중구 을지로동',
-        'category': '일상 & 푸드 > 동네 술 한잔',
-        'poster': 'assets/images/cover_food.jpg',
-      }
-    },
-  ];
 
   final List<Map<String, dynamic>> _liveSpots = [
     {
@@ -378,217 +182,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return _liveSpots;
   }
 
-  final List<Map<String, dynamic>> _yeosuCommunityPosts = [
-    {
-      'id': 'post_yeosu_01',
-      'category': '동네 토크',
-      'tag': '성산공원둘레길',
-      'title': '🐕 오늘 저녁 화장동 성산공원 둘레길 댕댕이 산책 같이 하실 분!',
-      'content':
-          '날씨가 너무 선선해서 저녁 7시쯤 비숑 데리고 성산공원 한 바퀴 돌려구요! 댕댕이 없으셔도 가볍게 산책하고 수다 떠실 화장동 이웃분 환영합니다 ✨',
-      'author': '화장동댕댕이',
-      'authorAvatar': 'assets/images/민지.png',
-      'location': '전남 여수시 화장동',
-      'time': '10분 전',
-      'manner': 41.5,
-      'likedUserIds': ['user_demo_1', 'user_demo_2'],
-      'likes': 4,
-      'isLiked': false,
-      'comments': 2,
-      'commentList': <Map<String, dynamic>>[
-        {
-          'id': 'comm_yeosu_1',
-          'author': '선소산책러',
-          'authorAvatar': 'assets/images/시연.png',
-          'content': '저도 성산공원 장미원 쪽으로 산책 나가려던 참인데 반갑네요!',
-          'time': '5분 전',
-          'likes': 1,
-          'isLiked': false,
-          'likedUserIds': <String>['user_demo_2'],
-        },
-        {
-          'id': 'comm_yeosu_2',
-          'author': '무선지구이웃',
-          'authorAvatar': 'assets/images/지훈.png',
-          'content': '오늘 날씨 선선해서 걷기 딱 좋습니다 ㅎㅎ',
-          'time': '2분 전',
-          'likes': 0,
-          'isLiked': false,
-          'likedUserIds': <String>[],
-        },
-      ],
-      'image': null,
-      'relatedMeetup': {
-        'title': '화장동 성산공원 둘레길 가벼운 저녁 5km 런닝 크루 🏃‍♀️',
-        'location': '전남 여수시 화장동 성산공원 수변무대',
-        'category': '문화 & 엔터 > 야외 액티비티',
-        'poster': 'assets/images/cover_running.jpg',
-      }
-    },
-    {
-      'id': 'post_yeosu_02',
-      'category': '맛집/카페',
-      'tag': '선소상가와플',
-      'title': '🧇 선소상가 새로 오픈한 수제 소금빵 & 와플 맛집 다녀오신 분 계신가요?',
-      'content':
-          '선소상가 안쪽에 새로 생긴 베이커리 다녀왔는데 겉바속촉 제대로네요... 쌀가루 소금빵이랑 크림 와플 미쳤습니다. 이번 주말에 디저트 좋아하시는 분들이랑 같이 털러 가고 싶어요!',
-      'author': '여수빵순이',
-      'authorAvatar': 'assets/images/시연.png',
-      'location': '전남 여수시 화장동',
-      'time': '35분 전',
-      'manner': 43.2,
-      'likedUserIds': ['user_demo_3'],
-      'likes': 7,
-      'isLiked': false,
-      'comments': 1,
-      'commentList': <Map<String, dynamic>>[
-        {
-          'id': 'comm_yeosu_3',
-          'author': '학동미식가',
-          'authorAvatar': 'assets/images/정재.png',
-          'content': '오픈런 대기 꽤 길던데 주말에 같이 가요!',
-          'time': '15분 전',
-          'likes': 2,
-          'isLiked': false,
-          'likedUserIds': <String>['user_demo_1'],
-        },
-      ],
-      'image': 'assets/images/cover_cafe.jpg',
-      'relatedMeetup': {
-        'title': '주말 여수 화장동 수제 소금빵 & 감성 베이커리 카페 오픈런 🥐',
-        'location': '전남 여수시 화장동 선소상가 카페거리',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'poster': 'assets/images/cover_cafe.jpg',
-      }
-    },
-    {
-      'id': 'post_yeosu_03',
-      'category': '공연/전시',
-      'tag': '웅천친수공원',
-      'title': '🌊 웅천 친수공원 잔디마당 주말 버스킹 & 노을 피크닉 같이 즐겨요!',
-      'content':
-          '이번 주말 저녁에 웅천 친수공원에서 바다 보면서 잔잔한 버스킹 공연 한대요. 돗자리 펴고 노을 보면서 시원한 캔맥주나 커피 한잔하실 이웃분 구합니다~',
-      'author': '웅천피플_준',
-      'authorAvatar': 'assets/images/지훈.png',
-      'location': '전남 여수시 웅천동',
-      'time': '1시간 전',
-      'manner': 42.0,
-      'likedUserIds': ['user_demo_1'],
-      'likes': 12,
-      'isLiked': false,
-      'comments': 0,
-      'commentList': <Map<String, dynamic>>[],
-      'image': 'assets/images/cover_wine.jpg',
-      'relatedMeetup': {
-        'title': '여수 웅천친수공원 바다 캔맥주 소셜 피크닉 & 수다 🍺',
-        'location': '전남 여수시 웅천동 해변문화공원',
-        'category': '일상 & 푸드 > 동네 술 한잔',
-        'poster': 'assets/images/cover_wine.jpg',
-      }
-    },
-    {
-      'id': 'post_yeosu_04',
-      'category': '질문/추천',
-      'tag': '동네질문',
-      'title': '❓ 화장동이나 무선지구에 혼자 책 읽기 좋은 조용한 카페 추천해주세요!',
-      'content':
-          '퇴근 후나 주말에 조용하게 책 읽거나 노트북 작업할 수 있는 아지트 찾고 있어요. 통창 뷰 좋거나 잔잔한 음악 나오는 곳 아시는 분 공유 부탁드려요!',
-      'author': '북카페러버',
-      'authorAvatar': 'assets/images/지연.png',
-      'location': '전남 여수시 화장동',
-      'time': '2시간 전',
-      'manner': 40.8,
-      'likedUserIds': [],
-      'likes': 5,
-      'isLiked': false,
-      'comments': 2,
-      'commentList': <Map<String, dynamic>>[
-        {
-          'id': 'comm_yeosu_4',
-          'author': '선소주민',
-          'authorAvatar': 'assets/images/민지.png',
-          'content': '성산공원 맞은편 2층 카페 통창 뷰도 좋고 조용해서 추천드려요!',
-          'time': '1시간 전',
-          'likes': 1,
-          'isLiked': false,
-          'likedUserIds': <String>[],
-        },
-        {
-          'id': 'comm_yeosu_5',
-          'author': '무선지구이웃',
-          'authorAvatar': 'assets/images/정재.png',
-          'content': '무선지구 도서관 근처 베이커리 카페도 널찍하고 괜찮아요~',
-          'time': '30분 전',
-          'likes': 0,
-          'isLiked': false,
-          'likedUserIds': <String>[],
-        },
-      ],
-      'image': 'assets/images/cover_cafe.jpg',
-      'relatedMeetup': {
-        'title': '화장동 성산공원 호수 앞 조용한 북카페 독서 모임 📚',
-        'location': '전남 여수시 화장동 성산공원 인근',
-        'category': '문화 & 엔터 > 북카페 & 독서',
-        'poster': 'assets/images/cover_cafe.jpg',
-      }
-    },
-  ];
 
   List<Map<String, dynamic>> _getActiveCommunityPosts() {
-    final clean = _currentLocation.trim();
-    if (clean.contains('여수') || clean.contains('화장동')) {
-      return _yeosuCommunityPosts;
-    }
-    return _communityPosts;
+    // 운영 환경에서 더미 커뮤니티 글 18건을 실데이터처럼 노출하지 않음 (실제 Firestore 문서만 표시)
+    return widget.initialCommunityPosts ?? const <Map<String, dynamic>>[];
   }
 
   int _calculateLocationRelevanceScore(String itemLocation) {
-    if (itemLocation.isEmpty || _currentLocation.isEmpty) return 0;
-    final current = _currentLocation.trim();
-    final parts = current
-        .replaceAll('(', ' ')
-        .replaceAll(')', ' ')
-        .split(' ')
-        .where((s) => s.isNotEmpty)
-        .toList();
-
-    // 1. Exact dong match (e.g. '화장동', '서교동') -> Highest priority (Score 3)
-    for (final p in parts.reversed) {
-      if (p.endsWith('동') ||
-          p.endsWith('읍') ||
-          p.endsWith('면') ||
-          p.endsWith('가')) {
-        if (itemLocation.contains(p)) {
-          return 3;
-        }
-      }
-    }
-
-    // 2. District / City match (e.g. '여수시', '여수', '마포구', '마포') -> Score 2
-    for (final p in parts) {
-      final clean = p
-          .replaceAll('전남', '')
-          .replaceAll('전라남도', '')
-          .replaceAll('서울특별시', '')
-          .replaceAll('서울', '')
-          .replaceAll('시', '')
-          .replaceAll('구', '')
-          .replaceAll('군', '')
-          .trim();
-      if (itemLocation.contains(p) ||
-          (clean.length >= 2 && itemLocation.contains(clean))) {
-        return 2;
-      }
-    }
-
-    // 3. Fallback: contains any part
-    for (final p in parts) {
-      if (p.length >= 2 && itemLocation.contains(p)) {
-        return 1;
-      }
-    }
-
-    return 0;
+    return OomuUiHelpers.calculateLocationRelevanceScore(
+        _currentLocation, itemLocation);
   }
 
   String _currentLocation = '마포구 서교동';
@@ -1587,7 +1189,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      '🔥 우리 동네 인기 트렌드 전체',
+                      '우리 동네 인기 트렌드 전체',
                       style: TextStyle(
                         fontSize: OomuTokens.fs18,
                         fontWeight: FontWeight.bold,
@@ -1611,7 +1213,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   itemBuilder: (ctx, i) {
                     final item = items[i];
                     final title = (item['title'] ?? '').toString();
-                    final location = (item['location'] ?? '').toString();
+                    final rawLoc = (item['location'] ??
+                            item['place'] ??
+                            item['region'] ??
+                            '')
+                        .toString()
+                        .trim();
+                    final location = rawLoc.isNotEmpty ? rawLoc : '지역 미확인';
                     final category =
                         (item['category'] ?? item['tag'] ?? '').toString();
                     final period = (item['period'] ?? '').toString();
@@ -1619,69 +1227,79 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         (item['poster'] ?? 'assets/images/cover_food.jpg')
                             .toString();
 
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: OomuTokens.surface,
-                        borderRadius: BorderRadius.circular(OomuTokens.r12),
-                        border: Border.all(color: OomuTokens.border),
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(OomuTokens.r8),
-                            child: SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: Image(
-                                image: appImg(poster),
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Image.asset(
-                                  'assets/images/cover_food.jpg',
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(OomuTokens.r12),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EventDetailScreen(event: item),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: OomuTokens.surface,
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
+                          border: Border.all(color: OomuTokens.border),
+                        ),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(OomuTokens.r8),
+                              child: SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: Image(
+                                  image: appImg(poster),
                                   fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Image.asset(
+                                    'assets/images/cover_food.jpg',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (category.isNotEmpty) ...[
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: OomuTokens.primarySubtle,
-                                      borderRadius:
-                                          BorderRadius.circular(OomuTokens.r4),
-                                    ),
-                                    child: Text(
-                                      category,
-                                      style: const TextStyle(
-                                        fontSize: OomuTokens.fs11,
-                                        fontWeight: FontWeight.bold,
-                                        color: OomuTokens.coral,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (category.isNotEmpty) ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: OomuTokens.primarySubtle,
+                                        borderRadius:
+                                            BorderRadius.circular(OomuTokens.r4),
                                       ),
+                                      child: Text(
+                                        category,
+                                        style: const TextStyle(
+                                          fontSize: OomuTokens.fs11,
+                                          fontWeight: FontWeight.bold,
+                                          color: OomuTokens.coral,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                  ],
+                                  Text(
+                                    title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: OomuTokens.fs15,
+                                      fontWeight: FontWeight.w700,
+                                      color: OomuTokens.textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                ],
-                                Text(
-                                  title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: OomuTokens.fs15,
-                                    fontWeight: FontWeight.w700,
-                                    color: OomuTokens.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    if (location.isNotEmpty) ...[
+                                  Row(
+                                    children: [
                                       const Icon(Icons.place_outlined,
                                           size: 13,
                                           color: OomuTokens.textSecondary),
@@ -1697,23 +1315,23 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                           ),
                                         ),
                                       ),
-                                    ],
-                                    if (period.isNotEmpty) ...[
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        period,
-                                        style: const TextStyle(
-                                          fontSize: OomuTokens.fs11,
-                                          color: OomuTokens.textMuted,
+                                      if (period.isNotEmpty) ...[
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          period,
+                                          style: const TextStyle(
+                                            fontSize: OomuTokens.fs11,
+                                            color: OomuTokens.textMuted,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ],
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -2015,6 +1633,11 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         (item['hostUid'] ?? item['userId'] ?? item['creatorId'] ?? '')
             .toString();
     if (globalData.isTargetBlocked(uid: hostUid, nickname: host)) {
+      return false;
+    }
+
+    final itemLoc = (item['location'] ?? '').toString();
+    if (!OomuUiHelpers.matchesRegionFilter(_currentLocation, itemLoc)) {
       return false;
     }
 

@@ -6,6 +6,7 @@ import '../../ui/oomu_skeleton.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/global_data.dart';
 import '../../utils/meetup_member_helper.dart';
+import '../../utils/oomu_ui_helpers.dart';
 
 /// 홈 화면 메인 모임 피드 섹션 컴포넌트
 class HomeMeetupSection extends StatelessWidget {
@@ -80,7 +81,11 @@ class HomeMeetupSection extends StatelessWidget {
       final hostUid =
           (m['hostId'] ?? m['hostUid'] ?? m['userId'] ?? '').toString();
       final hostName = (m['host'] ?? m['hostName'] ?? '').toString();
-      return !globalData.isTargetBlocked(uid: hostUid, nickname: hostName);
+      if (globalData.isTargetBlocked(uid: hostUid, nickname: hostName)) {
+        return false;
+      }
+      final loc = (m['location'] ?? '').toString();
+      return OomuUiHelpers.matchesRegionFilter(currentLocation, loc);
     }).toList();
 
     return Column(
@@ -155,7 +160,8 @@ class HomeMeetupSection extends StatelessWidget {
         // 2. 모임 본문 피드 (로딩 / 빈 상태 / 카드 목록)
         if (isLoading)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
+            padding:
+                const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
             child: Column(
               children: List.generate(
                 3,
@@ -175,23 +181,27 @@ class HomeMeetupSection extends StatelessWidget {
             child: OomuEmptyState(
               icon: Icons.search_off_rounded,
               title: (selectedCategoryIndex == 0 &&
-                      (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                      (selectedSubCategory == '전체' ||
+                          selectedSubCategory.isEmpty) &&
                       (selectedVibe == null || selectedVibe == '전체'))
                   ? '아직 등록된 모임이 없어요'
                   : '조건에 맞는 모임이 없어요',
               subtitle: (selectedCategoryIndex == 0 &&
-                      (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                      (selectedSubCategory == '전체' ||
+                          selectedSubCategory.isEmpty) &&
                       (selectedVibe == null || selectedVibe == '전체'))
                   ? '우리 동네 첫 번째 모임을 직접 열어보세요!'
                   : '필터를 재설정하거나 새로운 모임을 직접 열어보세요.',
               buttonLabel: (selectedCategoryIndex == 0 &&
-                      (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                      (selectedSubCategory == '전체' ||
+                          selectedSubCategory.isEmpty) &&
                       (selectedVibe == null || selectedVibe == '전체'))
                   ? '모임 열기'
                   : '필터 초기화',
               onButtonPressed: () {
                 if (selectedCategoryIndex == 0 &&
-                    (selectedSubCategory == '전체' || selectedSubCategory.isEmpty) &&
+                    (selectedSubCategory == '전체' ||
+                        selectedSubCategory.isEmpty) &&
                     (selectedVibe == null || selectedVibe == '전체')) {
                   Navigator.pushNamed(context, '/host');
                 } else {
@@ -204,7 +214,8 @@ class HomeMeetupSection extends StatelessWidget {
           Column(
             children: [
               ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: OomuTokens.spacingLg),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: showAllMeetups
@@ -221,7 +232,8 @@ class HomeMeetupSection extends StatelessWidget {
                               ? data['photos'][0]
                               : null))
                       ?.toString();
-                  final String? date = (data['date'] ?? data['time'])?.toString();
+                  final String? date =
+                      (data['date'] ?? data['time'])?.toString();
                   final String? location = data['location']?.toString();
                   final String? category =
                       (data['category'] ?? data['mainCategory'])?.toString();
@@ -231,7 +243,8 @@ class HomeMeetupSection extends StatelessWidget {
                       MeetupMemberHelper.formatMembersLabel(data);
 
                   String? statusBadge;
-                  final statusLabel = MeetupMemberHelper.formatStatusLabel(data);
+                  final statusLabel =
+                      MeetupMemberHelper.formatStatusLabel(data);
                   if (statusLabel == '마감') {
                     statusBadge = '모집 마감';
                   } else if (data['isFemaleOnly'] == true) {
@@ -249,7 +262,8 @@ class HomeMeetupSection extends StatelessWidget {
                   }
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: OomuTokens.spacingMd),
+                    padding:
+                        const EdgeInsets.only(bottom: OomuTokens.spacingMd),
                     child: isBlock
                         ? OomuMeetupCard(
                             title: title,
@@ -292,7 +306,8 @@ class HomeMeetupSection extends StatelessWidget {
                   ),
                   child: InkWell(
                     onTap: onToggleShowAll,
-                    borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
+                    borderRadius:
+                        BorderRadius.circular(OomuTokens.radiusCardSm),
                     child: Container(
                       width: double.infinity,
                       constraints: const BoxConstraints(

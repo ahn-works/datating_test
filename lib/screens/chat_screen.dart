@@ -5,6 +5,7 @@ import '../services/chat_repository.dart';
 import '../ui/oomu_avatar.dart';
 import '../ui/oomu_empty_state.dart';
 import '../ui/oomu_tokens.dart';
+import '../utils/global_data.dart';
 import 'login_screen.dart';
 import 'oomu_chat_room_screen.dart';
 import 'oomu_home_screen.dart';
@@ -268,6 +269,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       final rooms = snapshot.data!
                           .where((r) =>
                               isChatParticipant(r, _uid) &&
+                              !globalData.isTargetBlocked(
+                                uid: (r['hostUid'] ?? r['hostId'] ?? '')
+                                    .toString(),
+                                nickname:
+                                    (r['host'] ?? r['hostName'] ?? '')
+                                        .toString(),
+                              ) &&
                               (r['title'] ?? '').toString().contains(_search))
                           .toList();
                       if (rooms.isEmpty) {

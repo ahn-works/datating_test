@@ -378,72 +378,89 @@ class GlobalData {
     return false;
   }
 
+  bool get _canSyncUserDoc {
+    final uid = activeUserId.trim();
+    return uid.isNotEmpty && uid != 'guest' && Firebase.apps.isNotEmpty;
+  }
+
   void blockUid(String uid, {String? reason}) {
-    if (uid.isEmpty) return;
+    final cleanUid = uid.trim();
+    if (cleanUid.isEmpty || cleanUid == 'guest') return;
     final current = List<String>.from(blockedUids.value);
-    if (!current.contains(uid)) {
-      current.add(uid);
+    if (!current.contains(cleanUid)) {
+      current.add(cleanUid);
       blockedUids.value = current;
 
-      try {
-        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-          'blockedUids': FieldValue.arrayUnion([uid]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('[GlobalData] Firestore blockUid sync error: $e');
+      if (_canSyncUserDoc) {
+        try {
+          FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+            'blockedUids': FieldValue.arrayUnion([cleanUid]),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[GlobalData] Firestore blockUid sync error: $e');
+        }
       }
     }
   }
 
   void unblockUid(String uid) {
+    final cleanUid = uid.trim();
     final current = List<String>.from(blockedUids.value);
-    if (current.contains(uid)) {
-      current.remove(uid);
+    if (current.contains(cleanUid)) {
+      current.remove(cleanUid);
       blockedUids.value = current;
 
-      try {
-        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-          'blockedUids': FieldValue.arrayRemove([uid]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('[GlobalData] Firestore unblockUid sync error: $e');
+      if (_canSyncUserDoc) {
+        try {
+          FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+            'blockedUids': FieldValue.arrayRemove([cleanUid]),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[GlobalData] Firestore unblockUid sync error: $e');
+        }
       }
     }
   }
 
   void blockUser(String nickname, {String? reason}) {
-    if (nickname.isEmpty) return;
+    final cleanNick = nickname.trim();
+    if (cleanNick.isEmpty) return;
     final current = List<String>.from(blockedUsers.value);
-    if (!current.contains(nickname)) {
-      current.add(nickname);
+    if (!current.contains(cleanNick)) {
+      current.add(cleanNick);
       blockedUsers.value = current;
 
-      try {
-        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-          'blockedUsers': FieldValue.arrayUnion([nickname]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('[GlobalData] Firestore blockUser sync error: $e');
+      if (_canSyncUserDoc) {
+        try {
+          FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+            'blockedUsers': FieldValue.arrayUnion([cleanNick]),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[GlobalData] Firestore blockUser sync error: $e');
+        }
       }
     }
   }
 
   void unblockUser(String nickname) {
+    final cleanNick = nickname.trim();
     final current = List<String>.from(blockedUsers.value);
-    if (current.contains(nickname)) {
-      current.remove(nickname);
+    if (current.contains(cleanNick)) {
+      current.remove(cleanNick);
       blockedUsers.value = current;
 
-      try {
-        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-          'blockedUsers': FieldValue.arrayRemove([nickname]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('[GlobalData] Firestore unblockUser sync error: $e');
+      if (_canSyncUserDoc) {
+        try {
+          FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+            'blockedUsers': FieldValue.arrayRemove([cleanNick]),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[GlobalData] Firestore unblockUser sync error: $e');
+        }
       }
     }
   }
@@ -514,35 +531,41 @@ class GlobalData {
     }
     savedMeetups.value = list;
 
-    try {
-      FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-        'savedMeetupCount': list.length,
-        'savedMeetupIds': isAdding
-            ? FieldValue.arrayUnion([id])
-            : FieldValue.arrayRemove([id]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (_) {}
+    if (_canSyncUserDoc) {
+      try {
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          'savedMeetupCount': list.length,
+          'savedMeetupIds': isAdding
+              ? FieldValue.arrayUnion([id])
+              : FieldValue.arrayRemove([id]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
   }
 
   void updateAvatar(String newAvatar) {
     userAvatar.value = newAvatar;
-    try {
-      FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-        'avatarUrl': newAvatar,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (_) {}
+    if (_canSyncUserDoc) {
+      try {
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          'avatarUrl': newAvatar,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
   }
 
   void updateLocation(String newLocation) {
     userLocation.value = newLocation;
-    try {
-      FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
-        'location': newLocation,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (_) {}
+    if (_canSyncUserDoc) {
+      try {
+        FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          'location': newLocation,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
   }
 
   void toggleNotification(String key) {

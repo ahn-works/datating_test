@@ -345,7 +345,8 @@ class _OOMUMyTripsScreenState extends State<OOMUMyTripsScreen>
                                             color: textSecondary)),
                                   ],
                                 ),
-                                Text('${meetup['members'] ?? '2/4'} 참여중',
+                                Text(
+                                    '${MeetupMemberHelper.formatMembersLabel(meetup)} 참여중',
                                     style: TextStyle(
                                         fontSize: 13,
                                         color: textSecondary,
