@@ -173,41 +173,44 @@ class HomeMeetupSection extends StatelessWidget {
             ),
           )
         else if (visibleMeetups.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: OomuTokens.spacingLg,
-              vertical: OomuTokens.spacingXl,
-            ),
-            child: OomuEmptyState(
-              icon: Icons.search_off_rounded,
-              title: (selectedCategoryIndex == 0 &&
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 180),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: OomuTokens.spacingLg,
+                vertical: OomuTokens.spacingXl,
+              ),
+              child: OomuEmptyState(
+                icon: Icons.search_off_rounded,
+                title: (selectedCategoryIndex == 0 &&
+                        (selectedSubCategory == '전체' ||
+                            selectedSubCategory.isEmpty) &&
+                        (selectedVibe == null || selectedVibe == '전체'))
+                    ? '아직 등록된 모임이 없어요'
+                    : '조건에 맞는 모임이 없어요',
+                subtitle: (selectedCategoryIndex == 0 &&
+                        (selectedSubCategory == '전체' ||
+                            selectedSubCategory.isEmpty) &&
+                        (selectedVibe == null || selectedVibe == '전체'))
+                    ? '우리 동네 첫 번째 모임을 직접 열어보세요!'
+                    : '필터를 재설정하거나 새로운 모임을 직접 열어보세요.',
+                buttonLabel: (selectedCategoryIndex == 0 &&
+                        (selectedSubCategory == '전체' ||
+                            selectedSubCategory.isEmpty) &&
+                        (selectedVibe == null || selectedVibe == '전체'))
+                    ? '모임 열기'
+                    : '필터 초기화',
+                onButtonPressed: () {
+                  if (selectedCategoryIndex == 0 &&
                       (selectedSubCategory == '전체' ||
                           selectedSubCategory.isEmpty) &&
-                      (selectedVibe == null || selectedVibe == '전체'))
-                  ? '아직 등록된 모임이 없어요'
-                  : '조건에 맞는 모임이 없어요',
-              subtitle: (selectedCategoryIndex == 0 &&
-                      (selectedSubCategory == '전체' ||
-                          selectedSubCategory.isEmpty) &&
-                      (selectedVibe == null || selectedVibe == '전체'))
-                  ? '우리 동네 첫 번째 모임을 직접 열어보세요!'
-                  : '필터를 재설정하거나 새로운 모임을 직접 열어보세요.',
-              buttonLabel: (selectedCategoryIndex == 0 &&
-                      (selectedSubCategory == '전체' ||
-                          selectedSubCategory.isEmpty) &&
-                      (selectedVibe == null || selectedVibe == '전체'))
-                  ? '모임 열기'
-                  : '필터 초기화',
-              onButtonPressed: () {
-                if (selectedCategoryIndex == 0 &&
-                    (selectedSubCategory == '전체' ||
-                        selectedSubCategory.isEmpty) &&
-                    (selectedVibe == null || selectedVibe == '전체')) {
-                  Navigator.pushNamed(context, '/host');
-                } else {
-                  onResetFilters();
-                }
-              },
+                      (selectedVibe == null || selectedVibe == '전체')) {
+                    Navigator.pushNamed(context, '/host');
+                  } else {
+                    onResetFilters();
+                  }
+                },
+              ),
             ),
           )
         else
@@ -225,7 +228,8 @@ class HomeMeetupSection extends StatelessWidget {
                   final data = visibleMeetups[index];
                   final isBlock = !isListView && index == 0;
 
-                  final String title = (data['title'] ?? '').toString();
+                  final String title = OomuUiHelpers.formatTitle(
+                      (data['title'] ?? '').toString());
                   final String? imageUrl = (data['imageUrl'] ??
                           (data['photos'] is List &&
                                   (data['photos'] as List).isNotEmpty
@@ -245,8 +249,10 @@ class HomeMeetupSection extends StatelessWidget {
                   String? statusBadge;
                   final statusLabel =
                       MeetupMemberHelper.formatStatusLabel(data);
-                  if (statusLabel == '마감') {
-                    statusBadge = '모집 마감';
+                  final reason = MeetupMemberHelper.closeReason(data);
+                  if (statusLabel == '마감' || reason != null) {
+                    statusBadge =
+                        reason != null ? '모집 마감 · $reason' : '모집 마감';
                   } else if (data['isFemaleOnly'] == true) {
                     statusBadge = '여성 전용';
                   } else if (data['isLightning'] == true ||
@@ -296,7 +302,7 @@ class HomeMeetupSection extends StatelessWidget {
               ),
 
               // 더보기 버튼
-              if (meetups.length > initialCount)
+              if (visibleMeetups.length > initialCount)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                     OomuTokens.spacingLg,

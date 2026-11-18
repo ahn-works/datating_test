@@ -1003,6 +1003,41 @@ def fetch_kobis_boxoffice_movies(kobis_key=""):
     return movie_items
 
 
+REGION_RULES = [
+    ("킨텍스", "경기"),
+    ("인스파이어", "인천"),
+    ("인천", "인천"),
+    ("고척", "서울"),
+    ("잠실", "서울"),
+    ("올림픽공원", "서울"),
+    ("화정체육관", "서울"),
+    ("샤롯데", "서울"),
+    ("LG아트센터", "서울"),
+    ("블루스퀘어", "서울"),
+    ("디큐브", "서울"),
+    ("피카소소극장", "서울"),
+    ("대학로", "서울"),
+    ("서울", "서울"),
+    ("부산", "부산"),
+    ("드림씨어터", "부산"),
+    ("사직", "부산"),
+    ("광주", "광주"),
+    ("울산", "울산"),
+    ("대구", "대구"),
+    ("제주", "제주"),
+    ("전국", "전국"),
+    ("멀티플렉스", "전국"),
+]
+
+
+def derive_region(item):
+    text = f"{item.get('venue', '')} {item.get('location', '')} {item.get('title', '')} {item.get('area', '')}"
+    for keyword, reg in REGION_RULES:
+        if keyword in text:
+            return reg
+    return ""
+
+
 def sync_to_firestore(events, r2_cfg=None):
     """수집 및 포스터 크롤링된 모든 트렌드 이벤트를 Firestore 'trend_events' 컬렉션에 동기화 (이전 잔여 문서 정리 포함)"""
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -1033,6 +1068,8 @@ def sync_to_firestore(events, r2_cfg=None):
             "title": {"stringValue": item.get("title", "")},
             "category": {"stringValue": item.get("category", "놀줄아는 > 공연·콘서트")},
             "location": {"stringValue": item.get("venue") or item.get("location", "")},
+            "region": {"stringValue": item.get("region", "") or derive_region(item)},
+            "area": {"stringValue": item.get("area", "")},
             "tag": {"stringValue": item.get("tag", "")},
             "vibe": {"stringValue": item.get("vibe", "놀줄아는")},
             "poster": {"stringValue": item.get("poster", "")},

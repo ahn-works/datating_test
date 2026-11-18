@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../ui/oomu_theme.dart';
 import '../ui/oomu_tokens.dart';
+import 'global_data.dart';
 
 /// OOMU 공통 UI/데이터 정규화 헬퍼 및 테마 토큰 (docs/OOMU_UI_GUIDE.md 60-30-10 단일 기준)
 class OomuUiHelpers {
@@ -37,12 +38,42 @@ class OomuUiHelpers {
 
   static const List<String> koreanFontFallback = OomuTokens.fontFallback;
 
-  /// 2. 제목 문자열 정규화 (원문 데이터 및 서로게이트 페어·ZWJ·국기 이모지 100% 보존)
+  /// 2. 제목 문자열 정규화 (표시 시점에 말미 장식 이모지만 제거)
   static String formatTitle(String? title, {String fallback = '취향 모임'}) {
     if (title == null) return fallback;
     final cleaned = title.replaceAll('\u2060', '').trim();
     if (cleaned.isEmpty) return fallback;
-    return cleaned;
+    final emojiOnly = RegExp(
+      r'[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]+$',
+      unicode: true,
+    );
+    final body = cleaned.replaceAll(emojiOnly, '').trim();
+    return body.isEmpty ? fallback : body;
+  }
+
+  /// 호스트/유저 본인인증 여부 단일 판정 (문서에 인증 필드가 없을 때만 meetup 폴백 사용)
+  static bool resolveVerified(
+    Map<String, dynamic>? userDoc,
+    Map<String, dynamic>? meetup, {
+    bool isSelf = false,
+  }) {
+    if (isSelf) {
+      return globalData.isPhoneVerified.value ||
+          userDoc?['isPhoneVerified'] == true ||
+          userDoc?['isVerified'] == true;
+    }
+    if (userDoc?['isPhoneVerified'] == true ||
+        userDoc?['isVerified'] == true ||
+        userDoc?['phoneVerified'] == true) {
+      return true;
+    }
+    final hasField = userDoc != null &&
+        (userDoc.containsKey('isPhoneVerified') ||
+            userDoc.containsKey('isVerified'));
+    if (!hasField) {
+      return meetup?['isVerified'] == true || meetup?['hostVerified'] == true;
+    }
+    return false;
   }
 
   /// 3. 단일 매너온도 값 파싱 (num 및 숫자 문자열 호환, 유효하지 않으면 null 반환)
@@ -193,6 +224,32 @@ class OomuUiHelpers {
       '상수',
       '홍대'
     ];
+    const seoulCluster = [
+      '서울',
+      '마포',
+      '서교',
+      '연남',
+      '망원',
+      '합정',
+      '상수',
+      '홍대',
+      '성동',
+      '성수',
+      '강남',
+      '역삼',
+      '송파',
+      '잠실',
+      '중구',
+      '을지로',
+      '종로',
+      '용산',
+      '이태원',
+      '한남',
+      '영등포',
+      '여의도',
+      '고척',
+      '올림픽공원'
+    ];
 
     final bool currentIsYeosu = yeosuCluster.any((k) => current.contains(k));
     final bool itemIsYeosu = yeosuCluster.any((k) => item.contains(k));
@@ -207,6 +264,15 @@ class OomuUiHelpers {
     final bool itemIsMapo = mapoCluster.any((k) => item.contains(k));
     if (currentIsMapo && itemIsMapo) {
       return 2;
+    }
+
+    final bool currentIsSeoul = seoulCluster.any((k) => current.contains(k));
+    final bool itemIsSeoul = seoulCluster.any((k) => item.contains(k));
+    if (currentIsSeoul) {
+      return itemIsSeoul ? 2 : 0;
+    }
+    if (itemIsSeoul && !currentIsSeoul) {
+      return 0;
     }
 
     for (final p in parts) {

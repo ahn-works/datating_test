@@ -92,7 +92,7 @@ void main() {
       expect(find.byIcon(Icons.psychology_outlined), findsOneWidget);
 
       // Verify answer values in right column
-      expect(find.text('플루터 개발자'), findsNWidgets(2)); // Hero header + key-value row
+      expect(find.text('플루터 개발자'), findsOneWidget); // key-value row (헤더 직무는 7차 §4-6에 따라 제거됨)
       expect(find.text('29세'), findsNWidgets(2)); // Hero header + key-value row
       expect(find.text('여성'), findsOneWidget);
       expect(find.text('ENFJ'), findsOneWidget);

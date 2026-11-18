@@ -300,7 +300,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
         theme: OomuUiHelpers.buildTheme(), home: const NotificationScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('알림 연결을 준비하고 있어요'), findsOneWidget);
+    expect(find.text('로그인이 필요한 서비스예요'), findsOneWidget);
     expect(find.textContaining('모임 참여 승인이 완료'), findsNothing);
     expect(find.textContaining('내 글에 새로운 댓글'), findsNothing);
     expect(tester.takeException(), isNull);

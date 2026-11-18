@@ -1447,6 +1447,43 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                         .collection('community_posts')
                                         .doc(postId)
                                         .delete();
+                                    try {
+                                      final authorUid = (_effectivePost['authorId'] ??
+                                              globalData.activeUserId)
+                                          .toString();
+                                      if (authorUid.isNotEmpty &&
+                                          authorUid != 'guest') {
+                                        final uRef = FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(authorUid);
+                                        await FirebaseFirestore.instance
+                                            .runTransaction((tx) async {
+                                          final snap = await tx.get(uRef);
+                                          final cur =
+                                              (snap.data()?['myPostsCount']
+                                                          as num?)
+                                                      ?.toInt() ??
+                                                  0;
+                                          tx.set(
+                                            uRef,
+                                            {
+                                              'myPostsCount':
+                                                  cur > 0 ? cur - 1 : 0,
+                                              'updatedAt': FieldValue
+                                                  .serverTimestamp(),
+                                            },
+                                            SetOptions(merge: true),
+                                          );
+                                        });
+                                        globalData.myPostsCount.value =
+                                            (globalData.myPostsCount.value - 1)
+                                                .clamp(0, 999999)
+                                                .toInt();
+                                      }
+                                    } catch (cntErr) {
+                                      debugPrint(
+                                          '[CommunityPostDetailScreen] myPostsCount decrement error: $cntErr');
+                                    }
                                   } catch (e) {
                                     debugPrint('[CommunityPostDetailScreen] post delete error: $e');
                                     messenger.showSnackBar(

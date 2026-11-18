@@ -3,6 +3,81 @@ import '../utils/global_data.dart';
 
 /// 앱스토어 Guideline 1.2(UGC) 대응을 위한 표준 신고 및 차단 액션시트 유틸리티
 class UgcActionSheets {
+  /// 본인 작성 게시글/콘텐츠 전용 수정·삭제 액션시트 (신고·차단 미노출)
+  static void showOwnContentOptions({
+    required BuildContext context,
+    required String contentId,
+    required VoidCallback onEdit,
+    required Future<void> Function() onDelete,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Row(
+                children: [
+                  SizedBox(width: 8),
+                  Text(
+                    '내 게시글 관리',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined, color: Colors.black87),
+                title: const Text(
+                  '수정하기',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  onEdit();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text(
+                  '삭제하기',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await onDelete();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// 게시글/댓글/채팅 메시지 등 콘텐츠 단위 옵션 액션시트
   static void showContentOptions({
     required BuildContext context,

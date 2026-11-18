@@ -27,7 +27,12 @@ class SimpleListScreen extends StatelessWidget {
       body: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: items.length,
-          separatorBuilder: (_, __) => const Divider(),
+          separatorBuilder: (_, __) => const Divider(
+              height: 1,
+              thickness: 0.5,
+              indent: 16,
+              endIndent: 16,
+              color: OomuTokens.border),
           itemBuilder: (_, i) => ListTile(
               title: Text(items[i]),
               trailing: const Icon(Icons.chevron_right, color: OomuTokens.textSecondary),
@@ -114,7 +119,12 @@ class BlockManageScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: blockedList.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, __) => const Divider(
+                      height: 1,
+                      thickness: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: OomuTokens.border),
                   itemBuilder: (context, index) {
                     final userName = blockedList[index];
                     return ListTile(

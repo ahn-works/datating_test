@@ -822,342 +822,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     return '내 위치에서 ${KakaoMapService.formatDistance(meters)}';
   }
 
-  List<Map<String, dynamic>> _buildMyNeighborhoodEvents(String currentLoc) {
-    final cleanLoc = currentLoc.trim();
-    final parts = cleanLoc
-        .replaceAll('(', ' ')
-        .replaceAll(')', ' ')
-        .split(' ')
-        .where((s) => s.isNotEmpty)
-        .toList();
-    final cityOrGu = parts.isNotEmpty ? parts[0] : cleanLoc;
-    final dongName = parts.length >= 2 ? parts[1] : cityOrGu;
-
-    if (cleanLoc.contains('여수')) {
-      return [
-        {
-          'id': 'my_yeosu_01',
-          'title': '$cleanLoc 수제 소금빵 & 신상 대형 베이커리 카페 오픈런',
-          'category': '일상 & 푸드 > 카페 & 디저트',
-          'location': '전남 $cleanLoc 카페거리',
-          'tag': '🥐 $dongName 소금빵 핫플',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_cafe.jpg',
-          'period': '상시 · 주말 오전 오픈런',
-          'rank': 1,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-          'description':
-              '화장동 선소상가 신상 대형 베이커리 카페로 매일 아침 구워내는 겉바속촉 수제 소금빵과 스페셜티 커피를 맛볼 수 있습니다. 쾌적한 좌석과 따뜻한 우드 인테리어로 동네 이웃과 소소한 대화를 나누기 좋습니다.',
-        },
-        {
-          'id': 'my_yeosu_02',
-          'title': '여수 이순신광장 원조 딸기모찌 & 돌산 갓버터도나스 디저트 투어',
-          'category': '일상 & 푸드 > 카페 & 디저트',
-          'location': '전남 여수시 교동 이순신광장 ($cleanLoc 출발)',
-          'tag': '🍓 여수 디저트 1위',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_cafe.jpg',
-          'period': '이번 주말 오후 2시',
-          'rank': 2,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-          'description':
-              '여수 중앙동 이순신광장의 대표 명물로 손꼽히는 수제 딸기모찌 본점입니다. 얇고 쫀득한 찹쌀떡 속에 신선한 생딸기와 백앙금·팥앙금이 가득 차 있어 달콤상큼한 풍미를 자랑합니다. 인근 돌산 갓버터도나스와 함께 둘러보는 여수 필수 디저트 코스입니다.',
-        },
-        {
-          'id': 'my_yeosu_03',
-          'title': '여수 웅천해변 오션뷰 루프탑 브런치 & 카이막 카페 탐방',
-          'category': '일상 & 푸드 > 카페 & 디저트',
-          'location': '전남 여수시 웅천동 해변문화공원',
-          'tag': '🌊 웅천 오션뷰 핫플',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_cafe.jpg',
-          'period': '상시 · 주말 브런치',
-          'rank': 3,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-          'description':
-              '웅천친수공원 바로 앞에 위치한 오션뷰 브런치 카페로, 탁 트인 에메랄드빛 바다 전망을 감상하며 갓 구운 바게트와 부드러운 카이막, 시그니처 크림라떼를 즐길 수 있는 힐링 핫플레이스입니다.',
-        },
-        {
-          'id': 'my_yeosu_04',
-          'title': '$cleanLoc 두바이 쫀득 쿠키(두쫀쿠) & 피스타치오 디저트 도장깨기',
-          'category': '일상 & 푸드 > 카페 & 디저트',
-          'location': '전남 $cleanLoc 디저트 골목',
-          'tag': '🍪 $dongName 두쫀쿠',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_cafe.jpg',
-          'period': '상시 운영',
-          'rank': 4,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-          'description':
-              'SNS에서 연일 화제인 두바이 피스타치오 카다이프 쫀득 쿠키(두쫀쿠)를 여수 현지에서 맛볼 수 있는 감성 디저트 숍입니다. 바삭한 카다이프 면과 진한 피스타치오 스프레드의 조화가 일품입니다.',
-        },
-        {
-          'id': 'my_yeosu_05',
-          'title': '여수 소호동동다리 밤바다 야경 산책 & 5km 나이트 러닝 크루',
-          'category': '문화 & 엔터 > 러닝 & 피트니스',
-          'location': '전남 여수시 소호동 동동다리 ($cleanLoc 집결)',
-          'tag': '🏃 여수 밤바다러닝',
-          'vibe': '열정적인',
-          'poster': 'assets/images/cover_running.jpg',
-          'period': '매주 금·토 저녁 8시',
-          'rank': 5,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-          'description':
-              '바다 위를 가로지르는 여수의 랜드마크 소호동동다리입니다. 해질녘 노을과 수변을 비추는 은은한 야간 LED 조명이 어우러져, 초보자도 무리 없이 기분 좋게 5km를 달리고 걸을 수 있는 여수 최고의 힐링 러닝 스팟입니다.',
-        },
-        {
-          'id': 'my_yeosu_06',
-          'title': '여수 학동·화장동·여서동 로컬 숙성회 & 하이볼 이자카야 미식 팟',
-          'category': '일상 & 푸드 > 동네 술 한잔',
-          'location': '전남 $cleanLoc 중심상가',
-          'tag': '🍶 $dongName 로컬맛집',
-          'vibe': '놀줄아는',
-          'poster': 'assets/images/cover_wine.jpg',
-          'period': '오늘·주말 저녁 7시 30분',
-          'rank': 6,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-        },
-        {
-          'id': 'my_yeosu_07',
-          'title': '여수 해양공원 낭만포차 해물삼합 & 밤바다 거리 버스킹 직관',
-          'category': '문화 & 엔터 > 버스킹 & 낭만포차',
-          'location': '전남 여수시 중앙동 해양공원',
-          'tag': '🎶 여수 밤바다버스킹',
-          'vibe': '놀줄아는',
-          'poster': 'assets/images/cover_wine.jpg',
-          'period': '매주 금·토·일 밤',
-          'rank': 7,
-          'isMyNeighborhood': true,
-        },
-        {
-          'id': 'my_yeosu_08',
-          'title': '여수 봉산동 원조 간장·양념게장 정식 & 바다뷰 디저트 코스',
-          'category': '일상 & 푸드 > 동네 맛집 & 소셜 다이닝',
-          'location': '전남 여수시 봉산동 게장거리',
-          'tag': '🦀 여수 미식투어',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_food.jpg',
-          'period': '주말 점심 12시',
-          'rank': 8,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-        },
-        {
-          'id': 'my_yeosu_09',
-          'title': '여수 돌산읍 무슬목 감성 오션뷰 카페 & 일몰 사진 출사 모임',
-          'category': '문화 & 엔터 > 전시 & 팝업스토어',
-          'location': '전남 여수시 돌산읍 무슬목',
-          'tag': '📸 돌산 오션뷰출사',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_cafe.jpg',
-          'period': '이번 주 토요일 오후 4시',
-          'rank': 9,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-        },
-        {
-          'id': 'my_yeosu_10',
-          'title': '여수 예울마루 현대미술 전시 관람 & 장도 예술의섬 산책',
-          'category': '문화 & 엔터 > 전시 & 팝업스토어',
-          'location': '전남 여수시 시전동 예울마루 ($cleanLoc 인접)',
-          'tag': '🖼️ 예울마루 전시',
-          'vibe': '소소하게',
-          'poster': 'assets/images/cover_cafe.jpg',
-          'period': '상시 전시 · 주말 모임',
-          'rank': 10,
-          'isMyNeighborhood': true,
-          'isHotspot': true,
-        },
-        {
-          'id': 'my_yeosu_11',
-          'title': '$cleanLoc 신상 보드게임 카페 & 추리 방탈출 도장깨기 팟',
-          'category': '문화 & 엔터 > 보드게임·방탈출',
-          'location': '전남 $cleanLoc 보드게임 아지트',
-          'tag': '🎲 $dongName 보드게임',
-          'vibe': '놀줄아는',
-          'poster': 'assets/images/cover_food.jpg',
-          'period': '주말 오후 3시',
-          'rank': 11,
-          'isMyNeighborhood': true,
-        },
-        {
-          'id': 'my_yeosu_12',
-          'title': '2026 여수 밤바다 불꽃축제 & 문화의 달 페스티벌 동행 메이트',
-          'category': '문화 & 엔터 > 페스티벌',
-          'location': '전남 여수시 이순신광장·박람회장 일대',
-          'tag': '🎆 여수 대표축제',
-          'vibe': '놀줄아는',
-          'poster': 'assets/images/cover_running_hangang.jpg',
-          'period': '여수 문화축제 시즌',
-          'rank': 12,
-          'isMyNeighborhood': true,
-        },
-      ];
-    }
-
-    return [
-      {
-        'id': 'my_loc_01_$cleanLoc',
-        'title': '망원·$dongName 겉바속촉 수제 소금빵 & 화덕 쌀베이글 오픈런 투어',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'location': '$cleanLoc 베이커리 거리',
-        'tag': '🥐 $dongName 소금빵 핫플',
-        'vibe': '소소하게',
-        'poster': 'assets/images/cover_cafe.jpg',
-        'period': '상시 · 주말 오픈런',
-        'rank': 1,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_02_$cleanLoc',
-        'title': '$cleanLoc 두바이 쫀득 쿠키(두쫀쿠) & 피스타치오 디저트 카페 탐방',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'location': '$cleanLoc 카페거리',
-        'tag': '🍪 $dongName 두쫀쿠 1위',
-        'vibe': '소소하게',
-        'poster': 'assets/images/cover_food.jpg',
-        'period': '상시 운영',
-        'rank': 2,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_03_$cleanLoc',
-        'title': '$cleanLoc 신상 브랜드 팝업스토어 & 플리마켓 주말 도장깨기',
-        'category': '문화 & 엔터 > 전시 & 팝업스토어',
-        'location': '$cleanLoc 메인 스트리트',
-        'tag': '✨ $dongName 팝업·핫플',
-        'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_cafe.jpg',
-        'period': '이번 주말 오후 2시',
-        'rank': 3,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_04_$cleanLoc',
-        'title': '$cleanLoc 골목 감성 LP 바이닐 바 & 내추럴 와인 시음 모임',
-        'category': '일상 & 푸드 > 동네 술 한잔',
-        'location': '$cleanLoc 로데오·문화거리',
-        'tag': '🍷 $dongName LP·와인바',
-        'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_wine.jpg',
-        'period': '매주 금·토 저녁 7시 30분',
-        'rank': 4,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_05_$cleanLoc',
-        'title': '$cleanLoc 저녁 노을 5km 러닝 크루 & 야간 산책 번개',
-        'category': '문화 & 엔터 > 러닝 & 피트니스',
-        'location': '$cleanLoc 근린공원·산책로',
-        'tag': '🏃 $dongName 나이트런',
-        'vibe': '열정적인',
-        'poster': 'assets/images/cover_running.jpg',
-        'period': '매주 수·일 저녁 8시',
-        'rank': 5,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_06_$cleanLoc',
-        'title': '$cleanLoc 카이막·그리스요거트 & 유럽풍 테라스 브런치 모임',
-        'category': '일상 & 푸드 > 카페 & 디저트',
-        'location': '$cleanLoc 브런치 골목',
-        'tag': '🥞 $dongName 브런치 핫플',
-        'vibe': '소소하게',
-        'poster': 'assets/images/cover_cafe.jpg',
-        'period': '주말 오전 11시 30분',
-        'rank': 6,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_07_$cleanLoc',
-        'title': '$cleanLoc 줄 서서 먹는 로컬 노포 & 숯불 화로구이 미식 팟',
-        'category': '일상 & 푸드 > 동네 맛집 & 소셜 다이닝',
-        'location': '$cleanLoc 먹자골목',
-        'tag': '🍲 $dongName 노포맛집',
-        'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_food.jpg',
-        'period': '금요일 저녁 7시',
-        'rank': 7,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_08_$cleanLoc',
-        'title': '$cleanLoc 독립서점 심야 책맥 & 스페셜티 핸드드립 커피 모임',
-        'category': '문화 & 엔터 > 북카페·독서',
-        'location': '$cleanLoc 북카페 거리',
-        'tag': '📚 $dongName 독립서점',
-        'vibe': '소소하게',
-        'poster': 'assets/images/cover_cafe.jpg',
-        'period': '토요일 오후 4시',
-        'rank': 8,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_09_$cleanLoc',
-        'title': '$cleanLoc 공방 시그니처 향수 조향 & 터프팅 주말 원데이 클래스',
-        'category': '문화 & 엔터 > 원데이 클래스',
-        'location': '$cleanLoc 공방거리',
-        'tag': '🎨 $dongName 원데이클래스',
-        'vibe': '소소하게',
-        'poster': 'assets/images/cover_wine.jpg',
-        'period': '주말 오후 2시',
-        'rank': 9,
-        'isMyNeighborhood': true,
-        'isHotspot': true,
-      },
-      {
-        'id': 'my_loc_10_$cleanLoc',
-        'title': '$cleanLoc 야외 거리 버스킹 공연 직관 & 수제맥주 피크닉',
-        'category': '문화 & 엔터 > 페스티벌 & 공연',
-        'location': '$cleanLoc 문화광장',
-        'tag': '🎶 $dongName 거리버스킹',
-        'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_wine.jpg',
-        'period': '주말 저녁 6시',
-        'rank': 10,
-        'isMyNeighborhood': true,
-      },
-      {
-        'id': 'my_loc_11_$cleanLoc',
-        'title': '$cleanLoc 전략 보드게임 & 공포/추리 방탈출 도장깨기 모임',
-        'category': '문화 & 엔터 > 보드게임·방탈출',
-        'location': '$cleanLoc 중심상가',
-        'tag': '🎲 $dongName 보드게임',
-        'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_food.jpg',
-        'period': '토·일 오후 3시',
-        'rank': 11,
-        'isMyNeighborhood': true,
-      },
-      {
-        'id': 'my_loc_12_$cleanLoc',
-        'title': '$cityOrGu 청년 로컬 페스티벌 & 야시장 푸드트럭 야식 투어',
-        'category': '문화 & 엔터 > 페스티벌 & 공연',
-        'location': '$cleanLoc 중앙광장 일원',
-        'tag': '🎪 $cityOrGu 지역축제',
-        'vibe': '놀줄아는',
-        'poster': 'assets/images/cover_food.jpg',
-        'period': '이번 달 주말 상시',
-        'rank': 12,
-        'isMyNeighborhood': true,
-      },
-    ];
-  }
-
   void _showAllTrendsBottomSheet(
       BuildContext context, List<Map<String, dynamic>> items) {
     showModalBottomSheet(
@@ -1171,173 +835,193 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       builder: (ctx) => SafeArea(
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.85,
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 44,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OomuTokens.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '우리 동네 인기 트렌드 전체',
-                      style: TextStyle(
-                        fontSize: OomuTokens.fs18,
-                        fontWeight: FontWeight.bold,
-                        color: OomuTokens.textPrimary,
-                      ),
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: items.isNotEmpty
+                ? Future.value(items)
+                : (Firebase.apps.isNotEmpty
+                    ? FirebaseFirestore.instance
+                        .collection('trend_events')
+                        .limit(50)
+                        .get()
+                        .then((snap) => snap.docs.map((d) {
+                              final data = Map<String, dynamic>.from(d.data());
+                              data['id'] = d.id;
+                              return data;
+                            }).toList())
+                        .catchError((_) => <Map<String, dynamic>>[])
+                    : Future.value(<Map<String, dynamic>>[])),
+            builder: (ctx, snapshot) {
+              final resolvedItems = snapshot.data ?? items;
+              return Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 8),
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: OomuTokens.border,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close,
-                          color: OomuTokens.textSecondary),
-                      onPressed: () => Navigator.pop(ctx),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '우리 동네 인기 트렌드 전체',
+                          style: TextStyle(
+                            fontSize: OomuTokens.fs18,
+                            fontWeight: FontWeight.bold,
+                            color: OomuTokens.textPrimary,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close,
+                              color: OomuTokens.textSecondary),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: OomuTokens.border),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, i) {
-                    final item = items[i];
-                    final title = (item['title'] ?? '').toString();
-                    final rawLoc = (item['location'] ??
-                            item['place'] ??
-                            item['region'] ??
-                            '')
-                        .toString()
-                        .trim();
-                    final location = rawLoc.isNotEmpty ? rawLoc : '지역 미확인';
-                    final category =
-                        (item['category'] ?? item['tag'] ?? '').toString();
-                    final period = (item['period'] ?? '').toString();
-                    final poster =
-                        (item['poster'] ?? 'assets/images/cover_food.jpg')
-                            .toString();
+                  ),
+                  const Divider(height: 1, color: OomuTokens.border),
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: resolvedItems.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (ctx, i) {
+                        final item = resolvedItems[i];
+                        final title = OomuUiHelpers.formatTitle(
+                            (item['title'] ?? '').toString());
+                        final rawLoc = (item['location'] ??
+                                item['place'] ??
+                                item['region'] ??
+                                '')
+                            .toString()
+                            .trim();
+                        final location = rawLoc.isNotEmpty ? rawLoc : '지역 미확인';
+                        final category =
+                            (item['category'] ?? item['tag'] ?? '').toString();
+                        final period = (item['period'] ?? '').toString();
+                        final poster =
+                            (item['poster'] ?? 'assets/images/cover_food.jpg')
+                                .toString();
 
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(OomuTokens.r12),
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => EventDetailScreen(event: item),
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EventDetailScreen(event: item),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.surface,
+                              borderRadius: BorderRadius.circular(OomuTokens.r12),
+                              border: Border.all(color: OomuTokens.border),
+                            ),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(OomuTokens.r8),
+                                  child: SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: Image(
+                                      image: appImg(poster),
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Image.asset(
+                                        'assets/images/cover_food.jpg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (category.isNotEmpty) ...[
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: OomuTokens.primarySubtle,
+                                            borderRadius:
+                                                BorderRadius.circular(OomuTokens.r4),
+                                          ),
+                                          child: Text(
+                                            category,
+                                            style: const TextStyle(
+                                              fontSize: OomuTokens.fs11,
+                                              fontWeight: FontWeight.bold,
+                                              color: OomuTokens.coral,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                      ],
+                                      Text(
+                                        title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: OomuTokens.fs15,
+                                          fontWeight: FontWeight.w700,
+                                          color: OomuTokens.textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.place_outlined,
+                                              size: 13,
+                                              color: OomuTokens.textSecondary),
+                                          const SizedBox(width: 2),
+                                          Flexible(
+                                            child: Text(
+                                              location,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: OomuTokens.fs12,
+                                                color: OomuTokens.textSecondary,
+                                              ),
+                                            ),
+                                          ),
+                                          if (period.isNotEmpty) ...[
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              period,
+                                              style: const TextStyle(
+                                                fontSize: OomuTokens.fs11,
+                                                color: OomuTokens.textMuted,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: OomuTokens.surface,
-                          borderRadius: BorderRadius.circular(OomuTokens.r12),
-                          border: Border.all(color: OomuTokens.border),
-                        ),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(OomuTokens.r8),
-                              child: SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: Image(
-                                  image: appImg(poster),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Image.asset(
-                                    'assets/images/cover_food.jpg',
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (category.isNotEmpty) ...[
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: OomuTokens.primarySubtle,
-                                        borderRadius:
-                                            BorderRadius.circular(OomuTokens.r4),
-                                      ),
-                                      child: Text(
-                                        category,
-                                        style: const TextStyle(
-                                          fontSize: OomuTokens.fs11,
-                                          fontWeight: FontWeight.bold,
-                                          color: OomuTokens.coral,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                  ],
-                                  Text(
-                                    title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: OomuTokens.fs15,
-                                      fontWeight: FontWeight.w700,
-                                      color: OomuTokens.textPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.place_outlined,
-                                          size: 13,
-                                          color: OomuTokens.textSecondary),
-                                      const SizedBox(width: 2),
-                                      Flexible(
-                                        child: Text(
-                                          location,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: OomuTokens.fs12,
-                                            color: OomuTokens.textSecondary,
-                                          ),
-                                        ),
-                                      ),
-                                      if (period.isNotEmpty) ...[
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          period,
-                                          style: const TextStyle(
-                                            fontSize: OomuTokens.fs11,
-                                            color: OomuTokens.textMuted,
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -1670,7 +1354,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
         }
       }
 
-      final bool vibeMatch = OOMUCategoryData.matchesVibe(item, selectedCat);
+      final bool hasVibe = OOMUCategoryData.hasVibe(selectedCat);
+      final bool vibeMatch =
+          hasVibe && OOMUCategoryData.matchesVibe(item, selectedCat);
       final bool filterMatch = OOMUCategoryData.matchesFilter(
           item, selectedCat, _selectedSubCategory);
 
@@ -1817,16 +1503,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           child: _buildMeetupSectionContent(),
         ),
 
-        // 4. 동네 문화 행사·핫플 큐레이션 (전체 또는 취향 아지트 탭)
-        if (_selectedCategoryIndex == 0 || _selectedCategoryIndex == 2)
-          SliverToBoxAdapter(
-            child: HomeDiscoverySection(
-              items: _buildMyNeighborhoodEvents(_currentLocation),
-              currentLocation: _currentLocation,
-              onShowAllBottomSheet: () =>
-                  _showAllTrendsBottomSheet(context, _buildMyNeighborhoodEvents(_currentLocation)),
-            ),
+        // 4. 동네 문화 행사·핫플 큐레이션 (모든 카테고리 탭에서 항상 렌더)
+        SliverToBoxAdapter(
+          child: HomeDiscoverySection(
+            items: const [],
+            currentLocation: _currentLocation,
+            onShowAllBottomSheet: () =>
+                _showAllTrendsBottomSheet(context, const []),
           ),
+        ),
 
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],

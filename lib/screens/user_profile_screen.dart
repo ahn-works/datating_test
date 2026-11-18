@@ -188,11 +188,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       if (mannerVal != null) {
         _userManner = mannerVal;
       }
-      if (data['isPhoneVerified'] is bool) {
-        _isVerified = data['isPhoneVerified'] as bool;
-      } else if (data['isVerified'] is bool) {
-        _isVerified = data['isVerified'] as bool;
-      }
+      _isVerified = OomuUiHelpers.resolveVerified(data, null, isSelf: widget.isSelf);
       final jobVal = data['job']?.toString();
       if (jobVal != null && jobVal.isNotEmpty) {
         _userJob = jobVal;
@@ -530,74 +526,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
                   Positioned(
-                    bottom: 24,
-                    left: 24,
-                    right: 24,
+                    bottom: OomuTokens.s24,
+                    left: OomuTokens.s24,
+                    right: OomuTokens.s24,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 8,
-                          runSpacing: 6,
+                          spacing: OomuTokens.s8,
+                          runSpacing: 4,
                           children: [
                             Text(
-                                _userName.trim().isNotEmpty
-                                    ? _userName.trim()
-                                    : '닉네임 미설정',
-                                style: const TextStyle(
-                                    fontSize: OomuTokens.fsSplash,
-                                    fontWeight: OomuTokens.w700,
-                                    color: Colors.white)),
+                              _userName.trim().isNotEmpty
+                                  ? _userName.trim()
+                                  : '닉네임 미설정',
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs20,
+                                fontWeight: OomuTokens.w700,
+                                color: Colors.white,
+                              ),
+                            ),
                             if (displayAge.isNotEmpty)
-                              Text('$displayAge세',
-                                  style: const TextStyle(
-                                      fontSize: OomuTokens.fs20,
-                                      fontWeight: OomuTokens.w400,
-                                      color: Colors.white70)),
+                              Text(
+                                '$displayAge세',
+                                style: const TextStyle(
+                                  fontSize: OomuTokens.fs15,
+                                  fontWeight: OomuTokens.w400,
+                                  color: Colors.white70,
+                                ),
+                              ),
                             if (_isVerified)
-                              const Icon(Icons.verified,
-                                  color: OomuTokens.coral, size: 20),
+                              const Icon(
+                                Icons.verified,
+                                color: OomuTokens.coral,
+                                size: 16,
+                              ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: OomuTokens.s8),
                         Row(
                           children: [
                             const Icon(Icons.location_on,
-                                color: Colors.white, size: 16),
+                                color: Colors.white70, size: 14),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 displayLocation,
                                 style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: OomuTokens.fs15,
-                                    fontWeight: FontWeight.w500),
+                                  color: Colors.white70,
+                                  fontSize: OomuTokens.fs13,
+                                  fontWeight: FontWeight.w500,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         ),
-                        if (displayJob.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.work,
-                                  color: Colors.white70, size: 16),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  displayJob,
-                                  style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: OomuTokens.fs15,
-                                      fontWeight: FontWeight.w500),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -606,14 +591,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
           ),
 
-          // 2. Profile Details
+          // 2. Profile Details (Manner -> Personality -> Basic Info -> Bio -> Hobbies)
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(OomuTokens.s24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Manner Temp
+                  // 1) Manner Temp
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
@@ -648,7 +633,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ],
                         ),
                         if (displayManner != null) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: OomuTokens.s8),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(OomuTokens.r2),
                             child: LinearProgressIndicator(
@@ -666,13 +651,37 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                   const SizedBox(height: OomuTokens.s24),
 
-                  // 1. Basic Profile Info (2-Column Key-Value Rows)
+                  // 2) Personality & Charm Tags
+                  const Text(ProfileOptions.personalityLabel,
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs16,
+                          fontWeight: OomuTokens.w700,
+                          color: OomuTokens.textPrimary)),
+                  const SizedBox(height: OomuTokens.s12),
+                  if (effectivePersonalities.isNotEmpty)
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: effectivePersonalities
+                          .map((p) => OomuTag(label: p))
+                          .toList(),
+                    )
+                  else
+                    const Text(
+                      '등록된 성격 태그가 없어요.',
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textMuted),
+                    ),
+                  const SizedBox(height: OomuTokens.s24),
+
+                  // 3) Basic Profile Info (2-Column Key-Value Rows)
                   const Text('기본 정보',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: OomuTokens.s12),
                   Container(
                     decoration: BoxDecoration(
                       color: OomuTokens.surfaceMuted,
@@ -713,49 +722,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: OomuTokens.s20),
+                  const SizedBox(height: OomuTokens.s24),
 
-                  // 2. Personality & Charm Tags
-                  const Text(ProfileOptions.personalityLabel,
-                      style: TextStyle(
-                          fontSize: OomuTokens.fs16,
-                          fontWeight: OomuTokens.w700,
-                          color: OomuTokens.textPrimary)),
-                  const SizedBox(height: 12),
-                  if (effectivePersonalities.isNotEmpty)
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: effectivePersonalities
-                          .map((p) => OomuTag(label: p))
-                          .toList(),
-                    )
-                  else
-                    const Text(
-                      '등록된 성격 태그가 없어요.',
-                      style: TextStyle(
-                          fontSize: OomuTokens.fs14,
-                          color: OomuTokens.textMuted),
-                    ),
-                  const SizedBox(height: OomuTokens.s20),
-
-                  // 3. Bio / Introduction
+                  // 4) Bio / Introduction
                   const Text('한줄 소개',
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: OomuTokens.s12),
                   _buildPromptCard('나의 이야기', displayBio),
-                  const SizedBox(height: OomuTokens.s20),
+                  const SizedBox(height: OomuTokens.s24),
 
-                  // 4. Interests / Hobbies
+                  // 5) Interests / Hobbies
                   const Text(ProfileOptions.hobbiesLabel,
                       style: TextStyle(
                           fontSize: OomuTokens.fs16,
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary)),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: OomuTokens.s12),
                   if (effectiveHobbies.isNotEmpty)
                     Wrap(
                       spacing: 6,

@@ -252,50 +252,39 @@ class AuthService {
     required String kakaoNickname,
     String? kakaoEmail,
     String? kakaoProfileImg,
+    String? customToken,
   }) async {
     final cleanId = kakaoId.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '');
-    final authEmail = 'kakao_$cleanId@auth.oomu.app';
     final cleanNick =
         kakaoNickname.trim().isNotEmpty ? kakaoNickname.trim() : '카카오회원';
-    const String tempPw = 'kakao_oomu_auth_2026!';
     syncKakaoConfigToFirestore();
 
     UserCredential credential;
-    try {
-      // 1. 이미 가입된 카카오 유저면 로그인
-      credential = await _auth.signInWithEmailAndPassword(
-        email: authEmail,
-        password: tempPw,
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password') {
-        try {
-          credential = await _auth.signInWithEmailAndPassword(
-            email: authEmail,
-            password: 'kakao_pass_oomu_2026!',
-          );
-        } catch (_) {
-          rethrow;
-        }
-      } else if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
-        try {
-          // 2. 신규 회원이면 Firebase Auth 계정 생성
-          credential = await _auth.createUserWithEmailAndPassword(
-            email: authEmail,
-            password: tempPw,
-          );
-        } on FirebaseAuthException catch (createErr) {
-          if (createErr.code == 'email-already-in-use') {
-            credential = await _auth.signInWithEmailAndPassword(
-              email: authEmail,
-              password: tempPw,
-            );
+    if (customToken != null && customToken.isNotEmpty) {
+      credential = await _auth.signInWithCustomToken(customToken);
+    } else {
+      final proxyBase = ServerConfig.serverProxyUrl;
+      try {
+        final res = await http
+            .post(
+              Uri.parse('$proxyBase/api/auth/kakao'),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({'kakaoId': cleanId, 'nickname': cleanNick}),
+            )
+            .timeout(const Duration(seconds: 7));
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          if (data['customToken'] != null) {
+            credential = await _auth.signInWithCustomToken(data['customToken']);
           } else {
-            rethrow;
+            throw StateError('카카오 인증 토큰을 생성할 수 없습니다.');
           }
+        } else {
+          throw StateError(
+              '지금은 카카오 로그인을 사용할 수 없어요. 잠시 후 다시 시도해 주세요.');
         }
-      } else {
-        rethrow;
+      } catch (e) {
+        throw StateError('지금은 카카오 로그인을 사용할 수 없어요. 잠시 후 다시 시도해 주세요.');
       }
     }
 

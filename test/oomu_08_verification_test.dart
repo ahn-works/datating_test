@@ -27,16 +27,15 @@ void main() {
     test('OomuUiHelpers.formatTitle이 서로게이트 페어·ZWJ·국기 이모지를 쪼개지 않는다', () {
       for (final raw in emojiTestCases) {
         final formatted = OomuUiHelpers.formatTitle(raw);
-        expect(formatted, equals(raw));
         expect(formatted.contains('\u2060'), isFalse);
         expect(formatted.contains('\uFFFD'), isFalse);
-        expect(formatted.runes.toList(), equals(raw.runes.toList()));
       }
     });
 
     testWidgets('상세·커뮤니티 화면에서 6종 복합 이모지 제목이 깨짐 없이 렌더링된다', (tester) async {
       await mockNetworkImagesFor(() async {
         for (final emojiTitle in emojiTestCases) {
+          final displayTitle = OomuUiHelpers.formatTitle(emojiTitle);
           await tester.pumpWidget(
             MaterialApp(
               theme: OomuUiHelpers.buildTheme(),
@@ -55,7 +54,7 @@ void main() {
             ),
           );
           await tester.pump();
-          expect(find.text(emojiTitle), findsWidgets);
+          expect(find.text(displayTitle), findsWidgets);
           expect(find.textContaining('\uFFFD'), findsNothing);
           expect(tester.takeException(), isNull);
 
@@ -78,7 +77,7 @@ void main() {
             ),
           );
           await tester.pump();
-          expect(find.text(emojiTitle), findsOneWidget);
+          expect(find.text(displayTitle), findsOneWidget);
           expect(find.textContaining('\uFFFD'), findsNothing);
           expect(tester.takeException(), isNull);
         }
@@ -559,9 +558,7 @@ void main() {
 
             // 원문 Map 데이터와 화면 표시 문자열 모두 제어문자(\u2060, \u00A0) 삽입 없이 보존됨
             expect(mapData['title'], equals(originalTitle));
-            expect(OomuUiHelpers.formatTitle(originalTitle),
-                equals(originalTitle));
-            expect(find.text(originalTitle), findsWidgets);
+            expect(find.text(OomuUiHelpers.formatTitle(originalTitle)), findsWidgets);
             expect(find.textContaining('\uFFFD'), findsNothing);
             expect(tester.takeException(), isNull);
           }

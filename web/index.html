@@ -7,6 +7,8 @@
   <meta name="description" content="내 동네에서 가볼 곳을 발견하고, 취향이 맞는 이웃과 함께하는 OOMU">
   <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="preload" as="fetch" href="canvaskit/canvaskit.wasm" crossorigin>
+  <link rel="preload" as="script" href="main.dart.js">
   <title>OOMU · 우리 동네 모임</title>
   <script>
     // Force unregister stale service worker to ensure fresh design is loaded
@@ -19,7 +21,14 @@
     }
   </script>
 </head>
-<body>
+<body style="margin:0;padding:0;background:#FFFFFF;">
+  <div id="oomu-loading-splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,Pretendard,Roboto,sans-serif;">
+    <div style="width:72px;height:72px;background:#F25767;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(242,87,103,0.25);margin-bottom:20px;">
+      <span style="color:#FFFFFF;font-size:28px;font-weight:900;letter-spacing:-1px;">O</span>
+    </div>
+    <div style="font-size:18px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;margin-bottom:6px;">OOMU</div>
+    <div style="font-size:13px;color:#8E8E93;font-weight:500;">동네 모임과 새로운 발견을 불러오는 중...</div>
+  </div>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

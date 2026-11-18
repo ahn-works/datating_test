@@ -135,7 +135,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                   post['uid'] ??
                   '')
               .toString();
-          final postId = (post['id'] ?? post['title'] ?? '').toString();
+          final postId = (post['id'] ?? '').toString().trim();
+          if (postId.isEmpty) return false;
           if (globalData.isTargetBlocked(uid: authorUid, nickname: author)) {
             return false;
           }
@@ -486,6 +487,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                       const Spacer(),
                       InkWell(
                         onTap: () {
+                          final postId = (post['id'] ?? '').toString().trim();
+                          if (postId.isEmpty) return;
                           final postAuthorUid = (post['authorId'] ??
                                   post['authorUid'] ??
                                   post['userId'] ??
@@ -493,17 +496,134 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                   '')
                               .toString()
                               .trim();
-                          UgcActionSheets.showContentOptions(
-                            context: context,
-                            contentType: '게시글',
-                            contentId: post['id'] ??
-                                post['title'] ??
-                                'post_${post['author']}',
-                            author: authorName,
-                            authorId:
-                                postAuthorUid.isNotEmpty ? postAuthorUid : null,
-                            onContentHidden: () => setState(() {}),
-                          );
+                          final isMine = postAuthorUid.isNotEmpty &&
+                              postAuthorUid == globalData.activeUserId;
+                          if (isMine) {
+                            UgcActionSheets.showOwnContentOptions(
+                              context: context,
+                              contentId: postId,
+                              onEdit: () async {
+                                final updated = await Navigator.push<
+                                    Map<String, dynamic>>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CommunityPostCreateScreen(
+                                      currentLocation: widget.currentLocation,
+                                      initialPost: post,
+                                    ),
+                                  ),
+                                );
+                                if (updated != null && mounted) {
+                                  setState(() {
+                                    final idx = _posts.indexWhere(
+                                        (p) => p['id'] == postId);
+                                    if (idx >= 0) _posts[idx] = updated;
+                                  });
+                                }
+                              },
+                              onDelete: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dCtx) => AlertDialog(
+                                    title: const Text('게시글 삭제'),
+                                    content: const Text(
+                                        '이 게시글을 삭제하시겠습니까?\n삭제된 글은 복구할 수 없습니다.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dCtx, false),
+                                        child: const Text('취소'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dCtx, true),
+                                        child: const Text(
+                                          '삭제',
+                                          style: TextStyle(
+                                              color: OomuTokens.error,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm != true || !mounted) return;
+                                final messenger =
+                                    ScaffoldMessenger.of(context);
+                                if (Firebase.apps.isNotEmpty) {
+                                  try {
+                                    await FirebaseFirestore.instance
+                                        .collection('community_posts')
+                                        .doc(postId)
+                                        .delete();
+                                    try {
+                                      if (postAuthorUid.isNotEmpty &&
+                                          postAuthorUid != 'guest') {
+                                        final uRef = FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(postAuthorUid);
+                                        await FirebaseFirestore.instance
+                                            .runTransaction((tx) async {
+                                          final snap = await tx.get(uRef);
+                                          final cur =
+                                              (snap.data()?['myPostsCount']
+                                                          as num?)
+                                                      ?.toInt() ??
+                                                  0;
+                                          tx.set(
+                                            uRef,
+                                            {
+                                              'myPostsCount':
+                                                  cur > 0 ? cur - 1 : 0,
+                                              'updatedAt': FieldValue
+                                                  .serverTimestamp(),
+                                            },
+                                            SetOptions(merge: true),
+                                          );
+                                        });
+                                        globalData.myPostsCount.value =
+                                            (globalData.myPostsCount.value - 1)
+                                                .clamp(0, 999999)
+                                                .toInt();
+                                      }
+                                    } catch (cntErr) {
+                                      debugPrint(
+                                          '[HomeCommunitySection] myPostsCount decrement error: $cntErr');
+                                    }
+                                  } catch (e) {
+                                    debugPrint(
+                                        '[HomeCommunitySection] delete error: $e');
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                          content: Text('게시글을 삭제하지 못했어요.')),
+                                    );
+                                    return;
+                                  }
+                                }
+                                if (mounted) {
+                                  setState(() {
+                                    _posts.removeWhere(
+                                        (p) => p['id'] == postId);
+                                  });
+                                  messenger.showSnackBar(
+                                    const SnackBar(
+                                        content: Text('게시글이 삭제되었습니다.')),
+                                  );
+                                }
+                              },
+                            );
+                          } else {
+                            UgcActionSheets.showContentOptions(
+                              context: context,
+                              contentType: '게시글',
+                              contentId: postId,
+                              author: authorName,
+                              authorId: postAuthorUid.isNotEmpty
+                                  ? postAuthorUid
+                                  : null,
+                              onContentHidden: () => setState(() {}),
+                            );
+                          }
                         },
                         borderRadius: BorderRadius.circular(OomuTokens.r16),
                         child: const Padding(

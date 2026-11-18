@@ -32,6 +32,8 @@ def main():
             "title": {"stringValue": item.get("title", "")},
             "category": {"stringValue": item.get("category", "")},
             "location": {"stringValue": item.get("venue") or item.get("location", "")},
+            "region": {"stringValue": item.get("region", "") or sync_trends.derive_region(item)},
+            "area": {"stringValue": item.get("area", "")},
             "tag": {"stringValue": item.get("tag", "")},
             "vibe": {"stringValue": item.get("vibe", "활기찬")},
             "poster": {"stringValue": item.get("poster", "")},

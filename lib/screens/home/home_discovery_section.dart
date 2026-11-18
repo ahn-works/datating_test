@@ -132,10 +132,6 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
       ...widget.items,
     ];
 
-    if (allItems.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     final filteredItems =
         allItems.where((it) => _matchesFilter(it, _selectedCategory)).toList();
 
@@ -219,7 +215,23 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
           ),
         ),
 
-        // 2. 카테고리 칩 필터 바
+        if (allItems.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: OomuTokens.spacingLg,
+              vertical: OomuTokens.spacingMd,
+            ),
+            child: Text(
+              '동네 문화 행사와 핫플을 준비하고 있어요.',
+              style: TextStyle(
+                fontSize: OomuTokens.fontSm,
+                color: OomuTokens.textSecondary,
+                fontFamily: OomuTokens.fontFamily,
+              ),
+            ),
+          )
+        else ...[
+          // 2. 카테고리 칩 필터 바
         Padding(
           padding: const EdgeInsets.only(bottom: OomuTokens.spacingSm),
           child: SizedBox(
@@ -386,6 +398,7 @@ class _HomeDiscoverySectionState extends State<HomeDiscoverySection> {
               ),
             ),
           ),
+        ],
       ],
     );
   }

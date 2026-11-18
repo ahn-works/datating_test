@@ -17,6 +17,7 @@ class GlobalData {
   // 현재 활성 사용자 ID (미로그인/초기화 시 빈 문자열)
   final ValueNotifier<String> currentUserId = ValueNotifier<String>('');
   String get activeUserId => currentUserId.value;
+  bool get isGuest => activeUserId.trim().isEmpty || activeUserId.trim() == 'guest';
 
   // 프로필 설정 건너뛰기 플래그 (온보딩 도중 '홈으로 이동' 선택 시 홈으로 직행)
   final ValueNotifier<bool> isProfileSetupSkipped = ValueNotifier<bool>(false);
@@ -219,10 +220,11 @@ class GlobalData {
       savedMeetups.value = (data['savedMeetups'] as List)
           .whereType<Map>()
           .map((e) => Map<String, dynamic>.from(e))
+          .where((m) => (m['title'] ?? '').toString() != '찜한 모임')
           .toList();
     } else if (data['savedMeetupIds'] is List && (data['savedMeetupIds'] as List).isNotEmpty) {
       savedMeetups.value = (data['savedMeetupIds'] as List)
-          .map((id) => <String, dynamic>{'id': id.toString(), 'title': '찜한 모임'})
+          .map((id) => <String, dynamic>{'id': id.toString(), '_pending': true})
           .toList();
     }
     if (data['blockedUsers'] is List) {
@@ -277,29 +279,90 @@ class GlobalData {
             .where((e) => e.isNotEmpty)
             .take(30)
             .toList();
-        final List<Map<String, dynamic>> loadedMeetups = [];
-        for (final mId in ids) {
-          try {
-            final mDoc = await FirebaseFirestore.instance
-                .collection('meetups')
-                .doc(mId)
-                .get();
-            if (mDoc.exists && mDoc.data() != null) {
-              loadedMeetups.add({...mDoc.data()!, 'id': mDoc.id});
-            } else {
-              loadedMeetups.add({'id': mId, 'title': '찜한 모임'});
-            }
-          } catch (_) {
-            loadedMeetups.add({'id': mId, 'title': '찜한 모임'});
-          }
-        }
-        if (isActiveSession(requestSession, uid) &&
-            requestGeneration == _syncGeneration) {
-          savedMeetups.value = loadedMeetups;
-        }
+        await _resolveSavedMeetupDocs(
+          uid: uid,
+          ids: ids,
+          requestSession: requestSession,
+          requestGeneration: requestGeneration,
+        );
       }
     } catch (e) {
       debugPrint('[GlobalData] syncUserProfileFromFirestore error: $e');
+    }
+  }
+
+  Future<void> refreshSavedMeetups({bool retried = false}) async {
+    final uid = activeUserId.trim();
+    if (!_canSyncUserDoc) return;
+    final int requestSession = _sessionGeneration;
+    try {
+      final userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!isActiveSession(requestSession, uid)) return;
+      final rawIds = userDoc.data()?['savedMeetupIds'];
+      final ids = (rawIds is List)
+          ? rawIds
+              .map((e) => e.toString())
+              .where((e) => e.isNotEmpty)
+              .take(30)
+              .toList()
+          : savedMeetups.value
+              .map((m) => (m['id'] ?? '').toString())
+              .where((id) => id.isNotEmpty)
+              .toList();
+      if (ids.isEmpty) {
+        savedMeetups.value = [];
+        return;
+      }
+      await _resolveSavedMeetupDocs(
+        uid: uid,
+        ids: ids,
+        requestSession: requestSession,
+      );
+      if (!retried &&
+          savedMeetups.value.any((m) => m['_pending'] == true)) {
+        await refreshSavedMeetups(retried: true);
+      }
+    } catch (e) {
+      debugPrint('[GlobalData] refreshSavedMeetups error: $e');
+    }
+  }
+
+  Future<void> _resolveSavedMeetupDocs({
+    required String uid,
+    required List<String> ids,
+    required int requestSession,
+    int? requestGeneration,
+  }) async {
+    final List<Map<String, dynamic>> loadedMeetups = [];
+    final List<String> orphanIds = [];
+    for (final mId in ids) {
+      try {
+        final mDoc = await FirebaseFirestore.instance
+            .collection('meetups')
+            .doc(mId)
+            .get();
+        if (mDoc.exists && mDoc.data() != null) {
+          loadedMeetups.add({...mDoc.data()!, 'id': mDoc.id});
+        } else {
+          orphanIds.add(mId);
+        }
+      } catch (_) {
+        loadedMeetups.add({'id': mId, '_pending': true});
+      }
+    }
+    if (!isActiveSession(requestSession, uid)) return;
+    if (requestGeneration != null && requestGeneration != _syncGeneration) {
+      return;
+    }
+    savedMeetups.value = loadedMeetups;
+    if (orphanIds.isNotEmpty && _canSyncUserDoc) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'savedMeetupIds': FieldValue.arrayRemove(orphanIds),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
     }
   }
 

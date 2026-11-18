@@ -312,6 +312,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     OomuSheet.show(
       context: context,
       builder: (ctx) {
+        String? applyError;
         return StatefulBuilder(
           builder: (context, setModalState) {
             return OomuSheet(
@@ -328,6 +329,25 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (applyError != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(OomuTokens.s12),
+                        decoration: BoxDecoration(
+                          color: OomuTokens.error.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(OomuTokens.r8),
+                        ),
+                        child: Text(
+                          applyError!,
+                          style: const TextStyle(
+                            color: OomuTokens.error,
+                            fontSize: OomuTokens.fs13,
+                            fontWeight: OomuTokens.w600,
+                            fontFamily: OomuTokens.fontFamily,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: OomuTokens.s12),
+                    ],
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: OomuTokens.s16),
@@ -451,7 +471,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           return;
                         }
                         setState(() => _isApplying = true);
-                        setModalState(() {});
+                        setModalState(() => applyError = null);
                         try {
                           await MeetupApplicationService.request(
                               id, _applyMsgController.text,
@@ -463,12 +483,17 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                                 content: Text('신청이 저장됐어요. 모임장의 승인을 기다려 주세요.')),
                           );
                         } catch (e) {
-                          if (mounted) {
+                          final msg = e is StateError
+                              ? e.message.toString()
+                              : '신청을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.';
+                          if (ctx.mounted) {
+                            setModalState(() => applyError = msg);
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(content: Text(msg)),
+                            );
+                          } else if (mounted) {
                             ScaffoldMessenger.of(this.context).showSnackBar(
-                              SnackBar(
-                                  content: Text(e is StateError
-                                      ? e.message.toString()
-                                      : '신청을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.')),
+                              SnackBar(content: Text(msg)),
                             );
                           }
                         } finally {
@@ -715,14 +740,11 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             ? (OomuUiHelpers.parseMannerTemp(_hostUserDoc!) ??
                 OomuUiHelpers.parseMannerTemp(meetup))
             : OomuUiHelpers.parseMannerTemp(meetup));
-    final bool isHostVerified = isSelfHost
-        ? globalData.isPhoneVerified.value
-        : (_hostUserDoc != null
-            ? ((_hostUserDoc!['isPhoneVerified'] is bool)
-                ? (_hostUserDoc!['isPhoneVerified'] as bool)
-                : (_hostUserDoc!['isVerified'] == true))
-            : (meetup['isVerified'] == true ||
-                meetup['hostVerified'] == true));
+    final bool isHostVerified = OomuUiHelpers.resolveVerified(
+      _hostUserDoc,
+      meetup,
+      isSelf: isSelfHost,
+    );
     final List<String> praiseTags = _extractHostPraiseTags(meetup);
     final bool hasResolvedCoords = _targetLat != null && _targetLng != null;
     final bool isDistanceUnknown = _distanceText == '거리 정보 없음' ||
@@ -737,7 +759,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         (meetup['date'] ?? meetup['schedule'] ?? '').toString().trim();
     final memberCount = _getMemberCount(meetup['members']);
     final maxCapacity = MeetupMemberHelper.parseCapacity(meetup);
-    final statusLabel = MeetupMemberHelper.formatStatusLabel(meetup);
+    final closeReason = MeetupMemberHelper.closeReason(meetup);
+    final statusLabel = closeReason != null
+        ? '모집 마감 · $closeReason'
+        : MeetupMemberHelper.formatStatusLabel(meetup);
 
     return Scaffold(
       backgroundColor: OomuTokens.background,

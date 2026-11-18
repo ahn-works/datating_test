@@ -166,6 +166,26 @@ class MeetupMemberHelper {
     return cap > 0 && att >= cap;
   }
 
+  /// 모임 마감 사유 반환 (마감이 아니면 null)
+  static String? closeReason(Map<String, dynamic>? data) {
+    if (data == null) return null;
+    if (data['closedByHost'] == true) return '호스트가 모집을 마감했어요';
+    if (data['isClosed'] == true ||
+        data['closed'] == true ||
+        (data['status'] ?? '').toString().toLowerCase() == 'closed') {
+      final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
+      if (dl != null && dl.isBefore(DateTime.now())) return '모집 마감일이 지났어요';
+      if (parseAttendance(data) >= parseCapacity(data)) return '정원이 다 찼어요';
+      return '모집이 마감됐어요';
+    }
+    final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
+    if (dl != null && dl.isBefore(DateTime.now())) return '모집 마감일이 지났어요';
+    if (parseCapacity(data) > 0 && parseAttendance(data) >= parseCapacity(data)) {
+      return '정원이 다 찼어요';
+    }
+    return null;
+  }
+
   /// 모임 상태 한글 라벨 ('모집 중' 또는 '마감')
   static String formatStatusLabel(Map<String, dynamic>? data) {
     return isClosed(data) ? '마감' : '모집 중';

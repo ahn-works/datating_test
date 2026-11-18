@@ -13,10 +13,12 @@ import '../services/r2_storage_service.dart';
 
 class CommunityPostCreateScreen extends StatefulWidget {
   final String currentLocation;
+  final Map<String, dynamic>? initialPost;
 
   const CommunityPostCreateScreen({
     super.key,
     this.currentLocation = '여수 화장동',
+    this.initialPost,
   });
 
   @override
@@ -31,6 +33,20 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
   String _selectedCategory = '일상·수다';
   String _selectedTag = '동네토크';
   String? _selectedPhoto;
+
+  @override
+  void initState() {
+    super.initState();
+    final init = widget.initialPost;
+    if (init != null) {
+      _titleController.text = (init['title'] ?? '').toString();
+      _contentController.text = (init['content'] ?? '').toString();
+      final rawTag = (init['tag'] ?? '').toString().trim();
+      if (rawTag.isNotEmpty) _selectedTag = rawTag;
+      final rawPhoto = (init['image'] ?? '').toString().trim();
+      if (rawPhoto.isNotEmpty) _selectedPhoto = rawPhoto;
+    }
+  }
 
   final List<String> _categories = [
     '일상·수다',
@@ -140,6 +156,37 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     final title = titleInput.isEmpty
         ? content.split('\n').first.characters.take(40).toString()
         : titleInput;
+    final editId = (widget.initialPost?['id'] ?? '').toString().trim();
+    if (editId.isNotEmpty) {
+      setState(() => _submitting = true);
+      try {
+        final updated = <String, dynamic>{
+          ...widget.initialPost!,
+          'id': editId,
+          'title': title,
+          'content': content,
+          'tag': _selectedTag,
+          'image': _selectedPhoto,
+          'updatedAt': FieldValue.serverTimestamp(),
+        };
+        await FirebaseFirestore.instance
+            .collection('community_posts')
+            .doc(editId)
+            .set(updated, SetOptions(merge: true));
+        if (!mounted || generation != globalData.sessionGeneration) return;
+        Navigator.pop(context, updated);
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('글을 수정하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _submitting = false);
+      }
+      return;
+    }
     final ref = FirebaseFirestore.instance.collection('community_posts').doc();
     final post = <String, dynamic>{
       'id': ref.id,

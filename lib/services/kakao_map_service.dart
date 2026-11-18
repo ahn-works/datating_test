@@ -69,18 +69,24 @@ class KakaoMapService {
 
   /// 카카오 JavaScript 키 (웹/인앱 지도 렌더링용)
   static String _jsApiKey = '';
+
+  /// 네이버 지도 Client ID (웹/인앱 2순위 지도 렌더링용)
+  static String _naverClientId = '';
   static bool _keysLoaded = false;
 
   static String get kakaoRestApiKey => _restApiKey;
   static String get kakaoJsApiKey => _jsApiKey;
+  static String get naverClientId => _naverClientId;
 
-  /// 카카오 공개 클라이언트 키 안전 조회 (dart-define -> app_config/kakao)
+  /// 카카오/네이버 공개 클라이언트 키 안전 조회 (dart-define -> app_config/kakao or maps)
   static Future<void> ensureKeysLoaded() async {
     if (_keysLoaded) return;
     const defRest = String.fromEnvironment('KAKAO_REST_API_KEY');
     const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
+    const defNaver = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
     if (defRest.isNotEmpty) _restApiKey = defRest.trim();
     if (defJs.isNotEmpty) _jsApiKey = defJs.trim();
+    if (defNaver.isNotEmpty) _naverClientId = defNaver.trim();
     if (_restApiKey.isNotEmpty && _jsApiKey.isNotEmpty) {
       _keysLoaded = true;
       return;
@@ -100,6 +106,14 @@ class KakaoMapService {
         if (_jsApiKey.isEmpty) {
           _jsApiKey =
               (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
+        }
+        if (_naverClientId.isEmpty) {
+          _naverClientId = (d['naverMapClientId'] ??
+                  d['naverClientId'] ??
+                  d['ncpKeyId'] ??
+                  '')
+              .toString()
+              .trim();
         }
       }
       _keysLoaded = true;

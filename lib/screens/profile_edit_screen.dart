@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
+import '../utils/profile_policy.dart';
 import '../utils/app_image.dart';
 import '../services/r2_storage_service.dart';
 import 'login_screen.dart';
@@ -227,7 +228,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           'name': _nameController.text.trim(),
           'age': parsedAge,
           'gender': _gender,
-          'role': _role,
+          'isProfileComplete': hasAllRequiredProfileFields({
+            'nickname': nick,
+            'age': parsedAge,
+            'gender': _gender,
+            'location': _locationController.text.trim(),
+          }),
           'photoUrls': updatedPhotos,
           'photoUrl': _avatarUrl,
           'avatarUrl': _avatarUrl,

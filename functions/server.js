@@ -11,5 +11,4 @@ app.listen(PORT, () => {
   console.log(`  - POST /api/r2/sign-upload`);
   console.log(`  - POST /api/auth/naver`);
   console.log(`  - POST /api/auth/kakao`);
-  console.log(`  - POST /api/admin/verify-claim`);
 });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/global_data.dart';
 import '../utils/app_image.dart';
+import '../utils/oomu_ui_helpers.dart';
 import '../ui/oomu_tokens.dart';
 import 'oomu_detail_screen.dart';
 import 'empty_state_screen.dart';
@@ -18,6 +19,12 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
   Color get textSecondary => OomuTokens.textSecondary;
   Color get surfaceColor => OomuTokens.background;
   Color get accentColor => OomuTokens.coral;
+
+  @override
+  void initState() {
+    super.initState();
+    globalData.refreshSavedMeetups();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +51,15 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
       body: ValueListenableBuilder<List<Map<String, dynamic>>>(
         valueListenable: globalData.savedMeetups,
         builder: (context, savedList, _) {
-          // 1. 공통 EmptyStateScreen 재사용 (Now in Android 원칙)
-          if (savedList.isEmpty) {
+          final hasPending = savedList.any((m) => m['_pending'] == true);
+          final visibleList = savedList
+              .where((m) =>
+                  m['_pending'] != true &&
+                  (m['title'] ?? '').toString().trim().isNotEmpty &&
+                  m['title'] != '찜한 모임')
+              .toList();
+
+          if (visibleList.isEmpty && !hasPending) {
             return EmptyStateScreen(
               icon: Icons.favorite_border_rounded,
               title: '아직 찜한 모임이 없어요',
@@ -55,21 +69,26 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
             );
           }
 
-          return ListView.separated(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            itemCount: savedList.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final item = savedList[index];
-              final title = (item['title'] ?? '모임').toString();
-              final location =
-                  (item['location'] ?? item['loc'] ?? '서울/경기').toString();
-              final category = (item['category'] ?? '취향 아지트').toString();
-              final imageUrl = (item['imageUrl'] ??
-                      item['img'] ??
-                      'assets/images/cover_cafe.jpg')
-                  .toString();
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  itemCount: visibleList.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final item = visibleList[index];
+                    final title = OomuUiHelpers.formatTitle(
+                        (item['title'] ?? '').toString());
+                    final location =
+                        (item['location'] ?? item['loc'] ?? '').toString();
+                    final category =
+                        (item['category'] ?? item['mainCategory'] ?? '')
+                            .toString();
+                    final imageUrl =
+                        (item['imageUrl'] ?? item['img'] ?? '').toString();
 
               return Dismissible(
                 key: Key(item['id'] ?? title + index.toString()),
@@ -146,18 +165,27 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                               child: SizedBox(
                                 width: 88,
                                 height: 88,
-                                child: Image(
-                                  image: appImg(imageUrl),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
-                                    color: OomuTokens.surfaceMuted,
-                                    child: const Icon(
-                                      Icons.image_not_supported_rounded,
-                                      color: OomuTokens.textMuted,
-                                      size: 28,
-                                    ),
-                                  ),
-                                ),
+                                child: imageUrl.isNotEmpty
+                                    ? Image(
+                                        image: appImg(imageUrl),
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          color: OomuTokens.surfaceMuted,
+                                          child: const Icon(
+                                            Icons.image_not_supported_rounded,
+                                            color: OomuTokens.textMuted,
+                                            size: 28,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        color: OomuTokens.surfaceMuted,
+                                        child: const Icon(
+                                          Icons.image_not_supported_rounded,
+                                          color: OomuTokens.textMuted,
+                                          size: 28,
+                                        ),
+                                      ),
                               ),
                             ),
                             const SizedBox(width: 14),
@@ -250,9 +278,44 @@ class _SavedMeetupsScreenState extends State<SavedMeetupsScreen> {
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
+        ),
+        if (hasPending)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: OomuTokens.s16,
+              vertical: OomuTokens.s12,
+            ),
+            color: OomuTokens.surfaceMuted,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '일부 모임을 불러오지 못했어요',
+                  style: TextStyle(
+                    fontSize: OomuTokens.fs13,
+                    color: textSecondary,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => globalData.refreshSavedMeetups(),
+                  child: Text(
+                    '다시 시도',
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs13,
+                      fontWeight: FontWeight.w700,
+                      color: accentColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
+  },
+),
+);
   }
 }

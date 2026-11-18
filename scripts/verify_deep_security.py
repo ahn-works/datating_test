@@ -153,6 +153,27 @@ def run_audit():
     if not os.path.exists('AGENTS.md'):
         violations.append(('AGENTS.md', 0, "Missing required single master specification file", ""))
 
+    # 9. Verify Firestore rules has no unowned write permissions and has root email guard (§4-7, §4-8)
+    for rules_path in ['firestore.rules', 'scripts/firestore.rules']:
+        if os.path.exists(rules_path):
+            with open(rules_path, 'r', encoding='utf-8') as rf:
+                r_content = rf.read()
+                for coll in ['meetups', 'community_posts', 'chatRooms']:
+                    pattern = rf'match\s+/{coll}/[^{{]+\{{\s*allow\s+write:\s*if\s*request\.auth\s*!=\s*null\s*;'
+                    if re.search(pattern, r_content):
+                        violations.append((rules_path, 0, f"Unowned write permission detected in /{coll}", ""))
+                if "!('email' in request.resource.data)" not in r_content:
+                    violations.append((rules_path, 0, "Missing root email guard in /users rules", ""))
+
+    # 10. Verify rules files hash identity (고정 #27)
+    if os.path.exists('firestore.rules') and os.path.exists('scripts/firestore.rules'):
+        import hashlib
+        with open('firestore.rules', 'rb') as f1, open('scripts/firestore.rules', 'rb') as f2:
+            h1 = hashlib.sha256(f1.read()).hexdigest()
+            h2 = hashlib.sha256(f2.read()).hexdigest()
+            if h1 != h2:
+                violations.append(('firestore.rules', 0, f"Hash mismatch with scripts/firestore.rules ({h1[:8]} != {h2[:8]})", ""))
+
     print(f"\nAudit complete. Scanned {len(tracked_files)} files.")
     if violations:
         print("\n" + "!" * 60)

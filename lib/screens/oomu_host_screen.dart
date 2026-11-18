@@ -200,12 +200,14 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   String _coverImageUrl = '';
 
   int _parseMaxMembers() {
-    final matches = RegExp(r'(\d+)').allMatches(_memberCount).toList();
-    if (matches.isNotEmpty) {
-      final parsed = int.tryParse(matches.last.group(1) ?? '');
-      if (parsed != null && parsed >= 2) return parsed;
-    }
-    return 4;
+    final nums = RegExp(r'(\d+)')
+        .allMatches(_memberCount)
+        .map((m) => int.tryParse(m.group(1)!) ?? 0)
+        .where((n) => n >= 2 && n <= 20)
+        .take(2)
+        .toList();
+    if (nums.isEmpty) return 4;
+    return nums.reduce((a, b) => a > b ? a : b);
   }
 
   String _formattedScheduleLabel() {
@@ -550,6 +552,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           _selectedTime!.minute,
         );
       }
+      assert(maxMembersInt >= 2);
       batch.set(docRef, {
         'title': title,
         'hostUid': user.uid,
@@ -581,6 +584,15 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'imageUrl': _coverImageUrl,
         'photos': _coverImageUrl.isNotEmpty ? [_coverImageUrl] : <String>[],
         'members': [user.uid],
+        'memberAvatars': globalData.userAvatar.value.isNotEmpty
+            ? [globalData.userAvatar.value]
+            : <String>[],
+        'deadline': (scheduledDateTime ??
+                DateTime.now().add(const Duration(days: 7)))
+            .subtract(const Duration(days: 1))
+            .toUtc()
+            .toIso8601String(),
+        'closedByHost': false,
         'status': 'open',
         'manner': globalData.temperature.value,
         'mannerTemp': globalData.temperature.value,

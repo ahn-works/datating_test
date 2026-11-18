@@ -3,6 +3,7 @@ import '../services/discovery_api_service.dart';
 import '../services/kakao_map_service.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
+import '../utils/oomu_ui_helpers.dart';
 import 'bouncy_tap.dart';
 
 /// 발견(Discovery) 탭 전용 에이블리(ABLY) 스타일 동네 큐레이션 허브
@@ -355,17 +356,20 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               children: [
                 if (localFoods.isNotEmpty)
                   _buildQuickPill(
-                    label: '🥓 근처 미나리 삼겹살 맛집',
+                    icon: Icons.restaurant_outlined,
+                    label: '근처 미나리 삼겹살 맛집',
                     onTap: () => _showLocalFoodDetailSheet(localFoods.first),
                   ),
                 if (localFoods.length > 1)
                   _buildQuickPill(
-                    label: '🥞 근처 철판 해물파전·칼국수',
+                    icon: Icons.local_dining_outlined,
+                    label: '근처 철판 해물파전·칼국수',
                     onTap: () => _showLocalFoodDetailSheet(localFoods[1]),
                   ),
                 if (recipes.isNotEmpty)
                   _buildQuickPill(
-                    label: '🍳 삼겹살·집밥 레시피 보기',
+                    icon: Icons.menu_book_outlined,
+                    label: '삼겹살·집밥 레시피 보기',
                     onTap: () => _showRecipeDetailSheet(recipes.first),
                   ),
               ],
@@ -377,6 +381,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   }
 
   Widget _buildQuickPill({
+    IconData icon = Icons.restaurant_outlined,
     required String label,
     required VoidCallback onTap,
   }) {
@@ -391,6 +396,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Icon(icon, size: 14, color: textPrimary),
+            const SizedBox(width: 6),
             Text(
               label,
               style: const TextStyle(
@@ -800,17 +807,25 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image(
-                      image: appImg(((item['image']?.toString().trim().isNotEmpty ??
-                              false)
-                          ? item['image'].toString()
-                          : 'assets/images/cover_food.jpg')),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Image.asset(
-                        'assets/images/cover_food.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    (item['image']?.toString().trim().isNotEmpty ?? false)
+                        ? Image(
+                            image: appImg(item['image'].toString()),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: OomuTokens.surfaceMuted,
+                              child: const Center(
+                                child: Icon(Icons.image_outlined,
+                                    color: OomuTokens.textMuted),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: OomuTokens.surfaceMuted,
+                            child: const Center(
+                              child: Icon(Icons.image_outlined,
+                                  color: OomuTokens.textMuted),
+                            ),
+                          ),
                     Positioned(
                       top: 8,
                       left: 8,
@@ -852,7 +867,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   SizedBox(
                     height: 36,
                     child: Text(
-                      (item['title'] ?? '').toString(),
+                      OomuUiHelpers.formatTitle((item['title'] ?? '').toString()),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

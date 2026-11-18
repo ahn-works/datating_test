@@ -25,16 +25,20 @@ class MeetupApplicationService {
     final db = FirebaseFirestore.instance;
     final meetup = db.collection('meetups').doc(meetupId);
     final request = meetup.collection('applications').doc(user.uid);
+    String targetHostUid = '';
+    String meetupTitle = '';
     await db.runTransaction((tx) async {
       final snapshot = await tx.get(meetup);
       if (!snapshot.exists) {
         throw StateError('이 모임은 신청할 수 없어요. 모임 정보를 새로 확인해 주세요.');
       }
       final data = snapshot.data()!;
-      if (hostUid(data).isEmpty) {
+      targetHostUid = hostUid(data);
+      meetupTitle = (data['title'] ?? '').toString();
+      if (targetHostUid.isEmpty) {
         throw StateError('모임장 계정 정보를 확인할 수 없어 신청을 중단했어요.');
       }
-      if (hostUid(data) == user.uid) throw StateError('내가 개설한 모임에는 신청할 수 없어요.');
+      if (targetHostUid == user.uid) throw StateError('내가 개설한 모임에는 신청할 수 없어요.');
       final previous = await tx.get(request);
       if (previous.data()?['status'] == 'approved' ||
           previous.data()?['status'] == 'pending') {
@@ -52,6 +56,22 @@ class MeetupApplicationService {
         'createdAt': FieldValue.serverTimestamp(),
       });
     });
+
+    if (targetHostUid.isNotEmpty) {
+      try {
+        await db.collection('notifications').add({
+          'userId': targetHostUid,
+          'type': 'meetup_request',
+          'title': '새로운 모임 참여 신청이 도착했어요',
+          'body': meetupTitle.isNotEmpty
+              ? '[$meetupTitle] 모임에 참여 신청이 들어왔어요.'
+              : '모임에 새로운 참여 신청이 있어요.',
+          'meetupId': meetupId,
+          'read': false,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } catch (_) {}
+    }
   }
 
   static Future<void> decide(String meetupId, String applicantUid,
@@ -62,6 +82,7 @@ class MeetupApplicationService {
     final db = FirebaseFirestore.instance;
     final meetup = db.collection('meetups').doc(meetupId);
     final request = meetup.collection('applications').doc(applicantUid);
+    String meetupTitle = '';
     await db.runTransaction((tx) async {
       final meeting = await tx.get(meetup);
       final application = await tx.get(request);
@@ -69,6 +90,7 @@ class MeetupApplicationService {
       if (data == null || hostUid(data) != user.uid) {
         throw StateError('모임장만 신청을 처리할 수 있어요.');
       }
+      meetupTitle = (data['title'] ?? '').toString();
       if (application.data()?['status'] != 'pending') {
         throw StateError('이미 처리된 신청이에요.');
       }
@@ -104,5 +126,25 @@ class MeetupApplicationService {
         'reviewedAt': FieldValue.serverTimestamp()
       });
     });
+
+    if (applicantUid.isNotEmpty) {
+      try {
+        await db.collection('notifications').add({
+          'userId': applicantUid,
+          'type': 'meetup_decision',
+          'title': approve ? '모임 신청이 승인됐어요' : '모임 신청이 처리되었어요',
+          'body': approve
+              ? (meetupTitle.isNotEmpty
+                  ? '[$meetupTitle] 모임 참여가 승인되었어요! 채팅방을 확인해 보세요.'
+                  : '모임 참여가 승인되었어요!')
+              : (meetupTitle.isNotEmpty
+                  ? '[$meetupTitle] 모임 참여 신청이 아쉽게도 승인되지 않았어요.'
+                  : '신청이 승인되지 않았어요.'),
+          'meetupId': meetupId,
+          'read': false,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } catch (_) {}
+    }
   }
 }

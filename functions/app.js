@@ -243,7 +243,7 @@ app.post('/api/r2/sign-upload', async (req, res) => {
     const accountId = process.env.R2_ACCOUNT_ID || 'd85501dd64bfa1bfa98e3bcfb7d48d4e';
     const accessKeyId = process.env.R2_ACCESS_KEY_ID || '';
     const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || '';
-    const bucketName = process.env.R2_BUCKET_NAME || 'oomu-storage';
+    const bucketName = process.env.R2_BUCKET_NAME || 'oomu-spot';
     const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL || 'https://pub-8d0ba75990524458bc26ba403bf6aef4.r2.dev';
 
     if (!accessKeyId || !secretAccessKey) {

@@ -501,9 +501,7 @@ class DiscoveryApiService {
           final title = (data['title'] ?? '').toString();
           final poster =
               (data['poster'] ?? data['originalPoster'] ?? '').toString();
-          final cleanPoster = poster.isNotEmpty
-              ? poster
-              : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg';
+          final cleanPoster = poster.isNotEmpty ? poster : '';
           return TrendMovieItem(
             id: d.id,
             title: title,
@@ -547,7 +545,7 @@ class DiscoveryApiService {
                 synopsis: (m['overview'] ?? '놓치면 아쉬운 이번 주 화제작입니다.').toString(),
                 posterUrl: posterPath.isNotEmpty
                     ? 'https://image.tmdb.org/t/p/w500$posterPath'
-                    : 'https://wsrv.nl/?url=https%3A%2F%2Fsearch.pstatic.net%2Fcommon%3Ftype%3Do%26size%3D336x484%26quality%3D95%26direct%3Dtrue%26src%3Dhttp%253A%252F%252Fimgmovie.naver.net%252Fmdi%252Fmi%252F2495%252F249506_P01_104443.jpg&w=600&q=85&output=jpg',
+                    : '',
                 badge: 'TMDB 인기',
               );
             }).toList();
