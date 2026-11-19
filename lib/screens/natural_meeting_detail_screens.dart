@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../ui/oomu_tokens.dart';
+import 'user_profile_screen.dart';
 
 // 1. 밥친구/카공 상세 화면
 class MealDetailScreen extends StatelessWidget {
@@ -74,15 +76,44 @@ class MealDetailScreen extends StatelessWidget {
                                     TextStyle(color: Colors.grey, fontSize: 12))
                           ]),
                       const Spacer(),
-                      Container(
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const UserProfileScreen(
+                                userName: '고기러버',
+                                userAge: '20대',
+                                userLocation: '서울 마포구',
+                                userBio: '고기와 맛집 탐방을 좋아하는 20대입니다!',
+                                userManner: 36.5,
+                                userVerified: true,
+                              ),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 44),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                              horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: const Text('프로필 보기',
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: OomuTokens.border),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '프로필 보기',
                               style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold)))
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: OomuTokens.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ]),
                     const SizedBox(height: 24),
                     const Text('상세 내용',

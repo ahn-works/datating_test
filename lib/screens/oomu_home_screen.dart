@@ -1312,6 +1312,14 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
 
   bool _matchesFilters(Map<String, dynamic> item) {
+    final title = (item['title'] ?? '').toString();
+    // 0. QA 테스트 또는 임시 더미 모임은 라이브 피드에서 원천 배제
+    if (title.contains('[QA테스트]') ||
+        title.contains('테스트 모임') ||
+        title.contains('[테스트]')) {
+      return false;
+    }
+
     final host = (item['host'] ?? '').toString();
     final hostUid =
         (item['hostUid'] ?? item['userId'] ?? item['creatorId'] ?? '')
@@ -1513,7 +1521,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           ),
         ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        // 하단 여백: 플로팅 버튼('모임 열기')과 바텀 네비게이션에 콘텐츠가 가려지지 않도록 넉넉하게 110px 확보
+        const SliverToBoxAdapter(child: SizedBox(height: 110)),
       ],
     );
   }
@@ -1526,7 +1535,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   }
   Widget _buildDiscoveryDashboard() {
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40, top: 8),
+      padding: const EdgeInsets.only(bottom: 110, top: 8),
       children: [
         OomuDiscoveryLifestyleHub(currentLocation: _currentLocation),
       ],
@@ -1536,6 +1545,16 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   String _meetupCoverImage(Map<String, dynamic> meetup) {
     final source = (meetup['imageUrl'] ?? '').toString();
     final title = (meetup['title'] ?? '').toString();
+    // 비정상적인 단색 base64 더미 이미지인 경우 실제 고화질 커버 에셋으로 안전 대체
+    if (source.startsWith('data:image') && source.length < 5000) {
+      if (title.contains('카페') || title.contains('디저트') || title.contains('커피')) {
+        return 'assets/images/cover_cafe.jpg';
+      }
+      if (title.contains('와인') || title.contains('맥주') || title.contains('술')) {
+        return 'assets/images/cover_wine.jpg';
+      }
+      return 'assets/images/cover_food.jpg';
+    }
     if ((title.contains('소금빵') || source.contains('salt_bread')) &&
         (source == 'assets/images/cover_cafe.jpg' ||
             source.contains('salt_bread'))) {

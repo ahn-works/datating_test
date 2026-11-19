@@ -224,32 +224,6 @@ class OomuUiHelpers {
       '상수',
       '홍대'
     ];
-    const seoulCluster = [
-      '서울',
-      '마포',
-      '서교',
-      '연남',
-      '망원',
-      '합정',
-      '상수',
-      '홍대',
-      '성동',
-      '성수',
-      '강남',
-      '역삼',
-      '송파',
-      '잠실',
-      '중구',
-      '을지로',
-      '종로',
-      '용산',
-      '이태원',
-      '한남',
-      '영등포',
-      '여의도',
-      '고척',
-      '올림픽공원'
-    ];
 
     final bool currentIsYeosu = yeosuCluster.any((k) => current.contains(k));
     final bool itemIsYeosu = yeosuCluster.any((k) => item.contains(k));
@@ -260,18 +234,35 @@ class OomuUiHelpers {
       return 0;
     }
 
+    // 마포 생활권 (마포, 서교, 연남, 망원, 합정, 상수, 홍대) - 타 자치구(강남/성동/송파 등) 모임 엄격 배제
     final bool currentIsMapo = mapoCluster.any((k) => current.contains(k));
     final bool itemIsMapo = mapoCluster.any((k) => item.contains(k));
-    if (currentIsMapo && itemIsMapo) {
-      return 2;
+    if (currentIsMapo) {
+      return itemIsMapo ? 2 : 0;
+    }
+    if (itemIsMapo && !currentIsMapo) {
+      return 0;
     }
 
-    final bool currentIsSeoul = seoulCluster.any((k) => current.contains(k));
-    final bool itemIsSeoul = seoulCluster.any((k) => item.contains(k));
-    if (currentIsSeoul) {
-      return itemIsSeoul ? 2 : 0;
+    // 강남 생활권 (강남, 역삼, 선릉, 신사, 압구정, 논현, 청담, 서초)
+    const gangnamCluster = ['강남', '역삼', '선릉', '신사', '압구정', '논현', '청담', '서초'];
+    final bool currentIsGangnam = gangnamCluster.any((k) => current.contains(k));
+    final bool itemIsGangnam = gangnamCluster.any((k) => item.contains(k));
+    if (currentIsGangnam) {
+      return itemIsGangnam ? 2 : 0;
     }
-    if (itemIsSeoul && !currentIsSeoul) {
+    if (itemIsGangnam && !currentIsGangnam) {
+      return 0;
+    }
+
+    // 성수 생활권 (성수, 성동, 뚝섬, 서울숲)
+    const seongsuCluster = ['성수', '성동', '뚝섬', '서울숲'];
+    final bool currentIsSeongsu = seongsuCluster.any((k) => current.contains(k));
+    final bool itemIsSeongsu = seongsuCluster.any((k) => item.contains(k));
+    if (currentIsSeongsu) {
+      return itemIsSeongsu ? 2 : 0;
+    }
+    if (itemIsSeongsu && !currentIsSeongsu) {
       return 0;
     }
 

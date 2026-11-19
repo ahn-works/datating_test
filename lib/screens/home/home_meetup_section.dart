@@ -78,6 +78,12 @@ class HomeMeetupSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visibleMeetups = meetups.where((m) {
+      final title = (m['title'] ?? '').toString();
+      if (title.contains('[QA테스트]') ||
+          title.contains('테스트 모임') ||
+          title.contains('[테스트]')) {
+        return false;
+      }
       final hostUid =
           (m['hostId'] ?? m['hostUid'] ?? m['userId'] ?? '').toString();
       final hostName = (m['host'] ?? m['hostName'] ?? '').toString();
@@ -247,12 +253,11 @@ class HomeMeetupSection extends StatelessWidget {
                       MeetupMemberHelper.formatMembersLabel(data);
 
                   String? statusBadge;
-                  final statusLabel =
-                      MeetupMemberHelper.formatStatusLabel(data);
-                  final reason = MeetupMemberHelper.closeReason(data);
-                  if (statusLabel == '마감' || reason != null) {
-                    statusBadge =
-                        reason != null ? '모집 마감 · $reason' : '모집 마감';
+                  final isClosed = MeetupMemberHelper.isClosed(data);
+                  if (isClosed) {
+                    final isFull = MeetupMemberHelper.parseAttendance(data) >=
+                        MeetupMemberHelper.parseCapacity(data);
+                    statusBadge = isFull ? '인원 마감' : '모집 마감';
                   } else if (data['isFemaleOnly'] == true) {
                     statusBadge = '여성 전용';
                   } else if (data['isLightning'] == true ||
