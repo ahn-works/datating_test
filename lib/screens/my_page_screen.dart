@@ -1015,25 +1015,32 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     ),
                   ),
 
-                  // 2. 매너온도 카드 (Direction 1: 크림/연그레이 배경 + 코랄 프로그레스 + tabular-nums)
+                  // 2. 매너온도 카드 (13년차 시니어 디자이너 표준: 초기값 0.0°C 설정, 화이트 카드 + 1px 테두리 + 코랄 프로그레스)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 16),
                       decoration: BoxDecoration(
-                        color: OomuTokens.surfaceMuted,
+                        color: OomuTokens.surface,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: OomuTokens.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: ValueListenableBuilder<double>(
                         valueListenable: globalData.temperature,
                         builder: (context, temp, _) {
                           final parsed = OomuUiHelpers.parseMannerValue(temp);
                           final manner = loadedManner ?? parsed;
-                          final hasManner = manner != null;
-                          final progress = hasManner
-                              ? ((manner - 30.0) / 70.0).clamp(0.0, 1.0)
-                              : 0.0;
+                          final double displayTemp = (manner != null && manner >= 0.0) ? manner : 0.0;
+                          final double progress = (displayTemp / 100.0).clamp(0.0, 1.0);
+                          final bool isInitial = displayTemp == 0.0 || reviewCount == 0;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1041,42 +1048,59 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Flexible(
-                                    child: Text(
-                                      '매너온도',
-                                      style: TextStyle(
-                                        color: OomuTokens.textSecondary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 28,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF0F1),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: const Icon(
+                                            Icons.thermostat_rounded,
+                                            size: 16,
+                                            color: OomuTokens.coral,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Flexible(
+                                          child: Text(
+                                            '매너온도',
+                                            style: TextStyle(
+                                              color: OomuTokens.textPrimary,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Flexible(
-                                    child: Text(
-                                      hasManner
-                                          ? '${manner.toStringAsFixed(1)}°C'
-                                          : '정보 없음',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: hasManner
-                                            ? const Color(0xFFC2410C)
-                                            : OomuTokens.textSecondary,
-                                        letterSpacing: -0.3,
-                                      ),
-                                      textAlign: TextAlign.end,
-                                      overflow: TextOverflow.ellipsis,
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${displayTemp.toStringAsFixed(1)}°C',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: OomuTokens.coral,
+                                      letterSpacing: -0.3,
+                                      fontFamily: OomuTokens.fontFamily,
                                     ),
+                                    textAlign: TextAlign.end,
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(3),
                                 child: Container(
                                   height: 6,
-                                  color: OomuTokens.border,
+                                  color: const Color(0xFFF3F4F6),
                                   alignment: Alignment.centerLeft,
                                   child: FractionallySizedBox(
                                     widthFactor: progress,
@@ -1088,9 +1112,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                reviewCount > 0
-                                    ? '받은 후기 $reviewCount개'
-                                    : '아직 받은 후기가 없어요',
+                                isInitial
+                                    ? '첫 평가 전 (초기 매너온도 0.0°C)'
+                                    : '받은 후기 $reviewCount개',
                                 style: const TextStyle(
                                   color: OomuTokens.textSecondary,
                                   fontSize: 12,
@@ -1103,89 +1127,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     ),
                   ),
 
-                  // 2-1. 성향 및 라이프스타일 요약 바 (중복 5행 테이블 제거 및 단일 동선 정리)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        OomuTokens.s20, OomuTokens.s12, OomuTokens.s20, OomuTokens.s4),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: OomuTokens.s16, vertical: OomuTokens.s8),
-                      decoration: BoxDecoration(
-                        color: OomuTokens.surface,
-                        borderRadius: BorderRadius.circular(OomuTokens.r16),
-                        border: Border.all(color: OomuTokens.border),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.tune_rounded,
-                              size: 18, color: OomuTokens.textSecondary),
-                          const SizedBox(width: OomuTokens.s12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  '성향 및 라이프스타일',
-                                  style: TextStyle(
-                                    fontSize: OomuTokens.fs14,
-                                    fontWeight: OomuTokens.w600,
-                                    color: OomuTokens.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  [
-                                    if (job.isNotEmpty) job,
-                                    if (mbti.isNotEmpty) mbti,
-                                    if (drinking.isNotEmpty) drinking.first,
-                                    if (smoking.isNotEmpty) smoking,
-                                    if (pet.isNotEmpty) pet,
-                                  ].isNotEmpty
-                                      ? [
-                                          if (job.isNotEmpty) job,
-                                          if (mbti.isNotEmpty) mbti,
-                                          if (drinking.isNotEmpty)
-                                            drinking.first,
-                                          if (smoking.isNotEmpty) smoking,
-                                          if (pet.isNotEmpty) pet,
-                                        ].join(' · ')
-                                      : '직무·MBTI·라이프스타일을 설정해보세요',
-                                  style: const TextStyle(
-                                    fontSize: OomuTokens.fs12,
-                                    color: OomuTokens.textSecondary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: Tooltip(
-                              message: '성향 및 라이프스타일 수정',
-                              child: IconButton(
-                                icon: const Icon(Icons.chevron_right_rounded,
-                                    color: OomuTokens.textSecondary),
-                                onPressed: () async {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) =>
-                                            const ProfileEditScreen()),
-                                  );
-                                  if (mounted) setState(() {});
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
 
                   // 3. 내 활동 메뉴 목록 (참여한 모임, 찜한 모임, 내가 쓴 글, 받은 후기)
                   _buildMenuItem(

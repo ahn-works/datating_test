@@ -311,21 +311,12 @@ void main() {
 
         expect(viewBtnFinder, findsOneWidget);
         expect(editBtnFinder, findsOneWidget);
+        // Comment 18: 마이페이지 본문에서 중복 성향 바 제거됨
+        expect(tagEditFinder, findsNothing);
         expect(
             tester.getSize(viewBtnFinder).height, greaterThanOrEqualTo(48.0));
         expect(
             tester.getSize(editBtnFinder).height, greaterThanOrEqualTo(48.0));
-
-        await tester.scrollUntilVisible(
-          tagEditFinder,
-          200.0,
-          scrollable: find.byType(Scrollable).first,
-        );
-        await tester.pumpAndSettle();
-        expect(tagEditFinder, findsOneWidget);
-        expect(tester.getSize(tagEditFinder).width, greaterThanOrEqualTo(48.0));
-        expect(
-            tester.getSize(tagEditFinder).height, greaterThanOrEqualTo(48.0));
 
         await tester.scrollUntilVisible(
           viewBtnFinder,
@@ -847,7 +838,7 @@ void main() {
 
         expect(find.text('닉네임 미설정'), findsOneWidget);
         expect(find.text('동네 미설정'), findsOneWidget);
-        expect(find.text('정보 없음'), findsOneWidget);
+        expect(find.text('0.0°C'), findsOneWidget);
         expect(find.text('매운맛킬러'), findsNothing);
         expect(find.text('37.5°C'), findsNothing);
         expect(find.text('41.2°C'), findsNothing);

@@ -79,12 +79,15 @@ class OomuButton extends StatelessWidget {
         border = null;
         break;
       case OomuButtonVariant.secondary:
-        // 보조 버튼: 따뜻한 회색 면(테두리 없음)
-        bg = OomuTokens.surfaceMuted;
+        // 보조 버튼: 흰색 배경 + 1px 테두리 + 본문 텍스트 (13년차 시니어 디자이너 표준)
+        bg = onPressed == null ? OomuTokens.surfaceMuted : Colors.white;
         fg = onPressed == null
             ? OomuTokens.textMuted
             : OomuTokens.textPrimary;
-        border = null;
+        border = Border.all(
+          color: onPressed == null ? Colors.transparent : OomuTokens.border,
+          width: 1.0,
+        );
         break;
       case OomuButtonVariant.text:
         bg = Colors.transparent;

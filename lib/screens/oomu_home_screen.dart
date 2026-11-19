@@ -31,7 +31,8 @@ import 'home/home_meetup_section.dart';
 class OOMUHomeScreen extends StatefulWidget {
   final int initialTab;
   final List<Map<String, dynamic>>? initialCommunityPosts;
-  const OOMUHomeScreen({super.key, this.initialTab = 0, this.initialCommunityPosts});
+  const OOMUHomeScreen(
+      {super.key, this.initialTab = 0, this.initialCommunityPosts});
 
   @override
   State<OOMUHomeScreen> createState() => _OOMUHomeScreenState();
@@ -181,7 +182,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     }
     return _liveSpots;
   }
-
 
   List<Map<String, dynamic>> _getActiveCommunityPosts() {
     // 운영 환경에서 더미 커뮤니티 글 18건을 실데이터처럼 노출하지 않음 (실제 Firestore 문서만 표시)
@@ -679,8 +679,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           if (!mounted) return;
           final List<Map<String, dynamic>> items = [];
           for (final doc in snapshot.docs) {
-            final data = Map<String, dynamic>.from(doc.data())
-              ..['id'] = doc.id;
+            final data = Map<String, dynamic>.from(doc.data())..['id'] = doc.id;
             items.add(data);
           }
           setState(() {
@@ -924,13 +923,15 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: OomuTokens.surface,
-                              borderRadius: BorderRadius.circular(OomuTokens.r12),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r12),
                               border: Border.all(color: OomuTokens.border),
                             ),
                             child: Row(
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(OomuTokens.r8),
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r8),
                                   child: SizedBox(
                                     width: 60,
                                     height: 60,
@@ -947,7 +948,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       if (category.isNotEmpty) ...[
                                         Container(
@@ -955,8 +957,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                               horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
                                             color: OomuTokens.primarySubtle,
-                                            borderRadius:
-                                                BorderRadius.circular(OomuTokens.r4),
+                                            borderRadius: BorderRadius.circular(
+                                                OomuTokens.r4),
                                           ),
                                           child: Text(
                                             category,
@@ -1442,7 +1444,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
               backgroundColor: OomuTokens.coral,
               elevation: 3,
               highlightElevation: 4,
-              icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+              icon:
+                  const Icon(Icons.add_rounded, color: Colors.white, size: 20),
               label: const Text(
                 '모임 열기',
                 style: TextStyle(
@@ -1533,6 +1536,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       initialPosts: _getActiveCommunityPosts(),
     );
   }
+
   Widget _buildDiscoveryDashboard() {
     return ListView(
       padding: const EdgeInsets.only(bottom: 110, top: 8),
@@ -1547,7 +1551,9 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     final title = (meetup['title'] ?? '').toString();
     // 비정상적인 단색 base64 더미 이미지인 경우 실제 고화질 커버 에셋으로 안전 대체
     if (source.startsWith('data:image') && source.length < 5000) {
-      if (title.contains('카페') || title.contains('디저트') || title.contains('커피')) {
+      if (title.contains('카페') ||
+          title.contains('디저트') ||
+          title.contains('커피')) {
         return 'assets/images/cover_cafe.jpg';
       }
       if (title.contains('와인') || title.contains('맥주') || title.contains('술')) {
@@ -1606,8 +1612,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                 onPressed: _subscribeMeetups,
                 child: const Text('다시 시도하기',
                     style: TextStyle(
-                        color: OomuTokens.coral,
-                        fontWeight: FontWeight.bold)),
+                        color: OomuTokens.coral, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -1633,20 +1638,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       );
     }
 
-    final filteredDocs = _loadedMeetups
-        .where((data) => _matchesFilters(data))
-        .map((m) {
-          final copy = Map<String, dynamic>.from(m);
-          copy['distance'] ??= _meetupDistance(copy);
-          return copy;
-        })
-        .toList();
+    final filteredDocs =
+        _loadedMeetups.where((data) => _matchesFilters(data)).map((m) {
+      final copy = Map<String, dynamic>.from(m);
+      copy['distance'] ??= _meetupDistance(copy);
+      return copy;
+    }).toList();
 
     filteredDocs.sort((dataA, dataB) {
-      final scoreA = _calculateLocationRelevanceScore(
-          dataA['location']?.toString() ?? '');
-      final scoreB = _calculateLocationRelevanceScore(
-          dataB['location']?.toString() ?? '');
+      final scoreA =
+          _calculateLocationRelevanceScore(dataA['location']?.toString() ?? '');
+      final scoreB =
+          _calculateLocationRelevanceScore(dataB['location']?.toString() ?? '');
       if (scoreA != scoreB) {
         return scoreB.compareTo(scoreA);
       }
@@ -1663,8 +1666,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       meetups: filteredDocs,
       showAllMeetups: _showAllMeetups,
       onToggleView: (val) => setState(() => _isListView = val),
-      onToggleShowAll: () =>
-          setState(() => _showAllMeetups = !_showAllMeetups),
+      onToggleShowAll: () => setState(() => _showAllMeetups = !_showAllMeetups),
       onMeetupTap: (meetup) {
         Navigator.push(
           context,

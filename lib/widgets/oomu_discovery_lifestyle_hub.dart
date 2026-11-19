@@ -889,6 +889,54 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       color: textSecondary,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.location_on_outlined,
+                              size: 11, color: textSecondary),
+                          const SizedBox(width: 2),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 65),
+                            child: Text(
+                              (item['location'] ?? item['area'] ?? _dongLabel)
+                                  .toString(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 10.5,
+                                color: textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: brandTint,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          item['mannerTemp'] != null
+                              ? '${item['mannerTemp']}°C'
+                              : '36.5°C',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: brandCoral,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

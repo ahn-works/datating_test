@@ -697,18 +697,55 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                           radius: 10,
                         ),
                       ),
-                      const SizedBox(width: OomuTokens.spacingSm),
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          [
-                            authorName,
-                            if (authorManner != null)
-                              OomuUiHelpers.formatMannerTemp(authorManner),
-                            if (meta.isNotEmpty) meta,
-                          ].join(' · '),
-                          style: metaStyle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: Row(
+                          children: [
+                            Text(
+                              authorName,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: OomuTokens.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (authorManner != null) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: OomuTokens.coral.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  OomuUiHelpers.formatMannerTemp(authorManner),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.coralText,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            if (meta.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  meta,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: OomuTokens.textSecondary,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       GestureDetector(

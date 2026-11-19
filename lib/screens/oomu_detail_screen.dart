@@ -925,8 +925,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           const OomuBadge.coral(
                             label: '여성 전용',
                           ),
-                        OomuBadge.neutral(
-                          label: statusLabel,
+                        OomuUiHelpers.buildStatusBadge(
+                          isClosed: MeetupMemberHelper.isClosed(_effectiveMeetup),
                         ),
                       ],
                     ),
@@ -946,32 +946,45 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     ),
                     const SizedBox(height: OomuTokens.s20),
 
-                    // C. 핵심 정보 (박스 없이 클린 리스트로 렌더링)
-                    if (dateStr.isNotEmpty)
-                      OomuInfoRow(
-                        icon: Icons.calendar_today_rounded,
-                        label: '일시',
-                        value: dateStr,
+                    // C. 핵심 정보 (13년차 시니어 디자이너 표준 카드형 정보 렌더링)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFAFAFA),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFF0F0F0)),
                       ),
-                    if (locName.isNotEmpty && locName != '장소 정보 없음')
-                      OomuInfoRow(
-                        icon: Icons.location_on_rounded,
-                        label: '장소',
-                        value: locName,
+                      child: Column(
+                        children: [
+                          if (dateStr.isNotEmpty)
+                            OomuInfoRow(
+                              icon: Icons.calendar_today_rounded,
+                              label: '일시',
+                              value: dateStr,
+                            ),
+                          if (locName.isNotEmpty && locName != '장소 정보 없음')
+                            OomuInfoRow(
+                              icon: Icons.location_on_rounded,
+                              label: '장소',
+                              value: locName,
+                            ),
+                          if (maxCapacity > 0 || memberCount > 0)
+                            OomuInfoRow(
+                              icon: Icons.group_outlined,
+                              label: '인원',
+                              value:
+                                  '${MeetupMemberHelper.formatMembersLabel(_effectiveMeetup)}명',
+                            ),
+                          if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
+                            OomuInfoRow(
+                              icon: Icons.payments_outlined,
+                              label: '비용',
+                              value: costLabel,
+                            ),
+                        ],
                       ),
-                    if (maxCapacity > 0 || memberCount > 0)
-                      OomuInfoRow(
-                        icon: Icons.group_outlined,
-                        label: '인원',
-                        value:
-                            '${MeetupMemberHelper.formatMembersLabel(_effectiveMeetup)}명',
-                      ),
-                    if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
-                      OomuInfoRow(
-                        icon: Icons.payments_outlined,
-                        label: '비용',
-                        value: costLabel,
-                      ),
+                    ),
                     const Divider(
                         color: OomuTokens.border, height: 36, thickness: 1),
 
@@ -1388,7 +1401,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
               ),
             ),
             const SizedBox(width: OomuTokens.s8),
-            // 매너온도 숫자 (방향 1 표준)
+            // 매너온도 숫자 (OOMU 전역 단일 표준: 15px bold coral + 11px muted label)
             if (hostManner != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -1396,19 +1409,20 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   Text(
                     '${hostManner.toStringAsFixed(1)}°C',
                     style: const TextStyle(
-                      fontSize: OomuTokens.fs16,
-                      fontWeight: OomuTokens.w700,
-                      color: OomuTokens.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: OomuTokens.coralText,
                       fontFamily: OomuTokens.fontFamily,
+                      letterSpacing: -0.3,
                     ),
                   ),
                   const SizedBox(height: 2),
                   const Text(
                     '매너온도',
                     style: TextStyle(
-                      fontSize: OomuTokens.fs11,
-                      color: OomuTokens.textTertiary,
-                      fontWeight: OomuTokens.w400,
+                      fontSize: 11,
+                      color: OomuTokens.textMuted,
+                      fontWeight: FontWeight.w500,
                       fontFamily: OomuTokens.fontFamily,
                     ),
                   ),

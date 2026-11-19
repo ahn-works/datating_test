@@ -121,56 +121,86 @@ class OomuMeetupCard extends StatelessWidget {
   }
 
   Widget _buildFooter() {
-    return Row(
+    final bool isClosedBadge = statusBadge != null &&
+        (statusBadge!.contains('마감') || statusBadge!.contains('종료'));
+
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 6,
+      runSpacing: 4,
       children: [
-        OomuAvatar(imageUrl: hostAvatar, name: hostName, radius: 11),
-        const SizedBox(width: OomuTokens.s8),
-        Expanded(
-          flex: 3,
-          child: Text(
-            hostName ?? '호스트',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontFamily: OomuTokens.fontFamily,
-              fontFamilyFallback: OomuTokens.fontFallback,
-              fontSize: OomuTokens.fs13,
-              fontWeight: OomuTokens.w600,
-              color: OomuTokens.textBody,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OomuAvatar(imageUrl: hostAvatar, name: hostName, radius: 10),
+            const SizedBox(width: 6),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 100),
+              child: Text(
+                hostName ?? '호스트',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: OomuTokens.fontFamily,
+                  fontFamilyFallback: OomuTokens.fontFallback,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: OomuTokens.textBody,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-        if (members != null) ...[
-          const SizedBox(width: OomuTokens.s8),
-          Flexible(
-            flex: 2,
-            child: Text(
-              members!.endsWith('명') ? members! : '${members!}명',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: _caption,
+        if (members != null && members!.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.people_outline_rounded,
+                    size: 11, color: Color(0xFF6B7280)),
+                const SizedBox(width: 3),
+                Text(
+                  members!.endsWith('명') ? members! : '${members!}명',
+                  style: const TextStyle(
+                    fontFamily: OomuTokens.fontFamily,
+                    fontFamilyFallback: OomuTokens.fontFallback,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF4B5563),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-        if (statusBadge != null) ...[
-          const SizedBox(width: OomuTokens.s8),
-          Flexible(
-            flex: 2,
+        if (statusBadge != null && statusBadge!.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: isClosedBadge
+                  ? const Color(0xFFF3F4F6)
+                  : OomuTokens.coral.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
             child: Text(
               statusBadge!,
               maxLines: 1,
-              textAlign: TextAlign.end,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: OomuTokens.fontFamily,
                 fontFamilyFallback: OomuTokens.fontFallback,
-                fontSize: OomuTokens.fs13,
-                fontWeight: OomuTokens.w700,
-                color: OomuTokens.coralText,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: isClosedBadge
+                    ? const Color(0xFF6B7280)
+                    : OomuTokens.coralText,
               ),
             ),
           ),
-        ],
       ],
     );
   }

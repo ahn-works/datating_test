@@ -76,7 +76,7 @@ class OomuUiHelpers {
     return false;
   }
 
-  /// 3. 단일 매너온도 값 파싱 (num 및 숫자 문자열 호환, 유효하지 않으면 null 반환)
+  /// 3. 단일 매너온도 값 파싱 (num 및 숫자 문자열 호환, 0 초과 유효, 유효하지 않으면 null 반환)
   static double? parseMannerValue(dynamic raw) {
     if (raw == null) return null;
     if (raw is num) {
@@ -98,6 +98,30 @@ class OomuUiHelpers {
       return parsed;
     }
     return null;
+  }
+
+  /// 3-1. 전역 단일 표준 모집 상태 뱃지 (모집중: 코랄 틴트, 모집 마감: 쿨그레이)
+  static Widget buildStatusBadge({required bool isClosed, String? label}) {
+    final text = label ?? (isClosed ? '모집 마감' : '모집중');
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+      decoration: BoxDecoration(
+        color: isClosed ? const Color(0xFFF3F4F6) : const Color(0xFFFFF0F1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isClosed ? const Color(0xFFE5E7EB) : const Color(0xFFFFD4D8),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: isClosed ? const Color(0xFF6B7280) : const Color(0xFFFF5A5F),
+          fontFamily: 'Pretendard',
+        ),
+      ),
+    );
   }
 
   /// 4. 모임/게시글 Map에서 호스트 매너온도 추출 (우선순위: `manner` -> `mannerTemp`)
@@ -137,7 +161,8 @@ class OomuUiHelpers {
   }
 
   /// 9. 잔여석 계산 헬퍼 (null 안전 보장)
-  static String calcRemainingSeats(dynamic memberValue, {String fallback = '잔여석 있음'}) {
+  static String calcRemainingSeats(dynamic memberValue,
+      {String fallback = '잔여석 있음'}) {
     if (memberValue == null) return fallback;
     final memberStr = memberValue.toString().trim();
     if (memberStr.isEmpty) return fallback;
@@ -155,7 +180,8 @@ class OomuUiHelpers {
   }
 
   /// 10. 모임 데이터에 저장된 유효 좌표 추출 (유효하지 않거나 0이면 null)
-  static ({double lat, double lng})? extractValidCoords(Map<String, dynamic>? data) {
+  static ({double lat, double lng})? extractValidCoords(
+      Map<String, dynamic>? data) {
     if (data == null) return null;
     final rawLat = data['lat'] ?? data['latitude'];
     final rawLng = data['lng'] ?? data['longitude'];
@@ -215,15 +241,7 @@ class OomuUiHelpers {
       '해양공원',
       '신기동'
     ];
-    const mapoCluster = [
-      '마포',
-      '서교',
-      '연남',
-      '망원',
-      '합정',
-      '상수',
-      '홍대'
-    ];
+    const mapoCluster = ['마포', '서교', '연남', '망원', '합정', '상수', '홍대'];
 
     final bool currentIsYeosu = yeosuCluster.any((k) => current.contains(k));
     final bool itemIsYeosu = yeosuCluster.any((k) => item.contains(k));
@@ -246,7 +264,8 @@ class OomuUiHelpers {
 
     // 강남 생활권 (강남, 역삼, 선릉, 신사, 압구정, 논현, 청담, 서초)
     const gangnamCluster = ['강남', '역삼', '선릉', '신사', '압구정', '논현', '청담', '서초'];
-    final bool currentIsGangnam = gangnamCluster.any((k) => current.contains(k));
+    final bool currentIsGangnam =
+        gangnamCluster.any((k) => current.contains(k));
     final bool itemIsGangnam = gangnamCluster.any((k) => item.contains(k));
     if (currentIsGangnam) {
       return itemIsGangnam ? 2 : 0;
@@ -257,7 +276,8 @@ class OomuUiHelpers {
 
     // 성수 생활권 (성수, 성동, 뚝섬, 서울숲)
     const seongsuCluster = ['성수', '성동', '뚝섬', '서울숲'];
-    final bool currentIsSeongsu = seongsuCluster.any((k) => current.contains(k));
+    final bool currentIsSeongsu =
+        seongsuCluster.any((k) => current.contains(k));
     final bool itemIsSeongsu = seongsuCluster.any((k) => item.contains(k));
     if (currentIsSeongsu) {
       return itemIsSeongsu ? 2 : 0;

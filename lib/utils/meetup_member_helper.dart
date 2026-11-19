@@ -147,23 +147,27 @@ class MeetupMemberHelper {
     return '$diff자리 남음';
   }
 
-  /// 모임 마감 여부 판별 (isClosed flag, status가 'closed'/'마감'/'모집마감'/'종료'이거나 정원 충족 시 true)
+  /// 모임 마감 여부 판별 (호스트 마감, 정원 초과, 또는 마감일 도래 시에만 true)
   static bool isClosed(Map<String, dynamic>? data) {
     if (data == null) return false;
+    if (data['closedByHost'] == true) {
+      return true;
+    }
+    // 마감 기한 초과 여부
+    final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
+    if (dl != null && dl.isBefore(DateTime.now())) {
+      return true;
+    }
+    // 정원 충족 여부 (정원이 찼을 때만 인원 마감)
+    final cap = parseCapacity(data);
+    final att = parseAttendance(data);
+    if (cap > 0 && att >= cap) {
+      return true;
+    }
     if (data['isClosed'] == true || data['closed'] == true) {
       return true;
     }
-    final rawStatus = (data['status'] ?? '').toString().trim().toLowerCase();
-    if (rawStatus == 'closed' ||
-        rawStatus == '마감' ||
-        rawStatus == '모집마감' ||
-        rawStatus == '모집 마감' ||
-        rawStatus == '종료') {
-      return true;
-    }
-    final cap = parseCapacity(data);
-    final att = parseAttendance(data);
-    return cap > 0 && att >= cap;
+    return false;
   }
 
   /// 모임 마감 사유 반환 (마감이 아니면 null)

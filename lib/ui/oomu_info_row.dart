@@ -21,34 +21,44 @@ class OomuInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: OomuTokens.s4),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: OomuTokens.textSecondary),
-          const SizedBox(width: OomuTokens.s8),
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFF3F4F6), width: 1),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 15, color: OomuTokens.coral),
+          ),
+          const SizedBox(width: 10),
           SizedBox(
-            width: 44,
+            width: 38,
             child: Text(
               label,
               style: const TextStyle(
                 fontFamily: OomuTokens.fontFamily,
                 fontFamilyFallback: OomuTokens.fontFallback,
-                fontSize: OomuTokens.fs14,
-                fontWeight: OomuTokens.w400,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: OomuTokens.textSecondary,
               ),
             ),
           ),
-          const SizedBox(width: OomuTokens.s8),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
                 fontFamily: OomuTokens.fontFamily,
                 fontFamilyFallback: OomuTokens.fontFallback,
-                fontSize: OomuTokens.fs14,
-                fontWeight: OomuTokens.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 color: OomuTokens.textPrimary,
               ),
             ),

@@ -229,7 +229,7 @@ void main() {
       expect(find.textContaining('전 메뉴 20% 타임할인'), findsNothing);
     });
 
-    testWidgets('4-1. MyPageScreen renders single 성향 및 라이프스타일 summary row with visible edit tooltip', (tester) async {
+    testWidgets('4-1. MyPageScreen removes redundant 성향 및 라이프스타일 row (only in ProfileEdit & Preview)', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: MyPageScreen(),
@@ -237,8 +237,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('성향 및 라이프스타일'), findsOneWidget);
-      expect(find.byTooltip('성향 및 라이프스타일 수정'), findsOneWidget);
+      // 마이페이지 메인 본문에서는 중복 태그 제거됨 (Comment 18 반영)
+      expect(find.text('성향 및 라이프스타일'), findsNothing);
+      expect(find.byTooltip('성향 및 라이프스타일 수정'), findsNothing);
     });
   });
 }

@@ -867,22 +867,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
 
-              const SizedBox(height: 22),
-
-              // 하단 화면 선택 칩 (store_assets/OOMU 앱 UI 디자인.html 동일 구성)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children: [
-                  _buildStageChip(0, '스플래시'),
-                  _buildStageChip(1, '인트로'),
-                  _buildStageChip(2, '로그인'),
-                  _buildStageChip(3, '회원가입'),
-                  _buildStageChip(4, '이메일 찾기'),
-                  _buildDirectAppChip('동네모임 둘러보기'),
-                ],
-              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
