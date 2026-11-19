@@ -29,6 +29,27 @@
     <div style="font-size:18px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;margin-bottom:6px;">OOMU</div>
     <div style="font-size:13px;color:#8E8E93;font-weight:500;">동네 모임과 새로운 발견을 불러오는 중...</div>
   </div>
+  <script>
+    function hideOomuSplash() {
+      var splash = document.getElementById('oomu-loading-splash');
+      if (splash && splash.style.display !== 'none') {
+        splash.style.transition = 'opacity 0.3s ease-out';
+        splash.style.opacity = '0';
+        setTimeout(function() {
+          try { splash.remove(); } catch (_) { splash.style.display = 'none'; }
+        }, 300);
+      }
+    }
+    window.addEventListener('flutter-first-frame', hideOomuSplash);
+    var observer = new MutationObserver(function(mutations, obs) {
+      if (document.querySelector('flt-glass-pane, flutter-view, flt-scene-host, canvas')) {
+        setTimeout(hideOomuSplash, 500);
+        obs.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(hideOomuSplash, 7000);
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
