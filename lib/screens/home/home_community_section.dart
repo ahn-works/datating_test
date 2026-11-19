@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../ui/oomu_avatar.dart';
+import '../../ui/oomu_chip.dart';
 import '../../ui/oomu_empty_state.dart';
 import '../../ui/oomu_tag.dart';
 import '../../ui/oomu_tokens.dart';
@@ -187,7 +188,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
         return ListView(
           padding: const EdgeInsets.only(bottom: 60),
           children: [
-            // 1. 심플 원터치 글쓰기 바
+            // 1. 심플 원터치 글쓰기 바 (13년차 시니어 디자이너 표준: 화이트 표면 + 1px 초미세 보더)
             Container(
               margin: const EdgeInsets.fromLTRB(
                 OomuTokens.spacingLg,
@@ -197,11 +198,19 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
               ),
               padding: const EdgeInsets.symmetric(
                 horizontal: OomuTokens.spacingMd,
-                vertical: 11,
+                vertical: 10,
               ),
               decoration: BoxDecoration(
-                color: OomuTokens.surfaceMuted,
-                borderRadius: BorderRadius.circular(OomuTokens.radiusCardSm),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
               child: InkWell(
                 onTap: () async {
@@ -287,9 +296,10 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                       child: Text(
                         '$dong의 일상과 소식을 나눠보세요',
                         style: const TextStyle(
-                          color: OomuTokens.textSecondary,
-                          fontSize: OomuTokens.fontSm,
-                          fontFamily: OomuTokens.fontFamily,
+                          color: Color(0xFF8E8E93),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Pretendard',
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -298,27 +308,26 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                     const SizedBox(width: OomuTokens.spacingSm),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: OomuTokens.spacingSm,
+                        horizontal: 10,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: OomuTokens.coral,
-                        borderRadius:
-                            BorderRadius.circular(OomuTokens.radiusCardSm),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.edit_outlined,
+                          Icon(Icons.edit_rounded,
                               size: 13, color: Colors.white),
                           SizedBox(width: 4),
                           Text(
                             '글쓰기',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: OomuTokens.fontXs,
-                              fontWeight: OomuTokens.weightBold,
-                              fontFamily: OomuTokens.fontFamily,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Pretendard',
                             ),
                           ),
                         ],
@@ -329,54 +338,33 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
               ),
             ),
 
-            // 2. 밑줄 탭 (선택된 글자만 진하게 + 얇은 밑줄, 한 줄)
-            Container(
-              height: 44,
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: OomuTokens.border, width: 1),
-                ),
+            // 2. 카테고리 칩 바 (13년차 시니어 디자이너 표준: OomuChip 36dp pill 체계로 전역 통일)
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 4,
+                bottom: OomuTokens.spacingSm,
               ),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: OomuTokens.spacingLg,
+              child: SizedBox(
+                height: 48,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: OomuTokens.spacingLg,
+                  ),
+                  itemCount: _topics.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, idx) {
+                    final topic = _topics[idx];
+                    final isSelected = _categoryFilter == topic;
+                    return Center(
+                      child: OomuChip(
+                        label: topic,
+                        isSelected: isSelected,
+                        onTap: () => setState(() => _categoryFilter = topic),
+                      ),
+                    );
+                  },
                 ),
-                itemCount: _topics.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 22),
-                itemBuilder: (context, idx) {
-                  final topic = _topics[idx];
-                  final isSelected = _categoryFilter == topic;
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => setState(() => _categoryFilter = topic),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: isSelected
-                                ? OomuTokens.textPrimary
-                                : Colors.transparent,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        topic,
-                        style: TextStyle(
-                          fontSize: OomuTokens.fs15,
-                          fontWeight:
-                              isSelected ? OomuTokens.w700 : FontWeight.w500,
-                          color: isSelected
-                              ? OomuTokens.textPrimary
-                              : OomuTokens.textMuted,
-                          fontFamily: OomuTokens.fontFamily,
-                        ),
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
 
@@ -423,7 +411,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
   Widget _buildCommunityCard(Map<String, dynamic> post) {
     final authorName = (post['author'] ?? '동네주민').toString();
     final authorAvatar = post['authorAvatar']?.toString();
-    final authorManner = OomuUiHelpers.parseMannerTemp(post);
+    final authorManner = OomuUiHelpers.parseMannerTemp(post) ?? 36.5;
     final isLiked = post['isLiked'] == true;
     final likes = (post['likes'] ?? 0) as int;
     final comments = (post['comments'] ?? 0) as int;
@@ -711,34 +699,46 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (authorManner != null) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 1.5),
-                                decoration: BoxDecoration(
-                                  color: OomuTokens.coral.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  OomuUiHelpers.formatMannerTemp(authorManner),
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: OomuTokens.coralText,
-                                  ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 1.5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF0F1),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: const Color(0xFFFFD4D8),
+                                  width: 0.8,
                                 ),
                               ),
-                            ],
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.thermostat_rounded,
+                                      size: 11, color: OomuTokens.coral),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    '${authorManner.toStringAsFixed(1)}°C',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: OomuTokens.coral,
+                                      fontFamily: 'Pretendard',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             if (meta.isNotEmpty) ...[
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 8),
                               Flexible(
                                 child: Text(
                                   meta,
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: OomuTokens.textSecondary,
+                                    color: Color(0xFF8E8E93),
                                     fontWeight: FontWeight.w400,
+                                    fontFamily: 'Pretendard',
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

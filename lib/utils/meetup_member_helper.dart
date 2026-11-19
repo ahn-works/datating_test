@@ -150,12 +150,9 @@ class MeetupMemberHelper {
   /// 모임 마감 여부 판별 (호스트 마감, 정원 초과, 또는 마감일 도래 시에만 true)
   static bool isClosed(Map<String, dynamic>? data) {
     if (data == null) return false;
-    if (data['closedByHost'] == true) {
-      return true;
-    }
-    // 마감 기한 초과 여부
-    final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
-    if (dl != null && dl.isBefore(DateTime.now())) {
+    if (data['closedByHost'] == true ||
+        data['isClosed'] == true ||
+        data['closed'] == true) {
       return true;
     }
     // 정원 충족 여부 (정원이 찼을 때만 인원 마감)
@@ -164,7 +161,9 @@ class MeetupMemberHelper {
     if (cap > 0 && att >= cap) {
       return true;
     }
-    if (data['isClosed'] == true || data['closed'] == true) {
+    // 마감 기한 초과 여부
+    final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
+    if (dl != null && dl.isBefore(DateTime.now())) {
       return true;
     }
     return false;
@@ -174,17 +173,20 @@ class MeetupMemberHelper {
   static String? closeReason(Map<String, dynamic>? data) {
     if (data == null) return null;
     if (data['closedByHost'] == true) return '호스트가 모집을 마감했어요';
+    final cap = parseCapacity(data);
+    final att = parseAttendance(data);
+
     if (data['isClosed'] == true ||
         data['closed'] == true ||
         (data['status'] ?? '').toString().toLowerCase() == 'closed') {
       final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
       if (dl != null && dl.isBefore(DateTime.now())) return '모집 마감일이 지났어요';
-      if (parseAttendance(data) >= parseCapacity(data)) return '정원이 다 찼어요';
+      if (att >= cap) return '정원이 다 찼어요';
       return '모집이 마감됐어요';
     }
     final dl = DateTime.tryParse((data['deadline'] ?? '').toString());
     if (dl != null && dl.isBefore(DateTime.now())) return '모집 마감일이 지났어요';
-    if (parseCapacity(data) > 0 && parseAttendance(data) >= parseCapacity(data)) {
+    if (cap > 0 && att >= cap) {
       return '정원이 다 찼어요';
     }
     return null;

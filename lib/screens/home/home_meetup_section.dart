@@ -253,18 +253,21 @@ class HomeMeetupSection extends StatelessWidget {
                       MeetupMemberHelper.formatMembersLabel(data);
 
                   String? statusBadge;
+                  final cap = MeetupMemberHelper.parseCapacity(data);
+                  final att = MeetupMemberHelper.parseAttendance(data);
                   final isClosed = MeetupMemberHelper.isClosed(data);
-                  if (isClosed) {
-                    final isFull = MeetupMemberHelper.parseAttendance(data) >=
-                        MeetupMemberHelper.parseCapacity(data);
+                  if (cap > 0 && att < cap) {
+                    // 대표님 지시(Item 04): 2/4명이면 잔여석이 있으므로 정상 '모집중' 표시
+                    statusBadge = '모집중';
+                  } else if (isClosed) {
+                    final isFull = att >= cap;
                     statusBadge = isFull ? '인원 마감' : '모집 마감';
-                  } else if (data['isFemaleOnly'] == true) {
-                    statusBadge = '여성 전용';
-                  } else if (data['isLightning'] == true ||
-                      (data['tags'] is List &&
-                          (data['tags'] as List).contains('오늘번개'))) {
-                    statusBadge = '오늘 번개';
+                  } else {
+                    statusBadge = '모집중';
                   }
+
+                  final double? mannerTemp = OomuUiHelpers.parseMannerTemp(data);
+                  final String? ageLimit = data['ageLimit']?.toString();
 
                   String? infoBadge;
                   final distance = data['distance']?.toString();
@@ -284,6 +287,8 @@ class HomeMeetupSection extends StatelessWidget {
                             category: category,
                             hostName: hostName,
                             hostAvatar: hostAvatar,
+                            mannerTemp: mannerTemp,
+                            ageLimit: ageLimit,
                             members: members,
                             statusBadge: statusBadge,
                             infoBadge: infoBadge,
@@ -297,6 +302,8 @@ class HomeMeetupSection extends StatelessWidget {
                             category: category,
                             hostName: hostName,
                             hostAvatar: hostAvatar,
+                            mannerTemp: mannerTemp,
+                            ageLimit: ageLimit,
                             members: members,
                             statusBadge: statusBadge,
                             infoBadge: infoBadge,
@@ -306,7 +313,7 @@ class HomeMeetupSection extends StatelessWidget {
                 },
               ),
 
-              // 더보기 버튼
+              // 더보기 버튼 (13년차 시니어 디자이너 표준: 정갈한 화이트 표면 + 1px 초미세 보더)
               if (visibleMeetups.length > initialCount)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -317,38 +324,40 @@ class HomeMeetupSection extends StatelessWidget {
                   ),
                   child: InkWell(
                     onTap: onToggleShowAll,
-                    borderRadius:
-                        BorderRadius.circular(OomuTokens.radiusCardSm),
+                    borderRadius: BorderRadius.circular(12),
                     child: Container(
                       width: double.infinity,
                       constraints: const BoxConstraints(
-                        minHeight: OomuTokens.touchTargetMin,
+                        minHeight: 44,
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: OomuTokens.spacingMd,
-                        vertical: OomuTokens.spacingSm,
+                        vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: OomuTokens.surfaceMuted,
-                        borderRadius:
-                            BorderRadius.circular(OomuTokens.radiusCardSm),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Flexible(
-                            child: Text(
-                              showAllMeetups
-                                  ? '모임 목록 접기'
-                                  : '동네 모임 더보기 (+${visibleMeetups.length - initialCount}개)',
-                              style: const TextStyle(
-                                fontSize: OomuTokens.fontSm,
-                                fontWeight: OomuTokens.weightBold,
-                                color: OomuTokens.textBody,
-                                fontFamily: OomuTokens.fontFamily,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            showAllMeetups
+                                ? '모임 목록 접기'
+                                : '동네 모임 더보기 (+${visibleMeetups.length - initialCount}개)',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF262626),
+                              fontFamily: 'Pretendard',
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -357,7 +366,7 @@ class HomeMeetupSection extends StatelessWidget {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
                             size: 18,
-                            color: OomuTokens.textSecondary,
+                            color: const Color(0xFF8E8E93),
                           ),
                         ],
                       ),

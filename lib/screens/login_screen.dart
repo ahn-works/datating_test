@@ -1721,40 +1721,6 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: OomuTokens.s12),
-
-              // 보조 진입: 일단 둘러볼래요
-              Row(
-                children: [
-                  Expanded(
-                    child: BouncyTap(
-                      onTap: _handleGuestLogin,
-                      child: Container(
-                        height: 48,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: OomuTokens.s8, vertical: OomuTokens.s8),
-                        decoration: BoxDecoration(
-                          color: OomuTokens.surface,
-                          borderRadius: BorderRadius.circular(OomuTokens.r12),
-                          border: Border.all(color: OomuTokens.border),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '일단 둘러볼래요',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: OomuTokens.fs12,
-                              fontWeight: FontWeight.w600,
-                              color: OomuTokens.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: OomuTokens.s20),
               const Text(
                 '가입하면 OOMU 이용약관과 개인정보 처리방침에 동의하게 됩니다',

@@ -288,7 +288,7 @@ void main() {
       ));
       await tester.pump();
       expect(find.textContaining('테스트 계정'), findsNothing);
-      expect(find.text('일단 둘러볼래요'), findsOneWidget);
+      expect(find.text('일단 둘러볼래요'), findsNothing);
 
       final galleryWidget = resolveInitialRouteWidget(
         Uri.parse('https://ahn-works.github.io/datating_test/?gallery=true'),

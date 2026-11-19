@@ -22,6 +22,8 @@ class OomuMeetupCard extends StatelessWidget {
   final String? category; // 분류 (예: "러닝·운동")
   final String? hostName;
   final String? hostAvatar;
+  final double? mannerTemp;
+  final String? ageLimit;
   final String? members; // 예: "2/4"
   final String? statusBadge; // 우측 상태 라벨 (예: "오늘 번개")
   final String? infoBadge; // 일정 옆 보조 정보 (예: "도보 180m")
@@ -37,6 +39,8 @@ class OomuMeetupCard extends StatelessWidget {
     this.category,
     this.hostName,
     this.hostAvatar,
+    this.mannerTemp,
+    this.ageLimit,
     this.members,
     this.statusBadge,
     this.infoBadge,
@@ -53,6 +57,8 @@ class OomuMeetupCard extends StatelessWidget {
     this.category,
     this.hostName,
     this.hostAvatar,
+    this.mannerTemp,
+    this.ageLimit,
     this.members,
     this.statusBadge,
     this.infoBadge,
@@ -135,7 +141,7 @@ class OomuMeetupCard extends StatelessWidget {
             OomuAvatar(imageUrl: hostAvatar, name: hostName, radius: 10),
             const SizedBox(width: 6),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 100),
+              constraints: const BoxConstraints(maxWidth: 80),
               child: Text(
                 hostName ?? '호스트',
                 maxLines: 1,
@@ -151,6 +157,33 @@ class OomuMeetupCard extends StatelessWidget {
             ),
           ],
         ),
+        if (mannerTemp != null && mannerTemp! > 0)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF0F1),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: const Color(0xFFFFD4D8), width: 0.8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.thermostat_rounded,
+                    size: 11, color: OomuTokens.coral),
+                const SizedBox(width: 2),
+                Text(
+                  '${mannerTemp!.toStringAsFixed(1)}°C',
+                  style: const TextStyle(
+                    fontFamily: OomuTokens.fontFamily,
+                    fontFamilyFallback: OomuTokens.fontFallback,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: OomuTokens.coral,
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (members != null && members!.isNotEmpty)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
@@ -177,14 +210,38 @@ class OomuMeetupCard extends StatelessWidget {
               ],
             ),
           ),
+        if (ageLimit != null && ageLimit!.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              ageLimit!,
+              style: const TextStyle(
+                fontFamily: OomuTokens.fontFamily,
+                fontFamilyFallback: OomuTokens.fontFallback,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF4B5563),
+              ),
+            ),
+          ),
         if (statusBadge != null && statusBadge!.isNotEmpty)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: isClosedBadge
                   ? const Color(0xFFF3F4F6)
-                  : OomuTokens.coral.withValues(alpha: 0.1),
+                  : const Color(0xFFFFF0F1),
               borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: isClosedBadge
+                    ? const Color(0xFFE5E7EB)
+                    : const Color(0xFFFFD4D8),
+                width: 0.8,
+              ),
             ),
             child: Text(
               statusBadge!,
@@ -193,11 +250,11 @@ class OomuMeetupCard extends StatelessWidget {
               style: TextStyle(
                 fontFamily: OomuTokens.fontFamily,
                 fontFamilyFallback: OomuTokens.fontFallback,
-                fontSize: 11.5,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: isClosedBadge
                     ? const Color(0xFF6B7280)
-                    : OomuTokens.coralText,
+                    : const Color(0xFFFF5A5F),
               ),
             ),
           ),
