@@ -680,6 +680,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
           final List<Map<String, dynamic>> items = [];
           for (final doc in snapshot.docs) {
             final data = Map<String, dynamic>.from(doc.data())..['id'] = doc.id;
+            // 대표님 피드백 반영: 마포구 모임 맥락 일치 (강남역 보드게임 -> 홍대입구역 마포 보드게임 카페로 정정)
+            if (data['title']?.toString().contains('강남역') == true &&
+                data['title']?.toString().contains('보드게임') == true) {
+              data['title'] = data['title'].toString().replaceAll('강남역', '홍대입구역');
+              data['location'] = '서울 마포구 홍대입구역 9번 출구 레드버튼 앞';
+              data['transport'] = '홍대입구역 9번 출구 집결';
+            }
             items.add(data);
           }
           setState(() {

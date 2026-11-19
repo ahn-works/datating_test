@@ -170,78 +170,42 @@ class HomeCategoryTabs extends StatelessWidget {
           if (!isSubCategoryExpanded)
             SizedBox(
               height: 48,
-              child: Row(
-                children: [
-                  // 스크롤 가능한 서브태그 칩 목록 (오른쪽 버튼과 겹침 없는 안전 영역 확보)
-                  Expanded(
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(right: OomuTokens.spacingSm),
-                      itemCount: subList.length,
-                      itemBuilder: (context, idx) {
-                        final subName = subList[idx];
-                        final isSubSelected = selectedSubCategory == subName;
-                        final displayLabel =
-                            subName == '전체' ? '전체' : '#$subName';
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: subList.length + 1,
+                itemBuilder: (context, idx) {
+                  // 마지막 아이템은 일체형 OomuChip 표준 규격(높이 36dp, pill 래디우스)의 '더보기' 버튼
+                  if (idx == subList.length) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: OomuTokens.spacingSm),
+                        child: OomuChip(
+                          label: '더보기',
+                          trailingIcon: Icons.keyboard_arrow_down,
+                          isSelected: false,
+                          onTap: onToggleSubCategoryExpanded,
+                        ),
+                      ),
+                    );
+                  }
 
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                right: OomuTokens.spacingSm),
-                            child: OomuChip(
-                              label: displayLabel,
-                              isSelected: isSubSelected,
-                              onTap: () => onSubCategorySelected(subName),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: OomuTokens.spacingXs),
-                  // 우측 고정 '+더보기' 버튼 (최소 48dp 터치 영역 보장)
-                  BouncyTap(
-                    scaleDown: 0.94,
-                    onTap: onToggleSubCategoryExpanded,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: OomuTokens.touchTargetMin,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: OomuTokens.spacingSm,
-                          vertical: OomuTokens.spacingSm,
-                        ),
-                        decoration: BoxDecoration(
-                          color: OomuTokens.surfaceMuted,
-                          borderRadius:
-                              BorderRadius.circular(OomuTokens.radiusCardSm),
-                          border: Border.all(color: OomuTokens.border),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '+더보기',
-                              style: TextStyle(
-                                fontSize: OomuTokens.fontXs,
-                                fontWeight: OomuTokens.weightBold,
-                                color: OomuTokens.textBody,
-                                fontFamily: OomuTokens.fontFamily,
-                              ),
-                            ),
-                            Icon(
-                              Icons.keyboard_arrow_down,
-                              size: 14,
-                              color: OomuTokens.textSecondary,
-                            ),
-                          ],
-                        ),
+                  final subName = subList[idx];
+                  final isSubSelected = selectedSubCategory == subName;
+                  final displayLabel =
+                      subName == '전체' ? '전체' : '#$subName';
+
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          right: OomuTokens.spacingSm),
+                      child: OomuChip(
+                        label: displayLabel,
+                        isSelected: isSubSelected,
+                        onTap: () => onSubCategorySelected(subName),
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             )
           else

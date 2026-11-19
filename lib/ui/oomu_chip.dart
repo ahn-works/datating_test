@@ -10,6 +10,7 @@ class OomuChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final IconData? icon;
+  final IconData? trailingIcon;
   final String? count;
 
   const OomuChip({
@@ -18,6 +19,7 @@ class OomuChip extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.icon,
+    this.trailingIcon,
     this.count,
   });
 
@@ -73,6 +75,10 @@ class OomuChip extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (trailingIcon != null) ...[
+                    const SizedBox(width: OomuTokens.s4),
+                    Icon(trailingIcon, size: 14, color: fg),
+                  ],
                   if (count != null) ...[
                     const SizedBox(width: OomuTokens.s4),
                     Text(
