@@ -128,7 +128,7 @@ Widget resolveInitialRouteWidget(
 
   if (Firebase.apps.isEmpty) {
     globalData.switchUser('guest');
-    return const LoginScreen();
+    return const LoginScreen(initialStage: 2);
   }
 
   return StreamBuilder<User?>(
@@ -148,7 +148,7 @@ Widget resolveInitialRouteWidget(
         return _AuthGate(user: user);
       }
       globalData.switchUser('guest');
-      return const LoginScreen();
+      return const LoginScreen(initialStage: 2);
     },
   );
 }

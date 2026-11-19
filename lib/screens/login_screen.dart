@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 
   const LoginScreen({
     super.key,
-    this.initialStage = 0,
+    this.initialStage = 2,
   });
 
   @override
@@ -91,11 +91,11 @@ class _LoginScreenState extends State<LoginScreen>
       duration: const Duration(milliseconds: 2600),
     )..forward();
 
-    // 0단계 스플래시일 경우 3.2초 후 자동으로 인트로 온보딩(1단계) 전환
+    // 0단계 스플래시일 경우 자동으로 로그인(2단계) 전환
     if (_currentStage == 0) {
-      _splashTimer = Timer(const Duration(milliseconds: 3200), () {
+      _splashTimer = Timer(const Duration(milliseconds: 1200), () {
         if (mounted && _currentStage == 0) {
-          setState(() => _currentStage = 1);
+          setState(() => _currentStage = 2);
         }
       });
     }
