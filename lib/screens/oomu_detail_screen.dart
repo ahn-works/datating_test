@@ -922,7 +922,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             label: '여성 전용',
                           ),
                         OomuUiHelpers.buildStatusBadge(
-                          isClosed: MeetupMemberHelper.isClosed(_effectiveMeetup),
+                          isClosed:
+                              MeetupMemberHelper.isClosed(_effectiveMeetup),
                         ),
                       ],
                     ),
@@ -972,7 +973,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               value:
                                   '${MeetupMemberHelper.formatMembersLabel(_effectiveMeetup)}명',
                             ),
-                          if (costLabel.isNotEmpty && costLabel != '비용 안내 확인 필요')
+                          if (costLabel.isNotEmpty &&
+                              costLabel != '비용 안내 확인 필요')
                             OomuInfoRow(
                               icon: Icons.payments_outlined,
                               label: '비용',
@@ -1106,12 +1108,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         avatars.add(_buildMemberAvatar(hostAv,
                             isHost: true, name: hostName, userId: hostUid));
 
-                        final rawMembers = (_effectiveMeetup?['members'] is List)
-                            ? (_effectiveMeetup!['members'] as List)
-                                .map((e) => e.toString())
-                                .where((s) => s.isNotEmpty && s != hostUid)
-                                .toList()
-                            : <String>[];
+                        final rawMembers =
+                            (_effectiveMeetup?['members'] is List)
+                                ? (_effectiveMeetup!['members'] as List)
+                                    .map((e) => e.toString())
+                                    .where((s) => s.isNotEmpty && s != hostUid)
+                                    .toList()
+                                : <String>[];
 
                         final rawAvatars =
                             (_effectiveMeetup?['memberAvatars'] is List)
@@ -1298,40 +1301,40 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         rawHostUid != 'guest' &&
         rawHostUid == globalData.activeUserId;
 
-    final String hostName = (isSelfHost &&
-            globalData.userNickname.value.trim().isNotEmpty)
-        ? globalData.userNickname.value.trim()
-        : ((_hostUserDoc != null &&
-                (_hostUserDoc!['nickname'] ?? _hostUserDoc!['name'])
-                        ?.toString()
-                        .trim()
-                        .isNotEmpty ==
-                    true)
-            ? (_hostUserDoc!['nickname'] ?? _hostUserDoc!['name'])
-                .toString()
-                .trim()
-            : (_effectiveMeetup != null
-                    ? (_effectiveMeetup!['host'] ??
-                        _effectiveMeetup!['hostName'] ??
-                        '모임 호스트')
-                    : '모임 호스트')
-                .toString());
-    final String hostAvatar = (isSelfHost &&
-            globalData.userAvatar.value.trim().isNotEmpty)
-        ? globalData.userAvatar.value.trim()
-        : ((_hostUserDoc != null &&
-                (_hostUserDoc!['avatarUrl'] ?? _hostUserDoc!['photoUrl'])
-                        ?.toString()
-                        .trim()
-                        .isNotEmpty ==
-                    true)
-            ? (_hostUserDoc!['avatarUrl'] ?? _hostUserDoc!['photoUrl'])
-                .toString()
-                .trim()
-            : ((_effectiveMeetup != null &&
-                    _effectiveMeetup!['hostAvatar'] != null)
-                ? _effectiveMeetup!['hostAvatar'].toString()
-                : ''));
+    final String hostName =
+        (isSelfHost && globalData.userNickname.value.trim().isNotEmpty)
+            ? globalData.userNickname.value.trim()
+            : ((_hostUserDoc != null &&
+                    (_hostUserDoc!['nickname'] ?? _hostUserDoc!['name'])
+                            ?.toString()
+                            .trim()
+                            .isNotEmpty ==
+                        true)
+                ? (_hostUserDoc!['nickname'] ?? _hostUserDoc!['name'])
+                    .toString()
+                    .trim()
+                : (_effectiveMeetup != null
+                        ? (_effectiveMeetup!['host'] ??
+                            _effectiveMeetup!['hostName'] ??
+                            '모임 호스트')
+                        : '모임 호스트')
+                    .toString());
+    final String hostAvatar =
+        (isSelfHost && globalData.userAvatar.value.trim().isNotEmpty)
+            ? globalData.userAvatar.value.trim()
+            : ((_hostUserDoc != null &&
+                    (_hostUserDoc!['avatarUrl'] ?? _hostUserDoc!['photoUrl'])
+                            ?.toString()
+                            .trim()
+                            .isNotEmpty ==
+                        true)
+                ? (_hostUserDoc!['avatarUrl'] ?? _hostUserDoc!['photoUrl'])
+                    .toString()
+                    .trim()
+                : ((_effectiveMeetup != null &&
+                        _effectiveMeetup!['hostAvatar'] != null)
+                    ? _effectiveMeetup!['hostAvatar'].toString()
+                    : ''));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

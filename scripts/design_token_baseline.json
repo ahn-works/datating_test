@@ -1,11 +1,11 @@
 {
   "total": {
-    "color_kinds": 101,
-    "color_count": 421,
+    "color_kinds": 105,
+    "color_count": 432,
     "font_kinds": 19,
-    "font_count": 416,
+    "font_count": 424,
     "radius_kinds": 15,
-    "radius_count": 218
+    "radius_count": 226
   },
   "files": {
     "lib/screens/chat/chat_modals.dart": {
@@ -97,12 +97,12 @@
       "radius_count": 0
     },
     "lib/screens/home/home_community_section.dart": {
-      "color_kinds": 0,
-      "color_count": 0,
-      "font_kinds": 0,
-      "font_count": 0,
-      "radius_kinds": 0,
-      "radius_count": 0
+      "color_kinds": 4,
+      "color_count": 5,
+      "font_kinds": 4,
+      "font_count": 5,
+      "radius_kinds": 3,
+      "radius_count": 3
     },
     "lib/screens/home/home_discovery_section.dart": {
       "color_kinds": 0,
@@ -129,12 +129,12 @@
       "radius_count": 0
     },
     "lib/screens/home/home_meetup_section.dart": {
-      "color_kinds": 0,
-      "color_count": 0,
-      "font_kinds": 0,
-      "font_count": 0,
-      "radius_kinds": 0,
-      "radius_count": 0
+      "color_kinds": 3,
+      "color_count": 3,
+      "font_kinds": 1,
+      "font_count": 1,
+      "radius_kinds": 1,
+      "radius_count": 2
     },
     "lib/screens/local_friends_screen.dart": {
       "color_kinds": 9,
@@ -153,12 +153,12 @@
       "radius_count": 4
     },
     "lib/screens/my_page_screen.dart": {
-      "color_kinds": 5,
-      "color_count": 12,
+      "color_kinds": 6,
+      "color_count": 13,
       "font_kinds": 9,
       "font_count": 46,
       "radius_kinds": 10,
-      "radius_count": 24
+      "radius_count": 25
     },
     "lib/screens/my_page_sub_screens.dart": {
       "color_kinds": 6,
@@ -174,7 +174,7 @@
       "font_kinds": 9,
       "font_count": 28,
       "radius_kinds": 4,
-      "radius_count": 10
+      "radius_count": 11
     },
     "lib/screens/neighborhood_crew_screen.dart": {
       "color_kinds": 5,
@@ -201,12 +201,12 @@
       "radius_count": 0
     },
     "lib/screens/oomu_detail_screen.dart": {
-      "color_kinds": 4,
-      "color_count": 5,
-      "font_kinds": 6,
-      "font_count": 15,
-      "radius_kinds": 3,
-      "radius_count": 4
+      "color_kinds": 6,
+      "color_count": 7,
+      "font_kinds": 7,
+      "font_count": 17,
+      "radius_kinds": 4,
+      "radius_count": 5
     },
     "lib/screens/oomu_home_screen.dart": {
       "color_kinds": 9,
