@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../ui/oomu_chip.dart';
 import '../../ui/oomu_tokens.dart';
-import '../../widgets/bouncy_tap.dart';
 
 /// 홈 화면 카테고리 탭 & 서브태그 트레이 컴포넌트
 class HomeCategoryTabs extends StatelessWidget {

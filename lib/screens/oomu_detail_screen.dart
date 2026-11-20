@@ -759,10 +759,6 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         (meetup['date'] ?? meetup['schedule'] ?? '').toString().trim();
     final memberCount = _getMemberCount(meetup['members']);
     final maxCapacity = MeetupMemberHelper.parseCapacity(meetup);
-    final closeReason = MeetupMemberHelper.closeReason(meetup);
-    final statusLabel = closeReason != null
-        ? '모집 마감 · $closeReason'
-        : MeetupMemberHelper.formatStatusLabel(meetup);
 
     return Scaffold(
       backgroundColor: OomuTokens.background,

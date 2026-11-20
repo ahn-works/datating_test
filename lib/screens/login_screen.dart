@@ -875,59 +875,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildStageChip(int stage, String label) {
-    final isSelected = _currentStage == stage;
-    return InkWell(
-      onTap: () => _goToStage(stage),
-      borderRadius: BorderRadius.circular(OomuTokens.rPill),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? colorText
-              : OomuTokens.surface.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(OomuTokens.rPill),
-          border: Border.all(
-            color: isSelected ? colorText : OomuTokens.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: OomuTokens.fs12,
-            fontWeight: FontWeight.w700,
-            color: isSelected ? OomuTokens.surface : colorTextMuted,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDirectAppChip(String label) {
-    return InkWell(
-      onTap: _handleGuestLogin,
-      borderRadius: BorderRadius.circular(OomuTokens.rPill),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: colorPrimary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(OomuTokens.rPill),
-          border: Border.all(
-            color: colorPrimary.withValues(alpha: 0.35),
-          ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: OomuTokens.fs12,
-            fontWeight: FontWeight.w700,
-            color: colorPrimary,
-          ),
-        ),
-      ),
-    );
-  }
-
   // ==========================================
   // 1. 스플래시 화면 (Screen 1: 다크 에스프레소 + 실시간 모임 애니메이션)
   // ==========================================
