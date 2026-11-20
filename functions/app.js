@@ -112,6 +112,26 @@ app.post('/api/sms/send', async (req, res) => {
 
     const messageText = `[OOMU] 인증번호는 [${otp}]입니다. 타인에게 노출하지 마세요.`;
 
+    const kakaoPfId = process.env.SOLAPI_KAKAO_PFID || '';
+    const kakaoTemplateId = process.env.SOLAPI_KAKAO_TEMPLATE_ID || '';
+
+    const messagePayload = {
+      to: cleanPhone,
+      from: senderNumber,
+      text: messageText
+    };
+
+    if (kakaoPfId && kakaoTemplateId) {
+      messagePayload.kakaoOptions = {
+        pfId: kakaoPfId,
+        templateId: kakaoTemplateId,
+        variables: {
+          '#{인증번호}': otp
+        },
+        disableSms: false
+      };
+    }
+
     const solapiRes = await fetch('https://api.solapi.com/messages/v4/send', {
       method: 'POST',
       headers: {
@@ -119,11 +139,7 @@ app.post('/api/sms/send', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        message: {
-          to: cleanPhone,
-          from: senderNumber,
-          text: messageText
-        }
+        message: messagePayload
       })
     });
 

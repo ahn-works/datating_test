@@ -39,12 +39,14 @@ class SolapiSmsService {
   String _apiKey = '';
   String _apiSecret = '';
   String _senderNumber = '';
+  String _kakaoPfId = '';
+  String _kakaoTemplateId = '';
   bool _isInitialized = false;
 
   // 인메모리 빠른 인증 세션 캐시 (cleanPhone -> {code, expiresAt, verified})
   final Map<String, Map<String, dynamic>> _localSessionCache = {};
 
-  /// SMS 발송 서비스 초기화
+  /// SMS & 카카오 알림톡 발송 서비스 초기화
   Future<bool> initialize() async {
     if (_isInitialized) return true;
 
@@ -52,11 +54,15 @@ class SolapiSmsService {
     const envKey = String.fromEnvironment('SOLAPI_API_KEY');
     const envSecret = String.fromEnvironment('SOLAPI_API_SECRET');
     const envSender = String.fromEnvironment('SOLAPI_SENDER_NUMBER');
+    const envPfId = String.fromEnvironment('SOLAPI_KAKAO_PFID');
+    const envTemplateId = String.fromEnvironment('SOLAPI_KAKAO_TEMPLATE_ID');
     if (envKey.isNotEmpty && envSecret.isNotEmpty) {
       _apiKey = envKey;
       _apiSecret = envSecret;
       if (envSender.isNotEmpty) _senderNumber = envSender;
     }
+    if (envPfId.isNotEmpty) _kakaoPfId = envPfId;
+    if (envTemplateId.isNotEmpty) _kakaoTemplateId = envTemplateId;
 
     _isInitialized = true;
     return true;
@@ -133,13 +139,25 @@ class SolapiSmsService {
       try {
         final url = Uri.parse('https://api.solapi.com/messages/v4/send');
         final authHeader = _generateAuthHeader();
-        final body = jsonEncode({
-          'message': {
-            'to': phone,
-            'from': _senderNumber,
-            'text': messageText,
-          }
-        });
+        final Map<String, dynamic> messagePayload = {
+          'to': phone,
+          'from': _senderNumber,
+          'text': messageText,
+        };
+
+        // 카카오 알림톡 설정이 있는 경우 kakaoOptions 추가 (실패 시 SMS 자동 대체 발송)
+        if (_kakaoPfId.isNotEmpty && _kakaoTemplateId.isNotEmpty) {
+          messagePayload['kakaoOptions'] = {
+            'pfId': _kakaoPfId,
+            'templateId': _kakaoTemplateId,
+            'variables': {
+              '#{인증번호}': code,
+            },
+            'disableSms': false,
+          };
+        }
+
+        final body = jsonEncode({'message': messagePayload});
 
         final response = await http.post(
           url,
