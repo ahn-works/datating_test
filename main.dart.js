@@ -36360,9 +36360,9 @@ o9:function o9(a,b,c){this.a=a
 this.b=b
 this.c=c},
 aE4:function aE4(a){var _=this
-_.c=_.b=_.a=""
-_.d=!1
-_.e=a},
+_.e=_.d=_.c=_.b=_.a=""
+_.f=!1
+_.r=a},
 f2:function f2(a,b,c,d){var _=this
 _.c=a
 _.d=b
@@ -130690,9 +130690,9 @@ A.o9.prototype={}
 A.aE4.prototype={
 hX(a){var s=0,r=A.x(t.y),q,p=this
 var $async$hX=A.t(function(b,c){if(b===1)return A.u(c,r)
-for(;;)switch(s){case 0:if(p.d){q=!0
+for(;;)switch(s){case 0:if(p.f){q=!0
 s=1
-break}q=p.d=!0
+break}q=p.f=!0
 s=1
 break
 case 1:return A.v(q,r)}})
@@ -130700,49 +130700,49 @@ return A.w($async$hX,r)},
 wU(a){var s=A.bO("[^0-9]",!0,!1),r=A.cA(a,s,"")
 return B.b.aZ(r,"82")?"0"+B.b.bX(r,2):r},
 oV(a){return this.aeI(a)},
-aeI(b2){var s=0,r=A.x(t.Ea),q,p=2,o=[],n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1
-var $async$oV=A.t(function(b3,b4){if(b3===1){o.push(b4)
-s=p}for(;;)switch(s){case 0:a9=n.wU(b2)
-if(J.aA(a9)<10||J.aA(a9)>11||!J.iw(a9,"010")){q=new A.o9(!1,null,"010\uc73c\ub85c \uc2dc\uc791\ud558\ub294 \uc62c\ubc14\ub978 \ud734\ub300\ud3f0 \ubc88\ud638\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694.")
+aeI(b4){var s=0,r=A.x(t.Ea),q,p=2,o=[],n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1,b2,b3
+var $async$oV=A.t(function(b5,b6){if(b5===1){o.push(b6)
+s=p}for(;;)switch(s){case 0:b1=n.wU(b4)
+if(J.aA(b1)<10||J.aA(b1)>11||!J.iw(b1,"010")){q=new A.o9(!1,null,"010\uc73c\ub85c \uc2dc\uc791\ud558\ub294 \uc62c\ubc14\ub978 \ud734\ub300\ud3f0 \ubc88\ud638\ub97c \uc785\ub825\ud574 \uc8fc\uc138\uc694.")
 s=1
 break}s=3
 return A.l(n.hX(0),$async$oV)
 case 3:m=A.Ld()
 p=5
 l=A.dF(A.i(m)+"/api/sms/send",0,null)
-a2=t.N
-a3=A.I(["Content-Type","application/json"],a2,a2)
+a3=t.N
+a4=A.I(["Content-Type","application/json"],a3,a3)
 s=8
-return A.l(A.zk(l,B.aO.mN(A.I(["phone",a9],a2,a2),null),a3).eN(0,B.jx),$async$oV)
-case 8:k=b4
-a3=k
-j=t.a.a(B.aO.hv(0,A.jB(A.jz(a3.e)).d4(0,a3.w),null))
-if(k.b===200&&J.c(J.o(j,"success"),!0)){n.e.n(0,a9,A.I(["expiresAt",new A.bZ(Date.now(),0,!1).kB(18e7),"verified",!1],a2,t.z))
-A.c5().$1("[SolapiSmsService] Proxy SMS sent successfully to "+A.i(a9))
-a2=A.i(a9)
-q=new A.o9(!0,"solapi_"+a2,null)
+return A.l(A.zk(l,B.aO.mN(A.I(["phone",b1],a3,a3),null),a4).eN(0,B.jx),$async$oV)
+case 8:k=b6
+a4=k
+j=t.a.a(B.aO.hv(0,A.jB(A.jz(a4.e)).d4(0,a4.w),null))
+if(k.b===200&&J.c(J.o(j,"success"),!0)){n.r.n(0,b1,A.I(["expiresAt",new A.bZ(Date.now(),0,!1).kB(18e7),"verified",!1],a3,t.z))
+A.c5().$1("[SolapiSmsService] Proxy SMS sent successfully to "+A.i(b1))
+a3=A.i(b1)
+q=new A.o9(!0,"solapi_"+a3,null)
 s=1
-break}else if(k.b===429){a2=J.o(j,"message")
-a2=a2==null?null:J.m(a2)
-if(a2==null)a2="\uc694\uccad\uc774 \ub108\ubb34 \ub9ce\uc2b5\ub2c8\ub2e4. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694."
-q=new A.o9(!1,null,a2)
+break}else if(k.b===429){a3=J.o(j,"message")
+a3=a3==null?null:J.m(a3)
+if(a3==null)a3="\uc694\uccad\uc774 \ub108\ubb34 \ub9ce\uc2b5\ub2c8\ub2e4. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694."
+q=new A.o9(!1,null,a3)
 s=1
-break}else if(k.b===503){a2=J.o(j,"message")
-a2=a2==null?null:J.m(a2)
-if(a2==null)a2="\uc11c\ubc84\uc5d0 SMS \ubc1c\uc1a1 \ud0a4\uac00 \uc124\uc815\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4."
-q=new A.o9(!1,null,a2)
+break}else if(k.b===503){a3=J.o(j,"message")
+a3=a3==null?null:J.m(a3)
+if(a3==null)a3="\uc11c\ubc84\uc5d0 SMS \ubc1c\uc1a1 \ud0a4\uac00 \uc124\uc815\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4."
+q=new A.o9(!1,null,a3)
 s=1
-break}else{a2=J.o(j,"message")
-a4=a2==null?null:J.m(a2)
-i=a4==null?"\uc778\uc99d\ubc88\ud638 \ubc1c\uc1a1 \uc2e4\ud328":a4
+break}else{a3=J.o(j,"message")
+a5=a3==null?null:J.m(a3)
+i=a5==null?"\uc778\uc99d\ubc88\ud638 \ubc1c\uc1a1 \uc2e4\ud328":a5
 q=new A.o9(!1,null,i)
 s=1
 break}p=2
 s=7
 break
 case 5:p=4
-b0=o.pop()
-h=A.a8(b0)
+b2=o.pop()
+h=A.a8(b2)
 A.c5().$1("[SolapiSmsService] Proxy call notice ("+A.i(h)+"), checking local env fallback")
 s=7
 break
@@ -130754,30 +130754,34 @@ case 9:g=B.p.k(1e5+B.os.Jg(9e5))
 f="[OOMU] \uc778\uc99d\ubc88\ud638\ub294 ["+A.i(g)+"]\uc785\ub2c8\ub2e4. \ud0c0\uc778\uc5d0\uac8c \uc808\ub300 \ub178\ucd9c\ud558\uc9c0 \ub9c8\uc138\uc694."
 p=12
 e=A.dF("https://api.solapi.com/messages/v4/send",0,null)
-a6=new A.bZ(Date.now(),0,!1).acw().Uv()
-a2=B.p.k(1000*Date.now())
-a7=a2+B.p.k(1000+B.os.Jg(9000))
-a8=A.boJ(A.bxN(B.PM,B.f_.cZ(n.b)).cZ(B.f_.cZ(a6+a7)).a)
-d="HMAC-SHA256 apiKey="+n.a+", date="+a6+", salt="+a7+", signature="+a8
-a2=t.N
-c=B.aO.mN(A.I(["message",A.I(["to",a9,"from",n.c,"text",f],a2,a2)],a2,t.GU),null)
+a7=new A.bZ(Date.now(),0,!1).acw().Uv()
+a3=B.p.k(1000*Date.now())
+a8=a3+B.p.k(1000+B.os.Jg(9000))
+a9=A.boJ(A.bxN(B.PM,B.f_.cZ(n.b)).cZ(B.f_.cZ(a7+a8)).a)
+d="HMAC-SHA256 apiKey="+n.a+", date="+a7+", salt="+a8+", signature="+a9
+a3=t.N
+a4=t.z
+c=A.I(["to",b1,"from",n.c,"text",f],a3,a4)
+b0=n.d
+if(b0.length!==0&&n.e.length!==0)J.b9(c,"kakaoOptions",A.I(["pfId",b0,"templateId",n.e,"variables",A.I(["#{\uc778\uc99d\ubc88\ud638}",g],a3,a3),"disableSms",!1],a3,t.K))
+b=B.aO.mN(A.I(["message",c],a3,t.a),null)
 s=15
-return A.l(A.zk(e,c,A.I(["Authorization",d,"Content-Type","application/json"],a2,a2)),$async$oV)
-case 15:b=b4
-if(b.b===200){a3=b
-a=B.aO.hv(0,A.jB(A.jz(a3.e)).d4(0,a3.w),null)
-if(J.c(J.o(a,"statusCode"),"2000")||J.o(a,"groupId")!=null){a0=new A.bZ(Date.now(),0,!1).kB(18e7)
-n.e.n(0,a9,A.I(["code",g,"expiresAt",a0,"verified",!1],a2,t.z))
-a2=A.i(a9)
-q=new A.o9(!0,"solapi_"+a2,null)
+return A.l(A.zk(e,b,A.I(["Authorization",d,"Content-Type","application/json"],a3,a3)),$async$oV)
+case 15:a=b6
+if(a.b===200){b0=a
+a0=B.aO.hv(0,A.jB(A.jz(b0.e)).d4(0,b0.w),null)
+if(J.c(J.o(a0,"statusCode"),"2000")||J.o(a0,"groupId")!=null){a1=new A.bZ(Date.now(),0,!1).kB(18e7)
+n.r.n(0,b1,A.I(["code",g,"expiresAt",a1,"verified",!1],a3,a4))
+a3=A.i(b1)
+q=new A.o9(!0,"solapi_"+a3,null)
 s=1
 break}}p=2
 s=14
 break
 case 12:p=11
-b1=o.pop()
-a1=A.a8(b1)
-A.c5().$1("[SolapiSmsService] Direct fallback error: "+A.i(a1))
+b3=o.pop()
+a2=A.a8(b3)
+A.c5().$1("[SolapiSmsService] Direct fallback error: "+A.i(a2))
 s=14
 break
 case 11:s=2
@@ -130795,7 +130799,7 @@ s=p}for(;;)switch(s){case 0:a=n.wU(a3)
 a0=B.b.G(a2)
 if(J.aA(a0)!==6){q=!1
 s=1
-break}h=n.e
+break}h=n.r
 g=h.h(0,a)
 f=g!=null
 if(f&&J.c(g.h(0,"verified"),!0)){h=$.aq()
