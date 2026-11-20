@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
@@ -122,14 +121,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       final nick = widget.userName.trim();
       if (nick.isEmpty || nick == '닉네임 미설정') return;
       try {
-        final q = await FirebaseFirestore.instance
-            .collection('users')
-            .where('nickname', isEqualTo: nick)
-            .limit(1)
-            .get();
-        if (q.docs.isEmpty || !mounted) return;
-        _resolvedUid ??= q.docs.first.id;
-        _applyUserDoc(q.docs.first.data());
+        final resolved = await OomuUiHelpers.fetchUserOrBotProfile(nickname: nick);
+        if (resolved == null || !mounted) return;
+        _resolvedUid ??= resolved.key;
+        _applyUserDoc(resolved.value);
       } catch (e) {
         debugPrint('[UserProfileScreen] nickname fallback error: $e');
       }
@@ -139,25 +134,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (Firebase.apps.isEmpty) return;
 
     try {
-      final doc =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (doc.exists && doc.data() != null) {
-        if (!mounted) return;
-        _resolvedUid = doc.id;
-        _applyUserDoc(doc.data()!);
-        return;
-      }
-      final nick = widget.userName.trim();
-      if (nick.isNotEmpty && nick != '닉네임 미설정') {
-        final q = await FirebaseFirestore.instance
-            .collection('users')
-            .where('nickname', isEqualTo: nick)
-            .limit(1)
-            .get();
-        if (q.docs.isNotEmpty && mounted) {
-          _resolvedUid ??= q.docs.first.id;
-          _applyUserDoc(q.docs.first.data());
-        }
+      final resolved = await OomuUiHelpers.fetchUserOrBotProfile(
+        uid: uid,
+        nickname: widget.userName,
+      );
+      if (resolved != null && mounted) {
+        _resolvedUid ??= resolved.key;
+        _applyUserDoc(resolved.value);
       }
     } catch (e) {
       debugPrint('[UserProfileScreen] fetch error: $e');

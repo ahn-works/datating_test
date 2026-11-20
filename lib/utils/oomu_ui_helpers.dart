@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../ui/oomu_theme.dart';
@@ -320,4 +322,35 @@ class OomuUiHelpers {
 
   /// 12. OOMU 공통 ThemeData (정의는 lib/ui/oomu_theme.dart 단일 원천)
   static ThemeData buildTheme() => buildOomuTheme();
+
+  /// 실제 유저(`users`)와 봇(`bots`) 컬렉션을 분리 유지하면서도 프로필을 단일 경로로 조회한다.
+  static Future<MapEntry<String, Map<String, dynamic>>?> fetchUserOrBotProfile({
+    String uid = '',
+    String nickname = '',
+  }) async {
+    if (Firebase.apps.isEmpty) return null;
+    final db = FirebaseFirestore.instance;
+    final cleanUid = uid.trim();
+    final cleanNick = nickname.trim();
+
+    if (cleanUid.isNotEmpty && cleanUid != 'guest') {
+      final order = cleanUid.startsWith('bot_') ? ['bots', 'users'] : ['users', 'bots'];
+      for (final coll in order) {
+        final doc = await db.collection(coll).doc(cleanUid).get();
+        if (doc.exists && doc.data() != null) {
+          return MapEntry(doc.id, doc.data()!);
+        }
+      }
+    }
+
+    if (cleanNick.isNotEmpty && cleanNick != '모임 호스트' && cleanNick != '닉네임 미설정') {
+      for (final coll in const ['users', 'bots']) {
+        final q = await db.collection(coll).where('nickname', isEqualTo: cleanNick).limit(1).get();
+        if (q.docs.isNotEmpty) {
+          return MapEntry(q.docs.first.id, q.docs.first.data());
+        }
+      }
+    }
+    return null;
+  }
 }

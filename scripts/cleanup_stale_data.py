@@ -21,7 +21,53 @@ if hasattr(sys.stdout, "reconfigure"):
         pass
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scripts.firestore_helper import delete_document, list_documents, set_document
+from scripts.firestore_helper import PROJECT_ID, delete_document, get_access_token, list_documents
+import requests
+
+
+def sync_auth_users_to_firestore():
+    """Firebase Authentication에 없는 고아 users/{uid} 문서를 자동 정리한다 (봇은 bots/로 분리 유지)."""
+    print("\n🔄 Syncing Firebase Authentication <-> Firestore users...")
+    token = get_access_token()
+    if not token:
+        print("[SKIP] No service account token; skipping Auth <-> Firestore user sync.")
+        return 0
+
+    auth_uids = set()
+    next_page = None
+    url = f"https://identitytoolkit.googleapis.com/v1/projects/{PROJECT_ID}/accounts:query"
+    while True:
+        payload = {"returnUserInfo": False, "limit": "500"}
+        if next_page:
+            payload["nextPageToken"] = next_page
+        resp = requests.post(
+            url,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json=payload,
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            print(f"[WARN] Identity Toolkit query failed ({resp.status_code}): skipping user sync.")
+            return 0
+        data = resp.json()
+        for u in data.get("userInfo", []):
+            if u.get("localId"):
+                auth_uids.add(u["localId"])
+        next_page = data.get("nextPageToken")
+        if not next_page:
+            break
+
+    removed = 0
+    for doc in list_documents("users", page_size=200):
+        uid = doc.get("_id")
+        if not uid or doc.get("isBot") is True:
+            continue
+        if uid not in auth_uids:
+            print(f"  [DELETE] Orphaned user doc not in Auth: users/{uid}")
+            delete_document("users", uid)
+            removed += 1
+    print(f"✅ [SUCCESS] Auth sync complete (Auth: {len(auth_uids)}, Removed orphaned users: {removed}).")
+    return removed
 
 
 def cleanup_stale_meetups(days_threshold=3):
@@ -34,7 +80,6 @@ def cleanup_stale_meetups(days_threshold=3):
     print(f"Total meetups in DB: {len(docs)}")
 
     cleaned_count = 0
-    now_iso = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for doc in docs:
         doc_id = doc.get("_id")
@@ -42,13 +87,10 @@ def cleanup_stale_meetups(days_threshold=3):
             continue
 
         is_closed = doc.get("isClosed", False) or doc.get("status") == "closed"
-        if is_closed:
-            continue
-
         created_at_raw = doc.get("createdAt") or doc.get("_createTime")
-        is_stale = False
+        is_stale = bool(is_closed)
 
-        if created_at_raw:
+        if not is_stale and created_at_raw:
             try:
                 clean_time = created_at_raw.replace("Z", "+00:00")
                 created_dt = datetime.fromisoformat(clean_time)
@@ -63,11 +105,11 @@ def cleanup_stale_meetups(days_threshold=3):
             is_stale = True
 
         if is_stale:
-            print(f"  [ARCHIVE] Meetup '{doc.get('title')}' [ID: {doc_id}] marked closed (age > {days_threshold}d)")
-            set_document("meetups", doc_id, {"status": "closed", "isClosed": True, "closedAt": now_iso}, merge=True)
+            print(f"  [DELETE] Closed/Expired Meetup '{doc.get('title')}' [ID: {doc_id}]")
+            delete_document("meetups", doc_id)
             cleaned_count += 1
 
-    print(f"✅ [SUCCESS] Cleaned/Archived {cleaned_count} stale meetups.")
+    print(f"✅ [SUCCESS] Deleted {cleaned_count} closed/expired meetups.")
 
     # 2. Cleanup expired trend events (공연/축구/영화 중 3일 이상 지난 행사 삭제)
     cleaned_trends = 0
@@ -111,6 +153,7 @@ def cleanup_stale_meetups(days_threshold=3):
         print(f"[WARN] Cloudflare R2 purge script notice: {e}")
     print("--------------------------------------------------")
 
+    sync_auth_users_to_firestore()
     return cleaned_count + cleaned_trends
 
 

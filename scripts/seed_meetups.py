@@ -22,62 +22,64 @@ if hasattr(sys.stdout, "reconfigure"):
 
 from firestore_helper import list_documents, set_document
 
-# Authentic seed personas mapped 1:1 to real users documents
+# Authentic seed personas mapped 1:1 to bots/ collection (separated from real users)
 SEED_PERSONAS = [
     {
-        "uid": "test_user_03",
+        "uid": "bot_jiyeon",
         "host": "성수와인_지연",
         "avatar": "assets/images/지연.png",
-        "manner": 43.8,
+        "manner": 44.0,
         "default_loc": "서울 성동구 성수동 카페거리",
     },
     {
-        "uid": "bot_mangwon_runner",
+        "uid": "bot_jian",
         "host": "망원러너_지안",
         "avatar": "assets/images/지안.png",
         "manner": 46.5,
         "default_loc": "서울 마포구 망원한강공원",
     },
     {
-        "uid": "test_user_02",
+        "uid": "bot_jihun",
         "host": "연남러너_지훈",
         "avatar": "assets/images/지훈.png",
-        "manner": 42.4,
+        "manner": 43.5,
         "default_loc": "서울 중구 을지로3가역",
     },
     {
-        "uid": "test_user_01",
+        "uid": "bot_minji",
         "host": "망원치즈_민지",
         "avatar": "assets/images/민지.png",
-        "manner": 44.2,
+        "manner": 41.2,
         "default_loc": "서울 마포구 연남동 경의선숲길",
     },
     {
-        "uid": "minji",
-        "host": "망원치즈_민지",
-        "avatar": "assets/images/민지.png",
-        "manner": 45.0,
-        "default_loc": "서울 송파구 잠실한강공원",
+        "uid": "bot_jungjae",
+        "host": "성수미식가_정재",
+        "avatar": "assets/images/정재.png",
+        "manner": 45.2,
+        "default_loc": "서울 성동구 성수동",
     },
     {
-        "uid": "bot_yeosu_bakery",
+        "uid": "bot_jua",
         "host": "여수빵순이_주아",
         "avatar": "assets/images/주아.png",
         "manner": 44.5,
         "default_loc": "전남 여수시 화장동 선소상가 카페거리",
     },
     {
-        "uid": "bot_yeosu_running",
-        "host": "성산러너_지훈",
-        "avatar": "assets/images/지훈.png",
-        "manner": 45.2,
-        "default_loc": "전남 여수시 화장동 성산공원",
+        "uid": "bot_siyeon",
+        "host": "화장동코노퀸_시연",
+        "avatar": "assets/images/시연.png",
+        "manner": 43.5,
+        "default_loc": "전남 여수시 화장동",
     },
     {
-        "uid": "bot_yeosu_ungcheon",
-        "host": "웅천피플_지안",
-        "avatar": "assets/images/지안.png",
-        "manner": 43.4,
+        "uid": "bot_choyeon",
+        "host": "여수산책_초연",
+        "avatar": "assets/images/초연.png",
+        "manner": 42.0,
+        "default_loc": "전남 여수시 화장동",
+    },
         "default_loc": "전남 여수시 웅천동 해변문화공원",
     },
 ]
@@ -374,27 +376,6 @@ def seed_meetups_job(force=False, max_active=8):
     except Exception as e:
         print(f"[ERROR] Failed to save seed meetup: {e}")
         return 0
-
-    try:
-        room_payload = {
-            "id": doc_id,
-            "meetupId": doc_id,
-            "title": template["title"],
-            "hostUid": persona["uid"],
-            "lastMessage": f"안녕하세요! {persona['host']}입니다. {template['title']} 모임 대화방입니다. 참여를 환영해요! 🎉",
-            "lastMessageTime": "방금",
-            "time": "방금",
-            "members": 1,
-            "participants": [persona["uid"]],
-            "imageUrl": template["imageUrl"],
-            "isGroup": True,
-            "updatedAt": now_iso,
-            "isSeed": True,
-        }
-        set_document("chatRooms", doc_id, room_payload, merge=True)
-        print(f"💬 [SUCCESS] Initialized Chat Room: chatRooms/{doc_id}")
-    except Exception as e:
-        print(f"[WARN] Chat room init warning: {e}")
 
     return 1
 

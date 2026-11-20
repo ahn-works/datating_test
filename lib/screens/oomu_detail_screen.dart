@@ -94,31 +94,15 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         (m['hostUid'] ?? m['hostId'] ?? m['creatorId'] ?? '').toString().trim();
     final rawName = (m['host'] ?? m['hostName'] ?? '').toString().trim();
     try {
-      if (rawUid.isNotEmpty && rawUid != 'guest') {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(rawUid)
-            .get();
-        if (doc.exists && doc.data() != null && mounted) {
-          setState(() {
-            _hostUserDoc = doc.data();
-            _resolvedHostUid = doc.id;
-          });
-          return;
-        }
-      }
-      if (rawName.isNotEmpty && rawName != '모임 호스트') {
-        final q = await FirebaseFirestore.instance
-            .collection('users')
-            .where('nickname', isEqualTo: rawName)
-            .limit(1)
-            .get();
-        if (q.docs.isNotEmpty && mounted) {
-          setState(() {
-            _hostUserDoc = q.docs.first.data();
-            _resolvedHostUid = q.docs.first.id;
-          });
-        }
+      final resolved = await OomuUiHelpers.fetchUserOrBotProfile(
+        uid: rawUid,
+        nickname: rawName,
+      );
+      if (resolved != null && mounted) {
+        setState(() {
+          _hostUserDoc = resolved.value;
+          _resolvedHostUid = resolved.key;
+        });
       }
     } catch (e) {
       debugPrint('[OOMUDetailScreen] host user doc fetch error: $e');
