@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -63,6 +64,21 @@ class SolapiSmsService {
     }
     if (envPfId.isNotEmpty) _kakaoPfId = envPfId;
     if (envTemplateId.isNotEmpty) _kakaoTemplateId = envTemplateId;
+
+    // 1. Firestore app_config/solapi에서 동적 키 로드 (Zero-Secret 원칙 준수)
+    try {
+      final doc = await FirebaseFirestore.instance.collection('app_config').doc('solapi').get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        if (_apiKey.isEmpty) _apiKey = data['solapiApiKey']?.toString() ?? '';
+        if (_apiSecret.isEmpty) _apiSecret = data['solapiApiSecret']?.toString() ?? '';
+        if (_senderNumber.isEmpty) _senderNumber = data['solapiSenderNumber']?.toString() ?? '';
+        if (_kakaoPfId.isEmpty) _kakaoPfId = data['solapiKakaoPfId']?.toString() ?? '';
+        if (_kakaoTemplateId.isEmpty) _kakaoTemplateId = data['solapiKakaoTemplateId']?.toString() ?? '';
+      }
+    } catch (e) {
+      debugPrint('[SolapiSmsService] Notice reading app_config/solapi: $e');
+    }
 
     _isInitialized = true;
     return true;
@@ -134,7 +150,12 @@ class SolapiSmsService {
     // 2. 개발/오프라인 환경 폴백 (SOLAPI_API_KEY가 dart-define으로 주입된 경우만)
     if (_apiKey.isNotEmpty && _apiSecret.isNotEmpty && _senderNumber.isNotEmpty) {
       final code = (100000 + Random().nextInt(900000)).toString();
-      final messageText = '[OOMU] 인증번호는 [$code]입니다. 타인에게 절대 노출하지 마세요.';
+      final messageText = '[OOMU] 동네 취향 모임 ✨\n\n'
+          '반가워요, 이웃님! \n'
+          '우무(OOMU) 인증번호입니다.\n\n'
+          '🔐 인증번호 : [$code]\n'
+          '⏱️ 유효시간 : 3분 이내\n\n'
+          '🙅 타인에게 절대 노출 금지!';
 
       try {
         final url = Uri.parse('https://api.solapi.com/messages/v4/send');

@@ -89,9 +89,28 @@ app.post('/api/sms/send', async (req, res) => {
     }, { merge: true }).catch(e => console.warn('[ServerProxy] OTP persist failed:', e.message));
 
     // Retrieve server-side credentials
-    const apiKey = process.env.SOLAPI_API_KEY || '';
-    const apiSecret = process.env.SOLAPI_API_SECRET || '';
-    const senderNumber = process.env.SOLAPI_SENDER_NUMBER || '';
+    let apiKey = process.env.SOLAPI_API_KEY || '';
+    let apiSecret = process.env.SOLAPI_API_SECRET || '';
+    let senderNumber = process.env.SOLAPI_SENDER_NUMBER || '';
+    let kakaoPfId = process.env.SOLAPI_KAKAO_PFID || '';
+    let kakaoTemplateId = process.env.SOLAPI_KAKAO_TEMPLATE_ID || '';
+
+    // Load from Firestore app_config/solapi if not set in env
+    if (!apiKey || !apiSecret || !senderNumber || !kakaoPfId) {
+      try {
+        const solapiDoc = await db.collection('app_config').doc('solapi').get();
+        if (solapiDoc.exists) {
+          const cfg = solapiDoc.data();
+          apiKey = apiKey || cfg.solapiApiKey || '';
+          apiSecret = apiSecret || cfg.solapiApiSecret || '';
+          senderNumber = senderNumber || cfg.solapiSenderNumber || '';
+          kakaoPfId = kakaoPfId || cfg.solapiKakaoPfId || '';
+          kakaoTemplateId = kakaoTemplateId || cfg.solapiKakaoTemplateId || '';
+        }
+      } catch (e) {
+        console.warn('[ServerProxy] Firestore solapi config read notice:', e.message);
+      }
+    }
 
     if (!apiKey || !apiSecret || !senderNumber) {
       // In testing/dev environments without server keys configured:
@@ -110,7 +129,7 @@ app.post('/api/sms/send', async (req, res) => {
     const signature = hmac.digest('hex');
     const authHeader = `HMAC-SHA256 apiKey=${apiKey}, date=${dateStr}, salt=${solapiSalt}, signature=${signature}`;
 
-    const messageText = `[OOMU] 인증번호는 [${otp}]입니다. 타인에게 노출하지 마세요.`;
+    const messageText = `[OOMU] 동네 취향 모임 ✨\n\n반가워요, 이웃님! \n우무(OOMU) 인증번호입니다.\n\n🔐 인증번호 : [${otp}]\n⏱️ 유효시간 : 3분 이내\n\n🙅 타인에게 절대 노출 금지!`;
 
     const kakaoPfId = process.env.SOLAPI_KAKAO_PFID || '';
     const kakaoTemplateId = process.env.SOLAPI_KAKAO_TEMPLATE_ID || '';
