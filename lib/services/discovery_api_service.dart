@@ -743,6 +743,8 @@ class DiscoveryApiService {
       ),
     ];
 
+    if (kIsWeb) return defaults;
+
     try {
       final resp = await http
           .get(Uri.parse(
