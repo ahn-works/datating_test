@@ -53,6 +53,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   int _locationReqId = 0;
   Map<String, dynamic>? _hostUserDoc;
   String? _resolvedHostUid;
+  final Map<String, Map<String, dynamic>> _memberUserDocs = {};
 
   String _formatTitleKeepWords(String? title) {
     return OomuUiHelpers.formatTitle(title, fallback: '취향 모임');
@@ -84,6 +85,33 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       _isFavorite = globalData.isFavorite(m['id'] ?? m['title']);
       _initLocationState();
       _fetchHostUserDoc();
+      _fetchMemberUserDocs();
+    }
+  }
+
+  Future<void> _fetchMemberUserDocs() async {
+    final m = _effectiveMeetup;
+    if (m == null || Firebase.apps.isEmpty) return;
+    final hostUid =
+        (m['hostUid'] ?? m['hostId'] ?? m['creatorId'] ?? '').toString().trim();
+    final rawList = (m['members'] is List)
+        ? (m['members'] as List)
+        : ((m['participantIds'] is List) ? (m['participantIds'] as List) : const []);
+    final uids = rawList
+        .map((e) => e.toString().trim())
+        .where((s) => s.isNotEmpty && s != hostUid)
+        .toSet()
+        .toList();
+    if (uids.isEmpty) return;
+    for (final uid in uids) {
+      try {
+        final resolved = await OomuUiHelpers.fetchUserOrBotProfile(uid: uid);
+        if (resolved != null && mounted) {
+          setState(() {
+            _memberUserDocs[uid] = resolved.value;
+          });
+        }
+      } catch (_) {}
     }
   }
 
@@ -132,6 +160,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             });
             _initLocationState();
             _fetchHostUserDoc();
+            _fetchMemberUserDocs();
             return;
           }
         }
@@ -173,6 +202,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         _isFavorite = globalData.isFavorite(m['id'] ?? m['title']);
         _initLocationState();
         _fetchHostUserDoc();
+        _fetchMemberUserDocs();
       }
     }
   }
@@ -1095,26 +1125,68 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         final rawMembers =
                             (_effectiveMeetup?['members'] is List)
                                 ? (_effectiveMeetup!['members'] as List)
-                                    .map((e) => e.toString())
+                                    .map((e) => e.toString().trim())
                                     .where((s) => s.isNotEmpty && s != hostUid)
                                     .toList()
-                                : <String>[];
+                                : ((_effectiveMeetup?['participantIds'] is List)
+                                    ? (_effectiveMeetup!['participantIds'] as List)
+                                        .map((e) => e.toString().trim())
+                                        .where((s) => s.isNotEmpty && s != hostUid)
+                                        .toList()
+                                    : <String>[]);
 
                         final rawAvatars =
                             (_effectiveMeetup?['memberAvatars'] is List)
                                 ? (_effectiveMeetup!['memberAvatars'] as List)
-                                    .map((e) => e.toString())
+                                    .map((e) => e.toString().trim())
                                     .where((s) => s.isNotEmpty)
                                     .toList()
                                 : <String>[];
 
-                        for (int i = 0; i < rawAvatars.length && i < 5; i++) {
+                        final rawNames =
+                            (_effectiveMeetup?['memberNames'] is List)
+                                ? (_effectiveMeetup!['memberNames'] as List)
+                                    .map((e) => e.toString().trim())
+                                    .where((s) => s.isNotEmpty)
+                                    .toList()
+                                : <String>[];
+
+                        final int expectedNonHost =
+                            memberCount > 1 ? memberCount - 1 : 0;
+                        int targetNonHostCount = rawMembers.length;
+                        if (rawAvatars.length > targetNonHostCount) {
+                          targetNonHostCount = rawAvatars.length;
+                        }
+                        if (expectedNonHost > targetNonHostCount) {
+                          targetNonHostCount = expectedNonHost;
+                        }
+
+                        for (int i = 0;
+                            i < targetNonHostCount && i < 5;
+                            i++) {
                           final memberUid =
                               i < rawMembers.length ? rawMembers[i] : null;
-                          avatars.add(_buildMemberAvatar(rawAvatars[i],
-                              isHost: false,
-                              name: '참여 이웃 ${i + 1}',
-                              userId: memberUid));
+                          final memberDoc = memberUid != null
+                              ? _memberUserDocs[memberUid]
+                              : null;
+                          final resolvedAvatar = (memberDoc?['avatarUrl'] ??
+                                  memberDoc?['photoUrl'] ??
+                                  (i < rawAvatars.length ? rawAvatars[i] : ''))
+                              .toString()
+                              .trim();
+                          final resolvedName = (memberDoc?['nickname'] ??
+                                  memberDoc?['name'] ??
+                                  (i < rawNames.length
+                                      ? rawNames[i]
+                                      : '참여 이웃 ${i + 1}'))
+                              .toString()
+                              .trim();
+                          avatars.add(_buildMemberAvatar(
+                            resolvedAvatar,
+                            isHost: false,
+                            name: resolvedName,
+                            userId: memberUid,
+                          ));
                         }
                         return avatars;
                       }(),
@@ -1617,25 +1689,24 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF191F28),
-                          backgroundColor: const Color(0xFFFEE500),
-                          side: BorderSide.none,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: OomuTokens.naverGreen,
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        icon: const Icon(Icons.map_outlined, size: 16),
-                        label: const Text('카카오맵',
+                        icon: const Icon(Icons.my_location_rounded, size: 16),
+                        label: const Text('네이버 지도',
                             style: TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold)),
-                        onPressed: () {
-                          if (_targetLat != null && _targetLng != null) {
-                            KakaoMapService.launchMap(locName,
-                                lat: _targetLat!, lng: _targetLng!);
-                          }
-                        },
+                        onPressed: () => KakaoMapService.launchNaverMap(
+                          locName,
+                          lat: _targetLat,
+                          lng: _targetLng,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1650,10 +1721,10 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         icon: const Icon(Icons.directions_outlined, size: 16),
-                        label: const Text('카카오 길찾기',
+                        label: const Text('네이버 길찾기',
                             style: TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold)),
-                        onPressed: () => KakaoMapService.launchDirections(
+                        onPressed: () => KakaoMapService.launchNaverDirections(
                             locName,
                             lat: _targetLat,
                             lng: _targetLng),

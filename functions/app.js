@@ -129,10 +129,7 @@ app.post('/api/sms/send', async (req, res) => {
     const signature = hmac.digest('hex');
     const authHeader = `HMAC-SHA256 apiKey=${apiKey}, date=${dateStr}, salt=${solapiSalt}, signature=${signature}`;
 
-    const messageText = `[OOMU] 동네 취향 모임 ✨\n\n반가워요, 이웃님! \n우무(OOMU) 인증번호입니다.\n\n🔐 인증번호 : [${otp}]\n⏱️ 유효시간 : 3분 이내\n\n🙅 타인에게 절대 노출 금지!`;
-
-    const kakaoPfId = process.env.SOLAPI_KAKAO_PFID || '';
-    const kakaoTemplateId = process.env.SOLAPI_KAKAO_TEMPLATE_ID || '';
+    const messageText = `[OOMU] 💞동네 취향 모임 💞\n\n안녕하세요! 우무(OOMU)입니다.\n요청하신 인증번호를 확인해 주세요.\n\n     인증번호 : [${otp}]\n     유효시간 : 3분 이내\n\n안전을 위해 타인과 공유하지 마세요!`;
 
     const messagePayload = {
       to: cleanPhone,
@@ -151,7 +148,7 @@ app.post('/api/sms/send', async (req, res) => {
       };
     }
 
-    const solapiRes = await fetch('https://api.solapi.com/messages/v4/send', {
+    let solapiRes = await fetch('https://api.solapi.com/messages/v4/send', {
       method: 'POST',
       headers: {
         'Authorization': authHeader,
@@ -161,6 +158,27 @@ app.post('/api/sms/send', async (req, res) => {
         message: messagePayload
       })
     });
+
+    // 알림톡 템플릿 검수 중이거나 알림톡 발송 실패 시 순수 SMS로 즉시 폴백 재시도
+    if (!solapiRes.ok && messagePayload.kakaoOptions) {
+      delete messagePayload.kakaoOptions;
+      const retryDate = new Date().toISOString();
+      const retrySalt = Date.now().toString() + crypto.randomInt(1000, 9999).toString();
+      const retryHmac = crypto.createHmac('sha256', apiSecret);
+      retryHmac.update(retryDate + retrySalt);
+      const retrySig = retryHmac.digest('hex');
+      const retryAuth = `HMAC-SHA256 apiKey=${apiKey}, date=${retryDate}, salt=${retrySalt}, signature=${retrySig}`;
+      solapiRes = await fetch('https://api.solapi.com/messages/v4/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': retryAuth,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: messagePayload
+        })
+      });
+    }
 
     if (!solapiRes.ok) {
       const errText = await solapiRes.text();

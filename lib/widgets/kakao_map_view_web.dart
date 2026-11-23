@@ -73,6 +73,12 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
   @override
   void initState() {
     super.initState();
+    if (KakaoMapService.naverClientId.isEmpty &&
+        KakaoMapService.kakaoJsApiKey.isEmpty) {
+      KakaoMapService.ensureKeysLoaded().then((_) {
+        if (mounted) setState(() {});
+      });
+    }
     _msgSub = html.window.onMessage.listen((event) {
       if (widget.onMarkerTap == null) return;
       try {
@@ -105,8 +111,11 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
     final markersCount = widget.markers?.length ?? 0;
     final selId = (widget.selectedMarkerId ?? '')
         .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '');
+    final hasKeys = KakaoMapService.naverClientId.isNotEmpty ||
+        KakaoMapService.ncpKeyId.isNotEmpty ||
+        KakaoMapService.kakaoJsApiKey.isNotEmpty;
     final viewType =
-        'kakao-map-${widget.lat.toStringAsFixed(4)}-${widget.lng.toStringAsFixed(4)}-$cleanName$actionSuffix-m$markersCount-s$selId-z${widget.zoomLevel}';
+        'naver-map-v2-${widget.lat.toStringAsFixed(4)}-${widget.lng.toStringAsFixed(4)}-$cleanName$actionSuffix-m$markersCount-s$selId-z${widget.zoomLevel}-k${hasKeys ? 1 : 0}';
 
     String markersQuery = '';
     if (widget.markers != null && widget.markers!.isNotEmpty) {
@@ -134,8 +143,11 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         ? '&appkey=${Uri.encodeComponent(KakaoMapService.kakaoJsApiKey)}'
         : '';
 
-    final naverQuery = KakaoMapService.naverClientId.isNotEmpty
-        ? '&naverClientId=${Uri.encodeComponent(KakaoMapService.naverClientId)}'
+    final naverId = KakaoMapService.ncpKeyId.isNotEmpty
+        ? KakaoMapService.ncpKeyId
+        : KakaoMapService.naverClientId;
+    final naverQuery = naverId.isNotEmpty
+        ? '&naverClientId=${Uri.encodeComponent(naverId)}&ncpClientId=${Uri.encodeComponent(KakaoMapService.naverClientId)}'
         : '';
 
     if (_registeredViewTypes.add(viewType)) {

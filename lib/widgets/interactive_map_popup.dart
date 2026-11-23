@@ -105,13 +105,13 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFEE500),
+                                  color: const Color(0xFF03C75A),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
-                                  '카카오 지도',
+                                  '네이버 지도',
                                   style: TextStyle(
-                                      color: Color(0xFF191919),
+                                      color: Colors.white,
                                       fontSize: 9.5,
                                       fontWeight: FontWeight.w900),
                                 ),
@@ -134,7 +134,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
               ),
             ),
 
-            // 3. Kakao Map & Directions Launch Buttons
+            // 3. Naver Map & Directions Launch Buttons
             Positioned(
               bottom: 20,
               left: 16,
@@ -143,22 +143,22 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => KakaoMapService.launchMap(
+                      onPressed: () => KakaoMapService.launchNaverMap(
                         widget.locationName,
                         lat: widget.initialCenter.latitude,
                         lng: widget.initialCenter.longitude,
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            const Color(0xFFFEE500), // Kakao Yellow
-                        foregroundColor: const Color(0xFF191919), // Kakao Black
+                            const Color(0xFF03C75A), // Naver Green
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                         elevation: 3,
                       ),
-                      icon: const Icon(Icons.map_rounded, size: 18),
-                      label: const Text('카카오맵 보기',
+                      icon: const Icon(Icons.my_location_rounded, size: 18),
+                      label: const Text('네이버 지도 보기',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w800)),
                     ),
@@ -166,7 +166,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => KakaoMapService.launchDirections(
+                      onPressed: () => KakaoMapService.launchNaverDirections(
                         widget.locationName,
                         lat: widget.initialCenter.latitude,
                         lng: widget.initialCenter.longitude,
@@ -181,8 +181,8 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                         elevation: 3,
                       ),
                       icon: const Icon(Icons.directions_rounded,
-                          size: 18, color: Color(0xFFFEE500)),
-                      label: const Text('카카오 길찾기',
+                          size: 18, color: Color(0xFF03C75A)),
+                      label: const Text('네이버 길찾기',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w800)),
                     ),

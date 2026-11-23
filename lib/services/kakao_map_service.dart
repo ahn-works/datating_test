@@ -70,24 +70,28 @@ class KakaoMapService {
   /// 카카오 JavaScript 키 (웹/인앱 지도 렌더링용)
   static String _jsApiKey = '';
 
-  /// 네이버 지도 Client ID (웹/인앱 2순위 지도 렌더링용)
+  /// 네이버 지도 Client ID (웹/인앱 1순위 지도 렌더링용)
   static String _naverClientId = '';
+  static String _ncpKeyId = '';
   static bool _keysLoaded = false;
 
   static String get kakaoRestApiKey => _restApiKey;
   static String get kakaoJsApiKey => _jsApiKey;
   static String get naverClientId => _naverClientId;
+  static String get ncpKeyId => _ncpKeyId;
 
   /// 카카오/네이버 공개 클라이언트 키 안전 조회 (dart-define -> app_config/kakao or maps)
   static Future<void> ensureKeysLoaded() async {
-    if (_keysLoaded) return;
+    if (_keysLoaded && (_restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty)) {
+      return;
+    }
     const defRest = String.fromEnvironment('KAKAO_REST_API_KEY');
     const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
     const defNaver = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
     if (defRest.isNotEmpty) _restApiKey = defRest.trim();
     if (defJs.isNotEmpty) _jsApiKey = defJs.trim();
     if (defNaver.isNotEmpty) _naverClientId = defNaver.trim();
-    if (_restApiKey.isNotEmpty && _jsApiKey.isNotEmpty) {
+    if (_restApiKey.isNotEmpty && _jsApiKey.isNotEmpty && _naverClientId.isNotEmpty) {
       _keysLoaded = true;
       return;
     }
@@ -105,7 +109,7 @@ class KakaoMapService {
         }
         if (_jsApiKey.isEmpty) {
           _jsApiKey =
-              (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
+              (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? _restApiKey).toString().trim();
         }
         if (_naverClientId.isEmpty) {
           _naverClientId = (d['naverMapClientId'] ??
@@ -115,8 +119,13 @@ class KakaoMapService {
               .toString()
               .trim();
         }
+        if (_ncpKeyId.isEmpty) {
+          _ncpKeyId = (d['ncpKeyId'] ?? d['naverMapClientId'] ?? _naverClientId)
+              .toString()
+              .trim();
+        }
       }
-      _keysLoaded = true;
+      _keysLoaded = _restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty;
     } catch (_) {}
   }
 
@@ -466,6 +475,41 @@ class KakaoMapService {
       url = Uri.parse(getKakaoSearchUrl(placeName));
     }
 
+    try {
+      return await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return await launchUrl(url);
+    }
+  }
+
+  /// 13. 네이버 지도 검색/장소 바로가기 링크 생성
+  static String getNaverMapUrl(String placeName, {double? lat, double? lng}) {
+    final clean = placeName.trim().isNotEmpty ? placeName.trim() : '모임 장소';
+    return 'https://map.naver.com/p/search/${Uri.encodeComponent(clean)}';
+  }
+
+  /// 14. 네이버 지도 길찾기 바로가기 링크 생성
+  static String getNaverRouteUrl(String placeName, {double? lat, double? lng}) {
+    final clean = placeName.trim().isNotEmpty ? placeName.trim() : '모임 장소';
+    if (lat != null && lng != null && lat > 0 && lng > 0) {
+      return 'https://map.naver.com/p/directions/-/$lng,$lat,${Uri.encodeComponent(clean)}/-/transit?c=15.00,0,0,0,dh';
+    }
+    return getNaverMapUrl(clean);
+  }
+
+  /// 15. 네이버 지도 앱/웹 열기 통합 실행
+  static Future<bool> launchNaverMap(String placeName, {double? lat, double? lng}) async {
+    final url = Uri.parse(getNaverMapUrl(placeName, lat: lat, lng: lng));
+    try {
+      return await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return await launchUrl(url);
+    }
+  }
+
+  /// 16. 네이버 지도 길찾기 앱/웹 열기 통합 실행
+  static Future<bool> launchNaverDirections(String placeName, {double? lat, double? lng}) async {
+    final url = Uri.parse(getNaverRouteUrl(placeName, lat: lat, lng: lng));
     try {
       return await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (_) {

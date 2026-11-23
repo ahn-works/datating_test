@@ -49,7 +49,9 @@ class SolapiSmsService {
 
   /// SMS & 카카오 알림톡 발송 서비스 초기화
   Future<bool> initialize() async {
-    if (_isInitialized) return true;
+    if (_isInitialized && _apiKey.isNotEmpty && _apiSecret.isNotEmpty) {
+      return true;
+    }
 
     // 0. dart-define / 환경변수 주입값 확인 (개발/오프라인 환경용)
     const envKey = String.fromEnvironment('SOLAPI_API_KEY');
@@ -67,21 +69,24 @@ class SolapiSmsService {
 
     // 1. Firestore app_config/solapi에서 동적 키 로드 (Zero-Secret 원칙 준수)
     try {
-      final doc = await FirebaseFirestore.instance.collection('app_config').doc('solapi').get();
-      if (doc.exists) {
+      final doc = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('solapi')
+          .get();
+      if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        if (_apiKey.isEmpty) _apiKey = data['solapiApiKey']?.toString() ?? '';
-        if (_apiSecret.isEmpty) _apiSecret = data['solapiApiSecret']?.toString() ?? '';
-        if (_senderNumber.isEmpty) _senderNumber = data['solapiSenderNumber']?.toString() ?? '';
-        if (_kakaoPfId.isEmpty) _kakaoPfId = data['solapiKakaoPfId']?.toString() ?? '';
-        if (_kakaoTemplateId.isEmpty) _kakaoTemplateId = data['solapiKakaoTemplateId']?.toString() ?? '';
+        if (_apiKey.isEmpty) _apiKey = data['solapiApiKey']?.toString().trim() ?? '';
+        if (_apiSecret.isEmpty) _apiSecret = data['solapiApiSecret']?.toString().trim() ?? '';
+        if (_senderNumber.isEmpty) _senderNumber = data['solapiSenderNumber']?.toString().trim() ?? '';
+        if (_kakaoPfId.isEmpty) _kakaoPfId = data['solapiKakaoPfId']?.toString().trim() ?? '';
+        if (_kakaoTemplateId.isEmpty) _kakaoTemplateId = data['solapiKakaoTemplateId']?.toString().trim() ?? '';
       }
     } catch (e) {
       debugPrint('[SolapiSmsService] Notice reading app_config/solapi: $e');
     }
 
-    _isInitialized = true;
-    return true;
+    _isInitialized = _apiKey.isNotEmpty && _apiSecret.isNotEmpty;
+    return _isInitialized;
   }
 
   /// Solapi Messages v4 HMAC-SHA256 Authorization 헤더 생성 (로컬 폴백용)
@@ -150,12 +155,12 @@ class SolapiSmsService {
     // 2. 개발/오프라인 환경 폴백 (SOLAPI_API_KEY가 dart-define으로 주입된 경우만)
     if (_apiKey.isNotEmpty && _apiSecret.isNotEmpty && _senderNumber.isNotEmpty) {
       final code = (100000 + Random().nextInt(900000)).toString();
-      final messageText = '[OOMU] 동네 취향 모임 ✨\n\n'
-          '반가워요, 이웃님! \n'
-          '우무(OOMU) 인증번호입니다.\n\n'
-          '🔐 인증번호 : [$code]\n'
-          '⏱️ 유효시간 : 3분 이내\n\n'
-          '🙅 타인에게 절대 노출 금지!';
+      final messageText = '[OOMU] 💞동네 취향 모임 💞\n\n'
+          '안녕하세요! 우무(OOMU)입니다.\n'
+          '요청하신 인증번호를 확인해 주세요.\n\n'
+          '     인증번호 : [$code]\n'
+          '     유효시간 : 3분 이내\n\n'
+          '안전을 위해 타인과 공유하지 마세요!';
 
       try {
         final url = Uri.parse('https://api.solapi.com/messages/v4/send');
@@ -180,7 +185,7 @@ class SolapiSmsService {
 
         final body = jsonEncode({'message': messagePayload});
 
-        final response = await http.post(
+        var response = await http.post(
           url,
           headers: {
             'Authorization': authHeader,
@@ -188,6 +193,20 @@ class SolapiSmsService {
           },
           body: body,
         );
+
+        // 알림톡 템플릿 검수 중이거나 알림톡 옵션 오류 시 순수 SMS로 즉시 폴백 재시도
+        if (response.statusCode != 200 && messagePayload.containsKey('kakaoOptions')) {
+          debugPrint('[SolapiSmsService] Alimtalk pending/error (${response.statusCode}), retrying as pure SMS');
+          messagePayload.remove('kakaoOptions');
+          response = await http.post(
+            url,
+            headers: {
+              'Authorization': _generateAuthHeader(),
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'message': messagePayload}),
+          );
+        }
 
         if (response.statusCode == 200) {
           final resData = jsonDecode(response.body);
@@ -200,6 +219,8 @@ class SolapiSmsService {
             };
             return SolapiSendResult.success('solapi_$phone');
           }
+        } else {
+          debugPrint('[SolapiSmsService] Solapi HTTP ${response.statusCode}: ${response.body}');
         }
       } catch (err) {
         debugPrint('[SolapiSmsService] Direct fallback error: $err');
