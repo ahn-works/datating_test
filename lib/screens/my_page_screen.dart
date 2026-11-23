@@ -99,9 +99,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
         final String finalAvatar;
         if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('blob:')) {
-          finalAvatar = avatarUrl;
+          finalAvatar = await R2StorageService.compressDataUrlIfOversized(avatarUrl);
         } else {
-          finalAvatar = R2StorageService.toDataUrl(bytes, file.name);
+          finalAvatar = await R2StorageService.toCompressedDataUrl(bytes, file.name);
         }
         globalData.updateAvatar(finalAvatar);
 

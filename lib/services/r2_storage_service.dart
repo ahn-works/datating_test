@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/image_compressor.dart';
 import '../utils/server_config.dart';
 
 enum R2UploadCategory {
@@ -153,6 +154,43 @@ class R2StorageService {
     final mime = getMimeType(ext);
     final b64 = base64Encode(bytes);
     return 'data:$mime;base64,$b64';
+  }
+
+  /// Firestore 1MB 문서 한도 초과 방지를 위해 사진을 고화질 경량(40~70KB) Data URL로 압축 변환
+  static Future<String> toCompressedDataUrl(
+    Uint8List bytes,
+    String fileName, {
+    int maxDimension = 520,
+    double quality = 0.72,
+    int maxChars = 95000,
+  }) async {
+    final ext = getFileExtension(fileName);
+    final mime = getMimeType(ext);
+    return compressBytesToDataUrl(
+      bytes,
+      mime,
+      maxDimension: maxDimension,
+      quality: quality,
+      maxChars: maxChars,
+    );
+  }
+
+  /// 이미 생성된 Data URL이 Firestore 용량 한도를 초과하지 않도록 자동 경량화
+  static Future<String> compressDataUrlIfOversized(
+    String url, {
+    int maxDimension = 520,
+    double quality = 0.72,
+    int maxChars = 95000,
+  }) async {
+    if (!url.startsWith('data:image') || url.length <= maxChars) {
+      return url;
+    }
+    return compressDataUrlForFirestore(
+      url,
+      maxDimension: maxDimension,
+      quality: quality,
+      maxChars: maxChars,
+    );
   }
 
   /// S3 / R2 공개 URL 반환
@@ -398,9 +436,9 @@ class R2StorageService {
       debugPrint('[R2 Storage] Server presign upload notice: $e');
     }
 
-    // 5. 오프라인/게스트/서버 점검 시 사진 유실 방지를 위한 영구 Data URL 안전 폴백
-    debugPrint('[R2 Storage] Presigned upload unavailable, preserving as permanent Data URL');
-    return toDataUrl(bytes, fileName);
+    // 5. 오프라인/게스트/서버 점검 시 사진 유실 및 Firestore 1MB 초과 방지를 위한 경량 Data URL 안전 폴백
+    debugPrint('[R2 Storage] Presigned upload unavailable, compressing as lightweight Data URL');
+    return toCompressedDataUrl(bytes, fileName);
   }
 
   // AWS SigV4 헬퍼 함수들

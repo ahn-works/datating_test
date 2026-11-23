@@ -309,9 +309,18 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
 
               final String finalCover;
               if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-                finalCover = uploadedUrl;
+                finalCover = await R2StorageService.compressDataUrlIfOversized(
+                  uploadedUrl,
+                  maxDimension: 720,
+                  maxChars: 140000,
+                );
               } else {
-                finalCover = R2StorageService.toDataUrl(bytes, file.name);
+                finalCover = await R2StorageService.toCompressedDataUrl(
+                  bytes,
+                  file.name,
+                  maxDimension: 720,
+                  maxChars: 140000,
+                );
               }
               if (mounted) {
                 setState(() => _coverImageUrl = finalCover);

@@ -316,9 +316,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       final String finalAvatar;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalAvatar = uploadedUrl;
+        finalAvatar = await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
       } else {
-        finalAvatar = R2StorageService.toDataUrl(bytes, file.name);
+        finalAvatar = await R2StorageService.toCompressedDataUrl(bytes, file.name);
       }
       setState(() {
         _avatarUrl = finalAvatar;

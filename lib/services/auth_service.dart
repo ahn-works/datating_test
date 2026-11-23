@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/global_data.dart';
+import '../utils/image_compressor.dart';
 import '../utils/server_config.dart';
 import 'solapi_sms_service.dart';
 import 'kakao_map_service.dart';
@@ -1036,6 +1037,18 @@ class AuthService {
       throw StateError('닉네임, 활동 동네, 대표 사진을 확인해 주세요.');
     }
 
+    // Firestore 1MB(1,048,487 bytes) 문서 한도 초과를 원천 차단하기 위해 Data URL 사진 자동 경량화
+    final List<String> safePhotoUrls = [];
+    for (final rawUrl in photoUrls) {
+      final compressed = await compressDataUrlForFirestore(
+        rawUrl,
+        maxDimension: 480,
+        quality: 0.70,
+        maxChars: 90000,
+      );
+      safePhotoUrls.add(compressed);
+    }
+
     final Map<String, dynamic> updateData = {
       'nickname': nickname,
       'name': nickname,
@@ -1047,9 +1060,9 @@ class AuthService {
       'mbti': mbti,
       'hobbies': hobbies,
       'bio': bio,
-      'photoUrls': photoUrls,
-      if (photoUrls.isNotEmpty) 'photoUrl': photoUrls.first,
-      if (photoUrls.isNotEmpty) 'avatarUrl': photoUrls.first,
+      'photoUrls': safePhotoUrls,
+      if (safePhotoUrls.isNotEmpty) 'photoUrl': safePhotoUrls.first,
+      if (safePhotoUrls.isNotEmpty) 'avatarUrl': safePhotoUrls.first,
       'personalities': personalities ?? <String>[],
       'drinking': drinking ?? <String>[],
       'smoking': smoking ?? '',

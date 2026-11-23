@@ -103,10 +103,19 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
 
       final String finalPhotoUrl;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalPhotoUrl = uploadedUrl;
+        finalPhotoUrl = await R2StorageService.compressDataUrlIfOversized(
+          uploadedUrl,
+          maxDimension: 720,
+          maxChars: 140000,
+        );
       } else {
-        // R2 업로드 실패/미설정 시에도 사용자가 올린 실제 사진이 기본 프리셋 사진으로 바뀌지 않도록 Data URL로 100% 보존
-        finalPhotoUrl = R2StorageService.toDataUrl(bytes, file.name);
+        // R2 업로드 실패/미설정 시에도 사용자가 올린 실제 사진이 기본 프리셋 사진으로 바뀌지 않도록 경량 Data URL로 100% 보존
+        finalPhotoUrl = await R2StorageService.toCompressedDataUrl(
+          bytes,
+          file.name,
+          maxDimension: 720,
+          maxChars: 140000,
+        );
       }
 
       if (mounted) {
