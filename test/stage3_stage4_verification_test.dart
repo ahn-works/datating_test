@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:spot10_app/screens/chat/chat_system_cards.dart';
-import 'package:spot10_app/screens/my_page_screen.dart';
-import 'package:spot10_app/screens/oomu_home_screen.dart';
-import 'package:spot10_app/screens/user_profile_screen.dart';
-import 'package:spot10_app/services/chat_repository.dart';
-import 'package:spot10_app/services/discovery_api_service.dart';
-import 'package:spot10_app/ui/oomu_avatar.dart';
-import 'package:spot10_app/utils/global_data.dart';
-import 'package:spot10_app/utils/meetup_member_helper.dart';
-import 'package:spot10_app/utils/oomu_ui_helpers.dart';
-import 'package:spot10_app/widgets/oomu_discovery_lifestyle_hub.dart';
+import 'package:oomu_app/screens/chat/chat_system_cards.dart';
+import 'package:oomu_app/screens/my_page_screen.dart';
+import 'package:oomu_app/screens/oomu_home_screen.dart';
+import 'package:oomu_app/screens/user_profile_screen.dart';
+import 'package:oomu_app/services/chat_repository.dart';
+import 'package:oomu_app/services/discovery_api_service.dart';
+import 'package:oomu_app/ui/oomu_avatar.dart';
+import 'package:oomu_app/utils/global_data.dart';
+import 'package:oomu_app/utils/meetup_member_helper.dart';
+import 'package:oomu_app/utils/oomu_ui_helpers.dart';
+import 'package:oomu_app/widgets/oomu_discovery_lifestyle_hub.dart';
 
 void main() {
   setUp(() {

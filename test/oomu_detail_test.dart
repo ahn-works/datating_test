@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/screens/oomu_detail_screen.dart';
+import 'package:oomu_app/screens/oomu_detail_screen.dart';
 
 void main() {
   testWidgets('OOMUDetailScreen renders without exception', (tester) async {

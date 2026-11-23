@@ -1,22 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/main.dart';
-import 'package:spot10_app/screens/login_screen.dart';
-import 'package:spot10_app/screens/my_page_screen.dart';
-import 'package:spot10_app/screens/oomu_home_screen.dart';
-import 'package:spot10_app/screens/profile_edit_screen.dart';
-import 'package:spot10_app/screens/settings_screen.dart';
-import 'package:spot10_app/screens/user_profile_screen.dart';
-import 'package:spot10_app/services/auth_service.dart';
-import 'package:spot10_app/services/kakao_map_service.dart';
-import 'package:spot10_app/services/meetup_application_service.dart';
-import 'package:spot10_app/services/r2_storage_service.dart';
-import 'package:spot10_app/utils/app_image.dart';
-import 'package:spot10_app/utils/firestore_time.dart';
-import 'package:spot10_app/utils/global_data.dart';
-import 'package:spot10_app/utils/meetup_member_helper.dart';
-import 'package:spot10_app/utils/oomu_ui_helpers.dart';
+import 'package:oomu_app/main.dart';
+import 'package:oomu_app/screens/login_screen.dart';
+import 'package:oomu_app/screens/my_page_screen.dart';
+import 'package:oomu_app/screens/oomu_home_screen.dart';
+import 'package:oomu_app/screens/profile_edit_screen.dart';
+import 'package:oomu_app/screens/settings_screen.dart';
+import 'package:oomu_app/screens/user_profile_screen.dart';
+import 'package:oomu_app/services/auth_service.dart';
+import 'package:oomu_app/services/kakao_map_service.dart';
+import 'package:oomu_app/services/meetup_application_service.dart';
+import 'package:oomu_app/services/r2_storage_service.dart';
+import 'package:oomu_app/utils/app_image.dart';
+import 'package:oomu_app/utils/firestore_time.dart';
+import 'package:oomu_app/utils/global_data.dart';
+import 'package:oomu_app/utils/meetup_member_helper.dart';
+import 'package:oomu_app/utils/oomu_ui_helpers.dart';
 
 void main() {
   group('1. Firestore 시간 필드 혼용(Timestamp/DateTime/ISO String/int) 정렬 검증', () {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/data/oomu_categories.dart';
+import 'package:oomu_app/data/oomu_categories.dart';
 
 void main() {
   group('🏷️ OOMU 모임 카테고리 & Vibe 필터링 시스템 종합 단위 테스트', () {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/screens/profile_setup_screen.dart';
-import 'package:spot10_app/screens/user_profile_screen.dart';
-import 'package:spot10_app/screens/oomu_home_screen.dart';
-import 'package:spot10_app/utils/global_data.dart';
-import 'package:spot10_app/constants/profile_options.dart';
+import 'package:oomu_app/screens/profile_setup_screen.dart';
+import 'package:oomu_app/screens/user_profile_screen.dart';
+import 'package:oomu_app/screens/oomu_home_screen.dart';
+import 'package:oomu_app/utils/global_data.dart';
+import 'package:oomu_app/constants/profile_options.dart';
 
 void main() {
   setUp(() {

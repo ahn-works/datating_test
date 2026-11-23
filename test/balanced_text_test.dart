@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/widgets/balanced_text.dart';
+import 'package:oomu_app/widgets/balanced_text.dart';
 
 void main() {
   const samples = [

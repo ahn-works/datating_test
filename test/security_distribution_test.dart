@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/services/r2_storage_service.dart';
+import 'package:oomu_app/services/r2_storage_service.dart';
 
 void main() {
   group('🔒 OOMU 보안 및 3계층 분배 규칙 자동 테스트', () {

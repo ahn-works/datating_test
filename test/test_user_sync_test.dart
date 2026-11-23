@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/utils/global_data.dart';
-import 'package:spot10_app/services/auth_service.dart';
-import 'package:spot10_app/services/chat_repository.dart';
+import 'package:oomu_app/utils/global_data.dart';
+import 'package:oomu_app/services/auth_service.dart';
+import 'package:oomu_app/services/chat_repository.dart';
 
 void main() {
   group('3대 테스트 유저 및 봇 계정 동기화 검증', () {

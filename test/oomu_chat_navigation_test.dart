@@ -1,18 +1,18 @@
-import 'package:spot10_app/widgets/balanced_text.dart';
+import 'package:oomu_app/widgets/balanced_text.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
-import 'package:spot10_app/services/chat_repository.dart';
-import 'package:spot10_app/screens/oomu_chat_room_screen.dart';
-import 'package:spot10_app/screens/chat_screen.dart';
-import 'package:spot10_app/screens/oomu_home_screen.dart';
-import 'package:spot10_app/screens/community_post_detail_screen.dart';
-import 'package:spot10_app/screens/community_post_create_screen.dart';
-import 'package:spot10_app/screens/my_page_screen.dart';
-import 'package:spot10_app/screens/notification_screen.dart';
-import 'package:spot10_app/utils/global_data.dart';
-import 'package:spot10_app/utils/oomu_ui_helpers.dart';
+import 'package:oomu_app/services/chat_repository.dart';
+import 'package:oomu_app/screens/oomu_chat_room_screen.dart';
+import 'package:oomu_app/screens/chat_screen.dart';
+import 'package:oomu_app/screens/oomu_home_screen.dart';
+import 'package:oomu_app/screens/community_post_detail_screen.dart';
+import 'package:oomu_app/screens/community_post_create_screen.dart';
+import 'package:oomu_app/screens/my_page_screen.dart';
+import 'package:oomu_app/screens/notification_screen.dart';
+import 'package:oomu_app/utils/global_data.dart';
+import 'package:oomu_app/utils/oomu_ui_helpers.dart';
 
 class FakeChatRepository implements ChatRepository {
   @override

@@ -2,16 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
-import 'package:spot10_app/screens/community_post_detail_screen.dart';
-import 'package:spot10_app/screens/my_page_screen.dart';
-import 'package:spot10_app/screens/profile_edit_screen.dart';
-import 'package:spot10_app/screens/oomu_detail_screen.dart';
-import 'package:spot10_app/screens/oomu_home_screen.dart';
-import 'package:spot10_app/screens/user_profile_screen.dart';
-import 'package:spot10_app/services/auth_service.dart';
-import 'package:spot10_app/services/kakao_map_service.dart';
-import 'package:spot10_app/utils/global_data.dart';
-import 'package:spot10_app/utils/oomu_ui_helpers.dart';
+import 'package:oomu_app/screens/community_post_detail_screen.dart';
+import 'package:oomu_app/screens/my_page_screen.dart';
+import 'package:oomu_app/screens/profile_edit_screen.dart';
+import 'package:oomu_app/screens/oomu_detail_screen.dart';
+import 'package:oomu_app/screens/oomu_home_screen.dart';
+import 'package:oomu_app/screens/user_profile_screen.dart';
+import 'package:oomu_app/services/auth_service.dart';
+import 'package:oomu_app/services/kakao_map_service.dart';
+import 'package:oomu_app/utils/global_data.dart';
+import 'package:oomu_app/utils/oomu_ui_helpers.dart';
 
 void main() {
   const emojiTestCases = <String>[

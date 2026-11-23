@@ -183,11 +183,11 @@ void main() async {
     return <void>[];
   }));
 
-  runApp(const Spot10App());
+  runApp(const OomuApp());
 }
 
-class Spot10App extends StatelessWidget {
-  const Spot10App({super.key});
+class OomuApp extends StatelessWidget {
+  const OomuApp({super.key});
 
   @override
   Widget build(BuildContext context) {

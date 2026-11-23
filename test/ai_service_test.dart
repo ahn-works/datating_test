@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:spot10_app/services/ai_service.dart';
-import 'package:spot10_app/features/matching/match_controller.dart';
+import 'package:oomu_app/services/ai_service.dart';
+import 'package:oomu_app/features/matching/match_controller.dart';
 
 void main() {
   group('🤖 OOMU 로컬 Claude 가상 API 서버(g4f) 연동 테스트', () {

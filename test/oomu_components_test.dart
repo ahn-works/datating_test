@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/ui/ui.dart';
+import 'package:oomu_app/ui/ui.dart';
 
 void main() {
   group('🎨 OOMU 공통 컴포넌트 48dp 최소 터치 영역 테스트', () {

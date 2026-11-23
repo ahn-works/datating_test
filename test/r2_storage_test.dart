@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot10_app/services/r2_storage_service.dart';
+import 'package:oomu_app/services/r2_storage_service.dart';
 
 void main() {
   group('Cloudflare R2 Storage Service 단위 테스트', () {
