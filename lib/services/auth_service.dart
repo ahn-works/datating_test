@@ -251,7 +251,10 @@ class AuthService {
     String? nickname,
     String? gender,
     int? age,
+    String? phone,
   }) async {
+    final cleanPhone =
+        (phone != null && phone.trim().isNotEmpty) ? phone.trim() : null;
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password.trim(),
@@ -262,7 +265,26 @@ class AuthService {
       customNickname: nickname,
       customGender: gender,
       customAge: age,
+      extraData: {
+        if (cleanPhone != null) 'isPhoneVerified': true,
+      },
     );
+    if (cleanPhone != null && credential.user != null) {
+      globalData.userPhone.value = cleanPhone;
+      globalData.isPhoneVerified.value = true;
+      try {
+        await _firestore
+            .collection('users')
+            .doc(credential.user!.uid)
+            .collection('private')
+            .doc('contact')
+            .set({
+          'phone': cleanPhone,
+          'phoneNumber': cleanPhone,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
     return credential;
   }
 

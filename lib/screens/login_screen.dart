@@ -558,31 +558,13 @@ class _LoginScreenState extends State<LoginScreen>
 
     _showLoading('OOMU 계정 생성 중…');
     try {
-      final cred = await authService.signUpWithEmail(
+      final cleanPhone = solapiSmsService.normalizePhone(_suPhoneCtrl.text);
+      await authService.signUpWithEmail(
         email: email,
         password: pw,
         nickname: nick,
+        phone: cleanPhone,
       );
-      final cleanPhone = solapiSmsService.normalizePhone(_suPhoneCtrl.text);
-      if (cred.user != null && cleanPhone.isNotEmpty) {
-        try {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(cred.user!.uid)
-              .collection('private')
-              .doc('contact')
-              .set({
-            'phone': cleanPhone,
-            'phoneNumber': cleanPhone,
-          }, SetOptions(merge: true));
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(cred.user!.uid)
-              .set({
-            'isPhoneVerified': true,
-          }, SetOptions(merge: true));
-        } catch (_) {}
-      }
       if (mounted) {
         _hideLoading();
         _showToast('가입 완료! 환영합니다 🎉');
@@ -606,7 +588,8 @@ class _LoginScreenState extends State<LoginScreen>
       context: context,
       backgroundColor: OomuTokens.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(

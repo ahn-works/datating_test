@@ -30,11 +30,12 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
   bool _solapiVerified = false;
 
   bool get _verified {
+    final number = normalizeKoreanMobile(widget.controller.text);
+    if (number == null) return false;
     if (_solapiVerified || globalData.isPhoneVerified.value) return true;
     if (Firebase.apps.isEmpty) return false;
     final user = FirebaseAuth.instance.currentUser;
-    final number = normalizeKoreanMobile(widget.controller.text);
-    return user != null && number != null && user.phoneNumber == number;
+    return user != null && user.phoneNumber == number;
   }
 
   @override
@@ -207,23 +208,6 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
             solapiSmsService.normalizePhone(widget.controller.text);
         if (user != null) {
           try {
-            final dupUsers = await FirebaseFirestore.instance
-                .collection('users')
-                .where('phone', isEqualTo: cleanPhone)
-                .limit(3)
-                .get();
-            final otherDoc =
-                dupUsers.docs.where((d) => d.id != user.uid).firstOrNull;
-            if (otherDoc != null) {
-              final existingProvider =
-                  (otherDoc.data()['provider'] ?? '기존 계정').toString();
-              setState(() {
-                _busy = false;
-                _error =
-                    '이미 다른 계정($existingProvider)에 가입된 휴대폰 번호예요. 1인 1계정 정책에 따라 중복 가입이 제한됩니다.';
-              });
-              return;
-            }
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(user.uid)
@@ -232,12 +216,14 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
                 .set({
               'phone': cleanPhone,
               'phoneNumber': cleanPhone,
+              'updatedAt': FieldValue.serverTimestamp(),
             }, SetOptions(merge: true));
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(user.uid)
                 .set({
               'isPhoneVerified': true,
+              'updatedAt': FieldValue.serverTimestamp(),
             }, SetOptions(merge: true));
           } catch (_) {}
         }

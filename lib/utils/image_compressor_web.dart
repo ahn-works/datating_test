@@ -13,6 +13,27 @@ Future<String> compressBytesToDataUrl(
   double quality = 0.72,
   int maxChars = 95000,
 }) async {
+  String? blobUrl;
+  try {
+    final blob = html.Blob([bytes], mimeType);
+    blobUrl = html.Url.createObjectUrlFromBlob(blob);
+    final compressed = await _decodeAndCompressUrl(
+      blobUrl,
+      maxDimension: maxDimension,
+      quality: quality,
+      maxChars: maxChars,
+    );
+    if (compressed != null && compressed.isNotEmpty) {
+      return compressed;
+    }
+  } catch (_) {
+  } finally {
+    if (blobUrl != null) {
+      try {
+        html.Url.revokeObjectUrl(blobUrl);
+      } catch (_) {}
+    }
+  }
   final rawDataUrl = 'data:$mimeType;base64,${base64Encode(bytes)}';
   return compressDataUrlForFirestore(
     rawDataUrl,
@@ -31,6 +52,28 @@ Future<String> compressDataUrlForFirestore(
   if (!dataUrl.startsWith('data:image')) {
     return dataUrl;
   }
+  final compressed = await _decodeAndCompressUrl(
+    dataUrl,
+    maxDimension: maxDimension,
+    quality: quality,
+    maxChars: maxChars,
+  );
+  if (compressed != null && compressed.isNotEmpty) {
+    return compressed;
+  }
+  // 이미지 디코딩 실패 시에도 Firestore 1MB 한도 초과를 일으키지 않도록 안전 크기 검증
+  if (dataUrl.length > 220000) {
+    return 'assets/images/민지.png';
+  }
+  return dataUrl;
+}
+
+Future<String?> _decodeAndCompressUrl(
+  String srcUrl, {
+  required int maxDimension,
+  required double quality,
+  required int maxChars,
+}) async {
   try {
     final completer = Completer<html.ImageElement>();
     final img = html.ImageElement();
@@ -42,9 +85,9 @@ Future<String> compressDataUrlForFirestore(
         completer.completeError(StateError('Image decode failed'));
       }
     });
-    img.src = dataUrl;
+    img.src = srcUrl;
 
-    final loaded = await completer.future.timeout(const Duration(seconds: 3));
+    final loaded = await completer.future.timeout(const Duration(seconds: 4));
     final origW = loaded.naturalWidth > 0 ? loaded.naturalWidth : 520;
     final origH = loaded.naturalHeight > 0 ? loaded.naturalHeight : 520;
 
@@ -69,6 +112,6 @@ Future<String> compressDataUrlForFirestore(
     }
     return compressed;
   } catch (_) {
-    return dataUrl;
+    return null;
   }
 }

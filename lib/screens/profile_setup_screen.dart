@@ -205,6 +205,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           }
         } catch (_) {}
 
+        if (_nicknameController.text.isEmpty &&
+            globalData.userNickname.value.trim().isNotEmpty) {
+          _nicknameController.text = globalData.userNickname.value.trim();
+        }
+        if (_phoneController.text.isEmpty &&
+            globalData.userPhone.value.trim().isNotEmpty) {
+          _phoneController.text = globalData.userPhone.value.trim();
+        }
+        final hasValidPhone =
+            _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '').length >= 10;
+        _isPhoneVerified =
+            (userDocVerified || globalData.isPhoneVerified.value) &&
+                hasValidPhone;
+
         setState(() {});
       }
     } catch (e) {
@@ -309,9 +323,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       final String finalUrl;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalUrl = await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
+        finalUrl = uploadedUrl;
       } else {
-        finalUrl = await R2StorageService.toCompressedDataUrl(bytes, picked.name);
+        finalUrl = R2StorageService.toDataUrl(bytes, picked.name);
       }
 
       setState(() {
@@ -525,7 +539,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         );
         return;
       }
+      final birthDigits =
+          _birthDateController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (birthDigits.length != 8) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('생년월일 8자리(예: 1998.05.21)를 입력해 주세요.')),
+        );
+        return;
+      }
       final cleanNum = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (cleanNum.length < 10) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('010으로 시작하는 휴대폰 번호를 입력해 주세요.')),
+        );
+        return;
+      }
       final bool isAlreadyVerified = _isPhoneVerified ||
           globalData.isPhoneVerified.value ||
           authService.isAdmin;
