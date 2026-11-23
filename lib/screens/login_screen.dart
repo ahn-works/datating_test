@@ -596,27 +596,115 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // 3. 카카오 로그인
+  // 3. 카카오 로그인 (1초 즉시 시작 & 공식 OAuth 연동)
   Future<void> _handleKakaoLogin() async {
     if (_isLoading) return;
-    _showLoading('카카오 로그인 페이지로 이동 중…');
-    try {
-      await authService.loadKakaoConfig();
-      if (authService.kakaoRestApiKey.trim().isEmpty) {
-        if (mounted) {
-          _showToast('카카오 로그인 설정 키가 아직 등록되지 않았어요. 다른 로그인 방법을 이용해 주세요.');
-        }
-        return;
-      }
-      final opened = await redirectToExternalUrl(authService.kakaoOAuthUrl);
-      if (!opened && mounted) {
-        _showToast('카카오 로그인 페이지를 열지 못했어요. 팝업 차단이 설정되어 있는지 확인해 주세요.');
-      }
-    } catch (e) {
-      if (mounted) _showToast('카카오 연결 실패: $e');
-    } finally {
-      if (mounted) _hideLoading();
-    }
+    await authService.loadKakaoConfig();
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE5E7EB),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                '카카오톡으로 시작하기',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF191F28),
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                '원터치 간편 시작 또는 카카오 계정 웹 로그인을 선택해 주세요.',
+                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFEE500),
+                    foregroundColor: const Color(0xFF191919),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  icon: const Icon(Icons.bolt_rounded, size: 20),
+                  label: const Text(
+                    '카카오 1초 간편 시작 (즉시 입장)',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    _showLoading('카카오 계정으로 시작 중…');
+                    try {
+                      await authService.signInWithKakao();
+                      if (!mounted) return;
+                      _hideLoading();
+                      _showToast('카카오 계정으로 로그인되었습니다 🎉');
+                      await _navigateHome();
+                    } catch (e) {
+                      if (mounted) {
+                        _hideLoading();
+                        _showToast('카카오 간편 로그인 실패: $e');
+                      }
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 48,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF374151),
+                    side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 17),
+                  label: const Text(
+                    '카카오 공식 웹 로그인 (OAuth)',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    if (authService.kakaoOAuthClientId.trim().isEmpty) {
+                      _showToast('카카오 로그인 설정 키를 확인해 주세요.');
+                      return;
+                    }
+                    await redirectToExternalUrl(authService.kakaoOAuthUrl);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // 4. 구글 로그인

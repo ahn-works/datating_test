@@ -223,7 +223,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
             name: item.name,
             address:
                 item.roadAddress.isNotEmpty ? item.roadAddress : item.address,
-            category: item.category.isNotEmpty ? item.category : '카카오맵 검색',
+            category: item.category.isNotEmpty ? item.category : '네이버 지도 검색',
             latLng: LatLng(item.lat, item.lng),
           );
         }).toList();

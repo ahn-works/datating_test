@@ -790,7 +790,7 @@ class InteractiveHotspotCard extends StatelessWidget {
                           ),
                           SizedBox(width: OomuTokens.s8),
                           Text(
-                            '카카오 길찾기',
+                            '네이버 길찾기',
                             style: TextStyle(
                               color: OomuTokens.textPrimary,
                               fontSize: OomuTokens.fs12,

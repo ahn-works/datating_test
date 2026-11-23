@@ -1025,7 +1025,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                           Icon(Icons.map_outlined,
                               size: 16, color: OomuTokens.textPrimary),
                           SizedBox(width: OomuTokens.s8),
-                          Text('카카오맵 길찾기',
+                          Text('네이버 지도 길찾기',
                               style: TextStyle(
                                   color: OomuTokens.textPrimary,
                                   fontSize: OomuTokens.fs12,
@@ -1309,7 +1309,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     onPressed: () => KakaoMapService.launchDirections(spotName),
                     icon: const Icon(Icons.map_outlined,
                         size: 16, color: OomuTokens.textPrimary),
-                    label: const Text('카카오 길찾기',
+                    label: const Text('네이버 길찾기',
                         style: TextStyle(
                             fontSize: OomuTokens.fs12,
                             fontWeight: FontWeight.w700,

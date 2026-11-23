@@ -403,7 +403,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('📍 \'${first.name}\' 카카오 지도로 이동했습니다.'),
+              content: Text('📍 \'${first.name}\' 네이버 지도로 이동했습니다.'),
               backgroundColor: coralAccent,
               duration: const Duration(seconds: 2),
             ),
@@ -610,7 +610,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               ),
         titleSpacing: 0,
         title: const Text(
-          '동네 지도 탐색 (카카오맵)',
+          '동네 지도 탐색 (네이버 지도)',
           style: TextStyle(
             color: textPrimary,
             fontWeight: FontWeight.w800,

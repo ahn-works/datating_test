@@ -433,53 +433,29 @@ class KakaoMapService {
     return '거리 정보 없음';
   }
 
-  /// 8. 카카오맵 지도 핀 바로가기 링크 생성
+  /// 8. 지도 핀 바로가기 링크 생성 (네이버 지도 표준 연동)
   static String getKakaoMapPinUrl(String placeName, double lat, double lng) {
-    final clean = placeName.trim().isNotEmpty ? placeName.trim() : '약속장소';
-    return 'https://map.kakao.com/link/map/${Uri.encodeComponent(clean)},$lat,$lng';
+    return getNaverMapUrl(placeName, lat: lat, lng: lng);
   }
 
-  /// 9. 카카오맵 길찾기 바로가기 링크 생성
+  /// 9. 길찾기 바로가기 링크 생성 (네이버 지도 길찾기 표준 연동)
   static String getKakaoRouteUrl(String placeName, double lat, double lng) {
-    final clean = placeName.trim().isNotEmpty ? placeName.trim() : '약속장소';
-    return 'https://map.kakao.com/link/to/${Uri.encodeComponent(clean)},$lat,$lng';
+    return getNaverRouteUrl(placeName, lat: lat, lng: lng);
   }
 
-  /// 10. 카카오맵 키워드 검색 바로가기 링크 생성
+  /// 10. 키워드 검색 바로가기 링크 생성 (네이버 지도 검색 표준 연동)
   static String getKakaoSearchUrl(String keyword) {
-    return 'https://map.kakao.com/link/search/${Uri.encodeComponent(keyword.trim())}';
+    return getNaverMapUrl(keyword);
   }
 
-  /// 11. 카카오맵 앱/웹 열기 통합 실행
+  /// 11. 지도 앱/웹 열기 통합 실행 (네이버 지도 연결)
   static Future<bool> launchMap(String placeName, {double? lat, double? lng}) async {
-    final Uri url;
-    if (lat != null && lng != null && lat > 0 && lng > 0) {
-      url = Uri.parse(getKakaoMapPinUrl(placeName, lat, lng));
-    } else {
-      url = Uri.parse(getKakaoSearchUrl(placeName));
-    }
-
-    try {
-      return await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      return await launchUrl(url);
-    }
+    return launchNaverMap(placeName, lat: lat, lng: lng);
   }
 
-  /// 12. 카카오맵 길찾기 앱/웹 열기 통합 실행
+  /// 12. 길찾기 앱/웹 열기 통합 실행 (네이버 지도 길찾기 연결)
   static Future<bool> launchDirections(String placeName, {double? lat, double? lng}) async {
-    final Uri url;
-    if (lat != null && lng != null && lat > 0 && lng > 0) {
-      url = Uri.parse(getKakaoRouteUrl(placeName, lat, lng));
-    } else {
-      url = Uri.parse(getKakaoSearchUrl(placeName));
-    }
-
-    try {
-      return await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      return await launchUrl(url);
-    }
+    return launchNaverDirections(placeName, lat: lat, lng: lng);
   }
 
   /// 13. 네이버 지도 검색/장소 바로가기 링크 생성

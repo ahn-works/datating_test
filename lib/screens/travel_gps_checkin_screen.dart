@@ -49,18 +49,18 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
             ),
           ),
 
-          // 2. 우측 하단 카카오 길찾기 FAB
+          // 2. 우측 하단 네이버 길찾기 FAB
           Positioned(
             right: 20,
             bottom: 230,
             child: FloatingActionButton.extended(
-              backgroundColor: const Color(0xFFFEE500),
-              foregroundColor: const Color(0xFF191919),
+              backgroundColor: const Color(0xFF03C75A),
+              foregroundColor: Colors.white,
               elevation: 4,
-              onPressed: () => KakaoMapService.launchDirections(placeName,
+              onPressed: () => KakaoMapService.launchNaverDirections(placeName,
                   lat: mokpoLat, lng: mokpoLng),
               icon: const Icon(Icons.directions_rounded, size: 20),
-              label: const Text('카카오 길찾기',
+              label: const Text('네이버 길찾기',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             ),
           ),

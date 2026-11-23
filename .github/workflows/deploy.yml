@@ -29,11 +29,9 @@ jobs:
         run: python3 scripts/check_design_tokens.py --compare
       - name: Enable Web Platform
         run: flutter create . --platforms web
-      - name: Inject Kakao Map and Daum Postcode JS
-        env:
-          KAKAO_KEY: ${{ secrets.KAKAO_JS_API_KEY }}
+      - name: Inject Daum Postcode JS
         run: |
-          sed -i "s|</head>|<script type=\"text/javascript\" src=\"https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}\&autoload=false\"></script><script src=\"https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js\"></script></head>|" web/index.html
+          sed -i "s|</head>|<script src=\"https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js\"></script></head>|" web/index.html
       - name: Build Web
         id: build
         env:

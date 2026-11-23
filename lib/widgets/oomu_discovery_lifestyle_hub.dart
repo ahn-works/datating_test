@@ -1451,9 +1451,9 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                         (spot['placeName'] ?? spot['title'] ?? _dongLabel)
                             .toString());
                   },
-                  icon: const Icon(Icons.map_outlined, size: 18),
+                  icon: const Icon(Icons.my_location_rounded, size: 18),
                   label: const Text(
-                    '카카오맵에서 근처 위치 보기',
+                    '네이버 지도에서 근처 위치 보기',
                     style:
                         TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
                   ),

@@ -30,13 +30,13 @@ Widget buildKakaoMapWidget({
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEE500),
+                color: const Color(0xFF03C75A),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                '카카오 지도',
+                '네이버 지도',
                 style: TextStyle(
-                  color: Color(0xFF191919),
+                  color: Colors.white,
                   fontWeight: FontWeight.w900,
                   fontSize: 12,
                 ),
@@ -91,18 +91,18 @@ Widget buildKakaoMapWidget({
                   Flexible(
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFEE500),
-                        foregroundColor: const Color(0xFF191919),
+                        backgroundColor: const Color(0xFF03C75A),
+                        foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       onPressed: () =>
-                          KakaoMapService.launchMap(locationName, lat: lat, lng: lng),
-                      icon: const Icon(Icons.map_rounded, size: 16),
+                          KakaoMapService.launchNaverMap(locationName, lat: lat, lng: lng),
+                      icon: const Icon(Icons.my_location_rounded, size: 16),
                       label: const Text(
-                        '카카오맵 보기',
+                        '네이버 지도 보기',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),

@@ -48,35 +48,55 @@ class AuthService {
   // Web Phone Auth용 세션 결과 저장
   ConfirmationResult? _webConfirmationResult;
 
-  // 카카오 앱 키 (Firestore config/api_keys 또는 KakaoMapService 연동)
+  // 카카오 앱 키 (Firestore app_config/kakao 또는 KakaoMapService 연동)
   String _kakaoRestApiKey = '';
+  String _kakaoJsApiKey = '';
   String get kakaoRestApiKey => _kakaoRestApiKey.isNotEmpty
       ? _kakaoRestApiKey
       : KakaoMapService.kakaoRestApiKey;
 
+  /// 카카오 OAuth 인가/토큰 요청용 Client ID (Client Secret 없이 동작하는 JS 키 우선)
+  String get kakaoOAuthClientId {
+    if (_kakaoJsApiKey.isNotEmpty) return _kakaoJsApiKey;
+    if (KakaoMapService.kakaoJsApiKey.isNotEmpty) {
+      return KakaoMapService.kakaoJsApiKey;
+    }
+    const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
+    if (defJs.isNotEmpty) return defJs.trim();
+    return kakaoRestApiKey;
+  }
+
   /// 카카오 공개 클라이언트 키 런타임 조회 (dart-define -> app_config/kakao -> KakaoMapService)
   Future<void> loadKakaoConfig() async {
-    const definedKey = String.fromEnvironment('KAKAO_REST_API_KEY');
-    if (definedKey.isNotEmpty) {
-      _kakaoRestApiKey = definedKey.trim();
+    const definedRest = String.fromEnvironment('KAKAO_REST_API_KEY');
+    const definedJs = String.fromEnvironment('KAKAO_JS_API_KEY');
+    if (definedRest.isNotEmpty) _kakaoRestApiKey = definedRest.trim();
+    if (definedJs.isNotEmpty) _kakaoJsApiKey = definedJs.trim();
+    if (_kakaoRestApiKey.isNotEmpty && _kakaoJsApiKey.isNotEmpty) {
       return;
     }
     try {
       await KakaoMapService.ensureKeysLoaded();
-      if (KakaoMapService.kakaoRestApiKey.isNotEmpty) {
+      if (KakaoMapService.kakaoRestApiKey.isNotEmpty && _kakaoRestApiKey.isEmpty) {
         _kakaoRestApiKey = KakaoMapService.kakaoRestApiKey;
+      }
+      if (KakaoMapService.kakaoJsApiKey.isNotEmpty && _kakaoJsApiKey.isEmpty) {
+        _kakaoJsApiKey = KakaoMapService.kakaoJsApiKey;
+      }
+      if (_kakaoRestApiKey.isNotEmpty && _kakaoJsApiKey.isNotEmpty) {
         return;
       }
       final doc =
           await _firestore.collection('app_config').doc('kakao').get();
       if (doc.exists && doc.data() != null) {
-        final key = (doc.data()!['kakaoRestApiKey'] ??
-                doc.data()!['restApiKey'] ??
-                '')
-            .toString()
-            .trim();
-        if (key.isNotEmpty) {
+        final d = doc.data()!;
+        final key = (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
+        final jsKey = (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
+        if (key.isNotEmpty && _kakaoRestApiKey.isEmpty) {
           _kakaoRestApiKey = key;
+        }
+        if (jsKey.isNotEmpty && _kakaoJsApiKey.isEmpty) {
+          _kakaoJsApiKey = jsKey;
         }
       }
     } catch (e) {
@@ -112,7 +132,7 @@ class AuthService {
 
   String get kakaoOAuthUrl {
     final encodedRedirect = Uri.encodeComponent(kakaoRedirectUri);
-    return 'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoRestApiKey&redirect_uri=$encodedRedirect&response_type=code';
+    return 'https://kauth.kakao.com/oauth/authorize?client_id=$kakaoOAuthClientId&redirect_uri=$encodedRedirect&response_type=code';
   }
 
   User? get currentUser => _auth.currentUser;
@@ -405,7 +425,7 @@ class AuthService {
     }
 
     // 2. 개발/오프라인 환경 폴백
-    if (kakaoRestApiKey.isEmpty) {
+    if (kakaoOAuthClientId.isEmpty) {
       await loadKakaoConfig();
     }
     final tokenResponse = await http.post(
@@ -415,7 +435,7 @@ class AuthService {
       },
       body: {
         'grant_type': 'authorization_code',
-        'client_id': kakaoRestApiKey,
+        'client_id': kakaoOAuthClientId,
         'redirect_uri': kakaoRedirectUri,
         'code': code,
       },
