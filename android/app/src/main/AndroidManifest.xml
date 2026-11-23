@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internet permission for network communication -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Fine and coarse location for neighborhood GPS verification -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
-        android:label="spot10_app"
+        android:label="OOMU"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

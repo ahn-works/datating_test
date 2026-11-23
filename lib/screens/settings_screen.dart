@@ -596,16 +596,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: OomuTokens.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('회원 탈퇴 처리가 안전하게 완료되었습니다.')),
-              );
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (_) => false,
-              );
+              try {
+                await authService.deleteAccount();
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('회원 탈퇴 처리가 안전하게 완료되었습니다.')),
+                );
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const LoginScreen(initialStage: 2)),
+                  (_) => false,
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('탈퇴 처리 중 오류가 발생했습니다: $e')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: OomuTokens.warningRed,

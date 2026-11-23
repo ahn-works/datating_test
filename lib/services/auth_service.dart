@@ -153,6 +153,37 @@ class AuthService {
     }
   }
 
+  /// 회원 탈퇴 (Firebase Auth 계정 및 Firestore 사용자 데이터 완전 영구 삭제)
+  Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    final uid = user.uid;
+
+    try {
+      // 1. Firestore 내 사용자 관련 데이터 영구 삭제
+      try {
+        await _firestore.collection('users').doc(uid).collection('private').doc('contact').delete();
+      } catch (_) {}
+      try {
+        await _firestore.collection('user_states').doc(uid).delete();
+      } catch (_) {}
+      try {
+        await _firestore.collection('users').doc(uid).delete();
+      } catch (_) {}
+
+      // 2. 인메모리 글로벌 상태 즉시 초기화 (AGENTS.md 세션 무결성 원칙)
+      globalData.resetSession();
+
+      // 3. Firebase Auth 계정 삭제
+      await user.delete();
+      debugPrint('[AuthService] User $uid account deleted successfully');
+    } catch (e) {
+      debugPrint('[AuthService] deleteAccount error: $e');
+      await signOut();
+      rethrow;
+    }
+  }
+
   /// ID 토큰 Custom Claims ('admin: true') 실시간 검증 및 동기화
   Future<bool> verifyAdminClaim() async {
     try {
