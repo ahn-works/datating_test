@@ -37,22 +37,6 @@
         setTimeout(function () { resolve(false); }, 4000);
       });
     })();
-
-    window.__kakaoReady = (function () {
-      var p = new URLSearchParams(window.location.search);
-      var k = p.get('appkey') || '';
-      if (!k) return Promise.resolve(false);
-      return new Promise(function (resolve) {
-        var s = document.createElement('script');
-        s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + encodeURIComponent(k) + '&autoload=false';
-        s.onload = function () {
-          try { kakao.maps.load(function () { resolve(true); }); } catch (e) { resolve(false); }
-        };
-        s.onerror = function () { resolve(false); };
-        document.head.appendChild(s);
-        setTimeout(function () { resolve(false); }, 4000);
-      });
-    })();
   </script>
   <style>
     * {
@@ -590,17 +574,13 @@
       }
     }
 
-    // 1순위: 네이버 지도 -> 2순위: 카카오 지도 -> 3순위: 클린 타일 뷰
+    // 네이버 지도 단일 렌더링 (인증 대기 시 클린 타일 뷰 즉시 폴백)
     Promise.resolve(window.__naverReady)
       .then(function (naverOk) {
         if (naverOk && !window.__naverAuthFailed) return runNaver();
-        return window.__kakaoReady.then(function (kakaoOk) {
-          return kakaoOk ? runKakao() : runLeaflet();
-        });
+        return runLeaflet();
       }, function () {
-        return window.__kakaoReady.then(function (kakaoOk) {
-          return kakaoOk ? runKakao() : runLeaflet();
-        });
+        return runLeaflet();
       });
   })();
   </script>
