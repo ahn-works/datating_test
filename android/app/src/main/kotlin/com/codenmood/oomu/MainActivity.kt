@@ -1,4 +1,4 @@
-package com.example.spot10_app
+package com.codenmood.oomu
 
 import io.flutter.embedding.android.FlutterActivity
 
