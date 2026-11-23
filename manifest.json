@@ -1,6 +1,6 @@
 {
-    "name": "spot10_app",
-    "short_name": "spot10_app",
+    "name": "oomu_app",
+    "short_name": "oomu_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
