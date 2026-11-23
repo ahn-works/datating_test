@@ -54,14 +54,15 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
             right: 20,
             bottom: 230,
             child: FloatingActionButton.extended(
-              backgroundColor: const Color(0xFF03C75A),
-              foregroundColor: Colors.white,
+              backgroundColor: OomuTokens.naverGreen,
+              foregroundColor: OomuTokens.surface,
               elevation: 4,
               onPressed: () => KakaoMapService.launchNaverDirections(placeName,
                   lat: mokpoLat, lng: mokpoLng),
               icon: const Icon(Icons.directions_rounded, size: 20),
               label: const Text('네이버 길찾기',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: OomuTokens.fs13)),
             ),
           ),
 

@@ -604,13 +604,14 @@ class _LoginScreenState extends State<LoginScreen>
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: OomuTokens.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          padding: const EdgeInsets.fromLTRB(
+              OomuTokens.s24, OomuTokens.s16, OomuTokens.s24, OomuTokens.s24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -620,8 +621,8 @@ class _LoginScreenState extends State<LoginScreen>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
-                    borderRadius: BorderRadius.circular(2),
+                    color: OomuTokens.border,
+                    borderRadius: BorderRadius.circular(OomuTokens.r4),
                   ),
                 ),
               ),
@@ -629,32 +630,34 @@ class _LoginScreenState extends State<LoginScreen>
               const Text(
                 '카카오톡으로 시작하기',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: OomuTokens.fs18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF191F28),
+                  color: OomuTokens.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
               const Text(
                 '원터치 간편 시작 또는 카카오 계정 웹 로그인을 선택해 주세요.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                style: TextStyle(
+                    fontSize: OomuTokens.fs13, color: OomuTokens.textSecondary),
               ),
               const SizedBox(height: 20),
               SizedBox(
                 height: 50,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFEE500),
-                    foregroundColor: const Color(0xFF191919),
+                    backgroundColor: OomuTokens.kakaoYellow,
+                    foregroundColor: OomuTokens.kakaoText,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(OomuTokens.r14),
                     ),
                   ),
                   icon: const Icon(Icons.bolt_rounded, size: 20),
                   label: const Text(
                     '카카오 1초 간편 시작 (즉시 입장)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs15, fontWeight: FontWeight.w700),
                   ),
                   onPressed: () async {
                     Navigator.pop(ctx);
@@ -679,16 +682,17 @@ class _LoginScreenState extends State<LoginScreen>
                 height: 48,
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF374151),
-                    side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    foregroundColor: OomuTokens.textSecondary,
+                    side: const BorderSide(color: OomuTokens.border),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(OomuTokens.r14),
                     ),
                   ),
                   icon: const Icon(Icons.open_in_new_rounded, size: 17),
                   label: const Text(
                     '카카오 공식 웹 로그인 (OAuth)',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        fontSize: OomuTokens.fs14, fontWeight: FontWeight.w600),
                   ),
                   onPressed: () async {
                     Navigator.pop(ctx);
