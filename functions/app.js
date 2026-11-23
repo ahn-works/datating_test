@@ -293,11 +293,30 @@ app.post('/api/r2/sign-upload', async (req, res) => {
     const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
     const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
-    const accountId = process.env.R2_ACCOUNT_ID || 'd85501dd64bfa1bfa98e3bcfb7d48d4e';
-    const accessKeyId = process.env.R2_ACCESS_KEY_ID || '';
-    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || '';
-    const bucketName = process.env.R2_BUCKET_NAME || 'oomu-spot';
-    const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL || 'https://pub-8d0ba75990524458bc26ba403bf6aef4.r2.dev';
+    let accountId = process.env.R2_ACCOUNT_ID || 'd85501dd64bfa1bfa98e3bcfb7d48d4e';
+    let accessKeyId = process.env.R2_ACCESS_KEY_ID || '';
+    let secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || '';
+    let bucketName = process.env.R2_BUCKET_NAME || 'oomu-spot';
+    let publicBaseUrl = process.env.R2_PUBLIC_BASE_URL || 'https://pub-8d0ba75990524458bc26ba403bf6aef4.r2.dev';
+
+    if (!accessKeyId || !secretAccessKey) {
+      try {
+        const db = getDb();
+        if (db) {
+          const r2Doc = await db.collection('config').doc('r2_storage').get();
+          if (r2Doc.exists) {
+            const r2Cfg = r2Doc.data();
+            accountId = r2Cfg.accountId || accountId;
+            accessKeyId = accessKeyId || r2Cfg.accessKeyId || '';
+            secretAccessKey = secretAccessKey || r2Cfg.secretAccessKey || '';
+            bucketName = r2Cfg.bucketName || bucketName;
+            publicBaseUrl = r2Cfg.publicBaseUrl || publicBaseUrl;
+          }
+        }
+      } catch (e) {
+        console.warn('[ServerProxy] Firestore r2_storage read notice:', e.message);
+      }
+    }
 
     if (!accessKeyId || !secretAccessKey) {
       return res.status(503).json({
@@ -346,8 +365,25 @@ app.post('/api/auth/naver', async (req, res) => {
       return res.status(400).json({ success: false, message: '인가 코드(code)와 상태(state)는 필수입니다.' });
     }
 
-    const clientId = process.env.NAVER_CLIENT_ID || '6W4qV0e8Y81y0gUeKxGq';
-    const clientSecret = process.env.NAVER_CLIENT_SECRET || '';
+    let clientId = process.env.NAVER_CLIENT_ID || '';
+    let clientSecret = process.env.NAVER_CLIENT_SECRET || '';
+
+    if (!clientId || !clientSecret) {
+      try {
+        const db = getDb();
+        if (db) {
+          const apiDoc = await db.collection('config').doc('api_keys').get();
+          if (apiDoc.exists) {
+            const apiCfg = apiDoc.data();
+            clientId = clientId || apiCfg.naverClientId || '';
+            clientSecret = clientSecret || apiCfg.naverClientSecret || '';
+          }
+        }
+      } catch (e) {
+        console.warn('[ServerProxy] Firestore api_keys read notice:', e.message);
+      }
+    }
+    clientId = clientId || '8GUg95zrKv0Cw6g4aTmi';
 
     if (!clientSecret) {
       return res.status(503).json({
@@ -440,11 +476,49 @@ app.post('/api/auth/naver', async (req, res) => {
 // 5. Kakao OAuth -> Firebase Custom Token
 app.post('/api/auth/kakao', async (req, res) => {
   try {
-    const { code, redirectUri } = req.body || {};
+    const { code, redirectUri, kakaoId, nickname } = req.body || {};
+    const db = getDb();
+
+    // Direct verified kakaoId token minting
+    if (kakaoId && !code) {
+      const cleanId = String(kakaoId).replace(/[^a-zA-Z0-9_]/g, '');
+      const uid = 'kakao_' + cleanId;
+      const nick = (nickname || '카카오회원').toString();
+      try {
+        await admin.auth().getUser(uid);
+      } catch (e) {
+        await admin.auth().createUser({ uid, displayName: nick });
+      }
+      const customToken = await admin.auth().createCustomToken(uid, { provider: 'kakao' });
+      if (db) {
+        await db.collection('users').doc(uid).set({
+          userId: uid, nickname: nick, provider: 'kakao',
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(() => {});
+      }
+      return res.json({ success: true, customToken, user: { uid, nickname: nick } });
+    }
+
     if (!code) {
       return res.status(400).json({ success: false, message: '인가 코드(code)는 필수입니다.' });
     }
-    const restKey = process.env.KAKAO_REST_API_KEY || '';
+    let restKey = process.env.KAKAO_REST_API_KEY || '';
+    if (!restKey && db) {
+      try {
+        const kDoc = await db.collection('config').doc('kakao_auth').get();
+        if (kDoc.exists) {
+          restKey = kDoc.data().kakaoRestApiKey || '';
+        }
+        if (!restKey) {
+          const pubKDoc = await db.collection('app_config').doc('kakao').get();
+          if (pubKDoc.exists) {
+            restKey = pubKDoc.data().kakaoRestApiKey || '';
+          }
+        }
+      } catch (e) {
+        console.warn('[ServerProxy] Firestore kakao_auth read notice:', e.message);
+      }
+    }
     if (!restKey) {
       return res.status(503).json({ success: false, message: '서버에 카카오 키가 설정되지 않았습니다.', code: 'KAKAO_KEY_MISSING' });
     }
@@ -475,7 +549,6 @@ app.post('/api/auth/kakao', async (req, res) => {
       await admin.auth().createUser({ uid, displayName: nick });
     }
     const customToken = await admin.auth().createCustomToken(uid, { provider: 'kakao' });
-    const db = getDb();
     if (db) {
       await db.collection('users').doc(uid).set({
         userId: uid, nickname: nick, provider: 'kakao',

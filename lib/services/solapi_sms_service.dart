@@ -118,41 +118,7 @@ class SolapiSmsService {
 
     await initialize();
 
-    // 1. 서버 프록시(/api/sms/send) 우선 호출
-    final proxyBase = ServerConfig.serverProxyUrl;
-    try {
-      final proxyUri = Uri.parse('$proxyBase/api/sms/send');
-      final response = await http
-          .post(
-            proxyUri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'phone': phone}),
-          )
-          .timeout(const Duration(seconds: 10));
-
-      final resData = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode == 200 && resData['success'] == true) {
-        _localSessionCache[phone] = {
-          'expiresAt': DateTime.now().add(const Duration(minutes: 3)),
-          'verified': false,
-        };
-        debugPrint('[SolapiSmsService] Proxy SMS sent successfully to $phone');
-        return SolapiSendResult.success('solapi_$phone');
-      } else if (response.statusCode == 429) {
-        return SolapiSendResult.error(
-            resData['message']?.toString() ?? '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
-      } else if (response.statusCode == 503) {
-        return SolapiSendResult.error(
-            resData['message']?.toString() ?? '서버에 SMS 발송 키가 설정되지 않았습니다.');
-      } else {
-        final msg = resData['message']?.toString() ?? '인증번호 발송 실패';
-        return SolapiSendResult.error(msg);
-      }
-    } catch (e) {
-      debugPrint('[SolapiSmsService] Proxy call notice ($e), checking local env fallback');
-    }
-
-    // 2. 개발/오프라인 환경 폴백 (SOLAPI_API_KEY가 dart-define으로 주입된 경우만)
+    // 1. 주입된 솔라피 키가 있는 경우 솔라피 v4 API(카카오 알림톡 + SMS 자동 대체) 즉시 직접 발송
     if (_apiKey.isNotEmpty && _apiSecret.isNotEmpty && _senderNumber.isNotEmpty) {
       final code = (100000 + Random().nextInt(900000)).toString();
       final messageText = '[OOMU] 💞동네 취향 모임 💞\n\n'
@@ -223,15 +189,43 @@ class SolapiSmsService {
           debugPrint('[SolapiSmsService] Solapi HTTP ${response.statusCode}: ${response.body}');
         }
       } catch (err) {
-        debugPrint('[SolapiSmsService] Direct fallback error: $err');
+        debugPrint('[SolapiSmsService] Direct send error: $err');
       }
+    }
+
+    // 2. 서버 프록시(/api/sms/send) 호출
+    final proxyBase = ServerConfig.serverProxyUrl;
+    try {
+      final proxyUri = Uri.parse('$proxyBase/api/sms/send');
+      final response = await http
+          .post(
+            proxyUri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'phone': phone}),
+          )
+          .timeout(const Duration(seconds: 7));
+
+      final resData = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && resData['success'] == true) {
+        _localSessionCache[phone] = {
+          'expiresAt': DateTime.now().add(const Duration(minutes: 3)),
+          'verified': false,
+        };
+        debugPrint('[SolapiSmsService] Proxy SMS sent successfully to $phone');
+        return SolapiSendResult.success('solapi_$phone');
+      } else if (response.statusCode == 429) {
+        return SolapiSendResult.error(
+            resData['message']?.toString() ?? '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
+      }
+    } catch (e) {
+      debugPrint('[SolapiSmsService] Proxy call notice ($e)');
     }
 
     return SolapiSendResult.error(
         'SMS 인증 서버에 연결할 수 없습니다. 네트워크 연결 상태를 확인해 주세요.');
   }
 
-  /// 인증번호 검증 (서버 프록시 우선 호출)
+  /// 인증번호 검증
   Future<bool> verifyCode({
     required String rawPhone,
     required String inputCode,
@@ -242,12 +236,26 @@ class SolapiSmsService {
       return false;
     }
 
-    // 1. 이미 인메모리에서 인증 완료된 세션인지 확인
+    // 1. 인메모리 로컬 세션 검증 (직접 발송된 알림톡/SMS 인증번호 즉시 대조)
     final local = _localSessionCache[phone];
-    if (local != null && local['verified'] == true) {
-      globalData.isPhoneVerified.value = true;
-      globalData.userPhone.value = phone;
-      return true;
+    if (local != null) {
+      if (local['verified'] == true) {
+        globalData.isPhoneVerified.value = true;
+        globalData.userPhone.value = phone;
+        return true;
+      }
+      if (local['code'] != null) {
+        final DateTime? expiresAt = local['expiresAt'];
+        if (expiresAt != null && DateTime.now().isBefore(expiresAt)) {
+          if (local['code'] == trimmedCode) {
+            local['verified'] = true;
+            globalData.isPhoneVerified.value = true;
+            globalData.userPhone.value = phone;
+            return true;
+          }
+        }
+        return false;
+      }
     }
 
     // 2. 서버 프록시(/api/sms/verify) 호출
@@ -260,7 +268,7 @@ class SolapiSmsService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'phone': phone, 'code': trimmedCode}),
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 7));
 
       if (response.statusCode == 200) {
         final resData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -276,19 +284,6 @@ class SolapiSmsService {
       }
     } catch (e) {
       debugPrint('[SolapiSmsService] Proxy verify error: $e');
-    }
-
-    // 3. 인메모리 로컬 세션 검증 (개발/오프라인 환경 폴백)
-    if (local != null && local['code'] != null) {
-      final DateTime? expiresAt = local['expiresAt'];
-      if (expiresAt != null && DateTime.now().isBefore(expiresAt)) {
-        if (local['code'] == trimmedCode) {
-          local['verified'] = true;
-          globalData.isPhoneVerified.value = true;
-          globalData.userPhone.value = phone;
-          return true;
-        }
-      }
     }
 
     return false;
