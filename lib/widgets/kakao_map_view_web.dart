@@ -69,16 +69,19 @@ class _KakaoMapWebView extends StatefulWidget {
 
 class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
   StreamSubscription<html.MessageEvent>? _msgSub;
+  bool _keysReady = KakaoMapService.ncpKeyId.isNotEmpty ||
+      KakaoMapService.naverClientId.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
-    if (KakaoMapService.naverClientId.isEmpty &&
-        KakaoMapService.kakaoJsApiKey.isEmpty) {
-      KakaoMapService.ensureKeysLoaded().then((_) {
-        if (mounted) setState(() {});
-      });
-    }
+    KakaoMapService.ensureKeysLoaded().then((_) {
+      if (mounted) {
+        setState(() {
+          _keysReady = true;
+        });
+      }
+    });
     _msgSub = html.window.onMessage.listen((event) {
       if (widget.onMarkerTap == null) return;
       try {
@@ -111,11 +114,11 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
     final markersCount = widget.markers?.length ?? 0;
     final selId = (widget.selectedMarkerId ?? '')
         .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '');
-    final hasKeys = KakaoMapService.naverClientId.isNotEmpty ||
-        KakaoMapService.ncpKeyId.isNotEmpty ||
-        KakaoMapService.kakaoJsApiKey.isNotEmpty;
+    final naverId = KakaoMapService.ncpKeyId.isNotEmpty
+        ? KakaoMapService.ncpKeyId
+        : KakaoMapService.naverClientId;
     final viewType =
-        'naver-map-v2-${widget.lat.toStringAsFixed(4)}-${widget.lng.toStringAsFixed(4)}-$cleanName$actionSuffix-m$markersCount-s$selId-z${widget.zoomLevel}-k${hasKeys ? 1 : 0}';
+        'naver-map-v3-${widget.lat.toStringAsFixed(4)}-${widget.lng.toStringAsFixed(4)}-$cleanName$actionSuffix-m$markersCount-s$selId-z${widget.zoomLevel}-k$naverId-${_keysReady ? 1 : 0}';
 
     String markersQuery = '';
     if (widget.markers != null && widget.markers!.isNotEmpty) {

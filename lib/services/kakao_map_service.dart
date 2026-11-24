@@ -52,7 +52,8 @@ class KakaoPlace {
       roadAddress: road.isNotEmpty ? road : jibun,
       category: json['category_group_name']?.toString().isNotEmpty == true
           ? json['category_group_name'].toString()
-          : (json['category_name']?.toString().split('>').last.trim() ?? '모임장소'),
+          : (json['category_name']?.toString().split('>').last.trim() ??
+              '모임장소'),
       lat: double.tryParse(json['y']?.toString() ?? '') ?? 0.0,
       lng: double.tryParse(json['x']?.toString() ?? '') ?? 0.0,
       placeUrl: json['place_url']?.toString() ?? '',
@@ -80,20 +81,18 @@ class KakaoMapService {
   static String get naverClientId => _naverClientId;
   static String get ncpKeyId => _ncpKeyId;
 
-  /// 카카오/네이버 공개 클라이언트 키 안전 조회 (dart-define -> app_config/kakao or maps)
+  /// 카카오/네이버 공개 클라이언트 키 안전 조회 (Firestore app_config/kakao 우선 + dart-define 폴백)
   static Future<void> ensureKeysLoaded() async {
-    if (_keysLoaded && (_restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty)) {
+    if (_keysLoaded && _restApiKey.isNotEmpty && _ncpKeyId.isNotEmpty) {
       return;
     }
     const defRest = String.fromEnvironment('KAKAO_REST_API_KEY');
     const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
     const defNaver = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
-    if (defRest.isNotEmpty) _restApiKey = defRest.trim();
-    if (defJs.isNotEmpty) _jsApiKey = defJs.trim();
-    if (defNaver.isNotEmpty) _naverClientId = defNaver.trim();
-    if (_restApiKey.isNotEmpty && _jsApiKey.isNotEmpty && _naverClientId.isNotEmpty) {
-      _keysLoaded = true;
-      return;
+    if (defRest.isNotEmpty && _restApiKey.isEmpty) _restApiKey = defRest.trim();
+    if (defJs.isNotEmpty && _jsApiKey.isEmpty) _jsApiKey = defJs.trim();
+    if (defNaver.isNotEmpty && _naverClientId.isEmpty) {
+      _naverClientId = defNaver.trim();
     }
     try {
       final doc = await FirebaseFirestore.instance
@@ -103,30 +102,29 @@ class KakaoMapService {
           .timeout(const Duration(seconds: 3));
       if (doc.exists && doc.data() != null) {
         final d = doc.data()!;
-        if (_restApiKey.isEmpty) {
-          _restApiKey =
-              (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
-        }
-        if (_jsApiKey.isEmpty) {
-          _jsApiKey =
-              (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? _restApiKey).toString().trim();
-        }
-        if (_naverClientId.isEmpty) {
-          _naverClientId = (d['naverMapClientId'] ??
-                  d['naverClientId'] ??
-                  d['ncpKeyId'] ??
-                  '')
-              .toString()
-              .trim();
-        }
-        if (_ncpKeyId.isEmpty) {
-          _ncpKeyId = (d['ncpKeyId'] ?? d['naverMapClientId'] ?? _naverClientId)
-              .toString()
-              .trim();
+        final fsRest =
+            (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
+        final fsJs =
+            (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
+        final fsNcp = (d['ncpKeyId'] ??
+                d['naverMapClientId'] ??
+                d['naverClientId'] ??
+                '')
+            .toString()
+            .trim();
+        if (fsRest.isNotEmpty) _restApiKey = fsRest;
+        if (fsJs.isNotEmpty) _jsApiKey = fsJs;
+        if (fsNcp.isNotEmpty) {
+          _ncpKeyId = fsNcp;
+          _naverClientId = fsNcp;
         }
       }
-      _keysLoaded = _restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty;
-    } catch (_) {}
+      _keysLoaded =
+          _restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty;
+    } catch (_) {
+      _keysLoaded =
+          _restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty;
+    }
   }
 
   static Future<Map<String, String>> _getAuthHeaders() async {
@@ -148,7 +146,8 @@ class KakaoMapService {
     if (clean.isEmpty) return [];
 
     try {
-      String url = 'https://dapi.kakao.com/v2/local/search/keyword.json?query=${Uri.encodeComponent(clean)}&size=$size';
+      String url =
+          'https://dapi.kakao.com/v2/local/search/keyword.json?query=${Uri.encodeComponent(clean)}&size=$size';
       if (lat != null && lng != null) {
         url += '&x=$lng&y=$lat';
         if (radius != null) {
@@ -157,7 +156,9 @@ class KakaoMapService {
       }
 
       final headers = await _getAuthHeaders();
-      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 4));
+      final res = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
@@ -182,36 +183,53 @@ class KakaoMapService {
     if (clean.isEmpty) return [];
 
     // 1차: 원본 검색
-    var list = await _fetchKeyword(clean, lat: lat, lng: lng, radius: radius, size: size);
+    var list = await _fetchKeyword(clean,
+        lat: lat, lng: lng, radius: radius, size: size);
     if (list.isNotEmpty) return list;
 
     // 2차: 한국어 말끝 노이즈 단어 제거 (앞, 근처, 인근, 일대, 주변, 맞은편, 건너편, 부근, 쪽, 내부, 출구 앞 등)
-    final cleaned = clean.replaceAll(RegExp(r'\s*(앞|근처|인근|일대|주변|맞은편|건너편|부근|쪽|내부|출구\s*앞)$'), '').trim();
+    final cleaned = clean
+        .replaceAll(RegExp(r'\s*(앞|근처|인근|일대|주변|맞은편|건너편|부근|쪽|내부|출구\s*앞)$'), '')
+        .trim();
     if (cleaned.isNotEmpty && cleaned != clean) {
-      list = await _fetchKeyword(cleaned, lat: lat, lng: lng, radius: radius, size: size);
+      list = await _fetchKeyword(cleaned,
+          lat: lat, lng: lng, radius: radius, size: size);
       if (list.isNotEmpty) return list;
     }
 
     // 3차: 주소 검색 API 시도 (도로명/지번)
-    final addrList = await searchAddress(cleaned.isNotEmpty ? cleaned : clean, size: size);
+    final addrList =
+        await searchAddress(cleaned.isNotEmpty ? cleaned : clean, size: size);
     if (addrList.isNotEmpty) return addrList;
 
     // 4차: 시/도/구 행정구역 접두어 분리 검색
-    final sub = cleaned.replaceAll(RegExp(r'^(서울(특별시)?|경기(도)?|인천(광역시)?|부산(광역시)?|전남|전북|경남|경북|충남|충북|강원(특별자치도)?|제주(특별자치도)?)\s*([가-힣]+(구|시|군))\s*'), '').trim();
+    final sub = cleaned
+        .replaceAll(
+            RegExp(
+                r'^(서울(특별시)?|경기(도)?|인천(광역시)?|부산(광역시)?|전남|전북|경남|경북|충남|충북|강원(특별자치도)?|제주(특별자치도)?)\s*([가-힣]+(구|시|군))\s*'),
+            '')
+        .trim();
     if (sub.isNotEmpty && sub != cleaned) {
-      list = await _fetchKeyword(sub, lat: lat, lng: lng, radius: radius, size: size);
+      list = await _fetchKeyword(sub,
+          lat: lat, lng: lng, radius: radius, size: size);
       if (list.isNotEmpty) return list;
     }
 
     // 5차: 2개 핵심 키워드 분리 검색
-    final words = cleaned.split(RegExp(r'[\s·,>]+')).where((w) => w.length > 1 && !['일대', '근처', '인접', '주변', '모임'].contains(w)).toList();
+    final words = cleaned
+        .split(RegExp(r'[\s·,>]+'))
+        .where(
+            (w) => w.length > 1 && !['일대', '근처', '인접', '주변', '모임'].contains(w))
+        .toList();
     if (words.length >= 2) {
-      list = await _fetchKeyword('${words[0]} ${words[1]}', lat: lat, lng: lng, radius: radius, size: size);
+      list = await _fetchKeyword('${words[0]} ${words[1]}',
+          lat: lat, lng: lng, radius: radius, size: size);
       if (list.isNotEmpty) return list;
     }
 
     if (words.isNotEmpty) {
-      list = await _fetchKeyword(words.first, lat: lat, lng: lng, radius: radius, size: size);
+      list = await _fetchKeyword(words.first,
+          lat: lat, lng: lng, radius: radius, size: size);
       if (list.isNotEmpty) return list;
     }
 
@@ -224,7 +242,20 @@ class KakaoMapService {
     if (clean.isEmpty) return null;
 
     const noiseWords = {
-      '모임', '장소', '약속', '출구', '앞', '근처', '인근', '일대', '주변', '맞은편', '건너편', '부근', '입구', '카페거리'
+      '모임',
+      '장소',
+      '약속',
+      '출구',
+      '앞',
+      '근처',
+      '인근',
+      '일대',
+      '주변',
+      '맞은편',
+      '건너편',
+      '부근',
+      '입구',
+      '카페거리'
     };
     final tokens = clean
         .replaceAll(RegExp(r'[0-9]+번'), ' ')
@@ -241,8 +272,11 @@ class KakaoMapService {
 
     for (final candidate in candidates) {
       if (!candidate.hasValidCoords) continue;
-      final combined = '${candidate.name} ${candidate.address} ${candidate.roadAddress}'.toLowerCase();
-      final matched = tokens.every((token) => combined.contains(token.toLowerCase()));
+      final combined =
+          '${candidate.name} ${candidate.address} ${candidate.roadAddress}'
+              .toLowerCase();
+      final matched =
+          tokens.every((token) => combined.contains(token.toLowerCase()));
       if (matched) {
         return candidate;
       }
@@ -251,15 +285,106 @@ class KakaoMapService {
     return null;
   }
 
+  /// 1-2. 사용자 설정 동네(예: 영등포구 신길동, 여수시 화장동) 중심 바이어스를 적용한 장소 이름 -> 좌표 & 거리 변환
+  static Future<KakaoPlace?> resolvePlaceWithNeighborhoodBias(
+    String query, {
+    String? userLocation,
+  }) async {
+    final clean = query.trim();
+    if (clean.isEmpty) return null;
+
+    final locStr = (userLocation != null && userLocation.trim().isNotEmpty)
+        ? userLocation.trim()
+        : globalData.userLocation.value.trim();
+    final centerCoords = LocationHelper.findCoordsForLocation(locStr);
+    final double? biasLat = centerCoords?['lat'];
+    final double? biasLng = centerCoords?['lng'];
+    final String dongToken =
+        locStr.isNotEmpty ? locStr.split(RegExp(r'\s+')).last : '';
+
+    // 1순위: 엄격 검증 일치
+    final verified = await resolveVerifiedPlace(clean);
+    if (verified != null && verified.hasValidCoords) {
+      return verified;
+    }
+
+    // 2순위: 동네명이 쿼리에 없으면 동네 중심 좌표(radius 6km) 또는 동네명 결합 검색
+    if (dongToken.isNotEmpty && !clean.contains(dongToken)) {
+      final localCandidates = await searchKeyword(
+        '$dongToken $clean',
+        lat: biasLat,
+        lng: biasLng,
+        size: 5,
+      );
+      if (localCandidates.isNotEmpty && localCandidates.first.hasValidCoords) {
+        return localCandidates.first;
+      }
+    }
+
+    // 3순위: 원본 키워드 + 동네 좌표 바이어스 검색
+    final candidates = await searchKeyword(
+      clean,
+      lat: biasLat,
+      lng: biasLng,
+      size: 5,
+    );
+    if (candidates.isNotEmpty && candidates.first.hasValidCoords) {
+      return candidates.first;
+    }
+
+    return null;
+  }
+
+  /// 1-3. 사용자 설정 동네 중심에서 특정 좌표까지의 직관적 거리+도보시간 라벨 계산
+  static String formatDistanceFromNeighborhood(
+    double targetLat,
+    double targetLng, {
+    String? userLocation,
+  }) {
+    if (targetLat.isNaN || targetLng.isNaN || targetLat <= 0 || targetLng <= 0) {
+      return '위치 확인 완료';
+    }
+    final locStr = (userLocation != null && userLocation.trim().isNotEmpty)
+        ? userLocation.trim()
+        : globalData.userLocation.value.trim();
+    final coords = LocationHelper.findCoordsForLocation(
+      locStr.isNotEmpty ? locStr : '서울 영등포구 신길동',
+    );
+    if (coords == null) return '위치 확인 완료';
+
+    final meters = calculateDistanceInMeters(
+      coords['lat']!,
+      coords['lng']!,
+      targetLat,
+      targetLng,
+    );
+    if (meters.isNaN || meters.isInfinite || meters > 50000) {
+      return '위치 확인 완료';
+    }
+    final dongOnly =
+        locStr.isNotEmpty ? locStr.split(RegExp(r'\s+')).last : '내 동네';
+    final distText = formatDistance(meters);
+    if (meters <= 1500) {
+      final walkMin = max(1, (meters / 67).round());
+      return '$dongOnly 기준 $distText · 도보 $walkMin분';
+    }
+    final carMin = max(3, (meters / 450).round());
+    return '$dongOnly 기준 $distText · 차량 약 $carMin분';
+  }
+
   /// 2. 카카오 주소 검색 API (dapi.kakao.com/v2/local/search/address.json)
-  static Future<List<KakaoPlace>> searchAddress(String address, {int size = 10}) async {
+  static Future<List<KakaoPlace>> searchAddress(String address,
+      {int size = 10}) async {
     final clean = address.trim();
     if (clean.isEmpty) return [];
 
     try {
-      final url = 'https://dapi.kakao.com/v2/local/search/address.json?query=${Uri.encodeComponent(clean)}&size=$size';
+      final url =
+          'https://dapi.kakao.com/v2/local/search/address.json?query=${Uri.encodeComponent(clean)}&size=$size';
       final headers = await _getAuthHeaders();
-      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(seconds: 4));
+      final res = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 4));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
@@ -268,8 +393,11 @@ class KakaoMapService {
               final m = doc as Map<String, dynamic>;
               final road = m['road_address'] as Map<String, dynamic>?;
               final jibun = m['address'] as Map<String, dynamic>?;
-              final roadName = road != null ? (road['address_name']?.toString() ?? '') : '';
-              final jibunName = jibun != null ? (jibun['address_name']?.toString() ?? '') : (m['address_name']?.toString() ?? '');
+              final roadName =
+                  road != null ? (road['address_name']?.toString() ?? '') : '';
+              final jibunName = jibun != null
+                  ? (jibun['address_name']?.toString() ?? '')
+                  : (m['address_name']?.toString() ?? '');
               return KakaoPlace(
                 id: m['id']?.toString() ?? clean.hashCode.toString(),
                 name: roadName.isNotEmpty ? roadName : jibunName,
@@ -278,7 +406,8 @@ class KakaoMapService {
                 category: '주소',
                 lat: double.tryParse(m['y']?.toString() ?? '') ?? 0.0,
                 lng: double.tryParse(m['x']?.toString() ?? '') ?? 0.0,
-                placeUrl: 'https://map.kakao.com/link/search/${Uri.encodeComponent(clean)}',
+                placeUrl:
+                    'https://map.kakao.com/link/search/${Uri.encodeComponent(clean)}',
               );
             })
             .where((place) => place.hasValidCoords)
@@ -293,9 +422,12 @@ class KakaoMapService {
   /// 3. 카카오 역지오코딩 - 좌표 -> 읍·면·동 행정동/법정동 이름 (coord2regioncode.json)
   static Future<String?> coordToRegionName(double lat, double lng) async {
     try {
-      final url = 'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=$lng&y=$lat';
+      final url =
+          'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=$lng&y=$lat';
       final headers = await _getAuthHeaders();
-      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(milliseconds: 2500));
+      final res = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(milliseconds: 2500));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
@@ -308,7 +440,8 @@ class KakaoMapService {
             break;
           }
         }
-        targetDoc ??= docs.isNotEmpty ? (docs.first as Map<String, dynamic>) : null;
+        targetDoc ??=
+            docs.isNotEmpty ? (docs.first as Map<String, dynamic>) : null;
 
         if (targetDoc != null) {
           final region2 = targetDoc['region_2depth_name']?.toString() ?? '';
@@ -335,20 +468,25 @@ class KakaoMapService {
   /// 4. 카카오 역지오코딩 - 좌표 -> 상세 도로명/지번 주소 (coord2address.json)
   static Future<String?> coordToRoadAddress(double lat, double lng) async {
     try {
-      final url = 'https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$lng&y=$lat';
+      final url =
+          'https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$lng&y=$lat';
       final headers = await _getAuthHeaders();
-      final res = await http.get(Uri.parse(url), headers: headers).timeout(const Duration(milliseconds: 2500));
+      final res = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(milliseconds: 2500));
       if (res.statusCode == 200) {
         final data = json.decode(utf8.decode(res.bodyBytes));
         final docs = data['documents'] as List<dynamic>? ?? [];
         if (docs.isNotEmpty) {
           final m = docs.first as Map<String, dynamic>;
           final road = m['road_address'] as Map<String, dynamic>?;
-          if (road != null && road['address_name']?.toString().isNotEmpty == true) {
+          if (road != null &&
+              road['address_name']?.toString().isNotEmpty == true) {
             return road['address_name'].toString();
           }
           final jibun = m['address'] as Map<String, dynamic>?;
-          if (jibun != null && jibun['address_name']?.toString().isNotEmpty == true) {
+          if (jibun != null &&
+              jibun['address_name']?.toString().isNotEmpty == true) {
             return jibun['address_name'].toString();
           }
         }
@@ -360,12 +498,16 @@ class KakaoMapService {
   }
 
   /// 5. Haversine 정밀 거리 계산 (미터 단위 반환)
-  static double calculateDistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
+  static double calculateDistanceInMeters(
+      double lat1, double lon1, double lat2, double lon2) {
     const double earthRadius = 6371000; // meters
     final dLat = (lat2 - lat1) * pi / 180.0;
     final dLon = (lon2 - lon1) * pi / 180.0;
     final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180.0) * cos(lat2 * pi / 180.0) * sin(dLon / 2) * sin(dLon / 2);
+        cos(lat1 * pi / 180.0) *
+            cos(lat2 * pi / 180.0) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return earthRadius * c;
   }
@@ -383,14 +525,21 @@ class KakaoMapService {
 
   /// 7. 현재 기기 위치 기준 특정 좌표까지의 실시간 거리 문자열
   /// GPS 권한이 허용되어 있으면 기기 실제 GPS 기반 거리, 브라우저/웹 권한 미허용 시 사용자 설정 동네(globalData.userLocation) 기준 거리 계산
-  static Future<String> getDistanceTextFromCurrent(double targetLat, double targetLng, {String? userLocation}) async {
-    if (targetLat.isNaN || targetLng.isNaN || targetLat <= 0 || targetLng <= 0) {
+  static Future<String> getDistanceTextFromCurrent(
+      double targetLat, double targetLng,
+      {String? userLocation}) async {
+    if (targetLat.isNaN ||
+        targetLng.isNaN ||
+        targetLat <= 0 ||
+        targetLng <= 0) {
       return '거리 정보 없음';
     }
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       final permission = await Geolocator.checkPermission();
-      if (serviceEnabled && permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
+      if (serviceEnabled &&
+          permission != LocationPermission.denied &&
+          permission != LocationPermission.deniedForever) {
         Position? pos;
         try {
           pos = await Geolocator.getLastKnownPosition();
@@ -403,7 +552,8 @@ class KakaoMapService {
         );
 
         if (pos.latitude > 0 && pos.longitude > 0) {
-          final dist = calculateDistanceInMeters(pos.latitude, pos.longitude, targetLat, targetLng);
+          final dist = calculateDistanceInMeters(
+              pos.latitude, pos.longitude, targetLat, targetLng);
           if (dist <= 25000) {
             return '내 위치에서 ${formatDistance(dist)}';
           }
@@ -418,7 +568,8 @@ class KakaoMapService {
     if (locStr.isNotEmpty && locStr != '동네 미설정') {
       final coords = LocationHelper.findCoordsForLocation(locStr);
       if (coords != null) {
-        final dist = calculateDistanceInMeters(coords['lat']!, coords['lng']!, targetLat, targetLng);
+        final dist = calculateDistanceInMeters(
+            coords['lat']!, coords['lng']!, targetLat, targetLng);
         if (dist > 25000) {
           return '거리 정보 없음';
         }
@@ -449,12 +600,14 @@ class KakaoMapService {
   }
 
   /// 11. 지도 앱/웹 열기 통합 실행 (네이버 지도 연결)
-  static Future<bool> launchMap(String placeName, {double? lat, double? lng}) async {
+  static Future<bool> launchMap(String placeName,
+      {double? lat, double? lng}) async {
     return launchNaverMap(placeName, lat: lat, lng: lng);
   }
 
   /// 12. 길찾기 앱/웹 열기 통합 실행 (네이버 지도 길찾기 연결)
-  static Future<bool> launchDirections(String placeName, {double? lat, double? lng}) async {
+  static Future<bool> launchDirections(String placeName,
+      {double? lat, double? lng}) async {
     return launchNaverDirections(placeName, lat: lat, lng: lng);
   }
 
@@ -474,7 +627,8 @@ class KakaoMapService {
   }
 
   /// 15. 네이버 지도 앱/웹 열기 통합 실행
-  static Future<bool> launchNaverMap(String placeName, {double? lat, double? lng}) async {
+  static Future<bool> launchNaverMap(String placeName,
+      {double? lat, double? lng}) async {
     final url = Uri.parse(getNaverMapUrl(placeName, lat: lat, lng: lng));
     try {
       return await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -484,7 +638,8 @@ class KakaoMapService {
   }
 
   /// 16. 네이버 지도 길찾기 앱/웹 열기 통합 실행
-  static Future<bool> launchNaverDirections(String placeName, {double? lat, double? lng}) async {
+  static Future<bool> launchNaverDirections(String placeName,
+      {double? lat, double? lng}) async {
     final url = Uri.parse(getNaverRouteUrl(placeName, lat: lat, lng: lng));
     try {
       return await launchUrl(url, mode: LaunchMode.externalApplication);

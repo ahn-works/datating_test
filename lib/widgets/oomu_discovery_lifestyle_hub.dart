@@ -51,6 +51,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   List<FashionDietTrendItem> _fashionDietItems = const [];
   List<CountrySpotItem> _countries = const [];
   List<Map<String, dynamic>> _realTrendEvents = const [];
+  List<Map<String, dynamic>> _liveLocalFoodSpots = const [];
 
   // 놀거리·운세 인터랙티브 미니게임 상태
   final Map<int, bool> _tarotFlipped = {0: false, 1: false, 2: false};
@@ -67,7 +68,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     {
       'iconData': Icons.restaurant_outlined,
       'label': '날씨·맛집',
-      'sub': '삼겹살·파전·레시피'
+      'sub': '동네 로컬맛집·다이닝'
     },
     {
       'iconData': Icons.local_offer_outlined,
@@ -79,16 +80,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
       'label': '청년지원금',
       'sub': '월세·교통·문화 지원'
     },
-    {
-      'iconData': Icons.movie_outlined,
-      'label': '요즘트렌드',
-      'sub': '영화·패션·다이어트'
-    },
-    {
-      'iconData': Icons.casino_outlined,
-      'label': '놀거리·운세',
-      'sub': '타로·밸런스 배틀'
-    },
+    {'iconData': Icons.movie_outlined, 'label': '요즘트렌드', 'sub': '영화·패션·다이어트'},
+    {'iconData': Icons.casino_outlined, 'label': '놀거리·운세', 'sub': '타로·밸런스 배틀'},
   ];
 
   @override
@@ -104,6 +97,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentLocation != widget.currentLocation) {
       _loadWeatherAndRecipes();
+      _loadLiveNeighborhoodFoodSpots();
     }
   }
 
@@ -114,7 +108,61 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
   Future<void> _loadAllDiscoveryData() async {
     _loadWeatherAndRecipes();
+    _loadLiveNeighborhoodFoodSpots();
     _loadMoviesAndCountries();
+  }
+
+  Future<void> _loadLiveNeighborhoodFoodSpots() async {
+    final dong = _dongLabel;
+    try {
+      final places = await KakaoMapService.searchKeyword(
+        '$dong 맛집',
+        size: 6,
+      );
+      if (!mounted || places.isEmpty) return;
+      final images = [
+        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
+        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+        'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+        'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
+      ];
+      final badges = ['$_dongLabel 실시간 인기', '퇴근 후 추천', '로컬 찐맛집', '분위기 다이닝'];
+      final List<Map<String, dynamic>> mapped = [];
+      for (int i = 0; i < places.length && i < 4; i++) {
+        final p = places[i];
+        final distLabel = KakaoMapService.formatDistanceFromNeighborhood(
+          p.lat,
+          p.lng,
+          userLocation: widget.currentLocation,
+        );
+        mapped.add({
+          'id': 'live_food_${p.id}',
+          'badge': badges[i % badges.length],
+          'category': '날씨·맛집',
+          'shortLabel': p.name,
+          'title': '${p.name} (${p.category})',
+          'subtitle':
+              '${p.roadAddress.isNotEmpty ? p.roadAddress : p.address} · $_dongLabel 이웃들이 자주 찾는 로컬 맛집',
+          'benefit': '$_dongLabel 동네 모임 추천 스팟 · 네이버 지도 길찾기 연동',
+          'placeName': '${p.name} ${p.address}',
+          'distance': distLabel,
+          'hours': p.phone.isNotEmpty ? '전화: ${p.phone}' : '매일 11:30 - 22:30',
+          'image': images[i % images.length],
+          'lat': p.lat,
+          'lng': p.lng,
+          'menus': [
+            '${p.category} 시그니처 메뉴',
+            '2~4인 동네 소셜 다이닝 추천',
+            '네이버 지도 위치 및 리뷰 확인 가능',
+          ],
+        });
+      }
+      if (mounted && mapped.isNotEmpty) {
+        setState(() {
+          _liveLocalFoodSpots = mapped;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadWeatherAndRecipes() async {
@@ -128,9 +176,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
 
   Future<void> _loadMoviesAndCountries() async {
     final results = await Future.wait([
-      _service
-          .fetchTrendMovies()
-          .catchError((_) => const <TrendMovieItem>[]),
+      _service.fetchTrendMovies().catchError((_) => const <TrendMovieItem>[]),
       _service
           .fetchTravelCountries()
           .catchError((_) => const <CountrySpotItem>[]),
@@ -157,70 +203,105 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
       widget.currentLocation.contains('화장동');
 
   // ---------------------------------------------------------------------------
-  // 동네 전용 큐레이션 데이터 (날씨 맞춤 삼겹살/파전 맛집, 동네 할인/이벤트, 청년지원금)
+  // 동네 전용 큐레이션 데이터 (실시간 카카오 로컬 맛집 연동 + 동네별 맞춤 다이닝 폴백)
   // ---------------------------------------------------------------------------
   List<Map<String, dynamic>> _getLocalFoodSpots() {
+    if (_liveLocalFoodSpots.isNotEmpty) {
+      return _liveLocalFoodSpots;
+    }
     final dong = _dongLabel;
     if (_isYeosu) {
       return [
         {
           'id': 'food_yeosu_1',
-          'badge': '바람·비 오는 날 추천',
+          'badge': '$dong 오션뷰 인기',
           'category': '날씨·맛집',
-          'title': '화장동 성산공원 앞 참숯 생삼겹 & 미나리 구이',
-          'subtitle': '바람 불고 쌀쌀한 저녁, 향긋한 청도 미나리와 육즙 가득 숙성 통삼겹살 맛집',
-          'benefit': '첫 주문 시 된장술밥 서비스 · 1인 16,000원',
-          'placeName': '여수 화장동 미나리삼겹살',
-          'distance': '$dong 도보 5분',
-          'hours': '매일 16:00 - 23:30',
-          'image': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
+          'shortLabel': '선소 수제버거 & 브런치',
+          'title': '화장동·학동 선소 오션뷰 수제버거 & 브런치 다이닝',
+          'subtitle': '바닷바람 쐬며 즐기는 수제 비프버거와 화덕 브런치 플래터 맛집',
+          'benefit': '아메리카노 세트 2,000원 할인 · 1인 14,500원',
+          'placeName': '여수 학동 선소 브런치 카페',
+          'distance': '$dong 기준 380m · 도보 5분',
+          'hours': '매일 10:30 - 22:00',
+          'image': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
           'menus': [
-            '숙성 통삼겹살 (180g) 16,000원',
-            '생미나리 추가 5,000원',
-            '김치말이 국수 6,000원'
+            '시그니처 아보카도 수제버거 13,500원',
+            '트러플 감자튀김 & 에이드 8,500원',
+            '바질 페스토 파스타 16,000원'
           ],
         },
         {
           'id': 'food_yeosu_2',
-          'badge': '비·바람 불 때 1위',
+          'badge': '퇴근 후 하이볼 명소',
           'category': '날씨·맛집',
-          'title': '학동 선소상가 바삭 해물파전 & 바지락 칼국수',
-          'subtitle': '바닷바람 부는 날 생각나는 오징어·새우 듬뿍 철판 해물파전과 시원한 국물',
-          'benefit': '해물파전 + 칼국수 2인 세트 27,000원',
-          'placeName': '여수 학동 선소 해물파전 칼국수',
-          'distance': '$dong 차량 6분',
-          'hours': '매일 11:30 - 22:00',
-          'image': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80',
-          'menus': ['철판 해물파전 18,000원', '들깨 바지락 칼국수 9,000원', '생막걸리 5,000원'],
+          'shortLabel': '학동 숙성회 & 하이볼 바',
+          'title': '학동 부영3단지 골목 숙성 연어·사시미 & 하이볼 이자카야',
+          'subtitle': '도란도란 대화 나누기 좋은 감성 조명과 여수 제철 해산물 다이닝',
+          'benefit': '2인 모둠 사시미 주문 시 유자 하이볼 1잔 서비스',
+          'placeName': '여수 학동 이자카야 다이닝',
+          'distance': '$dong 기준 520m · 도보 7분',
+          'hours': '매일 17:30 - 01:00',
+          'image': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+          'menus': ['숙성 사시미 2인 플레이트 34,000원', '해물 나베 전골 23,000원', '얼그레이 하이볼 7,500원'],
+        },
+        {
+          'id': 'food_yeosu_3',
+          'badge': '주말 소셜 다이닝',
+          'category': '날씨·맛집',
+          'shortLabel': '웅천 화덕피자 & 와인',
+          'title': '화장동·웅천 루프탑 화덕피자 & 내추럴 와인 비스트로',
+          'subtitle': '참나무 화덕에서 갓 구운 루꼴라 피자와 글라스 와인을 즐기는 핫플',
+          'benefit': '피자 + 파스타 2인 페어링 세트 36,000원',
+          'placeName': '여수 화덕피자 와인바',
+          'distance': '$dong 기준 1.2km · 차량 5분',
+          'hours': '매일 11:30 - 23:00',
+          'image': 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+          'menus': ['부라타 치즈 루꼴라 화덕피자 21,000원', '해산물 오일 파스타 17,000원', '하우스 글라스 와인 8,000원'],
         },
       ];
     }
     return [
       {
         'id': 'food_seoul_1',
-        'badge': '바람·미세먼지 추천',
+        'badge': '$dong 직장인 인기 1위',
         'category': '날씨·맛집',
-        'title': '$dong 참숯 미나리 통삼겹살 & 멜젓 직화구이',
-        'subtitle': '바람 불거나 미세먼지 심한 날, 삼겹살 기름에 구운 향긋한 미나리 한 입',
-        'benefit': '오후 7시 이전 방문 시 껍데기 1인분 무료',
-        'placeName': '${widget.currentLocation} 미나리 삼겹살',
-        'distance': '$dong 도보 4분',
-        'hours': '매일 16:30 - 24:00',
-        'image': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
-        'menus': ['봄동·미나리 통삼겹 17,000원', '미나리 무침 추가 5,000원', '차돌 된장찌개 7,000원'],
+        'shortLabel': '$dong 화덕피자 & 와인바',
+        'title': '$dong 골목 감성 화덕피자 & 내추럴 와인 비스트로',
+        'subtitle': '퇴근 후 동네 이웃과 가볍게 글라스 와인·하이볼 한잔하기 좋은 캐주얼 다이닝',
+        'benefit': '저녁 8시 이전 방문 시 트러플 감자튀김 서비스',
+        'placeName': '${widget.currentLocation} 화덕피자 와인바',
+        'distance': '$dong 기준 320m · 도보 4분',
+        'hours': '매일 17:00 - 24:00',
+        'image': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
+        'menus': ['부라타 프로슈토 화덕피자 21,000원', '바질 생면 파스타 17,500원', '글라스 와인·하이볼 8,000원'],
       },
       {
         'id': 'food_seoul_2',
-        'badge': '바람·비 오는 날 인기',
+        'badge': '퇴근 후 소셜 다이닝',
         'category': '날씨·맛집',
-        'title': '$dong 골목 노포 철판 해물파전 & 수제비 전골',
-        'subtitle': '선선한 바람 불 때 지글지글 소리부터 설레는 통오징어 해물파전 로컬 맛집',
-        'benefit': '파전 + 얼큰 수제비 세트 2,000원 할인',
-        'placeName': '${widget.currentLocation} 해물파전 칼국수',
-        'distance': '$dong 도보 6분',
-        'hours': '매일 12:00 - 23:00',
-        'image': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80',
-        'menus': ['통오징어 해물파전 19,000원', '감자전 15,000원', '얼큰 해물 수제비 10,000원'],
+        'shortLabel': '$dong 수제버거 & 탭하우스',
+        'title': '$dong 아메리칸 수제버거 & 크래프트비어 탭하우스',
+        'subtitle': '육즙 가득 스매쉬 치즈버거와 시원한 수제 에일 맥주를 즐기는 로컬 핫플',
+        'benefit': '버거 + 수제맥주 샘플러 세트 1,500원 할인',
+        'placeName': '${widget.currentLocation} 수제버거 수제맥주',
+        'distance': '$dong 기준 450m · 도보 6분',
+        'hours': '매일 11:30 - 23:30',
+        'image': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+        'menus': ['더블 스매쉬 치즈버거 11,800원', '칠리 치즈 프라이 7,500원', '페일에일·바이젠 생맥주 6,500원'],
+      },
+      {
+        'id': 'food_seoul_3',
+        'badge': '$dong 로컬 찐맛집',
+        'category': '날씨·맛집',
+        'shortLabel': '$dong 숙성사시미 & 이자카야',
+        'title': '$dong 역세권 숙성 연어사시미 & 모츠나베 심야식당',
+        'subtitle': '선선한 저녁 따뜻한 전골 국물과 신선한 사시미로 소규모 모임하기 좋은 곳',
+        'benefit': '모츠나베 주문 시 우동사리 무료 추가',
+        'placeName': '${widget.currentLocation} 이자카야 모츠나베',
+        'distance': '$dong 기준 390m · 도보 5분',
+        'hours': '매일 17:30 - 01:00',
+        'image': 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+        'menus': ['후쿠오카식 한우 모츠나베 25,000원', '생연어 사시미 22,000원', '유자·얼그레이 하이볼 7,500원'],
       },
     ];
   }
@@ -329,10 +410,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
             const SizedBox(height: 10),
             Text(
               data != null && data.hasWeather
-                  ? (data.tempC < 15
-                      ? '바람 불고 쌀쌀한 날엔 노릇한 미나리 삼겹살 & 바삭한 해물파전 어때요?'
-                      : '오늘 같은 날엔 $_dongLabel 인기 맛집 & 맛있는 집밥 어때요?')
-                  : '오늘 $_dongLabel에서 즐기기 좋은 인기 맛집 & 집밥 레시피',
+                  ? data.moodHeadline
+                  : '오늘 $_dongLabel에서 즐기기 좋은 실시간 로컬 맛집 & 다이닝 큐레이션',
               style: const TextStyle(
                 fontSize: 15.5,
                 fontWeight: FontWeight.w800,
@@ -341,9 +420,9 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              '모임 부담 없이! 집에서 뚝딱 만드는 황금 레시피와 우리 동네 근처 식당을 바로 확인해보세요.',
-              style: TextStyle(
+            Text(
+              '$_dongLabel 주변 실제 인기 맛집과 집에서 간편하게 즐기는 홈다이닝 레시피를 확인해보세요.',
+              style: const TextStyle(
                 fontSize: 12.5,
                 color: textSecondary,
                 height: 1.4,
@@ -357,19 +436,25 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                 if (localFoods.isNotEmpty)
                   _buildQuickPill(
                     icon: Icons.restaurant_outlined,
-                    label: '근처 미나리 삼겹살 맛집',
+                    label: (localFoods.first['shortLabel'] ??
+                            localFoods.first['title'] ??
+                            '$_dongLabel 인기 맛집')
+                        .toString(),
                     onTap: () => _showLocalFoodDetailSheet(localFoods.first),
                   ),
                 if (localFoods.length > 1)
                   _buildQuickPill(
                     icon: Icons.local_dining_outlined,
-                    label: '근처 철판 해물파전·칼국수',
+                    label: (localFoods[1]['shortLabel'] ??
+                            localFoods[1]['title'] ??
+                            '$_dongLabel 추천 다이닝')
+                        .toString(),
                     onTap: () => _showLocalFoodDetailSheet(localFoods[1]),
                   ),
                 if (recipes.isNotEmpty)
                   _buildQuickPill(
                     icon: Icons.menu_book_outlined,
-                    label: '삼겹살·집밥 레시피 보기',
+                    label: '고단백 홈다이닝 레시피',
                     onTap: () => _showRecipeDetailSheet(recipes.first),
                   ),
               ],
@@ -709,7 +794,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
             'title': f.title,
             'subtitle': f.summary,
             'benefit': f.keywords.map((k) => '#$k').take(2).join(' '),
-            'image': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
+            'image':
+                'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
             'tip': f.detailTip,
           }),
       ..._countries.take(2).map((c) => {
@@ -719,7 +805,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
             'title': '${c.nameKo} (${c.capital})',
             'subtitle': c.travelMood,
             'benefit': '추천시즌 ${c.bestSeason} · 통화 ${c.currency}',
-            'image': 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
+            'image':
+                'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
             'tip': '항공권 특가 시즌에 맞춰 떠나기 좋은 추천 여행지',
           }),
     ];
@@ -867,7 +954,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   SizedBox(
                     height: 36,
                     child: Text(
-                      OomuUiHelpers.formatTitle((item['title'] ?? '').toString()),
+                      OomuUiHelpers.formatTitle(
+                          (item['title'] ?? '').toString()),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -966,10 +1054,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                 width: 80,
                 height: 80,
                 child: Image(
-                  image: appImg(((item['image']?.toString().trim().isNotEmpty ??
-                          false)
-                      ? item['image'].toString()
-                      : 'assets/images/cover_food.jpg')),
+                  image: appImg(
+                      ((item['image']?.toString().trim().isNotEmpty ?? false)
+                          ? item['image'].toString()
+                          : 'assets/images/cover_food.jpg')),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Image.asset(
                     'assets/images/cover_food.jpg',
@@ -1256,7 +1344,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                         onPressed: () {
                           Navigator.pop(ctx);
                           KakaoMapService.launchMap(
-                              '${widget.currentLocation} 삼겹살 파전 맛집');
+                              '${widget.currentLocation} 인기 맛집');
                         },
                         icon: const Icon(Icons.place_outlined,
                             size: 16, color: brandCoral),
@@ -1726,9 +1814,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     ];
 
     final int totalBalance = _balanceVotesA + _balanceVotesB;
-    final int percentA = totalBalance > 0
-        ? ((_balanceVotesA / totalBalance) * 100).round()
-        : 50;
+    final int percentA =
+        totalBalance > 0 ? ((_balanceVotesA / totalBalance) * 100).round() : 50;
     final int percentB = 100 - percentA;
 
     return Padding(
@@ -1919,7 +2006,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                               boxShadow: isFlipped
                                   ? [
                                       BoxShadow(
-                                        color: brandCoral.withValues(alpha: 0.2),
+                                        color:
+                                            brandCoral.withValues(alpha: 0.2),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2),
                                       ),
@@ -2099,7 +2187,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: _balanceVote == 0 ? brandCoral : textSecondary,
+                            color:
+                                _balanceVote == 0 ? brandCoral : textSecondary,
                           ),
                         ),
                       ],
@@ -2149,7 +2238,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: _balanceVote == 1 ? brandCoral : textSecondary,
+                            color:
+                                _balanceVote == 1 ? brandCoral : textSecondary,
                           ),
                         ),
                       ],

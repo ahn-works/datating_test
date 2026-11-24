@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/kakao_map_service.dart';
+import '../utils/location_helper.dart';
 import '../widgets/kakao_map_view.dart';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
@@ -89,14 +91,46 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       _selectedPlaceLat = widget.initialLat;
       _selectedPlaceLng = widget.initialLng;
       _selectedPlaceResolvedName = widget.initialLocation?.trim();
+      _selectedPlaceDistanceLabel =
+          KakaoMapService.formatDistanceFromNeighborhood(
+        widget.initialLat!,
+        widget.initialLng!,
+      );
     } else if (widget.initialLocation != null &&
         widget.initialLocation!.isNotEmpty) {
+      final fallbackCoords =
+          LocationHelper.findCoordsForLocation(widget.initialLocation!);
+      if (fallbackCoords != null) {
+        _selectedPlaceLat = fallbackCoords['lat'];
+        _selectedPlaceLng = fallbackCoords['lng'];
+        _selectedPlaceResolvedName = widget.initialLocation!.trim();
+        _selectedPlaceDistanceLabel =
+            KakaoMapService.formatDistanceFromNeighborhood(
+          fallbackCoords['lat']!,
+          fallbackCoords['lng']!,
+        );
+      }
       _autoResolveLocation(widget.initialLocation!);
+    } else {
+      final userLoc = globalData.userLocation.value.trim();
+      final userCoords = LocationHelper.findCoordsForLocation(
+        userLoc.isNotEmpty ? userLoc : '영등포구 신길동',
+      );
+      if (userCoords != null) {
+        _selectedPlaceLat = userCoords['lat'];
+        _selectedPlaceLng = userCoords['lng'];
+        _selectedPlaceDistanceLabel =
+            KakaoMapService.formatDistanceFromNeighborhood(
+          userCoords['lat']!,
+          userCoords['lng']!,
+        );
+      }
     }
   }
 
   @override
   void dispose() {
+    _placeDebounce?.cancel();
     _formScrollController.dispose();
     _titleFocusNode.dispose();
     _locationFocusNode.dispose();
@@ -108,23 +142,37 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   }
 
   Future<void> _autoResolveLocation(String query) async {
+    final clean = query.trim();
+    if (clean.isEmpty) return;
     try {
-      final resolved = await KakaoMapService.resolveVerifiedPlace(query);
+      final resolved =
+          await KakaoMapService.resolvePlaceWithNeighborhoodBias(clean);
       if (resolved != null &&
           mounted &&
-          _locationController.text.trim() == query.trim()) {
+          _locationController.text.trim() == clean) {
         setState(() {
           _selectedPlaceLat = resolved.lat;
           _selectedPlaceLng = resolved.lng;
-          _selectedPlaceResolvedName = query.trim();
+          _selectedPlaceResolvedName = clean;
+          _selectedPlaceAddress = resolved.roadAddress.isNotEmpty
+              ? resolved.roadAddress
+              : resolved.address;
+          _selectedPlaceDistanceLabel =
+              KakaoMapService.formatDistanceFromNeighborhood(
+            resolved.lat,
+            resolved.lng,
+          );
         });
       }
     } catch (_) {}
   }
 
+  Timer? _placeDebounce;
   double? _selectedPlaceLat;
   double? _selectedPlaceLng;
   String? _selectedPlaceResolvedName;
+  String _selectedPlaceAddress = '';
+  String _selectedPlaceDistanceLabel = '';
   final Color textPrimary = OomuTokens.textPrimary;
   final Color textSecondary = OomuTokens.textSecondary;
   final Color surfaceColor = OomuTokens.bgCanvas;
@@ -1230,14 +1278,28 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     if (result != null && result.isNotEmpty) {
       double? lat;
       double? lng;
+      String resolvedAddr = '';
       try {
-        final verified = await KakaoMapService.resolveVerifiedPlace(result);
+        final verified =
+            await KakaoMapService.resolvePlaceWithNeighborhoodBias(result);
         if (verified != null) {
           lat = verified.lat;
           lng = verified.lng;
+          resolvedAddr = verified.roadAddress.isNotEmpty
+              ? verified.roadAddress
+              : verified.address;
         }
       } catch (e) {
         debugPrint('[OOMUHostScreen] place modal verify error: $e');
+      }
+      if (lat == null || lng == null) {
+        final fallback = LocationHelper.findCoordsForLocation(
+          globalData.userLocation.value.isNotEmpty
+              ? globalData.userLocation.value
+              : result,
+        );
+        lat = fallback?['lat'];
+        lng = fallback?['lng'];
       }
 
       setState(() {
@@ -1247,6 +1309,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         _selectedPlaceLng = lng;
         _selectedPlaceResolvedName =
             (lat != null && lng != null) ? result.trim() : null;
+        _selectedPlaceAddress = resolvedAddr;
+        if (lat != null && lng != null) {
+          _selectedPlaceDistanceLabel =
+              KakaoMapService.formatDistanceFromNeighborhood(lat, lng);
+        }
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1318,16 +1385,20 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 16),
                     ),
-                    onChanged: (val) => setState(() {
-                      if (_locationError != null && val.trim().isNotEmpty) {
-                        _locationError = null;
+                    onChanged: (val) {
+                      setState(() {
+                        if (_locationError != null && val.trim().isNotEmpty) {
+                          _locationError = null;
+                        }
+                      });
+                      _placeDebounce?.cancel();
+                      if (val.trim().length >= 2) {
+                        _placeDebounce = Timer(
+                          const Duration(milliseconds: 420),
+                          () => _autoResolveLocation(val),
+                        );
                       }
-                      if (val.trim() != _selectedPlaceResolvedName) {
-                        _selectedPlaceLat = null;
-                        _selectedPlaceLng = null;
-                        _selectedPlaceResolvedName = null;
-                      }
-                    }),
+                    },
                   ),
                 ),
                 GestureDetector(
@@ -1369,9 +1440,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               ),
             ),
           ],
-          if (_locationController.text.trim().isNotEmpty &&
-              _selectedPlaceLat != null &&
-              _selectedPlaceLng != null) ...[
+          if (_selectedPlaceLat != null && _selectedPlaceLng != null) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -1388,13 +1457,17 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       top: Radius.circular(OomuTokens.r16),
                     ),
                     child: SizedBox(
-                      height: 160,
+                      height: 175,
                       width: double.infinity,
                       child: KakaoMapView(
-                        locationName: _locationController.text.trim(),
+                        locationName: _locationController.text.trim().isNotEmpty
+                            ? _locationController.text.trim()
+                            : (globalData.userLocation.value.isNotEmpty
+                                ? globalData.userLocation.value
+                                : '모임 장소 위치'),
                         lat: _selectedPlaceLat!,
                         lng: _selectedPlaceLng!,
-                        height: 160,
+                        height: 175,
                         hideActions: true,
                       ),
                     ),
@@ -1405,19 +1478,59 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.place_rounded,
-                            size: 14, color: OomuTokens.primary),
-                        const SizedBox(width: 4),
+                            size: 16, color: OomuTokens.primary),
+                        const SizedBox(width: 6),
                         Expanded(
-                          child: Text(
-                            _locationController.text.trim(),
-                            style: TextStyle(
-                                fontSize: OomuTokens.fs14,
-                                fontWeight: FontWeight.bold,
-                                color: textPrimary),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _locationController.text.trim().isNotEmpty
+                                    ? _locationController.text.trim()
+                                    : (globalData.userLocation.value.isNotEmpty
+                                        ? '${globalData.userLocation.value} 중심 위치'
+                                        : '장소를 입력하면 마커가 자동 이동합니다'),
+                                style: TextStyle(
+                                    fontSize: OomuTokens.fs14,
+                                    fontWeight: FontWeight.bold,
+                                    color: textPrimary),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (_selectedPlaceAddress.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    _selectedPlaceAddress,
+                                    style: TextStyle(
+                                      fontSize: OomuTokens.fs12,
+                                      color: textSecondary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
+                        if (_selectedPlaceDistanceLabel.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.primarySubtle,
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r8),
+                            ),
+                            child: Text(
+                              _selectedPlaceDistanceLabel,
+                              style: TextStyle(
+                                fontSize: OomuTokens.fs11,
+                                fontWeight: FontWeight.w700,
+                                color: OomuTokens.primary,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

@@ -1,4 +1,7 @@
 import '../services/kakao_map_service.dart';
+import '../ui/oomu_tokens.dart';
+import '../utils/global_data.dart';
+import '../utils/location_helper.dart';
 import 'kakao_map_view.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -45,6 +48,37 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
 
   // 전국 주요 추천 핫플 및 모임 장소 기본 데이터베이스 (오프라인 및 즉시 자동완성)
   final List<PlaceSearchResult> _defaultPlaces = [
+    // 영등포구 신길동 · 여의도 생활권
+    const PlaceSearchResult(
+      name: '스타벅스 신길역점',
+      address: '서울 영등포구 영등포로 353 (신길동)',
+      category: '카페',
+      latLng: LatLng(37.5158, 126.9168),
+    ),
+    const PlaceSearchResult(
+      name: '신길역 1번 출구 만남의 광장',
+      address: '서울 영등포구 신길동 22-3 지하철 1·5호선',
+      category: '약속장소',
+      latLng: LatLng(37.5171, 126.9172),
+    ),
+    const PlaceSearchResult(
+      name: '신길근린공원 산책로 & 러닝 트랙',
+      address: '서울 영등포구 신길로 190 (신길동)',
+      category: '액티비티',
+      latLng: LatLng(37.5078, 126.9148),
+    ),
+    const PlaceSearchResult(
+      name: '신길동 로컬 수제맥주 & 하이볼 라운지',
+      address: '서울 영등포구 신길로 112 (신길동)',
+      category: '술집',
+      latLng: LatLng(37.5094, 126.9136),
+    ),
+    const PlaceSearchResult(
+      name: '신길역 코인노래연습장 & 보드게임 아지트',
+      address: '서울 영등포구 도림로 308 (신길동)',
+      category: '엔터',
+      latLng: LatLng(37.5121, 126.9182),
+    ),
     // 카페 & 디저트
     const PlaceSearchResult(
       name: '스타벅스 홍대입구역사거리점',
@@ -167,17 +201,45 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
   @override
   void initState() {
     super.initState();
-    _selectedLatLng =
-        widget.initialLatLng ?? const LatLng(37.5568, 126.9238); // 홍대입구 기본값
+    final userLoc = globalData.userLocation.value.trim();
+    final dongToken =
+        userLoc.isNotEmpty ? userLoc.split(RegExp(r'\s+')).last : '';
+    final userCoords = LocationHelper.findCoordsForLocation(
+      userLoc.isNotEmpty ? userLoc : '영등포구 신길동',
+    );
+    final matchedDefault = _defaultPlaces.firstWhere(
+      (p) =>
+          dongToken.isNotEmpty &&
+          (p.address.contains(dongToken) || p.name.contains(dongToken)),
+      orElse: () => _defaultPlaces.first,
+    );
+
+    _selectedLatLng = widget.initialLatLng ??
+        (userCoords != null
+            ? LatLng(userCoords['lat']!, userCoords['lng']!)
+            : matchedDefault.latLng);
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _searchController.text = widget.initialQuery!;
       _selectedPlaceName = widget.initialQuery!;
-      _selectedAddress = '설정된 장소';
+      _selectedAddress = userLoc.isNotEmpty ? '$userLoc 설정 장소' : '설정된 장소';
+      _searchOnlineKakao(widget.initialQuery!);
     } else {
-      _selectedPlaceName = _defaultPlaces.first.name;
-      _selectedAddress = _defaultPlaces.first.address;
+      _selectedPlaceName = matchedDefault.name;
+      _selectedAddress = matchedDefault.address;
+      if (dongToken.isNotEmpty) {
+        _searchOnlineKakao('$dongToken 카페 맛집');
+      }
     }
     _searchResults = List.from(_defaultPlaces);
+    if (dongToken.isNotEmpty) {
+      _searchResults.sort((a, b) {
+        final aMatch =
+            a.address.contains(dongToken) || a.name.contains(dongToken) ? 0 : 1;
+        final bMatch =
+            b.address.contains(dongToken) || b.name.contains(dongToken) ? 0 : 1;
+        return aMatch.compareTo(bMatch);
+      });
+    }
   }
 
   void _filterPlaces(String query) {
@@ -536,8 +598,10 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                     ),
                   ),
                   subtitle: Text(
-                    item.address,
-                    style: const TextStyle(fontSize: 12, color: textSecondary),
+                    '${item.address} · ${KakaoMapService.formatDistanceFromNeighborhood(item.latLng.latitude, item.latLng.longitude)}',
+                    style: const TextStyle(
+                        fontSize: OomuTokens.fs12,
+                        color: OomuTokens.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

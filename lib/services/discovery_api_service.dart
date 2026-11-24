@@ -328,7 +328,7 @@ class DiscoveryApiService {
     final String airLabel =
         pm10 > 80 ? '나쁨' : (pm10 > 30 ? '보통' : (pm10 > 0 ? '좋음' : '확인불가'));
 
-    // 날씨·미세먼지 상황에 따른 감성 헤드카피 조합 (부분 성공 대응)
+    // 날씨·미세먼지·기온 상황에 따른 동네 미식 & 다이닝 헤드카피 조합 (고정 메뉴 반복 방지)
     String headline;
     String subcopy;
     if (!weatherFetchSuccess) {
@@ -336,26 +336,26 @@ class DiscoveryApiService {
       subcopy = '네트워크 연결 상태를 확인해 주세요.';
     } else if (!hasTemp && hasAir) {
       headline = pm10 > 80
-          ? '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?'
-          : '동네 대기질($airLabel) 확인 완료 · 오늘 저녁 따뜻한 미식 메뉴 어때요?';
+          ? '오늘 ${coords.shortName} 실내 감성 다이닝 & 따뜻한 스튜 어때요?'
+          : '동네 대기질($airLabel) 확인 완료 · 오늘 저녁 ${coords.shortName} 로컬 맛집 어때요?';
       subcopy =
           '${coords.shortName} 미세먼지($pm10㎍/㎥, $airLabel) · 기온 정보는 일시적으로 확인할 수 없지만 추천 식단은 바로 볼 수 있어요.';
     } else if (pm10 > 80) {
-      headline = '오늘 미세먼지가 신경 쓰일 땐, 노릇한 미나리 삼겹살 어때요?';
+      headline = '미세먼지 있는 날엔 ${coords.shortName} 실내 브런치 & 고단백 다이닝 어때요?';
       subcopy =
-          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 미세먼지($pm10㎍/㎥) 달래줄 감성 식탁과 가벼운 다이어트 레시피를 모았어요.';
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 쾌적한 실내 맛집과 가벼운 홈다이닝 레시피를 모았어요.';
     } else if (condition == '비') {
-      headline = '빗소리 들리는 오늘, 바삭한 해물부추전과 따뜻한 국물 요리';
+      headline = '빗소리 들리는 오늘, ${coords.shortName} 감성 이자카야 & 따뜻한 국물 요리';
       subcopy =
-          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 비 오는 날 동네 친구와 나누기 좋은 메뉴와 저칼로리 레시피예요.';
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 비 오는 날 동네 친구와 나누기 좋은 로컬 다이닝과 레시피예요.';
     } else if (tempC >= 22) {
-      headline = '화창한 날씨에 딱 맞는 산뜻한 아보카도 연어 포케 & 삼겹살 구이';
+      headline = '기분 좋은 날씨! ${coords.shortName} 테라스 수제버거 & 아보카도 연어 포케';
       subcopy =
-          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 가볍게 챙기는 다이어트 식단부터 저녁 미식 메뉴까지 확인해보세요.';
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C · 산뜻한 브런치부터 퇴근 후 크래프트비어 맛집까지 확인해보세요.';
     } else {
-      headline = '선선한 바람 부는 날, 노릇한 미나리 삼겹살과 따뜻한 스튜 어때요?';
+      headline = '선선한 바람 부는 날, ${coords.shortName} 화덕피자·와인바 & 따뜻한 스튜 어때요?';
       subcopy =
-          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C ($condition) · 오늘 날씨와 어울리는 감성 요리와 다이어트 식단이에요.';
+          '${coords.shortName} 현재 ${tempC.toStringAsFixed(1)}°C ($condition) · 퇴근 후 동네 이웃과 가볍게 들르기 좋은 로컬 맛집 큐레이션이에요.';
     }
 
     return WeatherMoodRecipe(
@@ -373,23 +373,23 @@ class DiscoveryApiService {
 
   static const List<RecipeItem> _curatedRecipes = [
     RecipeItem(
-      id: 'recipe_samgyeopsal',
-      title: '향긋한 봄동·미나리 통삼겹살 구이',
-      subtitle: '미세먼지 많은 날 칼칼한 목을 달래주는 겉바속촉 레시피',
+      id: 'recipe_steak_pasta',
+      title: '트러플 오일 부채살 스테이크 & 바질 파스타',
+      subtitle: '퇴근 후 20분 만에 완성하는 레스토랑급 고단백 홈다이닝',
       category: '날씨맞춤',
-      calories: 540,
-      protein: '32g',
+      calories: 495,
+      protein: '36g',
       prepTime: '20분',
       imageUrl: 'assets/images/cover_food.jpg',
-      tags: ['미세먼지추천', '미나리삼겹살', '저녁미식'],
+      tags: ['홈다이닝', '고단백스테이크', '와인페어링'],
       ingredients: [
-        '두툼한 통삼겹살 300g',
-        '신선한 미나리 한 줌',
-        '통마늘 8알',
-        '멜젓 또는 쌈장',
-        '구운 소금·후추'
+        '부채살 또는 채끝 스테이크 250g',
+        '통밀 파스타면 80g',
+        '바질페스토 2큰술',
+        '방울토마토·마늘 6알',
+        '올리브오일·후추'
       ],
-      tip: '삼겹살에서 나온 기름에 미나리를 마지막 30초만 살짝 구워내면 향이 살아나고 느끼함이 싹 잡혀요.',
+      tip: '고기를 구운 팬의 육즙에 마늘과 방울토마토를 살짝 볶아 바질 파스타를 버무리면 깊은 풍미가 살아납니다.',
     ),
     RecipeItem(
       id: 'recipe_tomato_stew',

@@ -11,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../services/kakao_map_service.dart';
+import '../services/regional_bot_meetup_service.dart';
 import 'chat_screen.dart';
 import 'event_detail_screen.dart';
 import 'my_page_screen.dart';
@@ -177,10 +178,18 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
 
   List<Map<String, dynamic>> _getLiveSpotsForLocation(String location) {
     final clean = location.trim();
-    if (clean.contains('여수') || clean.contains('화장동')) {
+    if (clean.contains('여수') || clean.contains('화장동') || clean.contains('학동')) {
       return _yeosuLiveSpots;
     }
-    return _liveSpots;
+    if (clean.contains('마포') ||
+        clean.contains('서교') ||
+        clean.contains('연남') ||
+        clean.contains('망원') ||
+        clean.contains('합정') ||
+        clean.contains('홍대')) {
+      return _liveSpots;
+    }
+    return RegionalBotMeetupService.getLiveLightningSpotsForLocation(clean);
   }
 
   List<Map<String, dynamic>> _getActiveCommunityPosts() {
@@ -235,6 +244,12 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
   // 전국 시·도 및 읍면동 핫스팟 리스트
   static const Map<String, List<String>> _nationwideRegions = {
     '서울': [
+      '영등포구 신길동',
+      '영등포구 여의도동',
+      '영등포구 문래동',
+      '영등포구 당산동',
+      '동작구 노량진동',
+      '관악구 신림동',
       '마포구 서교동',
       '마포구 연남동',
       '마포구 망원동',
@@ -245,7 +260,6 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
       '강남구 신사동',
       '강남구 역삼동',
       '송파구 잠실동',
-      '영등포구 여의도동',
       '중구 을지로동',
       '종로구 익선동',
       '광진구 자양동(건대)',
@@ -690,7 +704,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
             items.add(data);
           }
           setState(() {
-            _loadedMeetups = items;
+            _loadedMeetups = RegionalBotMeetupService.ensureMeetupsForLocation(
+              _currentLocation,
+              items,
+              onEnriched: () {
+                if (mounted) setState(() {});
+              },
+            );
             _isMeetupsLoading = false;
             _meetupsError = null;
           });
@@ -741,6 +761,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     if (_currentLocation != targetLoc) {
       setState(() {
         _currentLocation = targetLoc;
+        _loadedMeetups = RegionalBotMeetupService.ensureMeetupsForLocation(
+          _currentLocation,
+          _loadedMeetups,
+          onEnriched: () {
+            if (mounted) setState(() {});
+          },
+        );
       });
     }
   }

@@ -103,19 +103,10 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
 
       final String finalPhotoUrl;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalPhotoUrl = await R2StorageService.compressDataUrlIfOversized(
-          uploadedUrl,
-          maxDimension: 720,
-          maxChars: 140000,
-        );
+        finalPhotoUrl = uploadedUrl;
       } else {
-        // R2 업로드 실패/미설정 시에도 사용자가 올린 실제 사진이 기본 프리셋 사진으로 바뀌지 않도록 경량 Data URL로 100% 보존
-        finalPhotoUrl = await R2StorageService.toCompressedDataUrl(
-          bytes,
-          file.name,
-          maxDimension: 720,
-          maxChars: 140000,
-        );
+        // R2 업로드 실패/미설정 시에도 사용자가 올린 실제 사진이 기본 프리셋 사진으로 바뀌지 않도록 Data URL로 100% 보존
+        finalPhotoUrl = R2StorageService.toDataUrl(bytes, file.name);
       }
 
       if (mounted) {
@@ -237,7 +228,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')),
+          const SnackBar(
+              content: Text('글을 저장하지 못했어요. 입력한 내용을 유지했으니 다시 시도해 주세요.')),
         );
       }
     } finally {
@@ -370,9 +362,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                       '#$t',
                       style: TextStyle(
                         fontSize: OomuTokens.fs12,
-                        fontWeight: isSelected
-                            ? OomuTokens.w700
-                            : OomuTokens.w600,
+                        fontWeight:
+                            isSelected ? OomuTokens.w700 : OomuTokens.w600,
                         color: isSelected
                             ? OomuTokens.surface
                             : OomuTokens.textSecondary,
@@ -605,7 +596,8 @@ class _CommunityPostCreateScreenState extends State<CommunityPostCreateScreen> {
                               top: 2,
                               right: 2,
                               child: GestureDetector(
-                                onTap: () => setState(() => _selectedPhoto = null),
+                                onTap: () =>
+                                    setState(() => _selectedPhoto = null),
                                 child: Container(
                                   padding: const EdgeInsets.all(2),
                                   decoration: const BoxDecoration(

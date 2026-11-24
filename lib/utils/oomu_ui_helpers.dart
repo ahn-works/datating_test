@@ -288,6 +288,18 @@ class OomuUiHelpers {
       return 0;
     }
 
+    // 영등포·신길 생활권 (영등포, 신길, 여의도, 문래, 당산, 대방)
+    const yeongdeungpoCluster = ['영등포', '신길', '여의도', '문래', '당산', '대방'];
+    final bool currentIsYdp =
+        yeongdeungpoCluster.any((k) => current.contains(k));
+    final bool itemIsYdp = yeongdeungpoCluster.any((k) => item.contains(k));
+    if (currentIsYdp) {
+      return itemIsYdp ? 2 : 0;
+    }
+    if (itemIsYdp && !currentIsYdp) {
+      return 0;
+    }
+
     for (final p in parts) {
       final clean = p
           .replaceAll('전남', '')
