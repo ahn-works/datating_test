@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/global_data.dart';
 import '../utils/meetup_member_helper.dart';
 
 /// Persisted requests only. Permission denial is surfaced; there is no simulated
@@ -48,8 +49,16 @@ class MeetupApplicationService {
       if (capacity(data) <= 0 || attendance(data) + seats > capacity(data)) {
         throw StateError('참여 가능한 자리가 부족해요.');
       }
+      final applicantNick = globalData.userNickname.value.trim().isNotEmpty
+          ? globalData.userNickname.value.trim()
+          : (user.displayName?.trim().isNotEmpty == true
+              ? user.displayName!.trim()
+              : '동네 이웃');
+      final applicantAvatar = globalData.userAvatar.value.trim();
       tx.set(request, {
         'userId': user.uid,
+        'nickname': applicantNick,
+        if (applicantAvatar.isNotEmpty) 'avatarUrl': applicantAvatar,
         'message': message.trim(),
         'partySize': seats,
         'status': 'pending',
@@ -95,14 +104,21 @@ class MeetupApplicationService {
         throw StateError('이미 처리된 신청이에요.');
       }
       if (approve) {
-        final seats = (application.data()?['partySize'] as num?)?.toInt() ?? 1;
+        final appData = application.data() ?? const <String, dynamic>{};
+        final seats = (appData['partySize'] as num?)?.toInt() ?? 1;
         final next = attendance(data) + seats;
         if (capacity(data) <= 0 || next > capacity(data)) {
           throw StateError('모임 정원을 초과해 승인할 수 없어요.');
         }
+        final applicantNick = (appData['nickname'] ?? '새 멤버').toString().trim();
+        final applicantAvatar = (appData['avatarUrl'] ?? '').toString().trim();
         final rawMembers = data['members'];
         final updates = <String, dynamic>{
           'participantIds': FieldValue.arrayUnion([applicantUid]),
+          if (applicantNick.isNotEmpty)
+            'memberNames': FieldValue.arrayUnion([applicantNick]),
+          if (applicantAvatar.isNotEmpty)
+            'memberAvatars': FieldValue.arrayUnion([applicantAvatar]),
         };
         if (rawMembers is List) {
           updates['members'] = FieldValue.arrayUnion([applicantUid]);
@@ -114,9 +130,14 @@ class MeetupApplicationService {
           'id': meetupId,
           'meetupId': meetupId,
           'title': (data['title'] ?? '').toString(),
+          'location': (data['location'] ?? '').toString(),
+          'date': (data['date'] ?? '').toString(),
           'hostUid': user.uid,
           'isGroup': true,
           'members': next,
+          'lastMessage': '🎉 $applicantNick님이 모임장 승인으로 단톡방에 합류했어요!',
+          'lastMessageTime': '방금',
+          'time': '방금',
           'participants': FieldValue.arrayUnion([user.uid, applicantUid]),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));

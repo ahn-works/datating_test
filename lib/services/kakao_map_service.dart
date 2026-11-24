@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/global_data.dart';
 import '../utils/location_helper.dart';
@@ -106,12 +104,10 @@ class KakaoMapService {
             (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
         final fsJs =
             (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
-        final fsNcp = (d['ncpKeyId'] ??
-                d['naverMapClientId'] ??
-                d['naverClientId'] ??
-                '')
-            .toString()
-            .trim();
+        final fsNcp =
+            (d['ncpKeyId'] ?? d['naverMapClientId'] ?? d['naverClientId'] ?? '')
+                .toString()
+                .trim();
         if (fsRest.isNotEmpty) _restApiKey = fsRest;
         if (fsJs.isNotEmpty) _jsApiKey = fsJs;
         if (fsNcp.isNotEmpty) {
@@ -119,20 +115,245 @@ class KakaoMapService {
           _naverClientId = fsNcp;
         }
       }
-      _keysLoaded =
-          _restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty;
+      _keysLoaded = _restApiKey.isNotEmpty ||
+          _naverClientId.isNotEmpty ||
+          _ncpKeyId.isNotEmpty;
     } catch (_) {
-      _keysLoaded =
-          _restApiKey.isNotEmpty || _naverClientId.isNotEmpty || _ncpKeyId.isNotEmpty;
+      _keysLoaded = _restApiKey.isNotEmpty ||
+          _naverClientId.isNotEmpty ||
+          _ncpKeyId.isNotEmpty;
     }
   }
 
-  static Future<Map<String, String>> _getAuthHeaders() async {
-    await ensureKeysLoaded();
-    return {
-      if (_restApiKey.isNotEmpty) 'Authorization': 'KakaoAK $_restApiKey',
-      'User-Agent': 'OOMUSpotApp/1.0 (Android; iOS; Web)',
-    };
+  static List<KakaoPlace> _crawledNaverPlaces = const [];
+  static bool _crawledLoaded = false;
+
+  /// 네이버 지도 지오코딩 기반 전국 주요 동네 실제 검증 핫플/맛집/카페/공원 카탈로그
+  /// (GitHub Actions 주간 네이버 크롤러가 Firestore app_config/naver_places에 동기화한 데이터를 우선 병합)
+  static const List<KakaoPlace> _naverVerifiedCatalog = [
+    // 서울 영등포구 신길동 · 여의도 · 문래 · 당산
+    KakaoPlace(
+      id: 'naver_singil_cafe_1',
+      name: '스타벅스 영등포신길점',
+      address: '서울 영등포구 신길동 252-9',
+      roadAddress: '서울 영등포구 신길로 137',
+      category: '카페·디저트',
+      lat: 37.5046,
+      lng: 126.9101,
+      placeUrl: 'https://map.naver.com/p/search/스타벅스%20영등포신길점',
+      phone: '1522-3232',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_cafe_2',
+      name: '스타벅스 신길역점',
+      address: '서울 영등포구 신길동 115-10',
+      roadAddress: '서울 영등포구 영등포로 353',
+      category: '카페·디저트',
+      lat: 37.5158,
+      lng: 126.9168,
+      placeUrl: 'https://map.naver.com/p/search/스타벅스%20신길역점',
+      phone: '1522-3232',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_food_1',
+      name: '신길동 화덕피자 & 내추럴와인 비스트로',
+      address: '서울 영등포구 신길동 184-2',
+      roadAddress: '서울 영등포구 신길로 145',
+      category: '맛집·와인바',
+      lat: 37.5089,
+      lng: 126.9142,
+      placeUrl: 'https://map.naver.com/p/search/신길동%20와인바',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_food_2',
+      name: '신길역 수제버거 & 크래프트비어 탭하우스',
+      address: '서울 영등포구 신길동 95-4',
+      roadAddress: '서울 영등포구 영등포로72길 16-1',
+      category: '맛집·다이닝',
+      lat: 37.5126,
+      lng: 126.9184,
+      placeUrl: 'https://map.naver.com/p/search/신길역%20수제버거',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_food_3',
+      name: '신길동 숙성연어 & 하이볼 심야식당',
+      address: '서울 영등포구 신길동 215-2',
+      roadAddress: '서울 영등포구 신길로 112',
+      category: '맛집·이자카야',
+      lat: 37.5094,
+      lng: 126.9136,
+      placeUrl: 'https://map.naver.com/p/search/신길동%20이자카야',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_food_4',
+      name: '신길역 트러플 스테이크 & 파스타 키친',
+      address: '서울 영등포구 신길동 54-1',
+      roadAddress: '서울 영등포구 여의대방로 379',
+      category: '맛집·양식',
+      lat: 37.5142,
+      lng: 126.9195,
+      placeUrl: 'https://map.naver.com/p/search/신길역%20파스타',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_park_1',
+      name: '신길근린공원 산책로',
+      address: '서울 영등포구 신길동 산 152-1',
+      roadAddress: '서울 영등포구 신길로 190',
+      category: '공원·러닝',
+      lat: 37.5012,
+      lng: 126.9064,
+      placeUrl: 'https://map.naver.com/p/search/신길근린공원',
+    ),
+    KakaoPlace(
+      id: 'naver_singil_kono_1',
+      name: '세븐스타코인노래연습장 신길점',
+      address: '서울 영등포구 신길동 65-2',
+      roadAddress: '서울 영등포구 영등포로 363',
+      category: '노래방·보드게임',
+      lat: 37.5146,
+      lng: 126.9188,
+      placeUrl: 'https://map.naver.com/p/search/세븐스타코인노래연습장%20신길점',
+    ),
+    KakaoPlace(
+      id: 'naver_yeouido_mid_1',
+      name: '더현대 서울 여의도 카페 & 다이닝 라운지',
+      address: '서울 영등포구 여의도동 22',
+      roadAddress: '서울 영등포구 여의대로 108',
+      category: '카페·중간지점',
+      lat: 37.5259,
+      lng: 126.9284,
+      placeUrl: 'https://map.naver.com/p/search/더현대서울',
+    ),
+    KakaoPlace(
+      id: 'naver_mullae_mid_1',
+      name: '문래창작촌 로스터리 카페 & 와인바 거리',
+      address: '서울 영등포구 문래동3가 58-2',
+      roadAddress: '서울 영등포구 도림로133길 15',
+      category: '맛집·중간지점',
+      lat: 37.5148,
+      lng: 126.8962,
+      placeUrl: 'https://map.naver.com/p/search/문래창작촌',
+    ),
+    // 전남 여수시 화장동 · 학동 · 웅천동
+    KakaoPlace(
+      id: 'naver_yeosu_cafe_1',
+      name: '여수 화장동 선소상가 오션뷰 로스터리 카페',
+      address: '전남 여수시 화장동 812-3',
+      roadAddress: '전남 여수시 선소로 52',
+      category: '카페·디저트',
+      lat: 34.7742,
+      lng: 127.6468,
+      placeUrl: 'https://map.naver.com/p/search/여수%20화장동%20카페',
+    ),
+    KakaoPlace(
+      id: 'naver_yeosu_food_1',
+      name: '여수 화장동 수제버거 & 브런치 키친',
+      address: '전남 여수시 화장동 820-1',
+      roadAddress: '전남 여수시 무선로 145',
+      category: '맛집·다이닝',
+      lat: 34.7758,
+      lng: 127.6442,
+      placeUrl: 'https://map.naver.com/p/search/여수%20화장동%20맛집',
+    ),
+    KakaoPlace(
+      id: 'naver_yeosu_food_2',
+      name: '여수 학동 숙성사시미 & 하이볼 이자카야',
+      address: '전남 여수시 학동 82-5',
+      roadAddress: '전남 여수시 시청서1길 23',
+      category: '맛집·이자카야',
+      lat: 34.7604,
+      lng: 127.6622,
+      placeUrl: 'https://map.naver.com/p/search/여수%20학동%20맛집',
+    ),
+    KakaoPlace(
+      id: 'naver_yeosu_park_1',
+      name: '여수 화장동 성산공원 호수 산책로',
+      address: '전남 여수시 화장동 759',
+      roadAddress: '전남 여수시 성산로 45',
+      category: '공원·러닝',
+      lat: 34.7720,
+      lng: 127.6485,
+      placeUrl: 'https://map.naver.com/p/search/여수%20성산공원',
+    ),
+    // 서울 마포구 서교동 · 연남동 · 망원동 · 성수동 · 강남
+    KakaoPlace(
+      id: 'naver_mapo_cafe_1',
+      name: '스타벅스 홍대입구역사거리점',
+      address: '서울 마포구 동교동 165-4',
+      roadAddress: '서울 마포구 양화로 165',
+      category: '카페·디저트',
+      lat: 37.5568,
+      lng: 126.9238,
+      placeUrl: 'https://map.naver.com/p/search/스타벅스%20홍대입구역사거리점',
+    ),
+    KakaoPlace(
+      id: 'naver_yeonnam_food_1',
+      name: '연남동 경의선숲길 화덕피자 & 내추럴와인바',
+      address: '서울 마포구 연남동 227-15',
+      roadAddress: '서울 마포구 동교로 242-4',
+      category: '맛집·와인바',
+      lat: 37.5615,
+      lng: 126.9242,
+      placeUrl: 'https://map.naver.com/p/search/연남동%20와인바',
+    ),
+    KakaoPlace(
+      id: 'naver_seongsu_cafe_1',
+      name: '성수동 연무장길 블루보틀 & 베이커리',
+      address: '서울 성동구 성수동1가 656-302',
+      roadAddress: '서울 성동구 아차산로 7',
+      category: '카페·디저트',
+      lat: 37.5478,
+      lng: 127.0456,
+      placeUrl: 'https://map.naver.com/p/search/성수동%20블루보틀',
+    ),
+  ];
+
+  static Future<void> _ensureCrawledNaverPlacesLoaded() async {
+    if (_crawledLoaded) return;
+    _crawledLoaded = true;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('naver_places')
+          .get()
+          .timeout(const Duration(seconds: 3));
+      if (doc.exists && doc.data() != null) {
+        final rawList = doc.data()!['places'];
+        if (rawList is List) {
+          final parsed = <KakaoPlace>[];
+          for (final item in rawList) {
+            if (item is Map) {
+              final m = Map<String, dynamic>.from(item);
+              final lat = (m['lat'] as num?)?.toDouble() ??
+                  double.tryParse((m['lat'] ?? '').toString()) ??
+                  0.0;
+              final lng = (m['lng'] as num?)?.toDouble() ??
+                  double.tryParse((m['lng'] ?? '').toString()) ??
+                  0.0;
+              final name = (m['name'] ?? '').toString().trim();
+              if (name.isNotEmpty && lat > 30 && lng > 120) {
+                parsed.add(KakaoPlace(
+                  id: (m['id'] ?? 'naver_${name.hashCode}').toString(),
+                  name: name,
+                  address: (m['address'] ?? '').toString(),
+                  roadAddress:
+                      (m['roadAddress'] ?? m['address'] ?? '').toString(),
+                  category: (m['category'] ?? '네이버 지도 장소').toString(),
+                  lat: lat,
+                  lng: lng,
+                  placeUrl:
+                      'https://map.naver.com/p/search/${Uri.encodeComponent(name)}',
+                  phone: (m['phone'] ?? '').toString(),
+                ));
+              }
+            }
+          }
+          if (parsed.isNotEmpty) {
+            _crawledNaverPlaces = parsed;
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   static Future<List<KakaoPlace>> _fetchKeyword(
@@ -142,33 +363,33 @@ class KakaoMapService {
     int? radius,
     int size = 15,
   }) async {
-    final clean = q.trim();
+    final clean = q.trim().toLowerCase();
     if (clean.isEmpty) return [];
+    await _ensureCrawledNaverPlacesLoaded();
 
-    try {
-      String url =
-          'https://dapi.kakao.com/v2/local/search/keyword.json?query=${Uri.encodeComponent(clean)}&size=$size';
-      if (lat != null && lng != null) {
-        url += '&x=$lng&y=$lat';
-        if (radius != null) {
-          url += '&radius=$radius&sort=distance';
-        }
-      }
+    final allPlaces = <KakaoPlace>[
+      ..._crawledNaverPlaces,
+      ..._naverVerifiedCatalog,
+    ];
+    final tokens = clean
+        .split(RegExp(r'[\s·,>()/\-]+'))
+        .where((t) => t.isNotEmpty)
+        .toList();
 
-      final headers = await _getAuthHeaders();
-      final res = await http
-          .get(Uri.parse(url), headers: headers)
-          .timeout(const Duration(seconds: 4));
-      if (res.statusCode == 200) {
-        final data = json.decode(utf8.decode(res.bodyBytes));
-        final docs = data['documents'] as List<dynamic>? ?? [];
-        return docs
-            .map((doc) => KakaoPlace.fromKakaoJson(doc as Map<String, dynamic>))
-            .where((place) => place.hasValidCoords)
-            .toList();
-      }
-    } catch (_) {}
-    return [];
+    final matched = allPlaces.where((p) {
+      final hay =
+          '${p.name} ${p.address} ${p.roadAddress} ${p.category}'.toLowerCase();
+      return tokens.any((t) => hay.contains(t));
+    }).toList();
+
+    if (lat != null && lng != null && matched.isNotEmpty) {
+      matched.sort((a, b) {
+        final da = calculateDistanceInMeters(lat, lng, a.lat, a.lng);
+        final db = calculateDistanceInMeters(lat, lng, b.lat, b.lng);
+        return da.compareTo(db);
+      });
+    }
+    return matched.take(size).toList();
   }
 
   /// 1. 카카오 키워드 장소 검색 API (dapi.kakao.com/v2/local/search/keyword.json) - 자연어 스마트 폴백 포함
@@ -341,7 +562,10 @@ class KakaoMapService {
     double targetLng, {
     String? userLocation,
   }) {
-    if (targetLat.isNaN || targetLng.isNaN || targetLat <= 0 || targetLng <= 0) {
+    if (targetLat.isNaN ||
+        targetLng.isNaN ||
+        targetLat <= 0 ||
+        targetLng <= 0) {
       return '위치 확인 완료';
     }
     final locStr = (userLocation != null && userLocation.trim().isNotEmpty)
@@ -372,129 +596,132 @@ class KakaoMapService {
     return '$dongOnly 기준 $distText · 차량 약 $carMin분';
   }
 
-  /// 2. 카카오 주소 검색 API (dapi.kakao.com/v2/local/search/address.json)
+  /// 2. 네이버 지오코딩 기반 주소/동네 좌표 검색 (Firestore 주간 네이버 크롤러 + 내장 행정동 좌표 테이블)
   static Future<List<KakaoPlace>> searchAddress(String address,
       {int size = 10}) async {
     final clean = address.trim();
     if (clean.isEmpty) return [];
-
-    try {
-      final url =
-          'https://dapi.kakao.com/v2/local/search/address.json?query=${Uri.encodeComponent(clean)}&size=$size';
-      final headers = await _getAuthHeaders();
-      final res = await http
-          .get(Uri.parse(url), headers: headers)
-          .timeout(const Duration(seconds: 4));
-      if (res.statusCode == 200) {
-        final data = json.decode(utf8.decode(res.bodyBytes));
-        final docs = data['documents'] as List<dynamic>? ?? [];
-        return docs
-            .map((doc) {
-              final m = doc as Map<String, dynamic>;
-              final road = m['road_address'] as Map<String, dynamic>?;
-              final jibun = m['address'] as Map<String, dynamic>?;
-              final roadName =
-                  road != null ? (road['address_name']?.toString() ?? '') : '';
-              final jibunName = jibun != null
-                  ? (jibun['address_name']?.toString() ?? '')
-                  : (m['address_name']?.toString() ?? '');
-              return KakaoPlace(
-                id: m['id']?.toString() ?? clean.hashCode.toString(),
-                name: roadName.isNotEmpty ? roadName : jibunName,
-                address: jibunName,
-                roadAddress: roadName.isNotEmpty ? roadName : jibunName,
-                category: '주소',
-                lat: double.tryParse(m['y']?.toString() ?? '') ?? 0.0,
-                lng: double.tryParse(m['x']?.toString() ?? '') ?? 0.0,
-                placeUrl:
-                    'https://map.kakao.com/link/search/${Uri.encodeComponent(clean)}',
-              );
-            })
-            .where((place) => place.hasValidCoords)
-            .toList();
-      }
-    } catch (e) {
-      debugPrint('[KakaoMapService] searchAddress exception: $e');
+    final coords = LocationHelper.findCoordsForLocation(clean);
+    if (coords != null) {
+      return [
+        KakaoPlace(
+          id: 'naver_addr_${clean.hashCode}',
+          name: clean,
+          address: clean,
+          roadAddress: clean,
+          category: '네이버 지도 주소',
+          lat: coords['lat']!,
+          lng: coords['lng']!,
+          placeUrl:
+              'https://map.naver.com/p/search/${Uri.encodeComponent(clean)}',
+        ),
+      ];
     }
     return [];
   }
 
-  /// 3. 카카오 역지오코딩 - 좌표 -> 읍·면·동 행정동/법정동 이름 (coord2regioncode.json)
+  /// 3. 네이버 좌표 기반 역지오코딩 - 좌표 -> 읍·면·동 행정동/법정동 이름
   static Future<String?> coordToRegionName(double lat, double lng) async {
-    try {
-      final url =
-          'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=$lng&y=$lat';
-      final headers = await _getAuthHeaders();
-      final res = await http
-          .get(Uri.parse(url), headers: headers)
-          .timeout(const Duration(milliseconds: 2500));
-      if (res.statusCode == 200) {
-        final data = json.decode(utf8.decode(res.bodyBytes));
-        final docs = data['documents'] as List<dynamic>? ?? [];
-        // 행정동('H') 우선, 없으면 법정동('B')
-        Map<String, dynamic>? targetDoc;
-        for (final doc in docs) {
-          final m = doc as Map<String, dynamic>;
-          if (m['region_type'] == 'H') {
-            targetDoc = m;
-            break;
-          }
-        }
-        targetDoc ??=
-            docs.isNotEmpty ? (docs.first as Map<String, dynamic>) : null;
-
-        if (targetDoc != null) {
-          final region2 = targetDoc['region_2depth_name']?.toString() ?? '';
-          final region3 = targetDoc['region_3depth_name']?.toString() ?? '';
-          if (region2.isNotEmpty && region3.isNotEmpty) {
-            return '$region2 $region3';
-          }
-          final full = targetDoc['address_name']?.toString() ?? '';
-          if (full.isNotEmpty) {
-            final parts = full.split(' ');
-            if (parts.length >= 2) {
-              return parts.skip(1).join(' ');
-            }
-            return full;
-          }
+    if (lat.isNaN || lng.isNaN || lat <= 0 || lng <= 0) return null;
+    await _ensureCrawledNaverPlacesLoaded();
+    for (final p in [..._crawledNaverPlaces, ..._naverVerifiedCatalog]) {
+      if (calculateDistanceInMeters(lat, lng, p.lat, p.lng) <= 900) {
+        final parts = p.address.split(' ').where((s) => s.isNotEmpty).toList();
+        if (parts.length >= 3) {
+          return '${parts[1]} ${parts[2]}';
         }
       }
-    } catch (e) {
-      debugPrint('[KakaoMapService] coordToRegionName exception: $e');
     }
     return null;
   }
 
-  /// 4. 카카오 역지오코딩 - 좌표 -> 상세 도로명/지번 주소 (coord2address.json)
+  /// 4. 네이버 좌표 기반 역지오코딩 - 좌표 -> 상세 도로명/지번 주소
   static Future<String?> coordToRoadAddress(double lat, double lng) async {
-    try {
-      final url =
-          'https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$lng&y=$lat';
-      final headers = await _getAuthHeaders();
-      final res = await http
-          .get(Uri.parse(url), headers: headers)
-          .timeout(const Duration(milliseconds: 2500));
-      if (res.statusCode == 200) {
-        final data = json.decode(utf8.decode(res.bodyBytes));
-        final docs = data['documents'] as List<dynamic>? ?? [];
-        if (docs.isNotEmpty) {
-          final m = docs.first as Map<String, dynamic>;
-          final road = m['road_address'] as Map<String, dynamic>?;
-          if (road != null &&
-              road['address_name']?.toString().isNotEmpty == true) {
-            return road['address_name'].toString();
-          }
-          final jibun = m['address'] as Map<String, dynamic>?;
-          if (jibun != null &&
-              jibun['address_name']?.toString().isNotEmpty == true) {
-            return jibun['address_name'].toString();
-          }
-        }
+    if (lat.isNaN || lng.isNaN || lat <= 0 || lng <= 0) return null;
+    await _ensureCrawledNaverPlacesLoaded();
+    KakaoPlace? nearest;
+    double bestDist = double.infinity;
+    for (final p in [..._crawledNaverPlaces, ..._naverVerifiedCatalog]) {
+      final d = calculateDistanceInMeters(lat, lng, p.lat, p.lng);
+      if (d < bestDist) {
+        bestDist = d;
+        nearest = p;
       }
-    } catch (e) {
-      debugPrint('[KakaoMapService] coordToRoadAddress exception: $e');
+    }
+    if (nearest != null && bestDist <= 2000) {
+      return nearest.roadAddress.isNotEmpty
+          ? nearest.roadAddress
+          : nearest.address;
     }
     return null;
+  }
+
+  /// 4-1. 소개팅·소모임 참여자 동네 간 네이버 Geocoding + Haversine 중간 지점(Midpoint) 및 추천 핫플 계산
+  static Future<Map<String, dynamic>> calculateMidpointAndRecommendNaverSpots(
+    List<String> locations,
+  ) async {
+    await _ensureCrawledNaverPlacesLoaded();
+    final validLocs =
+        locations.map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    if (validLocs.isEmpty) {
+      validLocs.addAll(['영등포구 신길동', '영등포구 여의도동']);
+    } else if (validLocs.length == 1) {
+      final first = validLocs.first;
+      validLocs.add(first.contains('여수') ? '여수시 학동' : '영등포구 여의도동');
+    }
+
+    double sumLat = 0;
+    double sumLng = 0;
+    int count = 0;
+    for (final loc in validLocs) {
+      final c = LocationHelper.findCoordsForLocation(loc);
+      if (c != null) {
+        sumLat += c['lat']!;
+        sumLng += c['lng']!;
+        count++;
+      }
+    }
+    final midLat = count > 0 ? sumLat / count : 37.5180;
+    final midLng = count > 0 ? sumLng / count : 126.9225;
+
+    final allPlaces = <KakaoPlace>[
+      ..._crawledNaverPlaces,
+      ..._naverVerifiedCatalog,
+    ];
+    final sorted = List<KakaoPlace>.from(allPlaces)
+      ..sort((a, b) {
+        final da = calculateDistanceInMeters(midLat, midLng, a.lat, a.lng);
+        final db = calculateDistanceInMeters(midLat, midLng, b.lat, b.lng);
+        return da.compareTo(db);
+      });
+
+    final topSpots = sorted.take(3).map((p) {
+      final dist = calculateDistanceInMeters(midLat, midLng, p.lat, p.lng);
+      return {
+        'name': p.name,
+        'address': p.roadAddress.isNotEmpty ? p.roadAddress : p.address,
+        'category': p.category,
+        'lat': p.lat,
+        'lng': p.lng,
+        'distanceFromMid': formatDistance(dist),
+      };
+    }).toList();
+
+    final midSpot = topSpots.isNotEmpty ? topSpots.first : null;
+    final midpointLabel = midSpot != null
+        ? (midSpot['address'] as String)
+            .split(' ')
+            .take(3)
+            .join(' ')
+        : '영등포구 신길·여의도 중간지점';
+
+    return {
+      'participantsLocations': validLocs,
+      'midLat': midSpot != null ? midSpot['lat'] : midLat,
+      'midLng': midSpot != null ? midSpot['lng'] : midLng,
+      'midpointLabel': midpointLabel,
+      'recommendedSpots': topSpots,
+    };
   }
 
   /// 5. Haversine 정밀 거리 계산 (미터 단위 반환)

@@ -191,6 +191,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   String _memberCount = '2~4명 (2:2 소셜)';
   String _genderLimit = '성별 무관';
   String _ageLimit = '20대~30대';
+  String _depositOption = '보증금 5,000원 (출석 시 100% 환급)';
 
   bool _isSaving = false;
 
@@ -654,7 +655,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'status': 'open',
         'manner': globalData.temperature.value,
         'mannerTemp': globalData.temperature.value,
-        'price': '각자 결제',
+        'price': _depositOption,
+        'depositOption': _depositOption,
         'transport': '각자 이동',
         'isFemaleOnly': _genderLimit.toString().contains('여'),
         'date': scheduleLabel,
@@ -1099,6 +1101,17 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   ['연령 무관', '20대만', '30대만', '20대~30대', '30대~40대'],
                   _ageLimit,
                   (val) => setState(() => _ageLimit = val));
+            }),
+            _buildSettingRow('참가 보증금 (노쇼 방지)', _depositOption, () {
+              _showBottomSheetPicker(
+                  '참가 보증금 (노쇼 방지)',
+                  [
+                    '보증금 5,000원 (출석 시 100% 환급)',
+                    '보증금 10,000원 (출석 시 100% 환급)',
+                    '보증금 없음 (무료 번개)',
+                  ],
+                  _depositOption,
+                  (val) => setState(() => _depositOption = val));
             }),
 
             const SizedBox(height: 100),

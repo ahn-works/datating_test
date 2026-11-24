@@ -1179,7 +1179,26 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 6),
                   ),
 
-                  // 5. 안전 및 설정 메뉴 목록 (안전 센터, 알림 설정, 고객센터, 설정)
+                  // 5. 안전 및 설정 메뉴 목록 (연락처 지인 차단, 안전 센터, 알림 설정, 고객센터, 설정)
+                  ValueListenableBuilder<List<Map<String, String>>>(
+                    valueListenable: globalData.blockedAcquaintancePhones,
+                    builder: (context, blockedPhones, _) {
+                      return _buildMenuItem(
+                        icon: Icons.contact_phone_outlined,
+                        title: '연락처 지인 차단 (아는 사람 만나지 않기)',
+                        badge: blockedPhones.isEmpty
+                            ? '설정'
+                            : '${blockedPhones.length}명 차단',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const BlockManageScreen()),
+                          );
+                        },
+                      );
+                    },
+                  ),
                   _buildMenuItem(
                     icon: Icons.shield_outlined,
                     title: '안전 센터',

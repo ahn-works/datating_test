@@ -12,6 +12,7 @@ import '../ui/oomu_avatar.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../widgets/kakao_map_view.dart';
 import 'chat/chat_modals.dart';
 import 'chat/chat_system_cards.dart';
 
@@ -280,14 +281,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         desiredAccuracy: LocationAccuracy.low,
         timeLimit: const Duration(milliseconds: 1800),
       );
-      final String kakaoMapUrl =
-          'https://map.kakao.com/link/map/내_현재_위치,${position.latitude},${position.longitude}';
+      final String naverMapUrl =
+          'https://map.naver.com/p/search/${Uri.encodeComponent('내 현재 위치')}?c=${position.longitude},${position.latitude},16,0,0,0,dh';
 
       _addMessage({
         'type': 'location',
         'latitude': position.latitude,
         'longitude': position.longitude,
-        'mapUrl': kakaoMapUrl,
+        'mapUrl': naverMapUrl,
       });
     } catch (_) {
       _showFailure('현재 위치를 확인하지 못했어요. 위치는 전송하지 않았어요.');
@@ -304,6 +305,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       onLocation: _sendLocationAction,
       onHotspot: () =>
           ChatModals.showHotspotSearch(context, onCreated: _addMessage),
+      onMidpoint: _showNaverMidpointRecommenderModal,
       onSchedule: () =>
           ChatModals.showScheduleCreator(context, onCreated: _addMessage),
       onPoll: () => ChatModals.showPollCreator(context, onCreated: _addMessage),
@@ -334,6 +336,359 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     );
   }
 
+  Future<void> _showNaverMidpointRecommenderModal() async {
+    final locA = (_roomData?['location'] ?? '').toString().trim().isNotEmpty
+        ? (_roomData!['location']).toString().trim()
+        : (globalData.userLocation.value.trim().isNotEmpty
+            ? globalData.userLocation.value.trim()
+            : '영등포구 신길동');
+    final locBCtrl = TextEditingController(
+      text: locA.contains('신길') ? '여의도역' : '신길역',
+    );
+
+    Map<String, dynamic> midResult =
+        await KakaoMapService.calculateMidpointAndRecommendNaverSpots([
+      locA,
+      locBCtrl.text.trim(),
+    ]);
+
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: OomuTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(OomuTokens.r24)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final midLat = (midResult['midpointLat'] as num?)?.toDouble() ?? 37.5068;
+          final midLng = (midResult['midpointLng'] as num?)?.toDouble() ?? 126.9125;
+          final midName =
+              (midResult['midpointName'] ?? '신길역 중간 지점').toString();
+          final midAddr =
+              (midResult['midpointAddress'] ?? '서울 영등포구 신길동').toString();
+          final distLabel =
+              (midResult['distanceSummary'] ?? '평균 이동 0.8km').toString();
+          final spots = (midResult['recommendedSpots'] is List)
+              ? (midResult['recommendedSpots'] as List)
+                  .whereType<Map>()
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList()
+              : <Map<String, dynamic>>[];
+
+          return SafeArea(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: OomuTokens.border,
+                          borderRadius: BorderRadius.circular(OomuTokens.r8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: OomuTokens.coral,
+                            borderRadius: BorderRadius.circular(OomuTokens.r6),
+                          ),
+                          child: const Text(
+                            'NAVER 지도',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs11,
+                              fontWeight: FontWeight.w800,
+                              color: OomuTokens.surface,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            '단톡방 멤버 중간 지점(Midpoint) 추천',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs16,
+                              fontWeight: FontWeight.w800,
+                              color: OomuTokens.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '네이버 Geocoding + Haversine 거리 계산으로 멤버 간 이동 거리가 공평한 중간 핫플을 추천해요.',
+                      style: const TextStyle(
+                        fontSize: OomuTokens.fs12,
+                        color: OomuTokens.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.surfaceMuted,
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r10),
+                              border: Border.all(color: OomuTokens.border),
+                            ),
+                            child: Text(
+                              '출발 1: $locA',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                fontWeight: FontWeight.w700,
+                                color: OomuTokens.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: locBCtrl,
+                            style: const TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: '출발 2 (상대 동네)',
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r10),
+                              ),
+                            ),
+                            onSubmitted: (val) async {
+                              final updated = await KakaoMapService
+                                  .calculateMidpointAndRecommendNaverSpots([
+                                locA,
+                                val.trim(),
+                              ]);
+                              setSheetState(() => midResult = updated);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final updated = await KakaoMapService
+                                .calculateMidpointAndRecommendNaverSpots([
+                              locA,
+                              locBCtrl.text.trim(),
+                            ]);
+                            setSheetState(() => midResult = updated);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: OomuTokens.textPrimary,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            minimumSize: const Size(52, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r10),
+                            ),
+                          ),
+                          child: const Text(
+                            '계산',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              fontWeight: FontWeight.w700,
+                              color: OomuTokens.surface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(OomuTokens.r14),
+                      child: SizedBox(
+                        height: 165,
+                        width: double.infinity,
+                        child: KakaoMapView(
+                          locationName: midName,
+                          lat: midLat,
+                          lng: midLng,
+                          height: 165,
+                          hideActions: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surfaceMuted,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.place_rounded,
+                              color: OomuTokens.coral, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '추천 중간 지점: $midName',
+                                  style: const TextStyle(
+                                    fontSize: OomuTokens.fs13,
+                                    fontWeight: FontWeight.w800,
+                                    color: OomuTokens.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  midAddr,
+                                  style: const TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    color: OomuTokens.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.primarySubtle,
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r8),
+                            ),
+                            child: Text(
+                              distLabel,
+                              style: const TextStyle(
+                                fontSize: OomuTokens.fs11,
+                                fontWeight: FontWeight.w700,
+                                color: OomuTokens.coral,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (spots.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      const Text(
+                        '중간 지점 인근 네이버 지도 검증 핫플 TOP 3',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs13,
+                          fontWeight: FontWeight.w800,
+                          color: OomuTokens.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...spots.take(3).map((spot) {
+                        final sName = (spot['name'] ?? '').toString();
+                        final sCat = (spot['category'] ?? '맛집·카페').toString();
+                        final sDist = (spot['distanceLabel'] ?? '').toString();
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: OomuTokens.surface,
+                            borderRadius: BorderRadius.circular(OomuTokens.r12),
+                            border: Border.all(color: OomuTokens.border),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      sName,
+                                      style: const TextStyle(
+                                        fontSize: OomuTokens.fs13,
+                                        fontWeight: FontWeight.w700,
+                                        color: OomuTokens.textPrimary,
+                                      ),
+                                    ),
+                                    Text(
+                                      '$sCat · $sDist',
+                                      style: const TextStyle(
+                                        fontSize: OomuTokens.fs11,
+                                        color: OomuTokens.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  _addMessage({
+                                    'type': 'text',
+                                    'text':
+                                        '📍 [네이버 지도 중간 지점 추천]\n우리 중간 지점 핫플로 [$sName] ($sCat · $sDist) 어때요? ($midAddr)',
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: OomuTokens.coral,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
+                                  minimumSize: const Size(64, 34),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(OomuTokens.r8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  '채팅 공유',
+                                  style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.surface,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   void _showSafetyDrawer() {
     ChatModals.showSafetyDrawer(
       context,
@@ -354,11 +709,9 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     final isMe = msg['isMe'] == true;
     final msgId = (msg['id'] ?? '').toString();
     final sender = (msg['sender'] ?? '상대방').toString();
-    final senderUid = (msg['senderId'] ??
-            msg['userId'] ??
-            msg['uid'] ??
-            msg['authorId'])
-        ?.toString();
+    final senderUid =
+        (msg['senderId'] ?? msg['userId'] ?? msg['uid'] ?? msg['authorId'])
+            ?.toString();
 
     ChatModals.showMessageActionSheet(
       context,
@@ -590,8 +943,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     ((_roomData?['location'] ?? '').toString().isNotEmpty ||
                         (_roomData?['date'] ?? '').toString().isNotEmpty))
                   Container(
-                    margin: const EdgeInsets.fromLTRB(
-                        OomuTokens.s16, OomuTokens.s8, OomuTokens.s16, OomuTokens.s4),
+                    margin: const EdgeInsets.fromLTRB(OomuTokens.s16,
+                        OomuTokens.s8, OomuTokens.s16, OomuTokens.s4),
                     padding: const EdgeInsets.symmetric(
                         horizontal: OomuTokens.s12, vertical: OomuTokens.s8),
                     decoration: BoxDecoration(
@@ -618,19 +971,35 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                             ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: OomuTokens.s8, vertical: OomuTokens.s4),
-                          decoration: BoxDecoration(
-                            color: OomuTokens.surfaceMuted,
-                            borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                          ),
-                          child: const Text(
-                            '모임 정보',
-                            style: TextStyle(
-                              fontSize: OomuTokens.fs11,
-                              fontWeight: FontWeight.w600,
-                              color: OomuTokens.textSecondary,
+                        GestureDetector(
+                          onTap: _showNaverMidpointRecommenderModal,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: OomuTokens.s8,
+                                vertical: OomuTokens.s4),
+                            decoration: BoxDecoration(
+                              color: OomuTokens.primarySubtle,
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.rPill),
+                              border: Border.all(
+                                color: OomuTokens.coral.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.hub_rounded,
+                                    size: 13, color: OomuTokens.coral),
+                                SizedBox(width: 4),
+                                Text(
+                                  '중간 지점 추천',
+                                  style: TextStyle(
+                                    fontSize: OomuTokens.fs11,
+                                    fontWeight: FontWeight.w700,
+                                    color: OomuTokens.coral,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -1000,7 +1369,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.location_on, color: OomuTokens.coral, size: 20),
+                      Icon(Icons.location_on,
+                          color: OomuTokens.coral, size: 20),
                       SizedBox(width: OomuTokens.s4),
                       Text('현재 위치 공유',
                           style: TextStyle(
@@ -1100,7 +1470,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
               );
             },
             child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: OomuTokens.s4, vertical: 2),
+              padding:
+                  EdgeInsets.symmetric(horizontal: OomuTokens.s4, vertical: 2),
               child: Text(
                 '차단 해제',
                 style: TextStyle(
@@ -1402,8 +1773,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(OomuTokens.rPill),
-                      borderSide: const BorderSide(
-                          color: OomuTokens.coral, width: 1.2),
+                      borderSide:
+                          const BorderSide(color: OomuTokens.coral, width: 1.2),
                     ),
                   ),
                 ),

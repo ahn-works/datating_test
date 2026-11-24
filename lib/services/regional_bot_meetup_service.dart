@@ -4,7 +4,7 @@ import '../utils/oomu_ui_helpers.dart';
 import 'kakao_map_service.dart';
 
 /// 사용자가 가입하거나 설정한 동네(예: 영등포구 신길동, 여수시 화장동 등 전국 모든 읍·면·동)에
-/// 활성 모임이 부족할 때, 해당 동네의 실제 장소(카카오 로컬 검색 연동)를 기반으로
+/// 활성 모임이 부족할 때, 해당 동네의 실제 장소(네이버 지도 지오코딩 & GitHub Actions 주간 크롤러 연동)를 기반으로
 /// 봇 호스트들이 자동으로 동네 놀거리·번개·취향 모임을 생성해 주는 서비스.
 class RegionalBotMeetupService {
   RegionalBotMeetupService._();

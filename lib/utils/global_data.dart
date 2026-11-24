@@ -92,6 +92,7 @@ class GlobalData {
     savedMeetups.value = [];
     blockedUsers.value = [];
     blockedUids.value = [];
+    blockedAcquaintancePhones.value = [];
     hiddenPostIds.value = [];
     reportHistory.value = [];
     isProfileSetupSkipped.value = false;
@@ -239,6 +240,16 @@ class GlobalData {
           .where((e) => e.isNotEmpty)
           .toList();
     }
+    if (data['blockedPhones'] is List) {
+      blockedAcquaintancePhones.value = (data['blockedPhones'] as List)
+          .whereType<Map>()
+          .map((e) => <String, String>{
+                'name': (e['name'] ?? '지인').toString(),
+                'phone': (e['phone'] ?? '').toString(),
+              })
+          .where((m) => m['phone']!.isNotEmpty)
+          .toList();
+    }
     final phone = (data['phone'] ?? data['phoneNumber'] ?? data['contactPhone'])
         ?.toString()
         .trim();
@@ -272,6 +283,30 @@ class GlobalData {
         return;
       }
       applyProfileData(data);
+      if (debugProfileFetcher == null && Firebase.apps.isNotEmpty) {
+        try {
+          final stateDoc = await FirebaseFirestore.instance
+              .collection('user_states')
+              .doc(uid)
+              .get();
+          if (isActiveSession(requestSession, uid) &&
+              requestGeneration == _syncGeneration &&
+              stateDoc.exists) {
+            final stateData = stateDoc.data();
+            if (stateData?['blockedPhones'] is List) {
+              blockedAcquaintancePhones.value =
+                  (stateData!['blockedPhones'] as List)
+                      .whereType<Map>()
+                      .map((e) => <String, String>{
+                            'name': (e['name'] ?? '지인').toString(),
+                            'phone': (e['phone'] ?? '').toString(),
+                          })
+                      .where((m) => m['phone']!.isNotEmpty)
+                      .toList();
+            }
+          }
+        } catch (_) {}
+      }
       final rawIds = data?['savedMeetupIds'];
       if (rawIds is List && rawIds.isNotEmpty) {
         final ids = rawIds
@@ -409,6 +444,91 @@ class GlobalData {
   // UGC 차단 사용자 목록 (사용자별 상태 - UID 기반 SSOT)
   final ValueNotifier<List<String>> blockedUids =
       ValueNotifier<List<String>>([]);
+
+  // 연락처 지인 차단 목록 (사용자별 상태 - 이름 + 전화번호 해시/정규화)
+  final ValueNotifier<List<Map<String, String>>> blockedAcquaintancePhones =
+      ValueNotifier<List<Map<String, String>>>([]);
+
+  static String normalizePhoneDigits(String raw) {
+    final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.startsWith('82') && digits.length >= 11) {
+      return '0${digits.substring(2)}';
+    }
+    return digits;
+  }
+
+  bool isPhoneBlocked(String? rawPhone) {
+    if (rawPhone == null || rawPhone.trim().isEmpty) return false;
+    final clean = normalizePhoneDigits(rawPhone);
+    if (clean.isEmpty) return false;
+    return blockedAcquaintancePhones.value
+        .any((item) => normalizePhoneDigits(item['phone'] ?? '') == clean);
+  }
+
+  void addBlockedAcquaintancePhone({
+    required String name,
+    required String phone,
+  }) {
+    final cleanPhone = normalizePhoneDigits(phone);
+    if (cleanPhone.length < 10) return;
+    final cleanName = name.trim().isEmpty ? '연락처 지인' : name.trim();
+    final current =
+        List<Map<String, String>>.from(blockedAcquaintancePhones.value);
+    if (current.any((e) => normalizePhoneDigits(e['phone'] ?? '') == cleanPhone)) {
+      return;
+    }
+    current.insert(0, {'name': cleanName, 'phone': cleanPhone});
+    blockedAcquaintancePhones.value = current;
+    _syncBlockedPhonesToFirestore(current);
+  }
+
+  int addBulkBlockedAcquaintancePhones(List<Map<String, String>> items) {
+    final current =
+        List<Map<String, String>>.from(blockedAcquaintancePhones.value);
+    int added = 0;
+    for (final item in items) {
+      final cleanPhone = normalizePhoneDigits(item['phone'] ?? '');
+      if (cleanPhone.length < 10) continue;
+      if (current.any((e) => normalizePhoneDigits(e['phone'] ?? '') == cleanPhone)) {
+        continue;
+      }
+      final cleanName = (item['name'] ?? '').trim().isEmpty
+          ? '연락처 지인'
+          : item['name']!.trim();
+      current.add({'name': cleanName, 'phone': cleanPhone});
+      added++;
+    }
+    if (added > 0) {
+      blockedAcquaintancePhones.value = current;
+      _syncBlockedPhonesToFirestore(current);
+    }
+    return added;
+  }
+
+  void removeBlockedAcquaintancePhone(String phone) {
+    final cleanPhone = normalizePhoneDigits(phone);
+    final current =
+        List<Map<String, String>>.from(blockedAcquaintancePhones.value);
+    current.removeWhere(
+        (e) => normalizePhoneDigits(e['phone'] ?? '') == cleanPhone);
+    blockedAcquaintancePhones.value = current;
+    _syncBlockedPhonesToFirestore(current);
+  }
+
+  void _syncBlockedPhonesToFirestore(List<Map<String, String>> list) {
+    if (!_canSyncUserDoc) return;
+    try {
+      FirebaseFirestore.instance
+          .collection('user_states')
+          .doc(activeUserId)
+          .set({
+        'blockedPhones': list,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[GlobalData] _syncBlockedPhonesToFirestore error: $e');
+    }
+  }
 
   // 신고 및 숨김 처리된 콘텐츠 ID 목록 (사용자별 상태)
   final ValueNotifier<List<String>> hiddenPostIds =

@@ -323,9 +323,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       final String finalUrl;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalUrl = uploadedUrl;
+        finalUrl = await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
       } else {
-        finalUrl = R2StorageService.toDataUrl(bytes, picked.name);
+        finalUrl = await R2StorageService.toCompressedDataUrl(bytes, picked.name);
       }
 
       setState(() {

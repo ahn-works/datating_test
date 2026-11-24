@@ -1,0 +1,30 @@
+name: OOMU Weekly Naver Regional Places & 2040 Search Trend Crawler
+
+on:
+  schedule:
+    # 매주 월요일 03:00 KST (일요일 18:00 UTC) 동네별 네이버 지도 맛집 및 2040 실검 자동 갱신
+    - cron: '0 18 * * 0'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/crawl_naver_regional_places.py'
+      - '.github/workflows/weekly_naver_places_crawler.yml'
+
+jobs:
+  crawl-naver-places-and-trends:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Naver Regional Places & 2040 DataLab Trend Crawler
+        env:
+          NAVER_MAP_CLIENT_ID: ${{ secrets.NAVER_MAP_CLIENT_ID }}
+          NAVER_MAP_CLIENT_SECRET: ${{ secrets.NAVER_MAP_CLIENT_SECRET }}
+        run: |
+          python scripts/crawl_naver_regional_places.py

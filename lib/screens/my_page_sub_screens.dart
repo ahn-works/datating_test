@@ -39,138 +39,450 @@ class SimpleListScreen extends StatelessWidget {
               onTap: onTaps != null && i < onTaps!.length ? onTaps![i] : null)));
 }
 
-class BlockManageScreen extends StatelessWidget {
+class BlockManageScreen extends StatefulWidget {
   const BlockManageScreen({super.key});
+
+  @override
+  State<BlockManageScreen> createState() => _BlockManageScreenState();
+}
+
+class _BlockManageScreenState extends State<BlockManageScreen> {
+  final TextEditingController _nameCtrl = TextEditingController();
+  final TextEditingController _phoneCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  static String _maskPhone(String raw) {
+    final digits = GlobalData.normalizePhoneDigits(raw);
+    if (digits.length >= 11) {
+      return '${digits.substring(0, 3)}-****-${digits.substring(digits.length - 4)}';
+    }
+    if (digits.length >= 7) {
+      return '${digits.substring(0, 3)}-***-${digits.substring(digits.length - 3)}';
+    }
+    return raw;
+  }
+
+  void _addSingleContact() {
+    final name = _nameCtrl.text.trim();
+    final phone = GlobalData.normalizePhoneDigits(_phoneCtrl.text);
+    if (phone.length < 10 || !phone.startsWith('01')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('010으로 시작하는 올바른 휴대폰 번호를 입력해 주세요.')),
+      );
+      return;
+    }
+    globalData.addBlockedAcquaintancePhone(
+      name: name.isEmpty ? '연락처 지인' : name,
+      phone: phone,
+    );
+    _nameCtrl.clear();
+    _phoneCtrl.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('📵 연락처 지인이 차단되었습니다. 모임·피드·추천에서 서로 노출되지 않습니다.'),
+      ),
+    );
+  }
+
+  void _bulkSyncSampleAcquaintances() {
+    final added = globalData.addBulkBlockedAcquaintancePhones([
+      {'name': '직장동료_김대리', 'phone': ['010', '0000', '0101'].join()},
+      {'name': '팀장님_박팀장', 'phone': ['010', '0000', '0202'].join()},
+      {'name': '동창_이준호', 'phone': ['010', '0000', '0303'].join()},
+    ]);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          added > 0
+              ? '📵 연락처 지인 $added명이 일괄 차단 등록되었습니다 (양방향 노출 완벽 차단).'
+              : '이미 등록된 연락처 지인 목록입니다.',
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: OomuTokens.surface,
       appBar: AppBar(
-        title: const Text('차단 사용자 관리',
-            style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
+        title: const Text('연락처 지인 차단 · 차단 관리',
+            style: TextStyle(
+                color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
       ),
-      body: ValueListenableBuilder<List<String>>(
-        valueListenable: globalData.blockedUsers,
-        builder: (context, blockedList, _) {
-          if (blockedList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: OomuTokens.surfaceMuted,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.shield_outlined,
-                        size: 50, color: Colors.teal),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    '차단된 사용자가 없습니다',
-                    style: TextStyle(
-                        fontSize: OomuTokens.fs18,
-                        fontWeight: FontWeight.bold,
-                        color: OomuTokens.textPrimary),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '동네 모임과 커뮤니티에서 안심하고 대화하세요.\n불쾌한 사용자는 프로필이나 채팅에서 언제든 차단할 수 있습니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: OomuTokens.fs13, color: OomuTokens.textSecondary, height: 1.4),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: OomuTokens.surfaceMuted,
-                child: const Row(
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: OomuTokens.surfaceMuted,
+              borderRadius: BorderRadius.circular(OomuTokens.r16),
+              border: Border.all(color: OomuTokens.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Icon(Icons.info_outline,
-                        size: 16, color: OomuTokens.coral),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '차단된 사용자는 내 모임, 커뮤니티 글, 채팅에서 즉시 숨겨지며 추천에서 제외됩니다.',
-                        style: TextStyle(
-                            fontSize: OomuTokens.fs12,
-                            color: OomuTokens.textSecondary,
-                            height: 1.3),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.primarySubtle,
+                        borderRadius: BorderRadius.circular(OomuTokens.r10),
+                      ),
+                      child: const Icon(Icons.contact_phone_rounded,
+                          color: OomuTokens.coral, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '아는 사람 만나지 않기 (연락처 지인 차단)',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs15,
+                              fontWeight: FontWeight.w800,
+                              color: OomuTokens.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            '등록한 전화번호의 지인·직장동료·전 연인은 동네 모임, 커뮤니티, 소개팅에서 서로에게 절대 노출되지 않습니다.',
+                            style: TextStyle(
+                              fontSize: OomuTokens.fs12,
+                              color: OomuTokens.textSecondary,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: blockedList.length,
-                  separatorBuilder: (_, __) => const Divider(
-                      height: 1,
-                      thickness: 0.5,
-                      indent: 16,
-                      endIndent: 16,
-                      color: OomuTokens.border),
-                  itemBuilder: (context, index) {
-                    final userName = blockedList[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
-                      leading: const CircleAvatar(
-                        backgroundColor: OomuTokens.primarySubtle,
-                        child: Icon(Icons.person_off,
-                            color: OomuTokens.coral, size: 20),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _bulkSyncSampleAcquaintances,
+                    icon: const Icon(Icons.contacts_rounded,
+                        size: 16, color: OomuTokens.surface),
+                    label: const Text(
+                      '내 연락처 지인 일괄 불러와 차단하기',
+                      style: TextStyle(
+                        fontSize: OomuTokens.fs13,
+                        fontWeight: FontWeight.w700,
+                        color: OomuTokens.surface,
                       ),
-                      title: Text(userName,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: OomuTokens.fs15)),
-                      subtitle: const Text('모든 활동 및 대화 숨김 상태',
-                          style: TextStyle(fontSize: OomuTokens.fs12, color: OomuTokens.textSecondary)),
-                      trailing: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: OomuTokens.border),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(OomuTokens.r8)),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          minimumSize: Size.zero,
-                        ),
-                        onPressed: () {
-                          globalData.unblockUser(userName);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('🎉 $userName님의 차단이 해제되었습니다.'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        child: const Text('차단 해제',
-                            style: TextStyle(
-                                color: OomuTokens.textPrimary,
-                                fontSize: OomuTokens.fs12,
-                                fontWeight: FontWeight.w600)),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OomuTokens.coral,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextField(
+                        controller: _nameCtrl,
+                        style: const TextStyle(fontSize: OomuTokens.fs13),
+                        decoration: InputDecoration(
+                          hintText: '이름/별칭 (예: 김대리)',
+                          filled: true,
+                          fillColor: OomuTokens.surface,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(OomuTokens.r10),
+                            borderSide:
+                                const BorderSide(color: OomuTokens.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(OomuTokens.r10),
+                            borderSide:
+                                const BorderSide(color: OomuTokens.border),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: _phoneCtrl,
+                        keyboardType: TextInputType.phone,
+                        style: const TextStyle(fontSize: OomuTokens.fs13),
+                        decoration: InputDecoration(
+                          hintText: '010-XXXX-XXXX',
+                          filled: true,
+                          fillColor: OomuTokens.surface,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(OomuTokens.r10),
+                            borderSide:
+                                const BorderSide(color: OomuTokens.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(OomuTokens.r10),
+                            borderSide:
+                                const BorderSide(color: OomuTokens.border),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _addSingleContact,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: OomuTokens.textPrimary,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(OomuTokens.r10),
+                        ),
+                      ),
+                      child: const Text(
+                        '차단',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          fontWeight: FontWeight.w700,
+                          color: OomuTokens.surface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          ValueListenableBuilder<List<Map<String, String>>>(
+            valueListenable: globalData.blockedAcquaintancePhones,
+            builder: (context, blockedPhones, _) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '📵 차단된 연락처 지인 (${blockedPhones.length}명)',
+                        style: const TextStyle(
+                          fontSize: OomuTokens.fs15,
+                          fontWeight: FontWeight.w800,
+                          color: OomuTokens.textPrimary,
+                        ),
+                      ),
+                      const Text(
+                        '양방향 숨김 적용 중',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          fontWeight: FontWeight.w600,
+                          color: OomuTokens.coral,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (blockedPhones.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: const Text(
+                        '등록된 연락처 지인이 없습니다. 위 버튼으로 연락처를 불러오거나 번호를 직접 추가해 보세요.',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          color: OomuTokens.textSecondary,
+                        ),
+                      ),
+                    )
+                  else
+                    ...blockedPhones.map((item) {
+                      final name = item['name'] ?? '연락처 지인';
+                      final phone = item['phone'] ?? '';
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: OomuTokens.surface,
+                          borderRadius: BorderRadius.circular(OomuTokens.r12),
+                          border: Border.all(color: OomuTokens.border),
+                        ),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 16,
+                              backgroundColor: OomuTokens.primarySubtle,
+                              child: Icon(Icons.phone_disabled_rounded,
+                                  color: OomuTokens.coral, size: 16),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: const TextStyle(
+                                      fontSize: OomuTokens.fs14,
+                                      fontWeight: FontWeight.w700,
+                                      color: OomuTokens.textPrimary,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${_maskPhone(phone)} · 양방향 노출 차단됨',
+                                    style: const TextStyle(
+                                      fontSize: OomuTokens.fs12,
+                                      color: OomuTokens.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: OomuTokens.border),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(OomuTokens.r8)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                minimumSize: Size.zero,
+                              ),
+                              onPressed: () {
+                                globalData.removeBlockedAcquaintancePhone(phone);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('$name 연락처 차단이 해제되었습니다.')),
+                                );
+                              },
+                              child: const Text(
+                                '해제',
+                                style: TextStyle(
+                                  color: OomuTokens.textPrimary,
+                                  fontSize: OomuTokens.fs12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 22),
+          const Divider(height: 1, color: OomuTokens.border),
+          const SizedBox(height: 16),
+          ValueListenableBuilder<List<String>>(
+            valueListenable: globalData.blockedUsers,
+            builder: (context, blockedList, _) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '🚫 앱 내 차단한 사용자 (${blockedList.length}명)',
+                    style: const TextStyle(
+                      fontSize: OomuTokens.fs15,
+                      fontWeight: FontWeight.w800,
+                      color: OomuTokens.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (blockedList.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: OomuTokens.surface,
+                        borderRadius: BorderRadius.circular(OomuTokens.r12),
+                        border: Border.all(color: OomuTokens.border),
+                      ),
+                      child: const Text(
+                        '앱 내에서 차단한 사용자가 없습니다.',
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          color: OomuTokens.textSecondary,
+                        ),
+                      ),
+                    )
+                  else
+                    ...blockedList.map((userName) {
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
+                        leading: const CircleAvatar(
+                          backgroundColor: OomuTokens.primarySubtle,
+                          child: Icon(Icons.person_off,
+                              color: OomuTokens.coral, size: 20),
+                        ),
+                        title: Text(userName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: OomuTokens.fs15)),
+                        subtitle: const Text('모든 활동 및 대화 숨김 상태',
+                            style: TextStyle(
+                                fontSize: OomuTokens.fs12,
+                                color: OomuTokens.textSecondary)),
+                        trailing: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: OomuTokens.border),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r8)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            minimumSize: Size.zero,
+                          ),
+                          onPressed: () {
+                            globalData.unblockUser(userName);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('🎉 $userName님의 차단이 해제되었습니다.'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: const Text('차단 해제',
+                              style: TextStyle(
+                                  color: OomuTokens.textPrimary,
+                                  fontSize: OomuTokens.fs12,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                      );
+                    }),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }

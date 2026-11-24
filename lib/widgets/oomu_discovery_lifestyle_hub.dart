@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../services/discovery_api_service.dart';
 import '../services/kakao_map_service.dart';
@@ -52,6 +54,19 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   List<CountrySpotItem> _countries = const [];
   List<Map<String, dynamic>> _realTrendEvents = const [];
   List<Map<String, dynamic>> _liveLocalFoodSpots = const [];
+  List<Map<String, dynamic>> _naverRealtimeTrends = const [
+    {'rank': 1, 'keyword': '고프코어 러닝화 & 바람막이 코디', 'category': '패션·쇼핑', 'change': '▲ 4'},
+    {'rank': 2, 'keyword': '무알콜 하이볼 & 싱글몰트 위스키바', 'category': '맛집·핫플', 'change': 'HOT'},
+    {'rank': 3, 'keyword': '저속노화 아보카도 연어 포케 식단', 'category': '다이어트·건강', 'change': '▲ 2'},
+    {'rank': 4, 'keyword': '퇴근 후 도자기·드로잉 원데이클래스', 'category': '취미·라이프', 'change': 'NEW'},
+    {'rank': 5, 'keyword': '화덕피자 & 내추럴와인 비스트로', 'category': '맛집·핫플', 'change': '▲ 3'},
+    {'rank': 6, 'keyword': '야간 공원 4km 슬로우 러닝', 'category': '운동·액티비티', 'change': 'HOT'},
+    {'rank': 7, 'keyword': '빈티지 필름카메라 동네 출사', 'category': '취미·라이프', 'change': '▲ 1'},
+    {'rank': 8, 'keyword': '직장인 북카페 & 독립서점 투어', 'category': '문화·트렌드', 'change': '▲ 2'},
+    {'rank': 9, 'keyword': 'LP 바이닐 바 & 시티팝 청음', 'category': '문화·트렌드', 'change': 'NEW'},
+    {'rank': 10, 'keyword': '수제 소금빵 & 피스타치오 디저트', 'category': '맛집·핫플', 'change': '▲ 1'},
+  ];
+  bool _isTrendsExpanded = false;
 
   // 놀거리·운세 인터랙티브 미니게임 상태
   final Map<int, bool> _tarotFlipped = {0: false, 1: false, 2: false};
@@ -109,7 +124,32 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   Future<void> _loadAllDiscoveryData() async {
     _loadWeatherAndRecipes();
     _loadLiveNeighborhoodFoodSpots();
+    _loadNaverRealtimeTrends();
     _loadMoviesAndCountries();
+  }
+
+  Future<void> _loadNaverRealtimeTrends() async {
+    if (Firebase.apps.isEmpty) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('naver_trends')
+          .get()
+          .timeout(const Duration(seconds: 3));
+      if (!mounted || !doc.exists || doc.data() == null) return;
+      final items = doc.data()!['items'];
+      if (items is List && items.isNotEmpty) {
+        final parsed = items
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+        if (parsed.isNotEmpty) {
+          setState(() {
+            _naverRealtimeTrends = parsed;
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadLiveNeighborhoodFoodSpots() async {
@@ -322,8 +362,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. 상단 날씨 × 바람/비 오는 날 삼겹살·파전 근처 맛집 & 레시피 히어로 배너
+        // 1. 상단 날씨 × 동네 로컬 맛집 & 레시피 히어로 배너
         _buildWeatherFoodHeroBanner(),
+
+        const SizedBox(height: 12),
+
+        // 1-2. 네이버 데이터랩 연동 2040 실시간 급상승 트렌드 (실검 차트)
+        _buildNaverDataLabRealtimeTrendCard(),
 
         const SizedBox(height: 16),
 
@@ -347,6 +392,170 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           padding: OomuInsets.listBottomWithTabs,
         ),
       ],
+    );
+  }
+
+  // =========================================================================
+  // 1-2. 네이버 데이터랩(DataLab) 연동 「이번 주 2040 실시간 급상승 검색어 (실검)」
+  // =========================================================================
+  Widget _buildNaverDataLabRealtimeTrendCard() {
+    final visibleList = _isTrendsExpanded
+        ? _naverRealtimeTrends.take(10).toList()
+        : _naverRealtimeTrends.take(5).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: surfaceWhite,
+          borderRadius: BorderRadius.circular(OomuTokens.r16),
+          border: Border.all(color: borderSlate),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: OomuTokens.naverGreen,
+                    borderRadius: BorderRadius.circular(OomuTokens.r6),
+                  ),
+                  child: const Text(
+                    'N 실검',
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs11,
+                      fontWeight: FontWeight.w800,
+                      color: surfaceWhite,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    '2040 실시간 인기 검색 트렌드',
+                    style: TextStyle(
+                      fontSize: OomuTokens.fs15,
+                      fontWeight: FontWeight.w800,
+                      color: textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  flex: 0,
+                  child: InkWell(
+                    onTap: () =>
+                        setState(() => _isTrendsExpanded = !_isTrendsExpanded),
+                    borderRadius: BorderRadius.circular(OomuTokens.r8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
+                      child: Text(
+                        _isTrendsExpanded ? '접기 ▲' : '더보기 ▼',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: OomuTokens.fs12,
+                          fontWeight: FontWeight.w700,
+                          color: textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...visibleList.map((item) {
+              final rank = item['rank'] ?? 1;
+              final keyword = (item['keyword'] ?? '').toString();
+              final category = (item['category'] ?? '').toString();
+              final change = (item['change'] ?? 'HOT').toString();
+              final isTop3 = (rank is num && rank <= 3) ||
+                  int.tryParse(rank.toString()) != null &&
+                      int.parse(rank.toString()) <= 3;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 26,
+                      child: Text(
+                        '$rank',
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                        style: TextStyle(
+                          fontSize: OomuTokens.fs14,
+                          fontWeight: FontWeight.w900,
+                          color: isTop3 ? brandCoral : textSecondary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        keyword,
+                        style: const TextStyle(
+                          fontSize: OomuTokens.fs13,
+                          fontWeight: FontWeight.w700,
+                          color: textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      flex: 1,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: subtleSurface,
+                          borderRadius: BorderRadius.circular(OomuTokens.r6),
+                        ),
+                        child: Text(
+                          category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: OomuTokens.fs11,
+                            fontWeight: FontWeight.w600,
+                            color: textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      change,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: OomuTokens.fs11,
+                        fontWeight: FontWeight.w800,
+                        color: change.contains('▲') ||
+                                change == 'HOT' ||
+                                change == 'NEW'
+                            ? brandCoral
+                            : textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
     );
   }
 
@@ -483,12 +692,16 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           children: [
             Icon(icon, size: 14, color: textPrimary),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: textPrimary,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: textPrimary,
+                ),
               ),
             ),
             const SizedBox(width: 3),

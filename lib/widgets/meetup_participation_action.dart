@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import '../screens/oomu_chat_room_screen.dart';
 import '../services/meetup_application_service.dart';
+import '../ui/oomu_tokens.dart';
 import '../utils/meetup_member_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
 
@@ -56,8 +58,56 @@ class MeetupParticipationAction extends StatelessWidget {
     }
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return _button('참여 신청하기', onApply);
+    final meetupTitle = (meetup?['title'] ?? '우리 동네 모임').toString();
+    final memberCount = MeetupApplicationService.attendance(meetup ?? const {});
+
+    void openChatRoom() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OOMUChatScreen(
+            title: meetupTitle,
+            memberCount: memberCount > 0 ? memberCount : 2,
+            chatRoomId: id,
+          ),
+        ),
+      );
+    }
+
     if (MeetupApplicationService.hostUid(meetup!) == uid) {
-      return _button('참여 신청 관리', () => _review(context, id));
+      return Row(
+        children: [
+          Expanded(
+            flex: 6,
+            child: _button('참여 신청 관리', () => _review(context, id, openChatRoom)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 5,
+            child: SizedBox(
+              height: 52,
+              child: OutlinedButton.icon(
+                onPressed: openChatRoom,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: OomuTokens.textPrimary,
+                  side: const BorderSide(color: OomuTokens.border),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(OomuTokens.r12),
+                  ),
+                ),
+                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 17),
+                label: const Text(
+                  '단톡방',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: OomuTokens.fs14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
     }
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
@@ -80,7 +130,7 @@ class MeetupParticipationAction extends StatelessWidget {
           case 'pending':
             return _button('모임장 승인 대기 중', null);
           case 'approved':
-            return _button('참여가 승인됐어요', null);
+            return _button('참여 승인됨 · 단톡방 입장하기 💬', openChatRoom);
           case 'rejected':
             return _button('이번 신청은 승인되지 않았어요', null);
           default:
@@ -90,7 +140,7 @@ class MeetupParticipationAction extends StatelessWidget {
     );
   }
 
-  void _review(BuildContext context, String id) {
+  void _review(BuildContext context, String id, [VoidCallback? onOpenChat]) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -149,23 +199,26 @@ class MeetupParticipationAction extends StatelessWidget {
                       }
                     }
 
+                    final reqData = request.data();
+                    final nick =
+                        (reqData['nickname'] ?? '신청 이웃').toString().trim();
                     return Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text('${request.data()['partySize'] ?? 1}명 참여 신청',
+                              Text(
+                                  '$nick · ${reqData['partySize'] ?? 1}명 참여 신청',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w700)),
                               const SizedBox(height: 8),
-                              Text(request
-                                          .data()['message']
+                              Text(reqData['message']
                                           ?.toString()
                                           .trim()
                                           .isNotEmpty ==
                                       true
-                                  ? request.data()['message'].toString()
+                                  ? reqData['message'].toString()
                                   : '인사말이 없는 신청이에요.'),
                               const SizedBox(height: 12),
                               Wrap(spacing: 12, children: [
@@ -173,8 +226,18 @@ class MeetupParticipationAction extends StatelessWidget {
                                     onPressed: () => decide(false),
                                     child: const Text('거절')),
                                 ElevatedButton(
-                                    onPressed: () => decide(true),
-                                    child: const Text('승인'))
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: OomuUiHelpers.brandCoral,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    onPressed: () async {
+                                      await decide(true);
+                                      if (sheetContext.mounted) {
+                                        Navigator.pop(sheetContext);
+                                      }
+                                      onOpenChat?.call();
+                                    },
+                                    child: const Text('승인 후 단톡방 열기'))
                               ]),
                               const Divider(),
                             ]));

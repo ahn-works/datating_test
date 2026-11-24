@@ -50,6 +50,7 @@ class ChatModals {
     required VoidCallback onPhoto,
     required VoidCallback onLocation,
     required VoidCallback onHotspot,
+    VoidCallback? onMidpoint,
     required VoidCallback onSchedule,
     required VoidCallback onPoll,
     required VoidCallback onSafeReturn,
@@ -128,6 +129,11 @@ class ChatModals {
                       Navigator.pop(ctx);
                       onHotspot();
                     }),
+                    if (onMidpoint != null)
+                      _buildIcon(Icons.hub_rounded, '중간 지점 추천', onTap: () {
+                        Navigator.pop(ctx);
+                        onMidpoint();
+                      }),
                     _buildIcon(Icons.event_available_rounded, '일정 제안', onTap: () {
                       Navigator.pop(ctx);
                       onSchedule();
