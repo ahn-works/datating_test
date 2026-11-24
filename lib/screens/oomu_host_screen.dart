@@ -200,7 +200,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         context: context,
         backgroundColor: OomuTokens.surface,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
         builder: (ctx) {
           return SafeArea(
             child: Column(
@@ -315,7 +316,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       isScrollControlled: true,
       backgroundColor: OomuTokens.surface,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           Future<void> pickAndSetCover(ImageSource source) async {
@@ -333,8 +335,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content:
-                            Text('사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
+                        content: Text('사진 파일(JPG, PNG, WEBP 등)만 업로드할 수 있습니다.')),
                   );
                 }
                 return;
@@ -430,7 +431,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                   vertical: 14, horizontal: 10),
                               decoration: BoxDecoration(
                                 color: OomuTokens.surfaceElevated,
-                                borderRadius: BorderRadius.circular(OomuTokens.r16),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r16),
                                 border: Border.all(
                                     color: OomuTokens.primary
                                         .withValues(alpha: 0.35)),
@@ -438,8 +440,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                               child: Column(
                                 children: [
                                   Icon(Icons.photo_camera_rounded,
-                                      color: OomuTokens.primary,
-                                      size: 24),
+                                      color: OomuTokens.primary, size: 24),
                                   const SizedBox(height: 6),
                                   Text('사진 찍기',
                                       style: TextStyle(
@@ -448,7 +449,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                           color: textPrimary)),
                                   Text('카메라 촬영',
                                       style: TextStyle(
-                                          fontSize: OomuTokens.fs11, color: textSecondary)),
+                                          fontSize: OomuTokens.fs11,
+                                          color: textSecondary)),
                                 ],
                               ),
                             ),
@@ -466,7 +468,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                   vertical: 14, horizontal: 10),
                               decoration: BoxDecoration(
                                 color: OomuTokens.surfaceElevated,
-                                borderRadius: BorderRadius.circular(OomuTokens.r16),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r16),
                                 border: Border.all(
                                     color: OomuTokens.primary
                                         .withValues(alpha: 0.35)),
@@ -474,8 +477,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                               child: Column(
                                 children: [
                                   Icon(Icons.photo_library_rounded,
-                                      color: OomuTokens.primary,
-                                      size: 24),
+                                      color: OomuTokens.primary, size: 24),
                                   const SizedBox(height: 6),
                                   Text('사진 불러오기',
                                       style: TextStyle(
@@ -484,7 +486,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                           color: textPrimary)),
                                   Text('갤러리 / 앨범',
                                       style: TextStyle(
-                                          fontSize: OomuTokens.fs11, color: textSecondary)),
+                                          fontSize: OomuTokens.fs11,
+                                          color: textSecondary)),
                                 ],
                               ),
                             ),
@@ -507,8 +510,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: OomuTokens.primary)),
+                                    strokeWidth: 2, color: OomuTokens.primary)),
                             const SizedBox(width: 10),
                             Text('사진 업로드 중...',
                                 style: TextStyle(
@@ -540,8 +542,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       _titleError = title.isEmpty ? '모임 제목을 입력해 주세요.' : null;
       _locationError = locText.isEmpty ? '모임 장소를 입력해 주세요.' : null;
       _descError = descText.isEmpty ? '상세 소개를 입력해 주세요.' : null;
-      _scheduleError =
-          scheduleOk ? null : '모임 날짜와 시간을 선택하거나 일정 협의를 체크해 주세요.';
+      _scheduleError = scheduleOk ? null : '모임 날짜와 시간을 선택하거나 일정 협의를 체크해 주세요.';
     });
 
     if (_titleError != null ||
@@ -644,11 +645,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'memberAvatars': globalData.userAvatar.value.isNotEmpty
             ? [globalData.userAvatar.value]
             : <String>[],
-        'deadline': (scheduledDateTime ??
-                DateTime.now().add(const Duration(days: 7)))
-            .subtract(const Duration(days: 1))
-            .toUtc()
-            .toIso8601String(),
+        'deadline':
+            (scheduledDateTime ?? DateTime.now().add(const Duration(days: 7)))
+                .subtract(const Duration(days: 1))
+                .toUtc()
+                .toIso8601String(),
         'closedByHost': false,
         'status': 'open',
         'manner': globalData.temperature.value,
@@ -686,15 +687,14 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           context: context,
           barrierDismissible: false,
           builder: (ctx) => Dialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(OomuTokens.r24)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(OomuTokens.r24)),
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.celebration,
-                      color: OomuTokens.primary, size: 64),
+                  Icon(Icons.celebration, color: OomuTokens.primary, size: 64),
                   const SizedBox(height: 24),
                   Text('모임이 개설되었습니다!',
                       style: TextStyle(
@@ -704,7 +704,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   const SizedBox(height: 12),
                   Text('새로운 사람들과의 만남을 기대해보세요.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: textSecondary, fontSize: OomuTokens.fs14)),
+                      style: TextStyle(
+                          color: textSecondary, fontSize: OomuTokens.fs14)),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
@@ -713,7 +714,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(OomuTokens.r12))),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r12))),
                       onPressed: () {
                         Navigator.pop(ctx); // close dialog
                         Navigator.pushReplacement(
@@ -850,7 +852,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         elevation: 0,
         title: Text('새로운 모임 열기',
             style: TextStyle(
-                color: textPrimary, fontWeight: FontWeight.w800, fontSize: OomuTokens.fs18)),
+                color: textPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: OomuTokens.fs18)),
         leading: IconButton(
           icon: Icon(Icons.close, color: textPrimary),
           onPressed: () => Navigator.pushReplacement(context,
@@ -945,8 +949,9 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 8),
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? OomuTokens.primarySubtle : OomuTokens.surface,
+                        color: isSelected
+                            ? OomuTokens.primarySubtle
+                            : OomuTokens.surface,
                         borderRadius: BorderRadius.circular(OomuTokens.r16),
                         border: Border.all(
                           color: isSelected
@@ -958,15 +963,15 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(cat.icon, style: TextStyle(fontSize: OomuTokens.fs22)),
+                          Text(cat.icon,
+                              style: TextStyle(fontSize: OomuTokens.fs22)),
                           const SizedBox(height: 6),
                           Text(
                             cat.name,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: isSelected
-                                  ? OomuTokens.primary
-                                  : textPrimary,
+                              color:
+                                  isSelected ? OomuTokens.primary : textPrimary,
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.w600,
@@ -1366,7 +1371,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     decoration: InputDecoration(
                       hintText: '장소 직접 입력 (예: 스타벅스 홍대점)',
                       hintStyle: TextStyle(
-                          fontSize: OomuTokens.fs14, color: OomuTokens.textMuted),
+                          fontSize: OomuTokens.fs14,
+                          color: OomuTokens.textMuted),
                       prefixIcon: Icon(Icons.location_on,
                           color: OomuTokens.primary, size: 22),
                       suffixIcon: _locationController.text.isNotEmpty
@@ -1706,10 +1712,10 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             color: isAdded ? OomuTokens.surface : textSecondary,
           ),
           label: Text(tag),
-          backgroundColor: isAdded ? OomuTokens.textPrimary : OomuTokens.surface,
+          backgroundColor:
+              isAdded ? OomuTokens.textPrimary : OomuTokens.surface,
           side: BorderSide(
-              color:
-                  isAdded ? OomuTokens.textPrimary : OomuTokens.border),
+              color: isAdded ? OomuTokens.textPrimary : OomuTokens.border),
           labelStyle: TextStyle(
             color: isAdded ? OomuTokens.surface : textPrimary,
             fontSize: OomuTokens.fs12,

@@ -146,9 +146,6 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         ? '&appkey=${Uri.encodeComponent(KakaoMapService.kakaoJsApiKey)}'
         : '';
 
-    final naverId = KakaoMapService.ncpKeyId.isNotEmpty
-        ? KakaoMapService.ncpKeyId
-        : KakaoMapService.naverClientId;
     final naverQuery = naverId.isNotEmpty
         ? '&naverClientId=${Uri.encodeComponent(naverId)}&ncpClientId=${Uri.encodeComponent(KakaoMapService.naverClientId)}'
         : '';
