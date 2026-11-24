@@ -21,20 +21,29 @@
       var id = p.get('naverClientId') || p.get('ncpClientId') || '';
       if (!id) return Promise.resolve(false);
       return new Promise(function (resolve) {
+        var settled = false;
+        function finish(ok) {
+          if (settled) return;
+          settled = true;
+          resolve(ok && !window.__naverAuthFailed);
+        }
+        window.__onNaverMapsLoaded = function () {
+          finish(typeof naver !== 'undefined' && !!naver.maps);
+        };
         var s = document.createElement('script');
-        s.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(id);
+        s.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(id) + '&submodules=geocoder&callback=__onNaverMapsLoaded';
         s.onload = function () {
           setTimeout(function () {
-            if (window.__naverAuthFailed) {
-              resolve(false);
-            } else {
-              resolve(typeof naver !== 'undefined' && !!naver.maps);
+            if (!settled && typeof naver !== 'undefined' && !!naver.maps) {
+              finish(true);
             }
-          }, 120);
+          }, 350);
         };
-        s.onerror = function () { resolve(false); };
+        s.onerror = function () { finish(false); };
         document.head.appendChild(s);
-        setTimeout(function () { resolve(false); }, 4000);
+        setTimeout(function () {
+          finish(typeof naver !== 'undefined' && !!naver.maps);
+        }, 4500);
       });
     })();
   </script>
@@ -56,8 +65,14 @@
 
     #map:empty::after {
       content: '네이버 지도를 불러오는 중입니다';
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: #8E8E93; font-size: 13px; background: #F8F9FA;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8E8E93;
+      font-size: 13px;
+      background: #F8F9FA;
     }
 
     #map {
@@ -70,9 +85,20 @@
 
     /* Location Focusing Pin Icon (위치 포커싱 아이콘 - 주소 텍스트로 지도 가림 원천 차단) */
     @keyframes pulse-ring {
-      0% { transform: translate(-50%, -50%) scale(0.75); opacity: 0.85; }
-      70% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
-      100% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
+      0% {
+        transform: translate(-50%, -50%) scale(0.75);
+        opacity: 0.85;
+      }
+
+      70% {
+        transform: translate(-50%, -50%) scale(1.65);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1.65);
+        opacity: 0;
+      }
     }
 
     .focus-pin-wrap {
@@ -86,6 +112,36 @@
       user-select: none;
     }
 
+    .focus-pin-label {
+      position: absolute;
+      bottom: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #FFFFFF;
+      color: #191F28;
+      border: 1.5px solid #FF5A5F;
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(255, 90, 95, 0.24), 0 1px 3px rgba(0, 0, 0, 0.12);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .focus-pin-label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #FF5A5F;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
     .focus-pin-pulse {
       position: absolute;
       top: 50%;
@@ -93,8 +149,8 @@
       width: 38px;
       height: 38px;
       border-radius: 50%;
-      background: rgba(3, 199, 90, 0.32);
-      border: 1.5px solid rgba(3, 199, 90, 0.55);
+      background: rgba(255, 90, 95, 0.30);
+      border: 1.5px solid rgba(255, 90, 95, 0.55);
       animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
       pointer-events: none;
     }
@@ -104,9 +160,9 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: #03C75A;
+      background: #FF5A5F;
       border: 2.5px solid #FFFFFF;
-      box-shadow: 0 4px 12px rgba(3, 199, 90, 0.45), 0 2px 4px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 4px 12px rgba(255, 90, 95, 0.45), 0 2px 4px rgba(0, 0, 0, 0.18);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -128,7 +184,7 @@
       height: 0;
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
-      border-top: 7px solid #03C75A;
+      border-top: 7px solid #FF5A5F;
     }
 
     /* Multi-marker pill for explore view */
@@ -141,7 +197,7 @@
       font-size: 11.5px;
       font-weight: 700;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border: 1.5px solid #03C75A;
+      border: 1.5px solid #FF5A5F;
       white-space: nowrap;
       cursor: pointer;
       display: inline-flex;
@@ -153,7 +209,7 @@
     }
 
     .custom-marker.is-selected {
-      background: #03C75A;
+      background: #FF5A5F;
       color: #FFFFFF;
       border-color: #FFFFFF;
       z-index: 30;
@@ -171,7 +227,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
       pointer-events: none;
     }
 
@@ -210,7 +266,7 @@
       border-radius: 18px;
       font-size: 12.5px;
       font-weight: 700;
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
       background: #03C75A;
       color: #FFFFFF;
       box-shadow: 0 4px 12px rgba(3, 199, 90, 0.25);
@@ -241,7 +297,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
       overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
     }
 
     .btn-zoom {
@@ -283,261 +339,127 @@
   </div>
 
   <script>
-  (function () {
-    window.addEventListener('wheel', function (e) {
-      if (e.ctrlKey) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat') || '34.7604');
-    const lng = parseFloat(params.get('lng') || '127.6622');
-    const levelParam = parseInt(params.get('level') || '3', 10);
-    const name = decodeURIComponent(params.get('name') || '모임 장소');
-    let selectedId = params.get('selectedId') || '';
-    const hideActions = params.get('hideActions') === 'true' || params.get('preview') === 'true';
-
-    if (!hideActions) {
-      const overlayBox = document.querySelector('.overlay-box');
-      if (overlayBox) overlayBox.style.display = 'flex';
-      const zoomBox = document.querySelector('.map-zoom-box');
-      if (zoomBox) zoomBox.style.display = 'flex';
-    }
-
-    const container = document.getElementById('map');
-
-    // 위치 포커싱 아이콘 HTML (긴 주소 텍스트 없이 깔끔한 포커스 타깃 + 위치 핀 아이콘)
-    function getFocusPinHtml() {
-      return '<div class="focus-pin-wrap" title="' + name.replace(/"/g, '&quot;') + '">' +
-               '<div class="focus-pin-pulse"></div>' +
-               '<div class="focus-pin-core">' +
-                 '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-                   '<path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" fill="#FFFFFF"/>' +
-                 '</svg>' +
-               '</div>' +
-             '</div>';
-    }
-
-    function bindNaverButtons() {
-      var btnMap = document.getElementById('btnMap');
-      var btnNavi = document.getElementById('btnNavi');
-      if (btnMap) {
-        btnMap.onclick = function () {
-          window.open('https://map.naver.com/p/search/' + encodeURIComponent(name), '_blank');
-        };
-      }
-      if (btnNavi) {
-        btnNavi.onclick = function () {
-          window.open('https://map.naver.com/p/directions/-/' + lng + ',' + lat + ',' + encodeURIComponent(name) + '/-/transit?c=15.00,0,0,0,dh', '_blank');
-        };
-      }
-    }
-
-    function runNaver() {
-      if (window.__naverAuthFailed || typeof naver === 'undefined' || !naver.maps) {
-        return runLeaflet();
-      }
-      try {
-        window.__triggerNaverFallback = function () {
-          container.innerHTML = '';
-          runLeaflet();
-        };
-
-        var zoom = isNaN(levelParam) ? 16 : Math.max(11, 19 - levelParam);
-        var centerPos = new naver.maps.LatLng(lat, lng);
-        var naverMap = new naver.maps.Map('map', {
-          center: centerPos,
-          zoom: zoom,
-          zoomControl: false,
-          scaleControl: false,
-          logoControl: false,
-          mapDataControl: false
-        });
-
-        document.getElementById('btnZoomIn').onclick = function (e) {
-          e.stopPropagation();
-          naverMap.setZoom(naverMap.getZoom() + 1);
-        };
-        document.getElementById('btnZoomOut').onclick = function (e) {
-          e.stopPropagation();
-          naverMap.setZoom(naverMap.getZoom() - 1);
-        };
-
-        var lm = [];
-        try {
-          var rm = params.get('markers');
-          if (rm) { var pl = JSON.parse(decodeURIComponent(rm)); if (Array.isArray(pl)) lm = pl; }
-        } catch (e) {}
-
-        if (lm.length === 0) {
-          new naver.maps.Marker({
-            position: centerPos,
-            map: naverMap,
-            title: name,
-            icon: {
-              content: getFocusPinHtml(),
-              size: new naver.maps.Size(48, 48),
-              anchor: new naver.maps.Point(24, 24)
-            }
-          });
-        } else {
-          lm.forEach(function (m) {
-            var a = parseFloat(m.lat), b = parseFloat(m.lng);
-            if (isNaN(a) || isNaN(b)) return;
-            var pos = new naver.maps.LatLng(a, b);
-            var t = String(m.title || m.name || '모임').replace(/[<>&]/g, '');
-            if (t.length > 10) t = t.substring(0, 9) + '..';
-            var mk = new naver.maps.Marker({
-              position: pos,
-              map: naverMap,
-              title: m.title || m.name || '',
-              icon: {
-                content: '<div class="custom-marker is-selected"><span>' + t + '</span></div>',
-                anchor: new naver.maps.Point(40, 20)
-              }
-            });
-            naver.maps.Event.addListener(mk, 'click', function () {
-              try {
-                window.parent.postMessage(JSON.stringify({
-                  type: 'oomu_marker_click',
-                  id: String(m.id || ''),
-                  title: m.title || '',
-                  lat: a,
-                  lng: b,
-                  action: 'select'
-                }), '*');
-              } catch (e) {}
-            });
-          });
+    (function () {
+      window.addEventListener('wheel', function (e) {
+        if (e.ctrlKey) {
+          e.preventDefault();
         }
+      }, { passive: false });
 
-        bindNaverButtons();
-      } catch (err) {
-        console.warn('Naver map initialization error:', err);
-        runLeaflet();
+      const params = new URLSearchParams(window.location.search);
+      const lat = parseFloat(params.get('lat') || '34.7604');
+      const lng = parseFloat(params.get('lng') || '127.6622');
+      const levelParam = parseInt(params.get('level') || '3', 10);
+      const name = decodeURIComponent(params.get('name') || '모임 장소');
+      let selectedId = params.get('selectedId') || '';
+      const hideActions = params.get('hideActions') === 'true' || params.get('preview') === 'true';
+
+      if (!hideActions) {
+        const overlayBox = document.querySelector('.overlay-box');
+        if (overlayBox) overlayBox.style.display = 'flex';
+        const zoomBox = document.querySelector('.map-zoom-box');
+        if (zoomBox) zoomBox.style.display = 'flex';
       }
-    }
 
-    function runKakao() {
-      if (typeof kakao === 'undefined' || !kakao.maps) {
-        return runLeaflet();
+      const container = document.getElementById('map');
+
+      // 위치 포커싱 아이콘 HTML (우무 포인트 컬러 #FF5A5F + 장소명 라벨 칩)
+      function getFocusPinHtml() {
+        var safeLabel = String(name || '모임 장소').replace(/[<>&"]/g, '').trim();
+        if (safeLabel.length > 16) safeLabel = safeLabel.substring(0, 15) + '…';
+        var labelHtml = safeLabel
+          ? '<div class="focus-pin-label"><span class="focus-pin-label-dot"></span><span>' + safeLabel + '</span></div>'
+          : '';
+        return '<div class="focus-pin-wrap" title="' + safeLabel + '">' +
+          labelHtml +
+          '<div class="focus-pin-pulse"></div>' +
+          '<div class="focus-pin-core">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FFFFFF"/>' +
+          '</svg>' +
+          '</div>' +
+          '</div>';
       }
-      try {
-        const options = {
-          center: new kakao.maps.LatLng(lat, lng),
-          level: isNaN(levelParam) ? 3 : Math.min(Math.max(levelParam, 1), 9)
-        };
-        const map = new kakao.maps.Map(container, options);
 
-        document.getElementById('btnZoomIn').onclick = function (e) {
-          e.stopPropagation();
-          map.setLevel(map.getLevel() - 1, { animate: true });
-        };
-        document.getElementById('btnZoomOut').onclick = function (e) {
-          e.stopPropagation();
-          map.setLevel(map.getLevel() + 1, { animate: true });
-        };
-
-        let parsedMarkers = [];
-        try {
-          const markersRaw = params.get('markers');
-          if (markersRaw) {
-            const parsed = JSON.parse(decodeURIComponent(markersRaw));
-            if (Array.isArray(parsed)) parsedMarkers = parsed;
-          }
-        } catch (e) {}
-
-        if (parsedMarkers.length === 0) {
-          const content = document.createElement('div');
-          content.innerHTML = getFocusPinHtml();
-          new kakao.maps.CustomOverlay({
-            position: new kakao.maps.LatLng(lat, lng),
-            content: content,
-            yAnchor: 0.5,
-            zIndex: 20
-          }).setMap(map);
-        } else {
-          parsedMarkers.forEach(function (item) {
-            const mLat = parseFloat(item.lat);
-            const mLng = parseFloat(item.lng);
-            if (isNaN(mLat) || isNaN(mLng)) return;
-            const mPos = new kakao.maps.LatLng(mLat, mLng);
-            const mId = String(item.id || '');
-            let displayTitle = String(item.title || item.name || '모임').replace(/[<>&]/g, '');
-            if (displayTitle.length > 10) displayTitle = displayTitle.substring(0, 9) + '..';
-            const content = document.createElement('div');
-            content.className = 'custom-marker' + (mId && mId === selectedId ? ' is-selected' : '');
-            content.innerHTML = '<span>' + displayTitle + '</span>';
-            content.onclick = function (e) {
-              e.stopPropagation();
-              try {
-                window.parent.postMessage(JSON.stringify({
-                  type: 'oomu_marker_click',
-                  id: mId,
-                  title: item.title || item.name || '',
-                  lat: mLat,
-                  lng: mLng,
-                  action: 'select'
-                }), '*');
-              } catch (_) {}
-            };
-            new kakao.maps.CustomOverlay({
-              position: mPos,
-              content: content,
-              yAnchor: 1.0,
-              zIndex: 10
-            }).setMap(map);
-          });
+      function bindNaverButtons() {
+        var btnMap = document.getElementById('btnMap');
+        var btnNavi = document.getElementById('btnNavi');
+        if (btnMap) {
+          btnMap.onclick = function () {
+            window.open('https://map.naver.com/p/search/' + encodeURIComponent(name), '_blank');
+          };
         }
-        bindNaverButtons();
-      } catch (e) {
-        runLeaflet();
+        if (btnNavi) {
+          btnNavi.onclick = function () {
+            window.open('https://map.naver.com/p/directions/-/' + lng + ',' + lat + ',' + encodeURIComponent(name) + '/-/transit?c=15.00,0,0,0,dh', '_blank');
+          };
+        }
       }
-    }
 
-    function runLeaflet() {
-      if (typeof L !== 'undefined' && container) {
+      function runNaver() {
+        if (window.__naverAuthFailed || typeof naver === 'undefined' || !naver.maps) {
+          return runLeaflet();
+        }
         try {
-          const fallbackZoom = isNaN(levelParam) ? 16 : Math.max(13, 19 - levelParam);
-          const leafletMap = L.map('map', {
+          window.__triggerNaverFallback = function () {
+            container.innerHTML = '';
+            runLeaflet();
+          };
+
+          var zoom = isNaN(levelParam) ? 16 : Math.max(11, 19 - levelParam);
+          var centerPos = new naver.maps.LatLng(lat, lng);
+          var naverMap = new naver.maps.Map('map', {
+            center: centerPos,
+            zoom: zoom,
             zoomControl: false,
-            attributionControl: false
-          }).setView([lat, lng], fallbackZoom);
-
-          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-          }).addTo(leafletMap);
-
-          const focusIcon = L.divIcon({
-            className: 'custom-focus-pin-icon',
-            html: getFocusPinHtml(),
-            iconSize: [48, 48],
-            iconAnchor: [24, 24]
+            scaleControl: false,
+            logoControl: false,
+            mapDataControl: false
           });
+
+          document.getElementById('btnZoomIn').onclick = function (e) {
+            e.stopPropagation();
+            naverMap.setZoom(naverMap.getZoom() + 1);
+          };
+          document.getElementById('btnZoomOut').onclick = function (e) {
+            e.stopPropagation();
+            naverMap.setZoom(naverMap.getZoom() - 1);
+          };
 
           var lm = [];
           try {
             var rm = params.get('markers');
             if (rm) { var pl = JSON.parse(decodeURIComponent(rm)); if (Array.isArray(pl)) lm = pl; }
-          } catch (e) {}
+          } catch (e) { }
 
           if (lm.length === 0) {
-            L.marker([lat, lng], { icon: focusIcon }).addTo(leafletMap);
+            new naver.maps.Marker({
+              position: centerPos,
+              map: naverMap,
+              title: name,
+              icon: {
+                content: getFocusPinHtml(),
+                size: new naver.maps.Size(48, 48),
+                anchor: new naver.maps.Point(24, 24)
+              }
+            });
           } else {
             lm.forEach(function (m) {
               var a = parseFloat(m.lat), b = parseFloat(m.lng);
               if (isNaN(a) || isNaN(b)) return;
+              var pos = new naver.maps.LatLng(a, b);
               var t = String(m.title || m.name || '모임').replace(/[<>&]/g, '');
               if (t.length > 10) t = t.substring(0, 9) + '..';
-              var ic = L.divIcon({
-                className: 'custom-leaflet-marker',
-                html: '<div class="custom-marker is-selected"><span>' + t + '</span></div>',
-                iconSize: [100, 30],
-                iconAnchor: [50, 30]
+              var mk = new naver.maps.Marker({
+                position: pos,
+                map: naverMap,
+                title: m.title || m.name || '',
+                icon: {
+                  content: '<div class="custom-marker is-selected"><span>' + t + '</span></div>',
+                  anchor: new naver.maps.Point(40, 20)
+                }
               });
-              var mk = L.marker([a, b], { icon: ic }).addTo(leafletMap);
-              mk.on('click', function () {
+              naver.maps.Event.addListener(mk, 'click', function () {
                 try {
                   window.parent.postMessage(JSON.stringify({
                     type: 'oomu_marker_click',
@@ -547,42 +469,182 @@
                     lng: b,
                     action: 'select'
                   }), '*');
-                } catch (e) {}
+                } catch (e) { }
               });
             });
           }
 
-          setTimeout(function () { leafletMap.invalidateSize(); }, 250);
+          bindNaverButtons();
+        } catch (err) {
+          console.warn('Naver map initialization error:', err);
+          runLeaflet();
+        }
+      }
+
+      function runKakao() {
+        if (typeof kakao === 'undefined' || !kakao.maps) {
+          return runLeaflet();
+        }
+        try {
+          const options = {
+            center: new kakao.maps.LatLng(lat, lng),
+            level: isNaN(levelParam) ? 3 : Math.min(Math.max(levelParam, 1), 9)
+          };
+          const map = new kakao.maps.Map(container, options);
 
           document.getElementById('btnZoomIn').onclick = function (e) {
             e.stopPropagation();
-            leafletMap.zoomIn();
+            map.setLevel(map.getLevel() - 1, { animate: true });
           };
           document.getElementById('btnZoomOut').onclick = function (e) {
             e.stopPropagation();
-            leafletMap.zoomOut();
+            map.setLevel(map.getLevel() + 1, { animate: true });
           };
 
+          let parsedMarkers = [];
+          try {
+            const markersRaw = params.get('markers');
+            if (markersRaw) {
+              const parsed = JSON.parse(decodeURIComponent(markersRaw));
+              if (Array.isArray(parsed)) parsedMarkers = parsed;
+            }
+          } catch (e) { }
+
+          if (parsedMarkers.length === 0) {
+            const content = document.createElement('div');
+            content.innerHTML = getFocusPinHtml();
+            new kakao.maps.CustomOverlay({
+              position: new kakao.maps.LatLng(lat, lng),
+              content: content,
+              yAnchor: 0.5,
+              zIndex: 20
+            }).setMap(map);
+          } else {
+            parsedMarkers.forEach(function (item) {
+              const mLat = parseFloat(item.lat);
+              const mLng = parseFloat(item.lng);
+              if (isNaN(mLat) || isNaN(mLng)) return;
+              const mPos = new kakao.maps.LatLng(mLat, mLng);
+              const mId = String(item.id || '');
+              let displayTitle = String(item.title || item.name || '모임').replace(/[<>&]/g, '');
+              if (displayTitle.length > 10) displayTitle = displayTitle.substring(0, 9) + '..';
+              const content = document.createElement('div');
+              content.className = 'custom-marker' + (mId && mId === selectedId ? ' is-selected' : '');
+              content.innerHTML = '<span>' + displayTitle + '</span>';
+              content.onclick = function (e) {
+                e.stopPropagation();
+                try {
+                  window.parent.postMessage(JSON.stringify({
+                    type: 'oomu_marker_click',
+                    id: mId,
+                    title: item.title || item.name || '',
+                    lat: mLat,
+                    lng: mLng,
+                    action: 'select'
+                  }), '*');
+                } catch (_) { }
+              };
+              new kakao.maps.CustomOverlay({
+                position: mPos,
+                content: content,
+                yAnchor: 1.0,
+                zIndex: 10
+              }).setMap(map);
+            });
+          }
           bindNaverButtons();
-          return;
-        } catch (leafletErr) {
-          console.warn('Map fallback error:', leafletErr);
+        } catch (e) {
+          runLeaflet();
         }
       }
-      if (container) {
-        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8E8E93;font-size:14px;background:#FAFAFA;">지도 서비스 준비 중입니다</div>';
-      }
-    }
 
-    // 네이버 지도 단일 렌더링 (인증 대기 시 클린 타일 뷰 즉시 폴백)
-    Promise.resolve(window.__naverReady)
-      .then(function (naverOk) {
-        if (naverOk && !window.__naverAuthFailed) return runNaver();
-        return runLeaflet();
-      }, function () {
-        return runLeaflet();
-      });
-  })();
+      function runLeaflet() {
+        if (typeof L !== 'undefined' && container) {
+          try {
+            const fallbackZoom = isNaN(levelParam) ? 16 : Math.max(13, 19 - levelParam);
+            const leafletMap = L.map('map', {
+              zoomControl: false,
+              attributionControl: false
+            }).setView([lat, lng], fallbackZoom);
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19
+            }).addTo(leafletMap);
+
+            const focusIcon = L.divIcon({
+              className: 'custom-focus-pin-icon',
+              html: getFocusPinHtml(),
+              iconSize: [48, 48],
+              iconAnchor: [24, 24]
+            });
+
+            var lm = [];
+            try {
+              var rm = params.get('markers');
+              if (rm) { var pl = JSON.parse(decodeURIComponent(rm)); if (Array.isArray(pl)) lm = pl; }
+            } catch (e) { }
+
+            if (lm.length === 0) {
+              L.marker([lat, lng], { icon: focusIcon }).addTo(leafletMap);
+            } else {
+              lm.forEach(function (m) {
+                var a = parseFloat(m.lat), b = parseFloat(m.lng);
+                if (isNaN(a) || isNaN(b)) return;
+                var t = String(m.title || m.name || '모임').replace(/[<>&]/g, '');
+                if (t.length > 10) t = t.substring(0, 9) + '..';
+                var ic = L.divIcon({
+                  className: 'custom-leaflet-marker',
+                  html: '<div class="custom-marker is-selected"><span>' + t + '</span></div>',
+                  iconSize: [100, 30],
+                  iconAnchor: [50, 30]
+                });
+                var mk = L.marker([a, b], { icon: ic }).addTo(leafletMap);
+                mk.on('click', function () {
+                  try {
+                    window.parent.postMessage(JSON.stringify({
+                      type: 'oomu_marker_click',
+                      id: String(m.id || ''),
+                      title: m.title || '',
+                      lat: a,
+                      lng: b,
+                      action: 'select'
+                    }), '*');
+                  } catch (e) { }
+                });
+              });
+            }
+
+            setTimeout(function () { leafletMap.invalidateSize(); }, 250);
+
+            document.getElementById('btnZoomIn').onclick = function (e) {
+              e.stopPropagation();
+              leafletMap.zoomIn();
+            };
+            document.getElementById('btnZoomOut').onclick = function (e) {
+              e.stopPropagation();
+              leafletMap.zoomOut();
+            };
+
+            bindNaverButtons();
+            return;
+          } catch (leafletErr) {
+            console.warn('Map fallback error:', leafletErr);
+          }
+        }
+        if (container) {
+          container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8E8E93;font-size:14px;background:#FAFAFA;">지도 서비스 준비 중입니다</div>';
+        }
+      }
+
+      // 네이버 지도 단일 렌더링 (인증 대기 시 클린 타일 뷰 즉시 폴백)
+      Promise.resolve(window.__naverReady)
+        .then(function (naverOk) {
+          if (naverOk && !window.__naverAuthFailed) return runNaver();
+          return runLeaflet();
+        }, function () {
+          return runLeaflet();
+        });
+    })();
   </script>
 </body>
 
