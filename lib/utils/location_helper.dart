@@ -5,6 +5,26 @@ import 'package:geolocator/geolocator.dart';
 class LocationHelper {
   static String? _cachedDongName;
   static DateTime? _cachedDongTime;
+  static bool _permissionAskedThisSession = false;
+
+  /// 위치 권한이 아직 정해지지 않았으면(denied) 앱 실행당 한 번만 요청한다.
+  /// 이번 요청으로 권한을 새로 받았을 때만 true (이미 허용·거부된 상태면 false).
+  /// 서비스 계층(kakao_map_service)은 권한을 조회만 하므로, 화면이 먼저 이 함수를 부른다.
+  static Future<bool> requestPermissionIfUndecided() async {
+    if (_permissionAskedThisSession) return false;
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return false;
+      final current = await Geolocator.checkPermission();
+      if (current != LocationPermission.denied) return false;
+      _permissionAskedThisSession = true;
+      final result = await Geolocator.requestPermission();
+      return result == LocationPermission.whileInUse ||
+          result == LocationPermission.always;
+    } catch (e) {
+      debugPrint('[LocationHelper] requestPermissionIfUndecided: $e');
+      return false;
+    }
+  }
 
   /// GPS 권한 확인 및 요청 후 현재 위치 읍·면·동 반환 (초고속 캐시 + 1.8초 엄격 타임아웃)
   static Future<String?> getCurrentDongName() async {

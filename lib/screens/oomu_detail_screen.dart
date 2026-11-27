@@ -18,6 +18,7 @@ import '../ui/oomu_tag.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/location_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/balanced_text.dart';
 import '../widgets/balanced_heading.dart';
@@ -228,6 +229,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       setState(() {
         _distanceText = dist;
       });
+      unawaited(_askLocationThenRefresh(saved.lat, saved.lng, reqId));
       return;
     }
 
@@ -271,6 +273,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         setState(() {
           _distanceText = dist;
         });
+        unawaited(_askLocationThenRefresh(finalLat, finalLng, reqId));
       } else {
         setState(() {
           _targetLat = null;
@@ -288,6 +291,18 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         _distanceText = '거리 정보 없음';
       });
     }
+  }
+
+  /// 위치 권한이 아직 정해지지 않았으면 한 번 요청하고, 허용되면 내 위치 기준 거리로 다시 계산한다.
+  /// 먼저 동네 기준 거리를 보여 준 뒤 요청하므로, 권한 창이 떠 있는 동안에도 화면이 멈추지 않는다.
+  Future<void> _askLocationThenRefresh(double lat, double lng, int reqId) async {
+    final granted = await LocationHelper.requestPermissionIfUndecided();
+    if (!granted || !mounted || reqId != _locationReqId) return;
+    final dist = await KakaoMapService.getDistanceTextFromCurrent(lat, lng);
+    if (!mounted || reqId != _locationReqId) return;
+    setState(() {
+      _distanceText = dist;
+    });
   }
 
   // 참여 신청 바텀시트 (OomuSheet 표준 컴포넌트 적용)
