@@ -1,0 +1,4 @@
+{
+  "_설명": "100% 통과해 고정한 기능과 그 파일 목록. 기준: docs/OOMU_풀스택_검사기준.md 5장, 사람용 목록: docs/FEATURE_FREEZE.md. 여기 적힌 경로가 바뀐 push 는 Branch CI 가 실패시킨다. 해제는 대표 승인 후 커밋 메시지에 [freeze-unlock: 기능 이름].",
+  "features": []
+}

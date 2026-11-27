@@ -23,6 +23,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 고정 기능 검사에서 push 범위의 커밋을 비교하기 위해
+
+      - name: Feature freeze guard (고정된 기능 파일 변경 차단)
+        run: python3 scripts/check_feature_freeze.py --base "${{ github.event.before || github.event.pull_request.base.sha }}" --head "${{ github.sha }}"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
