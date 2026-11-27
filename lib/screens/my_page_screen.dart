@@ -1239,7 +1239,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                     builder: (context, blockedPhones, _) {
                       return _buildMenuItem(
                         icon: Icons.contact_phone_outlined,
-                        title: '연락처 지인 차단 (아는 사람 만나지 않기)',
+                        // 360px에서 "만/나지"로 끊겨 짧은 이름으로(설명은 들어간 화면에 있음)
+                        title: '아는 사람 만나지 않기',
                         badge: blockedPhones.isEmpty
                             ? '설정'
                             : '${blockedPhones.length}명 차단',

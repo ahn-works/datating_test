@@ -929,14 +929,19 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                           color: isSelected
                               ? OomuTokens.primary
                               : OomuTokens.border,
-                          width: isSelected ? 2 : 1,
+                          // 2px 이상 테두리 금지(디자인 20항목 10번): 선택은 색으로만 구분
+                          width: 1,
                         ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(cat.icon,
-                              style: TextStyle(fontSize: OomuTokens.fs22)),
+                          // 장식 이모지 대신 같은 의미의 Material 아이콘(iconData) 사용
+                          Icon(cat.iconData,
+                              size: OomuTokens.fs22,
+                              color: isSelected
+                                  ? OomuTokens.primary
+                                  : OomuTokens.textSecondary),
                           const SizedBox(height: 6),
                           Text(
                             cat.name,
@@ -994,7 +999,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               children: OOMUCategoryData.vibes.map((v) {
                 final isSelected = _selectedVibe == v.title;
                 return ChoiceChip(
-                  label: Text('${v.emoji} ${v.title}'),
+                  label: Text(v.title),
                   selected: isSelected,
                   selectedColor: OomuTokens.primarySubtle,
                   labelStyle: TextStyle(

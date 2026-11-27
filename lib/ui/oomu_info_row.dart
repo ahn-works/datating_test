@@ -34,7 +34,8 @@ class OomuInfoRow extends StatelessWidget {
               border: Border.all(color: const Color(0xFFF3F4F6), width: 1),
             ),
             alignment: Alignment.center,
-            child: Icon(icon, size: 15, color: OomuTokens.coral),
+            // 정보 아이콘은 중립색(코랄은 CTA·선택 탭·하트·안 읽음 점에만)
+            child: Icon(icon, size: 15, color: OomuTokens.textSecondary),
           ),
           const SizedBox(width: 10),
           SizedBox(

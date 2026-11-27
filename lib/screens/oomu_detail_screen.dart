@@ -1056,18 +1056,18 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: OomuTokens.coral.withValues(alpha: 0.08),
+                                // 남은 자리 표시는 중립색(코랄 남용 방지)
+                                color: OomuTokens.surfaceMuted,
                                 borderRadius:
                                     BorderRadius.circular(OomuTokens.rPill),
                                 border: Border.all(
-                                    color: OomuTokens.coral
-                                        .withValues(alpha: 0.25)),
+                                    color: OomuTokens.border),
                               ),
                               child: Text(
                                 '${_calcRemainingSeats(_effectiveMeetup?['members'])} · 정원 $maxCapacity명',
                                 style: const TextStyle(
                                   fontSize: 11,
-                                  color: OomuTokens.coral,
+                                  color: OomuTokens.textBody,
                                   fontWeight: FontWeight.w700,
                                   fontFamily: OomuTokens.fontFamily,
                                 ),
@@ -1195,7 +1195,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       child: Row(
                         children: [
                           const Icon(Icons.verified_user_rounded,
-                              size: 18, color: OomuTokens.coral),
+                              size: 18, color: OomuTokens.textSecondary),
                           const SizedBox(width: 10),
                           const Expanded(
                             child: Column(
@@ -1642,7 +1642,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 Row(
                   children: [
                     const Icon(Icons.place_outlined,
-                        size: 18, color: OomuTokens.coral),
+                        size: 18, color: OomuTokens.textSecondary),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(

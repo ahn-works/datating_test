@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_image.dart';
 import 'oomu_avatar.dart';
+import '../widgets/balanced_heading.dart';
 import 'oomu_tokens.dart';
 
 enum OomuMeetupCardVariant {
@@ -160,16 +161,16 @@ class OomuMeetupCard extends StatelessWidget {
         if (mannerTemp != null && mannerTemp! > 0)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+            // 코랄은 CTA·선택 탭·하트·안 읽음 점에만 쓴다(디자인 20항목 13번). 온도는 중립색.
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF0F1),
+              color: OomuTokens.surfaceMuted,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: const Color(0xFFFFD4D8), width: 0.8),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.thermostat_rounded,
-                    size: 11, color: OomuTokens.coral),
+                    size: 11, color: OomuTokens.textMuted),
                 const SizedBox(width: 2),
                 Text(
                   '${mannerTemp!.toStringAsFixed(1)}°C',
@@ -178,7 +179,7 @@ class OomuMeetupCard extends StatelessWidget {
                     fontFamilyFallback: OomuTokens.fontFallback,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: OomuTokens.coral,
+                    color: OomuTokens.textBody,
                   ),
                 ),
               ],
@@ -232,14 +233,13 @@ class OomuMeetupCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: isClosedBadge
-                  ? const Color(0xFFF3F4F6)
-                  : const Color(0xFFFFF0F1),
+              // 모집 상태도 중립색(코랄은 CTA·선택 탭·하트·안 읽음 점에만)
+              color: OomuTokens.surfaceMuted,
               borderRadius: BorderRadius.circular(4),
               border: Border.all(
                 color: isClosedBadge
-                    ? const Color(0xFFE5E7EB)
-                    : const Color(0xFFFFD4D8),
+                    ? OomuTokens.surfaceMuted
+                    : OomuTokens.border,
                 width: 0.8,
               ),
             ),
@@ -253,8 +253,8 @@ class OomuMeetupCard extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: isClosedBadge
-                    ? const Color(0xFF6B7280)
-                    : const Color(0xFFFF5A5F),
+                    ? OomuTokens.textMuted
+                    : OomuTokens.textPrimary,
               ),
             ),
           ),
@@ -318,7 +318,8 @@ class OomuMeetupCard extends StatelessWidget {
             const SizedBox(height: OomuTokens.s12),
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Text(
+            // 단어 중간 줄바꿈("하/이볼") 방지: 어절 경계로 줄을 맞춘다.
+            child: BalancedHeading(
               title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -368,7 +369,7 @@ class OomuMeetupCard extends StatelessWidget {
                         style: _caption),
                     const SizedBox(height: 2),
                   ],
-                  Text(
+                  BalancedHeading(
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

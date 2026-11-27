@@ -13,6 +13,7 @@ import '../../utils/firestore_time.dart';
 import '../../utils/global_data.dart';
 import '../../utils/oomu_ui_helpers.dart';
 import '../../widgets/bouncy_tap.dart';
+import '../../widgets/balanced_heading.dart';
 import '../../widgets/ugc_action_sheets.dart';
 import '../community_post_create_screen.dart';
 import '../community_post_detail_screen.dart';
@@ -629,7 +630,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                   // 제목
                   if (title.isNotEmpty) ...[
                     const SizedBox(height: OomuTokens.spacingXs),
-                    Text(
+                    // 단어 중간 줄바꿈 방지: 어절 경계로 줄을 맞춘다.
+                    BalancedHeading(
                       OomuUiHelpers.formatTitle(title),
                       style: const TextStyle(
                         fontSize: OomuTokens.fs17,

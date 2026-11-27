@@ -7,6 +7,7 @@ import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/oomu_ui_helpers.dart';
 import 'bouncy_tap.dart';
+import 'balanced_heading.dart';
 
 /// 발견(Discovery) 탭 전용 에이블리(ABLY) 스타일 동네 큐레이션 허브
 /// - 동네모임 탭과 명확히 차별화하여 '우리 동네에만 있는 할인·이벤트·날씨 맞춤 맛집/레시피·청년지원금·트렌드'를
@@ -693,7 +694,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
               ],
             ),
             const SizedBox(height: 10),
-            Text(
+            // 단어 중간 줄바꿈("다/이닝") 방지
+            BalancedHeading(
               data != null && data.hasWeather
                   ? data.moodHeadline
                   : '오늘 $_dongLabel에서 즐기기 좋은 실시간 로컬 맛집 & 다이닝 큐레이션',

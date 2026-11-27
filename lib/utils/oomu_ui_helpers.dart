@@ -102,16 +102,17 @@ class OomuUiHelpers {
     return null;
   }
 
-  /// 3-1. 전역 단일 표준 모집 상태 뱃지 (모집중: 코랄 틴트, 모집 마감: 쿨그레이)
+  /// 3-1. 전역 단일 표준 모집 상태 뱃지 (모집중: 진한 글자, 모집 마감: 흐린 글자)
+  /// 코랄은 CTA·선택 탭·하트·안 읽음 점에만 쓴다(디자인 20항목 13번).
   static Widget buildStatusBadge({required bool isClosed, String? label}) {
     final text = label ?? (isClosed ? '모집 마감' : '모집중');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
       decoration: BoxDecoration(
-        color: isClosed ? const Color(0xFFF3F4F6) : const Color(0xFFFFF0F1),
+        color: OomuTokens.surfaceMuted,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isClosed ? const Color(0xFFE5E7EB) : const Color(0xFFFFD4D8),
+          color: isClosed ? OomuTokens.surfaceMuted : OomuTokens.border,
         ),
       ),
       child: Text(
@@ -119,7 +120,7 @@ class OomuUiHelpers {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: isClosed ? const Color(0xFF6B7280) : const Color(0xFFFF5A5F),
+          color: isClosed ? OomuTokens.textMuted : OomuTokens.textPrimary,
           fontFamily: 'Pretendard',
         ),
       ),

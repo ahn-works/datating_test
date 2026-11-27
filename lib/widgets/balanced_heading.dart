@@ -5,14 +5,18 @@ import 'package:flutter/material.dart';
 class BalancedHeading extends StatelessWidget {
   final String text;
   final TextStyle style;
-  const BalancedHeading(this.text, {super.key, required this.style});
+  // 카드 제목처럼 줄 수를 제한할 때만 쓴다(없으면 기존과 동일).
+  final int? maxLines;
+  final TextOverflow? overflow;
+  const BalancedHeading(this.text,
+      {super.key, required this.style, this.maxLines, this.overflow});
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: PaintingBinding.instance.systemFonts,
     builder: (context, _) => LayoutBuilder(builder: (context, bounds) {
     if (!bounds.maxWidth.isFinite || text.isEmpty) {
-      return Text(text, style: style);
+      return Text(text, style: style, maxLines: maxLines, overflow: overflow);
     }
     final painter = TextPainter(
       text: TextSpan(text: text, style: DefaultTextStyle.of(context).style.merge(style)),
@@ -44,6 +48,9 @@ class BalancedHeading extends StatelessWidget {
     }
     painter.dispose();
     return Align(alignment: AlignmentDirectional.centerStart,
-      child: SizedBox(width: width, child: Text(text, style: style)));
+      child: SizedBox(
+          width: width,
+          child: Text(text,
+              style: style, maxLines: maxLines, overflow: overflow)));
   }));
 }

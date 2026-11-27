@@ -1158,7 +1158,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         children: OOMUCategoryData.vibes.map((v) {
                           final isSelected = _selectedVibe == v.title;
                           return ChoiceChip(
-                            label: Text('${v.emoji} ${v.title}'),
+                            label: Text(v.title),
                             selected: isSelected,
                             selectedColor: const Color(0xFFFFECE5),
                             labelStyle: TextStyle(
@@ -1195,8 +1195,8 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                                 .copyWith(dividerColor: Colors.transparent),
                             child: ExpansionTile(
                               initiallyExpanded: true,
-                              leading: Text(mainCat.icon,
-                                  style: const TextStyle(fontSize: 22)),
+                              leading: Icon(mainCat.iconData,
+                                  size: 22, color: OomuTokens.textSecondary),
                               title: Text(
                                 mainCat.name,
                                 style: TextStyle(
