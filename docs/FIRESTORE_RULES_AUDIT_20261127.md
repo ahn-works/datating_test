@@ -23,7 +23,7 @@ Java 21과 Node 22가 필요하다. Branch CI의 `firestore-rules` job이 브랜
 | 규칙 | 테스트 | 통과 | 실패 | 결함 기록(todo) |
 | --- | --- | --- | --- | --- |
 | 현재 `firestore.rules` | 81 | 73 | 0 | 8개 모두 재현됨 |
-| 제안본 | 81 | 73 | 0 | 8개 중 7개 해소, 1개 남음 |
+| 제안본 | 81 | 73 | 0 | 8개 중 7개 테스트가 통과로 바뀜(R6·R7은 부분 해소), 1개 남음 |
 
 `todo` 테스트는 "이렇게 동작해야 한다"는 기대를 적은 것이다. 현재 규칙에서 실패하는 것이 결함의 증거다. node:test는 todo 실패를 전체 실패로 세지 않으므로 CI는 초록색으로 통과한다. 규칙을 고친 뒤 todo 표시를 지워 일반 테스트로 올린다.
 
@@ -45,8 +45,8 @@ Java 21과 Node 22가 필요하다. Branch CI의 `firestore-rules` job이 브랜
 | R3 | 중간 | **인증 배지 위조.** 본인이 `isVerified`·`isPhoneVerified`를 직접 켤 수 있음. 앱이 지금 클라이언트에서 이 값을 쓰기 때문에 규칙만 잠그면 가입이 막힌다 | `lib/widgets/phone_verification_field.dart:225`, `lib/services/auth_service.dart:400` | **미해결.** 체크리스트 1·3번(서버 배포, OTP 서버 검증) 이후 서버가 쓰도록 옮기고 잠근다 |
 | R4 | 중간 | **글·댓글 사칭.** create가 `authorId == 나 OR userId == 나`라서 `userId`만 내 것으로 두고 `authorId`에 다른 회원을 넣으면 통과 | community_posts / comments create | 있는 작성자 필드는 모두 본인이어야 함 → 해소 |
 | R5 | 중간 | **채팅 메시지 사칭.** 같은 OR 구조라 `senderId`에 다른 참여자를 넣고 보낼 수 있음 | messages create | `senderId == 나` 필수 → 해소 |
-| R6 | 중간 (기능 고장) | **단톡방 투표·일정·응원·프로필교환 카드에 다른 참여자가 응답하면 저장 실패.** messages update가 보낸 사람 전용이라 "변경을 저장하지 못했어요"가 뜬다 | `lib/screens/chat/chat_system_cards.dart:318,550,1064,1349,1489` → `lib/services/chat_repository.dart:206` | 참여자는 응답 필드만 수정 허용 → 해소 |
-| R7 | 중간 | **알림 사칭·피싱.** 로그인만 하면 아무 회원에게 아무 제목·본문의 알림을 만들 수 있음 | notifications create | 모임 신청/결정 알림만, 신청서·모임장 관계 확인 → 해소 |
+| R6 | 중간 (기능 고장) | **단톡방 투표·일정·응원·프로필교환 카드에 다른 참여자가 응답하면 저장 실패.** messages update가 보낸 사람 전용이라 "변경을 저장하지 못했어요"가 뜬다 | `lib/screens/chat/chat_system_cards.dart:318,550,1064,1349,1489` → `lib/services/chat_repository.dart:206` | 참여자는 응답 필드만 수정 허용 → 저장 실패는 해소, 단 남의 응답·`status` 덮어쓰기는 못 막음(아래 주의) |
+| R7 | 중간 | **알림 사칭·피싱.** 로그인만 하면 아무 회원에게 아무 제목·본문의 알림을 만들 수 있음 | notifications create | 모임 신청/결정 알림만, 신청서·모임장 관계 확인 → **부분 해소**: 아무 회원에게 보내는 것은 막지만 `title`·`body` 문구와 발송 횟수는 제한 못 함 |
 | R8 | 높음 (개인정보) | **신고 내용 전체 공개.** 로그인만 하면 모든 신고(신고자 닉네임, 대상, 사유)를 읽을 수 있음. 앱은 reports를 읽지 않는다 | reports read | 관리자만 열람 → 해소 |
 
 ### 현재 동작으로만 기록한 것 (대표 결정 필요, 결함으로 세지 않음)
@@ -63,6 +63,8 @@ Java 21과 Node 22가 필요하다. Branch CI의 `firestore-rules` job이 브랜
 ## 제안본 적용 시 주의
 
 - 제안본 R2는 생성 시 `mannerTemp == 36.5`만 허용한다. `OOMU_DEV_ACCOUNTS` 빌드 플래그의 테스트 계정(38.5)은 관리자 claim이 없으면 가입이 거부된다.
-- 제안본 R6은 응답 필드(`voters`, `attendees`, `cheers`, `acceptedMembers`, `status`, `secretChoices`, `submittedAt`) 수정만 허용한다. 참여자가 다른 사람의 응답을 덮어쓰는 것까지는 막지 못한다.
-- 제안본 R7은 앱이 보내는 알림 2종(`meetup_request`, `meetup_decision`)만 허용한다. 알림 종류가 늘면 규칙에도 추가해야 한다.
+- 제안본 R6은 응답 필드(`voters`, `attendees`, `cheers`, `acceptedMembers`, `status`, `secretChoices`, `submittedAt`) 수정만 허용한다. 참여자가 다른 사람의 응답을 덮어쓰거나 어떤 메시지든 `status`를 바꾸는 것은 막지 못한다. 앱이 응답 키로 uid 대신 닉네임(`currentNick`)을 쓰기 때문에 규칙으로 본인 응답만 허용하기도 어렵다. 제대로 막으려면 앱이 uid 키로 응답을 저장하도록 바꿔야 한다.
+- 제안본 R7은 앱이 보내는 알림 2종(`meetup_request`, `meetup_decision`)만 허용하고, 신청서·모임장 관계가 있는 상대에게만 보낼 수 있게 한다. `title`·`body`는 여전히 자유 문구이고 횟수 제한도 없어서, 신청자↔모임장 사이의 임의 문구 알림은 가능하다. 완전히 막으려면 알림 생성을 서버(체크리스트 1번)로 옮겨야 한다. 알림 종류가 늘면 규칙에도 추가해야 한다.
+- 제안본을 게시할 때 해소된 todo 7건에서 `todo` 표시를 지워 일반 테스트로 바꿔야 한다. 그대로 두면 CI가 이후의 회귀를 잡지 못한다.
+- 제안본 주석의 "100% 차단", "완벽 분리"는 원본 `firestore.rules`에서 그대로 복사된 문구이고, 테스트로 확인한 표현이 아니다.
 - 게시는 `firestore.rules`에 반영 → `cd rules_test && npm test` 통과 확인 → `firebase deploy --only firestore:rules` 순서로 한다. 게시 뒤 운영에서 2계정으로 다시 확인한다(체크리스트 2번 "운영에서 재검증").
