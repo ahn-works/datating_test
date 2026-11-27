@@ -7,6 +7,7 @@ import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
 import '../ui/oomu_tokens.dart';
 import '../widgets/place_search_map_modal.dart';
+import '../widgets/balanced_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/r2_storage_service.dart';
@@ -674,7 +675,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                           fontWeight: FontWeight.bold,
                           color: textPrimary)),
                   const SizedBox(height: 12),
-                  Text('새로운 사람들과의 만남을 기대해보세요.',
+                  Text(BalancedText.display('새로운 사람들과의 만남을 기대해보세요.'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: textSecondary, fontSize: OomuTokens.fs14)),
@@ -774,7 +775,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '이웃들과 안전하게 모임을 진행하려면 먼저 로그인해 주세요.',
+                  BalancedText.display('이웃들과 안전하게 모임을 진행하려면 먼저 로그인해 주세요.'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: OomuTokens.fs14,
@@ -916,10 +917,11 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      width: 96,
+                      // 고정폭 96 → 최소 96 + 글자 길이만큼 넓힘('스포/츠' 2줄 끊김 방지, 12px 유지)
+                      constraints: const BoxConstraints(minWidth: 96),
                       margin: const EdgeInsets.only(right: 10),
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 8),
+                          vertical: 10, horizontal: 12),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? OomuTokens.primarySubtle
@@ -954,8 +956,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                   : FontWeight.w600,
                               fontSize: OomuTokens.fs12,
                             ),
-                            // '액티비티 & 스포츠'가 잘리지 않게 두 줄 허용
-                            maxLines: 2,
+                            // 카드 폭이 글자에 맞춰 늘어나므로 한 줄로 표시
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -1040,7 +1042,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             _buildTextField(
               '상세 소개',
               _descController,
-              '어떤 사람들과 어떤 시간을 보내고 싶은지 자세히 적어주세요.',
+              BalancedText.display('어떤 사람들과 어떤 시간을 보내고 싶은지 자세히 적어주세요.'),
               maxLines: 4,
               focusNode: _descFocusNode,
               errorText: _descError,
@@ -1408,7 +1410,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               (_selectedPlaceLat == null || _selectedPlaceLng == null)) ...[
             const SizedBox(height: 6),
             Text(
-              '장소를 확인하지 못하면 지도와 거리는 표시되지 않아요.',
+              BalancedText.display('장소를 확인하지 못하면 지도와 거리는 표시되지 않아요.'),
               style: TextStyle(
                 fontSize: OomuTokens.fs12,
                 color: OomuTokens.textSecondary,

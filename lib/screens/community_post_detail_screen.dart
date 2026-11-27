@@ -14,6 +14,7 @@ import '../utils/firestore_time.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/balanced_heading.dart';
+import '../widgets/balanced_text.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/ugc_action_sheets.dart';
 import 'chat/chat_modals.dart';
@@ -627,9 +628,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                 const SizedBox(height: OomuTokens.s12),
               ],
 
-              // Body Text
+              // Body Text (어절 단위 줄바꿈: 표시 전용, 원문 불변)
               Text(
-                content,
+                BalancedText.display(content),
                 style: const TextStyle(
                   fontSize: OomuTokens.fs14,
                   fontWeight: OomuTokens.w400,

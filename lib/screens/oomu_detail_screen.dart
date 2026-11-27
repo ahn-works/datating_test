@@ -952,7 +952,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             OomuInfoRow(
                               icon: Icons.location_on_rounded,
                               label: '장소',
-                              value: locName,
+                              // 어절 단위 줄바꿈(표시 전용)
+                              value: BalancedText.display(locName),
                             ),
                           if (maxCapacity > 0 || memberCount > 0)
                             OomuInfoRow(
@@ -984,13 +985,14 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         title: '모임 소개', padding: EdgeInsets.zero),
                     const SizedBox(height: OomuTokens.s12),
                     Text(
-                      (_effectiveMeetup?['description']
+                      // 어절 단위 줄바꿈(표시 전용, 원문 불변)
+                      BalancedText.display((_effectiveMeetup?['description']
                                   ?.toString()
                                   .trim()
                                   .isNotEmpty ==
                               true)
                           ? _effectiveMeetup!['description'].toString()
-                          : '아직 모임 소개가 없어요. 참여 전 모임장에게 내용을 확인해 주세요.',
+                          : '아직 모임 소개가 없어요. 참여 전 모임장에게 내용을 확인해 주세요.'),
                       style: const TextStyle(
                         fontSize: OomuTokens.fs15,
                         height: 1.6,

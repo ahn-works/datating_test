@@ -579,19 +579,21 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        keyword,
+                        // 360px 말줄임 대신 어절 단위 2줄(표시 전용)
+                        BalancedText.display(keyword),
                         style: const TextStyle(
                           fontSize: OomuTokens.fs13,
                           fontWeight: FontWeight.w700,
                           color: textPrimary,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Flexible(
-                      flex: 1,
+                      // 분류 칩은 글자 길이만큼(남는 폭은 검색어가 사용) — '다이어…' 잘림 방지
+                      flex: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
