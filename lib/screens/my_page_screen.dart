@@ -954,34 +954,38 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Text('·',
-                                          style: TextStyle(
-                                              color: OomuTokens.textSecondary,
-                                              fontSize: 12)),
-                                      const SizedBox(width: 3),
-                                      Icon(
-                                        isVerified
-                                            ? Icons.verified_user_rounded
-                                            : Icons.info_outline_rounded,
-                                        color: isVerified
-                                            ? const Color(0xFF10B981)
-                                            : OomuTokens.textSecondary,
-                                        size: 13,
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                        isVerified ? '본인인증 완료' : '본인인증 미완료',
-                                        style: const TextStyle(
-                                          color: OomuTokens.textSecondary,
-                                          fontSize: 12,
+                                  // '·'·아이콘·인증 문구를 한 덩어리로 묶어 줄바꿈 때 '·'만 남지 않게 한다.
+                                  // 아주 좁은 화면·큰 글씨에서는 넘치지 않고 살짝 줄어든다.
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text('·',
+                                            style: TextStyle(
+                                                color: OomuTokens.textSecondary,
+                                                fontSize: 12)),
+                                        const SizedBox(width: 3),
+                                        Icon(
+                                          isVerified
+                                              ? Icons.verified_user_rounded
+                                              : Icons.info_outline_rounded,
+                                          color: isVerified
+                                              ? const Color(0xFF10B981)
+                                              : OomuTokens.textSecondary,
+                                          size: 13,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
+                                        const SizedBox(width: 3),
+                                        Text(
+                                          isVerified ? '본인인증 완료' : '본인인증 미완료',
+                                          style: const TextStyle(
+                                            color: OomuTokens.textSecondary,
+                                            fontSize: 12,
+                                          ),
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
