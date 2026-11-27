@@ -940,10 +940,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
-                              Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 3,
-                                runSpacing: 2,
+                              // 동네 / 인증 표시를 항상 두 줄로(모든 폭에서 줄이 넘어가 '·'로 시작하던 문제)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     location,
@@ -954,18 +953,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  // '·'·아이콘·인증 문구를 한 덩어리로 묶어 줄바꿈 때 '·'만 남지 않게 한다.
+                                  const SizedBox(height: 2),
                                   // 아주 좁은 화면·큰 글씨에서는 넘치지 않고 살짝 줄어든다.
                                   FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Text('·',
-                                            style: TextStyle(
-                                                color: OomuTokens.textSecondary,
-                                                fontSize: 12)),
-                                        const SizedBox(width: 3),
                                         Icon(
                                           isVerified
                                               ? Icons.verified_user_rounded

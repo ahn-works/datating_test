@@ -1494,10 +1494,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                           border: Border.all(color: OomuTokens.border),
                         ),
                         child: const Center(
+                          // 반짝이(AI티) 대신 움짤 버튼 의미 그대로의 GIF 아이콘, 중립색
                           child: Icon(
-                            Icons.auto_awesome_rounded,
-                            color: OomuTokens.coral,
-                            size: 20,
+                            Icons.gif_box_outlined,
+                            color: OomuTokens.textSecondary,
+                            size: 22,
                           ),
                         ),
                       ),

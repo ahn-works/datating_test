@@ -19,6 +19,7 @@ import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
+import '../widgets/balanced_heading.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/interactive_map_popup.dart';
 import '../widgets/kakao_map_view.dart';
@@ -915,8 +916,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     ),
                     const SizedBox(height: OomuTokens.s8),
 
-                    // B. 제목 (22sp w700 ink)
-                    Text(
+                    // B. 제목 (22sp w700 ink) — 어절 경계 줄바꿈("카/페 투어" 방지)
+                    BalancedHeading(
                       _formatTitleKeepWords(
                           _effectiveMeetup?['title']?.toString()),
                       style: const TextStyle(

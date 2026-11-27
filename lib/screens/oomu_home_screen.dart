@@ -1146,7 +1146,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
                     children: [
-                      Text('📱 지금 내 상황 (분위기)',
+                      Text('지금 내 상황',
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -1176,7 +1176,7 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                         }).toList(),
                       ),
                       const SizedBox(height: 24),
-                      Text('🏷️ 전체 카테고리 목록 (대 - 중 - 소)',
+                      Text('전체 카테고리',
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,

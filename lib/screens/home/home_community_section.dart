@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../ui/oomu_avatar.dart';
 import '../../ui/oomu_chip.dart';
 import '../../ui/oomu_empty_state.dart';
+import '../../ui/oomu_skeleton.dart';
 import '../../ui/oomu_tag.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
@@ -184,6 +185,11 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
           }
           return true;
         }).toList();
+
+        // 첫 데이터가 오기 전에는 빈 화면 대신 스켈레톤을 보여준다(빈 상태가 잠깐 뜨던 문제).
+        final bool isLoadingPosts = Firebase.apps.isNotEmpty &&
+            !snapshot.hasData &&
+            !snapshot.hasError;
 
         final dong = widget.currentLocation.split(' ').last;
 
@@ -373,7 +379,9 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
             const SizedBox(height: OomuTokens.spacingXs),
 
             // 3. 게시글 목록
-            if (filteredPosts.isEmpty)
+            if (filteredPosts.isEmpty && isLoadingPosts)
+              const _CommunityListSkeleton()
+            else if (filteredPosts.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(OomuTokens.spacingXl),
                 child: OomuEmptyState(
@@ -421,7 +429,10 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
     final tag = (post['tag'] ?? '').toString();
     final title = (post['title'] ?? '').toString();
     final image = (post['image'] ?? '').toString();
-    final meta = [post['location'], resolvePostTimeLabel(post)]
+    // 좁은 화면에서 시간이 잘리지 않게 목록에는 동 이름만(예: '전남 여수시 화장동' → '화장동')
+    final shortLocation =
+        (post['location'] ?? '').toString().trim().split(' ').last;
+    final meta = [shortLocation, resolvePostTimeLabel(post)]
         .map((e) => (e ?? '').toString().trim())
         .where((e) => e.isNotEmpty)
         .join(' · ');
@@ -908,6 +919,39 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 커뮤니티 목록 로딩 스켈레톤 (태그·제목·본문 2줄·메타 줄, 3개)
+class _CommunityListSkeleton extends StatelessWidget {
+  const _CommunityListSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: OomuTokens.s20),
+      child: Column(
+        children: List.generate(3, (_) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: OomuTokens.s16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                OomuSkeleton(width: 56, height: 20, radius: 6),
+                SizedBox(height: OomuTokens.s12),
+                OomuSkeleton(width: 240, height: 18),
+                SizedBox(height: OomuTokens.s8),
+                OomuSkeleton(height: 14),
+                SizedBox(height: OomuTokens.s4),
+                OomuSkeleton(width: 200, height: 14),
+                SizedBox(height: OomuTokens.s12),
+                OomuSkeleton(width: 160, height: 14),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }

@@ -571,7 +571,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                         style: TextStyle(
                           fontSize: OomuTokens.fs14,
                           fontWeight: FontWeight.w900,
-                          color: isTop3 ? brandCoral : textSecondary,
+                          color: isTop3 ? textPrimary : textSecondary, // 순위 강조는 굵기·명도로(코랄 남용 방지)
                         ),
                       ),
                     ),
@@ -619,10 +619,11 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       style: TextStyle(
                         fontSize: OomuTokens.fs11,
                         fontWeight: FontWeight.w800,
+                        // 변동 표시는 중립색(코랄은 CTA·선택 탭·하트·안 읽음 점에만)
                         color: change.contains('▲') ||
                                 change == 'HOT' ||
                                 change == 'NEW'
-                            ? brandCoral
+                            ? textPrimary
                             : textSecondary,
                       ),
                     ),
@@ -676,7 +677,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700,
-                        color: brandCoral,
+                        color: textSecondary,
                       ),
                     ),
                   ),
@@ -1238,13 +1239,14 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: brandCoral,
+                      color: textSecondary,
                     ),
                   ),
                   const SizedBox(height: 3),
                   SizedBox(
                     height: 36,
-                    child: Text(
+                    // 어절 경계 줄바꿈("하이/볼" 방지)
+                    child: BalancedHeading(
                       OomuUiHelpers.formatTitle(
                           (item['title'] ?? '').toString()),
                       maxLines: 2,
@@ -1310,7 +1312,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: brandCoral,
+                            color: textSecondary,
                           ),
                         ),
                       ),
