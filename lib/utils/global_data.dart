@@ -293,6 +293,12 @@ class GlobalData {
               requestGeneration == _syncGeneration &&
               stateDoc.exists) {
             final stateData = stateDoc.data();
+            if (stateData?['blockedUids'] is List) {
+              blockedUids.value = (stateData!['blockedUids'] as List)
+                  .map((e) => e.toString())
+                  .where((e) => e.isNotEmpty)
+                  .toList();
+            }
             if (stateData?['blockedPhones'] is List) {
               blockedAcquaintancePhones.value =
                   (stateData!['blockedPhones'] as List)
@@ -576,7 +582,7 @@ class GlobalData {
 
       if (_canSyncUserDoc) {
         try {
-          FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          FirebaseFirestore.instance.collection('user_states').doc(activeUserId).set({
             'blockedUids': FieldValue.arrayUnion([cleanUid]),
             'updatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
@@ -584,6 +590,24 @@ class GlobalData {
           debugPrint('[GlobalData] Firestore blockUid sync error: $e');
         }
       }
+    }
+  }
+
+  /// 연락처로 확인한 계정은 서버 저장이 성공한 뒤에만 차단 완료로 표시한다.
+  Future<void> blockUidPersisted(String uid) async {
+    final cleanUid = uid.trim();
+    if (cleanUid.isEmpty || cleanUid == 'guest' || !_canSyncUserDoc) {
+      throw StateError('로그인 상태를 확인해 주세요.');
+    }
+    await FirebaseFirestore.instance
+        .collection('user_states')
+        .doc(activeUserId)
+        .set({
+      'blockedUids': FieldValue.arrayUnion([cleanUid]),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    if (!blockedUids.value.contains(cleanUid)) {
+      blockedUids.value = [...blockedUids.value, cleanUid];
     }
   }
 
@@ -596,7 +620,7 @@ class GlobalData {
 
       if (_canSyncUserDoc) {
         try {
-          FirebaseFirestore.instance.collection('users').doc(activeUserId).set({
+          FirebaseFirestore.instance.collection('user_states').doc(activeUserId).set({
             'blockedUids': FieldValue.arrayRemove([cleanUid]),
             'updatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));

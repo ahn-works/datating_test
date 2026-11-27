@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/global_data.dart';
@@ -79,50 +78,37 @@ class KakaoMapService {
   static String get naverClientId => _naverClientId;
   static String get ncpKeyId => _ncpKeyId;
 
-  /// 카카오/네이버 공개 클라이언트 키 안전 조회 (Firestore app_config/kakao 우선 + dart-define 폴백)
+  /// Naver Maps public client ID from build environment or Firestore app_config.
   static Future<void> ensureKeysLoaded() async {
-    if (_keysLoaded && _restApiKey.isNotEmpty && _ncpKeyId.isNotEmpty) {
-      return;
-    }
-    const defRest = String.fromEnvironment('KAKAO_REST_API_KEY');
-    const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
+    if (_keysLoaded && _naverClientId.isNotEmpty) return;
     const defNaver = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
-    if (defRest.isNotEmpty && _restApiKey.isEmpty) _restApiKey = defRest.trim();
-    if (defJs.isNotEmpty && _jsApiKey.isEmpty) _jsApiKey = defJs.trim();
-    if (defNaver.isNotEmpty && _naverClientId.isEmpty) {
+    if (defNaver.isNotEmpty) {
       _naverClientId = defNaver.trim();
+      _ncpKeyId = _naverClientId;
     }
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('app_config')
-          .doc('kakao')
-          .get()
-          .timeout(const Duration(seconds: 3));
-      if (doc.exists && doc.data() != null) {
-        final d = doc.data()!;
-        final fsRest =
-            (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
-        final fsJs =
-            (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
-        final fsNcp =
-            (d['ncpKeyId'] ?? d['naverMapClientId'] ?? d['naverClientId'] ?? '')
-                .toString()
-                .trim();
-        if (fsRest.isNotEmpty) _restApiKey = fsRest;
-        if (fsJs.isNotEmpty) _jsApiKey = fsJs;
-        if (fsNcp.isNotEmpty) {
-          _ncpKeyId = fsNcp;
-          _naverClientId = fsNcp;
+    if (_naverClientId.isEmpty) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('app_config')
+            .doc('kakao')
+            .get()
+            .timeout(const Duration(seconds: 3));
+        if (doc.exists && doc.data() != null) {
+          final d = doc.data()!;
+          final fsNcp = (d['ncpKeyId'] ??
+                  d['naverMapClientId'] ??
+                  d['naverClientId'] ??
+                  '')
+              .toString()
+              .trim();
+          if (fsNcp.isNotEmpty) {
+            _ncpKeyId = fsNcp;
+            _naverClientId = fsNcp;
+          }
         }
-      }
-      _keysLoaded = _restApiKey.isNotEmpty ||
-          _naverClientId.isNotEmpty ||
-          _ncpKeyId.isNotEmpty;
-    } catch (_) {
-      _keysLoaded = _restApiKey.isNotEmpty ||
-          _naverClientId.isNotEmpty ||
-          _ncpKeyId.isNotEmpty;
+      } catch (_) {}
     }
+    _keysLoaded = _naverClientId.isNotEmpty;
   }
 
   static List<KakaoPlace> _crawledNaverPlaces = const [];
@@ -709,10 +695,7 @@ class KakaoMapService {
 
     final midSpot = topSpots.isNotEmpty ? topSpots.first : null;
     final midpointLabel = midSpot != null
-        ? (midSpot['address'] as String)
-            .split(' ')
-            .take(3)
-            .join(' ')
+        ? (midSpot['address'] as String).split(' ').take(3).join(' ')
         : '영등포구 신길·여의도 중간지점';
 
     return {

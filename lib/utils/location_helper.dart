@@ -1,5 +1,4 @@
 import '../services/kakao_map_service.dart';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -38,7 +37,7 @@ class LocationHelper {
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
           debugPrint('[LocationHelper] Location permission denied.');
-          return _cachedDongName ?? '마포구 서교동';
+          return _cachedDongName;
         }
       }
 
@@ -69,15 +68,10 @@ class LocationHelper {
         return reverseName;
       }
 
-      // 4. 오프라인 좌표 거리 매칭 (서울, 경기, 전남, 부산 등 정밀 매핑 - 0.01초 즉시 계산)
-      final matched =
-          _matchNearestKoreanDong(position.latitude, position.longitude);
-      _cachedDongName = matched;
-      _cachedDongTime = DateTime.now();
-      return matched;
+      return null;
     } catch (e) {
       debugPrint('[LocationHelper] Error fetching location: $e');
-      return _cachedDongName ?? '마포구 서교동';
+      return _cachedDongName;
     }
   }
 
@@ -89,7 +83,7 @@ class LocationHelper {
         return dongName.trim();
       }
     } catch (e) {
-      debugPrint('[LocationHelper] Kakao reverse geocode error: $e');
+      debugPrint('[LocationHelper] Naver reverse geocode error: $e');
     }
     return null;
   }
@@ -168,24 +162,6 @@ class LocationHelper {
     {'name': '서귀포시 중문동', 'lat': 33.2500, 'lon': 126.4250},
   ];
 
-  static String _matchNearestKoreanDong(double lat, double lon) {
-    String bestName = '여수시 학동';
-    double minDistance = double.infinity;
-
-    for (final pt in _dongPoints) {
-      final double pLat = pt['lat'] as double;
-      final double pLon = pt['lon'] as double;
-      // 유클리디안 근사 거리
-      final d = pow(lat - pLat, 2) + pow(lon - pLon, 2);
-      if (d < minDistance) {
-        minDistance = d.toDouble();
-        bestName = pt['name'] as String;
-      }
-    }
-
-    return bestName;
-  }
-
   /// 텍스트(주소/동네명)에서 알려진 한국 행정동 기준 좌표 (lat, lng) 조회
   static Map<String, double>? findCoordsForLocation(String locText) {
     final clean = locText.trim().toLowerCase();
@@ -196,18 +172,6 @@ class LocationHelper {
       final name = (pt['name'] as String).toLowerCase();
       final dongOnly = name.split(' ').last;
       if (clean.contains(dongOnly) || clean.contains(name)) {
-        return {
-          'lat': (pt['lat'] as num).toDouble(),
-          'lng': (pt['lon'] as num).toDouble(),
-        };
-      }
-    }
-
-    // 2차: 시/구 명칭 매칭
-    for (final pt in _dongPoints) {
-      final name = (pt['name'] as String).toLowerCase();
-      final cityOnly = name.split(' ').first;
-      if (clean.contains(cityOnly)) {
         return {
           'lat': (pt['lat'] as num).toDouble(),
           'lng': (pt['lon'] as num).toDouble(),

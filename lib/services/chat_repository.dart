@@ -50,10 +50,11 @@ bool isLegacyChatSeed(ChatData data, {Set<String>? participantIds}) {
 }
 
 List<String> chatParticipantIds(ChatData? room) {
-  final ids = (room?['participants'] is List ? room!['participants'] as List : const [])
-      .whereType<String>()
-      .where((id) => id.isNotEmpty)
-      .toSet();
+  final ids =
+      (room?['participants'] is List ? room!['participants'] as List : const [])
+          .whereType<String>()
+          .where((id) => id.isNotEmpty)
+          .toSet();
   final hostUid = room?['hostUid']?.toString();
   if (hostUid != null && hostUid.isNotEmpty) {
     ids.add(hostUid);
@@ -99,12 +100,14 @@ class FirestoreChatRepository implements ChatRepository {
   const FirestoreChatRepository();
   @override
   String? get currentUid {
-    final globalUid = globalData.currentUserId.value.trim();
-    if (globalUid.isNotEmpty && globalUid != 'guest') return globalUid;
-    if (Firebase.apps.isEmpty) return null;
-    final authUid = FirebaseAuth.instance.currentUser?.uid;
-    if (authUid != null && authUid.isNotEmpty) return authUid;
-    return null;
+    // Firestore rules authorize the Firebase Auth UID, not a cached profile UID.
+    // A stale global value can otherwise turn the room query into permission-denied.
+    if (Firebase.apps.isEmpty) {
+      final testUid = globalData.currentUserId.value.trim();
+      return testUid.isEmpty || testUid == 'guest' ? null : testUid;
+    }
+    final authUid = FirebaseAuth.instance.currentUser?.uid.trim();
+    return authUid == null || authUid.isEmpty ? null : authUid;
   }
 
   @override
@@ -173,7 +176,8 @@ class FirestoreChatRepository implements ChatRepository {
         'timestamp': FieldValue.serverTimestamp()
       });
       final currentParticipants = (snapshot.data()?['participants'] is List)
-          ? List<String>.from((snapshot.data()!['participants'] as List).whereType<String>())
+          ? List<String>.from(
+              (snapshot.data()!['participants'] as List).whereType<String>())
           : <String>[];
       final needsParticipantSync = !currentParticipants.contains(uid);
       tx.update(ref, {
@@ -233,7 +237,11 @@ class FirestoreChatRepository implements ChatRepository {
   Future<void> deleteMessage(String roomId, String messageId) async {
     final uid = _requireUid();
     final db = FirebaseFirestore.instance;
-    final msgRef = db.collection('chatRooms').doc(roomId).collection('messages').doc(messageId);
+    final msgRef = db
+        .collection('chatRooms')
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId);
     final snap = await msgRef.get();
     if (snap.exists) {
       final senderId = snap.data()?['senderId'];

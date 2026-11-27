@@ -35,16 +35,9 @@ jobs:
       - name: Build Web
         id: build
         env:
-          KAKAO_KEY: ${{ secrets.KAKAO_JS_API_KEY }}
-          KAKAO_REST: ${{ secrets.KAKAO_REST_API_KEY }}
           NAVER_MAP_ID: ${{ secrets.NAVER_MAP_CLIENT_ID }}
-          SOLAPI_KEY: ${{ secrets.SOLAPI_API_KEY }}
-          SOLAPI_SECRET: ${{ secrets.SOLAPI_API_SECRET }}
-          SOLAPI_SENDER: ${{ secrets.SOLAPI_SENDER_NUMBER }}
-          SOLAPI_PFID: ${{ secrets.SOLAPI_KAKAO_PFID }}
-          SOLAPI_TPL: ${{ secrets.SOLAPI_KAKAO_TEMPLATE_ID }}
         run: |
-          flutter build web --base-href /datating_test/ --dart-define=KAKAO_JS_API_KEY=${KAKAO_KEY} --dart-define=KAKAO_REST_API_KEY=${KAKAO_REST} --dart-define=NAVER_MAP_CLIENT_ID=${NAVER_MAP_ID} --dart-define=SOLAPI_API_KEY=${SOLAPI_KEY} --dart-define=SOLAPI_API_SECRET=${SOLAPI_SECRET} --dart-define=SOLAPI_SENDER_NUMBER=${SOLAPI_SENDER} --dart-define=SOLAPI_KAKAO_PFID=${SOLAPI_PFID} --dart-define=SOLAPI_KAKAO_TEMPLATE_ID=${SOLAPI_TPL} > build_log.txt 2>&1 || echo "BUILD_FAILED=true" >> $GITHUB_ENV
+          flutter build web --base-href /datating_test/ --dart-define=NAVER_MAP_CLIENT_ID=${NAVER_MAP_ID} > build_log.txt 2>&1 || echo "BUILD_FAILED=true" >> $GITHUB_ENV
       - name: Print build errors as annotations
         if: env.BUILD_FAILED == 'true'
         run: |

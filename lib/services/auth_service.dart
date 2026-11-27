@@ -78,7 +78,8 @@ class AuthService {
     }
     try {
       await KakaoMapService.ensureKeysLoaded();
-      if (KakaoMapService.kakaoRestApiKey.isNotEmpty && _kakaoRestApiKey.isEmpty) {
+      if (KakaoMapService.kakaoRestApiKey.isNotEmpty &&
+          _kakaoRestApiKey.isEmpty) {
         _kakaoRestApiKey = KakaoMapService.kakaoRestApiKey;
       }
       if (KakaoMapService.kakaoJsApiKey.isNotEmpty && _kakaoJsApiKey.isEmpty) {
@@ -87,12 +88,13 @@ class AuthService {
       if (_kakaoRestApiKey.isNotEmpty && _kakaoJsApiKey.isNotEmpty) {
         return;
       }
-      final doc =
-          await _firestore.collection('app_config').doc('kakao').get();
+      final doc = await _firestore.collection('app_config').doc('kakao').get();
       if (doc.exists && doc.data() != null) {
         final d = doc.data()!;
-        final key = (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
-        final jsKey = (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
+        final key =
+            (d['kakaoRestApiKey'] ?? d['restApiKey'] ?? '').toString().trim();
+        final jsKey =
+            (d['kakaoJsApiKey'] ?? d['jsApiKey'] ?? '').toString().trim();
         if (key.isNotEmpty && _kakaoRestApiKey.isEmpty) {
           _kakaoRestApiKey = key;
         }
@@ -183,7 +185,12 @@ class AuthService {
     try {
       // 1. Firestore 내 사용자 관련 데이터 영구 삭제
       try {
-        await _firestore.collection('users').doc(uid).collection('private').doc('contact').delete();
+        await _firestore
+            .collection('users')
+            .doc(uid)
+            .collection('private')
+            .doc('contact')
+            .delete();
       } catch (_) {}
       try {
         await _firestore.collection('user_states').doc(uid).delete();
@@ -226,7 +233,8 @@ class AuthService {
 
   // 1. 관리자 1초 빠른 로그인 (운영 환경 비활성화)
   Future<UserCredential> signInAsAdmin() async {
-    const isDev = bool.fromEnvironment('OOMU_DEV_ACCOUNTS', defaultValue: false);
+    const isDev =
+        bool.fromEnvironment('OOMU_DEV_ACCOUNTS', defaultValue: false);
     if (!isDev) {
       throw UnsupportedError('운영 환경에서는 관리자 빠른 로그인을 지원하지 않습니다.');
     }
@@ -354,7 +362,8 @@ class AuthService {
           }
         }
       } catch (e) {
-        debugPrint('[AuthService] Kakao proxy notice ($e), using direct Firebase Auth fallback');
+        debugPrint(
+            '[AuthService] Kakao proxy notice ($e), using direct Firebase Auth fallback');
       }
 
       if (proxyCred != null) {
@@ -400,7 +409,9 @@ class AuthService {
       },
     );
 
-    if (kakaoEmail != null && kakaoEmail.isNotEmpty && Firebase.apps.isNotEmpty) {
+    if (kakaoEmail != null &&
+        kakaoEmail.isNotEmpty &&
+        Firebase.apps.isNotEmpty) {
       try {
         await _firestore
             .collection('users')
@@ -548,7 +559,8 @@ class AuthService {
         }
       }
     } catch (e) {
-      debugPrint('[AuthService] Naver proxy notice ($e), using direct Firebase Auth fallback');
+      debugPrint(
+          '[AuthService] Naver proxy notice ($e), using direct Firebase Auth fallback');
     }
 
     // 서버 프록시(Cloud Functions) 미배포 환경 폴백: 네이버 공식 인가 코드 검증 완료 세션 연동
@@ -1032,8 +1044,9 @@ class AuthService {
     String? pet,
   }) async {
     final uid = targetUid ?? _activeAuthUid;
-    if (uid == null || uid != _activeAuthUid)
+    if (uid == null || uid != _activeAuthUid) {
       throw StateError('로그인 상태를 확인해 주세요.');
+    }
     final int requestSession = globalData.sessionGeneration;
     final cleanPhone = normalizeKoreanMobile(phone);
     if (cleanPhone == null) {
@@ -1045,14 +1058,16 @@ class AuthService {
     final month = int.parse(digits.substring(4, 6));
     final day = int.parse(digits.substring(6, 8));
     final birth = DateTime(year, month, day);
-    if (birth.year != year || birth.month != month || birth.day != day)
+    if (birth.year != year || birth.month != month || birth.day != day) {
       throw StateError('올바른 생년월일을 입력해 주세요.');
+    }
     final now = DateTime.now();
     final calculatedAge = now.year -
         year -
         (now.month < month || (now.month == month && now.day < day) ? 1 : 0);
-    if (calculatedAge < 19 || calculatedAge > 99)
+    if (calculatedAge < 19 || calculatedAge > 99) {
       throw StateError('만 19세 이상만 가입할 수 있어요.');
+    }
     if (nickname.trim().isEmpty ||
         location.trim().isEmpty ||
         photoUrls.isEmpty) {

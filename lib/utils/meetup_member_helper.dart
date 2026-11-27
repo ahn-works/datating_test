@@ -64,6 +64,9 @@ class MeetupMemberHelper {
   static int parseAttendance(Map<String, dynamic>? data) {
     if (data == null) return 1;
 
+    final seats = data['occupiedSeats'];
+    if (seats is int && seats > 0) return seats;
+
     // 1. participantIds 배열
     final partIds = data['participantIds'];
     if (partIds is List && partIds.isNotEmpty) {
@@ -150,7 +153,7 @@ class MeetupMemberHelper {
   /// 모임 마감 여부 판별 (호스트 마감, 정원 초과, 또는 마감일 도래 시에만 true)
   static bool isClosed(Map<String, dynamic>? data) {
     if (data == null) return false;
-    if (data['closedByHost'] == true ||
+    if (data['status'] == 'closed' || data['closedByHost'] == true ||
         data['isClosed'] == true ||
         data['closed'] == true) {
       return true;

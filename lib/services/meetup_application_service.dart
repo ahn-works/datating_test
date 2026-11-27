@@ -6,8 +6,7 @@ import '../utils/meetup_member_helper.dart';
 /// Persisted requests only. Permission denial is surfaced; there is no simulated
 /// approval or local-success fallback. Server rules must enforce the same roles.
 class MeetupApplicationService {
-  // Enable only after deployed Firestore rules and real request/approval tests
-  // have been verified. Local UI work must not expose an unverified write path.
+  // Can be switched off for a maintenance build.
   static const enabled = bool.fromEnvironment('OOMU_ENABLE_APPLICATIONS', defaultValue: true);
   static int capacity(Map<String, dynamic> data) =>
       MeetupMemberHelper.parseCapacity(data);
@@ -45,6 +44,7 @@ class MeetupApplicationService {
           previous.data()?['status'] == 'pending') {
         throw StateError('이미 신청한 모임이에요. 기존 신청 상태를 확인해 주세요.');
       }
+      if (MeetupMemberHelper.isClosed(data)) throw StateError('마감된 모임이에요.');
       final seats = withFriend ? 2 : 1;
       if (capacity(data) <= 0 || attendance(data) + seats > capacity(data)) {
         throw StateError('참여 가능한 자리가 부족해요.');
@@ -104,6 +104,7 @@ class MeetupApplicationService {
         throw StateError('이미 처리된 신청이에요.');
       }
       if (approve) {
+        if (MeetupMemberHelper.isClosed(data)) throw StateError('마감된 모임이에요.');
         final appData = application.data() ?? const <String, dynamic>{};
         final seats = (appData['partySize'] as num?)?.toInt() ?? 1;
         final next = attendance(data) + seats;
@@ -114,6 +115,7 @@ class MeetupApplicationService {
         final applicantAvatar = (appData['avatarUrl'] ?? '').toString().trim();
         final rawMembers = data['members'];
         final updates = <String, dynamic>{
+          'occupiedSeats': next,
           'participantIds': FieldValue.arrayUnion([applicantUid]),
           if (applicantNick.isNotEmpty)
             'memberNames': FieldValue.arrayUnion([applicantNick]),
