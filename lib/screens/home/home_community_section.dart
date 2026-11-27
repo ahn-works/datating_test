@@ -433,7 +433,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
     final shortLocation =
         (post['location'] ?? '').toString().trim().split(' ').last;
     final meta = [shortLocation, resolvePostTimeLabel(post)]
-        .map((e) => (e ?? '').toString().trim())
+        .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .join(' · ');
 
