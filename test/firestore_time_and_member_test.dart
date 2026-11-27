@@ -203,8 +203,9 @@ void main() {
       expect(find.text('닉네임 미설정'), findsOneWidget);
       expect(find.text('동네 미설정'), findsOneWidget);
       expect(find.text('본인인증 미완료'), findsOneWidget);
-      expect(find.text('0.0°C'), findsOneWidget);
-      expect(find.text('첫 평가 전 (초기 매너온도 0.0°C)'), findsOneWidget);
+      expect(find.text('0.0°C'), findsNothing);
+      expect(find.text('정보 없음'), findsOneWidget);
+      expect(find.text('매너온도가 아직 등록되지 않았어요'), findsOneWidget);
       expect(find.text('39.8°C'), findsNothing);
       expect(find.text('재참여 희망 96% · 받은 후기 23개'), findsNothing);
       expect(find.text('본인인증 완료'), findsNothing);

@@ -460,25 +460,28 @@ void main() {
             );
             await tester.pump();
             final err1 = tester.takeException();
-            if (err1 != null)
+            if (err1 != null) {
               fail(
                   'Detail overflow at $size scale $scale:\n${(err1 as dynamic).toStringDeep()}');
+            }
 
             // 2. 홈 화면
             await tester.pumpWidget(wrapWithViewport(const OOMUHomeScreen()));
             await tester.pump();
             final err2 = tester.takeException();
-            if (err2 != null)
+            if (err2 != null) {
               fail(
                   'Home overflow at $size scale $scale:\n${(err2 as dynamic).toStringDeep()}');
+            }
 
             // 3. MY 화면
             await tester.pumpWidget(wrapWithViewport(const MyPageScreen()));
             await tester.pump();
             final err3 = tester.takeException();
-            if (err3 != null)
+            if (err3 != null) {
               fail(
                   'MY overflow at $size scale $scale:\n${(err3 as dynamic).toStringDeep()}');
+            }
 
             // 4. 커뮤니티 상세
             await tester.pumpWidget(
@@ -500,9 +503,10 @@ void main() {
             );
             await tester.pump();
             final err4 = tester.takeException();
-            if (err4 != null)
+            if (err4 != null) {
               fail(
                   'Community overflow at $size scale $scale:\n${(err4 as dynamic).toStringDeep()}');
+            }
           }
         }
         await tester.binding.setSurfaceSize(null);
@@ -549,7 +553,8 @@ void main() {
 
             // 원문 Map 데이터와 화면 표시 문자열 모두 제어문자(\u2060, \u00A0) 삽입 없이 보존됨
             expect(mapData['title'], equals(originalTitle));
-            expect(find.text(OomuUiHelpers.formatTitle(originalTitle)), findsWidgets);
+            expect(find.text(OomuUiHelpers.formatTitle(originalTitle)),
+                findsWidgets);
             expect(find.textContaining('\uFFFD'), findsNothing);
             expect(tester.takeException(), isNull);
           }
@@ -838,7 +843,8 @@ void main() {
 
         expect(find.text('닉네임 미설정'), findsOneWidget);
         expect(find.text('동네 미설정'), findsOneWidget);
-        expect(find.text('0.0°C'), findsOneWidget);
+        expect(find.text('0.0°C'), findsNothing);
+      expect(find.text('정보 없음'), findsOneWidget);
         expect(find.text('매운맛킬러'), findsNothing);
         expect(find.text('37.5°C'), findsNothing);
         expect(find.text('41.2°C'), findsNothing);
