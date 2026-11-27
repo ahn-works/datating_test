@@ -1,0 +1,13 @@
+{
+  "name": "oomu-firestore-rules-test",
+  "private": true,
+  "description": "Firestore 보안 규칙 에뮬레이터 테스트 (firestore.rules 검증 전용, 운영 배포 없음)",
+  "scripts": {
+    "test": "firebase emulators:exec --config ../firebase.json --only firestore --project demo-oomu-rules \"node --test --test-concurrency=1 rules.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.0.0",
+    "firebase-tools": "^14.0.0"
+  }
+}

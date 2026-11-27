@@ -56,3 +56,34 @@ jobs:
             exit 1
           fi
           echo "[PASS] no 'if true' write rules"
+
+  firestore-rules:
+    # firestore.rules 를 에뮬레이터(가짜 프로젝트 demo-oomu-rules)에서 검증한다.
+    # 운영 Firebase 에는 접속하지 않으며 시크릿도 쓰지 않는다.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: rules_test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: rules_test/package-lock.json
+
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Firestore rules emulator tests
+        run: npm test
