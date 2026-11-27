@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../utils/app_image.dart';
@@ -30,6 +32,7 @@ class UserProfileScreen extends StatefulWidget {
   final String? userPet;
   final bool? userVerified;
   final bool isSelf;
+  final bool previewDraft;
 
   const UserProfileScreen({
     super.key,
@@ -52,6 +55,7 @@ class UserProfileScreen extends StatefulWidget {
     this.userPet,
     this.userVerified,
     this.isSelf = false,
+    this.previewDraft = false,
   });
 
   @override
@@ -60,6 +64,7 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   String? _resolvedUid;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _profileChanges;
   late String _userName;
   late String _userAge;
   late String _userLocation;
@@ -81,7 +86,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   void initState() {
     super.initState();
     _initDefaults();
-    _fetchUserData();
+    if (!widget.previewDraft) _fetchUserData();
   }
 
   void _initDefaults() {
@@ -121,10 +126,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       final nick = widget.userName.trim();
       if (nick.isEmpty || nick == '닉네임 미설정') return;
       try {
-        final resolved = await OomuUiHelpers.fetchUserOrBotProfile(nickname: nick);
+        final resolved =
+            await OomuUiHelpers.fetchUserOrBotProfile(nickname: nick);
         if (resolved == null || !mounted) return;
-        _resolvedUid ??= resolved.key;
+        _resolvedUid = resolved.key;
         _applyUserDoc(resolved.value);
+        _watchProfile(resolved.key);
       } catch (e) {
         debugPrint('[UserProfileScreen] nickname fallback error: $e');
       }
@@ -139,16 +146,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         nickname: widget.userName,
       );
       if (resolved != null && mounted) {
-        _resolvedUid ??= resolved.key;
+        _resolvedUid = resolved.key;
         _applyUserDoc(resolved.value);
+        _watchProfile(resolved.key);
       }
     } catch (e) {
       debugPrint('[UserProfileScreen] fetch error: $e');
     }
   }
 
+  Future<void> _watchProfile(String uid) async {
+    _profileChanges?.cancel();
+    if (widget.previewDraft || uid.isEmpty) return;
+    try {
+      final db = FirebaseFirestore.instance;
+      final collections =
+          uid.startsWith('bot_') ? ['bots', 'users'] : ['users', 'bots'];
+      for (final collection in collections) {
+        final ref = db.collection(collection).doc(uid);
+        final initial = await ref.get();
+        if (!mounted || _resolvedUid != uid) return;
+        if (!initial.exists) continue;
+        _profileChanges = ref.snapshots().listen((doc) {
+          if (mounted && _resolvedUid == uid && doc.exists) {
+            _applyUserDoc(doc.data()!);
+          }
+        }, onError: (Object error) {
+          debugPrint('프로필 갱신 실패: $error');
+        });
+        return;
+      }
+    } catch (e) {
+      debugPrint('프로필 구독 실패: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _profileChanges?.cancel();
+    super.dispose();
+  }
+
   void _applyUserDoc(Map<String, dynamic> data) {
     setState(() {
+      _userAge = '';
+      _userLocation = '';
+      _userBio = '';
+      _userAvatar = null;
+      _userManner = null;
+      _userJob = '';
+      _userMbti = '';
+      _userGender = '';
+      _userSmoking = '';
+      _userPet = '';
+      _userPersonalities = [];
+      _userHobbies = [];
+      _userDrinking = [];
+      _userPhotos = [];
       _userName =
           (data['nickname'] ?? data['name'] ?? widget.userName).toString();
       final ageVal = data['age'];
@@ -163,7 +217,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       if (bioVal != null && bioVal.isNotEmpty) {
         _userBio = bioVal;
       }
-      final av = (data['avatarUrl'] ?? data['photoUrl'])?.toString();
+      final av = (data['photoUrl'] ?? data['avatarUrl'])?.toString();
       if (av != null && av.isNotEmpty) {
         _userAvatar = av;
       }
@@ -171,7 +225,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       if (mannerVal != null) {
         _userManner = mannerVal;
       }
-      _isVerified = OomuUiHelpers.resolveVerified(data, null, isSelf: widget.isSelf);
+      _isVerified =
+          OomuUiHelpers.resolveVerified(data, null, isSelf: widget.isSelf);
       final jobVal = data['job']?.toString();
       if (jobVal != null && jobVal.isNotEmpty) {
         _userJob = jobVal;
@@ -239,9 +294,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   void _showReportBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(OomuTokens.r24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: const BorderRadius.vertical(
+              top: const Radius.circular(OomuTokens.r24))),
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -673,34 +728,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildProfileKeyValueRow(
-                            Icons.work_outline_rounded,
-                            ProfileOptions.jobLabel,
-                            displayJob),
+                        _buildProfileKeyValueRow(Icons.work_outline_rounded,
+                            ProfileOptions.jobLabel, displayJob),
                         _buildProfileKeyValueRow(
                             Icons.cake_outlined,
                             ProfileOptions.ageLabel,
                             displayAge.isNotEmpty ? '$displayAge세' : ''),
-                        _buildProfileKeyValueRow(
-                            Icons.person_outline_rounded,
-                            ProfileOptions.genderLabel,
-                            cleanGender),
-                        _buildProfileKeyValueRow(
-                            Icons.psychology_outlined,
-                            ProfileOptions.mbtiLabel,
-                            displayMbti),
+                        _buildProfileKeyValueRow(Icons.person_outline_rounded,
+                            ProfileOptions.genderLabel, cleanGender),
+                        _buildProfileKeyValueRow(Icons.psychology_outlined,
+                            ProfileOptions.mbtiLabel, displayMbti),
                         _buildProfileKeyValueRow(
                             Icons.local_bar_outlined,
                             ProfileOptions.drinkingLabel,
                             effectiveDrinking.join(', ')),
-                        _buildProfileKeyValueRow(
-                            Icons.smoke_free_outlined,
-                            ProfileOptions.smokingLabel,
-                            cleanSmoking),
-                        _buildProfileKeyValueRow(
-                            Icons.pets_outlined,
-                            ProfileOptions.petLabel,
-                            cleanPet,
+                        _buildProfileKeyValueRow(Icons.smoke_free_outlined,
+                            ProfileOptions.smokingLabel, cleanSmoking),
+                        _buildProfileKeyValueRow(Icons.pets_outlined,
+                            ProfileOptions.petLabel, cleanPet,
                             isLast: true),
                       ],
                     ),

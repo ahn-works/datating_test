@@ -1,3 +1,5 @@
+import 'dart:async';
+import '../services/community_like_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -39,6 +41,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   late bool _isLiked;
   late int _likeCount;
+  bool _savingLike = false;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _postChanges;
   late List<Map<String, dynamic>> _comments;
   bool _isSubmittingComment = false;
   Map<String, dynamic>? _fetchedPost;
@@ -63,10 +67,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   void _initPostState() {
     final p = _effectivePost;
-    _isLiked = p['isLiked'] == true;
-    _likeCount = (p['likes'] is num)
-        ? (p['likes'] as num).toInt()
-        : 0;
+    final ids = p['likedUserIds'];
+    _isLiked = Firebase.apps.isNotEmpty && ids is List
+        ? ids.contains(FirebaseAuth.instance.currentUser?.uid)
+        : p['isLiked'] == true;
+    _likeCount = (p['likes'] is num) ? (p['likes'] as num).toInt() : 0;
     final rawList = p['commentList'];
     if (rawList is List) {
       _comments = rawList
@@ -93,47 +98,32 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     final pid = p['id']?.toString().trim() ?? p['docId']?.toString().trim();
     final bool hasContent = p['title'] != null || p['content'] != null;
 
-    if (!hasContent && pid != null && pid.isNotEmpty) {
+    if (pid != null && pid.isNotEmpty && (Firebase.apps.isNotEmpty || !hasContent)) {
       _fetchPost(pid);
     } else {
       _initPostState();
     }
   }
 
-  Future<void> _fetchPost(String docId) async {
-    setState(() {
-      _isLoadingDoc = true;
-      _isNotFound = false;
-    });
-    try {
-      if (Firebase.apps.isNotEmpty) {
-        final doc = await FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(docId)
-            .get();
-        if (doc.exists && doc.data() != null) {
-          final data = Map<String, dynamic>.from(doc.data()!);
-          data['id'] = doc.id;
-          if (mounted) {
-            setState(() {
-              _fetchedPost = data;
-              _isLoadingDoc = false;
-              _isNotFound = false;
-            });
-            _initPostState();
-            return;
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('[CommunityPostDetailScreen] fetch error: $e');
+  void _fetchPost(String docId) {
+    _postChanges?.cancel();
+    _isLoadingDoc = true;
+    _isNotFound = false;
+    void unavailable() {
+      if (mounted) setState(() { _isLoadingDoc = false; _isNotFound = true; });
     }
-    if (mounted) {
+    if (Firebase.apps.isEmpty) { unavailable(); return; }
+    _postChanges = FirebaseFirestore.instance.collection('community_posts').doc(docId).snapshots().listen((doc) {
+      if (!mounted) return;
+      final data = doc.data();
+      if (data == null) { unavailable(); return; }
       setState(() {
+        _fetchedPost = {...data, 'id': doc.id};
         _isLoadingDoc = false;
-        _isNotFound = true;
+        _isNotFound = false;
+        _initPostState();
       });
-    }
+    }, onError: (Object e) { debugPrint('게시글 조회 실패: $e'); unavailable(); });
   }
 
   @override
@@ -141,12 +131,13 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.post != widget.post ||
         oldWidget.post['id'] != widget.post['id']) {
+      _postChanges?.cancel();
       _isSubmittingComment = false;
       _commentController.clear();
       final p = widget.post;
       final pid = p['id']?.toString().trim() ?? p['docId']?.toString().trim();
       final bool hasContent = p['title'] != null || p['content'] != null;
-      if (!hasContent && pid != null && pid.isNotEmpty) {
+      if (pid != null && pid.isNotEmpty && (Firebase.apps.isNotEmpty || !hasContent)) {
         _fetchPost(pid);
       } else {
         _fetchedPost = null;
@@ -159,6 +150,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
 
   @override
   void dispose() {
+    _postChanges?.cancel();
     _commentController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -204,30 +196,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     }
     try {
       final db = FirebaseFirestore.instance;
-      final authorUid = FirebaseAuth.instance.currentUser?.uid ??
-          (globalData.activeUserId.isNotEmpty
-              ? globalData.activeUserId
-              : 'user_${DateTime.now().millisecondsSinceEpoch}');
+      final authorUid = FirebaseAuth.instance.currentUser?.uid;
+      if (authorUid == null) throw StateError('로그인 후 댓글을 남겨주세요.');
       final postRef = db.collection('community_posts').doc(postId);
       final commentRef = postRef.collection('comments').doc();
-      final existingTime = (_effectivePost['time'] ?? '').toString().trim();
-
-      await postRef.set({
-        'id': postId,
-        'title': _effectivePost['title'] ?? '',
-        'content': _effectivePost['content'] ?? '',
-        'author': _effectivePost['author'] ?? '',
-        'authorAvatar': _effectivePost['authorAvatar'] ?? '',
-        'location': _effectivePost['location'] ?? '',
-        'category': _effectivePost['category'] ?? '',
-        'tag': _effectivePost['tag'] ?? '',
-        if (existingTime.isNotEmpty) 'time': existingTime,
-        'comments': FieldValue.increment(1),
-        'likes': _effectivePost['likes'] ?? 0,
-        'likedUserIds': _effectivePost['likedUserIds'] ?? <String>[],
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
       await commentRef.set({
         'authorId': authorUid,
         'author': myNick,
@@ -305,26 +277,16 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
     };
 
     if (!_canUseFirestore || postId == null) {
-      setState(() {
-        _comments.add(newComm);
-        _syncPostComments();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('실제 게시글에서 댓글을 작성할 수 있어요.')));
       return;
     }
 
     try {
       final db = FirebaseFirestore.instance;
-      final authorUid = FirebaseAuth.instance.currentUser?.uid ??
-          (globalData.activeUserId.isNotEmpty
-              ? globalData.activeUserId
-              : 'user_${DateTime.now().millisecondsSinceEpoch}');
+      final authorUid = FirebaseAuth.instance.currentUser?.uid;
+      if (authorUid == null) throw StateError('로그인 후 댓글을 남겨주세요.');
       final postRef = db.collection('community_posts').doc(postId);
       final commentRef = postRef.collection('comments').doc();
-
-      await postRef.set({
-        'comments': FieldValue.increment(1),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
 
       await commentRef.set({
         'authorId': authorUid,
@@ -369,6 +331,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   }
 
   Future<void> _toggleLike() async {
+    if (_savingLike) return;
+    if (widget.debugLikeWriter == null && !_canUseFirestore) return;
+    _savingLike = true;
     final prevLiked = _isLiked;
     final prevCount = _likeCount;
     final prevLikedUsers = (_effectivePost['likedUserIds'] is List)
@@ -412,41 +377,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       }
       final postId = _postId;
       if (_canUseFirestore && postId != null) {
-        final docRef = FirebaseFirestore.instance
-            .collection('community_posts')
-            .doc(postId);
-        await FirebaseFirestore.instance.runTransaction((tx) async {
-          final snap = await tx.get(docRef);
-          final data = snap.data() ?? <String, dynamic>{};
-          final currentLikes = (data['likes'] is num)
-              ? (data['likes'] as num).toInt()
-              : prevCount;
-          final currentIds = (data['likedUserIds'] is List)
-              ? (data['likedUserIds'] as List)
-                  .map((e) => e.toString())
-                  .toList()
-              : <String>[];
-          final updatedIds = List<String>.from(currentIds);
-          int updatedLikes = currentLikes;
-          if (nextLiked) {
-            if (!updatedIds.contains(myUserId)) {
-              updatedIds.add(myUserId);
-            }
-            updatedLikes = currentLikes + 1;
-          } else {
-            updatedIds.remove(myUserId);
-            updatedIds.remove('user_me_01');
-            updatedLikes = currentLikes > 0 ? currentLikes - 1 : 0;
-          }
-          tx.set(
-            docRef,
-            {
-              'likedUserIds': updatedIds,
-              'likes': updatedLikes,
-              'updatedAt': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true),
-          );
+        final ids = await setCommunityLike(postId, nextLiked);
+        if (mounted && _postId == postId) setState(() {
+          _likeCount = ids.length;
+          _effectivePost['likedUserIds'] = ids;
+          _effectivePost['likes'] = ids.length;
         });
       }
     } catch (e) {
@@ -462,6 +397,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('좋아요를 저장하지 못했어요')),
       );
+    } finally {
+      _savingLike = false;
     }
   }
 
@@ -483,8 +420,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
   List<Map<String, dynamic>> _resolveDisplayComments(
       AsyncSnapshot<QuerySnapshot>? commentSnap) {
     if (commentSnap != null &&
-        commentSnap.hasData &&
-        commentSnap.data!.docs.isNotEmpty) {
+        commentSnap.hasData) {
       final authUid = FirebaseAuth.instance.currentUser?.uid;
       final activeUid = globalData.activeUserId;
 
@@ -495,8 +431,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         final likedUsers = List<dynamic>.from(data['likedUserIds'] ?? []);
         final bool isLiked =
             (authUid != null && likedUsers.contains(authUid)) ||
-                (activeUid.isNotEmpty && likedUsers.contains(activeUid)) ||
-                likedUsers.contains('user_me_01');
+                (activeUid.isNotEmpty && likedUsers.contains(activeUid));
         data['isLiked'] = isLiked;
         data['likes'] =
             likedUsers.isNotEmpty ? likedUsers.length : (data['likes'] ?? 0);
@@ -550,9 +485,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                 : '');
     final location = (post['location'] ?? '').toString().trim();
     final rawTime = (post['time'] ?? '').toString().trim();
-    final time = rawTime.isNotEmpty
-        ? rawTime
-        : _formatRelativeTime(post['createdAt']);
+    final time =
+        rawTime.isNotEmpty ? rawTime : _formatRelativeTime(post['createdAt']);
     final metaLine =
         [location, time].where((v) => v.trim().isNotEmpty).join(' · ');
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
@@ -1013,14 +947,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                               .collection('comments')
                                               .doc(cId)
                                               .delete();
-                                          await FirebaseFirestore.instance
-                                              .collection('community_posts')
-                                              .doc(postId)
-                                              .update({
-                                            'comments': FieldValue.increment(-1)
-                                          });
                                         } catch (e) {
-                                          debugPrint('[CommunityPostDetailScreen] comment delete error: $e');
+                                          debugPrint(
+                                              '[CommunityPostDetailScreen] comment delete error: $e');
                                           messenger.showSnackBar(
                                             const SnackBar(
                                               content: Text('댓글을 삭제하지 못했어요.'),
@@ -1094,59 +1023,11 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(OomuTokens.r12),
                         onTap: () async {
-                          final authUid =
-                              FirebaseAuth.instance.currentUser?.uid;
-                          final activeUid = globalData.activeUserId;
-                          final myId = (authUid != null && authUid.isNotEmpty)
-                              ? authUid
-                              : (activeUid.isNotEmpty ? activeUid : 'user_me');
-
-                          List<dynamic> likedUsers =
-                              List<dynamic>.from(comm['likedUserIds'] ?? []);
-                          bool currentlyLiked = (authUid != null &&
-                                  likedUsers.contains(authUid)) ||
-                              (activeUid.isNotEmpty &&
-                                  likedUsers.contains(activeUid)) ||
-                              likedUsers.contains('user_me_01');
-
-                          if (currentlyLiked) {
-                            if (authUid != null) likedUsers.remove(authUid);
-                            if (activeUid.isNotEmpty)
-                              likedUsers.remove(activeUid);
-                            likedUsers.remove('user_me_01');
-                          } else {
-                            likedUsers.add(myId);
-                          }
-                          setState(() {
-                            comm['isLiked'] = !currentlyLiked;
-                            comm['likes'] = likedUsers.length;
-                            comm['likedUserIds'] = likedUsers;
-                          });
-
-                          if (_canUseFirestore &&
-                              commId != null &&
-                              !commId.startsWith('local_') &&
-                              postId != null) {
-                            try {
-                              await FirebaseFirestore.instance
-                                  .collection('community_posts')
-                                  .doc(postId)
-                                  .collection('comments')
-                                  .doc(commId)
-                                  .set({
-                                'likedUserIds': likedUsers,
-                                'likes': likedUsers.length,
-                              }, SetOptions(merge: true));
-                            } catch (e) {
-                              debugPrint('[CommunityPostDetailScreen] comment like error: $e');
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('댓글 좋아요를 저장하지 못했어요'),
-                                  ),
-                                );
-                              }
-                            }
+                          if (!_canUseFirestore || commId == null || postId == null) return;
+                          try {
+                            await setCommunityLike(postId, !isCommLiked, commentId: commId);
+                          } catch (_) {
+                            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('댓글 좋아요를 저장하지 못했어요.')));
                           }
                         },
                         child: ConstrainedBox(
@@ -1448,9 +1329,10 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                         .doc(postId)
                                         .delete();
                                     try {
-                                      final authorUid = (_effectivePost['authorId'] ??
-                                              globalData.activeUserId)
-                                          .toString();
+                                      final authorUid =
+                                          (_effectivePost['authorId'] ??
+                                                  globalData.activeUserId)
+                                              .toString();
                                       if (authorUid.isNotEmpty &&
                                           authorUid != 'guest') {
                                         final uRef = FirebaseFirestore.instance
@@ -1469,8 +1351,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                             {
                                               'myPostsCount':
                                                   cur > 0 ? cur - 1 : 0,
-                                              'updatedAt': FieldValue
-                                                  .serverTimestamp(),
+                                              'updatedAt':
+                                                  FieldValue.serverTimestamp(),
                                             },
                                             SetOptions(merge: true),
                                           );
@@ -1485,7 +1367,8 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                                           '[CommunityPostDetailScreen] myPostsCount decrement error: $cntErr');
                                     }
                                   } catch (e) {
-                                    debugPrint('[CommunityPostDetailScreen] post delete error: $e');
+                                    debugPrint(
+                                        '[CommunityPostDetailScreen] post delete error: $e');
                                     messenger.showSnackBar(
                                       const SnackBar(
                                         content: Text('게시글을 삭제하지 못했어요.'),

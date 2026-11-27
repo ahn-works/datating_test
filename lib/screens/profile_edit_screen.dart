@@ -53,7 +53,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   ];
   List<String> _selectedHobbies = [];
 
-  final List<String> _availablePersonalities = ProfileOptions.personalityOptions;
+  final List<String> _availablePersonalities =
+      ProfileOptions.personalityOptions;
   List<String> _selectedPersonalities = [];
 
   final List<String> _availableDrinking = ProfileOptions.drinkingOptions;
@@ -114,9 +115,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _photoUrls = List<String>.from(globalData.userPhotos.value);
 
       final uid = globalData.activeUserId.trim();
+      final session = globalData.sessionGeneration;
       if (Firebase.apps.isNotEmpty && uid.isNotEmpty && uid != 'guest') {
         final doc =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (!mounted || !globalData.isActiveSession(session, uid)) return;
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
           globalData.applyProfileData(data);
@@ -174,6 +177,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _saveProfile() async {
     final uid = globalData.activeUserId.trim();
+    final session = globalData.sessionGeneration;
     if (uid.isEmpty || uid == 'guest') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -221,7 +225,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         }
       }
 
-      final uid = globalData.activeUserId.trim();
       if (Firebase.apps.isNotEmpty && uid.isNotEmpty && uid != 'guest') {
         await FirebaseFirestore.instance.collection('users').doc(uid).set({
           'nickname': nick,
@@ -251,6 +254,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         }, SetOptions(merge: true));
       }
 
+      if (!mounted || !globalData.isActiveSession(session, uid)) return;
+
       globalData.userNickname.value = nick;
       globalData.userName.value = _nameController.text.trim();
       globalData.userAge.value = parsedAge;
@@ -278,6 +283,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
     } catch (e) {
       debugPrint("Error saving profile: $e");
+      if (mounted && globalData.isActiveSession(session, uid)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('프로필을 저장하지 못했어요. 입력 내용은 유지됩니다. 다시 시도해 주세요.'),
+        ));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -316,9 +326,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       final String finalAvatar;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalAvatar = await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
+        finalAvatar =
+            await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
       } else {
-        finalAvatar = await R2StorageService.toCompressedDataUrl(bytes, file.name);
+        finalAvatar =
+            await R2StorageService.toCompressedDataUrl(bytes, file.name);
       }
       setState(() {
         _avatarUrl = finalAvatar;
@@ -607,7 +619,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     child: Text(
                       '👩 여성',
                       style: TextStyle(
-                        color: _gender == '여성' ? Colors.white : OomuTokens.textPrimary,
+                        color: _gender == '여성'
+                            ? Colors.white
+                            : OomuTokens.textPrimary,
                         fontWeight: OomuTokens.w700,
                         fontSize: OomuTokens.fs14,
                       ),
@@ -639,7 +653,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     child: Text(
                       '👨 남성',
                       style: TextStyle(
-                        color: _gender == '남성' ? Colors.white : OomuTokens.textPrimary,
+                        color: _gender == '남성'
+                            ? Colors.white
+                            : OomuTokens.textPrimary,
                         fontWeight: OomuTokens.w700,
                         fontSize: OomuTokens.fs14,
                       ),
@@ -691,15 +707,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? OomuTokens.coral : OomuTokens.surfaceMuted,
+                  color:
+                      isSelected ? OomuTokens.coral : OomuTokens.surfaceMuted,
                   borderRadius: BorderRadius.circular(OomuTokens.r12),
                   border: Border.all(
-                      color:
-                          isSelected ? OomuTokens.coral : OomuTokens.border),
+                      color: isSelected ? OomuTokens.coral : OomuTokens.border),
                 ),
                 child: Text(item,
                     style: TextStyle(
-                        color: isSelected ? Colors.white : OomuTokens.textPrimary,
+                        color:
+                            isSelected ? Colors.white : OomuTokens.textPrimary,
                         fontWeight:
                             isSelected ? OomuTokens.w700 : OomuTokens.w600,
                         fontSize: OomuTokens.fs14)),
@@ -718,6 +735,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       MaterialPageRoute(
         builder: (_) => UserProfileScreen(
           isSelf: true,
+          previewDraft: true,
           userId: globalData.activeUserId,
           userName: _nicknameController.text.trim().isNotEmpty
               ? _nicknameController.text.trim()
@@ -729,8 +747,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           userPhotos: _photoUrls.isNotEmpty
               ? _photoUrls
               : (_avatarUrl.isNotEmpty ? [_avatarUrl] : null),
-          userManner: OomuUiHelpers.parseMannerValue(
-              globalData.temperature.value),
+          userManner:
+              OomuUiHelpers.parseMannerValue(globalData.temperature.value),
           userJob: _jobController.text.trim(),
           userMbti: _mbtiController.text.trim(),
           userGender: _gender,
@@ -911,7 +929,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   const SizedBox(height: 28),
 
                   // 1. 기본 정보 (Basic Info)
-                  _buildSectionHeader('기본 정보', '프로필 미리보기 및 이웃에게 표시되는 기본 정보입니다.'),
+                  _buildSectionHeader(
+                      '기본 정보', '프로필 미리보기 및 이웃에게 표시되는 기본 정보입니다.'),
                   _buildTextField('닉네임 (활동명)', _nicknameController,
                       hint: '예: 오오무 운영팀 또는 닉네임'),
                   Row(
@@ -932,37 +951,44 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   Row(
                     children: [
                       Expanded(
-                          child: _buildTextField(ProfileOptions.jobLabel, _jobController,
+                          child: _buildTextField(
+                              ProfileOptions.jobLabel, _jobController,
                               hint: '예: IT/개발')),
                       const SizedBox(width: 16),
                       Expanded(
-                          child: _buildTextField(ProfileOptions.mbtiLabel, _mbtiController,
+                          child: _buildTextField(
+                              ProfileOptions.mbtiLabel, _mbtiController,
                               hint: '예: ENFJ')),
                     ],
                   ),
-                  _buildChipSection(
-                      ProfileOptions.drinkingLabel, _availableDrinking, _selectedDrinking),
-                  _buildChipSection(
-                      ProfileOptions.smokingLabel, _availableSmoking, _selectedSmoking,
+                  _buildChipSection(ProfileOptions.drinkingLabel,
+                      _availableDrinking, _selectedDrinking),
+                  _buildChipSection(ProfileOptions.smokingLabel,
+                      _availableSmoking, _selectedSmoking,
                       isSingle: true),
-                  _buildChipSection(ProfileOptions.petLabel, _availablePet, _selectedPet,
+                  _buildChipSection(
+                      ProfileOptions.petLabel, _availablePet, _selectedPet,
                       isSingle: true),
                   const Divider(height: 36),
 
                   // 2. 성격 및 매력 태그 (Personality Tags)
-                  _buildSectionHeader(ProfileOptions.personalityLabel, '나의 매력을 보여줄 수 있는 태그를 선택해주세요.'),
+                  _buildSectionHeader(ProfileOptions.personalityLabel,
+                      '나의 매력을 보여줄 수 있는 태그를 선택해주세요.'),
                   _buildChipSection(
                       '성격 태그', _availablePersonalities, _selectedPersonalities),
                   const Divider(height: 36),
 
                   // 3. 나의 이야기 (Bio / Intro)
-                  _buildSectionHeader('나의 이야기 (한줄 소개)', '동네 이웃들에게 전하고 싶은 따뜻한 인사를 남겨주세요.'),
+                  _buildSectionHeader(
+                      '나의 이야기 (한줄 소개)', '동네 이웃들에게 전하고 싶은 따뜻한 인사를 남겨주세요.'),
                   _buildTextField('한줄 소개', _bioController,
-                      maxLines: 3, hint: '예: 동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊'),
+                      maxLines: 3,
+                      hint: '예: 동네 친구들과 소소하고 따뜻하게 이야기 나누는 것을 좋아합니다 😊'),
                   const Divider(height: 36),
 
                   // 4. 관심사 / 취향 (Interests & Hobbies)
-                  _buildSectionHeader(ProfileOptions.hobbiesLabel, '함께 즐기고 싶은 취미나 활동을 선택해주세요.'),
+                  _buildSectionHeader(
+                      ProfileOptions.hobbiesLabel, '함께 즐기고 싶은 취미나 활동을 선택해주세요.'),
                   _buildChipSection(
                       '나의 관심사 / 취향', _availableHobbies, _selectedHobbies),
                   const SizedBox(height: 10),

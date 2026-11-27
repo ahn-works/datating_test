@@ -142,10 +142,6 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         ? '&selectedId=${Uri.encodeComponent(widget.selectedMarkerId!)}'
         : '';
 
-    final appKeyQuery = KakaoMapService.kakaoJsApiKey.isNotEmpty
-        ? '&appkey=${Uri.encodeComponent(KakaoMapService.kakaoJsApiKey)}'
-        : '';
-
     final naverQuery = naverId.isNotEmpty
         ? '&naverClientId=${Uri.encodeComponent(naverId)}&ncpClientId=${Uri.encodeComponent(KakaoMapService.naverClientId)}'
         : '';
@@ -154,7 +150,7 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
       ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
         final iframe = html.IFrameElement()
           ..src =
-              'kakao_map.html?lat=${widget.lat}&lng=${widget.lng}&level=${widget.zoomLevel}&name=${Uri.encodeComponent(widget.locationName)}${widget.hideActions ? '&hideActions=true' : ''}$appKeyQuery$naverQuery$selectedQuery$markersQuery'
+              'kakao_map.html?lat=${widget.lat}&lng=${widget.lng}&level=${widget.zoomLevel}&name=${Uri.encodeComponent(widget.locationName)}${widget.hideActions ? '&hideActions=true' : ''}$naverQuery$selectedQuery$markersQuery'
           ..style.border = 'none'
           ..style.width = '100%'
           ..style.height = '100%'

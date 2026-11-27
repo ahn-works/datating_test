@@ -1,3 +1,4 @@
+import '../../services/community_like_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -233,8 +234,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                           TextButton(
                             onPressed: () => Navigator.pop(dCtx),
                             child: const Text('둘러보기',
-                                style: TextStyle(
-                                    color: OomuTokens.textSecondary)),
+                                style:
+                                    TextStyle(color: OomuTokens.textSecondary)),
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -411,10 +412,11 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
   Widget _buildCommunityCard(Map<String, dynamic> post) {
     final authorName = (post['author'] ?? '동네주민').toString();
     final authorAvatar = post['authorAvatar']?.toString();
-    final authorManner = OomuUiHelpers.parseMannerTemp(post) ?? 36.5;
+    final authorManner = OomuUiHelpers.parseMannerTemp(post);
     final isLiked = post['isLiked'] == true;
     final likes = (post['likes'] ?? 0) as int;
     final comments = (post['comments'] ?? 0) as int;
+    final postId = (post['id'] ?? '').toString();
     final tag = (post['tag'] ?? '').toString();
     final title = (post['title'] ?? '').toString();
     final image = (post['image'] ?? '').toString();
@@ -442,8 +444,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
           if (mounted) {
             if (res is Map && res['deleted'] == true) {
               setState(() {
-                _posts
-                    .removeWhere((p) => (p['id'] ?? p['title']) == res['id']);
+                _posts.removeWhere((p) => (p['id'] ?? p['title']) == res['id']);
               });
             } else {
               setState(() {});
@@ -491,8 +492,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                               context: context,
                               contentId: postId,
                               onEdit: () async {
-                                final updated = await Navigator.push<
-                                    Map<String, dynamic>>(
+                                final updated =
+                                    await Navigator.push<Map<String, dynamic>>(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => CommunityPostCreateScreen(
@@ -503,8 +504,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                 );
                                 if (updated != null && mounted) {
                                   setState(() {
-                                    final idx = _posts.indexWhere(
-                                        (p) => p['id'] == postId);
+                                    final idx = _posts
+                                        .indexWhere((p) => p['id'] == postId);
                                     if (idx >= 0) _posts[idx] = updated;
                                   });
                                 }
@@ -536,8 +537,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                   ),
                                 );
                                 if (confirm != true || !mounted) return;
-                                final messenger =
-                                    ScaffoldMessenger.of(context);
+                                final messenger = ScaffoldMessenger.of(context);
                                 if (Firebase.apps.isNotEmpty) {
                                   try {
                                     await FirebaseFirestore.instance
@@ -563,8 +563,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                             {
                                               'myPostsCount':
                                                   cur > 0 ? cur - 1 : 0,
-                                              'updatedAt': FieldValue
-                                                  .serverTimestamp(),
+                                              'updatedAt':
+                                                  FieldValue.serverTimestamp(),
                                             },
                                             SetOptions(merge: true),
                                           );
@@ -590,8 +590,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                 }
                                 if (mounted) {
                                   setState(() {
-                                    _posts.removeWhere(
-                                        (p) => p['id'] == postId);
+                                    _posts
+                                        .removeWhere((p) => p['id'] == postId);
                                   });
                                   messenger.showSnackBar(
                                     const SnackBar(
@@ -700,35 +700,36 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF0F1),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: const Color(0xFFFFD4D8),
-                                  width: 0.8,
+                            if (authorManner != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF0F1),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFD4D8),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.thermostat_rounded,
+                                        size: 11, color: OomuTokens.coral),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '${authorManner.toStringAsFixed(1)}°C',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: OomuTokens.coral,
+                                        fontFamily: 'Pretendard',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.thermostat_rounded,
-                                      size: 11, color: OomuTokens.coral),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    '${authorManner.toStringAsFixed(1)}°C',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: OomuTokens.coral,
-                                      fontFamily: 'Pretendard',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                             if (meta.isNotEmpty) ...[
                               const SizedBox(width: 8),
                               Flexible(
@@ -750,38 +751,12 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                       ),
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          setState(() {
-                            final myUserId = globalData.activeUserId;
-                            List<dynamic> likedUsers =
-                                List<dynamic>.from(post['likedUserIds'] ?? []);
-                            bool currentlyLiked =
-                                likedUsers.contains(myUserId) ||
-                                    likedUsers.contains('user_me_01');
-                            if (currentlyLiked) {
-                              likedUsers.remove(myUserId);
-                              likedUsers.remove('user_me_01');
-                            } else {
-                              likedUsers.add(myUserId);
-                            }
-                            post['likedUserIds'] = likedUsers;
-                            post['likes'] = likedUsers.length;
-                            post['isLiked'] = !currentlyLiked;
-
-                            final postId = post['id']?.toString();
-                            if (postId != null && postId.isNotEmpty) {
-                              try {
-                                FirebaseFirestore.instance
-                                    .collection('community_posts')
-                                    .doc(postId)
-                                    .set({
-                                  'likedUserIds': likedUsers,
-                                  'likes': likedUsers.length,
-                                  'updatedAt': FieldValue.serverTimestamp(),
-                                }, SetOptions(merge: true));
-                              } catch (_) {}
-                            }
-                          });
+                        onTap: () async {
+                          try {
+                            await setCommunityLike(postId, !isLiked);
+                          } catch (_) {
+                            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('좋아요를 저장하지 못했어요.')));
+                          }
                         },
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(
@@ -842,7 +817,49 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                 color: OomuTokens.textMuted,
                               ),
                               const SizedBox(width: 3),
-                              Text('$comments', style: metaStyle),
+                              if (Firebase.apps.isNotEmpty && postId.isNotEmpty)
+                                StreamBuilder<
+                                    QuerySnapshot<Map<String, dynamic>>>(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('community_posts')
+                                      .doc(postId)
+                                      .collection('comments')
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    final count = snapshot.hasData
+                                        ? snapshot.data!.docs.where((doc) {
+                                            final data = doc.data();
+                                            return !globalData.isTargetBlocked(
+                                              uid: (data['authorId'] ??
+                                                      data['authorUid'] ??
+                                                      data['userId'] ??
+                                                      '')
+                                                  .toString(),
+                                              nickname: (data['author'] ?? '')
+                                                  .toString(),
+                                            );
+                                          }).length
+                                        : post['commentList'] is List
+                                            ? (post['commentList'] as List)
+                                                .whereType<Map>()
+                                                .where((raw) =>
+                                                    !globalData.isTargetBlocked(
+                                                      uid: (raw['authorId'] ??
+                                                              raw['authorUid'] ??
+                                                              raw['userId'] ??
+                                                              '')
+                                                          .toString(),
+                                                      nickname:
+                                                          (raw['author'] ?? '')
+                                                              .toString(),
+                                                    ))
+                                                .length
+                                            : comments;
+                                    return Text('$count', style: metaStyle);
+                                  },
+                                )
+                              else
+                                Text('$comments', style: metaStyle),
                             ],
                           ),
                         ),

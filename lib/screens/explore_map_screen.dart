@@ -7,6 +7,7 @@ import '../services/kakao_map_service.dart';
 import '../widgets/kakao_map_view.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
+import '../utils/location_helper.dart';
 import '../utils/meetup_member_helper.dart';
 import 'oomu_detail_screen.dart';
 import 'oomu_host_screen.dart';
@@ -54,10 +55,30 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     final loc = globalData.userLocation.value;
     if (loc.contains('여수') || loc.contains('화장동') || loc.contains('전남')) {
       return const [
-        {'name': '여수 화장동', 'lat': 34.7677, 'lng': 127.6534, 'dong': '전남 여수시 화장동'},
-        {'name': '여수 학동', 'lat': 34.7615, 'lng': 127.6580, 'dong': '전남 여수시 학동 (선소)'},
-        {'name': '여수 웅천', 'lat': 34.7430, 'lng': 127.6740, 'dong': '전남 여수시 웅천동'},
-        {'name': '여수 해양공원', 'lat': 34.7390, 'lng': 127.7410, 'dong': '전남 여수시 중앙동'},
+        {
+          'name': '여수 화장동',
+          'lat': 34.7677,
+          'lng': 127.6534,
+          'dong': '전남 여수시 화장동'
+        },
+        {
+          'name': '여수 학동',
+          'lat': 34.7615,
+          'lng': 127.6580,
+          'dong': '전남 여수시 학동 (선소)'
+        },
+        {
+          'name': '여수 웅천',
+          'lat': 34.7430,
+          'lng': 127.6740,
+          'dong': '전남 여수시 웅천동'
+        },
+        {
+          'name': '여수 해양공원',
+          'lat': 34.7390,
+          'lng': 127.7410,
+          'dong': '전남 여수시 중앙동'
+        },
         {'name': '홍대/연남', 'lat': 37.5568, 'lng': 126.9238, 'dong': '마포구 서교동'},
       ];
     }
@@ -361,15 +382,23 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         _currentSpotName = widget.initialSpotName!;
       }
     } else {
-      final loc = globalData.userLocation.value;
-      if (loc.contains('여수') || loc.contains('화장동') || loc.contains('전남')) {
+      final userLoc = globalData.userLocation.value.trim();
+      final coords = LocationHelper.findCoordsForLocation(
+          userLoc.isNotEmpty ? userLoc : '영등포구 신길동');
+      if (coords != null) {
+        _currentLat = coords['lat']!;
+        _currentLng = coords['lng']!;
+        _currentSpotName = userLoc.isNotEmpty ? userLoc : '영등포구 신길동';
+      } else if (userLoc.contains('여수') ||
+          userLoc.contains('화장동') ||
+          userLoc.contains('전남')) {
         _currentLat = 34.7677;
         _currentLng = 127.6534;
         _currentSpotName = '여수시 화장동 (성산공원)';
       } else {
-        _currentLat = 37.5568;
-        _currentLng = 126.9238;
-        _currentSpotName = '마포구 서교동 (홍대입구역)';
+        _currentLat = 37.5113;
+        _currentLng = 126.9214;
+        _currentSpotName = '영등포구 신길동';
       }
     }
   }
@@ -437,7 +466,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
       double targetLng = 127.6534;
       String targetName = '여수시 화장동 (성산공원)';
 
-      if (!loc.contains('여수') && !loc.contains('화장동') && !loc.contains('전남') && loc.isNotEmpty) {
+      if (!loc.contains('여수') &&
+          !loc.contains('화장동') &&
+          !loc.contains('전남') &&
+          loc.isNotEmpty) {
         targetLat = 37.5568;
         targetLng = 126.9238;
         targetName = '마포구 서교동 (홍대입구역)';
@@ -459,11 +491,15 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
   }
 
   // 두 위경도 좌표 간 거리 계산 (Haversine 공식, km 단위)
-  double _calculateDistanceKm(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistanceKm(
+      double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295; // Math.PI / 180
-    final a = 0.5 - math.cos((lat2 - lat1) * p) / 2 +
-        math.cos(lat1 * p) * math.cos(lat2 * p) *
-        (1 - math.cos((lon2 - lon1) * p)) / 2;
+    final a = 0.5 -
+        math.cos((lat2 - lat1) * p) / 2 +
+        math.cos(lat1 * p) *
+            math.cos(lat2 * p) *
+            (1 - math.cos((lon2 - lon1) * p)) /
+            2;
     return 12742 * math.asin(math.sqrt(a)); // 2 * R, R = 6371 km
   }
 
@@ -520,14 +556,17 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
         final combined = '$cat $tags $title'.toLowerCase();
 
         if (_selectedCategory == '⚡ 오늘 번개') {
-          if (m['isLightning'] != true && !combined.contains('번개')) return false;
+          if (m['isLightning'] != true && !combined.contains('번개'))
+            return false;
         } else if (_selectedCategory.contains('라이프')) {
           if (!combined.contains('라이프') &&
               !combined.contains('메이트') &&
               !combined.contains('소분') &&
               !combined.contains('장보기') &&
               !combined.contains('산책') &&
-              !combined.contains('운동')) return false;
+              !combined.contains('운동')) {
+            return false;
+          }
         } else if (_selectedCategory.contains('취향')) {
           if (!combined.contains('취향') &&
               !combined.contains('아지트') &&
@@ -536,7 +575,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               !combined.contains('카페') &&
               !combined.contains('와인') &&
               !combined.contains('문화') &&
-              !combined.contains('독서')) return false;
+              !combined.contains('독서')) {
+            return false;
+          }
         } else {
           final cleanCat = _selectedCategory
               .replaceAll(RegExp(r'[^\uAC00-\uD7A3a-zA-Z]'), '')
@@ -569,10 +610,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
 
   void _focusMeetupOnMap(Map<String, dynamic> m, {bool openDetail = false}) {
     HapticFeedback.selectionClick();
-    final double? lat =
-        (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
-    final double? lng =
-        (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
+    final double? lat = (m['lat'] is num) ? (m['lat'] as num).toDouble() : null;
+    final double? lng = (m['lng'] is num) ? (m['lng'] as num).toDouble() : null;
     setState(() {
       _selectedMeetupId = (m['id'] ?? '').toString();
       if (lat != null && lng != null) {
@@ -681,8 +720,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               }
             }
             selectedMeetup ??= meetups.cast<Map<String, dynamic>?>().firstWhere(
-                  (item) =>
-                      (item?['id'] ?? '').toString() == _selectedMeetupId,
+                  (item) => (item?['id'] ?? '').toString() == _selectedMeetupId,
                   orElse: () => null,
                 );
           }
@@ -722,7 +760,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               decoration: const InputDecoration(
                                 hintText: '동네, 지하철역, 취향 키워드 검색',
                                 hintStyle: TextStyle(
-                                    fontSize: OomuTokens.fs13, color: textMuted),
+                                    fontSize: OomuTokens.fs13,
+                                    color: textMuted),
                                 border: InputBorder.none,
                                 isDense: true,
                                 contentPadding:
@@ -756,8 +795,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         itemCount: _currentHotspots.length,
                         itemBuilder: (context, index) {
                           final spot = _currentHotspots[index];
-                          final isSelected = _currentSpotName
-                              .contains(spot['name'] as String);
+                          final isSelected =
+                              _currentSpotName.contains(spot['name'] as String);
                           return GestureDetector(
                             onTap: () => _moveToLocation(
                               (spot['lat'] as num).toDouble(),
@@ -772,7 +811,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 color: isSelected
                                     ? coralAccent
                                     : OomuTokens.background,
-                                borderRadius: BorderRadius.circular(OomuTokens.r16),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r16),
                                 border: Border.all(
                                   color: isSelected
                                       ? coralAccent
@@ -827,10 +867,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: isSelected
-                                    ? textPrimary
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(OomuTokens.r14),
+                                color: isSelected ? textPrimary : Colors.white,
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r14),
                                 border: Border.all(
                                   color: isSelected
                                       ? textPrimary
@@ -840,9 +879,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               child: Text(
                                 cat,
                                 style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : textSecondary,
+                                  color:
+                                      isSelected ? Colors.white : textSecondary,
                                   fontWeight: isSelected
                                       ? FontWeight.bold
                                       : FontWeight.w600,
@@ -901,9 +939,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.95),
-                              borderRadius: BorderRadius.circular(OomuTokens.r10),
-                              border:
-                                  Border.all(color: OomuTokens.border),
+                              borderRadius:
+                                  BorderRadius.circular(OomuTokens.r10),
+                              border: Border.all(color: OomuTokens.border),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.08),
@@ -964,7 +1002,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     horizontal: 14, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.black.withValues(alpha: 0.72),
-                                  borderRadius: BorderRadius.circular(OomuTokens.r16),
+                                  borderRadius:
+                                      BorderRadius.circular(OomuTokens.r16),
                                 ),
                                 child: const Text(
                                   '지도 이동 중...',
@@ -995,7 +1034,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
                                 color: coralAccent,
-                                borderRadius: BorderRadius.circular(OomuTokens.r6),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r6),
                               ),
                               child: const Text(
                                 '📍 선택된 모임',
@@ -1038,19 +1078,19 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   borderRadius:
                                       BorderRadius.circular(OomuTokens.r8),
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
+                                    const Text(
                                       '모임 이동',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: OomuTokens.textPrimary,
                                         fontSize: OomuTokens.fs12,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                    const SizedBox(width: 2),
-                                    Icon(Icons.chevron_right_rounded,
+                                    SizedBox(width: 2),
+                                    const Icon(Icons.chevron_right_rounded,
                                         size: 15,
                                         color: OomuTokens.textPrimary),
                                   ],
@@ -1068,10 +1108,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
               // 3. 하단 모임 리스트 (특정 모임 지도 위치 선택 + 모임 상세 이동)
               Expanded(
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: OomuTokens.surface,
-                    borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(OomuTokens.r24)),
+                    borderRadius: const BorderRadius.vertical(
+                        top: const Radius.circular(OomuTokens.r24)),
                   ),
                   child: CustomScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -1084,12 +1124,12 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.explore_rounded,
+                                  const Icon(Icons.explore_rounded,
                                       color: OomuTokens.primary, size: 19),
                                   const SizedBox(width: 6),
                                   Text(
                                     '현재 반경 모임 (${filtered.length}개)',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: OomuTokens.fs16,
                                       fontWeight: FontWeight.w800,
                                       color: OomuTokens.textPrimary,
@@ -1107,7 +1147,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 ),
                                 child: Text(
                                   '$_selectedRadius 반경',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: OomuTokens.fs12,
                                     fontWeight: FontWeight.bold,
                                     color: OomuTokens.primary,
@@ -1118,8 +1158,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           ),
                         ),
                       ),
-                      SliverToBoxAdapter(
-                        child: Divider(height: 1, color: OomuTokens.divider),
+                      const SliverToBoxAdapter(
+                        child:
+                            const Divider(height: 1, color: OomuTokens.divider),
                       ),
                       if (filtered.isEmpty)
                         SliverToBoxAdapter(
@@ -1129,13 +1170,12 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.explore_off_rounded,
-                                      size: 36,
-                                      color: OomuTokens.textTertiary),
+                                  const Icon(Icons.explore_off_rounded,
+                                      size: 36, color: OomuTokens.textTertiary),
                                   const SizedBox(height: 12),
-                                  Text(
+                                  const Text(
                                     '현재 필터 조건에 맞는 모임이 없어요',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: OomuTokens.fs15,
                                       fontWeight: FontWeight.w700,
                                       color: OomuTokens.textPrimary,
@@ -1176,9 +1216,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               (context, index) {
                                 final m = filtered[index];
                                 return _buildMeetupCard(context, m,
-                                    isSelectedOnMap: (m['id'] ?? '').toString() ==
-                                        (selectedMeetup?['id'] ?? '')
-                                            .toString());
+                                    isSelectedOnMap:
+                                        (m['id'] ?? '').toString() ==
+                                            (selectedMeetup?['id'] ?? '')
+                                                .toString());
                               },
                               childCount: filtered.length,
                             ),
@@ -1211,9 +1252,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           border: Border.all(
             color: isSelectedOnMap
                 ? OomuTokens.primary
-                : (isLightning
-                    ? OomuTokens.primaryBorder
-                    : OomuTokens.border),
+                : (isLightning ? OomuTokens.primaryBorder : OomuTokens.border),
             width: isSelectedOnMap ? 1.8 : 1.0,
           ),
           boxShadow: [
@@ -1261,9 +1300,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                               borderRadius:
                                   BorderRadius.circular(OomuTokens.r6),
                             ),
-                            child: Text(
+                            child: const Text(
                               '⚡번개',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: OomuTokens.surface,
                                   fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w900),
@@ -1295,7 +1334,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                         m['mainCategory'] ??
                                         '일상 & 소통')
                                     .toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: OomuTokens.fs11,
                                     fontWeight: FontWeight.bold,
                                     color: OomuTokens.textSecondary),
@@ -1311,9 +1350,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   borderRadius:
                                       BorderRadius.circular(OomuTokens.r6),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   '지도 선택됨',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: OomuTokens.fs11,
                                       fontWeight: FontWeight.w800,
                                       color: OomuTokens.primary),
@@ -1329,7 +1368,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           (m['title'] ?? '').toString(),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: OomuTokens.fs15,
                             fontWeight: FontWeight.w800,
                             color: OomuTokens.textPrimary,
@@ -1354,7 +1393,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 const SizedBox(width: 5),
                                 Text(
                                   '${m['host'] ?? '호스트'}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: OomuTokens.fs12,
                                       fontWeight: FontWeight.bold,
                                       color: OomuTokens.textPrimary),
@@ -1372,7 +1411,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                   ),
                                   child: Text(
                                     '${m['manner'] ?? 41.2}°C 🔥',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: OomuTokens.fs11,
                                         fontWeight: FontWeight.w800,
                                         color: OomuTokens.mannerYellowText),
@@ -1382,7 +1421,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             ),
                             Text(
                               '${MeetupMemberHelper.formatMembersLabel(m)}명',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w700,
                                   color: OomuTokens.textTertiary),
@@ -1408,13 +1447,13 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.location_on_rounded,
+                        const Icon(Icons.location_on_rounded,
                             size: 15, color: OomuTokens.primary),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             (m['location'] ?? '위치 미지정').toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: OomuTokens.fs13,
                                 fontWeight: FontWeight.w700,
                                 color: OomuTokens.textPrimary),
@@ -1433,7 +1472,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             ),
                             child: Text(
                               m['distance'].toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: OomuTokens.fs11,
                                   fontWeight: FontWeight.w800,
                                   color: OomuTokens.primary),
@@ -1441,17 +1480,18 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                           ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Divider(height: 1, color: OomuTokens.divider),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 6),
+                      child:
+                          const Divider(height: 1, color: OomuTokens.divider),
                     ),
                     Row(
                       children: [
                         Expanded(
                           child: InkWell(
-                            onTap: () => _focusMeetupOnMap(m, openDetail: false),
-                            borderRadius:
-                                BorderRadius.circular(OomuTokens.r8),
+                            onTap: () =>
+                                _focusMeetupOnMap(m, openDetail: false),
+                            borderRadius: BorderRadius.circular(OomuTokens.r8),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 7),
                               decoration: BoxDecoration(
@@ -1486,8 +1526,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () => _focusMeetupOnMap(m, openDetail: true),
-                            borderRadius:
-                                BorderRadius.circular(OomuTokens.r8),
+                            borderRadius: BorderRadius.circular(OomuTokens.r8),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 7),
                               decoration: BoxDecoration(
@@ -1496,9 +1535,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                     BorderRadius.circular(OomuTokens.r8),
                               ),
                               alignment: Alignment.center,
-                              child: Text(
+                              child: const Text(
                                 '해당 모임으로 이동 ›',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: OomuTokens.fs12,
                                   fontWeight: FontWeight.w700,
                                   color: OomuTokens.surface,
@@ -1529,10 +1568,10 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
           builder: (context, setModalState) {
             return Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: OomuTokens.surface,
-                borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(OomuTokens.r24)),
+                borderRadius: const BorderRadius.vertical(
+                    top: const Radius.circular(OomuTokens.r24)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1541,9 +1580,9 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         '탐색 반경 및 필터 설정',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: OomuTokens.fs18,
                             fontWeight: FontWeight.w800,
                             color: OomuTokens.textPrimary),
@@ -1563,11 +1602,11 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 _searchController.clear();
                               });
                             },
-                            icon: Icon(Icons.refresh_rounded,
+                            icon: const Icon(Icons.refresh_rounded,
                                 size: 16, color: OomuTokens.primary),
-                            label: Text(
+                            label: const Text(
                               '전체 초기화',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: OomuTokens.fs13,
                                 fontWeight: FontWeight.bold,
                                 color: OomuTokens.primary,
@@ -1575,7 +1614,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.close,
+                            icon: const Icon(Icons.close,
                                 color: OomuTokens.textPrimary),
                             onPressed: () => Navigator.pop(ctx),
                           ),
@@ -1584,8 +1623,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text('탐색 카테고리',
-                      style: TextStyle(
+                  const Text('탐색 카테고리',
+                      style: const TextStyle(
                           fontSize: OomuTokens.fs14,
                           fontWeight: FontWeight.bold,
                           color: OomuTokens.textSecondary)),
@@ -1601,9 +1640,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         selectedColor: OomuTokens.primarySubtle,
                         backgroundColor: OomuTokens.surfaceElevated,
                         side: BorderSide(
-                          color: isSel
-                              ? OomuTokens.primary
-                              : OomuTokens.border,
+                          color: isSel ? OomuTokens.primary : OomuTokens.border,
                         ),
                         labelStyle: TextStyle(
                           color: isSel
@@ -1620,8 +1657,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                     }).toList(),
                   ),
                   const SizedBox(height: 16),
-                  Text('탐색 반경 기준',
-                      style: TextStyle(
+                  const Text('탐색 반경 기준',
+                      style: const TextStyle(
                           fontSize: OomuTokens.fs14,
                           fontWeight: FontWeight.bold,
                           color: OomuTokens.textSecondary)),
@@ -1636,9 +1673,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                         selectedColor: OomuTokens.primary,
                         backgroundColor: OomuTokens.surfaceElevated,
                         side: BorderSide(
-                          color: isSel
-                              ? OomuTokens.primary
-                              : OomuTokens.border,
+                          color: isSel ? OomuTokens.primary : OomuTokens.border,
                         ),
                         labelStyle: TextStyle(
                           color: isSel
@@ -1667,8 +1702,8 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                                 BorderRadius.circular(OomuTokens.r16)),
                       ),
                       onPressed: () => Navigator.pop(ctx),
-                      child: Text('필터 적용하기',
-                          style: TextStyle(
+                      child: const Text('필터 적용하기',
+                          style: const TextStyle(
                               color: OomuTokens.surface,
                               fontWeight: FontWeight.bold,
                               fontSize: OomuTokens.fs16)),

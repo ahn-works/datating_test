@@ -98,9 +98,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
         backgroundColor: OomuTokens.surface,
         surfaceTintColor: OomuTokens.surface,
         elevation: 0,
-        title: Text(
+        title: const Text(
           '알림',
-          style: TextStyle(
+          style: const TextStyle(
             color: OomuTokens.textPrimary,
             fontSize: OomuTokens.fs18,
             fontWeight: FontWeight.w700,
@@ -200,7 +200,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   return ListView.separated(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: docs.length,
-                    separatorBuilder: (_, __) => Divider(
+                    separatorBuilder: (_, __) => const Divider(
                       height: 1,
                       thickness: 0.5,
                       indent: 16,
@@ -233,7 +233,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 decoration: BoxDecoration(
                                   color: isRead
                                       ? OomuTokens.surfaceElevated
-                                      : OomuTokens.coral.withValues(alpha: 0.12),
+                                      : OomuTokens.coral
+                                          .withValues(alpha: 0.12),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -271,7 +272,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 const EdgeInsets.only(left: 8),
                                             child: Text(
                                               timeStr,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: OomuTokens.textMuted,
                                                 fontSize: OomuTokens.fs12,
                                               ),

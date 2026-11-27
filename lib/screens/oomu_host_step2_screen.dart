@@ -55,8 +55,8 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
         'time': depTimeStr,
         'title': widget.meetingAddr,
         'desc': '호스트 차량 대기 및 탑승자 랑데부',
-        'lat': widget.meetingLat ?? 37.5638, // default seoul
-        'lng': widget.meetingLng ?? 126.9037,
+        'lat': widget.meetingLat,
+        'lng': widget.meetingLng,
       },
       {
         'type': 'drive',
@@ -67,8 +67,8 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
         'time': '도착',
         'title': widget.destAddr,
         'desc': '목적지 도착 및 일정',
-        'lat': widget.destLat ?? 37.8813, // default chuncheon
-        'lng': widget.destLng ?? 127.7300,
+        'lat': widget.destLat,
+        'lng': widget.destLng,
       },
       {
         'type': 'drive',
@@ -79,116 +79,23 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
         'time': '복귀',
         'title': '출발지로 복귀 및 해산',
         'desc': '1/N 모임 실비 분담 완료',
-        'lat': widget.meetingLat ?? 37.5638,
-        'lng': widget.meetingLng ?? 126.9037,
+        'lat': widget.meetingLat,
+        'lng': widget.meetingLng,
       }
     ];
   }
 
-  static const List<Map<String, String>> _koreanPoiDatabase = [
-    {
-      'place_name': '가평휴게소 (춘천방향)',
-      'address_name': '경기 가평군 설악면 미원리 1-1',
-      'category_group_name': '휴게소',
-      'x': '127.4988',
-      'y': '37.7126'
-    },
-    {
-      'place_name': '덕평자연휴게소',
-      'address_name': '경기 이천시 마장면 덕이로154번길 287-76',
-      'category_group_name': '휴게소',
-      'x': '127.3688',
-      'y': '37.2173'
-    },
-    {
-      'place_name': '행담도휴게소',
-      'address_name': '충남 당진시 신평면 서해안고속도로 275',
-      'category_group_name': '휴게소',
-      'x': '126.8174',
-      'y': '36.9442'
-    },
-    {
-      'place_name': '망향휴게소 (부산방향)',
-      'address_name': '충남 천안시 서북구 입장면 망향로 501',
-      'category_group_name': '휴게소',
-      'x': '127.1852',
-      'y': '36.8624'
-    },
-    {
-      'place_name': '안성맞춤휴게소',
-      'address_name': '경기 안성시 평택제천고속도로 42',
-      'category_group_name': '휴게소',
-      'x': '127.3195',
-      'y': '37.0392'
-    },
-    {
-      'place_name': '스타벅스 더북한강R점',
-      'address_name': '경기 남양주시 화도읍 북한강로 1098',
-      'category_group_name': '카페',
-      'x': '127.3481',
-      'y': '37.6493'
-    },
-    {
-      'place_name': '스타벅스 더양평DTR점',
-      'address_name': '경기 양평군 양평읍 양근로 76',
-      'category_group_name': '카페',
-      'x': '127.4812',
-      'y': '37.4921'
-    },
-    {
-      'place_name': '스타벅스 홍대입구역사거리점',
-      'address_name': '서울 마포구 양화로 165',
-      'category_group_name': '카페',
-      'x': '126.9238',
-      'y': '37.5568'
-    },
-    {
-      'place_name': '성수동 블루보틀 카페',
-      'address_name': '서울 성동구 아차산로 7',
-      'category_group_name': '카페',
-      'x': '127.0456',
-      'y': '37.5478'
-    },
-    {
-      'place_name': '동대문엽기떡볶이 홍대점',
-      'address_name': '서울 마포구 어울마당로 112',
-      'category_group_name': '맛집',
-      'x': '126.9228',
-      'y': '37.5545'
-    },
-    {
-      'place_name': '하이디라오 홍대점',
-      'address_name': '서울 마포구 양화로 176',
-      'category_group_name': '맛집',
-      'x': '126.9255',
-      'y': '37.5574'
-    },
-    {
-      'place_name': '여수 학동 낭만식당',
-      'address_name': '전남 여수시 시청동1길 15',
-      'category_group_name': '맛집',
-      'x': '127.6605',
-      'y': '34.7620'
-    },
-    {
-      'place_name': '여수 학동 감성 오션뷰 카페',
-      'address_name': '전남 여수시 시청서1길 23',
-      'category_group_name': '카페',
-      'x': '127.6622',
-      'y': '34.7604'
-    },
-  ];
 
   Future<void> _searchAndAddRestStop() async {
     TextEditingController searchController = TextEditingController();
-    List<dynamic> searchResults = List.from(_koreanPoiDatabase);
+    List<Map<String, dynamic>> searchResults = [];
     bool isSearching = false;
 
     Future<void> executeSearch(String query, StateSetter setModalState) async {
       final clean = query.trim();
       if (clean.isEmpty) {
         setModalState(() {
-          searchResults = List.from(_koreanPoiDatabase);
+          searchResults = [];
           isSearching = false;
         });
         return;
@@ -197,7 +104,7 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
 
       List<Map<String, dynamic>> results = [];
 
-      // 1. 카카오맵 공식 키워드 장소 검색 (Single Source of Truth)
+      // 네이버에서 좌표가 확인된 장소만 경유지로 선택할 수 있다.
       try {
         final places = await KakaoMapService.searchKeyword(clean, size: 10);
         for (var p in places) {
@@ -212,31 +119,7 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
           });
         }
       } catch (e) {
-        debugPrint('[HostStep2] Kakao search error: $e');
-      }
-
-      // 3. Curated Database matches
-      final lower = clean.toLowerCase();
-      final matchedPoi = _koreanPoiDatabase
-          .where((p) =>
-              p['place_name']!.toLowerCase().contains(lower) ||
-              p['address_name']!.toLowerCase().contains(lower))
-          .toList();
-      for (var p in matchedPoi) {
-        if (!results.any((r) => r['place_name'] == p['place_name'])) {
-          results.add(Map<String, dynamic>.from(p));
-        }
-      }
-
-      // 4. Direct Entry fallback
-      if (!results.any((r) => r['place_name'] == clean)) {
-        results.insert(0, {
-          'place_name': clean,
-          'address_name': '직접 입력한 장소',
-          'category_group_name': '직접입력',
-          'x': '126.9780',
-          'y': '37.5665',
-        });
+        debugPrint('[HostStep2] Naver search error: $e');
       }
 
       setModalState(() {
@@ -282,7 +165,9 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
                   isSearching
                       ? const Center(child: CircularProgressIndicator())
                       : Expanded(
-                          child: ListView.separated(
+                          child: searchResults.isEmpty
+                          ? const Center(child: Text('네이버에서 확인된 장소가 없어요. 검색어를 바꿔 주세요.'))
+                          : ListView.separated(
                             itemCount: searchResults.length,
                             separatorBuilder: (_, __) =>
                                 const Divider(height: 1),

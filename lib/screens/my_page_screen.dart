@@ -99,9 +99,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
 
         final String finalAvatar;
         if (avatarUrl.isNotEmpty && !avatarUrl.startsWith('blob:')) {
-          finalAvatar = await R2StorageService.compressDataUrlIfOversized(avatarUrl);
+          finalAvatar =
+              await R2StorageService.compressDataUrlIfOversized(avatarUrl);
         } else {
-          finalAvatar = await R2StorageService.toCompressedDataUrl(bytes, file.name);
+          finalAvatar =
+              await R2StorageService.toCompressedDataUrl(bytes, file.name);
         }
         globalData.updateAvatar(finalAvatar);
 
@@ -667,12 +669,16 @@ class _MyPageScreenState extends State<MyPageScreen> {
               bool isVerified = globalData.isPhoneVerified.value;
               double? loadedManner;
               String? loadedAvatar;
-              List<String> hobbies = List<String>.from(globalData.userHobbies.value);
+              List<String> hobbies =
+                  List<String>.from(globalData.userHobbies.value);
               List<String> closeFriendPersonalities = [];
               List<String> values = [];
-              List<String> personalities = List<String>.from(globalData.userPersonalities.value);
-              List<String> drinking = List<String>.from(globalData.userDrinking.value);
-              List<String> userPhotos = List<String>.from(globalData.userPhotos.value);
+              List<String> personalities =
+                  List<String>.from(globalData.userPersonalities.value);
+              List<String> drinking =
+                  List<String>.from(globalData.userDrinking.value);
+              List<String> userPhotos =
+                  List<String>.from(globalData.userPhotos.value);
 
               try {
                 if (snapshot.hasData &&
@@ -867,6 +873,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => UserProfileScreen(
+                                    userId: Firebase.apps.isEmpty ? null : FirebaseAuth.instance.currentUser?.uid,
                                     userName: nickname,
                                     userAge: age > 0 ? '$age' : '',
                                     userLocation: location,
@@ -901,10 +908,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 child: ValueListenableBuilder<String>(
                                   valueListenable: globalData.userAvatar,
                                   builder: (context, avatarVal, _) {
-                                    final currentAvatar = (loadedAvatar != null &&
-                                            loadedAvatar.isNotEmpty)
-                                        ? loadedAvatar
-                                        : avatarVal;
+                                    final currentAvatar =
+                                        (loadedAvatar != null &&
+                                                loadedAvatar.isNotEmpty)
+                                            ? loadedAvatar
+                                            : avatarVal;
                                     return _buildAvatarImage(currentAvatar);
                                   },
                                 ),
@@ -1038,9 +1046,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         builder: (context, temp, _) {
                           final parsed = OomuUiHelpers.parseMannerValue(temp);
                           final manner = loadedManner ?? parsed;
-                          final double displayTemp = (manner != null && manner >= 0.0) ? manner : 0.0;
-                          final double progress = (displayTemp / 100.0).clamp(0.0, 1.0);
-                          final bool isInitial = displayTemp == 0.0 || reviewCount == 0;
+                          final double displayTemp =
+                              (manner != null && manner >= 0.0) ? manner : 0.0;
+                          final double progress =
+                              (displayTemp / 100.0).clamp(0.0, 1.0);
+                          final bool hasManner = manner != null && manner > 0;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1057,7 +1067,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                           height: 28,
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFFFF0F1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
                                           alignment: Alignment.center,
                                           child: const Icon(
@@ -1083,7 +1094,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${displayTemp.toStringAsFixed(1)}°C',
+                                    hasManner
+                                        ? '${displayTemp.toStringAsFixed(1)}°C'
+                                        : '정보 없음',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w800,
@@ -1112,9 +1125,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                isInitial
-                                    ? '첫 평가 전 (초기 매너온도 0.0°C)'
-                                    : '받은 후기 $reviewCount개',
+                                hasManner
+                                    ? (reviewCount > 0
+                                        ? '받은 후기 $reviewCount개'
+                                        : '받은 후기 없음')
+                                    : '매너온도가 아직 등록되지 않았어요',
                                 style: const TextStyle(
                                   color: OomuTokens.textSecondary,
                                   fontSize: 12,
@@ -1159,11 +1174,37 @@ class _MyPageScreenState extends State<MyPageScreen> {
                       );
                     },
                   ),
-                  _buildMenuItem(
-                    icon: Icons.edit_outlined,
-                    title: '내가 쓴 글',
-                    badge: '$myPostsCount',
-                    onTap: _showMyPostsModal,
+                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: canQueryFirestore
+                        ? FirebaseFirestore.instance
+                            .collection('community_posts')
+                            .snapshots()
+                        : null,
+                    builder: (context, postsSnapshot) {
+                      final authUid = canQueryFirestore
+                          ? (FirebaseAuth.instance.currentUser?.uid ?? '')
+                          : '';
+                      final ids = <String>{activeUid, authUid}..remove('');
+                      final nicknames = <String>{nickname}..remove('닉네임 미설정');
+                      final count = postsSnapshot.hasData
+                          ? postsSnapshot.data!.docs.where((doc) {
+                              final post = doc.data();
+                              final authorId =
+                                  (post['authorId'] ?? '').toString();
+                              final author = (post['author'] ?? '').toString();
+                              return (authorId.isNotEmpty &&
+                                      ids.contains(authorId)) ||
+                                  (author.isNotEmpty &&
+                                      nicknames.contains(author));
+                            }).length
+                          : myPostsCount;
+                      return _buildMenuItem(
+                        icon: Icons.edit_outlined,
+                        title: '내가 쓴 글',
+                        badge: '$count',
+                        onTap: _showMyPostsModal,
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     icon: Icons.star_outline_rounded,
@@ -1472,9 +1513,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           .collection('community_posts')
                           .snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Center(
-                            child: CircularProgressIndicator(color: OomuTokens.coral),
+                            child: CircularProgressIndicator(
+                                color: OomuTokens.coral),
                           );
                         }
                         final docs = snapshot.data?.docs ?? [];
@@ -1482,12 +1525,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
                         final List<Map<String, dynamic>> myComments = [];
 
                         for (final doc in docs) {
-                          final data = Map<String, dynamic>.from(doc.data() as Map);
+                          final data =
+                              Map<String, dynamic>.from(doc.data() as Map);
                           data['id'] = doc.id;
                           final authorId = (data['authorId'] ?? '').toString();
                           final author = (data['author'] ?? '').toString();
 
-                          final isMyPost = (authorId.isNotEmpty && userIds.contains(authorId)) ||
+                          final isMyPost = (authorId.isNotEmpty &&
+                                  userIds.contains(authorId)) ||
                               (author.isNotEmpty && userNicks.contains(author));
                           if (isMyPost) {
                             myPosts.add(data);
@@ -1499,10 +1544,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           for (final c in comments) {
                             if (c is Map) {
                               final cMap = Map<String, dynamic>.from(c);
-                              final cAuthorId = (cMap['authorId'] ?? '').toString();
+                              final cAuthorId =
+                                  (cMap['authorId'] ?? '').toString();
                               final cAuthor = (cMap['author'] ?? '').toString();
-                              final isMyComment = (cAuthorId.isNotEmpty && userIds.contains(cAuthorId)) ||
-                                  (cAuthor.isNotEmpty && userNicks.contains(cAuthor));
+                              final isMyComment = (cAuthorId.isNotEmpty &&
+                                      userIds.contains(cAuthorId)) ||
+                                  (cAuthor.isNotEmpty &&
+                                      userNicks.contains(cAuthor));
                               if (isMyComment) {
                                 myComments.add({
                                   ...cMap,
@@ -1524,7 +1572,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                       child: Text(
                                         '아직 작성한 동네 커뮤니티 글이 없습니다.',
                                         style: TextStyle(
-                                            color: OomuTokens.textSecondary, fontSize: 14),
+                                            color: OomuTokens.textSecondary,
+                                            fontSize: 14),
                                       ),
                                     ),
                                   )
@@ -1554,21 +1603,27 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                             Row(
                                               children: [
                                                 Container(
-                                                  padding: const EdgeInsets.symmetric(
-                                                      horizontal: 8, vertical: 3),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 3),
                                                   decoration: BoxDecoration(
-                                                    color: OomuTokens.surfaceMuted,
+                                                    color:
+                                                        OomuTokens.surfaceMuted,
                                                     borderRadius:
-                                                        BorderRadius.circular(6),
+                                                        BorderRadius.circular(
+                                                            6),
                                                   ),
                                                   child: Text(
-                                                    post['category']?.toString() ??
+                                                    post['category']
+                                                            ?.toString() ??
                                                         '동네소식',
                                                     style: const TextStyle(
                                                       fontSize: 11,
-                                                      fontWeight: FontWeight.w600,
-                                                      color:
-                                                          OomuTokens.textSecondary,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: OomuTokens
+                                                          .textSecondary,
                                                     ),
                                                   ),
                                                 ),
@@ -1578,8 +1633,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                                       '최근',
                                                   style: const TextStyle(
                                                     fontSize: 12,
-                                                    color:
-                                                        OomuTokens.textSecondary,
+                                                    color: OomuTokens
+                                                        .textSecondary,
                                                   ),
                                                 ),
                                               ],
@@ -1619,7 +1674,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                       child: Text(
                                         '아직 작성한 댓글이 없습니다.',
                                         style: TextStyle(
-                                            color: OomuTokens.textSecondary, fontSize: 14),
+                                            color: OomuTokens.textSecondary,
+                                            fontSize: 14),
                                       ),
                                     ),
                                   )
@@ -1630,7 +1686,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                         const Divider(height: 24),
                                     itemBuilder: (context, index) {
                                       final comment = myComments[index];
-                                      final post = comment['post'] as Map<String, dynamic>;
+                                      final post = comment['post']
+                                          as Map<String, dynamic>;
                                       return InkWell(
                                         onTap: () {
                                           Navigator.pop(ctx);
@@ -1659,7 +1716,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                             ),
                                             const SizedBox(height: 6),
                                             Text(
-                                              comment['content']?.toString() ?? '',
+                                              comment['content']?.toString() ??
+                                                  '',
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
@@ -1749,8 +1807,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                           children: [
                             Text('받은 후기 ($count개)',
                                 style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold)),
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
                             if (count > 0)
                               const Text('100% 만족',
                                   style: TextStyle(
@@ -1799,10 +1856,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                 const Divider(height: 1),
                             itemBuilder: (context, index) {
                               final rData = docs[index].data();
-                              final content = (rData['content'] ??
-                                      rData['text'] ??
-                                      '')
-                                  .toString();
+                              final content =
+                                  (rData['content'] ?? rData['text'] ?? '')
+                                      .toString();
                               final meetupTitle = (rData['meetupTitle'] ??
                                       rData['title'] ??
                                       '동네 모임')

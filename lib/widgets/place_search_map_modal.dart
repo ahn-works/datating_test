@@ -43,158 +43,10 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
   late LatLng _selectedLatLng;
   String _selectedPlaceName = '';
   String _selectedAddress = '';
+  PlaceSearchResult? _selectedResult;
+  int _searchGeneration = 0;
   bool _isLoading = false;
   String _selectedCategoryFilter = '전체';
-
-  // 전국 주요 추천 핫플 및 모임 장소 기본 데이터베이스 (오프라인 및 즉시 자동완성)
-  final List<PlaceSearchResult> _defaultPlaces = [
-    // 영등포구 신길동 · 여의도 생활권
-    const PlaceSearchResult(
-      name: '스타벅스 신길역점',
-      address: '서울 영등포구 영등포로 353 (신길동)',
-      category: '카페',
-      latLng: LatLng(37.5158, 126.9168),
-    ),
-    const PlaceSearchResult(
-      name: '신길역 1번 출구 만남의 광장',
-      address: '서울 영등포구 신길동 22-3 지하철 1·5호선',
-      category: '약속장소',
-      latLng: LatLng(37.5171, 126.9172),
-    ),
-    const PlaceSearchResult(
-      name: '신길근린공원 산책로 & 러닝 트랙',
-      address: '서울 영등포구 신길로 190 (신길동)',
-      category: '액티비티',
-      latLng: LatLng(37.5078, 126.9148),
-    ),
-    const PlaceSearchResult(
-      name: '신길동 로컬 수제맥주 & 하이볼 라운지',
-      address: '서울 영등포구 신길로 112 (신길동)',
-      category: '술집',
-      latLng: LatLng(37.5094, 126.9136),
-    ),
-    const PlaceSearchResult(
-      name: '신길역 코인노래연습장 & 보드게임 아지트',
-      address: '서울 영등포구 도림로 308 (신길동)',
-      category: '엔터',
-      latLng: LatLng(37.5121, 126.9182),
-    ),
-    // 카페 & 디저트
-    const PlaceSearchResult(
-      name: '스타벅스 홍대입구역사거리점',
-      address: '서울 마포구 양화로 165',
-      category: '카페',
-      latLng: LatLng(37.5568, 126.9238),
-    ),
-    const PlaceSearchResult(
-      name: '성수동 블루보틀 카페 & 베이커리',
-      address: '서울 성동구 아차산로 7',
-      category: '카페',
-      latLng: LatLng(37.5478, 127.0456),
-    ),
-    const PlaceSearchResult(
-      name: '연남동 감성 북카페 & 에스프레소 바',
-      address: '서울 마포구 동교로 242-4',
-      category: '카페',
-      latLng: LatLng(37.5615, 126.9242),
-    ),
-    const PlaceSearchResult(
-      name: '여수 학동 감성 오션뷰 카페',
-      address: '전남 여수시 시청서1길 23',
-      category: '카페',
-      latLng: LatLng(34.7604, 127.6622),
-    ),
-    const PlaceSearchResult(
-      name: '투썸플레이스 신촌역점',
-      address: '서울 서대문구 신촌로 109',
-      category: '카페',
-      latLng: LatLng(37.5552, 126.9368),
-    ),
-
-    // 맛집 & 소셜 다이닝
-    const PlaceSearchResult(
-      name: '동대문엽기떡볶이 홍대점 (마라떡볶이)',
-      address: '서울 마포구 어울마당로 112',
-      category: '맛집',
-      latLng: LatLng(37.5545, 126.9228),
-    ),
-    const PlaceSearchResult(
-      name: '하이디라오 홍대점 (소셜 마라탕)',
-      address: '서울 마포구 양화로 176 와이즈파크 5층',
-      category: '맛집',
-      latLng: LatLng(37.5574, 126.9255),
-    ),
-    const PlaceSearchResult(
-      name: '연남동 내추럴 와인바 미로길',
-      address: '서울 마포구 연남로1길 42',
-      category: '술집',
-      latLng: LatLng(37.5620, 126.9230),
-    ),
-    const PlaceSearchResult(
-      name: '여수 학동 맛집거리 낭만식당',
-      address: '전남 여수시 시청동1길 15',
-      category: '맛집',
-      latLng: LatLng(34.7620, 127.6605),
-    ),
-    const PlaceSearchResult(
-      name: '강남역 땀땀 (매운 소곱창 쌀국수)',
-      address: '서울 강남구 강남대로98길 12-5',
-      category: '맛집',
-      latLng: LatLng(37.5002, 127.0279),
-    ),
-
-    // 엔터 & 액티비티
-    const PlaceSearchResult(
-      name: '수코인노래연습장 합정역점 (불금 코노)',
-      address: '서울 마포구 양화로 45 세아베스틸빌딩',
-      category: '엔터',
-      latLng: LatLng(37.5498, 126.9142),
-    ),
-    const PlaceSearchResult(
-      name: '레드버튼 보드게임카페 신촌점',
-      address: '서울 서대문구 연세로 12 4층',
-      category: '엔터',
-      latLng: LatLng(37.5569, 126.9363),
-    ),
-    const PlaceSearchResult(
-      name: '망원 한강공원 입구 편의점 (야경 산책로)',
-      address: '서울 마포구 마포나루길 467',
-      category: '액티비티',
-      latLng: LatLng(37.5540, 126.8960),
-    ),
-    const PlaceSearchResult(
-      name: '서울숲 잔디마당 피크닉 스팟',
-      address: '서울 성동구 뚝섬로 273',
-      category: '액티비티',
-      latLng: LatLng(37.5443, 127.0374),
-    ),
-
-    // 지하철역 및 약속 장소
-    const PlaceSearchResult(
-      name: '홍대입구역 9번 출구 앞 만남의 장소',
-      address: '서울 마포구 양화로 160 지하철 2호선',
-      category: '약속장소',
-      latLng: LatLng(37.5562, 126.9235),
-    ),
-    const PlaceSearchResult(
-      name: '합정역 8번 출구 홀트아동복지회 앞',
-      address: '서울 마포구 양화로 19',
-      category: '약속장소',
-      latLng: LatLng(37.5490, 126.9135),
-    ),
-    const PlaceSearchResult(
-      name: '성수역 3번 출구 카페거리 입구',
-      address: '서울 성동구 아차산로 100',
-      category: '약속장소',
-      latLng: LatLng(37.5445, 127.0560),
-    ),
-    const PlaceSearchResult(
-      name: '여수시청 앞 분수광장',
-      address: '전남 여수시 시청로 1',
-      category: '약속장소',
-      latLng: LatLng(34.7600, 127.6625),
-    ),
-  ];
 
   List<PlaceSearchResult> _searchResults = [];
 
@@ -207,71 +59,36 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
     final userCoords = LocationHelper.findCoordsForLocation(
       userLoc.isNotEmpty ? userLoc : '영등포구 신길동',
     );
-    final matchedDefault = _defaultPlaces.firstWhere(
-      (p) =>
-          dongToken.isNotEmpty &&
-          (p.address.contains(dongToken) || p.name.contains(dongToken)),
-      orElse: () => _defaultPlaces.first,
-    );
-
     _selectedLatLng = widget.initialLatLng ??
         (userCoords != null
             ? LatLng(userCoords['lat']!, userCoords['lng']!)
-            : matchedDefault.latLng);
+            : const LatLng(37.5665, 126.9780));
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _searchController.text = widget.initialQuery!;
-      _selectedPlaceName = widget.initialQuery!;
-      _selectedAddress = userLoc.isNotEmpty ? '$userLoc 설정 장소' : '설정된 장소';
-      _searchOnlineKakao(widget.initialQuery!);
-    } else {
-      _selectedPlaceName = matchedDefault.name;
-      _selectedAddress = matchedDefault.address;
-      if (dongToken.isNotEmpty) {
-        _searchOnlineKakao('$dongToken 카페 맛집');
-      }
-    }
-    _searchResults = List.from(_defaultPlaces);
-    if (dongToken.isNotEmpty) {
-      _searchResults.sort((a, b) {
-        final aMatch =
-            a.address.contains(dongToken) || a.name.contains(dongToken) ? 0 : 1;
-        final bMatch =
-            b.address.contains(dongToken) || b.name.contains(dongToken) ? 0 : 1;
-        return aMatch.compareTo(bMatch);
-      });
+      _searchOnlineNaver(widget.initialQuery!);
+    } else if (dongToken.isNotEmpty) {
+      _searchOnlineNaver('$dongToken 카페');
     }
   }
 
   void _filterPlaces(String query) {
-    final clean = query.trim().toLowerCase();
+    final clean = query.trim();
     setState(() {
-      if (clean.isEmpty) {
-        if (_selectedCategoryFilter == '전체') {
-          _searchResults = List.from(_defaultPlaces);
-        } else {
-          _searchResults = _defaultPlaces
-              .where((p) => p.category == _selectedCategoryFilter)
-              .toList();
-        }
-      } else {
-        _searchResults = _defaultPlaces.where((p) {
-          final matchesCategory = _selectedCategoryFilter == '전체' ||
-              p.category == _selectedCategoryFilter;
-          final matchesText = p.name.toLowerCase().contains(clean) ||
-              p.address.toLowerCase().contains(clean) ||
-              p.category.toLowerCase().contains(clean);
-          return matchesCategory && matchesText;
-        }).toList();
-      }
+      _searchResults = [];
+      _selectedResult = null;
     });
-
-    // 카카오 공식 키워드 검색 (Kakao Local API) 디바운스 지원
-    if (clean.length >= 2) {
-      _searchOnlineKakao(clean);
-    }
+    final dong =
+        globalData.userLocation.value.trim().split(RegExp(r'\s+')).last;
+    final search = clean.isNotEmpty
+        ? clean
+        : (dong.isNotEmpty && _selectedCategoryFilter != '전체'
+            ? '$dong $_selectedCategoryFilter'
+            : '');
+    if (search.length >= 2) _searchOnlineNaver(search);
   }
 
-  Future<void> _searchOnlineKakao(String query) async {
+  Future<void> _searchOnlineNaver(String query) async {
+    final generation = ++_searchGeneration;
     try {
       final places = await KakaoMapService.searchKeyword(
         query,
@@ -279,8 +96,27 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
         lng: _selectedLatLng.longitude,
         size: 10,
       );
-      if (places.isNotEmpty && mounted) {
-        final onlineList = places.map((item) {
+      if (mounted && generation == _searchGeneration) {
+        final regionParts = globalData.userLocation.value
+            .trim()
+            .split(RegExp(r'\s+'))
+            .where((part) => part.isNotEmpty)
+            .toList();
+        final city =
+            regionParts.length >= 2 ? regionParts[regionParts.length - 2] : '';
+        // A venue in another city must not be offered as this neighborhood's
+        // meeting place. Users can change their neighborhood before searching.
+        final localPlaces = city.isEmpty
+            ? places
+            : places.where((item) {
+                final address = item.roadAddress.isNotEmpty
+                    ? item.roadAddress
+                    : item.address;
+                return address.contains(city) ||
+                    address
+                        .contains(city.replaceFirst(RegExp(r'(시|군|구)$'), ''));
+              }).toList();
+        final onlineList = localPlaces.map((item) {
           return PlaceSearchResult(
             name: item.name,
             address:
@@ -290,17 +126,16 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
           );
         }).toList();
 
-        setState(() {
-          final existingNames = _searchResults.map((r) => r.name).toSet();
-          for (final item in onlineList) {
-            if (!existingNames.contains(item.name)) {
-              _searchResults.insert(0, item);
-            }
-          }
-        });
+        setState(() => _searchResults = onlineList
+            .where((p) =>
+                _selectedCategoryFilter == '전체' ||
+                p.category.contains(_selectedCategoryFilter))
+            .toList());
       }
     } catch (_) {
-      // 온라인 검색 실패 시 내장 데이터베이스 결과 계속 사용
+      if (mounted && generation == _searchGeneration) {
+        setState(() => _searchResults = []);
+      }
     }
   }
 
@@ -334,12 +169,18 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
       );
 
       final newLatLng = LatLng(position.latitude, position.longitude);
-      _selectLocation(
-        newLatLng,
-        '내 현재 위치 주변',
-        '위도: ${position.latitude.toStringAsFixed(4)}, 경도: ${position.longitude.toStringAsFixed(4)}',
-      );
-      // kakao map updated
+      _selectedLatLng = newLatLng;
+      final region = await KakaoMapService.coordToRegionName(
+          position.latitude, position.longitude);
+      if (!mounted) return;
+      if (region != null) {
+        _searchController.text = '$region 카페';
+        _filterPlaces(_searchController.text);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('현재 동네를 확인하지 못했어요. 장소를 직접 검색해 주세요.')),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -351,13 +192,14 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
     }
   }
 
-  void _selectLocation(LatLng latLng, String placeName, String address) {
+  void _selectLocation(LatLng latLng, String placeName, String address,
+      {PlaceSearchResult? verifiedResult}) {
     setState(() {
       _selectedLatLng = latLng;
       _selectedPlaceName = placeName;
       _selectedAddress = address;
+      _selectedResult = verifiedResult;
     });
-    // kakao map updated
   }
 
   @override
@@ -509,65 +351,66 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
           ),
           const SizedBox(height: 6),
 
-          // 4. 지도 뷰 (FlutterMap)
-          // 4. 카카오 공식 지도 뷰 (KakaoMapView)
+          // Show a map only after a real Naver place result was selected.
           SizedBox(
             height: 200,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: KakaoMapView(
-                lat: _selectedLatLng.latitude,
-                lng: _selectedLatLng.longitude,
-                locationName: _selectedPlaceName,
-                height: 200,
-                hideActions: true,
-              ),
+              child: _selectedResult == null
+                  ? const Center(child: Text('네이버에서 장소를 검색해 선택해 주세요.'))
+                  : KakaoMapView(
+                      lat: _selectedLatLng.latitude,
+                      lng: _selectedLatLng.longitude,
+                      locationName: _selectedPlaceName,
+                      height: 200,
+                      hideActions: true,
+                    ),
             ),
           ),
 
-          // 5. 검색 결과 및 직접 지정 리스트
+          // 5. Naver place results
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              itemCount: _searchResults.length +
-                  (_searchController.text.trim().isNotEmpty ? 1 : 0),
+              itemCount: _searchResults.isEmpty ? 1 : _searchResults.length,
               separatorBuilder: (_, __) =>
                   const Divider(height: 1, color: Color(0xFFF0F0F3)),
               itemBuilder: (context, index) {
-                // 직접 입력 옵션이 최상단에 있는 경우
-                if (_searchController.text.trim().isNotEmpty && index == 0) {
-                  final customText = _searchController.text.trim();
-                  return ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    leading: const CircleAvatar(
-                      backgroundColor: Color(0xFFFFF0EB),
-                      radius: 20,
-                      child: Icon(Icons.edit_location_alt_rounded,
-                          color: coralAccent, size: 22),
-                    ),
-                    title: Text(
-                      '\'$customText\' (으)로 직접 지정',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                          color: coralAccent),
-                    ),
-                    subtitle: const Text('입력하신 이름을 모임 장소로 즉시 확정합니다',
-                        style: TextStyle(fontSize: 12, color: textSecondary)),
-                    trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                        size: 14, color: coralAccent),
-                    onTap: () {
-                      _selectLocation(
-                          _selectedLatLng, customText, '직접 입력한 모임 장소');
-                    },
+                if (_searchResults.isEmpty) {
+                  final typed = _searchController.text.trim();
+                  if (typed.length >= 2) {
+                    final dong = globalData.userLocation.value.trim();
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      leading: CircleAvatar(
+                        backgroundColor: coralAccent.withValues(alpha: 0.15),
+                        radius: 20,
+                        child: const Icon(Icons.add_location_alt_rounded, color: coralAccent),
+                      ),
+                      title: Text(typed, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('$dong $typed (직접 입력한 장소로 선택)'),
+                      onTap: () {
+                        _selectLocation(
+                          _selectedLatLng,
+                          typed,
+                          '$dong $typed',
+                          verifiedResult: PlaceSearchResult(
+                            name: typed,
+                            address: '$dong $typed',
+                            category: '직접 입력',
+                            latLng: _selectedLatLng,
+                          ),
+                        );
+                      },
+                    );
+                  }
+                  return const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                        '현재 설정한 동네의 장소를 찾지 못했어요. 장소명을 직접 입력하여 선택하거나 동네 설정을 확인해 주세요.'),
                   );
                 }
-
-                final actualIndex = _searchController.text.trim().isNotEmpty
-                    ? index - 1
-                    : index;
-                final item = _searchResults[actualIndex];
+                final item = _searchResults[index];
                 final isSelected = _selectedPlaceName == item.name;
 
                 return ListTile(
@@ -610,7 +453,8 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                           color: coralAccent, size: 22)
                       : null,
                   onTap: () {
-                    _selectLocation(item.latLng, item.name, item.address);
+                    _selectLocation(item.latLng, item.name, item.address,
+                        verifiedResult: item);
                   },
                 );
               },
@@ -682,16 +526,9 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                       label: const Text('이 위치로 장소 설정하기',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w800)),
-                      onPressed: () {
-                        if (_selectedPlaceName.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('장소를 선택하거나 검색어를 입력해주세요.')),
-                          );
-                          return;
-                        }
-                        Navigator.pop(context, _selectedPlaceName.trim());
-                      },
+                      onPressed: _selectedResult == null
+                          ? null
+                          : () => Navigator.pop(context, _selectedResult),
                     ),
                   ),
                 ],

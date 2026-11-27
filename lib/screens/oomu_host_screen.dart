@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/kakao_map_service.dart';
-import '../utils/location_helper.dart';
 import '../widgets/kakao_map_view.dart';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
@@ -96,35 +95,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         widget.initialLat!,
         widget.initialLng!,
       );
-    } else if (widget.initialLocation != null &&
-        widget.initialLocation!.isNotEmpty) {
-      final fallbackCoords =
-          LocationHelper.findCoordsForLocation(widget.initialLocation!);
-      if (fallbackCoords != null) {
-        _selectedPlaceLat = fallbackCoords['lat'];
-        _selectedPlaceLng = fallbackCoords['lng'];
-        _selectedPlaceResolvedName = widget.initialLocation!.trim();
-        _selectedPlaceDistanceLabel =
-            KakaoMapService.formatDistanceFromNeighborhood(
-          fallbackCoords['lat']!,
-          fallbackCoords['lng']!,
-        );
-      }
+    } else if (widget.initialLocation != null && widget.initialLocation!.isNotEmpty) {
       _autoResolveLocation(widget.initialLocation!);
-    } else {
-      final userLoc = globalData.userLocation.value.trim();
-      final userCoords = LocationHelper.findCoordsForLocation(
-        userLoc.isNotEmpty ? userLoc : '영등포구 신길동',
-      );
-      if (userCoords != null) {
-        _selectedPlaceLat = userCoords['lat'];
-        _selectedPlaceLng = userCoords['lng'];
-        _selectedPlaceDistanceLabel =
-            KakaoMapService.formatDistanceFromNeighborhood(
-          userCoords['lat']!,
-          userCoords['lng']!,
-        );
-      }
     }
   }
 
@@ -145,8 +117,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     final clean = query.trim();
     if (clean.isEmpty) return;
     try {
-      final resolved =
-          await KakaoMapService.resolvePlaceWithNeighborhoodBias(clean);
+      final resolved = await KakaoMapService.resolveVerifiedPlace(clean);
       if (resolved != null &&
           mounted &&
           _locationController.text.trim() == clean) {
@@ -191,7 +162,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   String _memberCount = '2~4명 (2:2 소셜)';
   String _genderLimit = '성별 무관';
   String _ageLimit = '20대~30대';
-  String _depositOption = '보증금 5,000원 (출석 시 100% 환급)';
+  String _depositOption = '각자 결제';
 
   bool _isSaving = false;
 
@@ -621,8 +592,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           'sourceEventTitle': widget.sourceEventTitle,
         'description': descText,
         'location': locText,
-        if (saveLat != null && saveLng != null) 'lat': saveLat,
-        if (saveLat != null && saveLng != null) 'lng': saveLng,
+        'lat': saveLat,
+        'lng': saveLng,
         'category': _selectedSubCategory,
         'mainCategory': _selectedMainCategory,
         'vibe': _selectedVibe,
@@ -656,7 +627,6 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         'manner': globalData.temperature.value,
         'mannerTemp': globalData.temperature.value,
         'price': _depositOption,
-        'depositOption': _depositOption,
         'transport': '각자 이동',
         'isFemaleOnly': _genderLimit.toString().contains('여'),
         'date': scheduleLabel,
@@ -1102,13 +1072,13 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                   _ageLimit,
                   (val) => setState(() => _ageLimit = val));
             }),
-            _buildSettingRow('참가 보증금 (노쇼 방지)', _depositOption, () {
+            _buildSettingRow('비용 안내', _depositOption, () {
               _showBottomSheetPicker(
-                  '참가 보증금 (노쇼 방지)',
+                  '비용 안내',
                   [
-                    '보증금 5,000원 (출석 시 100% 환급)',
-                    '보증금 10,000원 (출석 시 100% 환급)',
-                    '보증금 없음 (무료 번개)',
+                    '각자 결제',
+                    '참가비 없음',
+                    '실비 별도 안내',
                   ],
                   _depositOption,
                   (val) => setState(() => _depositOption = val));
@@ -1284,7 +1254,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
   }
 
   Future<void> _openPlaceSearchModal() async {
-    final result = await showModalBottomSheet<String>(
+    final result = await showModalBottomSheet<PlaceSearchResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -1293,59 +1263,24 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       ),
     );
 
-    if (result != null && result.isNotEmpty) {
-      double? lat;
-      double? lng;
-      String resolvedAddr = '';
-      try {
-        final verified =
-            await KakaoMapService.resolvePlaceWithNeighborhoodBias(result);
-        if (verified != null) {
-          lat = verified.lat;
-          lng = verified.lng;
-          resolvedAddr = verified.roadAddress.isNotEmpty
-              ? verified.roadAddress
-              : verified.address;
-        }
-      } catch (e) {
-        debugPrint('[OOMUHostScreen] place modal verify error: $e');
-      }
-      if (lat == null || lng == null) {
-        final fallback = LocationHelper.findCoordsForLocation(
-          globalData.userLocation.value.isNotEmpty
-              ? globalData.userLocation.value
-              : result,
-        );
-        lat = fallback?['lat'];
-        lng = fallback?['lng'];
-      }
-
+    if (result != null && mounted) {
+      final lat = result.latLng.latitude;
+      final lng = result.latLng.longitude;
       setState(() {
-        _locationController.text = result;
+        _locationController.text = result.name;
         _locationError = null;
         _selectedPlaceLat = lat;
         _selectedPlaceLng = lng;
-        _selectedPlaceResolvedName =
-            (lat != null && lng != null) ? result.trim() : null;
-        _selectedPlaceAddress = resolvedAddr;
-        if (lat != null && lng != null) {
-          _selectedPlaceDistanceLabel =
-              KakaoMapService.formatDistanceFromNeighborhood(lat, lng);
-        }
+        _selectedPlaceResolvedName = result.name;
+        _selectedPlaceAddress = result.address;
+        _selectedPlaceDistanceLabel =
+            KakaoMapService.formatDistanceFromNeighborhood(lat, lng);
       });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              lat != null && lng != null
-                  ? '\'$result\' 지도 위치가 지정되었습니다.'
-                  : '\'$result\' 장소명이 설정되었습니다.',
-            ),
-            backgroundColor: OomuTokens.primary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("'${result.name}' 네이버 지도 위치가 지정되었습니다."),
+        backgroundColor: OomuTokens.primary,
+        duration: const Duration(seconds: 2),
+      ));
     }
   }
 
@@ -1406,6 +1341,10 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     ),
                     onChanged: (val) {
                       setState(() {
+                        _selectedPlaceLat = null;
+                        _selectedPlaceLng = null;
+                        _selectedPlaceResolvedName = null;
+                        _selectedPlaceAddress = '';
                         if (_locationError != null && val.trim().isNotEmpty) {
                           _locationError = null;
                         }
@@ -1456,6 +1395,17 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                 fontSize: OomuTokens.fs12,
                 color: OomuTokens.error,
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (_locationController.text.trim().isNotEmpty &&
+              (_selectedPlaceLat == null || _selectedPlaceLng == null)) ...[
+            const SizedBox(height: 6),
+            Text(
+              '장소를 확인하지 못하면 지도와 거리는 표시되지 않아요.',
+              style: TextStyle(
+                fontSize: OomuTokens.fs12,
+                color: OomuTokens.textSecondary,
               ),
             ),
           ],

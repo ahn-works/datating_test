@@ -11,7 +11,7 @@ enum OomuMeetupCardVariant {
 
 /// OOMU 공통 모임 카드 컴포넌트 ("따뜻한 미니멀")
 /// - block / list 두 가지 변형을 지원하는 단일 부품
-/// - 구성: 사진(16:10) → 분류·장소(13sp 회색) → 제목(17sp/w600, 최대 2줄) → 일정·거리(13sp)
+/// - 구성: 사진(16:9) → 분류·장소(13sp 회색) → 제목(17sp/w600, 최대 2줄) → 일정·거리(13sp)
 ///   → 호스트 아바타·닉네임·정원 + 우측 상태 라벨
 /// - 카드 테두리·그림자·속 박스 없음(사진과 여백만으로 한 덩어리). 코랄은 상태 라벨에만 사용
 class OomuMeetupCard extends StatelessWidget {
@@ -141,7 +141,7 @@ class OomuMeetupCard extends StatelessWidget {
             OomuAvatar(imageUrl: hostAvatar, name: hostName, radius: 10),
             const SizedBox(width: 6),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 80),
+              constraints: const BoxConstraints(maxWidth: 140),
               child: Text(
                 hostName ?? '호스트',
                 maxLines: 1,
@@ -285,7 +285,7 @@ class OomuMeetupCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(OomuTokens.radiusCard),
                 child: AspectRatio(
-                  aspectRatio: 16 / 10,
+                  aspectRatio: 16 / 9,
                   child: _buildImageContent(),
                 ),
               ),

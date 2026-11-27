@@ -42,7 +42,7 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
         children: [
           // 1. 카카오 공식 지도 뷰
           const Positioned.fill(
-            child: const KakaoMapView(
+            child: KakaoMapView(
               lat: mokpoLat,
               lng: mokpoLng,
               locationName: placeName,

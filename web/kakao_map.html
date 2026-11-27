@@ -5,14 +5,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>OOMU 네이버 지도</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="text/javascript">
     window.__naverAuthFailed = false;
     window.navermap_authFailure = function () {
       window.__naverAuthFailed = true;
-      if (typeof window.__triggerNaverFallback === 'function') {
-        window.__triggerNaverFallback();
+      if (typeof window.__showNaverUnavailable === 'function') {
+        window.__showNaverUnavailable();
       }
     };
 
@@ -103,8 +101,8 @@
 
     .focus-pin-wrap {
       position: relative;
-      width: 24px;
-      height: 24px;
+      width: 12px;
+      height: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -114,7 +112,7 @@
 
     .focus-pin-label {
       position: absolute;
-      bottom: 26px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(255, 255, 255, 0.96);
@@ -146,8 +144,8 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 20px;
-      height: 20px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: rgba(255, 90, 95, 0.28);
       border: 1px solid rgba(255, 90, 95, 0.55);
@@ -157,8 +155,8 @@
 
     .focus-pin-core {
       position: relative;
-      width: 18px;
-      height: 18px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #FF5A5F;
       border: 1.5px solid #FFFFFF;
@@ -177,14 +175,14 @@
     .focus-pin-core::after {
       content: '';
       position: absolute;
-      bottom: -4px;
+      bottom: -2px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 3px solid transparent;
-      border-right: 3px solid transparent;
-      border-top: 4px solid #FF5A5F;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      border-top: 2px solid #FF5A5F;
     }
 
     /* Multi-marker pill for explore view */
@@ -347,10 +345,10 @@
       }, { passive: false });
 
       const params = new URLSearchParams(window.location.search);
-      const lat = parseFloat(params.get('lat') || '34.7604');
-      const lng = parseFloat(params.get('lng') || '127.6622');
+      const lat = parseFloat(params.get('lat'));
+      const lng = parseFloat(params.get('lng'));
       const levelParam = parseInt(params.get('level') || '3', 10);
-      const name = decodeURIComponent(params.get('name') || '모임 장소');
+      const name = params.get('name') || '모임 장소';
       let selectedId = params.get('selectedId') || '';
       const hideActions = params.get('hideActions') === 'true' || params.get('preview') === 'true';
 
@@ -374,7 +372,7 @@
           labelHtml +
           '<div class="focus-pin-pulse"></div>' +
           '<div class="focus-pin-core">' +
-          '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<svg width="6" height="6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
           '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FFFFFF"/>' +
           '</svg>' +
           '</div>' +
@@ -397,13 +395,14 @@
       }
 
       function runNaver() {
-        if (window.__naverAuthFailed || typeof naver === 'undefined' || !naver.maps) {
-          return runLeaflet();
+        if (window.__naverAuthFailed || typeof naver === 'undefined' || !naver.maps ||
+            !(lat > 30 && lat < 45 && lng > 120 && lng < 135)) {
+          return showNaverUnavailable();
         }
         try {
-          window.__triggerNaverFallback = function () {
+          window.__showNaverUnavailable = function () {
             container.innerHTML = '';
-            runLeaflet();
+            showNaverUnavailable();
           };
 
           var zoom = isNaN(levelParam) ? 16 : Math.max(11, 19 - levelParam);
@@ -413,7 +412,7 @@
             zoom: zoom,
             zoomControl: false,
             scaleControl: false,
-            logoControl: false,
+            logoControl: true,
             mapDataControl: false
           });
 
@@ -439,8 +438,8 @@
               title: name,
               icon: {
                 content: getFocusPinHtml(),
-                size: new naver.maps.Size(24, 24),
-                anchor: new naver.maps.Point(12, 12)
+                size: new naver.maps.Size(12, 12),
+                anchor: new naver.maps.Point(6, 6)
               }
             });
             if (params.get('geocode') === 'true' && naver.maps.Service && naver.maps.Service.geocode && name) {
@@ -525,95 +524,26 @@
           bindNaverButtons();
         } catch (err) {
           console.warn('Naver map initialization error:', err);
-          runLeaflet();
+          showNaverUnavailable();
         }
       }
 
-      function runLeaflet() {
-        if (typeof L !== 'undefined' && container) {
-          try {
-            const fallbackZoom = isNaN(levelParam) ? 16 : Math.max(13, 19 - levelParam);
-            const leafletMap = L.map('map', {
-              zoomControl: false,
-              attributionControl: false
-            }).setView([lat, lng], fallbackZoom);
-
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              maxZoom: 19
-            }).addTo(leafletMap);
-
-            const focusIcon = L.divIcon({
-              className: 'custom-focus-pin-icon',
-              html: getFocusPinHtml(),
-              iconSize: [24, 24],
-              iconAnchor: [12, 12]
-            });
-
-            var lm = [];
-            try {
-              var rm = params.get('markers');
-              if (rm) { var pl = JSON.parse(decodeURIComponent(rm)); if (Array.isArray(pl)) lm = pl; }
-            } catch (e) { }
-
-            if (lm.length === 0) {
-              L.marker([lat, lng], { icon: focusIcon }).addTo(leafletMap);
-            } else {
-              lm.forEach(function (m) {
-                var a = parseFloat(m.lat), b = parseFloat(m.lng);
-                if (isNaN(a) || isNaN(b)) return;
-                var t = String(m.title || m.name || '모임').replace(/[<>&]/g, '');
-                if (t.length > 10) t = t.substring(0, 9) + '..';
-                var ic = L.divIcon({
-                  className: 'custom-leaflet-marker',
-                  html: '<div class="custom-marker is-selected"><span>' + t + '</span></div>',
-                  iconSize: [100, 30],
-                  iconAnchor: [50, 30]
-                });
-                var mk = L.marker([a, b], { icon: ic }).addTo(leafletMap);
-                mk.on('click', function () {
-                  try {
-                    window.parent.postMessage(JSON.stringify({
-                      type: 'oomu_marker_click',
-                      id: String(m.id || ''),
-                      title: m.title || '',
-                      lat: a,
-                      lng: b,
-                      action: 'select'
-                    }), '*');
-                  } catch (e) { }
-                });
-              });
-            }
-
-            setTimeout(function () { leafletMap.invalidateSize(); }, 250);
-
-            document.getElementById('btnZoomIn').onclick = function (e) {
-              e.stopPropagation();
-              leafletMap.zoomIn();
-            };
-            document.getElementById('btnZoomOut').onclick = function (e) {
-              e.stopPropagation();
-              leafletMap.zoomOut();
-            };
-
-            bindNaverButtons();
-            return;
-          } catch (leafletErr) {
-            console.warn('Map fallback error:', leafletErr);
-          }
-        }
-        if (container) {
-          container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8E8E93;font-size:14px;background:#FAFAFA;">지도 서비스 준비 중입니다</div>';
-        }
+      function showNaverUnavailable() {
+        if (!container) return;
+        container.innerHTML = '';
+        var notice = document.createElement('div');
+        notice.style.cssText = 'display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;height:100%;color:#6B7684;font-size:13px;background:#F8F9FA;';
+        notice.textContent = '네이버 지도를 불러오지 못했어요. 지도 설정을 확인해 주세요.';
+        container.appendChild(notice);
+        bindNaverButtons();
       }
-
       // 네이버 지도 단일 렌더링 (인증 대기 시 클린 타일 뷰 즉시 폴백)
       Promise.resolve(window.__naverReady)
         .then(function (naverOk) {
           if (naverOk && !window.__naverAuthFailed) return runNaver();
-          return runLeaflet();
+          return showNaverUnavailable();
         }, function () {
-          return runLeaflet();
+          return showNaverUnavailable();
         });
     })();
   </script>

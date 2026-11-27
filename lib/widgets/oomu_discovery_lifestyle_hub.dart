@@ -263,7 +263,8 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           'placeName': '여수 학동 선소 브런치 카페',
           'distance': '$dong 기준 380m · 도보 5분',
           'hours': '매일 10:30 - 22:00',
-          'image': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
+          'image':
+              'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
           'menus': [
             '시그니처 아보카도 수제버거 13,500원',
             '트러플 감자튀김 & 에이드 8,500원',
@@ -281,8 +282,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           'placeName': '여수 학동 이자카야 다이닝',
           'distance': '$dong 기준 520m · 도보 7분',
           'hours': '매일 17:30 - 01:00',
-          'image': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
-          'menus': ['숙성 사시미 2인 플레이트 34,000원', '해물 나베 전골 23,000원', '얼그레이 하이볼 7,500원'],
+          'image':
+              'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+          'menus': [
+            '숙성 사시미 2인 플레이트 34,000원',
+            '해물 나베 전골 23,000원',
+            '얼그레이 하이볼 7,500원'
+          ],
         },
         {
           'id': 'food_yeosu_3',
@@ -295,8 +301,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
           'placeName': '여수 화덕피자 와인바',
           'distance': '$dong 기준 1.2km · 차량 5분',
           'hours': '매일 11:30 - 23:00',
-          'image': 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
-          'menus': ['부라타 치즈 루꼴라 화덕피자 21,000원', '해산물 오일 파스타 17,000원', '하우스 글라스 와인 8,000원'],
+          'image':
+              'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+          'menus': [
+            '부라타 치즈 루꼴라 화덕피자 21,000원',
+            '해산물 오일 파스타 17,000원',
+            '하우스 글라스 와인 8,000원'
+          ],
         },
       ];
     }
@@ -312,8 +323,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'placeName': '${widget.currentLocation} 화덕피자 와인바',
         'distance': '$dong 기준 320m · 도보 4분',
         'hours': '매일 17:00 - 24:00',
-        'image': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
-        'menus': ['부라타 프로슈토 화덕피자 21,000원', '바질 생면 파스타 17,500원', '글라스 와인·하이볼 8,000원'],
+        'image':
+            'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
+        'menus': [
+          '부라타 프로슈토 화덕피자 21,000원',
+          '바질 생면 파스타 17,500원',
+          '글라스 와인·하이볼 8,000원'
+        ],
       },
       {
         'id': 'food_seoul_2',
@@ -326,8 +342,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'placeName': '${widget.currentLocation} 수제버거 수제맥주',
         'distance': '$dong 기준 450m · 도보 6분',
         'hours': '매일 11:30 - 23:30',
-        'image': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
-        'menus': ['더블 스매쉬 치즈버거 11,800원', '칠리 치즈 프라이 7,500원', '페일에일·바이젠 생맥주 6,500원'],
+        'image':
+            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+        'menus': [
+          '더블 스매쉬 치즈버거 11,800원',
+          '칠리 치즈 프라이 7,500원',
+          '페일에일·바이젠 생맥주 6,500원'
+        ],
       },
       {
         'id': 'food_seoul_3',
@@ -340,8 +361,13 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
         'placeName': '${widget.currentLocation} 이자카야 모츠나베',
         'distance': '$dong 기준 390m · 도보 5분',
         'hours': '매일 17:30 - 01:00',
-        'image': 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
-        'menus': ['후쿠오카식 한우 모츠나베 25,000원', '생연어 사시미 22,000원', '유자·얼그레이 하이볼 7,500원'],
+        'image':
+            'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
+        'menus': [
+          '후쿠오카식 한우 모츠나베 25,000원',
+          '생연어 사시미 22,000원',
+          '유자·얼그레이 하이볼 7,500원'
+        ],
       },
     ];
   }
@@ -2340,7 +2366,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                       ],
                     ),
                     Text(
-                      '총 ${totalBalance}명 참여 중',
+                      '총 $totalBalance명 참여 중',
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -2396,7 +2422,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                           ),
                         ),
                         Text(
-                          '$percentA% (${_balanceVotesA}표)',
+                          '$percentA% ($_balanceVotesA표)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -2447,7 +2473,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                           ),
                         ),
                         Text(
-                          '$percentB% (${_balanceVotesB}표)',
+                          '$percentB% ($_balanceVotesB표)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,6 @@ import '../ui/oomu_tag.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
-import '../utils/location_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/interactive_map_popup.dart';
@@ -35,6 +35,7 @@ class OOMUDetailScreen extends StatefulWidget {
 }
 
 class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _meetupChanges;
   bool _isApplying = false;
   final TextEditingController _applyMsgController = TextEditingController();
 
@@ -79,7 +80,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
     if (m == null) {
       _isNotFound = true;
-    } else if (!hasContent && docId != null && docId.isNotEmpty) {
+    } else if (docId != null && docId.isNotEmpty && (Firebase.apps.isNotEmpty || !hasContent)) {
       _fetchMeetup(docId);
     } else {
       _isFavorite = globalData.isFavorite(m['id'] ?? m['title']);
@@ -104,6 +105,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
         .toList();
     if (uids.isEmpty) return;
     for (final uid in uids) {
+      if (_memberUserDocs.containsKey(uid)) continue;
       try {
         final resolved = await OomuUiHelpers.fetchUserOrBotProfile(uid: uid);
         if (resolved != null && mounted) {
@@ -137,49 +139,36 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     }
   }
 
-  Future<void> _fetchMeetup(String docId) async {
-    setState(() {
-      _isLoadingDoc = true;
-      _isNotFound = false;
-    });
-    try {
-      if (Firebase.apps.isNotEmpty) {
-        final doc = await FirebaseFirestore.instance
-            .collection('meetups')
-            .doc(docId)
-            .get();
-        if (doc.exists && doc.data() != null) {
-          final data = Map<String, dynamic>.from(doc.data()!);
-          data['id'] = doc.id;
-          if (mounted) {
-            setState(() {
-              _fetchedMeetup = data;
-              _isLoadingDoc = false;
-              _isNotFound = false;
-              _isFavorite = globalData.isFavorite(data['id'] ?? data['title']);
-            });
-            _initLocationState();
-            _fetchHostUserDoc();
-            _fetchMemberUserDocs();
-            return;
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('[OOMUDetailScreen] fetch error: $e');
+  void _fetchMeetup(String docId) {
+    _meetupChanges?.cancel();
+    _isLoadingDoc = true;
+    _isNotFound = false;
+    void unavailable() {
+      if (mounted) setState(() { _isLoadingDoc = false; _isNotFound = true; });
     }
-    if (mounted) {
+    if (Firebase.apps.isEmpty) { unavailable(); return; }
+    _meetupChanges = FirebaseFirestore.instance.collection('meetups').doc(docId).snapshots().listen((doc) {
+      if (!mounted) return;
+      final data = doc.data();
+      if (data == null) { unavailable(); return; }
+      final previous = _fetchedMeetup;
       setState(() {
+        _fetchedMeetup = {...data, 'id': doc.id};
         _isLoadingDoc = false;
-        _isNotFound = true;
+        _isNotFound = false;
+        _isFavorite = globalData.isFavorite(doc.id);
       });
-    }
+      if (previous == null || previous['id'] != doc.id || previous['location'] != data['location'] || previous['lat'] != data['lat'] || previous['lng'] != data['lng']) _initLocationState();
+      if (previous == null || previous['id'] != doc.id || previous['hostUid'] != data['hostUid']) _fetchHostUserDoc();
+      _fetchMemberUserDocs();
+    }, onError: (Object e) { debugPrint('모임 조회 실패: $e'); unavailable(); });
   }
 
   @override
   void didUpdateWidget(covariant OOMUDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.meetup != widget.meetup) {
+      _meetupChanges?.cancel();
       final m = widget.meetup;
       final docId = m?['id']?.toString() ?? m?['docId']?.toString();
       final bool hasContent = m != null &&
@@ -191,7 +180,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           _isNotFound = true;
           _fetchedMeetup = null;
         });
-      } else if (!hasContent && docId != null && docId.isNotEmpty) {
+      } else if (docId != null && docId.isNotEmpty && (Firebase.apps.isNotEmpty || !hasContent)) {
         _fetchMeetup(docId);
       } else {
         _fetchedMeetup = null;
@@ -209,13 +198,18 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   @override
   void dispose() {
+    _meetupChanges?.cancel();
     _applyMsgController.dispose();
     super.dispose();
   }
 
   Future<void> _initLocationState() async {
     final int reqId = ++_locationReqId;
-    final saved = OomuUiHelpers.extractValidCoords(_effectiveMeetup);
+    final meetupId = (_effectiveMeetup?['id'] ?? '').toString();
+    final isUnverifiedBot = meetupId.startsWith('bot_auto_') || meetupId.startsWith('spot_');
+    final saved = isUnverifiedBot
+        ? null
+        : OomuUiHelpers.extractValidCoords(_effectiveMeetup);
 
     if (saved != null) {
       if (mounted) {
@@ -260,13 +254,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       final verified = await KakaoMapService.resolveVerifiedPlace(loc);
       if (!mounted || reqId != _locationReqId) return;
 
-      Map<String, double>? fallbackCoords;
-      if (verified == null || !verified.hasValidCoords) {
-        fallbackCoords = LocationHelper.findCoordsForLocation(loc);
-      }
-
-      final finalLat = verified?.lat ?? fallbackCoords?['lat'];
-      final finalLng = verified?.lng ?? fallbackCoords?['lng'];
+      final finalLat = verified?.hasValidCoords == true ? verified!.lat : null;
+      final finalLng = verified?.hasValidCoords == true ? verified!.lng : null;
 
       if (finalLat != null && finalLng != null) {
         setState(() {
@@ -290,29 +279,12 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
       }
     } catch (_) {
       if (!mounted || reqId != _locationReqId) return;
-      final fallbackCoords = LocationHelper.findCoordsForLocation(loc);
-      if (fallbackCoords != null) {
-        final fLat = fallbackCoords['lat']!;
-        final fLng = fallbackCoords['lng']!;
-        setState(() {
-          _targetLat = fLat;
-          _targetLng = fLng;
-          _isResolvingLocation = false;
-        });
-        final dist =
-            await KakaoMapService.getDistanceTextFromCurrent(fLat, fLng);
-        if (!mounted || reqId != _locationReqId) return;
-        setState(() {
-          _distanceText = dist;
-        });
-      } else {
-        setState(() {
-          _targetLat = null;
-          _targetLng = null;
-          _isResolvingLocation = false;
-          _distanceText = '거리 정보 없음';
-        });
-      }
+      setState(() {
+        _targetLat = null;
+        _targetLng = null;
+        _isResolvingLocation = false;
+        _distanceText = '거리 정보 없음';
+      });
     }
   }
 

@@ -35,8 +35,10 @@ class SimpleListScreen extends StatelessWidget {
               color: OomuTokens.border),
           itemBuilder: (_, i) => ListTile(
               title: Text(items[i]),
-              trailing: const Icon(Icons.chevron_right, color: OomuTokens.textSecondary),
-              onTap: onTaps != null && i < onTaps!.length ? onTaps![i] : null)));
+              trailing: const Icon(Icons.chevron_right,
+                  color: OomuTokens.textSecondary),
+              onTap:
+                  onTaps != null && i < onTaps!.length ? onTaps![i] : null)));
 }
 
 class BlockManageScreen extends StatefulWidget {
@@ -92,9 +94,18 @@ class _BlockManageScreenState extends State<BlockManageScreen> {
 
   void _bulkSyncSampleAcquaintances() {
     final added = globalData.addBulkBlockedAcquaintancePhones([
-      {'name': '직장동료_김대리', 'phone': ['010', '0000', '0101'].join()},
-      {'name': '팀장님_박팀장', 'phone': ['010', '0000', '0202'].join()},
-      {'name': '동창_이준호', 'phone': ['010', '0000', '0303'].join()},
+      {
+        'name': '직장동료_김대리',
+        'phone': ['010', '0000', '0101'].join()
+      },
+      {
+        'name': '팀장님_박팀장',
+        'phone': ['010', '0000', '0202'].join()
+      },
+      {
+        'name': '동창_이준호',
+        'phone': ['010', '0000', '0303'].join()
+      },
     ]);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -366,7 +377,8 @@ class _BlockManageScreenState extends State<BlockManageScreen> {
                             ),
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: OomuTokens.border),
+                                side:
+                                    const BorderSide(color: OomuTokens.border),
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.circular(OomuTokens.r8)),
@@ -375,7 +387,8 @@ class _BlockManageScreenState extends State<BlockManageScreen> {
                                 minimumSize: Size.zero,
                               ),
                               onPressed: () {
-                                globalData.removeBlockedAcquaintancePhone(phone);
+                                globalData
+                                    .removeBlockedAcquaintancePhone(phone);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text('$name 연락처 차단이 해제되었습니다.')),
@@ -497,7 +510,8 @@ class ReportHistoryScreen extends StatelessWidget {
       backgroundColor: OomuTokens.surface,
       appBar: AppBar(
         title: const Text('신고 접수 및 처리 내역',
-            style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
@@ -548,7 +562,8 @@ class ReportHistoryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               const Text('내가 접수한 신고 목록',
-                  style: TextStyle(fontSize: OomuTokens.fs15, fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                      fontSize: OomuTokens.fs15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
               if (history.isEmpty)
@@ -572,7 +587,8 @@ class ReportHistoryScreen extends StatelessWidget {
                       border: Border.all(color: OomuTokens.border),
                       boxShadow: [
                         BoxShadow(
-                            color: OomuTokens.textPrimary.withValues(alpha: 0.02),
+                            color:
+                                OomuTokens.textPrimary.withValues(alpha: 0.02),
                             blurRadius: 4,
                             offset: const Offset(0, 2)),
                       ],
@@ -590,7 +606,8 @@ class ReportHistoryScreen extends StatelessWidget {
                                 color: isResolved
                                     ? const Color(0xFFE8F5E9)
                                     : const Color(0xFFFFF3E0),
-                                borderRadius: BorderRadius.circular(OomuTokens.r6),
+                                borderRadius:
+                                    BorderRadius.circular(OomuTokens.r6),
                               ),
                               child: Text(
                                 rep['status'] ?? '접수됨',
@@ -605,20 +622,23 @@ class ReportHistoryScreen extends StatelessWidget {
                             ),
                             Text(rep['date'] ?? '',
                                 style: const TextStyle(
-                                    fontSize: OomuTokens.fs11, color: OomuTokens.textSecondary)),
+                                    fontSize: OomuTokens.fs11,
+                                    color: OomuTokens.textSecondary)),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${rep['targetType'] ?? '대상'}: ${rep['targetUser'] ?? ''}',
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: OomuTokens.fs14),
+                              fontWeight: FontWeight.bold,
+                              fontSize: OomuTokens.fs14),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '신고 사유: ${rep['reason'] ?? ''}',
                           style: const TextStyle(
-                              fontSize: OomuTokens.fs12, color: OomuTokens.textBody),
+                              fontSize: OomuTokens.fs12,
+                              color: OomuTokens.textBody),
                         ),
                       ],
                     ),
@@ -642,7 +662,8 @@ class NoticeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           '공지사항',
-          style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: OomuTokens.textPrimary, fontWeight: FontWeight.bold),
         ),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
@@ -666,17 +687,17 @@ class NoticeScreen extends StatelessWidget {
 
           final docs = snapshot.data?.docs ?? [];
           if (docs.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.campaign_outlined,
                     size: 48,
                     color: OomuTokens.border,
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
+                  SizedBox(height: 12),
+                  Text(
                     '등록된 공지사항이 없어요',
                     style: TextStyle(
                       fontSize: OomuTokens.fs15,
@@ -684,8 +705,8 @@ class NoticeScreen extends StatelessWidget {
                       color: OomuTokens.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     '새로운 소식이 생기면 여기에 바로 알려드릴게요.',
                     style: TextStyle(
                       fontSize: OomuTokens.fs13,
@@ -709,8 +730,8 @@ class NoticeScreen extends StatelessWidget {
               final date = (data['date'] ?? '').toString();
 
               return Theme(
-                data:
-                    Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                data: Theme.of(context)
+                    .copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   tilePadding:
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -808,7 +829,8 @@ class FaqDetailScreen extends StatelessWidget {
     final faqs = [
       {
         'q': '모임 참여는 어떻게 하나요?',
-        'a': '원하는 모임 상세 화면에서 [신청하기] 버튼을 누른 뒤, 호스트에게 간단한 신청 메시지를 전달해 보세요. 호스트가 승인하면 모임 대화방에 자동 초대됩니다.'
+        'a':
+            '원하는 모임 상세 화면에서 [신청하기] 버튼을 누른 뒤, 호스트에게 간단한 신청 메시지를 전달해 보세요. 호스트가 승인하면 모임 대화방에 자동 초대됩니다.'
       },
       {
         'q': '매너온도는 어떻게 올라가나요?',
@@ -816,11 +838,13 @@ class FaqDetailScreen extends StatelessWidget {
       },
       {
         'q': '비매너 사용자를 차단하거나 신고하고 싶어요.',
-        'a': '상대방 프로필 화면의 우상단 더보기(⋮) 또는 채팅방 메뉴에서 [차단하기] 또는 [신고하기]를 누르면 즉시 모든 게시글, 댓글, 채팅이 숨김 처리되며 운영팀 검토 후 제재됩니다.'
+        'a':
+            '상대방 프로필 화면의 우상단 더보기(⋮) 또는 채팅방 메뉴에서 [차단하기] 또는 [신고하기]를 누르면 즉시 모든 게시글, 댓글, 채팅이 숨김 처리되며 운영팀 검토 후 제재됩니다.'
       },
       {
         'q': '프로필 정보를 수정하고 싶어요.',
-        'a': '마이페이지 상단의 [프로필 수정] 버튼을 통해 닉네임, 직무, MBTI, 라이프스타일(음주, 흡연, 반려동물) 및 대표 사진을 언제든지 변경할 수 있습니다.'
+        'a':
+            '마이페이지 상단의 [프로필 수정] 버튼을 통해 닉네임, 직무, MBTI, 라이프스타일(음주, 흡연, 반려동물) 및 대표 사진을 언제든지 변경할 수 있습니다.'
       },
     ];
 
@@ -828,7 +852,8 @@ class FaqDetailScreen extends StatelessWidget {
       backgroundColor: OomuTokens.surface,
       appBar: AppBar(
         title: const Text('자주 묻는 질문 (FAQ)',
-            style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
@@ -849,7 +874,9 @@ class FaqDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Text(item['a']!,
                     style: const TextStyle(
-                        fontSize: OomuTokens.fs14, color: OomuTokens.textBody, height: 1.5)),
+                        fontSize: OomuTokens.fs14,
+                        color: OomuTokens.textBody,
+                        height: 1.5)),
               ),
             ],
           );
@@ -883,7 +910,8 @@ class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
       backgroundColor: OomuTokens.surface,
       appBar: AppBar(
         title: const Text('1:1 문의하기',
-            style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
@@ -904,19 +932,25 @@ class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('📞 고객지원 안내',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs15)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: OomuTokens.fs15)),
                   SizedBox(height: 6),
                   Text('• 운영시간: 평일 10:00 ~ 18:00 (주말 및 공휴일 휴무)',
-                      style: TextStyle(fontSize: OomuTokens.fs13, color: OomuTokens.textSecondary)),
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs13,
+                          color: OomuTokens.textSecondary)),
                   Text('• 문의 이메일: support@oomu.app',
-                      style: TextStyle(fontSize: OomuTokens.fs13, color: OomuTokens.textSecondary)),
+                      style: TextStyle(
+                          fontSize: OomuTokens.fs13,
+                          color: OomuTokens.textSecondary)),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             const Text('문의 유형',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs14)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: OomuTokens.fs14)),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _selectedCategory,
@@ -935,7 +969,8 @@ class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
             ),
             const SizedBox(height: 20),
             const Text('문의 내용',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: OomuTokens.fs14)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: OomuTokens.fs14)),
             const SizedBox(height: 8),
             TextField(
               controller: _msgController,
@@ -963,12 +998,12 @@ class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
                         final content = _msgController.text.trim();
                         if (content.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('문의 내용을 입력해 주세요.')),
+                            const SnackBar(content: Text('문의 내용을 입력해 주세요.')),
                           );
                           return;
                         }
-                        final uid = authService.currentUser?.uid ?? globalData.activeUserId;
+                        final uid = authService.currentUser?.uid ??
+                            globalData.activeUserId;
                         if (uid.isEmpty || uid == 'guest') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -980,7 +1015,9 @@ class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
                         }
                         setState(() => _isSubmitted = true);
                         try {
-                          await FirebaseFirestore.instance.collection('inquiries').add({
+                          await FirebaseFirestore.instance
+                              .collection('inquiries')
+                              .add({
                             'userId': uid,
                             'category': _selectedCategory,
                             'content': content,
@@ -990,8 +1027,7 @@ class _InquiryDetailScreenState extends State<InquiryDetailScreen> {
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                  '문의가 접수되었습니다. 검토 후 신속히 답변드리겠습니다.'),
+                              content: Text('문의가 접수되었습니다. 검토 후 신속히 답변드리겠습니다.'),
                               backgroundColor: OomuTokens.coral,
                             ),
                           );
@@ -1030,7 +1066,8 @@ class TermsDetailScreen extends StatelessWidget {
       backgroundColor: OomuTokens.surface,
       appBar: AppBar(
         title: const Text('이용 약관',
-            style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
@@ -1048,7 +1085,10 @@ class TermsDetailScreen extends StatelessWidget {
           '2. 음란물 배포, 사기, 욕설, 타인 비방, 무단 광고 등 불법 행위는 엄격히 금지됩니다.\n\n'
           '제4조 (계약 해지 및 이용 제한)\n'
           '회원이 본 약관의 의무를 위반하거나 운영 정책에 반하는 행위를 한 경우, 회사는 경고, 일시 정지, 영구 제재 등의 조치를 취할 수 있습니다.',
-          style: TextStyle(fontSize: OomuTokens.fs14, height: 1.7, color: OomuTokens.textBody),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14,
+              height: 1.7,
+              color: OomuTokens.textBody),
         ),
       ),
     );
@@ -1064,7 +1104,8 @@ class PrivacyPolicyDetailScreen extends StatelessWidget {
       backgroundColor: OomuTokens.surface,
       appBar: AppBar(
         title: const Text('개인정보 처리방침',
-            style: TextStyle(color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: OomuTokens.textPrimary, fontWeight: FontWeight.bold)),
         backgroundColor: OomuTokens.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: OomuTokens.textPrimary),
@@ -1101,7 +1142,10 @@ class PrivacyPolicyDetailScreen extends StatelessWidget {
           '• 담당 부서: 서비스 운영팀\n'
           '• 문의 이메일: support@oomu.app\n'
           '• 문의 창구: 앱 내 고객센터 1:1 문의',
-          style: TextStyle(fontSize: OomuTokens.fs14, height: 1.7, color: OomuTokens.textBody),
+          style: TextStyle(
+              fontSize: OomuTokens.fs14,
+              height: 1.7,
+              color: OomuTokens.textBody),
         ),
       ),
     );

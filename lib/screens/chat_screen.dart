@@ -255,6 +255,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     stream: _rooms,
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
+                        debugPrint('[ChatScreen] room stream failed: ${snapshot.error}');
                         return _notice(
                           '대화방을 불러오지 못했어요',
                           '연결 상태와 대화방 접근 권한을 확인한 뒤 다시 시도해 주세요.',

@@ -127,8 +127,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         if (effectivePhone.isNotEmpty) {
           _phoneController.text = effectivePhone;
         }
-        _isPhoneVerified = userDocVerified ||
-            globalData.isPhoneVerified.value;
+        _isPhoneVerified = userDocVerified || globalData.isPhoneVerified.value;
         if (data['location'] != null &&
             data['location'].toString().isNotEmpty) {
           _selectedDong = data['location'];
@@ -172,9 +171,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           for (var p in data['photoUrls']) {
             _photoUrls.add(p.toString());
           }
-        } else if (data['photoUrl'] != null &&
-            data['photoUrl'].toString().isNotEmpty) {
-          _photoUrls.add(data['photoUrl'].toString());
+        } else {
+          final avatar = (data['photoUrl'] ?? data['avatarUrl'] ?? '').toString();
+          if (avatar.isNotEmpty) _photoUrls.add(avatar);
         }
 
         // private/contact 서브컬렉션에서 PII(전화번호, 주소 등) 프리필 복구
@@ -187,11 +186,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               .get();
           if (contactDoc.exists && contactDoc.data() != null) {
             final cData = contactDoc.data()!;
-            if (_birthDateController.text.isEmpty && cData['birthDate'] != null) {
+            if (_birthDateController.text.isEmpty &&
+                cData['birthDate'] != null) {
               _birthDateController.text = cData['birthDate'].toString();
             }
-            final cPhone =
-                (cData['phone'] ?? cData['phoneNumber'] ?? '').toString().trim();
+            final cPhone = (cData['phone'] ?? cData['phoneNumber'] ?? '')
+                .toString()
+                .trim();
             if (_phoneController.text.isEmpty && cPhone.isNotEmpty) {
               _phoneController.text = cPhone;
             }
@@ -214,7 +215,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           _phoneController.text = globalData.userPhone.value.trim();
         }
         final hasValidPhone =
-            _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '').length >= 10;
+            _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '').length >=
+                10;
         _isPhoneVerified =
             (userDocVerified || globalData.isPhoneVerified.value) &&
                 hasValidPhone;
@@ -276,9 +278,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
-                  decoration:
-                      BoxDecoration(color: surfaceSub, shape: BoxShape.circle),
-                  child: Icon(Icons.camera_alt, color: textTitle),
+                  decoration: const BoxDecoration(
+                      color: surfaceSub, shape: BoxShape.circle),
+                  child: const Icon(Icons.camera_alt, color: textTitle),
                 ),
                 title: const Text('카메라로 바로 촬영',
                     style: TextStyle(fontWeight: FontWeight.bold)),
@@ -323,9 +325,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       final String finalUrl;
       if (uploadedUrl.isNotEmpty && !uploadedUrl.startsWith('blob:')) {
-        finalUrl = await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
+        finalUrl =
+            await R2StorageService.compressDataUrlIfOversized(uploadedUrl);
       } else {
-        finalUrl = await R2StorageService.toCompressedDataUrl(bytes, picked.name);
+        finalUrl =
+            await R2StorageService.toCompressedDataUrl(bytes, picked.name);
       }
 
       setState(() {
@@ -858,12 +862,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         const SizedBox(height: 16),
 
         // 미니멀 하단 안내 (조잡한 노란 박스 제거)
-        Row(
+        const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.info_outline, size: 15, color: textCaption),
-            const SizedBox(width: 6),
-            const Expanded(
+            const Icon(Icons.info_outline, size: 15, color: textCaption),
+            SizedBox(width: 6),
+            Expanded(
               child: Text(
                 '이목구비가 뚜렷하지 않거나 타인의 사진은 승인이 반려될 수 있어요.',
                 style: TextStyle(

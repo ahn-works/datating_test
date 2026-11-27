@@ -286,9 +286,9 @@ class CrewDetailScreen extends StatelessWidget {
                         children: List.generate(
                             8,
                             (i) => const Column(children: [
-                                  const CircleAvatar(
+                                  CircleAvatar(
                                       radius: 28,
-                                      backgroundImage: const NetworkImage(
+                                      backgroundImage: NetworkImage(
                                           'https://picsum.photos/100?random=')),
                                   SizedBox(height: 4),
                                   Text('러너', style: TextStyle(fontSize: 12))

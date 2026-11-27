@@ -17,9 +17,9 @@ Widget buildKakaoMapWidget({
     width: width,
     height: height,
     decoration: BoxDecoration(
-      color: const Color(0xFFFFFBE6),
+      color: const Color(0xFFF7F8FA),
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: const Color(0xFFFEE500), width: 1.5),
+      border: Border.all(color: const Color(0xFFE5E8EC)),
     ),
     child: Center(
       child: SingleChildScrollView(
@@ -127,7 +127,7 @@ Widget buildKakaoMapWidget({
                       icon: const Icon(
                         Icons.directions_rounded,
                         size: 16,
-                        color: Color(0xFFFEE500),
+                        color: Color(0xFF03C75A),
                       ),
                       label: const Text(
                         '길찾기',

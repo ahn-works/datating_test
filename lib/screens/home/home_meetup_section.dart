@@ -139,9 +139,9 @@ class HomeMeetupSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: OomuTokens.spacingSm),
-              Row(
+              const Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Text(
                     '최신순',
                     style: TextStyle(
@@ -266,7 +266,8 @@ class HomeMeetupSection extends StatelessWidget {
                     statusBadge = '모집중';
                   }
 
-                  final double? mannerTemp = OomuUiHelpers.parseMannerTemp(data);
+                  final double? mannerTemp =
+                      OomuUiHelpers.parseMannerTemp(data);
                   final String? ageLimit = data['ageLimit']?.toString();
 
                   String? infoBadge;
@@ -337,7 +338,8 @@ class HomeMeetupSection extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                        border: Border.all(
+                            color: const Color(0xFFE5E7EB), width: 1),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.03),

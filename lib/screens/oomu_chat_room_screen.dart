@@ -337,14 +337,14 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
   }
 
   Future<void> _showNaverMidpointRecommenderModal() async {
-    final locA = (_roomData?['location'] ?? '').toString().trim().isNotEmpty
-        ? (_roomData!['location']).toString().trim()
-        : (globalData.userLocation.value.trim().isNotEmpty
-            ? globalData.userLocation.value.trim()
-            : '영등포구 신길동');
-    final locBCtrl = TextEditingController(
-      text: locA.contains('신길') ? '여의도역' : '신길역',
-    );
+    final locA = globalData.userLocation.value.trim();
+    if (locA.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('내 동네를 먼저 설정해 주세요.')),
+      );
+      return;
+    }
+    final locBCtrl = TextEditingController();
 
     Map<String, dynamic> midResult =
         await KakaoMapService.calculateMidpointAndRecommendNaverSpots([
@@ -353,7 +353,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     ]);
 
     if (!mounted) return;
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: OomuTokens.surface,
@@ -363,14 +363,12 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
-          final midLat = (midResult['midpointLat'] as num?)?.toDouble() ?? 37.5068;
-          final midLng = (midResult['midpointLng'] as num?)?.toDouble() ?? 126.9125;
-          final midName =
-              (midResult['midpointName'] ?? '신길역 중간 지점').toString();
-          final midAddr =
-              (midResult['midpointAddress'] ?? '서울 영등포구 신길동').toString();
-          final distLabel =
-              (midResult['distanceSummary'] ?? '평균 이동 0.8km').toString();
+          final midLat = (midResult['midLat'] as num?)?.toDouble();
+          final midLng = (midResult['midLng'] as num?)?.toDouble();
+          final hasMidpoint = midLat != null && midLng != null;
+          final midName = (midResult['midpointLabel'] ?? '위치를 확인해 주세요').toString();
+          final midAddr = hasMidpoint ? '두 출발지의 직선거리 중간 위치' : '출발지 두 곳을 입력해 주세요';
+          final distLabel = (midResult['distanceSummary'] ?? '거리 확인 불가').toString();
           final spots = (midResult['recommendedSpots'] is List)
               ? (midResult['recommendedSpots'] as List)
                   .whereType<Map>()
@@ -435,7 +433,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '네이버 Geocoding + Haversine 거리 계산으로 멤버 간 이동 거리가 공평한 중간 핫플을 추천해요.',
+                      '확인된 출발지 두 곳의 좌표로 중간 위치를 계산해요.',
                       style: const TextStyle(
                         fontSize: OomuTokens.fs12,
                         color: OomuTokens.textSecondary,
@@ -527,7 +525,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    ClipRRect(
+                    if (hasMidpoint) ClipRRect(
                       borderRadius: BorderRadius.circular(OomuTokens.r14),
                       child: SizedBox(
                         height: 165,
@@ -611,7 +609,8 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       ...spots.take(3).map((spot) {
                         final sName = (spot['name'] ?? '').toString();
                         final sCat = (spot['category'] ?? '맛집·카페').toString();
-                        final sDist = (spot['distanceLabel'] ?? '').toString();
+                        final sDist = (spot['distanceFromMid'] ?? '').toString();
+                        final sAddress = (spot['address'] ?? '').toString();
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.symmetric(
@@ -651,7 +650,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                                   _addMessage({
                                     'type': 'text',
                                     'text':
-                                        '📍 [네이버 지도 중간 지점 추천]\n우리 중간 지점 핫플로 [$sName] ($sCat · $sDist) 어때요? ($midAddr)',
+                                        '📍 [네이버 지도 중간 지점 추천]\n우리 중간 지점 핫플로 [$sName] ($sCat · $sDist) 어때요? ($sAddress)',
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -687,6 +686,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
         },
       ),
     );
+    locBCtrl.dispose();
   }
 
   void _showSafetyDrawer() {

@@ -103,7 +103,7 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
     _requestedNumber = number;
     _requestUid = user.uid;
 
-    // 1순위: 솔라피 (SOLAPI) SMS 발송
+    // 1순위: 솔라피 (SOLAPI) SMS 발송 (서버 프록시)
     try {
       final solResult =
           await solapiSmsService.sendVerificationCode(widget.controller.text);
@@ -115,13 +115,14 @@ class _PhoneVerificationFieldState extends State<PhoneVerificationField> {
         });
         return;
       } else if (solResult.errorMessage != null &&
-          !solResult.errorMessage!.contains('불러오지 못했습니다')) {
+          solResult.errorMessage!.contains('많아요')) {
         setState(() {
           _busy = false;
           _error = solResult.errorMessage;
         });
         return;
       }
+      // 서버 프록시 미응답/미배포 시 2순위 Firebase Phone Auth로 원활하게 자동 폴백
     } catch (_) {}
 
     // 2순위: Firebase Phone Auth 폴백

@@ -67,7 +67,7 @@ class _CrewTab extends StatelessWidget {
               ]),
               const SizedBox(height: 12),
               const Text('지난 주말 강화도 동행이 벌써\n그립다면?',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold, height: 1.4)),
               const SizedBox(height: 8),
               Text(

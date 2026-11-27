@@ -1475,11 +1475,17 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
                   ),
                 );
               },
-              backgroundColor: OomuTokens.coral,
-              elevation: 3,
-              highlightElevation: 4,
-              icon:
-                  const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+              backgroundColor: OomuTokens.textPrimary,
+              foregroundColor: Colors.white,
+              elevation: 1,
+              highlightElevation: 2,
+              shape: const StadiumBorder(),
+              tooltip: '새 모임 열기',
+              icon: const CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.white,
+                child: Icon(Icons.event_available_outlined, color: OomuTokens.textPrimary, size: 16),
+              ),
               label: const Text(
                 '모임 열기',
                 style: TextStyle(

@@ -130,7 +130,8 @@ class HomeLightningSection extends StatelessWidget {
             return SizedBox(
               height: 184,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: OomuTokens.spacingLg),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: OomuTokens.spacingLg),
                 scrollDirection: Axis.horizontal,
                 itemCount: visibleSpots.length,
                 separatorBuilder: (_, __) =>
@@ -159,7 +160,8 @@ class HomeLightningSection extends StatelessWidget {
                             children: [
                               ClipRRect(
                                 borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(OomuTokens.radiusCard - 1),
+                                  top: Radius.circular(
+                                      OomuTokens.radiusCard - 1),
                                 ),
                                 child: Image(
                                   image: appImg(spot['image']),
@@ -192,7 +194,8 @@ class HomeLightningSection extends StatelessWidget {
                           // 카드 본문
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.all(OomuTokens.spacingSm),
+                              padding:
+                                  const EdgeInsets.all(OomuTokens.spacingSm),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -228,7 +231,8 @@ class HomeLightningSection extends StatelessWidget {
                                                 spot['host']?.toString() ?? '',
                                                 style: const TextStyle(
                                                   fontSize: OomuTokens.fontXs,
-                                                  color: OomuTokens.textSecondary,
+                                                  color:
+                                                      OomuTokens.textSecondary,
                                                   fontFamily:
                                                       OomuTokens.fontFamily,
                                                 ),
@@ -251,7 +255,7 @@ class HomeLightningSection extends StatelessWidget {
                                         ),
                                         child: Text(
                                           '${MeetupMemberHelper.formatMembersLabel(spot)}명',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: OomuTokens.fs11,
                                             fontWeight:
                                                 OomuTokens.weightSemiBold,
@@ -279,4 +283,3 @@ class HomeLightningSection extends StatelessWidget {
     );
   }
 }
-

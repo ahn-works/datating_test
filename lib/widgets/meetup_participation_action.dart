@@ -31,12 +31,11 @@ class MeetupParticipationAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (MeetupMemberHelper.isClosed(meetup)) {
-      return _button('마감된 모임', null);
-    }
+    final closed = MeetupMemberHelper.isClosed(meetup);
     final id = meetup?['id']?.toString() ?? '';
-    if (Firebase.apps.isEmpty || id.isEmpty) return _button('참여 신청하기', onApply);
+    if (Firebase.apps.isEmpty || id.isEmpty) return closed ? _button('마감된 모임', null) : _button('참여 신청하기', onApply);
     if (!MeetupApplicationService.enabled) {
+      if (closed) return _button('마감된 모임', null);
       return SizedBox(
         width: double.infinity,
         height: 52,
@@ -134,7 +133,7 @@ class MeetupParticipationAction extends StatelessWidget {
           case 'rejected':
             return _button('이번 신청은 승인되지 않았어요', null);
           default:
-            return _button('참여 신청하기', onApply);
+            return closed ? _button('마감된 모임', null) : _button('참여 신청하기', onApply);
         }
       },
     );
@@ -178,7 +177,7 @@ class MeetupParticipationAction extends StatelessWidget {
                   itemCount: requests.length,
                   itemBuilder: (context, index) {
                     final request = requests[index];
-                    Future<void> decide(bool approve) async {
+                    Future<bool> decide(bool approve) async {
                       try {
                         await MeetupApplicationService.decide(id, request.id,
                             approve: approve);
@@ -188,6 +187,7 @@ class MeetupParticipationAction extends StatelessWidget {
                                   content: Text(
                                       approve ? '신청을 승인했어요.' : '신청을 거절했어요.')));
                         }
+                        return true;
                       } catch (e) {
                         if (sheetContext.mounted) {
                           ScaffoldMessenger.of(sheetContext).showSnackBar(
@@ -196,6 +196,7 @@ class MeetupParticipationAction extends StatelessWidget {
                                       ? e.message.toString()
                                       : '처리하지 못했어요. 다시 시도해 주세요.')));
                         }
+                        return false;
                       }
                     }
 
@@ -223,7 +224,7 @@ class MeetupParticipationAction extends StatelessWidget {
                               const SizedBox(height: 12),
                               Wrap(spacing: 12, children: [
                                 OutlinedButton(
-                                    onPressed: () => decide(false),
+                                    onPressed: () async { await decide(false); },
                                     child: const Text('거절')),
                                 ElevatedButton(
                                     style: ElevatedButton.styleFrom(
@@ -231,7 +232,8 @@ class MeetupParticipationAction extends StatelessWidget {
                                       foregroundColor: Colors.white,
                                     ),
                                     onPressed: () async {
-                                      await decide(true);
+                                      final approved = await decide(true);
+                                      if (!approved) return;
                                       if (sheetContext.mounted) {
                                         Navigator.pop(sheetContext);
                                       }

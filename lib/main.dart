@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'dart:async';
 import 'dart:ui';
 import 'screens/profile_setup_screen.dart';
@@ -92,7 +94,11 @@ Widget resolveInitialRouteWidget(
   }
 
   // 릴리스에서 디버그 라우트(?gallery, ?my, user= 등) 진입 시 세션 변경 없이 정상 게스트 홈으로 이동
-  if (!enableDevRoutes && hasDebugOnlyFlag && !isLogin && !isDetail && !isCommDetail) {
+  if (!enableDevRoutes &&
+      hasDebugOnlyFlag &&
+      !isLogin &&
+      !isDetail &&
+      !isCommDetail) {
     globalData.switchUser('guest');
     return const OOMUHomeScreen();
   }
@@ -109,21 +115,19 @@ Widget resolveInitialRouteWidget(
   }
 
   if (isDetail) {
-    globalData.switchUser('guest');
     final docId = (uri.queryParameters['id'] ?? '').trim();
     if (_isSampleOrBlockedId(docId)) {
       return const OOMUHomeScreen();
     }
-    return OOMUDetailScreen(meetup: {'id': docId});
+    return _withRestoredSession(OOMUDetailScreen(meetup: {'id': docId}));
   }
 
   if (isCommDetail) {
-    globalData.switchUser('guest');
     final docId = (uri.queryParameters['id'] ?? '').trim();
     if (isTestPost || _isSampleOrBlockedId(docId)) {
       return const OOMUHomeScreen();
     }
-    return CommunityPostDetailScreen(post: {'id': docId});
+    return _withRestoredSession(CommunityPostDetailScreen(post: {'id': docId}));
   }
 
   if (Firebase.apps.isEmpty) {
@@ -153,19 +157,40 @@ Widget resolveInitialRouteWidget(
   );
 }
 
+// Public links remain readable by guests, but must not erase the identity of a
+// signed-in visitor while Firebase restores browser persistence.
+Widget _withRestoredSession(Widget child) {
+  if (Firebase.apps.isEmpty) {
+    globalData.switchUser('guest');
+    return child;
+  }
+  return StreamBuilder<User?>(
+    stream: FirebaseAuth.instance.authStateChanges(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+      globalData.switchUser(snapshot.data?.uid ?? 'guest');
+      return child;
+    },
+  );
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyDWOPC60MA39jq2HAVg6UpKnLB5DalDu7U",
-        authDomain: "test-b54fc.firebaseapp.com",
-        projectId: "test-b54fc",
-        storageBucket: "test-b54fc.firebasestorage.app",
-        messagingSenderId: "610801542567",
-        appId: "1:610801542567:web:6eb035b321d9ac7b688282",
-        measurementId: "G-341F6S06TG",
-      ),
+      options: !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+          ? null
+          : const FirebaseOptions(
+              apiKey: "AIzaSyDWOPC60MA39jq2HAVg6UpKnLB5DalDu7U",
+              authDomain: "test-b54fc.firebaseapp.com",
+              projectId: "test-b54fc",
+              storageBucket: "test-b54fc.firebasestorage.app",
+              messagingSenderId: "610801542567",
+              appId: "1:610801542567:web:6eb035b321d9ac7b688282",
+              measurementId: "G-341F6S06TG",
+            ),
     );
   } catch (e) {
     debugPrint("Firebase init error: $e");
@@ -207,7 +232,8 @@ class OomuApp extends StatelessWidget {
         color: OomuTokens.surfaceMuted,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: OomuTokens.appFrameMaxWidth),
+            constraints:
+                const BoxConstraints(maxWidth: OomuTokens.appFrameMaxWidth),
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(
                 size: Size(
@@ -223,8 +249,7 @@ class OomuApp extends StatelessWidget {
                   boxShadow: MediaQuery.of(context).size.width > 480
                       ? [
                           BoxShadow(
-                            color:
-                                Colors.black.withValues(alpha: 0.12),
+                            color: Colors.black.withValues(alpha: 0.12),
                             blurRadius: 32,
                             offset: const Offset(0, 10),
                           ),
