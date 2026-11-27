@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OOMU Server Proxy & Key Isolation Automated Test Suite
  * Tests proxy validation, rate limiting, R2 file guards, and error states.
  */
@@ -55,6 +55,23 @@ async function runTests() {
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.status, 'ok');
     assert.strictEqual(res.body.service, 'oomu-server-proxy');
+  });
+
+  await test('Naver place search requires a signed-in account', async () => {
+    const res = await request('/api/naver/places?q=%EC%B9%B4%ED%8E%98');
+    assert.strictEqual(res.status, 401);
+  });
+
+  await test('Naver geocoding requires a signed-in account', async () => {
+    const res = await request('/api/naver/geocode?address=%EC%8B%A0%EA%B8%B8%EB%8F%99');
+    assert.strictEqual(res.status, 401);
+  });
+
+  await test('contact matching requires a signed-in account', async () => {
+    const res = await request('/api/contacts/resolve-for-block', {
+      method: 'POST', body: { phone: '01000000000' }
+    });
+    assert.strictEqual(res.status, 401);
   });
 
   // 2. Solapi SMS: Invalid Phone Number

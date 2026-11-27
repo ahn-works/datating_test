@@ -37,7 +37,15 @@ service cloud.firestore {
       allow get: if docId != 'solapi' &&
                     docId != 'api_keys' &&
                     docId != 'r2_storage' &&
+                    docId != 'naver' &&
                     docId != 'naver_auth';
+      allow list, write: if false;
+    }
+
+    // 주간 네이버 장소 수집 결과만 공개 조회. 문서 ID는 동네명 해시이며
+    // 클라이언트 쓰기와 컬렉션 전체 조회는 허용하지 않는다.
+    match /naver_region_places/{regionId} {
+      allow get: if true;
       allow list, write: if false;
     }
 
@@ -121,26 +129,49 @@ service cloud.firestore {
 
       // 모임 참여 신청 요청 (호스트 승인 시 알림 연동)
       match /applications/{appId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null && appId == request.auth.uid;
-        allow update, delete: if request.auth != null && (
-          resource.data.userId == request.auth.uid ||
+        allow get: if request.auth != null && (
+          appId == request.auth.uid ||
           get(/databases/$(database)/documents/meetups/$(meetupId)).data.hostUid == request.auth.uid ||
-          request.auth.token.admin == true
-        );
+          request.auth.token.admin == true);
+        allow list: if request.auth != null && (
+          get(/databases/$(database)/documents/meetups/$(meetupId)).data.hostUid == request.auth.uid ||
+          request.auth.token.admin == true);
+        allow create: if request.auth != null && appId == request.auth.uid
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.partySize in [1, 2];
+        allow update: if request.auth != null
+          && resource.data.status == 'pending'
+          && request.resource.data.status in ['approved', 'rejected']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'reviewedAt'])
+          && (get(/databases/$(database)/documents/meetups/$(meetupId)).data.hostUid == request.auth.uid ||
+              request.auth.token.admin == true);
+        allow delete: if request.auth != null && request.auth.token.admin == true;
       }
     }
 
     // ===============================================================
     // 7. [커뮤니티 (동네 게시글 및 댓글)]
     // ===============================================================
+    function ownLikeChange() {
+      let before = resource.data.get('likedUserIds', []);
+      let after = request.resource.data.likedUserIds;
+      let uid = request.auth.uid;
+      return after is list && before is list &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedUserIds', 'likes']) &&
+        after.size() == after.toSet().size() && request.resource.data.likes == after.size() &&
+        ((!(uid in before) && after.toSet() == before.toSet().union([uid].toSet())) ||
+         (uid in before && after.toSet() == before.toSet().difference([uid].toSet())));
+    }
     match /community_posts/{postId} {
+      allow update: if request.auth != null && ownLikeChange();
       allow read: if true;
       allow create: if request.auth != null && (request.resource.data.authorId == request.auth.uid || request.resource.data.userId == request.auth.uid);
       allow update, delete: if request.auth != null && (resource.data.authorId == request.auth.uid || resource.data.userId == request.auth.uid || request.auth.token.admin == true);
 
       // 커뮤니티 게시글 댓글
       match /comments/{commentId} {
+        allow update: if request.auth != null && ownLikeChange();
         allow read: if true;
         allow create: if request.auth != null && (request.resource.data.authorId == request.auth.uid || request.resource.data.userId == request.auth.uid);
         allow update, delete: if request.auth != null && (resource.data.authorId == request.auth.uid || resource.data.userId == request.auth.uid || request.auth.token.admin == true);
@@ -151,9 +182,25 @@ service cloud.firestore {
     // 8. [채팅방 및 메시지]
     // ===============================================================
     match /chatRooms/{roomId} {
-      allow read: if request.auth != null && (resource.data.participants is list && request.auth.uid in resource.data.participants || request.auth.token.admin == true);
-      allow create: if request.auth != null && (request.resource.data.participants is list && request.auth.uid in request.resource.data.participants);
-      allow update: if request.auth != null && (resource.data.participants is list && request.auth.uid in resource.data.participants || request.auth.token.admin == true);
+      allow get: if request.auth != null && (resource.data.participants is list && request.auth.uid in resource.data.participants || request.auth.token.admin == true);
+      // The client uses where('participants', arrayContains: auth.uid).
+      // Keep the list predicate query-compatible; missing/non-array fields do not match.
+      allow list: if request.auth != null && (request.auth.uid in resource.data.participants || request.auth.token.admin == true);
+      allow create: if request.auth != null
+        && request.resource.data.participants is list
+        && request.auth.uid in request.resource.data.participants
+        && (!('meetupId' in request.resource.data) ||
+          (roomId == request.resource.data.meetupId &&
+           getAfter(/databases/$(database)/documents/meetups/$(roomId)).data.hostUid == request.auth.uid));
+      allow update: if request.auth != null && (
+        request.auth.token.admin == true ||
+        (resource.data.participants is list && request.auth.uid in resource.data.participants && (
+          resource.data.hostUid == request.auth.uid ||
+          (request.resource.data.participants == resource.data.participants &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastMessage', 'updatedAt'])) ||
+          (request.resource.data.participants == resource.data.participants.removeAll([request.auth.uid]) &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'leftUserIds', 'updatedAt']))
+        )));
       allow delete: if request.auth != null && request.auth.token.admin == true;
 
       // 채팅방 메시지 (참여자 또는 관리자만 읽기 허용)

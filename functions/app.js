@@ -18,6 +18,129 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+// Naver API HUB keys are server-only. A signed-in user may search a place,
+// while the weekly job supplies curated places for browse screens.
+async function requireUser(req, res) {
+  const match = /^Bearer (.+)$/.exec(req.get('authorization') || '');
+  if (!match) { res.status(401).json({ error: '로그인이 필요해요.' }); return false; }
+  try {
+    const decoded = await admin.auth().verifyIdToken(match[1]);
+    req.authUid = decoded.uid;
+    return true;
+  } catch (_) {
+    res.status(401).json({ error: '로그인 상태를 확인해 주세요.' });
+    return false;
+  }
+}
+
+let naverCachedCredentials = null;
+async function naverCredentials() {
+  if (naverCachedCredentials) return naverCachedCredentials;
+  let id = process.env.NAVER_API_HUB_CLIENT_ID || process.env.NAVER_MAP_CLIENT_ID || '';
+  let secret = process.env.NAVER_API_HUB_CLIENT_SECRET || process.env.NAVER_MAP_CLIENT_SECRET || '';
+  if (!id || !secret) {
+    try {
+      const db = getDb();
+      const naverDoc = await db.collection('app_config').doc('naver').get();
+      if (naverDoc.exists) {
+        const d = naverDoc.data() || {};
+        id = id || d.naverClientId || d.naverMapClientId || '';
+        secret = secret || d.naverClientSecret || d.naverMapClientSecret || '';
+      }
+    } catch (_) {}
+  }
+  if (id && secret) {
+    naverCachedCredentials = { id, secret };
+  }
+  return { id, secret };
+}
+
+function coordinate(value, min, max) {
+  let n = Number(value);
+  if (n > max) n /= 10000000;
+  return Number.isFinite(n) && n > min && n < max ? n : null;
+}
+
+app.get('/api/naver/places', async (req, res) => {
+  if (!(await requireUser(req, res))) return;
+  const query = String(req.query.q || '').trim();
+  if (query.length < 2 || query.length > 80) return res.status(400).json({ error: '검색어는 2~80자로 입력해 주세요.' });
+  const { id, secret } = await naverCredentials();
+  if (!id || !secret) return res.status(503).json({ error: '네이버 장소 검색이 설정되지 않았어요.' });
+  try {
+    const url = `https://naverapihub.apigw.ntruss.com/search/v1/local?query=${encodeURIComponent(query)}&display=5&sort=random`;
+    const upstream = await fetch(url, { headers: { 'X-NCP-APIGW-API-KEY-ID': id, 'X-NCP-APIGW-API-KEY': secret } });
+    if (!upstream.ok) return res.status(502).json({ error: '네이버 장소 검색에 실패했어요.' });
+    const data = await upstream.json();
+    const places = (Array.isArray(data.items) ? data.items : []).map((item) => ({
+      id: `naver_${crypto.createHash('sha256').update(`${item.title}|${item.address}`).digest('hex').slice(0, 16)}`,
+      name: String(item.title || '').replace(/<[^>]*>/g, '').replace(/&amp;/g, '&'),
+      address: String(item.address || ''),
+      roadAddress: String(item.roadAddress || ''),
+      category: String(item.category || ''),
+      lat: coordinate(item.mapy, 30, 45),
+      lng: coordinate(item.mapx, 120, 135),
+      placeUrl: String(item.link || ''),
+    })).filter((item) => item.lat !== null && item.lng !== null);
+    return res.json({ source: 'Naver Local Search', places });
+  } catch (error) {
+    console.error('[Naver Places]', error);
+    return res.status(502).json({ error: '네이버 장소 검색에 실패했어요.' });
+  }
+});
+
+app.get('/api/naver/geocode', async (req, res) => {
+  if (!(await requireUser(req, res))) return;
+  const address = String(req.query.address || '').trim();
+  if (address.length < 2 || address.length > 100) return res.status(400).json({ error: '주소를 확인해 주세요.' });
+  const { id, secret } = await naverCredentials();
+  if (!id || !secret) return res.status(503).json({ error: '네이버 주소 검색이 설정되지 않았어요.' });
+  try {
+    const upstream = await fetch(`https://maps.apigw.ntruss.com/map-geocode/v2/geocode?query=${encodeURIComponent(address)}`, {
+      headers: { 'X-NCP-APIGW-API-KEY-ID': id, 'X-NCP-APIGW-API-KEY': secret },
+    });
+    if (!upstream.ok) return res.status(502).json({ error: '네이버 주소 검색에 실패했어요.' });
+    const data = await upstream.json();
+    const first = Array.isArray(data.addresses) ? data.addresses[0] : null;
+    const lat = coordinate(first?.y, 30, 45);
+    const lng = coordinate(first?.x, 120, 135);
+    return res.json(lat === null || lng === null ? { location: null } : {
+      location: { lat, lng, address: first.roadAddress || first.jibunAddress || address },
+    });
+  } catch (error) {
+    console.error('[Naver Geocode]', error);
+    return res.status(502).json({ error: '네이버 주소 검색에 실패했어요.' });
+  }
+});
+
+// Only an explicitly entered number is resolved. No address book is uploaded.
+// The response reveals no profile details and is rate limited per signed-in UID.
+app.post('/api/contacts/resolve-for-block', async (req, res) => {
+  if (!(await requireUser(req, res))) return;
+  const raw = String(req.body?.phone || '').replace(/[^0-9]/g, '');
+  const phone = raw.startsWith('82') ? '0' + raw.slice(2) : raw;
+  if (!/^010\d{8}$/.test(phone)) return res.status(400).json({ error: '휴대전화번호를 확인해 주세요.' });
+  try {
+    const db = getDb();
+    const today = new Date().toISOString().slice(0, 10);
+    const counter = db.collection('contact_lookup_limits').doc(req.authUid);
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(counter);
+      const count = snap.data()?.date === today ? (snap.data().count || 0) : 0;
+      if (count >= 20) throw Object.assign(new Error('daily limit'), { code: 'limit' });
+      tx.set(counter, { date: today, count: count + 1 }, { merge: true });
+    });
+    const result = await db.collectionGroup('private').where('phone', '==', phone).limit(3).get();
+    const matched = result.docs.find((doc) => doc.id === 'contact' &&
+      doc.ref.parent.parent?.id !== req.authUid);
+    return res.json({ matched: !!matched, uid: matched?.ref.parent.parent?.id || null });
+  } catch (error) {
+    if (error.code === 'limit') return res.status(429).json({ error: '오늘 조회 한도를 초과했어요.' });
+    console.error('[Contact Block Lookup]', error);
+    return res.status(503).json({ error: '지인 계정을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.' });
+  }
+});
+
 // Helper: Get Firestore instance safely
 function getDb() {
   return admin.firestore();

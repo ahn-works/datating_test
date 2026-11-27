@@ -5,7 +5,14 @@
 
 ---
 
-## 🚨 0. 최우선 행동 원칙 (대표님 피로도 제로)
+## 🚨 0. 최우선 행동 원칙 (대표님 피로도 제로 & Cloudflare Code Mode MCP 상시 적용)
+
+0. **⚡ Cloudflare Code Mode MCP 상시 적용 원칙 ([`code-mode-mcp`](https://blog.cloudflare.com/ko-kr/code-mode-mcp) / [`cloudflare/agents`](https://github.com/cloudflare/agents))**
+   - **매 작업 필수 적용**: 에이전트는 모든 작업 수행 시 개별 도구/API를 1건씩 수십 번 왕복 호출하여 토큰과 시간을 낭비하는 대신, **Cloudflare Code Mode MCP(`https://mcp.cloudflare.com/mcp`, `@cloudflare/codemode`)의 `search()` + `execute()`(단일 코드 샌드박스 일괄 실행) 패러다임**을 상시 적용합니다.
+   - **Progressive Discovery & Batch Code Execution**:
+     1) 필요한 API/스키마만 경량 탐색(`search`)하여 컨텍스트 점유를 ~1,000 토큰 수준으로 최소화합니다.
+     2) 다단계 조회·데이터 정합성 검증·Firestore/R2/네이버 지도 배치 처리는 개별 툴 연쇄 호출 대신 **단일 실행 코드(`execute` / 일괄 스크립트)**로 묶어 한 번의 턴에 처리하고 최종 요약 결과만 반환합니다.
+   - **전역 및 프로젝트 설정 위치**: 전역 MCP 설정(`~/.gemini/config/mcp_config.json`의 `cloudflare-code-mode`), 전역 규칙(`~/.gemini/config/rules/cloudflare_code_mode_mcp.md`), 백엔드 패키지(`functions/package.json`의 `@cloudflare/codemode`, `agents`)에 상시 연결되어 있습니다.
 
 1. **원본 시안 1:1 실측 대조 원칙 (Visual Diff Mandatory & No Superficial Audits)**
    - 대충 코드 몇 줄만 고치고 주관적으로 "완료되었다"고 보고하는 대충 검토 행위를 엄격히 금지합니다.
