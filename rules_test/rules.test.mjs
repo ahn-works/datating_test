@@ -7,6 +7,8 @@
 //   현재 규칙에서는 실패한다(= 규칙 결함). node:test 는 todo 실패를 전체 실패로
 //   세지 않으므로 CI 는 통과하지만, 결과에 '# TODO' 로 남는다.
 //   규칙이 고쳐지면 todo 를 지워 일반 테스트로 승격한다.
+// - 2026-11-27 운영 게시본 반영: 결함 R1·R2·R4~R8 테스트는 필수 통과로 승격.
+//   남은 todo 는 인증 배지(R3) 1건뿐이다(체크리스트 3번 서버 OTP 이후).
 //
 // 실행: cd rules_test && npm ci && npm test
 // 가짜 프로젝트(demo-*)만 쓰므로 운영 Firebase 에 접속하지 않는다.
@@ -241,7 +243,6 @@ describe('2. users / private / user_states', () => {
     // ---- 규칙 결함(백엔드 필요) ----
     test(
       '탈퇴 시 본인 users 문서 삭제가 되어야 한다 [auth_service.dart:199]',
-      { todo: '백엔드 필요: users delete 가 관리자 전용이라 탈퇴해도 공개 프로필이 남음 (앱은 오류를 catch 로 숨김)' },
       async () => {
         await assertSucceeds(deleteDoc(doc(as(ALICE), `users/${ALICE}`)));
       },
@@ -249,7 +250,6 @@ describe('2. users / private / user_states', () => {
 
     test(
       '본인이 mannerTemp 를 임의로 올릴 수 없어야 한다',
-      { todo: '백엔드 필요: users update 가 필드 제한 없이 본인 수정 허용 → 매너온도 위조 가능' },
       async () => {
         await assertFails(setDoc(doc(as(ALICE), `users/${ALICE}`), { mannerTemp: 99 }, { merge: true }));
       },
@@ -303,7 +303,6 @@ describe('3. community_posts / comments (좋아요 = 체크리스트 12번)', ()
 
   test(
     'userId 만 본인으로 두고 authorId 를 남으로 넣어 글쓰기는 거부되어야 한다',
-    { todo: '백엔드 필요: create 가 authorId OR userId 중 하나만 본인이면 허용 → 다른 사람 명의로 글 작성 가능' },
     async () => {
       await assertFails(setDoc(doc(as(ALICE), 'community_posts/p3'), { ...post(BOB), userId: ALICE }));
     },
@@ -560,7 +559,6 @@ describe('5. chatRooms / messages (체크리스트 8번)', () => {
 
   test(
     'userId 만 본인으로 두고 senderId 를 남으로 넣은 메시지는 거부되어야 한다',
-    { todo: '백엔드 필요: messages create 가 senderId OR userId 중 하나만 본인이면 허용 → 단톡방에서 다른 참여자 명의로 메시지 작성 가능' },
     async () => {
       await assertFails(setDoc(doc(as(BOB), 'chatRooms/r1/messages/z'), { text: '사칭', senderId: ALICE, userId: BOB }));
     },
@@ -587,7 +585,6 @@ describe('5. chatRooms / messages (체크리스트 8번)', () => {
 
   test(
     '다른 참여자도 투표·일정 카드에 응답할 수 있어야 한다 [chat_system_cards.dart:550 → chat_repository.dart:206]',
-    { todo: '백엔드 필요: messages update 가 보낸 사람 전용 → 단톡방 투표/일정/응원 카드에 다른 사람이 누르면 "변경을 저장하지 못했어요"' },
     async () => {
       await assertSucceeds(updateDoc(doc(as(BOB), 'chatRooms/r1/messages/poll1'), { voters: { [BOB]: 1 } }));
     },
@@ -637,7 +634,6 @@ describe('6. notifications / reports / inquiries / 공개 컬렉션', () => {
 
   test(
     '아무 내용의 알림을 남에게 보낼 수는 없어야 한다',
-    { todo: '백엔드 필요: notifications create 가 로그인만 확인 → 임의 제목·본문으로 다른 회원에게 알림 발송(사칭·피싱) 가능' },
     async () => {
       await assertFails(
         addDoc(collection(as(BOB), 'notifications'), {
@@ -657,7 +653,6 @@ describe('6. notifications / reports / inquiries / 공개 컬렉션', () => {
 
   test(
     '다른 사람이 낸 신고 내용을 읽을 수 없어야 한다',
-    { todo: '백엔드 필요: reports read 가 로그인만 확인 → 누가 누구를 신고했는지 전 회원이 조회 가능. 앱은 reports 를 읽지 않음' },
     async () => {
       await seed((db) => setDoc(doc(db, 'reports/r1'), { targetId: CAROL, targetUser: '캐롤', reporterUser: '밥', reason: '욕설' }));
       await assertFails(getDoc(doc(as(CAROL), 'reports/r1')));

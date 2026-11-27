@@ -4,16 +4,17 @@
 
 - 대상: 레포 루트 `firestore.rules` (pc-sync-1127 브랜치, 커밋 0c6f2d3에서 PC 수정본 반영). `scripts/firestore.rules`와 내용이 같다.
 - 방법: Firestore 에뮬레이터(v1.19.8, 가짜 프로젝트 `demo-oomu-rules`)에서 비로그인 / 본인 / 타인 / 관리자 계정으로 앱(lib/)이 실제로 보내는 요청 모양을 재현했다. 각 테스트 이름에 근거 코드 위치(`파일:줄`)를 적었다.
-- `firestore.rules`는 백엔드 보호구역이라 **수정하지 않았다**. 수정안은 `rules_test/proposed.firestore.rules`에 따로 두었고 **운영에 게시하지 않았다.**
-- 운영 Firestore에 실제로 어떤 규칙이 게시돼 있는지는 확인하지 못했다(운영 프로젝트 접근 없음). 게시 후 운영 재검증은 대표님 권한이 필요하다.
+- 1차(커밋 3681656): `firestore.rules`는 보호구역이라 수정하지 않고, 수정안을 `rules_test/proposed.firestore.rules`에 따로 두었다.
+- **2026-11-27 게시 후 동기화:** 대표님이 제안본을 운영에 게시했다고 알려 왔다. 대표님 승인을 받아 레포의 `firestore.rules`와 `scripts/firestore.rules`를 제안본과 같게 맞췄다(첫 줄 '미게시' 안내 주석만 뺌, 규칙 내용은 같음). 제안본 파일은 지웠다.
+- 운영에 실제로 올라간 규칙은 **아직 직접 대조하지 못했다.** 이 클라우드 환경의 Firebase 도구에 로그인된 계정이 없다. 운영 재검증은 테스트 계정 2개로 직접 써 보거나, Firebase 로그인 수단이 생긴 뒤 운영 규칙을 읽어 대조해야 한다.
 
 ## 실행 방법
 
 ```bash
 cd rules_test
 npm ci
-npm test                                        # 현재 firestore.rules
-RULES_FILE=proposed.firestore.rules npm test    # 수정 제안본
+npm test                              # 레포의 firestore.rules
+RULES_FILE=/경로/다른.rules npm test   # 다른 규칙 파일을 같은 시나리오로 시험
 ```
 
 Java 21과 Node 22가 필요하다. Branch CI의 `firestore-rules` job이 브랜치 push마다 같은 테스트를 돌린다.
@@ -24,6 +25,8 @@ Java 21과 Node 22가 필요하다. Branch CI의 `firestore-rules` job이 브랜
 | --- | --- | --- | --- | --- |
 | 현재 `firestore.rules` | 81 | 73 | 0 | 8개 모두 재현됨 |
 | 제안본 | 81 | 73 | 0 | 8개 중 7개 테스트가 통과로 바뀜(R6·R7은 부분 해소), 1개 남음 |
+| **게시본 반영 후 레포 규칙** (해소된 7건을 필수 통과로 승격) | 81 | 80 | 0 | 1 (R3 인증 배지) |
+| 예전 규칙으로 되돌렸을 때 (회귀 확인용) | 81 | 73 | **7** | 1 → CI 실패(종료 코드 1)로 잡힘 |
 
 `todo` 테스트는 "이렇게 동작해야 한다"는 기대를 적은 것이다. 현재 규칙에서 실패하는 것이 결함의 증거다. node:test는 todo 실패를 전체 실패로 세지 않으므로 CI는 초록색으로 통과한다. 규칙을 고친 뒤 todo 표시를 지워 일반 테스트로 올린다.
 
@@ -60,11 +63,12 @@ Java 21과 Node 22가 필요하다. Branch CI의 `firestore-rules` job이 브랜
 - `secret_after` 카드의 `secretChoices`는 공유 메시지 문서에 저장돼 같은 방 참여자 모두가 읽을 수 있다. "비밀 선택"이라는 이름과 맞지 않는다.
 - 앱이 `config/kakao_auth`에 쓰기를 시도한다(`lib/services/auth_service.dart:151`). 규칙이 막고 있어 피해는 없지만 매번 거부 오류가 난다.
 
-## 제안본 적용 시 주의
+## 게시본의 한계와 주의 (2026-11-27 운영 게시)
 
 - 제안본 R2는 생성 시 `mannerTemp == 36.5`만 허용한다. `OOMU_DEV_ACCOUNTS` 빌드 플래그의 테스트 계정(38.5)은 관리자 claim이 없으면 가입이 거부된다.
 - 제안본 R6은 응답 필드(`voters`, `attendees`, `cheers`, `acceptedMembers`, `status`, `secretChoices`, `submittedAt`) 수정만 허용한다. 참여자가 다른 사람의 응답을 덮어쓰거나 어떤 메시지든 `status`를 바꾸는 것은 막지 못한다. 앱이 응답 키로 uid 대신 닉네임(`currentNick`)을 쓰기 때문에 규칙으로 본인 응답만 허용하기도 어렵다. 제대로 막으려면 앱이 uid 키로 응답을 저장하도록 바꿔야 한다.
 - 제안본 R7은 앱이 보내는 알림 2종(`meetup_request`, `meetup_decision`)만 허용하고, 신청서·모임장 관계가 있는 상대에게만 보낼 수 있게 한다. `title`·`body`는 여전히 자유 문구이고 횟수 제한도 없어서, 신청자↔모임장 사이의 임의 문구 알림은 가능하다. 완전히 막으려면 알림 생성을 서버(체크리스트 1번)로 옮겨야 한다. 알림 종류가 늘면 규칙에도 추가해야 한다.
-- 제안본을 게시할 때 해소된 todo 7건에서 `todo` 표시를 지워 일반 테스트로 바꿔야 한다. 그대로 두면 CI가 이후의 회귀를 잡지 못한다.
+- 해소된 7건은 `todo` 표시를 지워 필수 통과 테스트로 바꿨다. 누가 규칙을 예전처럼 되돌리면 Branch CI가 실패한다.
 - 제안본 주석의 "100% 차단", "완벽 분리"는 원본 `firestore.rules`에서 그대로 복사된 문구이고, 테스트로 확인한 표현이 아니다.
-- 게시는 `firestore.rules`에 반영 → `cd rules_test && npm test` 통과 확인 → `firebase deploy --only firestore:rules` 순서로 한다. 게시 뒤 운영에서 2계정으로 다시 확인한다(체크리스트 2번 "운영에서 재검증").
+- 앞으로 규칙을 바꿀 때는 `firestore.rules` 수정 → `scripts/firestore.rules`도 같게 → `cd rules_test && npm test` 통과 → `firebase deploy --only firestore:rules` 순서로 한다. 레포와 운영이 어긋나면 다음 `firebase deploy` 때 운영이 레포 내용으로 덮어써진다.
+- 남은 일: 운영 재검증(체크리스트 2번 '완료' 조건), R3 인증 배지(3번 이후).
