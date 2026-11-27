@@ -1,5 +1,6 @@
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
+import '../utils/firestore_time.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
 import '../utils/app_image.dart';
@@ -617,6 +618,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: OomuTokens.surface,
         elevation: 0,
+        titleSpacing: OomuTokens.s20,
         title: const Text('마이페이지',
             style: TextStyle(
                 color: OomuTokens.textPrimary,
@@ -952,27 +954,34 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const Text('·',
-                                      style: TextStyle(
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text('·',
+                                          style: TextStyle(
+                                              color: OomuTokens.textSecondary,
+                                              fontSize: 12)),
+                                      const SizedBox(width: 3),
+                                      Icon(
+                                        isVerified
+                                            ? Icons.verified_user_rounded
+                                            : Icons.info_outline_rounded,
+                                        color: isVerified
+                                            ? const Color(0xFF10B981)
+                                            : OomuTokens.textSecondary,
+                                        size: 13,
+                                      ),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        isVerified ? '본인인증 완료' : '본인인증 미완료',
+                                        style: const TextStyle(
                                           color: OomuTokens.textSecondary,
-                                          fontSize: 12)),
-                                  Icon(
-                                    isVerified
-                                        ? Icons.verified_user_rounded
-                                        : Icons.info_outline_rounded,
-                                    color: isVerified
-                                        ? const Color(0xFF10B981)
-                                        : OomuTokens.textSecondary,
-                                    size: 13,
-                                  ),
-                                  Text(
-                                    isVerified ? '본인인증 완료' : '본인인증 미완료',
-                                    style: const TextStyle(
-                                      color: OomuTokens.textSecondary,
-                                      fontSize: 12,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                          fontSize: 12,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -1629,8 +1638,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                                 ),
                                                 const Spacer(),
                                                 Text(
-                                                  post['time']?.toString() ??
-                                                      '최근',
+                                                  resolvePostTimeLabel(post)
+                                                          .isNotEmpty
+                                                      ? resolvePostTimeLabel(post)
+                                                      : (post['time']?.toString() ??
+                                                          '최근'),
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     color: OomuTokens
@@ -1726,8 +1738,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              comment['time']?.toString() ??
-                                                  '방금 전',
+                                              resolvePostTimeLabel(comment)
+                                                      .isNotEmpty
+                                                  ? resolvePostTimeLabel(comment)
+                                                  : (comment['time']?.toString() ??
+                                                      '방금 전'),
                                               style: const TextStyle(
                                                 fontSize: 11,
                                                 color: OomuTokens.textSecondary,

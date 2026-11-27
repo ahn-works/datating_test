@@ -1020,7 +1020,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
             _buildTextField(
               '모임 제목',
               _titleController,
-              '예) 연남동에서 커피 한잔 하실 분!',
+              '예) 퇴근 후 동네에서 커피 한잔 하실 분!',
               focusNode: _titleFocusNode,
               errorText: _titleError,
               onChanged: (v) {

@@ -87,3 +87,25 @@ int compareFirestoreTimes(dynamic a, dynamic b, {bool descending = true}) {
   return descending ? msB.compareTo(msA) : msA.compareTo(msB);
 }
 
+/// Firestore 시간 필드를 "방금 전 / N분 전 / N시간 전 / N일 전 / M월 D일"로 바꿉니다.
+/// 해석할 수 없는 값이면 빈 문자열을 돌려줍니다. [now]는 테스트용입니다.
+String formatRelativeTime(dynamic value, {DateTime? now}) {
+  final dt = parseFirestoreDateTime(value);
+  if (dt == null) return '';
+  final diff = (now ?? DateTime.now()).difference(dt);
+  if (diff.isNegative || diff.inSeconds < 60) return '방금 전';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  if (diff.inDays < 7) return '${diff.inDays}일 전';
+  return '${dt.month}월 ${dt.day}일';
+}
+
+/// 글·댓글의 표시 시간. 작성 시각(createdAt)이 있으면 그것으로 계산하고,
+/// 없을 때만 저장된 'time' 글자(예전 데이터의 "방금 전" 등)를 그대로 씁니다.
+String resolvePostTimeLabel(Map<String, dynamic>? post, {DateTime? now}) {
+  if (post == null) return '';
+  final fromCreatedAt = formatRelativeTime(post['createdAt'], now: now);
+  if (fromCreatedAt.isNotEmpty) return fromCreatedAt;
+  return (post['time'] ?? '').toString().trim();
+}
+

@@ -268,7 +268,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
       'id': 'local_${DateTime.now().microsecondsSinceEpoch}',
       'author': myNick,
       'authorAvatar': myAvatar,
-      'content': '✨ $title 움짤',
+      'content': '$title 움짤',
       'imageUrl': stickerUrl,
       'time': '방금 전',
       'likes': 0,
@@ -292,7 +292,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
         'authorId': authorUid,
         'author': myNick,
         'authorAvatar': myAvatar,
-        'content': '✨ $title 움짤',
+        'content': '$title 움짤',
         'imageUrl': stickerUrl,
         'time': '방금 전',
         'likes': 0,
@@ -485,8 +485,9 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
                 : '');
     final location = (post['location'] ?? '').toString().trim();
     final rawTime = (post['time'] ?? '').toString().trim();
-    final time =
-        rawTime.isNotEmpty ? rawTime : _formatRelativeTime(post['createdAt']);
+    // 저장된 'time' 글자("방금 전")는 시간이 지나도 바뀌지 않으므로 작성 시각을 먼저 쓴다.
+    final createdAtTime = _formatRelativeTime(post['createdAt']);
+    final time = createdAtTime.isNotEmpty ? createdAtTime : rawTime;
     final metaLine =
         [location, time].where((v) => v.trim().isNotEmpty).join(' · ');
     final double? authorManner = OomuUiHelpers.parseMannerTemp(post);
@@ -788,7 +789,7 @@ class _CommunityPostDetailScreenState extends State<CommunityPostDetailScreen> {
             child: OomuEmptyState(
               icon: Icons.chat_bubble_outline_rounded,
               title: '첫 댓글을 남겨보세요',
-              subtitle: '동네 이웃과 따뜻한 대화를 시작해 보세요 💬',
+              subtitle: '동네 이웃과 대화를 시작해 보세요',
             ),
           )
         else

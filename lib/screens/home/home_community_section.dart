@@ -420,7 +420,7 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
     final tag = (post['tag'] ?? '').toString();
     final title = (post['title'] ?? '').toString();
     final image = (post['image'] ?? '').toString();
-    final meta = [post['location'], post['time']]
+    final meta = [post['location'], resolvePostTimeLabel(post)]
         .map((e) => (e ?? '').toString().trim())
         .where((e) => e.isNotEmpty)
         .join(' · ');
@@ -826,6 +826,12 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                                       .collection('comments')
                                       .snapshots(),
                                   builder: (context, snapshot) {
+                                    // 실제 댓글 수가 오기 전에는 오래된 숫자(초기 목록·저장값)를
+                                    // 잠깐 보여줬다가 바뀌는 문제가 있어 빈칸으로 둔다.
+                                    // 조회가 실패했을 때만 아래 대체 값을 쓴다.
+                                    if (!snapshot.hasData && !snapshot.hasError) {
+                                      return const SizedBox(width: 8);
+                                    }
                                     final count = snapshot.hasData
                                         ? snapshot.data!.docs.where((doc) {
                                             final data = doc.data();
