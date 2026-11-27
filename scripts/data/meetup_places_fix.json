@@ -1,0 +1,85 @@
+{
+  "_설명": "모임 장소를 실제 가게로 바꾸는 수정안. 좌표 출처: OpenStreetMap Nominatim(2026-11-27 조회). 적용: Firebase 로그인 후 scripts/data/apply_meetup_places_fix.md 참고. location·lat·lng·latitude·longitude만 바꾼다.",
+  "keep_unchanged": {
+    "D2U9GHMmDuC3eOzTuhA1": "실제 호스트가 만든 모임, 장소 유지(좌표는 네이버 크롤 데이터)",
+    "bot_meetup_singil_kono_04": "세븐스타코인노래연습장 신길점: OSM 미등재, 기존 좌표 유지",
+    "bot_meetup_singil_cafe_01": "스타벅스 신길로 137: OSM과 4m 차이, 유지",
+    "e2e_singil_host_meetup_01": "E2E 테스트 모임, 유지",
+    "codex-qa-6c845964": "QA 테스트(온라인)",
+    "codex-ui-1126": "QA 테스트(온라인)"
+  },
+  "updates": [
+    {
+      "id": "bot_meetup_bakery_yeosu_01",
+      "location": "빵그읏 (전남 여수시 화장동)",
+      "roadAddress": "전남 여수시 화산로",
+      "lat": 34.772276,
+      "lng": 127.642971,
+      "source": "OpenStreetMap Nominatim: node? 빵그읏 화산로 bakery"
+    },
+    {
+      "id": "bot_meetup_boardgame_mapo_01",
+      "location": "홍대입구역 9번 출구 (서울 마포구 양화로)",
+      "roadAddress": "서울 마포구 양화로",
+      "lat": 37.55737,
+      "lng": 126.92445,
+      "source": "OpenStreetMap Nominatim: 홍대입구역 bus_stop"
+    },
+    {
+      "id": "bot_meetup_cafe_hongdae_01",
+      "location": "Café Moro (서울 마포구 연남동)",
+      "roadAddress": "서울 마포구 동교로38길",
+      "lat": 37.561925,
+      "lng": 126.925622,
+      "source": "OpenStreetMap Nominatim: Café Moro cafe"
+    },
+    {
+      "id": "bot_meetup_singil_dining_02",
+      "location": "한가네마늘보쌈 (서울 영등포구 신길동)",
+      "roadAddress": "서울 영등포구 도신로 238",
+      "lat": 37.512414,
+      "lng": 126.917606,
+      "source": "OpenStreetMap Nominatim: 한가네마늘보쌈 restaurant"
+    },
+    {
+      "id": "bot_meetup_singil_running_03",
+      "location": "메낙골 근린공원 (서울 영등포구 신길동)",
+      "roadAddress": "서울 영등포구 신길4동",
+      "lat": 37.50755,
+      "lng": 126.91533,
+      "source": "OpenStreetMap Nominatim: 메낙골 근린공원 park"
+    },
+    {
+      "id": "bot_meetup_wine_seongsu_01",
+      "location": "더스토리지룸 (서울 성동구 성수동)",
+      "roadAddress": "서울 성동구 연무장7길 8-1",
+      "lat": 37.543437,
+      "lng": 127.054687,
+      "source": "OpenStreetMap Nominatim: 더스토리지룸 bar"
+    },
+    {
+      "id": "seed_seed_beer_friday_1117",
+      "location": "우리만선호프 (서울 중구 을지로3가)",
+      "roadAddress": "서울 중구 충무로9길 14",
+      "lat": 37.566744,
+      "lng": 126.990741,
+      "source": "OpenStreetMap Nominatim: 우리만선호프 bar"
+    },
+    {
+      "id": "seed_seed_kpop_karaoke_1117",
+      "location": "수노래연습장 (서울 마포구 동교동)",
+      "roadAddress": "서울 마포구 신촌로12길",
+      "lat": 37.55557,
+      "lng": 126.93251,
+      "source": "OpenStreetMap Nominatim: 수노래연습장 karaoke_box"
+    },
+    {
+      "id": "seed_seed_running_weekend_1114",
+      "location": "망원한강공원 (서울 마포구 합정동)",
+      "roadAddress": "서울 마포구 망원동 한강공원",
+      "lat": 37.55019,
+      "lng": 126.90216,
+      "source": "OpenStreetMap Nominatim: 망원한강공원 park"
+    }
+  ]
+}
