@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:network_image_mock/network_image_mock.dart';
+import 'package:oomu_app/widgets/balanced_text.dart';
 import 'package:oomu_app/utils/profile_policy.dart';
 import 'package:oomu_app/utils/oomu_ui_helpers.dart';
 import 'package:oomu_app/utils/global_data.dart';
@@ -200,9 +201,13 @@ void main() {
           })));
       await tester.pumpAndSettle();
       expect(find.text('실시간 당일 번개'), findsNothing);
-      await tester.scrollUntilVisible(find.textContaining('아직 모임 소개'), 200,
+      // 모임 소개는 BalancedText.display(어절 줄바꿈용 보이지 않는 문자)로 그려지므로 원문으로 되돌려 찾는다.
+      final introFinder = find.byWidgetPredicate((w) =>
+          w is Text &&
+          BalancedText.restore(w.data ?? '').contains('아직 모임 소개'));
+      await tester.scrollUntilVisible(introFinder, 200,
           scrollable: find.byType(Scrollable).first);
-      expect(find.textContaining('아직 모임 소개'), findsOneWidget);
+      expect(introFinder, findsOneWidget);
       expect(find.textContaining('매운 음식'), findsNothing);
       expect(find.text('여수빵순이'), findsOneWidget);
       expect(tester.takeException(), isNull);
