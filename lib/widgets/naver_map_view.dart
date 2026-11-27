@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'kakao_map_view_stub.dart'
-    if (dart.library.html) 'kakao_map_view_web.dart' as impl;
+import 'naver_map_view_stub.dart'
+    if (dart.library.html) 'naver_map_view_web.dart' as impl;
 
-class KakaoMapView extends StatelessWidget {
+class NaverMapView extends StatelessWidget {
   final double lat;
   final double lng;
   final String locationName;
@@ -14,7 +14,7 @@ class KakaoMapView extends StatelessWidget {
   final int zoomLevel;
   final void Function(String markerId, bool shouldOpenDetail)? onMarkerTap;
 
-  const KakaoMapView({
+  const NaverMapView({
     super.key,
     required this.lat,
     required this.lng,
@@ -30,7 +30,7 @@ class KakaoMapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return impl.buildKakaoMapWidget(
+    return impl.buildNaverMapWidget(
       lat: lat,
       lng: lng,
       locationName: locationName,

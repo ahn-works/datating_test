@@ -18,7 +18,7 @@ import 'utils/global_data.dart';
 import 'ui/oomu_tokens.dart';
 import 'ui/oomu_component_gallery.dart';
 import 'utils/oomu_ui_helpers.dart';
-import 'services/kakao_map_service.dart';
+import 'services/naver_map_service.dart';
 
 /// 테스트용 URI 주입 훅
 Uri Function()? resolveAppUri;
@@ -201,7 +201,7 @@ void main() async {
     r2Storage
         .initFromFirestore()
         .timeout(const Duration(seconds: 3), onTimeout: () {}),
-    KakaoMapService.ensureKeysLoaded()
+    NaverMapService.ensureKeysLoaded()
         .timeout(const Duration(seconds: 3), onTimeout: () {}),
   ]).catchError((e) {
     debugPrint("Background services init error: $e");

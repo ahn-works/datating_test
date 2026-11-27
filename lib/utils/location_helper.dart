@@ -1,4 +1,4 @@
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -9,7 +9,7 @@ class LocationHelper {
 
   /// 위치 권한이 아직 정해지지 않았으면(denied) 앱 실행당 한 번만 요청한다.
   /// 이번 요청으로 권한을 새로 받았을 때만 true (이미 허용·거부된 상태면 false).
-  /// 서비스 계층(kakao_map_service)은 권한을 조회만 하므로, 화면이 먼저 이 함수를 부른다.
+  /// 서비스 계층(naver_map_service)은 권한을 조회만 하므로, 화면이 먼저 이 함수를 부른다.
   static Future<bool> requestPermissionIfUndecided() async {
     if (_permissionAskedThisSession) return false;
     try {
@@ -79,7 +79,7 @@ class LocationHelper {
       debugPrint(
           '[LocationHelper] Got coordinates: ${position.latitude}, ${position.longitude}');
 
-      // 3. 역지오코딩 시도 (카카오 로컬 API coord2regioncode - 최대 1.5초 타임아웃)
+      // 3. 역지오코딩 시도 (네이버 지도 서비스, 최대 1.5초 타임아웃)
       final reverseName =
           await _reverseGeocode(position.latitude, position.longitude);
       if (reverseName != null && reverseName.trim().isNotEmpty) {
@@ -95,10 +95,10 @@ class LocationHelper {
     }
   }
 
-  /// 카카오 공식 역지오코딩 로컬 API 호출 (행정동/법정동 동네명 반환)
+  /// 역지오코딩 (행정동/법정동 동네명 반환)
   static Future<String?> _reverseGeocode(double lat, double lon) async {
     try {
-      final dongName = await KakaoMapService.coordToRegionName(lat, lon);
+      final dongName = await NaverMapService.coordToRegionName(lat, lon);
       if (dongName != null && dongName.trim().isNotEmpty) {
         return dongName.trim();
       }

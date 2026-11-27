@@ -9,7 +9,7 @@ import 'package:oomu_app/screens/oomu_detail_screen.dart';
 import 'package:oomu_app/screens/oomu_home_screen.dart';
 import 'package:oomu_app/screens/user_profile_screen.dart';
 import 'package:oomu_app/services/auth_service.dart';
-import 'package:oomu_app/services/kakao_map_service.dart';
+import 'package:oomu_app/services/naver_map_service.dart';
 import 'package:oomu_app/utils/global_data.dart';
 import 'package:oomu_app/utils/oomu_ui_helpers.dart';
 
@@ -87,15 +87,15 @@ void main() {
 
   group('[3] 장소·지도·거리 불일치 수정 검증', () {
     test(
-        'KakaoMapService.resolveVerifiedPlace는 검증된 장소만 좌표를 반환하고 미확인 장소는 null을 반환한다',
+        'NaverMapService.resolveVerifiedPlace는 검증된 장소만 좌표를 반환하고 미확인 장소는 null을 반환한다',
         () async {
       // No initialized place-search backend: never substitute a station for a venue.
       final seongsu =
-          await KakaoMapService.resolveVerifiedPlace('성수역 3번 출구 레드버튼');
+          await NaverMapService.resolveVerifiedPlace('성수역 3번 출구 레드버튼');
       expect(seongsu, isNull);
 
       final unknown =
-          await KakaoMapService.resolveVerifiedPlace('알수없는비밀장소XYZ_999');
+          await NaverMapService.resolveVerifiedPlace('알수없는비밀장소XYZ_999');
       expect(unknown, isNull);
     });
 

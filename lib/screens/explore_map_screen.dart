@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../ui/oomu_tokens.dart';
-import '../services/kakao_map_service.dart';
-import '../widgets/kakao_map_view.dart';
+import '../services/naver_map_service.dart';
+import '../widgets/naver_map_view.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/location_helper.dart';
@@ -12,7 +12,7 @@ import '../utils/meetup_member_helper.dart';
 import 'oomu_detail_screen.dart';
 import 'oomu_host_screen.dart';
 
-/// OOMU 신규 탐색(Explore) 화면 - Mobbin 1티어 Sheet-over-Map & 카카오맵 인터랙티브 탐색 뷰
+/// OOMU 신규 탐색(Explore) 화면 - Mobbin 1티어 Sheet-over-Map & 네이버 지도 인터랙티브 탐색 뷰
 class ExploreMapScreen extends StatefulWidget {
   final double? initialLat;
   final double? initialLng;
@@ -425,7 +425,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
     setState(() => _isLoading = true);
     try {
       final results =
-          await KakaoMapService.searchKeyword(query.trim(), size: 1);
+          await NaverMapService.searchKeyword(query.trim(), size: 1);
       if (results.isNotEmpty) {
         final first = results.first;
         await _moveToLocation(first.lat, first.lng, first.name);
@@ -910,7 +910,7 @@ class _ExploreMapScreenState extends State<ExploreMapScreen> {
                             borderRadius: BorderRadius.circular(OomuTokens.r16),
                             border: Border.all(color: OomuTokens.border),
                           ),
-                          child: KakaoMapView(
+                          child: NaverMapView(
                             lat: _currentLat,
                             lng: _currentLng,
                             locationName: _currentSpotName,

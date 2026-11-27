@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../utils/location_helper.dart';
 import '../utils/oomu_ui_helpers.dart';
-import 'kakao_map_service.dart';
+import 'naver_map_service.dart';
 
 /// 사용자가 가입하거나 설정한 동네(예: 영등포구 신길동, 여수시 화장동 등 전국 모든 읍·면·동)에
 /// 활성 모임이 부족할 때, 해당 동네의 실제 장소(네이버 지도 지오코딩 & GitHub Actions 주간 크롤러 연동)를 기반으로
@@ -136,7 +136,7 @@ class RegionalBotMeetupService {
     ];
   }
 
-  /// 해당 동네에 매칭되는 모임이 부족할 때 즉시 반환 + 실제 카카오 장소로 비동기 보강
+  /// 해당 동네에 매칭되는 모임이 부족할 때 즉시 반환 + 실제 네이버 장소로 비동기 보강
   static List<Map<String, dynamic>> ensureMeetupsForLocation(
     String rawLocation,
     List<Map<String, dynamic>> currentMeetups, {
@@ -160,7 +160,7 @@ class RegionalBotMeetupService {
 
     if (!_enrichingLocations.contains(dong)) {
       _enrichingLocations.add(dong);
-      _enrichWithRealKakaoPlaces(cleanLoc, dong, onEnriched);
+      _enrichWithRealNaverPlaces(cleanLoc, dong, onEnriched);
     }
 
     final existingIds =
@@ -317,7 +317,7 @@ class RegionalBotMeetupService {
     ];
   }
 
-  static Future<void> _enrichWithRealKakaoPlaces(
+  static Future<void> _enrichWithRealNaverPlaces(
     String rawLocation,
     String dong,
     VoidCallback? onEnriched,
@@ -329,10 +329,10 @@ class RegionalBotMeetupService {
       if (list == null || list.length < 4) return;
 
       final results = await Future.wait([
-        KakaoMapService.searchKeyword('$dong 카페', lat: base.lat, lng: base.lng, size: 3),
-        KakaoMapService.searchKeyword('$dong 맛집', lat: base.lat, lng: base.lng, size: 3),
-        KakaoMapService.searchKeyword('$dong 공원', lat: base.lat, lng: base.lng, size: 3),
-        KakaoMapService.searchKeyword('$dong 노래방', lat: base.lat, lng: base.lng, size: 3),
+        NaverMapService.searchKeyword('$dong 카페', lat: base.lat, lng: base.lng, size: 3),
+        NaverMapService.searchKeyword('$dong 맛집', lat: base.lat, lng: base.lng, size: 3),
+        NaverMapService.searchKeyword('$dong 공원', lat: base.lat, lng: base.lng, size: 3),
+        NaverMapService.searchKeyword('$dong 노래방', lat: base.lat, lng: base.lng, size: 3),
       ]);
 
       bool updated = false;
@@ -343,7 +343,7 @@ class RegionalBotMeetupService {
           list[i]['location'] = '${p.name} ($region)';
           list[i]['lat'] = p.lat;
           list[i]['lng'] = p.lng;
-          list[i]['distance'] = KakaoMapService.formatDistanceFromNeighborhood(
+          list[i]['distance'] = NaverMapService.formatDistanceFromNeighborhood(
             p.lat,
             p.lng,
             userLocation: rawLocation,

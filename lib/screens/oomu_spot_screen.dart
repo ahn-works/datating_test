@@ -1,4 +1,4 @@
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
@@ -1078,7 +1078,7 @@ class _SoSoSpotDetailScreenState extends State<SoSoSpotDetailScreen> {
                         ),
                         OutlinedButton(
                           onPressed: () =>
-                              KakaoMapService.launchDirections(location),
+                              NaverMapService.launchDirections(location),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: coralAccent),
                             padding: const EdgeInsets.symmetric(

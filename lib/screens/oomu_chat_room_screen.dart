@@ -6,13 +6,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/chat_repository.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import '../services/r2_storage_service.dart';
 import '../ui/oomu_avatar.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
-import '../widgets/kakao_map_view.dart';
+import '../widgets/naver_map_view.dart';
 import 'chat/chat_modals.dart';
 import 'chat/chat_system_cards.dart';
 
@@ -347,7 +347,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
     final locBCtrl = TextEditingController();
 
     Map<String, dynamic> midResult =
-        await KakaoMapService.calculateMidpointAndRecommendNaverSpots([
+        await NaverMapService.calculateMidpointAndRecommendNaverSpots([
       locA,
       locBCtrl.text.trim(),
     ]);
@@ -483,7 +483,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                               ),
                             ),
                             onSubmitted: (val) async {
-                              final updated = await KakaoMapService
+                              final updated = await NaverMapService
                                   .calculateMidpointAndRecommendNaverSpots([
                                 locA,
                                 val.trim(),
@@ -495,7 +495,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                         const SizedBox(width: 6),
                         ElevatedButton(
                           onPressed: () async {
-                            final updated = await KakaoMapService
+                            final updated = await NaverMapService
                                 .calculateMidpointAndRecommendNaverSpots([
                               locA,
                               locBCtrl.text.trim(),
@@ -530,7 +530,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                       child: SizedBox(
                         height: 165,
                         width: double.infinity,
-                        child: KakaoMapView(
+                        child: NaverMapView(
                           locationName: midName,
                           lat: midLat,
                           lng: midLng,
@@ -1677,7 +1677,7 @@ class _OOMUChatScreenState extends State<OOMUChatScreen> {
                   width: double.infinity,
                   height: 38,
                   child: ElevatedButton.icon(
-                    onPressed: () => KakaoMapService.launchDirections(spotName),
+                    onPressed: () => NaverMapService.launchDirections(spotName),
                     icon: const Icon(Icons.map_outlined,
                         size: 16, color: OomuTokens.textPrimary),
                     label: const Text('네이버 길찾기',

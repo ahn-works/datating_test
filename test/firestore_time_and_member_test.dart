@@ -9,7 +9,7 @@ import 'package:oomu_app/screens/profile_edit_screen.dart';
 import 'package:oomu_app/screens/settings_screen.dart';
 import 'package:oomu_app/screens/user_profile_screen.dart';
 import 'package:oomu_app/services/auth_service.dart';
-import 'package:oomu_app/services/kakao_map_service.dart';
+import 'package:oomu_app/services/naver_map_service.dart';
 import 'package:oomu_app/services/meetup_application_service.dart';
 import 'package:oomu_app/services/r2_storage_service.dart';
 import 'package:oomu_app/utils/app_image.dart';
@@ -314,27 +314,27 @@ void main() {
   group('6. [2단계 P1] 거리 상한(25km), 마감 상태 라벨, UID 기반 차단 필터 검증', () {
     test('거리 계산 및 포맷팅(formatDistance)이 25km 초과 시 "거리 정보 없음"을 반환하고 25km 이내는 km/m로 포맷된다', () {
       // 500m
-      expect(KakaoMapService.formatDistance(500), '500m');
+      expect(NaverMapService.formatDistance(500), '500m');
       // 1.5km
-      expect(KakaoMapService.formatDistance(1500), '1.5km');
+      expect(NaverMapService.formatDistance(1500), '1.5km');
       // 25km 이하 경계 (24.9km)
-      expect(KakaoMapService.formatDistance(24900), '24.9km');
+      expect(NaverMapService.formatDistance(24900), '24.9km');
       // 25km 초과 (25.1km, 43.8km, 서울->여수 등)
-      expect(KakaoMapService.formatDistance(25001), '거리 정보 없음');
-      expect(KakaoMapService.formatDistance(43800), '거리 정보 없음');
+      expect(NaverMapService.formatDistance(25001), '거리 정보 없음');
+      expect(NaverMapService.formatDistance(43800), '거리 정보 없음');
       // 음수 또는 NaN
-      expect(KakaoMapService.formatDistance(-10), '거리 정보 없음');
-      expect(KakaoMapService.formatDistance(double.nan), '거리 정보 없음');
+      expect(NaverMapService.formatDistance(-10), '거리 정보 없음');
+      expect(NaverMapService.formatDistance(double.nan), '거리 정보 없음');
 
       // 실측 좌표 계산: 서울역 -> 강남역 약 8.5km (25km 이내)
-      final mClose = KakaoMapService.calculateDistanceInMeters(37.556, 126.972, 37.498, 127.028);
+      final mClose = NaverMapService.calculateDistanceInMeters(37.556, 126.972, 37.498, 127.028);
       expect(mClose < 25000, isTrue);
-      expect(KakaoMapService.formatDistance(mClose).contains('km'), isTrue);
+      expect(NaverMapService.formatDistance(mClose).contains('km'), isTrue);
 
       // 서울역 -> 여수 약 310km (25km 초과)
-      final mFar = KakaoMapService.calculateDistanceInMeters(37.556, 126.972, 34.760, 127.662);
+      final mFar = NaverMapService.calculateDistanceInMeters(37.556, 126.972, 34.760, 127.662);
       expect(mFar > 25000, isTrue);
-      expect(KakaoMapService.formatDistance(mFar), '거리 정보 없음');
+      expect(NaverMapService.formatDistance(mFar), '거리 정보 없음');
     });
 
     test('MeetupMemberHelper.isClosed 및 formatStatusLabel이 정원 초과 또는 isClosed 문서에서 마감을 올바르게 판정한다', () {

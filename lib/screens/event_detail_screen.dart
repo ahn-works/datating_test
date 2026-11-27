@@ -3,7 +3,7 @@ import '../widgets/balanced_heading.dart';
 import '../utils/event_meetup_category.dart';
 import '../utils/oomu_ui_helpers.dart';
 import 'package:flutter/services.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_image.dart';
 import 'oomu_host_screen.dart';
@@ -187,7 +187,7 @@ class EventDetailScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(12))),
                               onPressed: location.isEmpty
                                   ? null
-                                  : () => KakaoMapService.launchDirections(
+                                  : () => NaverMapService.launchDirections(
                                       location),
                               icon: const Icon(Icons.directions_outlined,
                                   size: 20),
@@ -375,7 +375,7 @@ class EventDetailScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: location.isEmpty
                       ? null
-                      : () => KakaoMapService.launchDirections(location),
+                      : () => NaverMapService.launchDirections(location),
                   icon: const Icon(Icons.directions_outlined, size: 17),
                   label: const Text('길찾기'),
                   style: OutlinedButton.styleFrom(

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../services/discovery_api_service.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/oomu_ui_helpers.dart';
@@ -14,7 +14,7 @@ import 'balanced_heading.dart';
 /// - 동네모임 탭과 명확히 차별화하여 '우리 동네에만 있는 할인·이벤트·날씨 맞춤 맛집/레시피·청년지원금·트렌드'를
 ///   에이블리 스타일 원형 아이콘 카테고리 + 2열 블럭/리스트 뷰로 정돈해 보여줍니다.
 /// - 레시피/맛집 상세 모달에서는 비 오는 날 모임 개설 유도를 제거하고,
-///   상세 레시피 조리법과 동네 근처 식당 추천(카카오맵 연동)을 제공합니다.
+///   상세 레시피 조리법과 동네 근처 식당 추천(네이버 지도 연동)을 제공합니다.
 class OomuDiscoveryLifestyleHub extends StatefulWidget {
   final String currentLocation;
   final int initialCategoryIndex;
@@ -207,7 +207,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
   Future<void> _loadLiveNeighborhoodFoodSpots() async {
     final dong = _dongLabel;
     try {
-      final places = await KakaoMapService.searchKeyword(
+      final places = await NaverMapService.searchKeyword(
         '$dong 맛집',
         size: 6,
       );
@@ -222,7 +222,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
       final List<Map<String, dynamic>> mapped = [];
       for (int i = 0; i < places.length && i < 4; i++) {
         final p = places[i];
-        final distLabel = KakaoMapService.formatDistanceFromNeighborhood(
+        final distLabel = NaverMapService.formatDistanceFromNeighborhood(
           p.lat,
           p.lng,
           userLocation: widget.currentLocation,
@@ -295,7 +295,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
       widget.currentLocation.contains('화장동');
 
   // ---------------------------------------------------------------------------
-  // 동네 전용 큐레이션 데이터 (실시간 카카오 로컬 맛집 연동 + 동네별 맞춤 다이닝 폴백)
+  // 동네 전용 큐레이션 데이터 (실시간 네이버 지도 맛집 연동 + 동네별 맞춤 다이닝 폴백)
   // ---------------------------------------------------------------------------
   List<Map<String, dynamic>> _getLocalFoodSpots() {
     if (_liveLocalFoodSpots.isNotEmpty) {
@@ -1638,7 +1638,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                         ),
                         onPressed: () {
                           Navigator.pop(ctx);
-                          KakaoMapService.launchMap(
+                          NaverMapService.launchMap(
                               '${widget.currentLocation} 인기 맛집');
                         },
                         icon: const Icon(Icons.place_outlined,
@@ -1830,7 +1830,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   ),
                   onPressed: () {
                     Navigator.pop(ctx);
-                    KakaoMapService.launchMap(
+                    NaverMapService.launchMap(
                         (spot['placeName'] ?? spot['title'] ?? _dongLabel)
                             .toString());
                   },

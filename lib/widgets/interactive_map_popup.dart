@@ -1,18 +1,18 @@
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'kakao_map_view.dart';
+import 'naver_map_view.dart';
 
 class InteractiveMapPopup extends StatefulWidget {
   final LatLng initialCenter;
   final String locationName;
-  final String kakaoLink;
+  final String mapLink;
 
   const InteractiveMapPopup({
     super.key,
     required this.initialCenter,
     required this.locationName,
-    required this.kakaoLink,
+    required this.mapLink,
   });
 
   @override
@@ -29,7 +29,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
   }
 
   Future<void> _calcDistance() async {
-    final text = await KakaoMapService.getDistanceTextFromCurrent(
+    final text = await NaverMapService.getDistanceTextFromCurrent(
       widget.initialCenter.latitude,
       widget.initialCenter.longitude,
     );
@@ -49,9 +49,9 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
         height: MediaQuery.of(context).size.height * 0.72,
         child: Stack(
           children: [
-            // 1. Genuine Kakao Map View (Official Kakao Maps SDK & Tiles)
+            // 1. 네이버 지도 뷰
             Positioned.fill(
-              child: KakaoMapView(
+              child: NaverMapView(
                 lat: widget.initialCenter.latitude,
                 lng: widget.initialCenter.longitude,
                 locationName: widget.locationName,
@@ -143,7 +143,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => KakaoMapService.launchNaverMap(
+                      onPressed: () => NaverMapService.launchNaverMap(
                         widget.locationName,
                         lat: widget.initialCenter.latitude,
                         lng: widget.initialCenter.longitude,
@@ -166,7 +166,7 @@ class _InteractiveMapPopupState extends State<InteractiveMapPopup> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => KakaoMapService.launchNaverDirections(
+                      onPressed: () => NaverMapService.launchNaverDirections(
                         widget.locationName,
                         lat: widget.initialCenter.latitude,
                         lng: widget.initialCenter.longitude,

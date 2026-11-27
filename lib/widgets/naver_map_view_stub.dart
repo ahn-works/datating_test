@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 
-Widget buildKakaoMapWidget({
+Widget buildNaverMapWidget({
   required double lat,
   required double lng,
   required String locationName,
@@ -99,7 +99,7 @@ Widget buildKakaoMapWidget({
                         ),
                       ),
                       onPressed: () =>
-                          KakaoMapService.launchNaverMap(locationName, lat: lat, lng: lng),
+                          NaverMapService.launchNaverMap(locationName, lat: lat, lng: lng),
                       icon: const Icon(Icons.my_location_rounded, size: 16),
                       label: const Text(
                         '네이버 지도 보기',
@@ -120,7 +120,7 @@ Widget buildKakaoMapWidget({
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () => KakaoMapService.launchDirections(
+                      onPressed: () => NaverMapService.launchDirections(
                           locationName,
                           lat: lat,
                           lng: lng),

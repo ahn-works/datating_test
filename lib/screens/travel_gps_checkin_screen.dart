@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import '../ui/oomu_tokens.dart';
-import '../widgets/kakao_map_view.dart';
+import '../widgets/naver_map_view.dart';
 import 'travel_room_screen.dart';
 
 class TravelGpsCheckinScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          '목포역 광장 카카오 GPS 체크인',
+          '목포역 광장 GPS 체크인',
           style: TextStyle(
               color: Color(0xFF111111),
               fontWeight: FontWeight.bold,
@@ -40,9 +40,9 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
       ),
       body: Stack(
         children: [
-          // 1. 카카오 공식 지도 뷰
+          // 1. 네이버 지도 뷰
           const Positioned.fill(
-            child: KakaoMapView(
+            child: NaverMapView(
               lat: mokpoLat,
               lng: mokpoLng,
               locationName: placeName,
@@ -58,7 +58,7 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
               backgroundColor: OomuTokens.naverGreen,
               foregroundColor: OomuTokens.surface,
               elevation: 4,
-              onPressed: () => KakaoMapService.launchNaverDirections(placeName,
+              onPressed: () => NaverMapService.launchNaverDirections(placeName,
                   lat: mokpoLat, lng: mokpoLng),
               icon: const Icon(Icons.directions_rounded, size: 20),
               label: const Text('네이버 길찾기',
@@ -107,7 +107,7 @@ class _TravelGpsCheckinScreenState extends State<TravelGpsCheckinScreen> {
                                   color: Color(0xFF10B981), size: 16),
                               SizedBox(width: 6),
                               Text(
-                                '카카오 위치 인증 완료 (오차 10m 이내)',
+                                '위치 인증 완료 (오차 10m 이내)',
                                 style: TextStyle(
                                   color: Color(0xFF047857),
                                   fontWeight: FontWeight.bold,

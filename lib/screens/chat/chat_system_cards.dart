@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../services/kakao_map_service.dart';
+import '../../services/naver_map_service.dart';
 import '../../ui/oomu_avatar.dart';
 import '../../ui/oomu_tokens.dart';
 import '../../utils/app_image.dart';
@@ -634,7 +634,7 @@ class _InteractivePollCardState extends State<InteractivePollCard> {
 }
 
 // ===========================================================================
-// 동적 컴포넌트: 추천 핫플 장소 카드 (카카오 길찾기 연동)
+// 동적 컴포넌트: 추천 핫플 장소 카드 (네이버 길찾기 연동)
 // ===========================================================================
 class InteractiveHotspotCard extends StatelessWidget {
   final Map<String, dynamic> msg;
@@ -653,9 +653,9 @@ class InteractiveHotspotCard extends StatelessWidget {
     final double? lat = (msg['lat'] as num?)?.toDouble();
     final double? lng = (msg['lng'] as num?)?.toDouble();
 
-    final String kakaoMapUrl = (lat != null && lng != null)
-        ? KakaoMapService.getKakaoMapPinUrl(name, lat, lng)
-        : KakaoMapService.getKakaoSearchUrl('$name $address');
+    final String naverPinUrl = (lat != null && lng != null)
+        ? NaverMapService.getNaverMapPinUrl(name, lat, lng)
+        : NaverMapService.getNaverMapSearchUrl('$name $address');
 
     final senderName = (msg['sender'] ?? '참여자').toString();
     final senderAvatar =
@@ -759,10 +759,10 @@ class InteractiveHotspotCard extends StatelessWidget {
                 ),
                 const SizedBox(height: OomuTokens.s12),
 
-                // 중립 Secondary 카카오 길찾기 버튼
+                // 중립 Secondary 네이버 길찾기 버튼
                 GestureDetector(
                   onTap: () async {
-                    final Uri url = Uri.parse(kakaoMapUrl);
+                    final Uri url = Uri.parse(naverPinUrl);
                     if (!await launchUrl(url)) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(

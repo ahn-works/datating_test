@@ -40,7 +40,7 @@
 
 | 데이터 종류 | 보관 위치 | 로드 시점 및 보안 방식 |
 | :--- | :--- | :--- |
-| **API 키 (Kakao, Solapi)** | Firestore `config/api_keys` | 앱 구동 시 `SolapiSmsService.initialize()`, `KakaoMapService.ensureKeysLoaded()` 비동기 조회 |
+| **API 키 (Kakao, Solapi)** | Firestore `config/api_keys` | 앱 구동 시 `SolapiSmsService.initialize()`, `NaverMapService.ensureKeysLoaded()` 비동기 조회 |
 | **Cloudflare R2 자격증명** | Firestore `config/r2_storage` | 앱 기동 시 `r2Storage.initFromFirestore()` 1회 안전 로드 |
 | **일반 모임 / 유저 / 채팅** | Firestore 일반 컬렉션 | 보안 규칙(`firestore.rules`)을 통한 읽기/쓰기 권한 제어 |
 | **사용자 사진 / 미디어** | Cloudflare R2 버킷 (`oomu-spot`) | AWS SigV4 HMAC-SHA256 Presigned URL 기반 안전 업로드 |

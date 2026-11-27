@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import '../services/meetup_application_service.dart';
 import '../utils/meetup_member_helper.dart';
 import '../ui/oomu_avatar.dart';
@@ -24,7 +24,7 @@ import '../widgets/balanced_text.dart';
 import '../widgets/balanced_heading.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/interactive_map_popup.dart';
-import '../widgets/kakao_map_view.dart';
+import '../widgets/naver_map_view.dart';
 import '../widgets/meetup_participation_action.dart';
 import 'user_profile_screen.dart';
 
@@ -49,7 +49,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
 
   Map<String, dynamic>? get _effectiveMeetup => _fetchedMeetup ?? widget.meetup;
 
-  // 카카오 지도 연동 좌표 및 실시간 거리
+  // 네이버 지도 좌표 및 실시간 거리
   double? _targetLat;
   double? _targetLng;
   bool _isResolvingLocation = true;
@@ -223,7 +223,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           _distanceText = '거리 계산 중...';
         });
       }
-      final dist = await KakaoMapService.getDistanceTextFromCurrent(
+      final dist = await NaverMapService.getDistanceTextFromCurrent(
           saved.lat, saved.lng);
       if (!mounted || reqId != _locationReqId) return;
       setState(() {
@@ -255,7 +255,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     }
 
     try {
-      final verified = await KakaoMapService.resolveVerifiedPlace(loc);
+      final verified = await NaverMapService.resolveVerifiedPlace(loc);
       if (!mounted || reqId != _locationReqId) return;
 
       final finalLat = verified?.hasValidCoords == true ? verified!.lat : null;
@@ -267,7 +267,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
           _targetLng = finalLng;
           _isResolvingLocation = false;
         });
-        final dist = await KakaoMapService.getDistanceTextFromCurrent(
+        final dist = await NaverMapService.getDistanceTextFromCurrent(
             finalLat, finalLng);
         if (!mounted || reqId != _locationReqId) return;
         setState(() {
@@ -298,7 +298,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
   Future<void> _askLocationThenRefresh(double lat, double lng, int reqId) async {
     final granted = await LocationHelper.requestPermissionIfUndecided();
     if (!granted || !mounted || reqId != _locationReqId) return;
-    final dist = await KakaoMapService.getDistanceTextFromCurrent(lat, lng);
+    final dist = await NaverMapService.getDistanceTextFromCurrent(lat, lng);
     if (!mounted || reqId != _locationReqId) return;
     setState(() {
       _distanceText = dist;
@@ -1569,8 +1569,8 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 width: double.infinity,
                 child: Stack(
                   children: [
-                    KakaoMapView(
-                      key: ValueKey('kakao-detail-$_targetLat-$_targetLng'),
+                    NaverMapView(
+                      key: ValueKey('naver-detail-$_targetLat-$_targetLng'),
                       lat: _targetLat!,
                       lng: _targetLng!,
                       locationName: locName,
@@ -1588,7 +1588,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                             builder: (_) => InteractiveMapPopup(
                               initialCenter: LatLng(_targetLat!, _targetLng!),
                               locationName: locName,
-                              kakaoLink: KakaoMapService.getKakaoRouteUrl(
+                              mapLink: NaverMapService.getNaverMapRouteUrl(
                                   locName, _targetLat!, _targetLng!),
                             ),
                           );
@@ -1692,7 +1692,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         label: const Text('네이버 지도',
                             style: TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold)),
-                        onPressed: () => KakaoMapService.launchNaverMap(
+                        onPressed: () => NaverMapService.launchNaverMap(
                           locName,
                           lat: _targetLat,
                           lng: _targetLng,
@@ -1714,7 +1714,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         label: const Text('네이버 길찾기',
                             style: TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold)),
-                        onPressed: () => KakaoMapService.launchNaverDirections(
+                        onPressed: () => NaverMapService.launchNaverDirections(
                             locName,
                             lat: _targetLat,
                             lng: _targetLng),

@@ -1,8 +1,8 @@
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/global_data.dart';
 import '../utils/location_helper.dart';
-import 'kakao_map_view.dart';
+import 'naver_map_view.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -90,7 +90,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
   Future<void> _searchOnlineNaver(String query) async {
     final generation = ++_searchGeneration;
     try {
-      final places = await KakaoMapService.searchKeyword(
+      final places = await NaverMapService.searchKeyword(
         query,
         lat: _selectedLatLng.latitude,
         lng: _selectedLatLng.longitude,
@@ -170,7 +170,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
 
       final newLatLng = LatLng(position.latitude, position.longitude);
       _selectedLatLng = newLatLng;
-      final region = await KakaoMapService.coordToRegionName(
+      final region = await NaverMapService.coordToRegionName(
           position.latitude, position.longitude);
       if (!mounted) return;
       if (region != null) {
@@ -358,7 +358,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
               borderRadius: BorderRadius.circular(16),
               child: _selectedResult == null
                   ? const Center(child: Text('네이버에서 장소를 검색해 선택해 주세요.'))
-                  : KakaoMapView(
+                  : NaverMapView(
                       lat: _selectedLatLng.latitude,
                       lng: _selectedLatLng.longitude,
                       locationName: _selectedPlaceName,
@@ -441,7 +441,7 @@ class _PlaceSearchMapModalState extends State<PlaceSearchMapModal> {
                     ),
                   ),
                   subtitle: Text(
-                    '${item.address} · ${KakaoMapService.formatDistanceFromNeighborhood(item.latLng.latitude, item.latLng.longitude)}',
+                    '${item.address} · ${NaverMapService.formatDistanceFromNeighborhood(item.latLng.latitude, item.latLng.longitude)}',
                     style: const TextStyle(
                         fontSize: OomuTokens.fs12,
                         color: OomuTokens.textSecondary),

@@ -7,9 +7,9 @@ import 'dart:html' as html;
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 
-Widget buildKakaoMapWidget({
+Widget buildNaverMapWidget({
   required double lat,
   required double lng,
   required String locationName,
@@ -21,7 +21,7 @@ Widget buildKakaoMapWidget({
   int zoomLevel = 3,
   void Function(String markerId, bool shouldOpenDetail)? onMarkerTap,
 }) {
-  return _KakaoMapWebView(
+  return _NaverMapWebView(
     lat: lat,
     lng: lng,
     locationName: locationName,
@@ -38,7 +38,7 @@ Widget buildKakaoMapWidget({
 /// 이미 등록된 viewType 재등록(ArgumentError)을 막기 위한 등록 이력
 final Set<String> _registeredViewTypes = <String>{};
 
-class _KakaoMapWebView extends StatefulWidget {
+class _NaverMapWebView extends StatefulWidget {
   final double lat;
   final double lng;
   final String locationName;
@@ -50,7 +50,7 @@ class _KakaoMapWebView extends StatefulWidget {
   final int zoomLevel;
   final void Function(String markerId, bool shouldOpenDetail)? onMarkerTap;
 
-  const _KakaoMapWebView({
+  const _NaverMapWebView({
     required this.lat,
     required this.lng,
     required this.locationName,
@@ -64,18 +64,18 @@ class _KakaoMapWebView extends StatefulWidget {
   });
 
   @override
-  State<_KakaoMapWebView> createState() => _KakaoMapWebViewState();
+  State<_NaverMapWebView> createState() => _NaverMapWebViewState();
 }
 
-class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
+class _NaverMapWebViewState extends State<_NaverMapWebView> {
   StreamSubscription<html.MessageEvent>? _msgSub;
-  bool _keysReady = KakaoMapService.ncpKeyId.isNotEmpty ||
-      KakaoMapService.naverClientId.isNotEmpty;
+  bool _keysReady = NaverMapService.ncpKeyId.isNotEmpty ||
+      NaverMapService.naverClientId.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
-    KakaoMapService.ensureKeysLoaded().then((_) {
+    NaverMapService.ensureKeysLoaded().then((_) {
       if (mounted) {
         setState(() {
           _keysReady = true;
@@ -114,10 +114,10 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
     final markersCount = widget.markers?.length ?? 0;
     final selId = (widget.selectedMarkerId ?? '')
         .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '');
-    final naverId = KakaoMapService.ncpKeyId.isNotEmpty
-        ? KakaoMapService.ncpKeyId
-        : (KakaoMapService.naverClientId.isNotEmpty
-            ? KakaoMapService.naverClientId
+    final naverId = NaverMapService.ncpKeyId.isNotEmpty
+        ? NaverMapService.ncpKeyId
+        : (NaverMapService.naverClientId.isNotEmpty
+            ? NaverMapService.naverClientId
             : 'p91m5d3qax');
     final viewType =
         'naver-map-v3-${widget.lat.toStringAsFixed(4)}-${widget.lng.toStringAsFixed(4)}-$cleanName$actionSuffix-m$markersCount-s$selId-z${widget.zoomLevel}-k$naverId-${_keysReady ? 1 : 0}';
@@ -145,14 +145,14 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         : '';
 
     final naverQuery = naverId.isNotEmpty
-        ? '&naverClientId=${Uri.encodeComponent(naverId)}&ncpClientId=${Uri.encodeComponent(KakaoMapService.naverClientId)}'
+        ? '&naverClientId=${Uri.encodeComponent(naverId)}&ncpClientId=${Uri.encodeComponent(NaverMapService.naverClientId)}'
         : '';
 
     if (_registeredViewTypes.add(viewType)) {
       ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
         final iframe = html.IFrameElement()
           ..src =
-              'kakao_map.html?lat=${widget.lat}&lng=${widget.lng}&level=${widget.zoomLevel}&name=${Uri.encodeComponent(widget.locationName)}${widget.hideActions ? '&hideActions=true' : ''}$naverQuery$selectedQuery$markersQuery'
+              'naver_map.html?lat=${widget.lat}&lng=${widget.lng}&level=${widget.zoomLevel}&name=${Uri.encodeComponent(widget.locationName)}${widget.hideActions ? '&hideActions=true' : ''}$naverQuery$selectedQuery$markersQuery'
           ..style.border = 'none'
           ..style.width = '100%'
           ..style.height = '100%'

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../services/kakao_map_service.dart';
-import '../widgets/kakao_map_view.dart';
+import '../services/naver_map_service.dart';
+import '../widgets/naver_map_view.dart';
 import 'package:flutter/material.dart';
 import '../data/oomu_categories.dart';
 import '../utils/app_image.dart';
@@ -91,7 +91,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
       _selectedPlaceLng = widget.initialLng;
       _selectedPlaceResolvedName = widget.initialLocation?.trim();
       _selectedPlaceDistanceLabel =
-          KakaoMapService.formatDistanceFromNeighborhood(
+          NaverMapService.formatDistanceFromNeighborhood(
         widget.initialLat!,
         widget.initialLng!,
       );
@@ -117,7 +117,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
     final clean = query.trim();
     if (clean.isEmpty) return;
     try {
-      final resolved = await KakaoMapService.resolveVerifiedPlace(clean);
+      final resolved = await NaverMapService.resolveVerifiedPlace(clean);
       if (resolved != null &&
           mounted &&
           _locationController.text.trim() == clean) {
@@ -129,7 +129,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
               ? resolved.roadAddress
               : resolved.address;
           _selectedPlaceDistanceLabel =
-              KakaoMapService.formatDistanceFromNeighborhood(
+              NaverMapService.formatDistanceFromNeighborhood(
             resolved.lat,
             resolved.lng,
           );
@@ -549,7 +549,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
           saveLng == null ||
           _selectedPlaceResolvedName != locText) {
         try {
-          final verified = await KakaoMapService.resolveVerifiedPlace(locText);
+          final verified = await NaverMapService.resolveVerifiedPlace(locText);
           if (verified != null) {
             saveLat = verified.lat;
             saveLng = verified.lng;
@@ -1280,7 +1280,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
         _selectedPlaceResolvedName = result.name;
         _selectedPlaceAddress = result.address;
         _selectedPlaceDistanceLabel =
-            KakaoMapService.formatDistanceFromNeighborhood(lat, lng);
+            NaverMapService.formatDistanceFromNeighborhood(lat, lng);
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("'${result.name}' 네이버 지도 위치가 지정되었습니다."),
@@ -1434,7 +1434,7 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                     child: SizedBox(
                       height: 175,
                       width: double.infinity,
-                      child: KakaoMapView(
+                      child: NaverMapView(
                         locationName: _locationController.text.trim().isNotEmpty
                             ? _locationController.text.trim()
                             : (globalData.userLocation.value.isNotEmpty

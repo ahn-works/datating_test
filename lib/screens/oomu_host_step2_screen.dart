@@ -1,4 +1,4 @@
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import 'package:flutter/material.dart';
 import 'oomu_host_step3_screen.dart';
 
@@ -106,7 +106,7 @@ class _OOMUHostStep2ScreenState extends State<OOMUHostStep2Screen> {
 
       // 네이버에서 좌표가 확인된 장소만 경유지로 선택할 수 있다.
       try {
-        final places = await KakaoMapService.searchKeyword(clean, size: 10);
+        final places = await NaverMapService.searchKeyword(clean, size: 10);
         for (var p in places) {
           results.add({
             'place_name': p.name,

@@ -5,8 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../utils/global_data.dart';
 import '../utils/location_helper.dart';
 
-/// 카카오맵 장소 데이터 모델
-class KakaoPlace {
+/// 지도 장소 데이터 모델
+class NaverPlace {
   final String id;
   final String name;
   final String address;
@@ -18,7 +18,7 @@ class KakaoPlace {
   final String phone;
   final String distance;
 
-  const KakaoPlace({
+  const NaverPlace({
     required this.id,
     required this.name,
     required this.address,
@@ -39,10 +39,10 @@ class KakaoPlace {
       lng > 120.0 &&
       lng < 135.0;
 
-  factory KakaoPlace.fromKakaoJson(Map<String, dynamic> json) {
+  factory NaverPlace.fromJson(Map<String, dynamic> json) {
     final road = json['road_address_name']?.toString() ?? '';
     final jibun = json['address_name']?.toString() ?? '';
-    return KakaoPlace(
+    return NaverPlace(
       id: json['id']?.toString() ?? '',
       name: json['place_name']?.toString() ?? '',
       address: jibun.isNotEmpty ? jibun : road,
@@ -60,22 +60,14 @@ class KakaoPlace {
   }
 }
 
-/// 카카오맵 & 카카오 로컬 REST API 통합 서비스 (Single Source of Truth)
-class KakaoMapService {
-  /// 카카오 REST API 키 (Firestore config/api_keys 런타임 로드)
-  static String _restApiKey = '';
-
-  /// 카카오 JavaScript 키 (웹/인앱 지도 렌더링용)
-  static String _jsApiKey = '';
-
+/// 네이버 지도 통합 서비스 (Single Source of Truth). 카카오는 사용하지 않는다.
+class NaverMapService {
   /// 네이버 지도 Client ID (웹/인앱 1순위 지도 렌더링용)
   static const String defaultNaverClientId = 'p91m5d3qax';
   static String _naverClientId = defaultNaverClientId;
   static String _ncpKeyId = defaultNaverClientId;
   static bool _keysLoaded = true;
 
-  static String get kakaoRestApiKey => _restApiKey;
-  static String get kakaoJsApiKey => _jsApiKey;
   static String get naverClientId => _naverClientId;
   static String get ncpKeyId => _ncpKeyId;
 
@@ -91,7 +83,7 @@ class KakaoMapService {
       try {
         final doc = await FirebaseFirestore.instance
             .collection('app_config')
-            .doc('kakao')
+            .doc('kakao') // 기존 DB 문서 이름(네이버 키 보관). 문서 이름 변경은 DB 작업이라 유지
             .get()
             .timeout(const Duration(seconds: 3));
         if (doc.exists && doc.data() != null) {
@@ -112,14 +104,14 @@ class KakaoMapService {
     _keysLoaded = _naverClientId.isNotEmpty;
   }
 
-  static List<KakaoPlace> _crawledNaverPlaces = const [];
+  static List<NaverPlace> _crawledNaverPlaces = const [];
   static bool _crawledLoaded = false;
 
   /// 네이버 지도 지오코딩 기반 전국 주요 동네 실제 검증 핫플/맛집/카페/공원 카탈로그
   /// (GitHub Actions 주간 네이버 크롤러가 Firestore app_config/naver_places에 동기화한 데이터를 우선 병합)
-  static const List<KakaoPlace> _naverVerifiedCatalog = [
+  static const List<NaverPlace> _naverVerifiedCatalog = [
     // 서울 영등포구 신길동 · 여의도 · 문래 · 당산
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_cafe_1',
       name: '스타벅스 영등포신길점',
       address: '서울 영등포구 신길동 252-9',
@@ -130,7 +122,7 @@ class KakaoMapService {
       placeUrl: 'https://map.naver.com/p/search/스타벅스%20영등포신길점',
       phone: '1522-3232',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_cafe_2',
       name: '스타벅스 신길역점',
       address: '서울 영등포구 신길동 115-10',
@@ -141,7 +133,7 @@ class KakaoMapService {
       placeUrl: 'https://map.naver.com/p/search/스타벅스%20신길역점',
       phone: '1522-3232',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_food_1',
       name: '신길동 화덕피자 & 내추럴와인 비스트로',
       address: '서울 영등포구 신길동 184-2',
@@ -151,7 +143,7 @@ class KakaoMapService {
       lng: 126.9142,
       placeUrl: 'https://map.naver.com/p/search/신길동%20와인바',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_food_2',
       name: '신길역 수제버거 & 크래프트비어 탭하우스',
       address: '서울 영등포구 신길동 95-4',
@@ -161,7 +153,7 @@ class KakaoMapService {
       lng: 126.9184,
       placeUrl: 'https://map.naver.com/p/search/신길역%20수제버거',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_food_3',
       name: '신길동 숙성연어 & 하이볼 심야식당',
       address: '서울 영등포구 신길동 215-2',
@@ -171,7 +163,7 @@ class KakaoMapService {
       lng: 126.9136,
       placeUrl: 'https://map.naver.com/p/search/신길동%20이자카야',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_food_4',
       name: '신길역 트러플 스테이크 & 파스타 키친',
       address: '서울 영등포구 신길동 54-1',
@@ -181,7 +173,7 @@ class KakaoMapService {
       lng: 126.9195,
       placeUrl: 'https://map.naver.com/p/search/신길역%20파스타',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_park_1',
       name: '신길근린공원 산책로',
       address: '서울 영등포구 신길동 산 152-1',
@@ -191,7 +183,7 @@ class KakaoMapService {
       lng: 126.9064,
       placeUrl: 'https://map.naver.com/p/search/신길근린공원',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_singil_kono_1',
       name: '세븐스타코인노래연습장 신길점',
       address: '서울 영등포구 신길동 65-2',
@@ -201,7 +193,7 @@ class KakaoMapService {
       lng: 126.9188,
       placeUrl: 'https://map.naver.com/p/search/세븐스타코인노래연습장%20신길점',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_yeouido_mid_1',
       name: '더현대 서울 여의도 카페 & 다이닝 라운지',
       address: '서울 영등포구 여의도동 22',
@@ -211,7 +203,7 @@ class KakaoMapService {
       lng: 126.9284,
       placeUrl: 'https://map.naver.com/p/search/더현대서울',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_mullae_mid_1',
       name: '문래창작촌 로스터리 카페 & 와인바 거리',
       address: '서울 영등포구 문래동3가 58-2',
@@ -222,7 +214,7 @@ class KakaoMapService {
       placeUrl: 'https://map.naver.com/p/search/문래창작촌',
     ),
     // 전남 여수시 화장동 · 학동 · 웅천동
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_yeosu_cafe_1',
       name: '여수 화장동 선소상가 오션뷰 로스터리 카페',
       address: '전남 여수시 화장동 812-3',
@@ -232,7 +224,7 @@ class KakaoMapService {
       lng: 127.6468,
       placeUrl: 'https://map.naver.com/p/search/여수%20화장동%20카페',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_yeosu_food_1',
       name: '여수 화장동 수제버거 & 브런치 키친',
       address: '전남 여수시 화장동 820-1',
@@ -242,7 +234,7 @@ class KakaoMapService {
       lng: 127.6442,
       placeUrl: 'https://map.naver.com/p/search/여수%20화장동%20맛집',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_yeosu_food_2',
       name: '여수 학동 숙성사시미 & 하이볼 이자카야',
       address: '전남 여수시 학동 82-5',
@@ -252,7 +244,7 @@ class KakaoMapService {
       lng: 127.6622,
       placeUrl: 'https://map.naver.com/p/search/여수%20학동%20맛집',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_yeosu_park_1',
       name: '여수 화장동 성산공원 호수 산책로',
       address: '전남 여수시 화장동 759',
@@ -263,7 +255,7 @@ class KakaoMapService {
       placeUrl: 'https://map.naver.com/p/search/여수%20성산공원',
     ),
     // 서울 마포구 서교동 · 연남동 · 망원동 · 성수동 · 강남
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_mapo_cafe_1',
       name: '스타벅스 홍대입구역사거리점',
       address: '서울 마포구 동교동 165-4',
@@ -273,7 +265,7 @@ class KakaoMapService {
       lng: 126.9238,
       placeUrl: 'https://map.naver.com/p/search/스타벅스%20홍대입구역사거리점',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_yeonnam_food_1',
       name: '연남동 경의선숲길 화덕피자 & 내추럴와인바',
       address: '서울 마포구 연남동 227-15',
@@ -283,7 +275,7 @@ class KakaoMapService {
       lng: 126.9242,
       placeUrl: 'https://map.naver.com/p/search/연남동%20와인바',
     ),
-    KakaoPlace(
+    NaverPlace(
       id: 'naver_seongsu_cafe_1',
       name: '성수동 연무장길 블루보틀 & 베이커리',
       address: '서울 성동구 성수동1가 656-302',
@@ -307,7 +299,7 @@ class KakaoMapService {
       if (doc.exists && doc.data() != null) {
         final rawList = doc.data()!['places'];
         if (rawList is List) {
-          final parsed = <KakaoPlace>[];
+          final parsed = <NaverPlace>[];
           for (final item in rawList) {
             if (item is Map) {
               final m = Map<String, dynamic>.from(item);
@@ -319,7 +311,7 @@ class KakaoMapService {
                   0.0;
               final name = (m['name'] ?? '').toString().trim();
               if (name.isNotEmpty && lat > 30 && lng > 120) {
-                parsed.add(KakaoPlace(
+                parsed.add(NaverPlace(
                   id: (m['id'] ?? 'naver_${name.hashCode}').toString(),
                   name: name,
                   address: (m['address'] ?? '').toString(),
@@ -343,7 +335,7 @@ class KakaoMapService {
     } catch (_) {}
   }
 
-  static Future<List<KakaoPlace>> _fetchKeyword(
+  static Future<List<NaverPlace>> _fetchKeyword(
     String q, {
     double? lat,
     double? lng,
@@ -354,7 +346,7 @@ class KakaoMapService {
     if (clean.isEmpty) return [];
     await _ensureCrawledNaverPlacesLoaded();
 
-    final allPlaces = <KakaoPlace>[
+    final allPlaces = <NaverPlace>[
       ..._crawledNaverPlaces,
       ..._naverVerifiedCatalog,
     ];
@@ -379,8 +371,8 @@ class KakaoMapService {
     return matched.take(size).toList();
   }
 
-  /// 1. 카카오 키워드 장소 검색 API (dapi.kakao.com/v2/local/search/keyword.json) - 자연어 스마트 폴백 포함
-  static Future<List<KakaoPlace>> searchKeyword(
+  /// 1. 장소 키워드 검색 (앱 내장·크롤링 네이버 장소 목록 기준) - 자연어 스마트 폴백 포함
+  static Future<List<NaverPlace>> searchKeyword(
     String query, {
     double? lat,
     double? lng,
@@ -445,7 +437,7 @@ class KakaoMapService {
   }
 
   /// 1-1. 검색 결과와 입력 장소명의 일치성을 검증하여 확정된 장소만 반환 (불일치/실패 시 null)
-  static Future<KakaoPlace?> resolveVerifiedPlace(String query) async {
+  static Future<NaverPlace?> resolveVerifiedPlace(String query) async {
     final clean = query.trim();
     if (clean.isEmpty) return null;
 
@@ -494,7 +486,7 @@ class KakaoMapService {
   }
 
   /// 1-2. 사용자 설정 동네(예: 영등포구 신길동, 여수시 화장동) 중심 바이어스를 적용한 장소 이름 -> 좌표 & 거리 변환
-  static Future<KakaoPlace?> resolvePlaceWithNeighborhoodBias(
+  static Future<NaverPlace?> resolvePlaceWithNeighborhoodBias(
     String query, {
     String? userLocation,
   }) async {
@@ -584,14 +576,14 @@ class KakaoMapService {
   }
 
   /// 2. 네이버 지오코딩 기반 주소/동네 좌표 검색 (Firestore 주간 네이버 크롤러 + 내장 행정동 좌표 테이블)
-  static Future<List<KakaoPlace>> searchAddress(String address,
+  static Future<List<NaverPlace>> searchAddress(String address,
       {int size = 10}) async {
     final clean = address.trim();
     if (clean.isEmpty) return [];
     final coords = LocationHelper.findCoordsForLocation(clean);
     if (coords != null) {
       return [
-        KakaoPlace(
+        NaverPlace(
           id: 'naver_addr_${clean.hashCode}',
           name: clean,
           address: clean,
@@ -626,7 +618,7 @@ class KakaoMapService {
   static Future<String?> coordToRoadAddress(double lat, double lng) async {
     if (lat.isNaN || lng.isNaN || lat <= 0 || lng <= 0) return null;
     await _ensureCrawledNaverPlacesLoaded();
-    KakaoPlace? nearest;
+    NaverPlace? nearest;
     double bestDist = double.infinity;
     for (final p in [..._crawledNaverPlaces, ..._naverVerifiedCatalog]) {
       final d = calculateDistanceInMeters(lat, lng, p.lat, p.lng);
@@ -671,11 +663,11 @@ class KakaoMapService {
     final midLat = count > 0 ? sumLat / count : 37.5180;
     final midLng = count > 0 ? sumLng / count : 126.9225;
 
-    final allPlaces = <KakaoPlace>[
+    final allPlaces = <NaverPlace>[
       ..._crawledNaverPlaces,
       ..._naverVerifiedCatalog,
     ];
-    final sorted = List<KakaoPlace>.from(allPlaces)
+    final sorted = List<NaverPlace>.from(allPlaces)
       ..sort((a, b) {
         final da = calculateDistanceInMeters(midLat, midLng, a.lat, a.lng);
         final db = calculateDistanceInMeters(midLat, midLng, b.lat, b.lng);
@@ -796,17 +788,17 @@ class KakaoMapService {
   }
 
   /// 8. 지도 핀 바로가기 링크 생성 (네이버 지도 표준 연동)
-  static String getKakaoMapPinUrl(String placeName, double lat, double lng) {
+  static String getNaverMapPinUrl(String placeName, double lat, double lng) {
     return getNaverMapUrl(placeName, lat: lat, lng: lng);
   }
 
   /// 9. 길찾기 바로가기 링크 생성 (네이버 지도 길찾기 표준 연동)
-  static String getKakaoRouteUrl(String placeName, double lat, double lng) {
+  static String getNaverMapRouteUrl(String placeName, double lat, double lng) {
     return getNaverRouteUrl(placeName, lat: lat, lng: lng);
   }
 
   /// 10. 키워드 검색 바로가기 링크 생성 (네이버 지도 검색 표준 연동)
-  static String getKakaoSearchUrl(String keyword) {
+  static String getNaverMapSearchUrl(String keyword) {
     return getNaverMapUrl(keyword);
   }
 

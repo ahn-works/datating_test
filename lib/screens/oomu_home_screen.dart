@@ -10,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import '../utils/oomu_ui_helpers.dart';
-import '../services/kakao_map_service.dart';
+import '../services/naver_map_service.dart';
 import '../services/regional_bot_meetup_service.dart';
 import 'chat_screen.dart';
 import 'event_detail_screen.dart';
@@ -846,13 +846,13 @@ class _OOMUHomeScreenState extends State<OOMUHomeScreen> {
     final position = _devicePosition;
     final coords = OomuUiHelpers.extractValidCoords(meetup) ?? resolvedCoords;
     if (position == null || coords == null) return null;
-    final meters = KakaoMapService.calculateDistanceInMeters(
+    final meters = NaverMapService.calculateDistanceInMeters(
       position.latitude,
       position.longitude,
       coords.lat,
       coords.lng,
     );
-    return '내 위치에서 ${KakaoMapService.formatDistance(meters)}';
+    return '내 위치에서 ${NaverMapService.formatDistance(meters)}';
   }
 
   void _showAllTrendsBottomSheet(

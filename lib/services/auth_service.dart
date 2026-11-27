@@ -9,7 +9,7 @@ import '../utils/global_data.dart';
 import '../utils/image_compressor.dart';
 import '../utils/server_config.dart';
 import 'solapi_sms_service.dart';
-import 'kakao_map_service.dart';
+import 'naver_map_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -49,25 +49,20 @@ class AuthService {
   // Web Phone Auth용 세션 결과 저장
   ConfirmationResult? _webConfirmationResult;
 
-  // 카카오 앱 키 (Firestore app_config/kakao 또는 KakaoMapService 연동)
+  // 카카오 앱 키 (Firestore app_config/kakao 또는 NaverMapService 연동)
   String _kakaoRestApiKey = '';
   String _kakaoJsApiKey = '';
-  String get kakaoRestApiKey => _kakaoRestApiKey.isNotEmpty
-      ? _kakaoRestApiKey
-      : KakaoMapService.kakaoRestApiKey;
+  String get kakaoRestApiKey => _kakaoRestApiKey;
 
   /// 카카오 OAuth 인가/토큰 요청용 Client ID (Client Secret 없이 동작하는 JS 키 우선)
   String get kakaoOAuthClientId {
     if (_kakaoJsApiKey.isNotEmpty) return _kakaoJsApiKey;
-    if (KakaoMapService.kakaoJsApiKey.isNotEmpty) {
-      return KakaoMapService.kakaoJsApiKey;
-    }
     const defJs = String.fromEnvironment('KAKAO_JS_API_KEY');
     if (defJs.isNotEmpty) return defJs.trim();
     return kakaoRestApiKey;
   }
 
-  /// 카카오 공개 클라이언트 키 런타임 조회 (dart-define -> app_config/kakao -> KakaoMapService)
+  /// 카카오 공개 클라이언트 키 런타임 조회 (dart-define -> app_config/kakao -> NaverMapService)
   Future<void> loadKakaoConfig() async {
     const definedRest = String.fromEnvironment('KAKAO_REST_API_KEY');
     const definedJs = String.fromEnvironment('KAKAO_JS_API_KEY');
@@ -77,14 +72,7 @@ class AuthService {
       return;
     }
     try {
-      await KakaoMapService.ensureKeysLoaded();
-      if (KakaoMapService.kakaoRestApiKey.isNotEmpty &&
-          _kakaoRestApiKey.isEmpty) {
-        _kakaoRestApiKey = KakaoMapService.kakaoRestApiKey;
-      }
-      if (KakaoMapService.kakaoJsApiKey.isNotEmpty && _kakaoJsApiKey.isEmpty) {
-        _kakaoJsApiKey = KakaoMapService.kakaoJsApiKey;
-      }
+      await NaverMapService.ensureKeysLoaded();
       if (_kakaoRestApiKey.isNotEmpty && _kakaoJsApiKey.isNotEmpty) {
         return;
       }
