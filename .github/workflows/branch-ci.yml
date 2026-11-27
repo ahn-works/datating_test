@@ -1,0 +1,58 @@
+name: Branch CI (analyze · test · security)
+
+# 배포 없이 검사만 한다. main이 아닌 모든 브랜치와 main으로 향하는 PR에서 실행.
+# 배포는 기존 deploy.yml(main 전용)이 그대로 담당한다.
+on:
+  push:
+    branches-ignore: [ main, gh-pages ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: branch-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Flutter static analysis
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Unit & widget tests
+        run: flutter test
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Design token check
+        run: python3 scripts/check_design_tokens.py --compare
+
+      - name: Zero-secret & zero-PII scan
+        run: python3 scripts/verify_deep_security.py
+
+      - name: Firestore rules — no insecure write
+        run: |
+          if grep -E "allow\s+([^;]*(write|create|update|delete))[^;]*:\s*if\s+true" firestore.rules; then
+            echo "::error::Insecure write rule (if true) found in firestore.rules"
+            exit 1
+          fi
+          echo "[PASS] no 'if true' write rules"
