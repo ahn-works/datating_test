@@ -13,6 +13,7 @@ import '../../utils/app_image.dart';
 import '../../utils/firestore_time.dart';
 import '../../utils/global_data.dart';
 import '../../utils/oomu_ui_helpers.dart';
+import '../../widgets/balanced_text.dart';
 import '../../widgets/bouncy_tap.dart';
 import '../../widgets/balanced_heading.dart';
 import '../../widgets/ugc_action_sheets.dart';
@@ -659,8 +660,9 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
 
                   // 본문
                   const SizedBox(height: OomuTokens.spacingXs),
+                  // 미리보기 본문도 어절 단위 줄바꿈("장/미원이" 방지, 표시 전용)
                   Text(
-                    post['content'] ?? '',
+                    BalancedText.display((post['content'] ?? '').toString()),
                     style: const TextStyle(
                       fontSize: OomuTokens.fs14,
                       fontWeight: OomuTokens.weightRegular,

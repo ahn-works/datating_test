@@ -6,6 +6,7 @@ import '../services/kakao_map_service.dart';
 import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/oomu_ui_helpers.dart';
+import 'balanced_text.dart';
 import 'bouncy_tap.dart';
 import 'balanced_heading.dart';
 
@@ -513,7 +514,7 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
-                    '2040 실시간 인기 검색 트렌드',
+                    '실시간 인기 검색어', // 360px에서 잘려 짧게
                     style: TextStyle(
                       fontSize: OomuTokens.fs15,
                       fontWeight: FontWeight.w800,
@@ -1246,9 +1247,10 @@ class _OomuDiscoveryLifestyleHubState extends State<OomuDiscoveryLifestyleHub> {
                   SizedBox(
                     height: 36,
                     // 어절 경계 줄바꿈("하이/볼" 방지)
+                    // 3줄 이상이라 말줄임되는 제목도 어절 단위로 끊기게(표시 전용 연결 문자, 원문 불변)
                     child: BalancedHeading(
-                      OomuUiHelpers.formatTitle(
-                          (item['title'] ?? '').toString()),
+                      BalancedText.display(OomuUiHelpers.formatTitle(
+                          (item['title'] ?? '').toString())),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

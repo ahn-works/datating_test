@@ -19,6 +19,7 @@ import '../ui/oomu_tokens.dart';
 import '../utils/app_image.dart';
 import '../utils/global_data.dart';
 import '../utils/oomu_ui_helpers.dart';
+import '../widgets/balanced_text.dart';
 import '../widgets/balanced_heading.dart';
 import '../widgets/bouncy_tap.dart';
 import '../widgets/interactive_map_popup.dart';
@@ -1646,8 +1647,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                         size: 18, color: OomuTokens.textSecondary),
                     const SizedBox(width: 6),
                     Expanded(
+                      // 장소명 어절 단위 줄바꿈("카페거/리" 방지, 표시 전용)
                       child: Text(
-                        locName,
+                        BalancedText.display(locName),
                         style: const TextStyle(
                           fontSize: OomuTokens.fs14,
                           fontWeight: OomuTokens.w700,

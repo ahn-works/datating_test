@@ -954,7 +954,8 @@ class _OOMUHostScreenState extends State<OOMUHostScreen> {
                                   : FontWeight.w600,
                               fontSize: OomuTokens.fs12,
                             ),
-                            maxLines: 1,
+                            // '액티비티 & 스포츠'가 잘리지 않게 두 줄 허용
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
