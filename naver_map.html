@@ -26,7 +26,12 @@
           resolve(ok && !window.__naverAuthFailed);
         }
         window.__onNaverMapsLoaded = function () {
-          finish(typeof naver !== 'undefined' && !!naver.maps);
+          var loaded = typeof naver !== 'undefined' && !!naver.maps;
+          // 4.5초 대기가 끝나 대체 지도를 이미 보여 준 뒤 늦게 도착한 경우 네이버 지도로 다시 그린다.
+          if (settled && loaded && typeof window.__onNaverLateReady === 'function') {
+            window.__onNaverLateReady();
+          }
+          finish(loaded);
         };
         var s = document.createElement('script');
         s.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(id) + '&submodules=geocoder&callback=__onNaverMapsLoaded';
@@ -34,6 +39,10 @@
           setTimeout(function () {
             if (!settled && typeof naver !== 'undefined' && !!naver.maps) {
               finish(true);
+            }
+            if (settled && typeof naver !== 'undefined' && !!naver.maps &&
+                typeof window.__onNaverLateReady === 'function') {
+              window.__onNaverLateReady();
             }
           }, 350);
         };
@@ -585,7 +594,17 @@
       Promise.resolve(window.__naverReady)
         .then(function (naverOk) {
           if (naverOk && !window.__naverAuthFailed) return runNaver();
-          return showNaverUnavailable();
+          // 스크립트가 늦어 대체 지도를 먼저 보여 주되, 늦게라도 도착하면 한 번만 네이버 지도로 바꾼다.
+          window.__onNaverLateReady = function () {
+            if (window.__naverLateDone || window.__naverAuthFailed ||
+                typeof naver === 'undefined' || !naver.maps) return;
+            window.__naverLateDone = true;
+            container.innerHTML = '';
+            runNaver();
+          };
+          showNaverUnavailable();
+          if (typeof naver !== 'undefined' && !!naver.maps) window.__onNaverLateReady();
+          return;
         }, function () {
           return showNaverUnavailable();
         });
