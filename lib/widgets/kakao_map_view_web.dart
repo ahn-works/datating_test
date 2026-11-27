@@ -116,7 +116,9 @@ class _KakaoMapWebViewState extends State<_KakaoMapWebView> {
         .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '');
     final naverId = KakaoMapService.ncpKeyId.isNotEmpty
         ? KakaoMapService.ncpKeyId
-        : KakaoMapService.naverClientId;
+        : (KakaoMapService.naverClientId.isNotEmpty
+            ? KakaoMapService.naverClientId
+            : 'p91m5d3qax');
     final viewType =
         'naver-map-v3-${widget.lat.toStringAsFixed(4)}-${widget.lng.toStringAsFixed(4)}-$cleanName$actionSuffix-m$markersCount-s$selId-z${widget.zoomLevel}-k$naverId-${_keysReady ? 1 : 0}';
 

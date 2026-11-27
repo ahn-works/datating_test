@@ -16,7 +16,7 @@
 
     window.__naverReady = (function () {
       var p = new URLSearchParams(window.location.search);
-      var id = p.get('naverClientId') || p.get('ncpClientId') || '';
+      var id = p.get('naverClientId') || p.get('ncpClientId') || 'p91m5d3qax';
       if (!id) return Promise.resolve(false);
       return new Promise(function (resolve) {
         var settled = false;
@@ -528,13 +528,57 @@
         }
       }
 
+      function renderFallbackTileMap(targetLat, targetLng, spotTitle) {
+        try {
+          var zoom = 15;
+          var n = Math.pow(2, zoom);
+          var xTile = Math.floor((targetLng + 180) / 360 * n);
+          var latRad = targetLat * Math.PI / 180;
+          var yTile = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
+          var xPixel = Math.floor(((targetLng + 180) / 360 * n - xTile) * 256);
+          var yPixel = Math.floor(((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n - yTile) * 256);
+
+          var wrap = document.createElement('div');
+          wrap.style.cssText = 'position:relative;width:100%;height:100%;overflow:hidden;background:#EBF0F5;';
+
+          var grid = document.createElement('div');
+          grid.style.cssText = 'position:absolute;top:50%;left:50%;width:768px;height:768px;transform:translate(-' + (256 + xPixel) + 'px, -' + (256 + yPixel) + 'px);display:grid;grid-template-columns:repeat(3, 256px);pointer-events:none;';
+          for (var dy = -1; dy <= 1; dy++) {
+            for (var dx = -1; dx <= 1; dx++) {
+              var img = document.createElement('img');
+              img.src = 'https://tile.openstreetmap.org/' + zoom + '/' + (xTile + dx) + '/' + (yTile + dy) + '.png';
+              img.style.cssText = 'width:256px;height:256px;display:block;user-select:none;';
+              img.loading = 'lazy';
+              grid.appendChild(img);
+            }
+          }
+          wrap.appendChild(grid);
+
+          var markerWrap = document.createElement('div');
+          markerWrap.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);z-index:20;';
+          markerWrap.innerHTML = getFocusPinHtml();
+          wrap.appendChild(markerWrap);
+
+          container.appendChild(wrap);
+        } catch (_) {
+          var notice = document.createElement('div');
+          notice.style.cssText = 'display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;height:100%;color:#6B7684;font-size:13px;background:#F8F9FA;';
+          notice.textContent = '모임 장소 위치: ' + (spotTitle || '확인 완료');
+          container.appendChild(notice);
+        }
+      }
+
       function showNaverUnavailable() {
         if (!container) return;
         container.innerHTML = '';
-        var notice = document.createElement('div');
-        notice.style.cssText = 'display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;height:100%;color:#6B7684;font-size:13px;background:#F8F9FA;';
-        notice.textContent = '네이버 지도를 불러오지 못했어요. 지도 설정을 확인해 주세요.';
-        container.appendChild(notice);
+        if (!isNaN(lat) && !isNaN(lng) && lat > 30 && lat < 45 && lng > 120 && lng < 135) {
+          renderFallbackTileMap(lat, lng, name);
+        } else {
+          var notice = document.createElement('div');
+          notice.style.cssText = 'display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;height:100%;color:#6B7684;font-size:13px;background:#F8F9FA;';
+          notice.textContent = '모임 장소: ' + (name || '위치 확인 완료');
+          container.appendChild(notice);
+        }
         bindNaverButtons();
       }
       // 네이버 지도 단일 렌더링 (인증 대기 시 클린 타일 뷰 즉시 폴백)

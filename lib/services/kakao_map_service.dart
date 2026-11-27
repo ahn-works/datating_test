@@ -69,9 +69,10 @@ class KakaoMapService {
   static String _jsApiKey = '';
 
   /// 네이버 지도 Client ID (웹/인앱 1순위 지도 렌더링용)
-  static String _naverClientId = '';
-  static String _ncpKeyId = '';
-  static bool _keysLoaded = false;
+  static const String defaultNaverClientId = 'p91m5d3qax';
+  static String _naverClientId = defaultNaverClientId;
+  static String _ncpKeyId = defaultNaverClientId;
+  static bool _keysLoaded = true;
 
   static String get kakaoRestApiKey => _restApiKey;
   static String get kakaoJsApiKey => _jsApiKey;
