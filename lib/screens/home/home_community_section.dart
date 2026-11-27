@@ -820,6 +820,8 @@ class _HomeCommunitySectionState extends State<HomeCommunitySection> {
                               if (Firebase.apps.isNotEmpty && postId.isNotEmpty)
                                 StreamBuilder<
                                     QuerySnapshot<Map<String, dynamic>>>(
+                                  // 목록 순서가 바뀌어도 다른 글의 댓글 수를 잠깐 물려받지 않게 글마다 고유 키.
+                                  key: ValueKey('comment-count-$postId'),
                                   stream: FirebaseFirestore.instance
                                       .collection('community_posts')
                                       .doc(postId)
