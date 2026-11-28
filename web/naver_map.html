@@ -425,6 +425,18 @@
             mapDataControl: false
           });
 
+          // 지도 스타일 파일이 가끔 막히면 마커만 있고 바탕이 하얗게 비는 경우가 있다.
+          // 7초 안에 바탕 그림(타일)이 하나도 안 그려지면 이 지도 창만 다시 연다(최대 2회).
+          var tilesOk = false;
+          naver.maps.Event.once(naverMap, 'tilesloaded', function () { tilesOk = true; });
+          setTimeout(function () {
+            if (tilesOk || document.querySelectorAll('#map img').length > 0) return;
+            var retry = parseInt(params.get('mapRetry') || '0', 10);
+            if (retry >= 2) return;
+            params.set('mapRetry', String(retry + 1));
+            window.location.replace(window.location.pathname + '?' + params.toString());
+          }, 7000);
+
           document.getElementById('btnZoomIn').onclick = function (e) {
             e.stopPropagation();
             naverMap.setZoom(naverMap.getZoom() + 1);
