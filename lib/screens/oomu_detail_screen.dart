@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// ignore: unused_import
 import 'package:latlong2/latlong.dart';
 
 import '../services/naver_map_service.dart';
@@ -23,6 +24,7 @@ import '../utils/oomu_ui_helpers.dart';
 import '../widgets/balanced_text.dart';
 import '../widgets/balanced_heading.dart';
 import '../widgets/bouncy_tap.dart';
+// ignore: unused_import
 import '../widgets/interactive_map_popup.dart';
 import '../widgets/naver_map_view.dart';
 import '../widgets/meetup_participation_action.dart';
@@ -1577,53 +1579,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       height: 200,
                       hideActions: true,
                     ),
-                    Positioned(
-                      right: 12,
-                      top: 12,
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          showDialog(
-                            context: context,
-                            builder: (_) => InteractiveMapPopup(
-                              initialCenter: LatLng(_targetLat!, _targetLng!),
-                              locationName: locName,
-                              mapLink: NaverMapService.getNaverMapRouteUrl(
-                                  locName, _targetLat!, _targetLng!),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(OomuTokens.r24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 6,
-                              )
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.fullscreen_rounded,
-                                  size: 15, color: Colors.white),
-                              SizedBox(width: 4),
-                              Text(
-                                '전체화면 지도',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    // 전체화면 지도 버튼 삭제(대표 지시 2026-11-28, 사용 안 함)
                   ],
                 ),
               ),
@@ -1666,7 +1622,7 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                       child: Text(
                         BalancedText.display(locName),
                         style: const TextStyle(
-                          fontSize: OomuTokens.fs14,
+                          fontSize: OomuTokens.fs15,
                           fontWeight: OomuTokens.w700,
                           color: OomuTokens.textPrimary,
                           fontFamily: OomuTokens.fontFamily,
@@ -1676,22 +1632,13 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                // 네이버 지도·길찾기: 화면에서 가장 튀지 않도록 작은 중립 버튼(대표 지시 2026-11-28)
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: OomuTokens.naverGreen,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        icon: const Icon(Icons.my_location_rounded, size: 16),
-                        label: const Text('네이버 지도',
-                            style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.bold)),
+                      child: _mapLinkButton(
+                        icon: Icons.map_outlined,
+                        label: '네이버 지도',
                         onPressed: () => NaverMapService.launchNaverMap(
                           locName,
                           lat: _targetLat,
@@ -1701,19 +1648,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF191F28),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        icon: const Icon(Icons.directions_outlined, size: 16),
-                        label: const Text('네이버 길찾기',
-                            style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.bold)),
+                      child: _mapLinkButton(
+                        icon: Icons.directions_outlined,
+                        label: '길찾기',
                         onPressed: () => NaverMapService.launchNaverDirections(
                             locName,
                             lat: _targetLat,
@@ -1726,6 +1663,30 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _mapLinkButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      height: 40,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: OomuTokens.textSecondary,
+          side: const BorderSide(color: OomuTokens.border),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+        ),
+        icon: Icon(icon, size: 16),
+        label: Text(label,
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w500)),
+        onPressed: onPressed,
       ),
     );
   }

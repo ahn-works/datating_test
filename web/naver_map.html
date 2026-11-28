@@ -110,8 +110,8 @@
 
     .focus-pin-wrap {
       position: relative;
-      width: 12px;
-      height: 12px;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -121,28 +121,28 @@
 
     .focus-pin-label {
       position: absolute;
-      bottom: 16px;
+      bottom: 27px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.97);
       color: #191F28;
       border: 1px solid #FF5A5F;
-      border-radius: 10px;
-      padding: 2px 6px;
-      font-size: 9.5px;
-      font-weight: 800;
+      border-radius: 12px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
       white-space: nowrap;
       box-shadow: 0 2px 6px rgba(255, 90, 95, 0.22);
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 5px;
       z-index: 5;
       pointer-events: none;
     }
 
     .focus-pin-label-dot {
-      width: 4px;
-      height: 4px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #FF5A5F;
       display: inline-block;
@@ -153,8 +153,8 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 10px;
-      height: 10px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: rgba(255, 90, 95, 0.28);
       border: 1px solid rgba(255, 90, 95, 0.55);
@@ -164,11 +164,11 @@
 
     .focus-pin-core {
       position: relative;
-      width: 10px;
-      height: 10px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: #FF5A5F;
-      border: 1.5px solid #FFFFFF;
+      border: 2px solid #FFFFFF;
       box-shadow: 0 2px 6px rgba(255, 90, 95, 0.45), 0 1px 2px rgba(0, 0, 0, 0.18);
       display: flex;
       align-items: center;
@@ -184,14 +184,14 @@
     .focus-pin-core::after {
       content: '';
       position: absolute;
-      bottom: -2px;
+      bottom: -5px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 2px solid transparent;
-      border-right: 2px solid transparent;
-      border-top: 2px solid #FF5A5F;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #FF5A5F;
     }
 
     /* Multi-marker pill for explore view */
@@ -373,7 +373,10 @@
       // 위치 포커싱 아이콘 HTML (우무 포인트 컬러 #FF5A5F 50% 슬림 사이즈 + 장소명 라벨 칩)
       function getFocusPinHtml() {
         var safeLabel = String(name || '모임 장소').replace(/[<>&"]/g, '').trim();
-        if (safeLabel.length > 14) safeLabel = safeLabel.substring(0, 13) + '…';
+        // 이름표에는 장소 이름만(괄호 속 주소는 지도 아래 줄에 따로 표시)
+        var shortLabel = safeLabel.replace(/\s*\([^)]*\)\s*$/, '').trim();
+        if (shortLabel) safeLabel = shortLabel;
+        if (safeLabel.length > 18) safeLabel = safeLabel.substring(0, 17) + '…';
         var labelHtml = safeLabel
           ? '<div class="focus-pin-label"><span class="focus-pin-label-dot"></span><span>' + safeLabel + '</span></div>'
           : '';
@@ -381,7 +384,7 @@
           labelHtml +
           '<div class="focus-pin-pulse"></div>' +
           '<div class="focus-pin-core">' +
-          '<svg width="6" height="6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
           '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FFFFFF"/>' +
           '</svg>' +
           '</div>' +
@@ -459,8 +462,8 @@
               title: name,
               icon: {
                 content: getFocusPinHtml(),
-                size: new naver.maps.Size(12, 12),
-                anchor: new naver.maps.Point(6, 6)
+                size: new naver.maps.Size(22, 22),
+                anchor: new naver.maps.Point(11, 11)
               }
             });
             if (params.get('geocode') === 'true' && naver.maps.Service && naver.maps.Service.geocode && name) {
