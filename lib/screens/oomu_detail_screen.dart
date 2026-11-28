@@ -1632,30 +1632,28 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // 네이버 지도·길찾기: 화면에서 가장 튀지 않도록 작은 중립 버튼(대표 지시 2026-11-28)
+                // 네이버 지도·길찾기: 원래 색 유지, 크기만 줄임(대표 지시 2026-11-28)
                 Row(
                   children: [
-                    Expanded(
-                      child: _mapLinkButton(
-                        icon: Icons.map_outlined,
+                    _mapLinkButton(
+                        icon: Icons.my_location_rounded,
                         label: '네이버 지도',
+                        background: OomuTokens.naverGreen,
                         onPressed: () => NaverMapService.launchNaverMap(
                           locName,
                           lat: _targetLat,
                           lng: _targetLng,
                         ),
                       ),
-                    ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: _mapLinkButton(
+                    _mapLinkButton(
                         icon: Icons.directions_outlined,
-                        label: '길찾기',
+                        label: '네이버 길찾기',
+                        background: const Color(0xFF191F28),
                         onPressed: () => NaverMapService.launchNaverDirections(
                             locName,
                             lat: _targetLat,
                             lng: _targetLng),
-                      ),
                     ),
                   ],
                 ),
@@ -1671,21 +1669,26 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onPressed,
+    required Color background,
   }) {
+    // 색은 원래(네이버 초록·검정) 유지, 크기만 작게(대표 지시 2026-11-28)
     return SizedBox(
-      height: 40,
-      child: OutlinedButton.icon(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: OomuTokens.textSecondary,
-          side: const BorderSide(color: OomuTokens.border),
+      height: 30,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: background,
+          elevation: 0,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10)),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          minimumSize: const Size(0, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        icon: Icon(icon, size: 16),
+        icon: Icon(icon, size: 14),
         label: Text(label,
             style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w500)),
+                fontSize: 12, fontWeight: FontWeight.w600)),
         onPressed: onPressed,
       ),
     );
