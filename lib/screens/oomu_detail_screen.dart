@@ -1633,7 +1633,9 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                 ),
                 const SizedBox(height: 12),
                 // 네이버 지도·길찾기: 원래 색 유지, 크기만 줄임(대표 지시 2026-11-28)
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     _mapLinkButton(
                         icon: Icons.my_location_rounded,
@@ -1645,7 +1647,6 @@ class _OOMUDetailScreenState extends State<OOMUDetailScreen> {
                           lng: _targetLng,
                         ),
                       ),
-                    const SizedBox(width: 8),
                     _mapLinkButton(
                         icon: Icons.directions_outlined,
                         label: '네이버 길찾기',
